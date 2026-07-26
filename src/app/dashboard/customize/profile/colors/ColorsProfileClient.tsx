@@ -14,7 +14,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
   const initialUsernameColor = user?.usernameColor ?? "#ffffff";
   const initialBioColor = user?.bioColor ?? "#ffffff";
   const initialOtherColor = user?.otherColor ?? "#ffffff";
-  const initialHighlightColor = user?.highlightColor ?? "#712d9e";
+  const initialHighlightColor = user?.highlightColor ?? "#ffffff";
 
   const [openSection, setOpenSection] = useState<string | null>(null);
 
