@@ -44,7 +44,9 @@ const CDN_BASE = `https://cdn.iuno.lol/`;
 
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
-  return url.startsWith(CDN_BASE);
+  return url.startsWith(CDN_BASE) || 
+         url.startsWith("https://cdn.discordapp.com/") || 
+         url.startsWith("https://discord-decoration.art/");
 }
 
 export async function updateGeneralProfile(data: {
