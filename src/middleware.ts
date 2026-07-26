@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   // 1. Check for the secret bypass URL parameter
   const secretKey = request.nextUrl.searchParams.get('admin_access')
   
-  if (secretKey === 'unlock') {
+  if (secretKey === 'iuno123') {
     // They got the password right! Set the cookie and redirect to home.
     const response = NextResponse.redirect(new URL('/', request.url))
     
