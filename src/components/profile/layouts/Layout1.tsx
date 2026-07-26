@@ -48,6 +48,10 @@ interface Layout1Props {
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
+  highlightFont?: string;
+  highlightFontSize?: number;
+  highlightFontWeight?: number;
+  highlightLetterSpacing?: number;
   highlightColor?: string;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
@@ -186,6 +190,10 @@ const Layout1 = ({
   otherFontWeight = 400,
   otherLetterSpacing = 0,
   otherColor = "#FFFFFF",
+  highlightFont = "Inter",
+  highlightFontSize = 13,
+  highlightFontWeight = 400,
+  highlightLetterSpacing = 0,
   highlightColor,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
@@ -583,8 +591,14 @@ const Layout1 = ({
           {/* Views count badge in bottom left */}
           {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
             <div 
-              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-[14px] font-normal z-20 select-none"
-              style={{ color: highlightColor || 'rgba(255, 255, 255, 0.6)' }}
+              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
+              style={{ 
+                color: highlightColor || 'rgba(255, 255, 255, 0.6)',
+                fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
+                fontSize: `${highlightFontSize}px`,
+                fontWeight: highlightFontWeight,
+                letterSpacing: `${highlightLetterSpacing}px`,
+              }}
             >
               {viewsEnabled && (
                 <div className="relative group/tooltip flex justify-center">
@@ -592,7 +606,7 @@ const Layout1 = ({
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
                       <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                     </svg>
-                    <span className="tracking-tight">{viewsAnimationEnabled ? animatedViews : views}</span>
+                    <span>{viewsAnimationEnabled ? animatedViews : views}</span>
                   </div>
                   {showViewsTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
@@ -884,8 +898,14 @@ const Layout1 = ({
         {/* Views count badge in bottom left */}
         {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
           <div 
-            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-[14px] font-normal z-20 select-none"
-            style={{ color: highlightColor || 'rgba(255, 255, 255, 0.6)' }}
+            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
+            style={{ 
+              color: highlightColor || 'rgba(255, 255, 255, 0.6)',
+              fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
+              fontSize: `${highlightFontSize}px`,
+              fontWeight: highlightFontWeight,
+              letterSpacing: `${highlightLetterSpacing}px`,
+            }}
           >
             {viewsEnabled && (
               <div className="relative group/tooltip flex justify-center">
@@ -893,7 +913,7 @@ const Layout1 = ({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
                     <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                   </svg>
-                  <span className="tracking-tight">{viewsAnimationEnabled ? animatedViews : views}</span>
+                  <span>{viewsAnimationEnabled ? animatedViews : views}</span>
                 </div>
                 {showViewsTooltip && (
                   <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">

@@ -7,7 +7,6 @@ import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 
-export const dynamic = 'force-dynamic';
 export const revalidate = 3600; // Cache on the CDN for 1 hour (flushed instantly when user saves dashboard)
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -73,6 +72,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
+      highlightFont: users.highlightFont,
+      highlightFontSize: users.highlightFontSize,
+      highlightFontWeight: users.highlightFontWeight,
+      highlightLetterSpacing: users.highlightLetterSpacing,
       highlightColor: users.highlightColor,
     })
     .from(users)
@@ -146,6 +149,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         createdAt={user.createdAt}
         profileId={user.id}
         viewerId={viewerId}
+        highlightFont={user.highlightFont ?? undefined}
+        highlightFontSize={user.highlightFontSize ?? undefined}
+        highlightFontWeight={user.highlightFontWeight ?? undefined}
+        highlightLetterSpacing={user.highlightLetterSpacing ?? undefined}
         highlightColor={user.highlightColor ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />

@@ -6,6 +6,9 @@ import AnalyticsChart from "@/components/charts/AnalyticsChart";
 import DeviceChart from "@/components/charts/DeviceChart";
 import RecentComments from "@/components/dashboard/RecentComments";
 import RecentFeedback from "@/components/dashboard/RecentFeedback";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
+import Link from "next/link";
+
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -27,10 +30,14 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[13px] border-b border-white/4 pb-5">
-        <span className="text-white/40 tracking-tight">Dashboard</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><path d="m9 18 6-6-6-6" /></svg>
-        <span className="text-[#609fda] font-normal tracking-tight">Overview</span>
+      <div className="border-b border-white/4 pb-5 -mx-12 px-12 w-full">
+        <Breadcrumb>
+          <BreadcrumbList className="text-[13px] gap-2">
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Dashboard</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       {/* Page Title */}

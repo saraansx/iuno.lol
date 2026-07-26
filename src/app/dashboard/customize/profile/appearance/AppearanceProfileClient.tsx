@@ -25,7 +25,8 @@ type SectionKey =
   | "inner-border"
   | "name-font"
   | "bio-font"
-  | "other-font";
+  | "other-font"
+  | "highlight-font";
 
 const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Creepster", "Outfit",
@@ -90,6 +91,11 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
   const initialOtherFontWeight = user?.otherFontWeight ?? 400;
   const initialOtherLetterSpacing = user?.otherLetterSpacing ?? 0;
 
+  const initialHighlightFont = user?.highlightFont ?? "Inter";
+  const initialHighlightFontSize = user?.highlightFontSize ?? 13;
+  const initialHighlightFontWeight = user?.highlightFontWeight ?? 400;
+  const initialHighlightLetterSpacing = user?.highlightLetterSpacing ?? 0;
+
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
   const [profileBgOpacity, setProfileBgOpacity] = useState<number | "">(initialProfileBgOpacity);
   const [profileBgColor, setProfileBgColor] = useState(initialProfileBgColor);
@@ -119,6 +125,12 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
   const [otherFontSize, setOtherFontSize] = useState<number | "">(initialOtherFontSize);
   const [otherFontWeight, setOtherFontWeight] = useState<number | "">(initialOtherFontWeight);
   const [otherLetterSpacing, setOtherLetterSpacing] = useState<number | "">(initialOtherLetterSpacing);
+
+  const [highlightFont, setHighlightFont] = useState(initialHighlightFont);
+  const [isHighlightFontDropdownOpen, setIsHighlightFontDropdownOpen] = useState(false);
+  const [highlightFontSize, setHighlightFontSize] = useState<number | "">(initialHighlightFontSize);
+  const [highlightFontWeight, setHighlightFontWeight] = useState<number | "">(initialHighlightFontWeight);
+  const [highlightLetterSpacing, setHighlightLetterSpacing] = useState<number | "">(initialHighlightLetterSpacing);
 
   const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
@@ -204,6 +216,10 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
     otherFontSize !== initialOtherFontSize ||
     otherFontWeight !== initialOtherFontWeight ||
     otherLetterSpacing !== initialOtherLetterSpacing ||
+    highlightFont !== initialHighlightFont ||
+    highlightFontSize !== initialHighlightFontSize ||
+    highlightFontWeight !== initialHighlightFontWeight ||
+    highlightLetterSpacing !== initialHighlightLetterSpacing ||
     isJoinDateEnabled !== initialJoinDateEnabled ||
     joinDateFormat !== initialJoinDateFormat ||
     isViewsEnabled !== initialViewsEnabled ||
@@ -246,6 +262,10 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
     setOtherFontSize(initialOtherFontSize);
     setOtherFontWeight(initialOtherFontWeight);
     setOtherLetterSpacing(initialOtherLetterSpacing);
+    setHighlightFont(initialHighlightFont);
+    setHighlightFontSize(initialHighlightFontSize);
+    setHighlightFontWeight(initialHighlightFontWeight);
+    setHighlightLetterSpacing(initialHighlightLetterSpacing);
     setIsJoinDateEnabled(initialJoinDateEnabled);
     setJoinDateFormat(initialJoinDateFormat);
     setIsViewsEnabled(initialViewsEnabled);
@@ -1141,9 +1161,121 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                   </div>
                 </div>
               )}
+
+              {renderSectionRow(
+                {
+                  key: "highlight-font",
+                  label: "Highlight",
+                  icon: (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m9 11-6 6v3h9l3-3" />
+                      <path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" />
+                    </svg>
+                  ),
+                },
+                <div className="flex flex-col gap-4">
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsHighlightFontDropdownOpen(!isHighlightFontDropdownOpen)}
+                      className="w-full flex items-center justify-between gap-3 px-3 h-[38px] bg-[#161616] border border-white/5 rounded-xl transition-colors cursor-pointer text-left focus:outline-none"
+                    >
+                      <span className="text-[12.5px] font-medium text-white/90 px-1" style={{ fontFamily: fontVariables[highlightFont] || "var(--font-inter)" }}>Font Family</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13px] text-white/50" style={{ fontFamily: fontVariables[highlightFont] || "var(--font-inter)" }}>{highlightFont}</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${isHighlightFontDropdownOpen ? "rotate-180" : ""}`}><path d="m6 9 6 6 6-6" /></svg>
+                      </div>
+                    </button>
+                    {isHighlightFontDropdownOpen && (
+                      <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#1a1a1a] border border-white/5 rounded-xl shadow-2xl z-50 py-2 max-h-[160px] overflow-y-auto custom-scrollbar">
+                        {FONT_OPTIONS.map((font) => (
+                          <button
+                            key={font}
+                            onClick={() => {
+                              setHighlightFont(font);
+                              setIsHighlightFontDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-4 py-2 text-[13.5px] transition-colors ${highlightFont === font
+                                ? "bg-white/10 text-white font-medium"
+                                : "text-white/50 hover:bg-white/5 hover:text-white"
+                              }`}
+                            style={{ fontFamily: fontVariables[font] || "var(--font-inter)" }}
+                          >
+                            {font}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[12.5px] font-medium text-white/90">Size</label>
+                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                        <input
+                          type="number"
+                          min={10}
+                          max={64}
+                          value={highlightFontSize}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "") setHighlightFontSize("");
+                            else setHighlightFontSize(Number(val));
+                          }}
+                          onBlur={() => {
+                            if (typeof highlightFontSize === "number") {
+                              setHighlightFontSize(Math.max(10, Math.min(64, highlightFontSize)));
+                            }
+                          }}
+                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[13px] text-white/30 ml-2">px</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[12.5px] font-medium text-white/90">Weight</label>
+                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                        <input
+                          type="number"
+                          min={100}
+                          max={900}
+                          step={100}
+                          value={highlightFontWeight}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "") setHighlightFontWeight("");
+                            else setHighlightFontWeight(Number(val));
+                          }}
+                          onBlur={() => {
+                            if (typeof highlightFontWeight === "number") {
+                              setHighlightFontWeight(Math.max(100, Math.min(900, highlightFontWeight)));
+                            }
+                          }}
+                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
+                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                        <input
+                          type="number"
+                          step={0.1}
+                          value={highlightLetterSpacing}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === "") setHighlightLetterSpacing("");
+                            else setHighlightLetterSpacing(Number(val));
+                          }}
+                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                        <span className="text-[13px] text-white/30 ml-2">px</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
         </div>
 
         {/* Small half-width containers below Font */}
@@ -1237,12 +1369,14 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
         bioFontSize={bioFontSize === "" ? 15 : bioFontSize}
         bioFontWeight={bioFontWeight === "" ? 400 : bioFontWeight}
         bioLetterSpacing={bioLetterSpacing === "" ? 0 : bioLetterSpacing}
-        bioColor={user?.bioColor ?? "#ffffff"}
         otherFont={otherFont}
         otherFontSize={otherFontSize === "" ? 13 : otherFontSize}
         otherFontWeight={otherFontWeight === "" ? 400 : otherFontWeight}
         otherLetterSpacing={otherLetterSpacing === "" ? 0 : otherLetterSpacing}
-        otherColor={user?.otherColor ?? "#ffffff"}
+        highlightFont={highlightFont}
+        highlightFontSize={highlightFontSize === "" ? 13 : highlightFontSize}
+        highlightFontWeight={highlightFontWeight === "" ? 400 : highlightFontWeight}
+        highlightLetterSpacing={highlightLetterSpacing === "" ? 0 : highlightLetterSpacing}
         joinDateEnabled={isJoinDateEnabled}
         joinDateFormat={joinDateFormat}
         viewsEnabled={isViewsEnabled}
@@ -1289,6 +1423,10 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
             otherFontSize: otherFontSize === "" ? 13 : otherFontSize,
             otherFontWeight: otherFontWeight === "" ? 400 : otherFontWeight,
             otherLetterSpacing: otherLetterSpacing === "" ? 0 : otherLetterSpacing,
+            highlightFont,
+            highlightFontSize: highlightFontSize === "" ? 13 : highlightFontSize,
+            highlightFontWeight: highlightFontWeight === "" ? 400 : highlightFontWeight,
+            highlightLetterSpacing: highlightLetterSpacing === "" ? 0 : highlightLetterSpacing,
             joinDateEnabled: isJoinDateEnabled,
             joinDateFormat,
             viewsEnabled: isViewsEnabled,

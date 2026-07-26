@@ -150,6 +150,10 @@ export async function updateAppearanceProfile(data: {
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
+  highlightFont?: string;
+  highlightFontSize?: number;
+  highlightFontWeight?: number;
+  highlightLetterSpacing?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -209,6 +213,10 @@ export async function updateAppearanceProfile(data: {
   if (data.otherFontWeight !== undefined) setData.otherFontWeight = data.otherFontWeight;
   if (data.otherLetterSpacing !== undefined) setData.otherLetterSpacing = data.otherLetterSpacing;
   if (data.otherColor !== undefined) setData.otherColor = data.otherColor.slice(0, 32);
+  if (data.highlightFont !== undefined) setData.highlightFont = data.highlightFont.slice(0, 50);
+  if (data.highlightFontSize !== undefined) setData.highlightFontSize = data.highlightFontSize;
+  if (data.highlightFontWeight !== undefined) setData.highlightFontWeight = data.highlightFontWeight;
+  if (data.highlightLetterSpacing !== undefined) setData.highlightLetterSpacing = data.highlightLetterSpacing;
   if (data.joinDateEnabled !== undefined) setData.joinDateEnabled = data.joinDateEnabled;
   if (data.joinDateFormat !== undefined) setData.joinDateFormat = data.joinDateFormat.slice(0, 32);
   if (data.viewsEnabled !== undefined) setData.viewsEnabled = data.viewsEnabled;

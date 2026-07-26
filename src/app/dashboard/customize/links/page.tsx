@@ -1,4 +1,7 @@
 import { Metadata } from "next";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
+import Link from "next/link";
+
 
 export const metadata: Metadata = {
   title: "Links",
@@ -9,12 +12,24 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-8 h-full">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[13px] border-b border-white/4 pb-5 flex-wrap -mx-12 px-12 w-full">
-        <span className="text-white/40 tracking-tight">Dashboard</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><path d="m9 18 6-6-6-6"/></svg>
-        <span className="text-white/40 tracking-tight">Customize</span>
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/10"><path d="m9 18 6-6-6-6"/></svg>
-        <span className="text-[#609fda] font-normal tracking-tight">Links</span>
+      <div className="border-b border-white/4 pb-5 -mx-12 px-12 w-full">
+        <Breadcrumb>
+          <BreadcrumbList className="text-[13px] gap-2">
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard" className="text-white/40 hover:text-white tracking-tight">Dashboard</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="text-white/10" />
+            <BreadcrumbItem>
+              <BreadcrumbEllipsis className="text-white/40" />
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="text-white/10" />
+            <BreadcrumbItem>
+              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Links</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
       </div>
 
       {/* In Progress Content */}

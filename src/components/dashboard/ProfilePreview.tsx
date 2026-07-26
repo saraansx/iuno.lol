@@ -43,6 +43,10 @@ interface ProfilePreviewProps {
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
+  highlightFont?: string;
+  highlightFontSize?: number;
+  highlightFontWeight?: number;
+  highlightLetterSpacing?: number;
   highlightColor?: string;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
@@ -63,7 +67,7 @@ interface ProfilePreviewProps {
   createdAt?: string | Date;
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, decorationHue, bannerImageUrl, bannerBackgroundUrl, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightColor, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, decorationHue, bannerImageUrl, bannerBackgroundUrl, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, highlightColor, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -190,6 +194,10 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             otherFontWeight={otherFontWeight}
             otherLetterSpacing={otherLetterSpacing}
             otherColor={otherColor}
+            highlightFont={highlightFont}
+            highlightFontSize={highlightFontSize}
+            highlightFontWeight={highlightFontWeight}
+            highlightLetterSpacing={highlightLetterSpacing}
             highlightColor={highlightColor}
             joinDateEnabled={joinDateEnabled}
             joinDateFormat={joinDateFormat}
