@@ -15,9 +15,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
     }
 
-    await redis.incr(`views_pending:${profileId}`);
-    
-    await redis.sadd('profiles_with_pending_views', profileId);
+    const userAgent = request.headers.get('user-agent') || '';
+    const ua = userAgent.toLowerCase();
+    let device = 'other';
+    if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {
+      device = 'ios';
+    } else if (ua.includes('android')) {
+      device = 'android';
+    } else if (ua.includes('windows')) {
+      device = 'windows';
+    } else if (ua.includes('macintosh') || ua.includes('mac os')) {
+      device = 'mac';
+    }
+
+    const p = redis.pipeline();
+    p.hincrby(`views_pending:${profileId}`, 'total', 1);
+    p.hincrby(`views_pending:${profileId}`, device, 1);
+    p.sadd('profiles_with_pending_views', profileId);
+    await p.exec();
 
     return NextResponse.json({ success: true });
     

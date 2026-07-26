@@ -27,16 +27,48 @@ async function handler(request: Request) {
       if (isNaN(profileId)) continue;
       
       const redisKey = `views_pending:${profileId}`;
-      const viewsStr = await redis.get<string | number>(redisKey);
-      const viewsToPush = typeof viewsStr === 'number' ? viewsStr : parseInt(viewsStr || '0');
+      let data: Record<string, string | number> | null = null;
+      let legacyCount = 0;
 
-      if (viewsToPush > 0) {
+      try {
+        data = await redis.hgetall(redisKey);
+      } catch (e) {
+        const legacyVal = await redis.get<string | number>(redisKey);
+        if (legacyVal) legacyCount = typeof legacyVal === 'number' ? legacyVal : parseInt(String(legacyVal));
+      }
+
+      if (!data && legacyCount === 0) {
+        await redis.del(redisKey);
+        continue;
+      }
+
+      const total = legacyCount > 0 ? legacyCount : parseInt(String(data?.total || '0'));
+      const ios = parseInt(String(data?.ios || '0'));
+      const android = parseInt(String(data?.android || '0'));
+      const windows = parseInt(String(data?.windows || '0'));
+      const mac = parseInt(String(data?.mac || '0'));
+      const other = parseInt(String(data?.other || '0'));
+
+      if (total > 0) {
         await db.execute(sql`
           UPDATE users 
-          SET views = views + ${viewsToPush} 
+          SET views = views + ${total} 
           WHERE id = ${profileId}
         `);
-        totalFlushed += viewsToPush;
+
+        await db.execute(sql`
+          INSERT INTO profile_views (user_id, view_date, count, ios_count, android_count, windows_count, mac_count, other_count)
+          VALUES (${profileId}, UTC_DATE(), ${total}, ${ios}, ${android}, ${windows}, ${mac}, ${other})
+          ON DUPLICATE KEY UPDATE
+            count = count + ${total},
+            ios_count = ios_count + ${ios},
+            android_count = android_count + ${android},
+            windows_count = windows_count + ${windows},
+            mac_count = mac_count + ${mac},
+            other_count = other_count + ${other}
+        `);
+
+        totalFlushed += total;
       }
       
       // Completely delete their counter so it disappears from Redis
