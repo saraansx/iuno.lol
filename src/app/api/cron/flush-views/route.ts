@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { Redis } from "@upstash/redis";
+import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; 
@@ -11,7 +12,7 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-export async function GET(request: Request) {
+async function handler(request: Request) {
   try {
     const profileIds = await redis.smembers('profiles_with_pending_views');
     
@@ -55,6 +56,5 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
-  return GET(request);
-}
+export const GET = verifySignatureAppRouter(handler);
+export const POST = verifySignatureAppRouter(handler);

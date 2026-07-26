@@ -13,6 +13,7 @@
     "@aws-sdk/client-s3": "^3.1083.0",
     "@marsidev/react-turnstile": "^1.5.1",
     "@tabler/icons-react": "^3.45.0",
+    "@upstash/qstash": "^2.11.3",
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
