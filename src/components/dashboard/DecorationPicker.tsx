@@ -1,0 +1,228 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+import Image from "next/image";
+import decorations from "@/Deco.json";
+
+type Decoration = {
+  id: string;
+  name: string;
+  url: string;
+};
+
+interface DecorationPickerProps {
+  open: boolean;
+  avatarUrl?: string | null;
+  avatarShape?: "square" | "soft" | "rounded" | "circle";
+  selectedDecoration?: Decoration | null;
+  hueRotation: number;
+  onClose: () => void;
+  onSelect: (decoration: Decoration | null) => void;
+  onHueRotationChange: (value: number) => void;
+}
+
+const typedDecorations = decorations as Decoration[];
+const itemsPerPage = 8;
+
+export const decorationCount = typedDecorations.length;
+
+export default function DecorationPicker({
+  open,
+  avatarUrl,
+  avatarShape = "rounded",
+  selectedDecoration,
+  hueRotation,
+  onClose,
+  onSelect,
+  onHueRotationChange,
+}: DecorationPickerProps) {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const filteredDecorations = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return typedDecorations;
+    return typedDecorations.filter((decoration) =>
+      decoration.name.toLowerCase().includes(query) || decoration.id.toLowerCase().includes(query),
+    );
+  }, [search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredDecorations.length / itemsPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const visibleDecorations = filteredDecorations.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  if (!open) return null;
+
+  const avatarShapeClass = {
+    square: "rounded-lg",
+    soft: "rounded-[14px]",
+    rounded: "rounded-[22px]",
+    circle: "rounded-full",
+  }[avatarShape];
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-sm">
+      <div className="relative flex h-[min(600px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)]">
+        <div className="flex items-center justify-between px-5 py-4">
+          <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Decoration</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/75"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-[230px_1fr] gap-5 px-5 pb-5">
+          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
+            <p className="text-[14px] font-semibold text-white/90">Preview</p>
+            <div className="mt-5 flex justify-center">
+              <div className="relative h-24 w-24">
+                <div className={`absolute inset-0 overflow-hidden border border-white/10 bg-[#1b1b1b] shadow-inner ${avatarShapeClass}`}>
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-white">
+                      <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                {selectedDecoration && (
+                  <div className="pointer-events-none absolute -inset-2">
+                    <Image
+                      src={selectedDecoration.url}
+                      alt={selectedDecoration.name}
+                      fill
+                      unoptimized
+                      className="object-contain"
+                      style={{ filter: `hue-rotate(${hueRotation}deg)` }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-7 flex items-center justify-between">
+              <p className="text-[12px] font-semibold text-white/80">Hue rotation</p>
+              <span className="rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[11px] font-semibold text-white/65">
+                {hueRotation}°
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              value={hueRotation}
+              onChange={(event) => onHueRotationChange(Number(event.target.value))}
+              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#609fda]/50 [&::-webkit-slider-thumb]:bg-[#609fda] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(96,159,218,0.12)] [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-[#609fda]/50 [&::-moz-range-thumb]:bg-[#609fda]"
+            />
+
+            <p className="mt-4 text-[13px] text-white/45">
+              {selectedDecoration ? selectedDecoration.name : "No decoration selected"}
+            </p>
+
+            {selectedDecoration && (
+              <button
+                type="button"
+                onClick={() => onSelect(null)}
+                className="mt-4 h-9 rounded-xl border border-white/[0.07] text-[13px] font-medium text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white/75"
+              >
+                Clear decoration
+              </button>
+            )}
+          </aside>
+
+          <section className="flex min-h-0 flex-col">
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/45" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  value={search}
+                  onChange={(event) => handleSearchChange(event.target.value)}
+                  placeholder="Search decorations..."
+                  className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#609fda]/35"
+                />
+              </div>
+              <p className="w-20 text-right text-[13px] text-white/45">{filteredDecorations.length} results</p>
+            </div>
+
+            <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
+              {visibleDecorations.map((decoration) => {
+                const selected = selectedDecoration?.id === decoration.id;
+                return (
+                  <button
+                    type="button"
+                    key={decoration.id}
+                    onClick={() => onSelect(decoration)}
+                    className={`group flex flex-col rounded-[14px] border bg-[#050505] p-2.5 text-left transition-colors ${
+                      selected
+                        ? "border-[#609fda]/50 bg-[#609fda]/8"
+                        : "border-white/[0.07] hover:border-white/15 hover:bg-white/[0.025]"
+                    }`}
+                  >
+                    <div className="relative min-h-0 flex-1 w-full">
+                      <Image
+                        src={decoration.url}
+                        alt={decoration.name}
+                        fill
+                        unoptimized
+                        className="object-contain p-2 transition-transform duration-200 group-hover:scale-105"
+                        style={{ filter: selected ? `hue-rotate(${hueRotation}deg)` : "none" }}
+                      />
+                    </div>
+                    <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90">{decoration.name}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#050505] px-4 py-3">
+              <p className="text-[13px] text-white/85">Page {currentPage} / {totalPages}</p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((value) => Math.max(1, value - 1))}
+                  disabled={currentPage === 1}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/60 transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/60 transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export type { Decoration };

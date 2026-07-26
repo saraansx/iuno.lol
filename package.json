@@ -1,0 +1,52 @@
+{
+  "name": "iuno.lol",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "db:size": "node db-size.js"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1083.0",
+    "@marsidev/react-turnstile": "^1.5.1",
+    "@tabler/icons-react": "^3.45.0",
+    "@upstash/redis": "^1.38.0",
+    "bcrypt": "^6.0.0",
+    "date-fns": "^4.1.0",
+    "drizzle-orm": "^0.45.2",
+    "framer-motion": "^12.38.0",
+    "jose": "^6.2.3",
+    "mysql2": "^3.22.3",
+    "next": "16.2.1",
+    "ogl": "^1.0.11",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-dropzone": "^19.1.1",
+    "react-easy-crop": "^6.2.2",
+    "recharts": "^3.8.1",
+    "resend": "^6.12.2",
+    "sonner": "^2.0.7",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "babel-plugin-react-compiler": "1.0.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "description": "",
+  "main": "db-size.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
