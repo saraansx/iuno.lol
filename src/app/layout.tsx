@@ -4,8 +4,6 @@ import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "sonner";
 import SharedBackground from "@/components/SharedBackground";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -107,8 +105,6 @@ export default function RootLayout({
         <div className="relative z-10 flex-1 flex flex-col">
           {children}
         </div>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   );
