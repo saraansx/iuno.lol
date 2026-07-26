@@ -64,6 +64,7 @@ export const users = mysqlTable('users', {
   otherFontWeight: int('other_font_weight').default(400),
   otherLetterSpacing: float('other_letter_spacing').default(0),
   otherColor: varchar('other_color', { length: 32 }).default('#FFFFFF'),
+  highlightColor: varchar('highlight_color', { length: 32 }).default('#712d9e'),
   joinDateEnabled: boolean('join_date_enabled').default(false),
   joinDateFormat: varchar('join_date_format', { length: 32 }).default('Absolute (July 14, 2026)'),
   viewsEnabled: boolean('views_enabled').default(true),

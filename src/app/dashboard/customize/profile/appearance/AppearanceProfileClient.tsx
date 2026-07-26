@@ -1258,6 +1258,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
         showJoinDateTooltip={isJoinDateTooltipEnabled}
         showViewsTooltip={isViewsTooltipEnabled}
         createdAt={user?.createdAt}
+        highlightColor={user?.highlightColor ?? undefined}
       />
 
       <SaveBar

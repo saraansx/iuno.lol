@@ -91,7 +91,7 @@ export default function RecentFeedback() {
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {data.map((item, i) => {
+            {data.map((item) => {
               const otherUser = activeTab === "received" ? item.giver : item.receiver;
               return (
                 <div key={item.id} className="p-3 flex items-center gap-3 transition-colors bg-[#141414] hover:bg-[#1a1a1a] border border-white/5 rounded-[20px]">

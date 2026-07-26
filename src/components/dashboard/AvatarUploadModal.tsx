@@ -142,7 +142,7 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
           } else {
             setErrorMsg(data.error || "Upload failed");
           }
-        } catch (err) {
+        } catch {
           setErrorMsg("Failed to parse response from server");
         }
       };

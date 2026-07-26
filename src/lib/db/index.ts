@@ -29,4 +29,3 @@ if (process.env.NODE_ENV !== "production") globalForDb.pool = poolConnection;
 export const db = drizzle(poolConnection, { schema, mode: 'default' });
 
 export { schema }
-export type { InferSelectModel } from 'drizzle-orm'

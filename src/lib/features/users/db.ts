@@ -46,6 +46,7 @@ const userColumns = {
   otherFontWeight: schema.users.otherFontWeight,
   otherLetterSpacing: schema.users.otherLetterSpacing,
   otherColor: schema.users.otherColor,
+  highlightColor: schema.users.highlightColor,
   role: schema.users.role,
   emailVerified: schema.users.emailVerified,
   discordId: schema.users.discordId,
@@ -129,7 +130,7 @@ export async function getUserByEmailWithPassword(email: string) {
   return result[0] || null
 }
 
-export async function getUserByUsername(username: string) {
+async function getUserByUsername(username: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)

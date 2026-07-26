@@ -14,22 +14,26 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
   const initialUsernameColor = user?.usernameColor ?? "#ffffff";
   const initialBioColor = user?.bioColor ?? "#ffffff";
   const initialOtherColor = user?.otherColor ?? "#ffffff";
+  const initialHighlightColor = user?.highlightColor ?? "#712d9e";
 
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   const [usernameColor, setUsernameColor] = useState(initialUsernameColor);
   const [bioColor, setBioColor] = useState(initialBioColor);
   const [otherColor, setOtherColor] = useState(initialOtherColor);
+  const [highlightColor, setHighlightColor] = useState(initialHighlightColor);
 
   const hasChanges =
     usernameColor !== initialUsernameColor ||
     bioColor !== initialBioColor ||
-    otherColor !== initialOtherColor;
+    otherColor !== initialOtherColor ||
+    highlightColor !== initialHighlightColor;
 
   const handleRevert = () => {
     setUsernameColor(initialUsernameColor);
     setBioColor(initialBioColor);
     setOtherColor(initialOtherColor);
+    setHighlightColor(initialHighlightColor);
   };
 
   return (
@@ -45,6 +49,8 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
           setBioColor={setBioColor}
           otherColor={otherColor}
           setOtherColor={setOtherColor}
+          highlightColor={highlightColor}
+          setHighlightColor={setHighlightColor}
         />
       </div>
 
@@ -88,6 +94,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
         otherFontWeight={user?.otherFontWeight ?? 400}
         otherLetterSpacing={user?.otherLetterSpacing ?? 0}
         otherColor={otherColor}
+        highlightColor={highlightColor}
         joinDateEnabled={user?.joinDateEnabled ?? true}
         joinDateFormat={user?.joinDateFormat ?? "standard"}
         viewsEnabled={user?.viewsEnabled ?? true}
@@ -113,6 +120,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
             usernameColor,
             bioColor,
             otherColor,
+            highlightColor,
           });
           router.refresh();
         }}

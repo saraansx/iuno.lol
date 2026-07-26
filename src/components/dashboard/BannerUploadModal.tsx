@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import { FileUpload } from "@/components/ui/file-upload";
 
 interface BannerUploadModalProps {
@@ -112,7 +111,7 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
           } else {
             setErrorMsg(data.error || "Upload failed");
           }
-        } catch (err) {
+        } catch {
           setErrorMsg("Failed to parse response from server");
         }
       };

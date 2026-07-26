@@ -335,6 +335,10 @@ export function CommentsModal({
             >
               Log in to leave a comment
             </button>
+          ) : viewerId === -1 ? (
+            <div className="w-full py-2 text-white/40 text-[13px] text-center">
+              Not available in preview mode
+            </div>
           ) : !allowNewComments && viewerId !== profileId ? (
             <div className="w-full py-2 text-white/40 text-[13px] text-center">
               New comments are turned off for this profile.

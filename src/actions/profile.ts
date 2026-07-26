@@ -246,6 +246,7 @@ export async function updateColorsProfile(data: {
   usernameColor?: string;
   bioColor?: string;
   otherColor?: string;
+  highlightColor?: string;
 }) {
   const userId = await getSessionUserId();
   
@@ -264,6 +265,7 @@ export async function updateColorsProfile(data: {
   if (data.usernameColor !== undefined) setData.usernameColor = data.usernameColor.slice(0, 32);
   if (data.bioColor !== undefined) setData.bioColor = data.bioColor.slice(0, 32);
   if (data.otherColor !== undefined) setData.otherColor = data.otherColor.slice(0, 32);
+  if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor.slice(0, 32);
 
   if (Object.keys(setData).length === 0) return { success: true };
   

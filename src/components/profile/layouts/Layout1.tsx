@@ -48,6 +48,7 @@ interface Layout1Props {
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
+  highlightColor?: string;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -185,6 +186,7 @@ const Layout1 = ({
   otherFontWeight = 400,
   otherLetterSpacing = 0,
   otherColor = "#FFFFFF",
+  highlightColor,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -194,7 +196,6 @@ const Layout1 = ({
   showCommentsPublicly = true,
   allowNewComments = true,
   feedbackEnabled = false,
-  showFeedbackPublicly = false,
   showUidTooltip = true,
   showLocationTooltip = true,
   showOccupationTooltip = true,
@@ -581,7 +582,10 @@ const Layout1 = ({
 
           {/* Views count badge in bottom left */}
           {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-            <div className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-white/60 text-[14px] font-normal z-20 select-none">
+            <div 
+              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-[14px] font-normal z-20 select-none"
+              style={{ color: highlightColor || 'rgba(255, 255, 255, 0.6)' }}
+            >
               {viewsEnabled && (
                 <div className="relative group/tooltip flex justify-center">
                   <div className="flex items-center gap-2">
@@ -629,13 +633,19 @@ const Layout1 = ({
           
           {/* Feedback Buttons in bottom right */}
           {feedbackEnabled && (
-            <div className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20">
+            <div 
+              className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20"
+              style={{
+                '--feedback-color': highlightColor || '#ffffff',
+                '--feedback-color-muted': highlightColor ? hexToRgba(highlightColor, 60) : 'rgba(255, 255, 255, 0.6)'
+              } as React.CSSProperties}
+            >
               {/* Like Button */}
               <div className="relative group/tooltip flex justify-center">
                 <button 
                   onClick={viewerId === -1 ? undefined : handleLike}
                   disabled={viewerId === -1}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-white' : 'text-white/60 hover:text-white/100'}`}
+                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasLiked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
@@ -654,7 +664,7 @@ const Layout1 = ({
                 <button 
                   onClick={viewerId === -1 ? undefined : handleDislike}
                   disabled={viewerId === -1}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-white' : 'text-white/60 hover:text-white/100'}`}
+                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill={hasDisliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasDisliked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
@@ -873,7 +883,10 @@ const Layout1 = ({
 
         {/* Views count badge in bottom left */}
         {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-          <div className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-white/60 text-[14px] font-normal z-20 select-none">
+          <div 
+            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 text-[14px] font-normal z-20 select-none"
+            style={{ color: highlightColor || 'rgba(255, 255, 255, 0.6)' }}
+          >
             {viewsEnabled && (
               <div className="relative group/tooltip flex justify-center">
                 <div className="flex items-center gap-2">
@@ -920,13 +933,19 @@ const Layout1 = ({
 
         {/* Feedback Buttons in bottom right */}
         {feedbackEnabled && (
-          <div className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20">
+          <div 
+            className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20"
+            style={{
+              '--feedback-color': highlightColor || '#ffffff',
+              '--feedback-color-muted': highlightColor ? hexToRgba(highlightColor, 60) : 'rgba(255, 255, 255, 0.6)'
+            } as React.CSSProperties}
+          >
             {/* Like Button */}
             <div className="relative group/tooltip flex justify-center">
               <button 
                 onClick={viewerId === -1 ? undefined : handleLike}
                 disabled={viewerId === -1}
-                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-white' : 'text-white/60 hover:text-white/100'}`}
+                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
               >
                 <svg width="17" height="17" viewBox="0 0 24 24" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasLiked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
@@ -947,7 +966,7 @@ const Layout1 = ({
               <button 
                 onClick={viewerId === -1 ? undefined : handleDislike}
                 disabled={viewerId === -1}
-                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-white' : 'text-white/60 hover:text-white/100'}`}
+                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
               >
                 <svg width="17" height="17" viewBox="0 0 24 24" fill={hasDisliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasDisliked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                   <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>

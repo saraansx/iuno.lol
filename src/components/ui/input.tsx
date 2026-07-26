@@ -1,6 +1,6 @@
 import React, { forwardRef, useState } from "react";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   showCharacterCount?: boolean;
   maxLength?: number;

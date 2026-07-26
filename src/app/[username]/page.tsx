@@ -73,6 +73,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
+      highlightColor: users.highlightColor,
     })
     .from(users)
     .where(eq(users.username, username))
@@ -145,6 +146,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         createdAt={user.createdAt}
         profileId={user.id}
         viewerId={viewerId}
+        highlightColor={user.highlightColor ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />
     </div>

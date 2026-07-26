@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import ProfilePreview from "@/components/dashboard/ProfilePreview";
 import { updateGeneralProfile } from "@/actions/profile";
@@ -229,6 +228,7 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
         showJoinDateTooltip={user?.showJoinDateTooltip ?? true}
         showViewsTooltip={user?.showViewsTooltip ?? true}
         createdAt={user?.createdAt ?? undefined}
+        highlightColor={user?.highlightColor ?? undefined}
       />
     </>
   );

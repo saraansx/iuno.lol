@@ -43,7 +43,7 @@ type Session = {
   userId: number
 }
 
-export async function verifySession(): Promise<Session | undefined> {
+async function verifySession(): Promise<Session | undefined> {
   const cookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value
   if (!cookie) return undefined
 
