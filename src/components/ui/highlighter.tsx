@@ -29,7 +29,14 @@ export function Highlighter({ children, action = "highlight" }: HighlighterProps
             strokeLinejoin="round"
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
-            transition={{ duration: 0.8, ease: "easeInOut", delay: 0.4 }}
+            transition={{ 
+              duration: 0.6, 
+              ease: "easeInOut", 
+              delay: 0.5,
+              repeat: Infinity,
+              repeatType: "loop",
+              repeatDelay: 5
+            }}
           />
         </svg>
       </span>
@@ -42,7 +49,14 @@ export function Highlighter({ children, action = "highlight" }: HighlighterProps
       <motion.svg
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
-        transition={{ duration: 0.5, ease: "easeOut", delay: 0.3 }}
+        transition={{ 
+          duration: 0.6, 
+          ease: "easeInOut", 
+          delay: 0.5,
+          repeat: Infinity,
+          repeatType: "loop",
+          repeatDelay: 5
+        }}
         className="absolute -inset-x-1.5 -inset-y-1 w-[calc(100%+12px)] h-[calc(100%+8px)] -z-10 text-[#609fda]/35 pointer-events-none origin-left"
         viewBox="0 0 100 30"
         preserveAspectRatio="none"

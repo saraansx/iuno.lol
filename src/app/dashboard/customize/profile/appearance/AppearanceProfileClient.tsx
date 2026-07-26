@@ -844,7 +844,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Size</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -891,9 +891,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -916,30 +913,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[12.5px] font-medium text-white/90">Color</label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: usernameColor }}
-                        >
-                          <input
-                            type="color"
-                            value={usernameColor}
-                            onChange={(e) => setUsernameColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={usernameColor}
-                          onChange={(e) => setUsernameColor(e.target.value.toUpperCase())}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none uppercase font-mono"
-                          spellCheck={false}
-                        />
                       </div>
                     </div>
                   </div>
@@ -989,7 +962,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Size</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -1036,9 +1009,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -1061,30 +1031,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[12.5px] font-medium text-white/90">Color</label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: bioColor }}
-                        >
-                          <input
-                            type="color"
-                            value={bioColor}
-                            onChange={(e) => setBioColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={bioColor}
-                          onChange={(e) => setBioColor(e.target.value.toUpperCase())}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none uppercase font-mono"
-                          spellCheck={false}
-                        />
                       </div>
                     </div>
                   </div>
@@ -1133,7 +1079,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                     )}
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-3 gap-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Size</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -1180,9 +1126,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3 mt-3">
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
                       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -1205,30 +1148,6 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[12.5px] font-medium text-white/90">Color</label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: otherColor }}
-                        >
-                          <input
-                            type="color"
-                            value={otherColor}
-                            onChange={(e) => setOtherColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={otherColor}
-                          onChange={(e) => setOtherColor(e.target.value.toUpperCase())}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none uppercase font-mono"
-                          spellCheck={false}
-                        />
                       </div>
                     </div>
                   </div>

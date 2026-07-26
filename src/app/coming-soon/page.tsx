@@ -35,16 +35,16 @@ export default function ComingSoonPage() {
       toast.error("Please enter a username handle first!");
       return;
     }
-    toast.success(`Handle "iuno.lol/${handle.trim()}" reserved! Join Discord for early access.`);
+    toast.success(`"iuno.lol/${handle.trim()}" reserved! Join Discord for early access.`);
     setTimeout(() => {
-      window.open("https://discord.gg/5D2XNAqEdX", "_blank");
+      window.open("https://discord.gg/QgZEkJjF8q", "_blank");
     }, 1200);
   };
 
   return (
     <div className="min-h-screen bg-transparent flex flex-col justify-center items-center relative z-10 px-4 py-12 selection:bg-[#609fda]/30 selection:text-white font-poppins">
-
-      <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-5">
+      
+      <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-5 p-12 rounded-3xl bg-white/[0.02] backdrop-blur-[16px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]">
 
         {/* Brand Logo Header */}
         <motion.div
@@ -54,11 +54,13 @@ export default function ComingSoonPage() {
           className="flex items-center gap-3 select-none"
         >
           <Image src="/logo.png" alt="Iuno Logo" width={40} height={40} className="object-contain" priority />
-          <Highlighter action="underline">
-            <span className="font-light text-white tracking-tight text-2xl uppercase">
-              Iuno<span className="text-[#609fda] lowercase">.lol</span>
-            </span>
-          </Highlighter>
+          <div className="-translate-y-1">
+            <Highlighter action="underline">
+              <span className="font-light text-white tracking-tight text-2xl uppercase">
+                Iuno<span className="text-[#609fda] lowercase">.lol</span>
+              </span>
+            </Highlighter>
+          </div>
         </motion.div>
 
         {/* Liquid Morphing Title */}
@@ -117,7 +119,7 @@ export default function ComingSoonPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <Link
-            href="https://discord.gg/5D2XNAqEdX"
+            href="https://discord.gg/QgZEkJjF8q"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800/80 hover:border-zinc-700 text-zinc-400 hover:text-white text-xs font-medium transition-all backdrop-blur-md"
