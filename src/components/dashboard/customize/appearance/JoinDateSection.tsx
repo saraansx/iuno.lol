@@ -25,7 +25,7 @@ export default function JoinDateSection({
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-medium text-[16px] tracking-tight">
+          <h2 className="text-white font-normal text-[16px] tracking-tight">
             Join date
           </h2>
           <button

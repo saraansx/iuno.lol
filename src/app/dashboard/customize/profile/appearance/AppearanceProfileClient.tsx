@@ -79,19 +79,16 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
   const initialUsernameFontSize = user?.usernameFontSize ?? 24;
   const initialUsernameFontWeight = user?.usernameFontWeight ?? 700;
   const initialUsernameLetterSpacing = user?.usernameLetterSpacing ?? 0;
-  const initialUsernameColor = user?.usernameColor ?? "#FFFFFF";
 
   const initialBioFont = user?.bioFont ?? "Inter";
   const initialBioFontSize = user?.bioFontSize ?? 15;
   const initialBioFontWeight = user?.bioFontWeight ?? 400;
   const initialBioLetterSpacing = user?.bioLetterSpacing ?? 0;
-  const initialBioColor = user?.bioColor ?? "#FFFFFF";
 
   const initialOtherFont = user?.otherFont ?? "Inter";
   const initialOtherFontSize = user?.otherFontSize ?? 13;
   const initialOtherFontWeight = user?.otherFontWeight ?? 400;
   const initialOtherLetterSpacing = user?.otherLetterSpacing ?? 0;
-  const initialOtherColor = user?.otherColor ?? "#FFFFFF";
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
   const [profileBgOpacity, setProfileBgOpacity] = useState<number | "">(initialProfileBgOpacity);
@@ -110,21 +107,18 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
   const [usernameFontSize, setUsernameFontSize] = useState<number | "">(initialUsernameFontSize);
   const [usernameFontWeight, setUsernameFontWeight] = useState<number | "">(initialUsernameFontWeight);
   const [usernameLetterSpacing, setUsernameLetterSpacing] = useState<number | "">(initialUsernameLetterSpacing);
-  const [usernameColor, setUsernameColor] = useState(initialUsernameColor);
 
   const [bioFont, setBioFont] = useState(initialBioFont);
   const [isBioFontDropdownOpen, setIsBioFontDropdownOpen] = useState(false);
   const [bioFontSize, setBioFontSize] = useState<number | "">(initialBioFontSize);
   const [bioFontWeight, setBioFontWeight] = useState<number | "">(initialBioFontWeight);
   const [bioLetterSpacing, setBioLetterSpacing] = useState<number | "">(initialBioLetterSpacing);
-  const [bioColor, setBioColor] = useState(initialBioColor);
 
   const [otherFont, setOtherFont] = useState(initialOtherFont);
   const [isOtherFontDropdownOpen, setIsOtherFontDropdownOpen] = useState(false);
   const [otherFontSize, setOtherFontSize] = useState<number | "">(initialOtherFontSize);
   const [otherFontWeight, setOtherFontWeight] = useState<number | "">(initialOtherFontWeight);
   const [otherLetterSpacing, setOtherLetterSpacing] = useState<number | "">(initialOtherLetterSpacing);
-  const [otherColor, setOtherColor] = useState(initialOtherColor);
 
   const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
@@ -202,17 +196,14 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
     usernameFontSize !== initialUsernameFontSize ||
     usernameFontWeight !== initialUsernameFontWeight ||
     usernameLetterSpacing !== initialUsernameLetterSpacing ||
-    usernameColor !== initialUsernameColor ||
     bioFont !== initialBioFont ||
     bioFontSize !== initialBioFontSize ||
     bioFontWeight !== initialBioFontWeight ||
     bioLetterSpacing !== initialBioLetterSpacing ||
-    bioColor !== initialBioColor ||
     otherFont !== initialOtherFont ||
     otherFontSize !== initialOtherFontSize ||
     otherFontWeight !== initialOtherFontWeight ||
     otherLetterSpacing !== initialOtherLetterSpacing ||
-    otherColor !== initialOtherColor ||
     isJoinDateEnabled !== initialJoinDateEnabled ||
     joinDateFormat !== initialJoinDateFormat ||
     isViewsEnabled !== initialViewsEnabled ||
@@ -247,17 +238,14 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
     setUsernameFontSize(initialUsernameFontSize);
     setUsernameFontWeight(initialUsernameFontWeight);
     setUsernameLetterSpacing(initialUsernameLetterSpacing);
-    setUsernameColor(initialUsernameColor);
     setBioFont(initialBioFont);
     setBioFontSize(initialBioFontSize);
     setBioFontWeight(initialBioFontWeight);
     setBioLetterSpacing(initialBioLetterSpacing);
-    setBioColor(initialBioColor);
     setOtherFont(initialOtherFont);
     setOtherFontSize(initialOtherFontSize);
     setOtherFontWeight(initialOtherFontWeight);
     setOtherLetterSpacing(initialOtherLetterSpacing);
-    setOtherColor(initialOtherColor);
     setIsJoinDateEnabled(initialJoinDateEnabled);
     setJoinDateFormat(initialJoinDateFormat);
     setIsViewsEnabled(initialViewsEnabled);
@@ -454,7 +442,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                   <circle cx="9" cy="7.5" r="1" fill="#5b6cf5" />
                 </svg>
               </div>
-              <h2 className="text-white font-medium text-[16px] tracking-tight">
+              <h2 className="text-white font-normal text-[16px] tracking-tight">
                 Profile Card
               </h2>
             </div>
@@ -796,7 +784,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                   <path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h2 className="text-white font-medium text-[16px] tracking-tight">
+              <h2 className="text-white font-normal text-[16px] tracking-tight">
                 Font
               </h2>
             </div>
@@ -1244,17 +1232,17 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
         usernameFontSize={usernameFontSize === "" ? 24 : usernameFontSize}
         usernameFontWeight={usernameFontWeight === "" ? 700 : usernameFontWeight}
         usernameLetterSpacing={usernameLetterSpacing === "" ? 0 : usernameLetterSpacing}
-        usernameColor={usernameColor}
+        usernameColor={user?.usernameColor ?? "#ffffff"}
         bioFont={bioFont}
         bioFontSize={bioFontSize === "" ? 15 : bioFontSize}
         bioFontWeight={bioFontWeight === "" ? 400 : bioFontWeight}
         bioLetterSpacing={bioLetterSpacing === "" ? 0 : bioLetterSpacing}
-        bioColor={bioColor}
+        bioColor={user?.bioColor ?? "#ffffff"}
         otherFont={otherFont}
         otherFontSize={otherFontSize === "" ? 13 : otherFontSize}
         otherFontWeight={otherFontWeight === "" ? 400 : otherFontWeight}
         otherLetterSpacing={otherLetterSpacing === "" ? 0 : otherLetterSpacing}
-        otherColor={otherColor}
+        otherColor={user?.otherColor ?? "#ffffff"}
         joinDateEnabled={isJoinDateEnabled}
         joinDateFormat={joinDateFormat}
         viewsEnabled={isViewsEnabled}
@@ -1292,17 +1280,14 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
             usernameFontSize: usernameFontSize === "" ? 24 : usernameFontSize,
             usernameFontWeight: usernameFontWeight === "" ? 700 : usernameFontWeight,
             usernameLetterSpacing: usernameLetterSpacing === "" ? 0 : usernameLetterSpacing,
-            usernameColor,
             bioFont,
             bioFontSize: bioFontSize === "" ? 15 : bioFontSize,
             bioFontWeight: bioFontWeight === "" ? 400 : bioFontWeight,
             bioLetterSpacing: bioLetterSpacing === "" ? 0 : bioLetterSpacing,
-            bioColor,
             otherFont,
             otherFontSize: otherFontSize === "" ? 13 : otherFontSize,
             otherFontWeight: otherFontWeight === "" ? 400 : otherFontWeight,
             otherLetterSpacing: otherLetterSpacing === "" ? 0 : otherLetterSpacing,
-            otherColor,
             joinDateEnabled: isJoinDateEnabled,
             joinDateFormat,
             viewsEnabled: isViewsEnabled,

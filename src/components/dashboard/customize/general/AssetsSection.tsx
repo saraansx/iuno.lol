@@ -52,7 +52,7 @@ export default function AssetsSection({
           </svg>
         </div>
         <div className="flex flex-col">
-          <h2 className="text-white font-medium text-[16px] tracking-tight">Assets</h2>
+          <h2 className="text-white font-normal text-[16px] tracking-tight">Assets</h2>
           <p className="text-white/40 text-[13px] mt-0.5">Upload your profile visuals</p>
         </div>
       </div>

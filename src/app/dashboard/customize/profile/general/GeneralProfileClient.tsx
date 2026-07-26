@@ -46,19 +46,19 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationModalOpen, setDecorationModalOpen] = useState(false);
-  
+
   // Set the initial decoration if url exists
-  const initialDecoration = initialDecorationUrl 
-    ? { id: "custom", name: "Custom Decoration", url: initialDecorationUrl } as Decoration 
+  const initialDecoration = initialDecorationUrl
+    ? { id: "custom", name: "Custom Decoration", url: initialDecorationUrl } as Decoration
     : null;
-    
+
   const [selectedDecoration, setSelectedDecoration] = useState<Decoration | null>(initialDecoration);
   const [decorationHue, setDecorationHue] = useState(initialDecorationHue);
 
-  const hasChanges = 
-    displayName !== initialDisplayName || 
-    location !== initialLocation || 
-    occupation !== initialOccupation || 
+  const hasChanges =
+    displayName !== initialDisplayName ||
+    location !== initialLocation ||
+    occupation !== initialOccupation ||
     bio !== initialBio ||
     avatarUrl !== initialAvatarUrl ||
     avatarShape !== initialAvatarShape ||
@@ -82,8 +82,8 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
 
   return (
     <>
-      <div 
-        className="w-full pb-10 flex flex-col gap-6" 
+      <div
+        className="w-full pb-10 flex flex-col gap-6"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
         <AssetsSection
@@ -149,20 +149,20 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
         onHueRotationChange={setDecorationHue}
       />
 
-      <SaveBar 
-        show={hasChanges} 
+      <SaveBar
+        show={hasChanges}
         onSave={async () => {
           // Automatically capture the user's timezone from their browser
           const autoTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          
-          await updateGeneralProfile({ 
+
+          await updateGeneralProfile({
             username: user?.username || "",
-            displayName, 
-            location, 
+            displayName,
+            location,
             timezone: autoTimezone,
-            occupation, 
-            bio, 
-            avatarUrl, 
+            occupation,
+            bio,
+            avatarUrl,
             avatarShape,
             avatarDecorationUrl: selectedDecoration?.url ?? null,
             avatarDecorationHue: decorationHue,
@@ -171,7 +171,7 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
           });
           router.refresh();
         }}
-        onRevert={handleRevert} 
+        onRevert={handleRevert}
       />
 
       <ProfilePreview

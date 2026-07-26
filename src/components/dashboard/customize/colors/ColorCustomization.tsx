@@ -1,0 +1,200 @@
+"use client";
+
+import React from "react";
+
+interface ColorCustomizationProps {
+  openSection: string | null;
+  setOpenSection: (val: string | null) => void;
+  usernameColor: string;
+  setUsernameColor: (val: string) => void;
+  bioColor: string;
+  setBioColor: (val: string) => void;
+  otherColor: string;
+  setOtherColor: (val: string) => void;
+}
+
+export default function ColorCustomization({
+  openSection,
+  setOpenSection,
+  usernameColor,
+  setUsernameColor,
+  bioColor,
+  setBioColor,
+  otherColor,
+  setOtherColor,
+}: ColorCustomizationProps) {
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+      <div className="flex flex-col gap-5">
+        <div className="flex items-center gap-3">
+          <div className="relative w-10 h-10 flex items-center justify-center">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="absolute"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="13.5" cy="6.5" r="1.5" fill="#5b6cf5" stroke="none" />
+              <circle cx="17.5" cy="10.5" r="1.5" fill="#5b6cf5" stroke="none" />
+              <circle cx="8.5" cy="7.5" r="1.5" fill="#5b6cf5" stroke="none" />
+              <circle cx="6.5" cy="12.5" r="1.5" fill="#5b6cf5" stroke="none" />
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 className="text-white font-normal text-[16px] tracking-tight">Color Customization</h2>
+            <p className="text-white/40 text-[13px] mt-0.5">Customize the colors for your profile text</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          {/* Username Color */}
+          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
+            <button
+              onClick={() => setOpenSection(openSection === 'username' ? null : 'username')}
+              className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer text-left focus:outline-none"
+            >
+              <div className="text-white/50">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 7V4h16v3M9 20h6M12 4v16" />
+                </svg>
+              </div>
+              <span className="text-[13px] font-medium text-white/90 flex-1">Username Color</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${openSection === 'username' ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {openSection === 'username' && (
+              <div className="px-4 pb-4 pt-0.5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
+                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                    <span className="text-[13px] text-white/30 mr-2">#</span>
+                    <input
+                      type="text"
+                      value={usernameColor.replace('#', '')}
+                      onChange={(e) => {
+                        setUsernameColor('#' + e.target.value);
+                      }}
+                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
+                    />
+                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
+                      <input
+                        type="color"
+                        value={usernameColor}
+                        onChange={(e) => {
+                          setUsernameColor(e.target.value);
+                        }}
+                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
+                      />
+                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: usernameColor }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Description Color */}
+          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
+            <button
+              onClick={() => setOpenSection(openSection === 'bio' ? null : 'bio')}
+              className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer text-left focus:outline-none"
+            >
+              <div className="text-white/50">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="17" y1="10" x2="3" y2="10" /><line x1="21" y1="6" x2="3" y2="6" /><line x1="21" y1="14" x2="3" y2="14" /><line x1="17" y1="18" x2="3" y2="18" />
+                </svg>
+              </div>
+              <span className="text-[13px] font-medium text-white/90 flex-1">Description Color</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${openSection === 'bio' ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {openSection === 'bio' && (
+              <div className="px-4 pb-4 pt-0.5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
+                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                    <span className="text-[13px] text-white/30 mr-2">#</span>
+                    <input
+                      type="text"
+                      value={bioColor.replace('#', '')}
+                      onChange={(e) => {
+                        setBioColor('#' + e.target.value);
+                      }}
+                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
+                    />
+                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
+                      <input
+                        type="color"
+                        value={bioColor}
+                        onChange={(e) => {
+                          setBioColor(e.target.value);
+                        }}
+                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
+                      />
+                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: bioColor }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Other Color */}
+          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
+            <button
+              onClick={() => setOpenSection(openSection === 'other' ? null : 'other')}
+              className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer text-left focus:outline-none"
+            >
+              <div className="text-white/50">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+              </div>
+              <span className="text-[13px] font-medium text-white/90 flex-1">Other Color</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${openSection === 'other' ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {openSection === 'other' && (
+              <div className="px-4 pb-4 pt-0.5">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
+                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
+                    <span className="text-[13px] text-white/30 mr-2">#</span>
+                    <input
+                      type="text"
+                      value={otherColor.replace('#', '')}
+                      onChange={(e) => {
+                        setOtherColor('#' + e.target.value);
+                      }}
+                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
+                    />
+                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
+                      <input
+                        type="color"
+                        value={otherColor}
+                        onChange={(e) => {
+                          setOtherColor(e.target.value);
+                        }}
+                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
+                      />
+                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: otherColor }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

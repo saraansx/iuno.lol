@@ -33,7 +33,7 @@ export default function GeneralInfoSection({
           </svg>
         </div>
         <div className="flex flex-col">
-          <h2 className="text-white font-medium text-[16px] tracking-tight">General Information</h2>
+          <h2 className="text-white font-normal text-[16px] tracking-tight">General Information</h2>
           <p className="text-white/40 text-[13px] mt-0.5">Your profile details</p>
         </div>
       </div>
