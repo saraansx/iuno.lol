@@ -10,10 +10,11 @@ import { Highlighter } from "@/components/ui/highlighter";
 
 
 const MORPH_WORDS = [
-  "Something Extraordinary.",
-  "Under Construction.",
-  "Private Beta Access.",
-  "Crafting Your Identity."
+  "Coming Soon",
+  "Something Extraordinary",
+  "Under Construction",
+  "Private Beta Access",
+  "Crafting Your Identity"
 ];
 
 export default function ComingSoonPage() {
@@ -42,7 +43,7 @@ export default function ComingSoonPage() {
   return (
     <div className="min-h-screen bg-transparent flex flex-col justify-center items-center relative z-10 px-4 py-12 selection:bg-[#609fda]/30 selection:text-white font-poppins">
 
-      <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-8">
+      <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-5">
 
         {/* Brand Logo Header */}
         <motion.div
@@ -60,7 +61,7 @@ export default function ComingSoonPage() {
         </motion.div>
 
         {/* Crisp Smooth Animated Title */}
-        <div className="h-16 sm:h-20 flex items-center justify-center overflow-hidden w-full">
+        <div className="h-14 sm:h-16 flex items-center justify-center overflow-hidden w-full">
           <AnimatePresence mode="wait">
             <motion.h1
               key={MORPH_WORDS[index]}
@@ -68,7 +69,7 @@ export default function ComingSoonPage() {
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               exit={{ opacity: 0, y: -15, filter: "blur(8px)" }}
               transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="text-3xl sm:text-5xl font-medium text-white tracking-tight"
+              className="text-2xl sm:text-4xl font-normal text-white/90 tracking-tight"
             >
               {MORPH_WORDS[index]}
             </motion.h1>
