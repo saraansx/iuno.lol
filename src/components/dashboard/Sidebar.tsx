@@ -149,8 +149,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             <div className="relative w-8 h-8 shrink-0">
               <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
                 {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="Profile picture" className="h-full w-full object-cover" />
+                  <Image src={avatarUrl} alt="Profile picture" fill sizes="32px" className="object-cover" />
                 ) : (
                   username ? username[0] : "?"
                 )}
@@ -158,10 +157,12 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
               {/* Decoration Overlay */}
               {decorationUrl && (
                 <div className="pointer-events-none absolute -inset-[3px] z-10">
-                  <img
+                  <Image
                     src={decorationUrl}
                     alt="Decoration"
-                    className="h-full w-full object-contain"
+                    fill
+                    sizes="40px"
+                    className="object-contain"
                     style={{ filter: `hue-rotate(${decorationHue}deg)` }}
                   />
                 </div>
