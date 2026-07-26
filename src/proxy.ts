@@ -5,12 +5,12 @@ export default function proxy(request: NextRequest) {
   // 1. Check for the secret bypass URL parameter
   const secretKey = request.nextUrl.searchParams.get('admin_access')
   
-  if (secretKey === 'iuno123') {
+  if (secretKey === 'iuno_admin') {
     // They got the password right! Set the cookie and redirect to home.
     const response = NextResponse.redirect(new URL('/', request.url))
     
     // Give them a cookie that lasts for 1 year
-    response.cookies.set('admin_bypass', 'true', {
+    response.cookies.set('admin_bypass_v2', 'true', {
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/',
       httpOnly: true,
@@ -22,7 +22,7 @@ export default function proxy(request: NextRequest) {
   }
 
   // 2. Check if they already have the bypass cookie
-  const hasBypassCookie = request.cookies.get('admin_bypass')?.value === 'true'
+  const hasBypassCookie = request.cookies.get('admin_bypass_v2')?.value === 'true'
 
   if (hasBypassCookie) {
     // Let them through! They are the admin.
