@@ -20,14 +20,6 @@ const MORPH_WORDS = [
 
 export default function ComingSoonPage() {
   const [handle, setHandle] = useState("");
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex((prev) => (prev + 1) % MORPH_WORDS.length);
-    }, 3000);
-    return () => clearInterval(timer);
-  }, []);
 
   const handleReserve = (e: React.FormEvent) => {
     e.preventDefault();
