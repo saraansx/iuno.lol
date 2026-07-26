@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { IconBrandDiscord, IconArrowRight } from "@tabler/icons-react";
 import { Highlighter } from "@/components/ui/highlighter";
+import { MorphingText } from "@/components/ui/morphing-text";
 
 
 const MORPH_WORDS = [
@@ -60,20 +61,12 @@ export default function ComingSoonPage() {
           </Highlighter>
         </motion.div>
 
-        {/* Crisp Smooth Animated Title */}
-        <div className="h-14 sm:h-16 flex items-center justify-center overflow-hidden w-full">
-          <AnimatePresence mode="wait">
-            <motion.h1
-              key={MORPH_WORDS[index]}
-              initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -15, filter: "blur(8px)" }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-              className="text-2xl sm:text-4xl font-normal text-white/90 tracking-tight"
-            >
-              {MORPH_WORDS[index]}
-            </motion.h1>
-          </AnimatePresence>
+        {/* Liquid Morphing Title */}
+        <div className="h-14 sm:h-16 flex items-center justify-center w-full">
+          <MorphingText
+            texts={MORPH_WORDS}
+            className="text-2xl sm:text-4xl font-normal text-gray-400 tracking-tight"
+          />
         </div>
 
         {/* Description */}

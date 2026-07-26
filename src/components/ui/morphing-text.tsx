@@ -101,11 +101,11 @@ const Texts: React.FC<Pick<MorphingTextProps, "texts">> = ({ texts }) => {
   return (
     <>
       <span
-        className="absolute inset-x-0 top-0 m-auto inline-block w-full"
+        className="absolute inset-0 m-auto flex items-center justify-center w-full h-full whitespace-nowrap"
         ref={text1Ref}
       />
       <span
-        className="absolute inset-x-0 top-0 m-auto inline-block w-full"
+        className="absolute inset-0 m-auto flex items-center justify-center w-full h-full whitespace-nowrap"
         ref={text2Ref}
       />
     </>
@@ -126,8 +126,10 @@ const SvgFilters: React.FC = () => (
           values="1 0 0 0 0
                   0 1 0 0 0
                   0 0 1 0 0
-                  0 0 0 255 -140"
+                  0 0 0 150 -45"
+          result="matrixOut"
         />
+        <feGaussianBlur in="matrixOut" stdDeviation="0.4" result="smoothed" />
       </filter>
     </defs>
   </svg>
@@ -139,9 +141,10 @@ export const MorphingText: React.FC<MorphingTextProps> = ({
 }) => (
   <div
     className={cn(
-      "relative mx-auto h-16 w-full max-w-3xl text-center font-sans text-[40pt] leading-none font-bold filter-[url(#threshold)_blur(0.6px)] md:h-24 lg:text-[6rem]",
+      "relative mx-auto h-full w-full max-w-3xl text-center font-sans leading-none flex items-center justify-center",
       className
     )}
+    style={{ filter: "url(#threshold) blur(0.5px)" }}
   >
     <Texts texts={texts} />
     <SvgFilters />
