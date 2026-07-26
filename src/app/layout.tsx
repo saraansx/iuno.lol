@@ -4,7 +4,7 @@ import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "sonner";
 import SharedBackground from "@/components/SharedBackground";
-import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
