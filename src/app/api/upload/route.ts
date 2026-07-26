@@ -139,7 +139,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: publicUrl });
 
-  } catch (error: any) {
+  } catch (error) {
+    const err = error as Error;
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Failed to upload file to S3" }, { status: 500 });
   }

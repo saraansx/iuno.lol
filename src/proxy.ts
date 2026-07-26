@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function middleware(request: NextRequest) {
+export default function proxy(request: NextRequest) {
   // 1. Check for the secret bypass URL parameter
   const secretKey = request.nextUrl.searchParams.get('admin_access')
   

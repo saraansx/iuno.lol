@@ -63,6 +63,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       commentsEnabled: users.commentsEnabled,
       feedbackEnabled: users.feedbackEnabled,
       showFeedbackPublicly: users.showFeedbackPublicly,
+      showUidTooltip: users.showUidTooltip,
+      showLocationTooltip: users.showLocationTooltip,
+      showOccupationTooltip: users.showOccupationTooltip,
+      showLikesTooltip: users.showLikesTooltip,
+      showDislikesTooltip: users.showDislikesTooltip,
+      showJoinDateTooltip: users.showJoinDateTooltip,
+      showViewsTooltip: users.showViewsTooltip,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
@@ -124,15 +131,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         viewsAnimationEnabled={user.viewsAnimationEnabled ?? undefined}
         viewsAnimationDuration={user.viewsAnimationDuration ?? undefined}
         commentsEnabled={user.commentsEnabled ?? undefined}
-        feedbackEnabled={(user as any).feedbackEnabled ?? false}
-        showFeedbackPublicly={(user as any).showFeedbackPublicly ?? false}
-        showUidTooltip={(user as any).showUidTooltip ?? true}
-        showLocationTooltip={(user as any).showLocationTooltip ?? true}
-        showOccupationTooltip={(user as any).showOccupationTooltip ?? true}
-        showLikesTooltip={(user as any).showLikesTooltip ?? true}
-        showDislikesTooltip={(user as any).showDislikesTooltip ?? true}
-        showJoinDateTooltip={(user as any).showJoinDateTooltip ?? true}
-        showViewsTooltip={(user as any).showViewsTooltip ?? true}
+        feedbackEnabled={user.feedbackEnabled ?? false}
+        showFeedbackPublicly={user.showFeedbackPublicly ?? false}
+        showUidTooltip={user.showUidTooltip ?? true}
+        showLocationTooltip={user.showLocationTooltip ?? true}
+        showOccupationTooltip={user.showOccupationTooltip ?? true}
+        showLikesTooltip={user.showLikesTooltip ?? true}
+        showDislikesTooltip={user.showDislikesTooltip ?? true}
+        showJoinDateTooltip={user.showJoinDateTooltip ?? true}
+        showViewsTooltip={user.showViewsTooltip ?? true}
         initialLikes={user.likesCount ?? 0}
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}

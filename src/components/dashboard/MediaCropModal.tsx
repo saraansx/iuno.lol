@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import Cropper from "react-easy-crop";
+import Cropper, { Area } from "react-easy-crop";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface MediaCropModalProps {
@@ -29,7 +29,7 @@ export default function MediaCropModal({
 }: MediaCropModalProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const onCropChange = (crop: { x: number; y: number }) => {
@@ -40,7 +40,7 @@ export default function MediaCropModal({
     setZoom(zoom);
   };
 
-  const onCropCompleteCallback = useCallback((croppedArea: any, croppedAreaPixels: any) => {
+  const onCropCompleteCallback = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
@@ -53,7 +53,7 @@ export default function MediaCropModal({
       image.src = url;
     });
 
-  const getCroppedImg = async (imageSrc: string, pixelCrop: any): Promise<File> => {
+  const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<File> => {
     const image = await createImage(imageSrc);
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -89,7 +89,7 @@ export default function MediaCropModal({
     });
   };
 
-  const getCroppedVideo = async (videoSrc: string, pixelCrop: any): Promise<File> => {
+  const getCroppedVideo = async (videoSrc: string, pixelCrop: Area): Promise<File> => {
     const video = document.createElement("video");
     video.muted = true;
     video.loop = true;

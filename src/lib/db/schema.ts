@@ -236,3 +236,5 @@ export const schema = {
   commentLikesRelations,
   profileFeedbackRelations,
 }
+
+export type User = typeof users.$inferSelect;

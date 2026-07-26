@@ -35,10 +35,8 @@ export default function RecentFeedback() {
     try {
       const res = await getDashboardFeedback();
       if (res.success) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setReceived(res.received as any);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setGiven(res.given as any);
+        setReceived(res.received as unknown as FeedbackData[]);
+        setGiven(res.given as unknown as FeedbackData[]);
       }
     } catch (err) {
       console.error(err);

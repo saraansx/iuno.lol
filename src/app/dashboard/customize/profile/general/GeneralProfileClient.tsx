@@ -14,46 +14,7 @@ import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { decorationCount, type Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 
-interface User {
-  username?: string | null;
-  displayName?: string | null;
-  location?: string | null;
-  occupation?: string | null;
-  bio?: string | null;
-  avatarUrl?: string | null;
-  avatarDecorationUrl?: string | null;
-  avatarDecorationHue?: number | null;
-  avatarShape?: "square" | "soft" | "rounded" | "circle" | null;
-  bannerImageUrl?: string | null;
-  bannerBackgroundUrl?: string | null;
-  profileBgColor?: string | null;
-  profileBgOpacity?: number | null;
-  profileShadowColor?: string | null;
-  profileShadowOpacity?: number | null;
-  profileOpacity?: number | null;
-  views?: number | null;
-  profileBorderColor?: string | null;
-  profileBorderOpacity?: number | null;
-  profileBorderWidth?: number | null;
-  profileBorderRadius?: number | null;
-  profileCardBlur?: number | null;
-  profileBackgroundBlur?: number | null;
-  usernameFont?: string | null;
-  usernameFontSize?: number | null;
-  usernameFontWeight?: number | null;
-  usernameLetterSpacing?: number | null;
-  usernameColor?: string | null;
-  bioFont?: string | null;
-  bioFontSize?: number | null;
-  bioFontWeight?: number | null;
-  bioLetterSpacing?: number | null;
-  bioColor?: string | null;
-  otherFont?: string | null;
-  otherFontSize?: number | null;
-  otherFontWeight?: number | null;
-  otherLetterSpacing?: number | null;
-  otherColor?: string | null;
-}
+import { type User } from "@/lib/db/schema";
 
 export default function GeneralProfileClient({ user }: { user: User | null }) {
   const router = useRouter();
@@ -214,7 +175,7 @@ export default function GeneralProfileClient({ user }: { user: User | null }) {
       />
 
       <ProfilePreview
-        userId={(user as any)?.id}
+        userId={user?.id}
         username={user?.username ?? undefined}
         displayName={displayName}
         bio={bio}
@@ -253,21 +214,21 @@ export default function GeneralProfileClient({ user }: { user: User | null }) {
         otherLetterSpacing={user?.otherLetterSpacing ?? undefined}
         otherColor={user?.otherColor ?? undefined}
         views={user?.views ?? 0}
-        joinDateEnabled={(user as any)?.joinDateEnabled ?? undefined}
-        joinDateFormat={(user as any)?.joinDateFormat ?? undefined}
-        viewsEnabled={(user as any)?.viewsEnabled ?? undefined}
-        viewsAnimationEnabled={(user as any)?.viewsAnimationEnabled ?? undefined}
-        viewsAnimationDuration={(user as any)?.viewsAnimationDuration ?? undefined}
-        commentsEnabled={(user as any)?.commentsEnabled ?? undefined}
-        feedbackEnabled={(user as any)?.feedbackEnabled ?? false}
-        showUidTooltip={(user as any)?.showUidTooltip ?? true}
-        showLocationTooltip={(user as any)?.showLocationTooltip ?? true}
-        showOccupationTooltip={(user as any)?.showOccupationTooltip ?? true}
-        showLikesTooltip={(user as any)?.showLikesTooltip ?? true}
-        showDislikesTooltip={(user as any)?.showDislikesTooltip ?? true}
-        showJoinDateTooltip={(user as any)?.showJoinDateTooltip ?? true}
-        showViewsTooltip={(user as any)?.showViewsTooltip ?? true}
-        createdAt={(user as any)?.createdAt ?? undefined}
+        joinDateEnabled={user?.joinDateEnabled ?? undefined}
+        joinDateFormat={user?.joinDateFormat ?? undefined}
+        viewsEnabled={user?.viewsEnabled ?? undefined}
+        viewsAnimationEnabled={user?.viewsAnimationEnabled ?? undefined}
+        viewsAnimationDuration={user?.viewsAnimationDuration ?? undefined}
+        commentsEnabled={user?.commentsEnabled ?? undefined}
+        feedbackEnabled={user?.feedbackEnabled ?? false}
+        showUidTooltip={user?.showUidTooltip ?? true}
+        showLocationTooltip={user?.showLocationTooltip ?? true}
+        showOccupationTooltip={user?.showOccupationTooltip ?? true}
+        showLikesTooltip={user?.showLikesTooltip ?? true}
+        showDislikesTooltip={user?.showDislikesTooltip ?? true}
+        showJoinDateTooltip={user?.showJoinDateTooltip ?? true}
+        showViewsTooltip={user?.showViewsTooltip ?? true}
+        createdAt={user?.createdAt ?? undefined}
       />
     </>
   );

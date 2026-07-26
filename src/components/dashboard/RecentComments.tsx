@@ -35,10 +35,8 @@ export default function RecentComments() {
     try {
       const res = await getDashboardComments();
       if (res.success) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setReceived(res.received as any);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        setGiven(res.given as any);
+        setReceived(res.received as unknown as CommentData[]);
+        setGiven(res.given as unknown as CommentData[]);
       }
     } catch (err) {
       console.error(err);

@@ -155,7 +155,8 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       };
 
       xhr.send(formData);
-    } catch (err: any) {
+    } catch (error) {
+      const err = error as Error;
       setErrorMsg(err.message || "Failed to upload file");
       setIsLoading(false);
       setUploadProgress(null);

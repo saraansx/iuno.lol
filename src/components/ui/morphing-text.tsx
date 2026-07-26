@@ -123,10 +123,7 @@ const SvgFilters: React.FC = () => (
         <feColorMatrix
           in="SourceGraphic"
           type="matrix"
-          values="1 0 0 0 0
-                  0 1 0 0 0
-                  0 0 1 0 0
-                  0 0 0 150 -45"
+          values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 150 -45"
           result="matrixOut"
         />
         <feGaussianBlur in="matrixOut" stdDeviation="0.4" result="smoothed" />

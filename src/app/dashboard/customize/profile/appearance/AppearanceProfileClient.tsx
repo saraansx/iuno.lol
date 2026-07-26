@@ -13,34 +13,7 @@ import FeedbackSection from "@/components/dashboard/customize/appearance/Feedbac
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 
-interface User {
-  username?: string | null;
-  displayName?: string | null;
-  bio?: string | null;
-  location?: string | null;
-  occupation?: string | null;
-  avatarUrl?: string | null;
-  avatarDecorationUrl?: string | null;
-  avatarDecorationHue?: number | null;
-  avatarShape?: "square" | "soft" | "rounded" | "circle" | null;
-  bannerImageUrl?: string | null;
-  bannerBackgroundUrl?: string | null;
-  profileBgColor?: string | null;
-  profileBgOpacity?: number | null;
-  profileBorderColor?: string | null;
-  profileBorderOpacity?: number | null;
-  profileBorderWidth?: number | null;
-  profileBorderRadius?: number | null;
-  profileCardBlur?: number | null;
-  profileBackgroundBlur?: number | null;
-  profileShadowColor?: string | null;
-  profileShadowOpacity?: number | null;
-  profileOpacity?: number | null;
-  views?: number | null;
-  joinDateEnabled?: boolean | null;
-  joinDateFormat?: string | null;
-  createdAt?: string | Date | null;
-}
+import { type User } from "@/lib/db/schema";
 
 type SectionKey =
   | "profile-bg"
@@ -102,23 +75,23 @@ export default function AppearanceProfileClient({ user }: { user: User | null })
   const initialProfileShadowColor = user?.profileShadowColor ?? "#000000";
   const initialProfileShadowOpacity = user?.profileShadowOpacity ?? 0;
   const initialProfileOpacity = user?.profileOpacity ?? 100;
-  const initialUsernameFont = (user as any)?.usernameFont ?? "Inter";
-  const initialUsernameFontSize = (user as any)?.usernameFontSize ?? 24;
-  const initialUsernameFontWeight = (user as any)?.usernameFontWeight ?? 700;
-  const initialUsernameLetterSpacing = (user as any)?.usernameLetterSpacing ?? 0;
-  const initialUsernameColor = (user as any)?.usernameColor ?? "#FFFFFF";
+  const initialUsernameFont = user?.usernameFont ?? "Inter";
+  const initialUsernameFontSize = user?.usernameFontSize ?? 24;
+  const initialUsernameFontWeight = user?.usernameFontWeight ?? 700;
+  const initialUsernameLetterSpacing = user?.usernameLetterSpacing ?? 0;
+  const initialUsernameColor = user?.usernameColor ?? "#FFFFFF";
 
-  const initialBioFont = (user as any)?.bioFont ?? "Inter";
-  const initialBioFontSize = (user as any)?.bioFontSize ?? 15;
-  const initialBioFontWeight = (user as any)?.bioFontWeight ?? 400;
-  const initialBioLetterSpacing = (user as any)?.bioLetterSpacing ?? 0;
-  const initialBioColor = (user as any)?.bioColor ?? "#FFFFFF";
+  const initialBioFont = user?.bioFont ?? "Inter";
+  const initialBioFontSize = user?.bioFontSize ?? 15;
+  const initialBioFontWeight = user?.bioFontWeight ?? 400;
+  const initialBioLetterSpacing = user?.bioLetterSpacing ?? 0;
+  const initialBioColor = user?.bioColor ?? "#FFFFFF";
 
-  const initialOtherFont = (user as any)?.otherFont ?? "Inter";
-  const initialOtherFontSize = (user as any)?.otherFontSize ?? 13;
-  const initialOtherFontWeight = (user as any)?.otherFontWeight ?? 400;
-  const initialOtherLetterSpacing = (user as any)?.otherLetterSpacing ?? 0;
-  const initialOtherColor = (user as any)?.otherColor ?? "#FFFFFF";
+  const initialOtherFont = user?.otherFont ?? "Inter";
+  const initialOtherFontSize = user?.otherFontSize ?? 13;
+  const initialOtherFontWeight = user?.otherFontWeight ?? 400;
+  const initialOtherLetterSpacing = user?.otherLetterSpacing ?? 0;
+  const initialOtherColor = user?.otherColor ?? "#FFFFFF";
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
   const [profileBgOpacity, setProfileBgOpacity] = useState<number | "">(initialProfileBgOpacity);
@@ -153,55 +126,55 @@ export default function AppearanceProfileClient({ user }: { user: User | null })
   const [otherLetterSpacing, setOtherLetterSpacing] = useState<number | "">(initialOtherLetterSpacing);
   const [otherColor, setOtherColor] = useState(initialOtherColor);
 
-  const initialJoinDateEnabled = (user as any)?.joinDateEnabled ?? false;
-  const rawJoinDateFormat = (user as any)?.joinDateFormat ?? "Absolute";
+  const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
+  const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
   const initialJoinDateFormat = rawJoinDateFormat.includes(" (") ? rawJoinDateFormat.split(" (")[0] : rawJoinDateFormat;
 
   const [isJoinDateEnabled, setIsJoinDateEnabled] = useState(initialJoinDateEnabled);
   const [isJoinDateFormatDropdownOpen, setIsJoinDateFormatDropdownOpen] = useState(false);
   const [joinDateFormat, setJoinDateFormat] = useState(initialJoinDateFormat);
 
-  const initialViewsEnabled = (user as any)?.viewsEnabled ?? true;
-  const initialViewsAnimationEnabled = (user as any)?.viewsAnimationEnabled ?? false;
-  const initialViewsAnimationDuration = (user as any)?.viewsAnimationDuration ?? 1000;
+  const initialViewsEnabled = user?.viewsEnabled ?? true;
+  const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
+  const initialViewsAnimationDuration = user?.viewsAnimationDuration ?? 1000;
 
   const [isViewsEnabled, setIsViewsEnabled] = useState(initialViewsEnabled);
   const [isViewsAnimationEnabled, setIsViewsAnimationEnabled] = useState(initialViewsAnimationEnabled);
   const [viewsAnimationDuration, setViewsAnimationDuration] = useState<number | "">(initialViewsAnimationDuration);
 
-  const initialCommentsEnabled = (user as any)?.commentsEnabled ?? true;
-  const initialShowCommentsPublicly = (user as any)?.showCommentsPublicly ?? true;
-  const initialAllowNewComments = (user as any)?.allowNewComments ?? true;
+  const initialCommentsEnabled = user?.commentsEnabled ?? true;
+  const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
+  const initialAllowNewComments = user?.allowNewComments ?? true;
 
   const [isCommentsEnabled, setIsCommentsEnabled] = useState(initialCommentsEnabled);
   const [isShowCommentsPublicly, setIsShowCommentsPublicly] = useState(initialShowCommentsPublicly);
   const [isAllowNewComments, setIsAllowNewComments] = useState(initialAllowNewComments);
 
-  const initialFeedbackEnabled = (user as any)?.feedbackEnabled ?? false;
-  const initialShowFeedbackPublicly = (user as any)?.showFeedbackPublicly ?? false;
+  const initialFeedbackEnabled = user?.feedbackEnabled ?? false;
+  const initialShowFeedbackPublicly = user?.showFeedbackPublicly ?? false;
 
   const [isFeedbackEnabled, setIsFeedbackEnabled] = useState(initialFeedbackEnabled);
   const [isShowFeedbackPublicly, setIsShowFeedbackPublicly] = useState(initialShowFeedbackPublicly);
 
-  const initialUidTooltipEnabled = (user as any)?.showUidTooltip ?? true;
+  const initialUidTooltipEnabled = user?.showUidTooltip ?? true;
   const [isUidTooltipEnabled, setIsUidTooltipEnabled] = useState(initialUidTooltipEnabled);
 
-  const initialLocationTooltipEnabled = (user as any)?.showLocationTooltip ?? true;
+  const initialLocationTooltipEnabled = user?.showLocationTooltip ?? true;
   const [isLocationTooltipEnabled, setIsLocationTooltipEnabled] = useState(initialLocationTooltipEnabled);
 
-  const initialOccupationTooltipEnabled = (user as any)?.showOccupationTooltip ?? true;
+  const initialOccupationTooltipEnabled = user?.showOccupationTooltip ?? true;
   const [isOccupationTooltipEnabled, setIsOccupationTooltipEnabled] = useState(initialOccupationTooltipEnabled);
 
-  const initialLikesTooltipEnabled = (user as any)?.showLikesTooltip ?? true;
+  const initialLikesTooltipEnabled = user?.showLikesTooltip ?? true;
   const [isLikesTooltipEnabled, setIsLikesTooltipEnabled] = useState(initialLikesTooltipEnabled);
 
-  const initialDislikesTooltipEnabled = (user as any)?.showDislikesTooltip ?? true;
+  const initialDislikesTooltipEnabled = user?.showDislikesTooltip ?? true;
   const [isDislikesTooltipEnabled, setIsDislikesTooltipEnabled] = useState(initialDislikesTooltipEnabled);
 
-  const initialJoinDateTooltipEnabled = (user as any)?.showJoinDateTooltip ?? true;
+  const initialJoinDateTooltipEnabled = user?.showJoinDateTooltip ?? true;
   const [isJoinDateTooltipEnabled, setIsJoinDateTooltipEnabled] = useState(initialJoinDateTooltipEnabled);
 
-  const initialViewsTooltipEnabled = (user as any)?.showViewsTooltip ?? true;
+  const initialViewsTooltipEnabled = user?.showViewsTooltip ?? true;
   const [isViewsTooltipEnabled, setIsViewsTooltipEnabled] = useState(initialViewsTooltipEnabled);
 
   const joinDateFormatOptions = [
@@ -1324,7 +1297,7 @@ export default function AppearanceProfileClient({ user }: { user: User | null })
       </div>
 
       <ProfilePreview
-        userId={(user as any)?.id}
+        userId={user?.id}
         username={user?.username ?? undefined}
         displayName={user?.displayName ?? undefined}
         bio={user?.bio ?? undefined}
@@ -1377,7 +1350,7 @@ export default function AppearanceProfileClient({ user }: { user: User | null })
         showDislikesTooltip={isDislikesTooltipEnabled}
         showJoinDateTooltip={isJoinDateTooltipEnabled}
         showViewsTooltip={isViewsTooltipEnabled}
-        createdAt={(user as any)?.createdAt}
+        createdAt={user?.createdAt}
       />
 
       <SaveBar
