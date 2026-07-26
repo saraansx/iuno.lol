@@ -57,7 +57,7 @@ const fontVariables: Record<string, string> = {
   "Lobster": "var(--font-lobster)",
 };
 
-export default function AppearanceProfileClient({ user }: { user: User | null }) {
+export default function AppearanceProfileClient({ user }: { user: Omit<User, "password"> | null }) {
   const router = useRouter();
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
   const initialDecoration = initialDecorationUrl

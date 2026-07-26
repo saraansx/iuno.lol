@@ -16,7 +16,7 @@ import { isVideoUrl } from "@/lib/utils/media";
 
 import { type User } from "@/lib/db/schema";
 
-export default function GeneralProfileClient({ user }: { user: User | null }) {
+export default function GeneralProfileClient({ user }: { user: Omit<User, "password"> | null }) {
   const router = useRouter();
   const initialDisplayName = user?.displayName ?? "";
   const initialLocation = user?.location ?? "";
