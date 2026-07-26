@@ -48,8 +48,10 @@ export function CommentsModal({
 
   useEffect(() => {
     if (isOpen) {
-      setShouldRender(true);
-      fetchComments();
+      setTimeout(() => {
+        setShouldRender(true);
+        fetchComments();
+      }, 0);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsAnimating(true));
       });

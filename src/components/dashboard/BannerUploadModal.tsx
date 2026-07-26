@@ -28,13 +28,15 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
     // Reset state when modal opens/closes
     if (!open) {
       if (!isLoading) {
-        setResolvedUrl(null);
-        setMediaType(null);
-        setErrorMsg(null);
-        setIsLoading(false);
-        setUploadProgress(null);
-        setStatusText("");
-        xhrRef.current = null;
+        setTimeout(() => {
+          setResolvedUrl(null);
+          setMediaType(null);
+          setErrorMsg(null);
+          setIsLoading(false);
+          setUploadProgress(null);
+          setStatusText("");
+          xhrRef.current = null;
+        }, 0);
       }
     }
   }, [open, isLoading]);

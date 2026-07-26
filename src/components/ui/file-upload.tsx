@@ -53,7 +53,7 @@ export const FileUpload = ({
   const handleFileChange = (newFiles: File[]) => {
     if (newFiles && newFiles.length > 0) {
       setFiles([newFiles[0]]);
-      onChange && onChange([newFiles[0]]);
+      if (onChange) onChange([newFiles[0]]);
     }
   };
 
