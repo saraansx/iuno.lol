@@ -55,23 +55,20 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
     const daysBack = 6; 
     const viewMap = new Map<string, number>();
 
-    const localToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const utcToday = new Date(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
-    const dayOffset = Math.round((localToday.getTime() - utcToday.getTime()) / (1000 * 60 * 60 * 24));
-
     for (const row of initialData) {
-      const [y, m, d] = row.d.split('-').map(Number);
-      const rowDate = new Date(y, m - 1, d + dayOffset);
-      const key = `${rowDate.getFullYear()}-${rowDate.getMonth()}-${rowDate.getDate()}`;
-      viewMap.set(key, (viewMap.get(key) || 0) + row.c);
+      viewMap.set(row.d, (viewMap.get(row.d) || 0) + row.c);
     }
 
     const result: DailyView[] = [];
     for (let i = daysBack; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i));
       
-      const label = `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const yyyy = d.getUTCFullYear();
+      const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(d.getUTCDate()).padStart(2, '0');
+      
+      const key = `${yyyy}-${mm}-${dd}`;
+      const label = `${mm}-${dd}`;
       
       result.push({ name: label, views: viewMap.get(key) || 0 });
     }
