@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Oswald, Pacifico, Caveat, Permanent_Marker, Bangers, Dancing_Script, Amatic_SC, Creepster, Shadows_Into_Light, Indie_Flower, Lobster } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Oswald, Pacifico, Caveat, Dancing_Script, Indie_Flower, Lobster } from "next/font/google";
 import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "sonner";
@@ -28,12 +28,57 @@ const syne = Syne({ subsets: ["latin"], variable: "--font-syne" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
 const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-pacifico" });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
-const permanentMarker = Permanent_Marker({ weight: "400", subsets: ["latin"], variable: "--font-permanent-marker" });
-const bangers = Bangers({ weight: "400", subsets: ["latin"], variable: "--font-bangers" });
+const paperNotes = localFont({
+  src: [
+    {
+      path: "../../fonts/papernotes.ttf",
+      weight: "400",
+      style: "normal",
+    }
+  ],
+  variable: "--font-paper-notes",
+});
+const matchaMint = localFont({
+  src: [
+    {
+      path: "../../fonts/matcha-mint.ttf",
+      weight: "400",
+      style: "normal",
+    }
+  ],
+  variable: "--font-matcha-mint",
+});
 const dancingScript = Dancing_Script({ subsets: ["latin"], variable: "--font-dancing-script" });
-const amaticSc = Amatic_SC({ weight: "700", subsets: ["latin"], variable: "--font-amatic-sc" });
-const creepster = Creepster({ weight: "400", subsets: ["latin"], variable: "--font-creepster" });
-const shadowsIntoLight = Shadows_Into_Light({ weight: "400", subsets: ["latin"], variable: "--font-shadows-into-light" });
+const comfortaa = localFont({
+  src: [
+    {
+      path: "../../fonts/comfortaa.ttf",
+      weight: "400",
+      style: "normal",
+    }
+  ],
+  variable: "--font-comfortaa",
+});
+const elegantBloom = localFont({
+  src: [
+    {
+      path: "../../fonts/elegant-bloom.otf",
+      weight: "400",
+      style: "normal",
+    }
+  ],
+  variable: "--font-elegant-bloom",
+});
+const caviarDreams = localFont({
+  src: [
+    {
+      path: "../../fonts/caviar-dreams.ttf",
+      weight: "400",
+      style: "normal",
+    }
+  ],
+  variable: "--font-caviar-dreams",
+});
 const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"], variable: "--font-indie-flower" });
 const lobster = Lobster({ weight: "400", subsets: ["latin"], variable: "--font-lobster" });
 
@@ -84,7 +129,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oswald.variable} ${pacifico.variable} ${caveat.variable} ${permanentMarker.variable} ${bangers.variable} ${dancingScript.variable} ${amaticSc.variable} ${creepster.variable} ${shadowsIntoLight.variable} ${indieFlower.variable} ${lobster.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oswald.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${matchaMint.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${indieFlower.variable} ${lobster.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
         <SharedBackground />

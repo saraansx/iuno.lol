@@ -6,6 +6,7 @@ import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
 import { submitFeedbackAction } from "@/actions/feedback";
+import { toast } from "sonner";
 
 interface Layout1Props {
   profileId: number;
@@ -245,6 +246,14 @@ const Layout1 = ({
   }, [initialDislikes]);
 
   const handleLike = async () => {
+    if (viewerId === -1) {
+      toast.info("Feedback is disabled in preview mode");
+      return;
+    }
+    if (viewerId === null || viewerId === undefined) {
+      toast.error("Login to leave feedback");
+      return;
+    }
     if (hasLiked) {
       setLikesCount(prev => Math.max(0, prev - 1));
       setHasLiked(false);
@@ -264,6 +273,14 @@ const Layout1 = ({
   };
 
   const handleDislike = async () => {
+    if (viewerId === -1) {
+      toast.info("Feedback is disabled in preview mode");
+      return;
+    }
+    if (viewerId === null || viewerId === undefined) {
+      toast.error("Login to leave feedback");
+      return;
+    }
     if (hasDisliked) {
       setDislikesCount(prev => Math.max(0, prev - 1));
       setHasDisliked(false);
@@ -350,12 +367,12 @@ const Layout1 = ({
     "Oswald": "var(--font-oswald)",
     "Pacifico": "var(--font-pacifico)",
     "Caveat": "var(--font-caveat)",
-    "Permanent Marker": "var(--font-permanent-marker)",
-    "Bangers": "var(--font-bangers)",
+    "Paper Notes": "var(--font-paper-notes)",
+    "Matcha Mint": "var(--font-matcha-mint)",
     "Dancing Script": "var(--font-dancing-script)",
-    "Amatic SC": "var(--font-amatic-sc)",
-    "Creepster": "var(--font-creepster)",
-    "Shadows Into Light": "var(--font-shadows-into-light)",
+    "Comfortaa": "var(--font-comfortaa)",
+    "Elegant Bloom": "var(--font-elegant-bloom)",
+    "Caviar Dreams": "var(--font-caviar-dreams)",
     "Indie Flower": "var(--font-indie-flower)",
     "Lobster": "var(--font-lobster)",
   };
@@ -478,7 +495,7 @@ const Layout1 = ({
             </div>
 
             {/* Content */}
-            <div className="w-full flex flex-col items-center px-6 pb-8 pt-3">
+            <div className="w-full flex flex-col items-center px-6 pb-12 pt-3">
               {display && (
                 <div className="relative group/uid flex justify-center">
                   <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor }}>
@@ -570,7 +587,7 @@ const Layout1 = ({
                 </p>
               )}
               {bio?.trim() && (
-                <div className="w-full mt-4 flex justify-center">
+                <div className="w-full mt-1.5 flex justify-center">
                   <p 
                     className="leading-relaxed max-w-[90%] text-center break-words"
                     style={{
@@ -657,9 +674,8 @@ const Layout1 = ({
               {/* Like Button */}
               <div className="relative group/tooltip flex justify-center">
                 <button 
-                  onClick={viewerId === -1 ? undefined : handleLike}
-                  disabled={viewerId === -1}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
+                  onClick={handleLike}
+                  className={`transition-all duration-200 focus:outline-none drop-shadow-md hover:scale-110 active:scale-95 cursor-pointer ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasLiked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
@@ -676,9 +692,8 @@ const Layout1 = ({
               {/* Dislike Button */}
               <div className="relative group/tooltip flex justify-center">
                 <button 
-                  onClick={viewerId === -1 ? undefined : handleDislike}
-                  disabled={viewerId === -1}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
+                  onClick={handleDislike}
+                  className={`transition-all duration-200 focus:outline-none drop-shadow-md hover:scale-110 active:scale-95 cursor-pointer ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
                 >
                   <svg width="17" height="17" viewBox="0 0 24 24" fill={hasDisliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasDisliked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
                     <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
@@ -783,7 +798,7 @@ const Layout1 = ({
           className="relative z-20 flex flex-col items-center justify-center w-full"
           style={{
             paddingTop: `calc(2.5rem + ${profileBorderWidth}px)`,
-            paddingBottom: `calc(2.5rem + ${profileBorderWidth}px)`,
+            paddingBottom: `calc(3.5rem + ${profileBorderWidth}px)`,
             paddingLeft: `calc(1.5rem + ${profileBorderWidth}px)`,
             paddingRight: `calc(1.5rem + ${profileBorderWidth}px)`,
           }}
@@ -881,7 +896,7 @@ const Layout1 = ({
 
           {bio && (
             <p 
-              className="mt-4 leading-relaxed max-w-[90%] text-center break-words"
+              className="mt-1.5 leading-relaxed max-w-[90%] text-center break-words"
               style={{
                 fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
                 fontSize: `${bioFontSize}px`,

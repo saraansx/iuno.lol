@@ -297,7 +297,7 @@ export default function MediaCropModal({
                 type="button"
                 onClick={handleApply}
                 disabled={isProcessing}
-                className="h-10 px-6 rounded-xl bg-[#609fda]/20 border border-[#609fda]/40 text-[13px] font-medium text-[#609fda] hover:bg-[#609fda]/30 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                className="h-10 px-6 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {isProcessing ? "Cropping..." : "Apply"}
               </button>

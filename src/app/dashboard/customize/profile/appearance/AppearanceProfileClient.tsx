@@ -29,10 +29,10 @@ type SectionKey =
   | "highlight-font";
 
 const FONT_OPTIONS = [
-  "Inter", "Pacifico", "Roboto", "Creepster", "Outfit",
-  "Shadows Into Light", "Space Grotesk", "Caveat", "Playfair Display", "Permanent Marker",
-  "Poppins", "Bangers", "Montserrat", "Dancing Script", "DM Sans",
-  "Amatic SC", "Syne", "Indie Flower", "Oswald", "Lobster"
+  "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
+  "Caviar Dreams", "Space Grotesk", "Caveat", "Playfair Display", "Paper Notes",
+  "Poppins", "Matcha Mint", "Montserrat", "Dancing Script", "DM Sans",
+  "Comfortaa", "Syne", "Indie Flower", "Oswald", "Lobster"
 ];
 
 const fontVariables: Record<string, string> = {
@@ -48,12 +48,12 @@ const fontVariables: Record<string, string> = {
   "Oswald": "var(--font-oswald)",
   "Pacifico": "var(--font-pacifico)",
   "Caveat": "var(--font-caveat)",
-  "Permanent Marker": "var(--font-permanent-marker)",
-  "Bangers": "var(--font-bangers)",
+  "Paper Notes": "var(--font-paper-notes)",
+  "Matcha Mint": "var(--font-matcha-mint)",
   "Dancing Script": "var(--font-dancing-script)",
-  "Amatic SC": "var(--font-amatic-sc)",
-  "Creepster": "var(--font-creepster)",
-  "Shadows Into Light": "var(--font-shadows-into-light)",
+  "Comfortaa": "var(--font-comfortaa)",
+  "Elegant Bloom": "var(--font-elegant-bloom)",
+  "Caviar Dreams": "var(--font-caviar-dreams)",
   "Indie Flower": "var(--font-indie-flower)",
   "Lobster": "var(--font-lobster)",
 };

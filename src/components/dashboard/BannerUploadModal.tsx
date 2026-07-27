@@ -203,7 +203,7 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
                 <button
                   onClick={handleApply}
                   disabled={!resolvedUrl || isLoading}
-                  className="h-10 w-full cursor-pointer rounded-xl border border-[#609fda]/20 bg-[#609fda]/8 text-[13px] font-medium text-[#609fda] transition-colors hover:bg-[#609fda]/14 disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
+                  className="h-10 w-full cursor-pointer rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
                 >
                   {isLoading
                     ? "Uploading..."
