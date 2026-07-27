@@ -77,6 +77,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       highlightFontWeight: users.highlightFontWeight,
       highlightLetterSpacing: users.highlightLetterSpacing,
       highlightColor: users.highlightColor,
+      pageBgColor: users.pageBgColor,
     })
     .from(users)
     .where(eq(users.username, username))
@@ -89,7 +90,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const user = userList[0]
   const viewerId = await getSessionUserId() || null;
   return (
-    <div className="min-h-screen bg-[#050505] relative overflow-hidden">
+    <div 
+      className="min-h-screen relative overflow-hidden"
+      style={{ backgroundColor: user.pageBgColor || '#050505' }}
+    >
       <Layout1
         username={user.username}
         displayName={user.displayName ?? undefined}

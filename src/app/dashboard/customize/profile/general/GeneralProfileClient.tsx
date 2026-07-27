@@ -186,6 +186,7 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
         decorationHue={decorationHue}
         bannerImageUrl={bannerImageUrl}
         bannerBackgroundUrl={bannerBackgroundUrl}
+        pageBgColor={user?.pageBgColor ?? "#050505"}
         profileBgColor={initialProfileBgColor}
         profileBgOpacity={initialProfileBgOpacity}
         profileShadowColor={initialProfileShadowColor}

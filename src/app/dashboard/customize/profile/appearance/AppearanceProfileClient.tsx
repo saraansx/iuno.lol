@@ -1348,6 +1348,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
         decorationHue={user?.avatarDecorationHue ?? 0}
         bannerImageUrl={user?.bannerImageUrl ?? undefined}
         bannerBackgroundUrl={user?.bannerBackgroundUrl ?? undefined}
+        pageBgColor={user?.pageBgColor ?? "#050505"}
         profileBgColor={profileBgColor}
         profileBgOpacity={profileBgOpacity === "" ? 0 : profileBgOpacity}
         profileBorderColor={profileBorderColor}

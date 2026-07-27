@@ -15,6 +15,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
   const initialBioColor = user?.bioColor ?? "#ffffff";
   const initialOtherColor = user?.otherColor ?? "#ffffff";
   const initialHighlightColor = user?.highlightColor ?? "#ffffff";
+  const initialPageBgColor = user?.pageBgColor ?? "#050505";
 
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -22,18 +23,21 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
   const [bioColor, setBioColor] = useState(initialBioColor);
   const [otherColor, setOtherColor] = useState(initialOtherColor);
   const [highlightColor, setHighlightColor] = useState(initialHighlightColor);
+  const [pageBgColor, setPageBgColor] = useState(initialPageBgColor);
 
   const hasChanges =
     usernameColor !== initialUsernameColor ||
     bioColor !== initialBioColor ||
     otherColor !== initialOtherColor ||
-    highlightColor !== initialHighlightColor;
+    highlightColor !== initialHighlightColor ||
+    pageBgColor !== initialPageBgColor;
 
   const handleRevert = () => {
     setUsernameColor(initialUsernameColor);
     setBioColor(initialBioColor);
     setOtherColor(initialOtherColor);
     setHighlightColor(initialHighlightColor);
+    setPageBgColor(initialPageBgColor);
   };
 
   return (
@@ -51,6 +55,8 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
           setOtherColor={setOtherColor}
           highlightColor={highlightColor}
           setHighlightColor={setHighlightColor}
+          pageBgColor={pageBgColor}
+          setPageBgColor={setPageBgColor}
         />
       </div>
 
@@ -67,6 +73,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
         decorationHue={user?.avatarDecorationHue ?? 0}
         bannerImageUrl={user?.bannerImageUrl || undefined}
         bannerBackgroundUrl={user?.bannerBackgroundUrl || undefined}
+        pageBgColor={pageBgColor}
         profileBgColor={user?.profileBgColor ?? "#ffffff"}
         profileBgOpacity={user?.profileBgOpacity ?? 10}
         profileBorderColor={user?.profileBorderColor ?? "#ffffff"}
@@ -121,6 +128,7 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
             bioColor,
             otherColor,
             highlightColor,
+            pageBgColor,
           });
           router.refresh();
         }}

@@ -20,6 +20,7 @@ const userColumns = {
   bannerImageUrl: schema.users.bannerImageUrl,
   bannerBackgroundUrl: schema.users.bannerBackgroundUrl,
   profileBgColor: schema.users.profileBgColor,
+  pageBgColor: schema.users.pageBgColor,
   profileBgOpacity: schema.users.profileBgOpacity,
   profileBorderColor: schema.users.profileBorderColor,
   profileBorderOpacity: schema.users.profileBorderOpacity,

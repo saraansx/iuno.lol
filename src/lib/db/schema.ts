@@ -33,6 +33,7 @@ export const users = mysqlTable('users', {
   bannerImageUrl: varchar('banner_image_url', { length: 500 }),
   bannerBackgroundUrl: varchar('banner_background_url', { length: 500 }),
   profileBgColor: varchar('profile_bg_color', { length: 7 }).default('#050505'),
+  pageBgColor: varchar('page_bg_color', { length: 7 }).default('#050505'),
   profileBgOpacity: float('profile_bg_opacity').default(10),
   profileBorderColor: varchar('profile_border_color', { length: 7 }).default('#ffffff'),
   profileBorderOpacity: float('profile_border_opacity').default(100),

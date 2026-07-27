@@ -123,6 +123,7 @@ export async function updateGeneralProfile(data: {
 
 export async function updateAppearanceProfile(data: {
   username: string;
+  pageBgColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -187,6 +188,7 @@ export async function updateAppearanceProfile(data: {
   const setData: Record<string, unknown> = {};
 
   if (data.profileBgColor !== undefined) setData.profileBgColor = data.profileBgColor.slice(0, 7);
+  if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor.slice(0, 7);
   if (data.profileBgOpacity !== undefined) setData.profileBgOpacity = data.profileBgOpacity;
   if (data.profileBorderColor !== undefined) setData.profileBorderColor = data.profileBorderColor.slice(0, 7);
   if (data.profileBorderOpacity !== undefined) setData.profileBorderOpacity = data.profileBorderOpacity;
@@ -255,6 +257,7 @@ export async function updateColorsProfile(data: {
   bioColor?: string;
   otherColor?: string;
   highlightColor?: string;
+  pageBgColor?: string;
 }) {
   const userId = await getSessionUserId();
   
@@ -274,6 +277,7 @@ export async function updateColorsProfile(data: {
   if (data.bioColor !== undefined) setData.bioColor = data.bioColor.slice(0, 32);
   if (data.otherColor !== undefined) setData.otherColor = data.otherColor.slice(0, 32);
   if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor.slice(0, 32);
+  if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor.slice(0, 7);
 
   if (Object.keys(setData).length === 0) return { success: true };
   
