@@ -219,6 +219,7 @@ const Layout1 = ({
   viewerId,
 }: Layout1Props) => {
   const display = displayName || username;
+  const [liveViews, setLiveViews] = useState(views);
   const [animatedViews, setAnimatedViews] = useState(viewsAnimationEnabled ? 0 : views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
@@ -244,6 +245,22 @@ const Layout1 = ({
   useEffect(() => {
     setDislikesCount(initialDislikes);
   }, [initialDislikes]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && profileId && viewerId !== -1) {
+      // Fetch live data (views, likes, dislikes) from the API
+      fetch(`/api/profile/live?profileId=${profileId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.error) {
+            setLiveViews(data.views ?? views);
+            setLikesCount(data.likesCount ?? initialLikes);
+            setDislikesCount(data.dislikesCount ?? initialDislikes);
+          }
+        })
+        .catch(err => console.error("Failed to fetch live profile data:", err));
+    }
+  }, [profileId, views, initialLikes, initialDislikes, viewerId]);
 
   const handleLike = async () => {
     if (viewerId === -1) {
@@ -300,15 +317,15 @@ const Layout1 = ({
   };
 
   useEffect(() => {
-    if (!viewsAnimationEnabled || views === 0) {
-      setAnimatedViews(views);
+    if (!viewsAnimationEnabled || liveViews === 0) {
+      setAnimatedViews(liveViews);
       return;
     }
     
     const startTime = Date.now();
     const duration = viewsAnimationDuration || 1000;
     const startValue = 0;
-    const endValue = views;
+    const endValue = liveViews;
 
     const animate = () => {
       const now = Date.now();
@@ -320,12 +337,12 @@ const Layout1 = ({
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        setAnimatedViews(views);
+        setAnimatedViews(liveViews);
       }
     };
 
     requestAnimationFrame(animate);
-  }, [views, viewsAnimationEnabled, viewsAnimationDuration]);
+  }, [liveViews, viewsAnimationEnabled, viewsAnimationDuration]);
   
   const formattedJoinDate = React.useMemo(() => {
     if (!createdAt) return null;

@@ -7,7 +7,7 @@ import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 
-export const revalidate = 3600; // Cache on the CDN for 1 hour (flushed instantly when user saves dashboard)
+export const revalidate = 2592000; // Cache on the CDN for 30 days (flushed instantly when user saves dashboard)
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = await params
