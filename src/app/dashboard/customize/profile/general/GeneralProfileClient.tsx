@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ProfilePreview from "@/components/dashboard/ProfilePreview";
+import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { updateGeneralProfile } from "@/actions/profile";
+import { toast } from "@/components/ui/toast";
 
 import AssetsSection from "@/components/dashboard/customize/general/AssetsSection";
 import GeneralInfoSection from "@/components/dashboard/customize/general/GeneralInfoSection";
-import SaveBar from "@/components/dashboard/SaveBar";
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { decorationCount, type Decoration } from "@/components/dashboard/DecorationPicker";
@@ -15,7 +15,11 @@ import { isVideoUrl } from "@/lib/utils/media";
 
 import { type User } from "@/lib/db/schema";
 
+import { useCustomizeProfile } from '../CustomizeProfileProvider';
+import SaveBar from "@/components/dashboard/SaveBar";
+
 export default function GeneralProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+  const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
   const initialDisplayName = user?.displayName ?? "";
   const initialLocation = user?.location ?? "";
@@ -33,15 +37,23 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
   const initialProfileShadowOpacity = user?.profileShadowOpacity ?? 0;
   const initialProfileOpacity = user?.profileOpacity ?? 100;
 
-  const [displayName, setDisplayName] = useState(initialDisplayName);
-  const [location, setLocation] = useState(initialLocation);
-  const [occupation, setOccupation] = useState(initialOccupation);
-  const [bio, setBio] = useState(initialBio);
-  const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
-  const [avatarShape, setAvatarShape] = useState<"square" | "soft" | "rounded" | "circle">(initialAvatarShape);
+  const displayName = overrides.displayName ?? initialDisplayName;
+  const setDisplayName = (val: any) => updateOverrides({ displayName: val });
+  const location = overrides.location ?? initialLocation;
+  const setLocation = (val: any) => updateOverrides({ location: val });
+  const occupation = overrides.occupation ?? initialOccupation;
+  const setOccupation = (val: any) => updateOverrides({ occupation: val });
+  const bio = overrides.bio ?? initialBio;
+  const setBio = (val: any) => updateOverrides({ bio: val });
+  const avatarUrl = overrides.avatarUrl ?? initialAvatarUrl;
+  const setAvatarUrl = (val: any) => updateOverrides({ avatarUrl: val });
+  const avatarShape = overrides.avatarShape ?? initialAvatarShape;
+  const setAvatarShape = (val: any) => updateOverrides({ avatarShape: val });
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
-  const [bannerImageUrl, setBannerImageUrl] = useState(initialBannerImageUrl);
-  const [bannerBackgroundUrl, setBannerBackgroundUrl] = useState(initialBannerBackgroundUrl);
+  const bannerImageUrl = overrides.bannerImageUrl ?? initialBannerImageUrl;
+  const setBannerImageUrl = (val: any) => updateOverrides({ bannerImageUrl: val });
+  const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
+  const setBannerBackgroundUrl = (val: any) => updateOverrides({ bannerBackgroundUrl: val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationModalOpen, setDecorationModalOpen] = useState(false);
@@ -51,33 +63,12 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
     ? { id: "custom", name: "Custom Decoration", url: initialDecorationUrl } as Decoration
     : null;
 
-  const [selectedDecoration, setSelectedDecoration] = useState<Decoration | null>(initialDecoration);
-  const [decorationHue, setDecorationHue] = useState(initialDecorationHue);
+  const selectedDecoration = overrides.selectedDecoration ?? initialDecoration;
+  const setSelectedDecoration = (val: any) => updateOverrides({ selectedDecoration: val });
+  const decorationHue = overrides.decorationHue ?? initialDecorationHue;
+  const setDecorationHue = (val: any) => updateOverrides({ decorationHue: val });
 
-  const hasChanges =
-    displayName !== initialDisplayName ||
-    location !== initialLocation ||
-    occupation !== initialOccupation ||
-    bio !== initialBio ||
-    avatarUrl !== initialAvatarUrl ||
-    avatarShape !== initialAvatarShape ||
-    (selectedDecoration?.url ?? null) !== initialDecorationUrl ||
-    decorationHue !== initialDecorationHue ||
-    bannerImageUrl !== initialBannerImageUrl ||
-    bannerBackgroundUrl !== initialBannerBackgroundUrl;
 
-  const handleRevert = () => {
-    setDisplayName(initialDisplayName);
-    setLocation(initialLocation);
-    setOccupation(initialOccupation);
-    setBio(initialBio);
-    setAvatarUrl(initialAvatarUrl);
-    setAvatarShape(initialAvatarShape);
-    setSelectedDecoration(initialDecoration);
-    setDecorationHue(initialDecorationHue);
-    setBannerImageUrl(initialBannerImageUrl);
-    setBannerBackgroundUrl(initialBannerBackgroundUrl);
-  };
 
   return (
     <>
@@ -148,88 +139,42 @@ export default function GeneralProfileClient({ user }: { user: Omit<User, "passw
         onHueRotationChange={setDecorationHue}
       />
 
-      <SaveBar
-        show={hasChanges}
-        onSave={async () => {
-          // Automatically capture the user's timezone from their browser
-          const autoTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-          await updateGeneralProfile({
-            username: user?.username || "",
-            displayName,
-            location,
-            timezone: autoTimezone,
-            occupation,
-            bio,
-            avatarUrl,
-            avatarShape,
-            avatarDecorationUrl: selectedDecoration?.url ?? null,
-            avatarDecorationHue: decorationHue,
-            bannerImageUrl,
-            bannerBackgroundUrl
-          });
-          router.refresh();
+
+      <DashboardProfilePreview
+        user={user}
+        overrides={{
+          ...overrides,
+          displayName,
+          bio,
+          location,
+          occupation,
+          avatarUrl,
+          avatarShape,
+          selectedDecoration,
+          decorationHue,
+          bannerImageUrl,
+          bannerBackgroundUrl,
         }}
-        onRevert={handleRevert}
       />
 
-      <ProfilePreview
-        userId={user?.id}
-        username={user?.username ?? undefined}
-        displayName={displayName}
-        bio={bio}
-        location={location}
-        occupation={occupation}
-        avatarUrl={avatarUrl}
-        avatarShape={avatarShape}
-        selectedDecoration={selectedDecoration}
-        decorationHue={decorationHue}
-        bannerImageUrl={bannerImageUrl}
-        bannerBackgroundUrl={bannerBackgroundUrl}
-        pageBgColor={user?.pageBgColor ?? "#050505"}
-        profileBgColor={initialProfileBgColor}
-        profileBgOpacity={initialProfileBgOpacity}
-        profileShadowColor={initialProfileShadowColor}
-        profileShadowOpacity={initialProfileShadowOpacity}
-        profileOpacity={initialProfileOpacity}
-        profileBorderColor={user?.profileBorderColor ?? undefined}
-        profileBorderOpacity={user?.profileBorderOpacity ?? undefined}
-        profileBorderWidth={user?.profileBorderWidth ?? undefined}
-        profileBorderRadius={user?.profileBorderRadius ?? undefined}
-        profileCardBlur={user?.profileCardBlur ?? undefined}
-        profileBackgroundBlur={user?.profileBackgroundBlur ?? undefined}
-        usernameFont={user?.usernameFont ?? undefined}
-        usernameFontSize={user?.usernameFontSize ?? undefined}
-        usernameFontWeight={user?.usernameFontWeight ?? undefined}
-        usernameLetterSpacing={user?.usernameLetterSpacing ?? undefined}
-        usernameColor={user?.usernameColor ?? undefined}
-        bioFont={user?.bioFont ?? undefined}
-        bioFontSize={user?.bioFontSize ?? undefined}
-        bioFontWeight={user?.bioFontWeight ?? undefined}
-        bioLetterSpacing={user?.bioLetterSpacing ?? undefined}
-        bioColor={user?.bioColor ?? undefined}
-        otherFont={user?.otherFont ?? undefined}
-        otherFontSize={user?.otherFontSize ?? undefined}
-        otherFontWeight={user?.otherFontWeight ?? undefined}
-        otherLetterSpacing={user?.otherLetterSpacing ?? undefined}
-        otherColor={user?.otherColor ?? undefined}
-        views={user?.views ?? 0}
-        joinDateEnabled={user?.joinDateEnabled ?? undefined}
-        joinDateFormat={user?.joinDateFormat ?? undefined}
-        viewsEnabled={user?.viewsEnabled ?? undefined}
-        viewsAnimationEnabled={user?.viewsAnimationEnabled ?? undefined}
-        viewsAnimationDuration={user?.viewsAnimationDuration ?? undefined}
-        commentsEnabled={user?.commentsEnabled ?? undefined}
-        feedbackEnabled={user?.feedbackEnabled ?? false}
-        showUidTooltip={user?.showUidTooltip ?? true}
-        showLocationTooltip={user?.showLocationTooltip ?? true}
-        showOccupationTooltip={user?.showOccupationTooltip ?? true}
-        showLikesTooltip={user?.showLikesTooltip ?? true}
-        showDislikesTooltip={user?.showDislikesTooltip ?? true}
-        showJoinDateTooltip={user?.showJoinDateTooltip ?? true}
-        showViewsTooltip={user?.showViewsTooltip ?? true}
-        createdAt={user?.createdAt ?? undefined}
-        highlightColor={user?.highlightColor ?? undefined}
+      <SaveBar
+        show={Object.keys(overrides).length > 0}
+        onSave={async () => {
+          try {
+            await updateGeneralProfile({
+              username: user?.username || "",
+              ...overrides
+            });
+            toast.success("Profile Saved Sucessfully");
+            scheduleClear();
+            router.refresh();
+          } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Failed to save profile");
+          }
+        }}
+        onRevert={clearOverrides}
       />
     </>
   );

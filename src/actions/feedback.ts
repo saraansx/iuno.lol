@@ -8,6 +8,11 @@ import { and } from "drizzle-orm";
 
 export async function submitFeedbackAction(userId: number, type: 'like' | 'dislike' | 'unlike' | 'undislike') {
   const sessionUserId = await getSessionUserId();
+
+  if (!sessionUserId) {
+    return { success: false, error: "You must be logged in to like or dislike." };
+  }
+
   try {
     const setData: Record<string, any> = {};
 
@@ -28,21 +33,19 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
       .set(setData)
       .where(eq(schema.users.id, userId));
 
-    if (sessionUserId) {
-      if (type === 'like' || type === 'dislike') {
-        await db.insert(schema.profileFeedback).values({
-          receiverId: userId,
-          giverId: sessionUserId,
-          type: type,
-        }).onDuplicateKeyUpdate({ set: { type: type, createdAt: sql`CURRENT_TIMESTAMP` } });
-      } else if (type === 'unlike' || type === 'undislike') {
-        await db.delete(schema.profileFeedback).where(
-          and(
-            eq(schema.profileFeedback.receiverId, userId),
-            eq(schema.profileFeedback.giverId, sessionUserId)
-          )
-        );
-      }
+    if (type === 'like' || type === 'dislike') {
+      await db.insert(schema.profileFeedback).values({
+        receiverId: userId,
+        giverId: sessionUserId,
+        type: type,
+      }).onDuplicateKeyUpdate({ set: { type: type, createdAt: sql`CURRENT_TIMESTAMP` } });
+    } else if (type === 'unlike' || type === 'undislike') {
+      await db.delete(schema.profileFeedback).where(
+        and(
+          eq(schema.profileFeedback.receiverId, userId),
+          eq(schema.profileFeedback.giverId, sessionUserId)
+        )
+      );
     }
 
     return { success: true };

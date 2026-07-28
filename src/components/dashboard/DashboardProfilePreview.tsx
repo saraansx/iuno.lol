@@ -1,0 +1,90 @@
+"use client";
+
+import React, { useDeferredValue } from "react";
+import ProfilePreview from "@/components/dashboard/ProfilePreview";
+import { type User } from "@/lib/db/schema";
+import type { Decoration } from "@/components/dashboard/DecorationPicker";
+
+interface DashboardProfilePreviewProps {
+  user: Omit<User, "password"> | null;
+  overrides?: Record<string, any>;
+}
+
+export default function DashboardProfilePreview({ user, overrides = {} }: DashboardProfilePreviewProps) {
+  const deferredOverrides = useDeferredValue(overrides);
+
+  return (
+    <ProfilePreview
+      userId={user?.id}
+      username={user?.username ?? undefined}
+      displayName={deferredOverrides.displayName ?? user?.displayName ?? undefined}
+      bio={deferredOverrides.bio ?? user?.bio ?? undefined}
+      location={deferredOverrides.location ?? user?.location ?? undefined}
+      occupation={deferredOverrides.occupation ?? user?.occupation ?? undefined}
+      avatarUrl={deferredOverrides.avatarUrl ?? user?.avatarUrl ?? undefined}
+      avatarShape={deferredOverrides.avatarShape ?? (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
+      selectedDecoration={
+        deferredOverrides.selectedDecoration !== undefined
+          ? deferredOverrides.selectedDecoration
+          : user?.avatarDecorationUrl
+          ? ({ id: "custom", name: "Custom Decoration", url: user.avatarDecorationUrl } as any)
+          : null
+      }
+      decorationHue={deferredOverrides.decorationHue ?? user?.avatarDecorationHue ?? 0}
+      bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}
+      bannerBackgroundUrl={deferredOverrides.bannerBackgroundUrl ?? user?.bannerBackgroundUrl ?? undefined}
+      backgroundEffect={deferredOverrides.backgroundEffect ?? user?.backgroundEffect ?? "none"}
+      backgroundEffectIntensity={deferredOverrides.backgroundEffectIntensity ?? user?.backgroundEffectIntensity ?? 50}
+      backgroundEffectColor={deferredOverrides.backgroundEffectColor ?? user?.backgroundEffectColor ?? "#ffffff"}
+      pageBgColor={deferredOverrides.pageBgColor ?? user?.pageBgColor ?? "#050505"}
+      profileBgColor={deferredOverrides.profileBgColor ?? user?.profileBgColor ?? "#ffffff"}
+      profileBgOpacity={deferredOverrides.profileBgOpacity !== undefined && deferredOverrides.profileBgOpacity !== "" ? deferredOverrides.profileBgOpacity : (user?.profileBgOpacity ?? 10)}
+      profileBorderColor={deferredOverrides.profileBorderColor ?? user?.profileBorderColor ?? "#ffffff"}
+      profileBorderOpacity={deferredOverrides.profileBorderOpacity !== undefined && deferredOverrides.profileBorderOpacity !== "" ? deferredOverrides.profileBorderOpacity : (user?.profileBorderOpacity ?? 10)}
+      profileBorderWidth={deferredOverrides.profileBorderWidth !== undefined && deferredOverrides.profileBorderWidth !== "" ? deferredOverrides.profileBorderWidth : (user?.profileBorderWidth ?? 1)}
+      profileBorderRadius={deferredOverrides.profileBorderRadius !== undefined && deferredOverrides.profileBorderRadius !== "" ? deferredOverrides.profileBorderRadius : (user?.profileBorderRadius ?? 24)}
+      profileCardBlur={deferredOverrides.profileCardBlur !== undefined && deferredOverrides.profileCardBlur !== "" ? deferredOverrides.profileCardBlur : (user?.profileCardBlur ?? 20)}
+      profileBackgroundBlur={deferredOverrides.profileBackgroundBlur !== undefined && deferredOverrides.profileBackgroundBlur !== "" ? deferredOverrides.profileBackgroundBlur : (user?.profileBackgroundBlur ?? 0)}
+      profileShadowColor={deferredOverrides.profileShadowColor ?? user?.profileShadowColor ?? "#000000"}
+      profileShadowOpacity={deferredOverrides.profileShadowOpacity !== undefined && deferredOverrides.profileShadowOpacity !== "" ? deferredOverrides.profileShadowOpacity : (user?.profileShadowOpacity ?? 20)}
+      profileOpacity={deferredOverrides.profileOpacity !== undefined && deferredOverrides.profileOpacity !== "" ? deferredOverrides.profileOpacity : (user?.profileOpacity ?? 100)}
+      views={deferredOverrides.views ?? user?.views ?? 0}
+      usernameFont={deferredOverrides.usernameFont ?? user?.usernameFont ?? "inter"}
+      usernameFontSize={deferredOverrides.usernameFontSize !== undefined && deferredOverrides.usernameFontSize !== "" ? deferredOverrides.usernameFontSize : (user?.usernameFontSize ?? 24)}
+      usernameFontWeight={deferredOverrides.usernameFontWeight !== undefined && deferredOverrides.usernameFontWeight !== "" ? deferredOverrides.usernameFontWeight : (user?.usernameFontWeight ?? 700)}
+      usernameLetterSpacing={deferredOverrides.usernameLetterSpacing !== undefined && deferredOverrides.usernameLetterSpacing !== "" ? deferredOverrides.usernameLetterSpacing : (user?.usernameLetterSpacing ?? 0)}
+      usernameColor={deferredOverrides.usernameColor ?? user?.usernameColor ?? "#ffffff"}
+      bioFont={deferredOverrides.bioFont ?? user?.bioFont ?? "inter"}
+      bioFontSize={deferredOverrides.bioFontSize !== undefined && deferredOverrides.bioFontSize !== "" ? deferredOverrides.bioFontSize : (user?.bioFontSize ?? 15)}
+      bioFontWeight={deferredOverrides.bioFontWeight !== undefined && deferredOverrides.bioFontWeight !== "" ? deferredOverrides.bioFontWeight : (user?.bioFontWeight ?? 400)}
+      bioLetterSpacing={deferredOverrides.bioLetterSpacing !== undefined && deferredOverrides.bioLetterSpacing !== "" ? deferredOverrides.bioLetterSpacing : (user?.bioLetterSpacing ?? 0)}
+      bioColor={deferredOverrides.bioColor ?? user?.bioColor ?? "#ffffff"}
+      otherFont={deferredOverrides.otherFont ?? user?.otherFont ?? "inter"}
+      otherFontSize={deferredOverrides.otherFontSize !== undefined && deferredOverrides.otherFontSize !== "" ? deferredOverrides.otherFontSize : (user?.otherFontSize ?? 13)}
+      otherFontWeight={deferredOverrides.otherFontWeight !== undefined && deferredOverrides.otherFontWeight !== "" ? deferredOverrides.otherFontWeight : (user?.otherFontWeight ?? 400)}
+      otherLetterSpacing={deferredOverrides.otherLetterSpacing !== undefined && deferredOverrides.otherLetterSpacing !== "" ? deferredOverrides.otherLetterSpacing : (user?.otherLetterSpacing ?? 0)}
+      otherColor={deferredOverrides.otherColor ?? user?.otherColor ?? "#ffffff"}
+      highlightFont={deferredOverrides.highlightFont ?? user?.highlightFont ?? "inter"}
+      highlightFontSize={deferredOverrides.highlightFontSize !== undefined && deferredOverrides.highlightFontSize !== "" ? deferredOverrides.highlightFontSize : (user?.highlightFontSize ?? 13)}
+      highlightFontWeight={deferredOverrides.highlightFontWeight !== undefined && deferredOverrides.highlightFontWeight !== "" ? deferredOverrides.highlightFontWeight : (user?.highlightFontWeight ?? 400)}
+      highlightLetterSpacing={deferredOverrides.highlightLetterSpacing !== undefined && deferredOverrides.highlightLetterSpacing !== "" ? deferredOverrides.highlightLetterSpacing : (user?.highlightLetterSpacing ?? 0)}
+      highlightColor={deferredOverrides.highlightColor ?? user?.highlightColor ?? "#ffffff"}
+      joinDateEnabled={deferredOverrides.joinDateEnabled ?? user?.joinDateEnabled ?? true}
+      joinDateFormat={deferredOverrides.joinDateFormat ?? user?.joinDateFormat ?? "standard"}
+      viewsEnabled={deferredOverrides.viewsEnabled ?? user?.viewsEnabled ?? true}
+      viewsAnimationEnabled={deferredOverrides.viewsAnimationEnabled ?? user?.viewsAnimationEnabled ?? true}
+      viewsAnimationDuration={deferredOverrides.viewsAnimationDuration !== undefined && deferredOverrides.viewsAnimationDuration !== "" ? deferredOverrides.viewsAnimationDuration : (user?.viewsAnimationDuration ?? 1000)}
+      commentsEnabled={deferredOverrides.commentsEnabled ?? user?.commentsEnabled ?? true}
+      feedbackEnabled={deferredOverrides.feedbackEnabled ?? user?.feedbackEnabled ?? false}
+      showFeedbackPublicly={deferredOverrides.showFeedbackPublicly ?? user?.showFeedbackPublicly ?? false}
+      showUidTooltip={deferredOverrides.showUidTooltip ?? user?.showUidTooltip ?? true}
+      showLocationTooltip={deferredOverrides.showLocationTooltip ?? user?.showLocationTooltip ?? true}
+      showOccupationTooltip={deferredOverrides.showOccupationTooltip ?? user?.showOccupationTooltip ?? true}
+      showLikesTooltip={deferredOverrides.showLikesTooltip ?? user?.showLikesTooltip ?? true}
+      showDislikesTooltip={deferredOverrides.showDislikesTooltip ?? user?.showDislikesTooltip ?? true}
+      showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? true}
+      showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
+      createdAt={deferredOverrides.createdAt ?? user?.createdAt}
+    />
+  );
+}

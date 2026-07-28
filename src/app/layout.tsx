@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Oswald, Pacifico, Caveat, Dancing_Script, Indie_Flower, Lobster } from "next/font/google";
 import localFont from "next/font/local";
 import "./tailwind.css";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/toast";
 import SharedBackground from "@/components/SharedBackground";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -133,22 +133,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
         <SharedBackground />
-        <Toaster 
-          theme="dark" 
-          position="top-center"
-          toastOptions={{
-            style: {
-              background: "#111622",
-              border: "1px solid rgba(96, 159, 218, 0.3)",
-              color: "#e2e8f0",
-              padding: "8px 14px",
-              borderRadius: "9999px",
-              fontSize: "12px",
-              fontWeight: 500,
-              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.4)",
-            },
-          }}
-        />
+        <Toaster />
         <div className="relative z-10 flex-1 flex flex-col">
           {children}
         </div>

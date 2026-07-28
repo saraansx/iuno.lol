@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { getDashboardFeedback } from "@/actions/feedback";
 
 type FeedbackData = {
@@ -40,7 +39,6 @@ export default function RecentFeedback() {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load feedback");
     } finally {
       setIsLoading(false);
     }

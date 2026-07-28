@@ -2,9 +2,9 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ProfilePreview from "@/components/dashboard/ProfilePreview";
-import SaveBar from "@/components/dashboard/SaveBar";
+import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { updateAppearanceProfile } from "@/actions/profile";
+import { toast } from "@/components/ui/toast";
 
 import JoinDateSection from "@/components/dashboard/customize/appearance/JoinDateSection";
 import ViewsSection from "@/components/dashboard/customize/appearance/ViewsSection";
@@ -58,7 +58,11 @@ const fontVariables: Record<string, string> = {
   "Lobster": "var(--font-lobster)",
 };
 
+import { useCustomizeProfile } from '../CustomizeProfileProvider';
+import SaveBar from "@/components/dashboard/SaveBar";
+
 export default function AppearanceProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+  const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
   const initialDecoration = initialDecorationUrl
@@ -97,40 +101,67 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
   const initialHighlightLetterSpacing = user?.highlightLetterSpacing ?? 0;
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
-  const [profileBgOpacity, setProfileBgOpacity] = useState<number | "">(initialProfileBgOpacity);
-  const [profileBgColor, setProfileBgColor] = useState(initialProfileBgColor);
-  const [profileBorderColor, setProfileBorderColor] = useState(initialProfileBorderColor);
-  const [profileBorderOpacity, setProfileBorderOpacity] = useState<number | "">(initialProfileBorderOpacity);
-  const [profileBorderWidth, setProfileBorderWidth] = useState<number | "">(initialProfileBorderWidth);
-  const [profileBorderRadius, setProfileBorderRadius] = useState<number | "">(initialProfileBorderRadius);
-  const [profileCardBlur, setProfileCardBlur] = useState<number | "">(initialProfileCardBlur);
-  const [profileBackgroundBlur, setProfileBackgroundBlur] = useState<number | "">(initialProfileBackgroundBlur);
-  const [profileShadowOpacity, setProfileShadowOpacity] = useState<number | "">(initialProfileShadowOpacity);
-  const [profileShadowColor, setProfileShadowColor] = useState(initialProfileShadowColor);
-  const [profileOpacity, setProfileOpacity] = useState(initialProfileOpacity);
-  const [usernameFont, setUsernameFont] = useState(initialUsernameFont);
+  const profileBgOpacity = overrides.profileBgOpacity ?? initialProfileBgOpacity;
+  const setProfileBgOpacity = (val: any) => updateOverrides({ profileBgOpacity: val });
+  const profileBgColor = overrides.profileBgColor ?? initialProfileBgColor;
+  const setProfileBgColor = (val: any) => updateOverrides({ profileBgColor: val });
+  const profileBorderColor = overrides.profileBorderColor ?? initialProfileBorderColor;
+  const setProfileBorderColor = (val: any) => updateOverrides({ profileBorderColor: val });
+  const profileBorderOpacity = overrides.profileBorderOpacity ?? initialProfileBorderOpacity;
+  const setProfileBorderOpacity = (val: any) => updateOverrides({ profileBorderOpacity: val });
+  const profileBorderWidth = overrides.profileBorderWidth ?? initialProfileBorderWidth;
+  const setProfileBorderWidth = (val: any) => updateOverrides({ profileBorderWidth: val });
+  const profileBorderRadius = overrides.profileBorderRadius ?? initialProfileBorderRadius;
+  const setProfileBorderRadius = (val: any) => updateOverrides({ profileBorderRadius: val });
+  const profileCardBlur = overrides.profileCardBlur ?? initialProfileCardBlur;
+  const setProfileCardBlur = (val: any) => updateOverrides({ profileCardBlur: val });
+  const profileBackgroundBlur = overrides.profileBackgroundBlur ?? initialProfileBackgroundBlur;
+  const setProfileBackgroundBlur = (val: any) => updateOverrides({ profileBackgroundBlur: val });
+  const profileShadowOpacity = overrides.profileShadowOpacity ?? initialProfileShadowOpacity;
+  const setProfileShadowOpacity = (val: any) => updateOverrides({ profileShadowOpacity: val });
+  const profileShadowColor = overrides.profileShadowColor ?? initialProfileShadowColor;
+  const setProfileShadowColor = (val: any) => updateOverrides({ profileShadowColor: val });
+  const profileOpacity = overrides.profileOpacity ?? initialProfileOpacity;
+  const setProfileOpacity = (val: any) => updateOverrides({ profileOpacity: val });
+  const usernameFont = overrides.usernameFont ?? initialUsernameFont;
+  const setUsernameFont = (val: any) => updateOverrides({ usernameFont: val });
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
-  const [usernameFontSize, setUsernameFontSize] = useState<number | "">(initialUsernameFontSize);
-  const [usernameFontWeight, setUsernameFontWeight] = useState<number | "">(initialUsernameFontWeight);
-  const [usernameLetterSpacing, setUsernameLetterSpacing] = useState<number | "">(initialUsernameLetterSpacing);
+  const usernameFontSize = overrides.usernameFontSize ?? initialUsernameFontSize;
+  const setUsernameFontSize = (val: any) => updateOverrides({ usernameFontSize: val });
+  const usernameFontWeight = overrides.usernameFontWeight ?? initialUsernameFontWeight;
+  const setUsernameFontWeight = (val: any) => updateOverrides({ usernameFontWeight: val });
+  const usernameLetterSpacing = overrides.usernameLetterSpacing ?? initialUsernameLetterSpacing;
+  const setUsernameLetterSpacing = (val: any) => updateOverrides({ usernameLetterSpacing: val });
 
-  const [bioFont, setBioFont] = useState(initialBioFont);
+  const bioFont = overrides.bioFont ?? initialBioFont;
+  const setBioFont = (val: any) => updateOverrides({ bioFont: val });
   const [isBioFontDropdownOpen, setIsBioFontDropdownOpen] = useState(false);
-  const [bioFontSize, setBioFontSize] = useState<number | "">(initialBioFontSize);
-  const [bioFontWeight, setBioFontWeight] = useState<number | "">(initialBioFontWeight);
-  const [bioLetterSpacing, setBioLetterSpacing] = useState<number | "">(initialBioLetterSpacing);
+  const bioFontSize = overrides.bioFontSize ?? initialBioFontSize;
+  const setBioFontSize = (val: any) => updateOverrides({ bioFontSize: val });
+  const bioFontWeight = overrides.bioFontWeight ?? initialBioFontWeight;
+  const setBioFontWeight = (val: any) => updateOverrides({ bioFontWeight: val });
+  const bioLetterSpacing = overrides.bioLetterSpacing ?? initialBioLetterSpacing;
+  const setBioLetterSpacing = (val: any) => updateOverrides({ bioLetterSpacing: val });
 
-  const [otherFont, setOtherFont] = useState(initialOtherFont);
+  const otherFont = overrides.otherFont ?? initialOtherFont;
+  const setOtherFont = (val: any) => updateOverrides({ otherFont: val });
   const [isOtherFontDropdownOpen, setIsOtherFontDropdownOpen] = useState(false);
-  const [otherFontSize, setOtherFontSize] = useState<number | "">(initialOtherFontSize);
-  const [otherFontWeight, setOtherFontWeight] = useState<number | "">(initialOtherFontWeight);
-  const [otherLetterSpacing, setOtherLetterSpacing] = useState<number | "">(initialOtherLetterSpacing);
+  const otherFontSize = overrides.otherFontSize ?? initialOtherFontSize;
+  const setOtherFontSize = (val: any) => updateOverrides({ otherFontSize: val });
+  const otherFontWeight = overrides.otherFontWeight ?? initialOtherFontWeight;
+  const setOtherFontWeight = (val: any) => updateOverrides({ otherFontWeight: val });
+  const otherLetterSpacing = overrides.otherLetterSpacing ?? initialOtherLetterSpacing;
+  const setOtherLetterSpacing = (val: any) => updateOverrides({ otherLetterSpacing: val });
 
-  const [highlightFont, setHighlightFont] = useState(initialHighlightFont);
+  const highlightFont = overrides.highlightFont ?? initialHighlightFont;
+  const setHighlightFont = (val: any) => updateOverrides({ highlightFont: val });
   const [isHighlightFontDropdownOpen, setIsHighlightFontDropdownOpen] = useState(false);
-  const [highlightFontSize, setHighlightFontSize] = useState<number | "">(initialHighlightFontSize);
-  const [highlightFontWeight, setHighlightFontWeight] = useState<number | "">(initialHighlightFontWeight);
-  const [highlightLetterSpacing, setHighlightLetterSpacing] = useState<number | "">(initialHighlightLetterSpacing);
+  const highlightFontSize = overrides.highlightFontSize ?? initialHighlightFontSize;
+  const setHighlightFontSize = (val: any) => updateOverrides({ highlightFontSize: val });
+  const highlightFontWeight = overrides.highlightFontWeight ?? initialHighlightFontWeight;
+  const setHighlightFontWeight = (val: any) => updateOverrides({ highlightFontWeight: val });
+  const highlightLetterSpacing = overrides.highlightLetterSpacing ?? initialHighlightLetterSpacing;
+  const setHighlightLetterSpacing = (val: any) => updateOverrides({ highlightLetterSpacing: val });
 
   const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
@@ -138,7 +169,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
 
   const [isJoinDateEnabled, setIsJoinDateEnabled] = useState(initialJoinDateEnabled);
   const [isJoinDateFormatDropdownOpen, setIsJoinDateFormatDropdownOpen] = useState(false);
-  const [joinDateFormat, setJoinDateFormat] = useState(initialJoinDateFormat);
+  const joinDateFormat = overrides.joinDateFormat ?? initialJoinDateFormat;
+  const setJoinDateFormat = (val: any) => updateOverrides({ joinDateFormat: val });
 
   const initialViewsEnabled = user?.viewsEnabled ?? true;
   const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
@@ -146,7 +178,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
 
   const [isViewsEnabled, setIsViewsEnabled] = useState(initialViewsEnabled);
   const [isViewsAnimationEnabled, setIsViewsAnimationEnabled] = useState(initialViewsAnimationEnabled);
-  const [viewsAnimationDuration, setViewsAnimationDuration] = useState<number | "">(initialViewsAnimationDuration);
+  const viewsAnimationDuration = overrides.viewsAnimationDuration ?? initialViewsAnimationDuration;
+  const setViewsAnimationDuration = (val: any) => updateOverrides({ viewsAnimationDuration: val });
 
   const initialCommentsEnabled = user?.commentsEnabled ?? true;
   const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
@@ -192,98 +225,7 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
     "Compact"
   ];
 
-  const hasChanges =
-    profileBgColor !== initialProfileBgColor ||
-    profileBgOpacity !== initialProfileBgOpacity ||
-    profileBorderColor !== initialProfileBorderColor ||
-    profileBorderOpacity !== initialProfileBorderOpacity ||
-    profileBorderWidth !== initialProfileBorderWidth ||
-    profileBorderRadius !== initialProfileBorderRadius ||
-    profileCardBlur !== initialProfileCardBlur ||
-    profileBackgroundBlur !== initialProfileBackgroundBlur ||
-    profileShadowColor !== initialProfileShadowColor ||
-    profileShadowOpacity !== initialProfileShadowOpacity ||
-    profileOpacity !== initialProfileOpacity ||
-    usernameFont !== initialUsernameFont ||
-    usernameFontSize !== initialUsernameFontSize ||
-    usernameFontWeight !== initialUsernameFontWeight ||
-    usernameLetterSpacing !== initialUsernameLetterSpacing ||
-    bioFont !== initialBioFont ||
-    bioFontSize !== initialBioFontSize ||
-    bioFontWeight !== initialBioFontWeight ||
-    bioLetterSpacing !== initialBioLetterSpacing ||
-    otherFont !== initialOtherFont ||
-    otherFontSize !== initialOtherFontSize ||
-    otherFontWeight !== initialOtherFontWeight ||
-    otherLetterSpacing !== initialOtherLetterSpacing ||
-    highlightFont !== initialHighlightFont ||
-    highlightFontSize !== initialHighlightFontSize ||
-    highlightFontWeight !== initialHighlightFontWeight ||
-    highlightLetterSpacing !== initialHighlightLetterSpacing ||
-    isJoinDateEnabled !== initialJoinDateEnabled ||
-    joinDateFormat !== initialJoinDateFormat ||
-    isViewsEnabled !== initialViewsEnabled ||
-    isViewsAnimationEnabled !== initialViewsAnimationEnabled ||
-    viewsAnimationDuration !== initialViewsAnimationDuration ||
-    isCommentsEnabled !== initialCommentsEnabled ||
-    isShowCommentsPublicly !== initialShowCommentsPublicly ||
-    isAllowNewComments !== initialAllowNewComments ||
-    isFeedbackEnabled !== initialFeedbackEnabled ||
-    isShowFeedbackPublicly !== initialShowFeedbackPublicly ||
-    isUidTooltipEnabled !== initialUidTooltipEnabled ||
-    isLocationTooltipEnabled !== initialLocationTooltipEnabled ||
-    isOccupationTooltipEnabled !== initialOccupationTooltipEnabled ||
-    isLikesTooltipEnabled !== initialLikesTooltipEnabled ||
-    isDislikesTooltipEnabled !== initialDislikesTooltipEnabled ||
-    isJoinDateTooltipEnabled !== initialJoinDateTooltipEnabled ||
-    isViewsTooltipEnabled !== initialViewsTooltipEnabled;
 
-  const handleRevert = () => {
-    setProfileBgOpacity(initialProfileBgOpacity);
-    setProfileBgColor(initialProfileBgColor);
-    setProfileBorderColor(initialProfileBorderColor);
-    setProfileBorderOpacity(initialProfileBorderOpacity);
-    setProfileBorderWidth(initialProfileBorderWidth);
-    setProfileBorderRadius(initialProfileBorderRadius);
-    setProfileCardBlur(initialProfileCardBlur);
-    setProfileBackgroundBlur(initialProfileBackgroundBlur);
-    setProfileShadowColor(initialProfileShadowColor);
-    setProfileShadowOpacity(initialProfileShadowOpacity);
-    setProfileOpacity(initialProfileOpacity);
-    setUsernameFont(initialUsernameFont);
-    setUsernameFontSize(initialUsernameFontSize);
-    setUsernameFontWeight(initialUsernameFontWeight);
-    setUsernameLetterSpacing(initialUsernameLetterSpacing);
-    setBioFont(initialBioFont);
-    setBioFontSize(initialBioFontSize);
-    setBioFontWeight(initialBioFontWeight);
-    setBioLetterSpacing(initialBioLetterSpacing);
-    setOtherFont(initialOtherFont);
-    setOtherFontSize(initialOtherFontSize);
-    setOtherFontWeight(initialOtherFontWeight);
-    setOtherLetterSpacing(initialOtherLetterSpacing);
-    setHighlightFont(initialHighlightFont);
-    setHighlightFontSize(initialHighlightFontSize);
-    setHighlightFontWeight(initialHighlightFontWeight);
-    setHighlightLetterSpacing(initialHighlightLetterSpacing);
-    setIsJoinDateEnabled(initialJoinDateEnabled);
-    setJoinDateFormat(initialJoinDateFormat);
-    setIsViewsEnabled(initialViewsEnabled);
-    setIsViewsAnimationEnabled(initialViewsAnimationEnabled);
-    setViewsAnimationDuration(initialViewsAnimationDuration);
-    setIsCommentsEnabled(initialCommentsEnabled);
-    setIsShowCommentsPublicly(initialShowCommentsPublicly);
-    setIsAllowNewComments(initialAllowNewComments);
-    setIsFeedbackEnabled(initialFeedbackEnabled);
-    setIsShowFeedbackPublicly(initialShowFeedbackPublicly);
-    setIsUidTooltipEnabled(initialUidTooltipEnabled);
-    setIsLocationTooltipEnabled(initialLocationTooltipEnabled);
-    setIsOccupationTooltipEnabled(initialOccupationTooltipEnabled);
-    setIsLikesTooltipEnabled(initialLikesTooltipEnabled);
-    setIsDislikesTooltipEnabled(initialDislikesTooltipEnabled);
-    setIsJoinDateTooltipEnabled(initialJoinDateTooltipEnabled);
-    setIsViewsTooltipEnabled(initialViewsTooltipEnabled);
-  };
 
 
 
@@ -840,8 +782,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                               setIsFontDropdownOpen(false);
                             }}
                             className={`w-full text-left px-4 py-2 text-[13.5px] transition-colors ${usernameFont === font
-                                ? "bg-white/10 text-white font-medium"
-                                : "text-white/50 hover:bg-white/5 hover:text-white"
+                              ? "bg-white/10 text-white font-medium"
+                              : "text-white/50 hover:bg-white/5 hover:text-white"
                               }`}
                             style={{ fontFamily: fontVariables[font] || "var(--font-inter)" }}
                           >
@@ -958,8 +900,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                               setIsBioFontDropdownOpen(false);
                             }}
                             className={`w-full text-left px-4 py-2 text-[13.5px] transition-colors ${bioFont === font
-                                ? "bg-white/10 text-white font-medium"
-                                : "text-white/50 hover:bg-white/5 hover:text-white"
+                              ? "bg-white/10 text-white font-medium"
+                              : "text-white/50 hover:bg-white/5 hover:text-white"
                               }`}
                             style={{ fontFamily: fontVariables[font] || "var(--font-inter)" }}
                           >
@@ -1075,8 +1017,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                               setIsOtherFontDropdownOpen(false);
                             }}
                             className={`w-full text-left px-4 py-2 text-[13.5px] transition-colors ${otherFont === font
-                                ? "bg-white/10 text-white font-medium"
-                                : "text-white/50 hover:bg-white/5 hover:text-white"
+                              ? "bg-white/10 text-white font-medium"
+                              : "text-white/50 hover:bg-white/5 hover:text-white"
                               }`}
                             style={{ fontFamily: fontVariables[font] || "var(--font-inter)" }}
                           >
@@ -1195,8 +1137,8 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
                               setIsHighlightFontDropdownOpen(false);
                             }}
                             className={`w-full text-left px-4 py-2 text-[13.5px] transition-colors ${highlightFont === font
-                                ? "bg-white/10 text-white font-medium"
-                                : "text-white/50 hover:bg-white/5 hover:text-white"
+                              ? "bg-white/10 text-white font-medium"
+                              : "text-white/50 hover:bg-white/5 hover:text-white"
                               }`}
                             style={{ fontFamily: fontVariables[font] || "var(--font-inter)" }}
                           >
@@ -1335,121 +1277,73 @@ export default function AppearanceProfileClient({ user }: { user: Omit<User, "pa
 
       </div>
 
-      <ProfilePreview
-        userId={user?.id}
-        username={user?.username ?? undefined}
-        displayName={user?.displayName ?? undefined}
-        bio={user?.bio ?? undefined}
-        location={user?.location ?? undefined}
-        occupation={user?.occupation ?? undefined}
-        avatarUrl={user?.avatarUrl ?? undefined}
-        avatarShape={(user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
-        selectedDecoration={initialDecoration}
-        decorationHue={user?.avatarDecorationHue ?? 0}
-        bannerImageUrl={user?.bannerImageUrl ?? undefined}
-        bannerBackgroundUrl={user?.bannerBackgroundUrl ?? undefined}
-        pageBgColor={user?.pageBgColor ?? "#050505"}
-        profileBgColor={profileBgColor}
-        profileBgOpacity={profileBgOpacity === "" ? 0 : profileBgOpacity}
-        profileBorderColor={profileBorderColor}
-        profileBorderOpacity={profileBorderOpacity === "" ? 0 : profileBorderOpacity}
-        profileBorderWidth={profileBorderWidth === "" ? 0 : profileBorderWidth}
-        profileBorderRadius={profileBorderRadius === "" ? 0 : profileBorderRadius}
-        profileCardBlur={profileCardBlur === "" ? 0 : profileCardBlur}
-        profileBackgroundBlur={profileBackgroundBlur === "" ? 0 : profileBackgroundBlur}
-        profileShadowColor={profileShadowColor}
-        profileShadowOpacity={profileShadowOpacity === "" ? 0 : profileShadowOpacity}
-        profileOpacity={profileOpacity}
-        views={user?.views ?? 0}
-        usernameFont={usernameFont}
-        usernameFontSize={usernameFontSize === "" ? 24 : usernameFontSize}
-        usernameFontWeight={usernameFontWeight === "" ? 700 : usernameFontWeight}
-        usernameLetterSpacing={usernameLetterSpacing === "" ? 0 : usernameLetterSpacing}
-        usernameColor={user?.usernameColor ?? "#ffffff"}
-        bioFont={bioFont}
-        bioFontSize={bioFontSize === "" ? 15 : bioFontSize}
-        bioFontWeight={bioFontWeight === "" ? 400 : bioFontWeight}
-        bioLetterSpacing={bioLetterSpacing === "" ? 0 : bioLetterSpacing}
-        otherFont={otherFont}
-        otherFontSize={otherFontSize === "" ? 13 : otherFontSize}
-        otherFontWeight={otherFontWeight === "" ? 400 : otherFontWeight}
-        otherLetterSpacing={otherLetterSpacing === "" ? 0 : otherLetterSpacing}
-        highlightFont={highlightFont}
-        highlightFontSize={highlightFontSize === "" ? 13 : highlightFontSize}
-        highlightFontWeight={highlightFontWeight === "" ? 400 : highlightFontWeight}
-        highlightLetterSpacing={highlightLetterSpacing === "" ? 0 : highlightLetterSpacing}
-        joinDateEnabled={isJoinDateEnabled}
-        joinDateFormat={joinDateFormat}
-        viewsEnabled={isViewsEnabled}
-        viewsAnimationEnabled={isViewsAnimationEnabled}
-        viewsAnimationDuration={viewsAnimationDuration === "" ? 1000 : viewsAnimationDuration}
-        commentsEnabled={isCommentsEnabled}
-        feedbackEnabled={isFeedbackEnabled}
-        showUidTooltip={isUidTooltipEnabled}
-        showLocationTooltip={isLocationTooltipEnabled}
-        showOccupationTooltip={isOccupationTooltipEnabled}
-        showLikesTooltip={isLikesTooltipEnabled}
-        showDislikesTooltip={isDislikesTooltipEnabled}
-        showJoinDateTooltip={isJoinDateTooltipEnabled}
-        showViewsTooltip={isViewsTooltipEnabled}
-        createdAt={user?.createdAt}
-        highlightColor={user?.highlightColor ?? undefined}
+      <DashboardProfilePreview
+        user={user}
+        overrides={{
+          ...overrides,
+          profileBgColor,
+          profileBgOpacity: profileBgOpacity === "" ? 0 : profileBgOpacity,
+          profileBorderColor,
+          profileBorderOpacity: profileBorderOpacity === "" ? 0 : profileBorderOpacity,
+          profileBorderWidth,
+          profileBorderRadius,
+          profileCardBlur,
+          profileBackgroundBlur,
+          profileShadowColor,
+          profileShadowOpacity,
+          profileOpacity,
+          usernameFont,
+          usernameFontSize: usernameFontSize === "" ? 18 : usernameFontSize,
+          usernameFontWeight: usernameFontWeight === "" ? 600 : usernameFontWeight,
+          usernameLetterSpacing: usernameLetterSpacing === "" ? -0.5 : usernameLetterSpacing,
+          bioFont,
+          bioFontSize: bioFontSize === "" ? 14 : bioFontSize,
+          bioFontWeight: bioFontWeight === "" ? 400 : bioFontWeight,
+          bioLetterSpacing: bioLetterSpacing === "" ? 0 : bioLetterSpacing,
+          otherFont,
+          otherFontSize: otherFontSize === "" ? 13 : otherFontSize,
+          otherFontWeight: otherFontWeight === "" ? 400 : otherFontWeight,
+          otherLetterSpacing: otherLetterSpacing === "" ? 0 : otherLetterSpacing,
+          highlightFont,
+          highlightFontSize: highlightFontSize === "" ? 13 : highlightFontSize,
+          highlightFontWeight: highlightFontWeight === "" ? 400 : highlightFontWeight,
+          highlightLetterSpacing: highlightLetterSpacing === "" ? 0 : highlightLetterSpacing,
+          joinDateEnabled: isJoinDateEnabled,
+          joinDateFormat,
+          viewsEnabled: isViewsEnabled,
+          viewsAnimationEnabled: isViewsAnimationEnabled,
+          viewsAnimationDuration: viewsAnimationDuration === "" ? 1000 : viewsAnimationDuration,
+          commentsEnabled: isCommentsEnabled,
+          feedbackEnabled: isFeedbackEnabled,
+          showUidTooltip: isUidTooltipEnabled,
+          showLocationTooltip: isLocationTooltipEnabled,
+          showOccupationTooltip: isOccupationTooltipEnabled,
+          showLikesTooltip: isLikesTooltipEnabled,
+          showDislikesTooltip: isDislikesTooltipEnabled,
+          showJoinDateTooltip: isJoinDateTooltipEnabled,
+          showViewsTooltip: isViewsTooltipEnabled,
+        }}
       />
 
       <SaveBar
-        show={hasChanges}
+        show={Object.keys(overrides).length > 0}
         onSave={async () => {
-          await updateAppearanceProfile({
-            username: user?.username || "",
-            profileBgColor,
-            profileBgOpacity: profileBgOpacity === "" ? 0 : profileBgOpacity,
-            profileBorderColor,
-            profileBorderOpacity: profileBorderOpacity === "" ? 0 : profileBorderOpacity,
-            profileBorderWidth: profileBorderWidth === "" ? 0 : profileBorderWidth,
-            profileBorderRadius: profileBorderRadius === "" ? 0 : profileBorderRadius,
-            profileCardBlur: profileCardBlur === "" ? 0 : profileCardBlur,
-            profileBackgroundBlur: profileBackgroundBlur === "" ? 0 : profileBackgroundBlur,
-            profileShadowColor,
-            profileShadowOpacity: profileShadowOpacity === "" ? 0 : profileShadowOpacity,
-            profileOpacity,
-            usernameFont,
-            usernameFontSize: usernameFontSize === "" ? 24 : usernameFontSize,
-            usernameFontWeight: usernameFontWeight === "" ? 700 : usernameFontWeight,
-            usernameLetterSpacing: usernameLetterSpacing === "" ? 0 : usernameLetterSpacing,
-            bioFont,
-            bioFontSize: bioFontSize === "" ? 15 : bioFontSize,
-            bioFontWeight: bioFontWeight === "" ? 400 : bioFontWeight,
-            bioLetterSpacing: bioLetterSpacing === "" ? 0 : bioLetterSpacing,
-            otherFont,
-            otherFontSize: otherFontSize === "" ? 13 : otherFontSize,
-            otherFontWeight: otherFontWeight === "" ? 400 : otherFontWeight,
-            otherLetterSpacing: otherLetterSpacing === "" ? 0 : otherLetterSpacing,
-            highlightFont,
-            highlightFontSize: highlightFontSize === "" ? 13 : highlightFontSize,
-            highlightFontWeight: highlightFontWeight === "" ? 400 : highlightFontWeight,
-            highlightLetterSpacing: highlightLetterSpacing === "" ? 0 : highlightLetterSpacing,
-            joinDateEnabled: isJoinDateEnabled,
-            joinDateFormat,
-            viewsEnabled: isViewsEnabled,
-            viewsAnimationEnabled: isViewsAnimationEnabled,
-            viewsAnimationDuration: viewsAnimationDuration === "" ? 1000 : viewsAnimationDuration,
-            commentsEnabled: isCommentsEnabled,
-            showCommentsPublicly: isShowCommentsPublicly,
-            allowNewComments: isAllowNewComments,
-            feedbackEnabled: isFeedbackEnabled,
-            showFeedbackPublicly: isShowFeedbackPublicly,
-            showUidTooltip: isUidTooltipEnabled,
-            showLocationTooltip: isLocationTooltipEnabled,
-            showOccupationTooltip: isOccupationTooltipEnabled,
-            showLikesTooltip: isLikesTooltipEnabled,
-            showDislikesTooltip: isDislikesTooltipEnabled,
-            showJoinDateTooltip: isJoinDateTooltipEnabled,
-            showViewsTooltip: isViewsTooltipEnabled,
-          });
-          router.refresh();
+          try {
+            await updateAppearanceProfile({
+              username: user?.username || "",
+              ...overrides
+            });
+            toast.success("Profile Saved Sucessfully");
+            scheduleClear();
+            router.refresh();
+          } catch (error) {
+            console.error(error);
+            toast.error(error instanceof Error ? error.message : "Failed to save profile");
+          }
         }}
-        onRevert={handleRevert}
+        onRevert={clearOverrides}
       />
+
     </React.Fragment>
   );
 }

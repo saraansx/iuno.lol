@@ -78,6 +78,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       highlightLetterSpacing: users.highlightLetterSpacing,
       highlightColor: users.highlightColor,
       pageBgColor: users.pageBgColor,
+      backgroundEffect: users.backgroundEffect,
+      backgroundEffectIntensity: users.backgroundEffectIntensity,
+      backgroundEffectColor: users.backgroundEffectColor,
     })
     .from(users)
     .where(eq(users.username, username))
@@ -106,6 +109,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         decorationHue={user.avatarDecorationHue ?? 0}
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
+        backgroundEffect={user.backgroundEffect ?? undefined}
+        backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
+        backgroundEffectColor={user.backgroundEffectColor ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}

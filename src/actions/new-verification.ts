@@ -19,9 +19,8 @@ export async function newVerification(token: string) {
     }
 
     await markEmailVerified(email)
-    await createSession(existingUser.id)
 
-    return { success: 'Email verified successfully!', username: existingUser.username }
+    return { success: 'Email verified successfully! You can now log in.', username: existingUser.username }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Something went wrong.'
     return { error: message }

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { getComments, addComment, toggleLikeComment, togglePinComment, deleteComment, editComment } from "@/actions/comments";
 import { CommentItem, type CommentData } from "./CommentItem";
-import { toast } from "sonner";
 
 interface CommentsModalProps {
   isOpen: boolean;
@@ -107,11 +106,9 @@ export function CommentsModal({
         ));
       } else {
         setComments(prev => prev.filter(c => c.id !== tempId));
-        toast.error(res.error || "Failed to post comment");
       }
     }).catch(() => {
       setComments(prev => prev.filter(c => c.id !== tempId));
-      toast.error("Failed to post comment");
     });
   };
 
@@ -125,7 +122,6 @@ export function CommentsModal({
     // Background server call
     toggleLikeComment(id).catch(() => {
       fetchComments();
-      toast.error("Failed to update like");
     });
   };
 
@@ -151,7 +147,6 @@ export function CommentsModal({
     });
     togglePinComment(id, profileId).catch(() => {
       fetchComments();
-      toast.error("Failed to update pin");
     });
   };
 
@@ -159,7 +154,6 @@ export function CommentsModal({
     setComments(prev => prev.filter(c => c.id !== id && c.replyToId !== id));
     deleteComment(id, profileId).catch(() => {
       fetchComments();
-      toast.error("Failed to delete comment");
     });
   };
 
@@ -195,11 +189,9 @@ export function CommentsModal({
         ));
       } else {
         setComments(prev => prev.filter(c => c.id !== tempId));
-        toast.error(res.error || "Failed to post reply");
       }
     }).catch(() => {
       setComments(prev => prev.filter(c => c.id !== tempId));
-      toast.error("Failed to post reply");
     });
   };
 
@@ -210,7 +202,6 @@ export function CommentsModal({
       setComments(prev => prev.map(c => c.id === id ? { ...c, content: newContent } : c));
       editComment(id, newContent).catch(() => {
         fetchComments();
-        toast.error("Failed to edit comment");
       });
     }
   };

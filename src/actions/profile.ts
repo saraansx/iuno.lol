@@ -293,3 +293,40 @@ export async function updateColorsProfile(data: {
   return { success: true };
 }
 
+export async function updateEffectsProfile(data: {
+  username: string;
+  backgroundEffect?: string;
+  backgroundEffectIntensity?: number;
+  backgroundEffectColor?: string;
+}) {
+  const userId = await getSessionUserId();
+  
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const setData: Record<string, unknown> = {};
+
+  if (data.backgroundEffect !== undefined) setData.backgroundEffect = data.backgroundEffect.slice(0, 50);
+  if (data.backgroundEffectIntensity !== undefined) setData.backgroundEffectIntensity = data.backgroundEffectIntensity;
+  if (data.backgroundEffectColor !== undefined) setData.backgroundEffectColor = data.backgroundEffectColor.slice(0, 32);
+
+  if (Object.keys(setData).length === 0) return { success: true };
+  
+  await db
+    .update(schema.users)
+    .set(setData)
+    .where(eq(schema.users.id, userId));
+
+  revalidatePath("/dashboard/customize/profile/effects");
+  revalidatePath("/dashboard", "layout");
+  revalidatePath(`/${data.username}`);
+  
+  return { success: true };
+}

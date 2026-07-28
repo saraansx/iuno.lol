@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { getDashboardComments, deleteComment, toggleLikeComment, togglePinComment } from "@/actions/comments";
 
 type CommentData = {
@@ -40,7 +39,6 @@ export default function RecentComments() {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load comments");
     } finally {
       setIsLoading(false);
     }
@@ -61,11 +59,9 @@ export default function RecentComments() {
     try {
       const res = await deleteComment(commentId, profileId);
       if (!res.success) {
-        toast.error(res.error || "Failed to delete comment");
         fetchComments(); // revert
       }
     } catch {
-      toast.error("Failed to delete comment");
       fetchComments(); // revert
     }
   };
@@ -83,11 +79,9 @@ export default function RecentComments() {
     try {
       const res = await toggleLikeComment(commentId);
       if (!res.success) {
-        toast.error("Failed to update like status");
         fetchComments();
       }
     } catch {
-      toast.error("Failed to update like status");
       fetchComments();
     }
   };
@@ -104,11 +98,9 @@ export default function RecentComments() {
     try {
       const res = await togglePinComment(commentId, profileId);
       if (!res.success) {
-        toast.error("Failed to update pin status");
         fetchComments();
       }
     } catch {
-      toast.error("Failed to update pin status");
       fetchComments();
     }
   };

@@ -9,13 +9,27 @@ const redis = new Redis({
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { profileId } = body;
+    const { profileId, fingerprint } = body;
 
     if (!profileId || typeof profileId !== 'number') {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
     }
 
     const userAgent = request.headers.get('user-agent') || '';
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const clientFingerprint = fingerprint || 'no_fp';
+
+    const visitorHash = Array.from(ip + userAgent + clientFingerprint)
+      .reduce((hash, char) => 0 | (31 * hash + char.charCodeAt(0)), 0)
+      .toString(36);
+
+    const lockKey = `view_lock:${profileId}:${visitorHash}`;
+    const acquiredLock = await redis.set(lockKey, 1, { ex: 86400, nx: true });
+
+    if (!acquiredLock) {
+      return NextResponse.json({ success: true, message: 'Already viewed recently' });
+    }
+
     const ua = userAgent.toLowerCase();
     let device = 'other';
     if (ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod')) {

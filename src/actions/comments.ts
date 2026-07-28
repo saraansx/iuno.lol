@@ -2,6 +2,7 @@
 
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, sql, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { commentRateLimit } from "@/lib/rate-limit";
@@ -14,6 +15,12 @@ export async function addComment(profileId: number, content: string, replyToId?:
   if (!rate.ok) {
     const minutes = Math.ceil(rate.retryAfterSeconds / 60);
     return { error: `You're posting too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
+  }
+
+  const profile = await getUserById(profileId);
+  if (!profile) return { error: "Profile not found" };
+  if (!profile.allowNewComments && authorId !== profileId) {
+    return { error: "Comments are disabled on this profile." };
   }
 
   if (!content || content.trim().length === 0) {
@@ -41,6 +48,13 @@ export async function addComment(profileId: number, content: string, replyToId?:
 
 export async function getComments(profileId: number) {
   const viewerId = await getSessionUserId();
+
+  const profile = await getUserById(profileId);
+  if (!profile) return { success: true, comments: [] };
+  if (!profile.showCommentsPublicly && viewerId !== profileId) {
+    return { success: true, comments: [] };
+  }
+
   const rawComments = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, profileId),
     with: {
@@ -55,7 +69,7 @@ export async function getComments(profileId: number) {
   const comments = rawComments.map(c => {
     const isLiked = c.likes && c.likes.length > 0;
     // Remove likes array from being sent to client for privacy/size
-    const { likes, ...rest } = c; 
+    const { likes, ...rest } = c;
     return { ...rest, isLiked };
   });
 
@@ -197,9 +211,9 @@ export async function getDashboardComments() {
     return { ...rest, isLiked };
   });
 
-  return { 
-    success: true, 
-    received: mapComments(rawReceived), 
-    given: mapComments(rawGiven) 
+  return {
+    success: true,
+    received: mapComments(rawReceived),
+    given: mapComments(rawGiven)
   };
 }

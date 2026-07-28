@@ -19,8 +19,11 @@ const userColumns = {
   avatarShape: schema.users.avatarShape,
   bannerImageUrl: schema.users.bannerImageUrl,
   bannerBackgroundUrl: schema.users.bannerBackgroundUrl,
-  profileBgColor: schema.users.profileBgColor,
   pageBgColor: schema.users.pageBgColor,
+  backgroundEffect: schema.users.backgroundEffect,
+  backgroundEffectIntensity: schema.users.backgroundEffectIntensity,
+  backgroundEffectColor: schema.users.backgroundEffectColor,
+  profileBgColor: schema.users.profileBgColor,
   profileBgOpacity: schema.users.profileBgOpacity,
   profileBorderColor: schema.users.profileBorderColor,
   profileBorderOpacity: schema.users.profileBorderOpacity,
@@ -229,8 +232,9 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
     }
   }
 
-  // 3. New user — generate a unique username from discord handle
-  const base = discordUsername.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 24) || 'user'
+  let cleaned = discordUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
+  cleaned = cleaned.replace(/^[^a-z]+/, '').replace(/_+$/, '')
+  const base = cleaned.slice(0, 24) || 'user'
   let username = base
   let attempt = 0
 
@@ -278,11 +282,11 @@ export interface RawViewBin {
 }
 
 export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
-  // Fetch all raw view bins for the user from the last 30 days.
+  // Fetch all raw view bins for the user from the last 7 days.
   const rows = await db.execute(sql`
     SELECT view_date, count
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
     ORDER BY view_date ASC
   `)
 
@@ -321,7 +325,7 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
       SUM(mac_count) as mac,
       SUM(other_count) as other
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
   `)
 
   const resultRows = (rows as unknown as [{ ios: number | null, android: number | null, windows: number | null, mac: number | null, other: number | null }[]])[0]

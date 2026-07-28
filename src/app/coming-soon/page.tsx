@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
 import { IconBrandDiscord, IconArrowRight } from "@tabler/icons-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MorphingText } from "@/components/ui/morphing-text";
@@ -24,10 +23,9 @@ export default function ComingSoonPage() {
   const handleReserve = (e: React.FormEvent) => {
     e.preventDefault();
     if (!handle.trim()) {
-      toast.error("Please enter a username handle first!");
       return;
     }
-    toast.success(`"iuno.lol/${handle.trim()}" reserved! Join Discord for early access.`);
+
     setTimeout(() => {
       window.open("https://discord.gg/QgZEkJjF8q", "_blank");
     }, 1200);

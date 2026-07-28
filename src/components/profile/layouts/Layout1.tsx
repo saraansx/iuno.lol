@@ -5,8 +5,8 @@ import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
-import { submitFeedbackAction } from "@/actions/feedback";
-import { toast } from "sonner";
+import FeedbackButtons from "../feedback/FeedbackButtons";
+import { BackgroundEffect } from "./BackgroundEffect";
 
 interface Layout1Props {
   profileId: number;
@@ -22,6 +22,9 @@ interface Layout1Props {
   decorationHue?: number;
   bannerImageUrl?: string | null;
   bannerBackgroundUrl?: string | null;
+  backgroundEffect?: string;
+  backgroundEffectIntensity?: number;
+  backgroundEffectColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -164,6 +167,9 @@ const Layout1 = ({
   decorationHue = 0,
   bannerImageUrl,
   bannerBackgroundUrl,
+  backgroundEffect,
+  backgroundEffectIntensity = 50,
+  backgroundEffectColor = "#ffffff",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -224,19 +230,7 @@ const Layout1 = ({
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
-  const [hasLiked, setHasLiked] = useState(false);
-  const [hasDisliked, setHasDisliked] = useState(false);
 
-  useEffect(() => {
-    if (typeof window !== "undefined" && profileId) {
-      const stored = localStorage.getItem(`iuno:feedback:${profileId}`);
-      if (stored === "like") {
-        setHasLiked(true);
-      } else if (stored === "dislike") {
-        setHasDisliked(true);
-      }
-    }
-  }, [profileId]);
 
   useEffect(() => {
     setLikesCount(initialLikes);
@@ -262,66 +256,13 @@ const Layout1 = ({
     }
   }, [profileId, views, initialLikes, initialDislikes, viewerId]);
 
-  const handleLike = async () => {
-    if (viewerId === -1) {
-      toast.info("Feedback is disabled in preview mode");
-      return;
-    }
-    if (viewerId === null || viewerId === undefined) {
-      toast.error("Login to leave feedback");
-      return;
-    }
-    if (hasLiked) {
-      setLikesCount(prev => Math.max(0, prev - 1));
-      setHasLiked(false);
-      localStorage.removeItem(`iuno:feedback:${profileId}`);
-      await submitFeedbackAction(profileId, "unlike");
-    } else {
-      setLikesCount(prev => prev + 1);
-      setHasLiked(true);
-      localStorage.setItem(`iuno:feedback:${profileId}`, "like");
-      await submitFeedbackAction(profileId, "like");
-      if (hasDisliked) {
-        setDislikesCount(prev => Math.max(0, prev - 1));
-        setHasDisliked(false);
-        await submitFeedbackAction(profileId, "undislike");
-      }
-    }
-  };
-
-  const handleDislike = async () => {
-    if (viewerId === -1) {
-      toast.info("Feedback is disabled in preview mode");
-      return;
-    }
-    if (viewerId === null || viewerId === undefined) {
-      toast.error("Login to leave feedback");
-      return;
-    }
-    if (hasDisliked) {
-      setDislikesCount(prev => Math.max(0, prev - 1));
-      setHasDisliked(false);
-      localStorage.removeItem(`iuno:feedback:${profileId}`);
-      await submitFeedbackAction(profileId, "undislike");
-    } else {
-      setDislikesCount(prev => prev + 1);
-      setHasDisliked(true);
-      localStorage.setItem(`iuno:feedback:${profileId}`, "dislike");
-      await submitFeedbackAction(profileId, "dislike");
-      if (hasLiked) {
-        setLikesCount(prev => Math.max(0, prev - 1));
-        setHasLiked(false);
-        await submitFeedbackAction(profileId, "unlike");
-      }
-    }
-  };
 
   useEffect(() => {
     if (!viewsAnimationEnabled || liveViews === 0) {
       setAnimatedViews(liveViews);
       return;
     }
-    
+
     const startTime = Date.now();
     const duration = viewsAnimationDuration || 1000;
     const startValue = 0;
@@ -330,7 +271,7 @@ const Layout1 = ({
     const animate = () => {
       const now = Date.now();
       const progress = Math.min((now - startTime) / duration, 1);
-      
+
       const easeOut = 1 - (1 - progress) * (1 - progress);
       setAnimatedViews(Math.floor(startValue + (endValue - startValue) * easeOut));
 
@@ -343,7 +284,7 @@ const Layout1 = ({
 
     requestAnimationFrame(animate);
   }, [liveViews, viewsAnimationEnabled, viewsAnimationDuration]);
-  
+
   const formattedJoinDate = React.useMemo(() => {
     if (!createdAt) return null;
     const date = new Date(createdAt);
@@ -370,7 +311,7 @@ const Layout1 = ({
         return date.toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' });
     }
   }, [createdAt, joinDateFormat]);
-  
+
   const fontClassMap: Record<string, string> = {
     "Inter": "var(--font-inter)",
     "Roboto": "var(--font-roboto)",
@@ -393,7 +334,7 @@ const Layout1 = ({
     "Indie Flower": "var(--font-indie-flower)",
     "Lobster": "var(--font-lobster)",
   };
-  
+
   const shapeClass =
     {
       square: "rounded-lg",
@@ -435,6 +376,12 @@ const Layout1 = ({
             />
           )
         )}
+
+        <BackgroundEffect
+          effect={backgroundEffect ?? "none"}
+          intensity={backgroundEffectIntensity}
+          color={backgroundEffectColor}
+        />
 
         {/* Wrapper — content + background are siblings */}
         <div className="w-full max-w-[672px] relative flex flex-col items-center overflow-visible z-10">
@@ -528,7 +475,7 @@ const Layout1 = ({
                 </div>
               )}
               {location && (
-                <div 
+                <div
                   className="mt-1 text-center flex items-center justify-center gap-3"
                   style={{
                     fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
@@ -545,7 +492,7 @@ const Layout1 = ({
                     {location}
                     {showLocationTooltip && (
                       <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
-                        <div 
+                        <div
                           className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap"
                           style={{
                             fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
@@ -568,7 +515,7 @@ const Layout1 = ({
                       {occupation}
                       {showOccupationTooltip && (
                         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
-                          <div 
+                          <div
                             className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap"
                             style={{
                               fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
@@ -586,7 +533,7 @@ const Layout1 = ({
                 </div>
               )}
               {!location && occupation && (
-                <p 
+                <p
                   className="mt-1 text-center flex items-center justify-center gap-3"
                   style={{
                     fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
@@ -605,7 +552,7 @@ const Layout1 = ({
               )}
               {bio?.trim() && (
                 <div className="w-full mt-1.5 flex justify-center">
-                  <p 
+                  <p
                     className="leading-relaxed max-w-[90%] text-center break-words"
                     style={{
                       fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
@@ -624,9 +571,9 @@ const Layout1 = ({
 
           {/* Views count badge in bottom left */}
           {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-            <div 
+            <div
               className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
-              style={{ 
+              style={{
                 color: highlightColor || 'rgba(255, 255, 255, 0.6)',
                 fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
                 fontSize: `${highlightFontSize}px`,
@@ -638,7 +585,7 @@ const Layout1 = ({
                 <div className="relative group/tooltip flex justify-center">
                   <div className="flex items-center gap-2">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                     </svg>
                     <span>{viewsAnimationEnabled ? animatedViews : views}</span>
                   </div>
@@ -678,58 +625,22 @@ const Layout1 = ({
             </div>
           )}
 
-          
-          {/* Feedback Buttons in bottom right */}
-          {feedbackEnabled && (
-            <div 
-              className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20"
-              style={{
-                '--feedback-color': highlightColor || '#ffffff',
-                '--feedback-color-muted': highlightColor ? hexToRgba(highlightColor, 60) : 'rgba(255, 255, 255, 0.6)'
-              } as React.CSSProperties}
-            >
-              {/* Like Button */}
-              <div className="relative group/tooltip flex justify-center">
-                <button 
-                  onClick={handleLike}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md hover:scale-110 active:scale-95 cursor-pointer ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
-                >
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasLiked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                  </svg>
-                </button>
-                {/* Tooltip */}
-                <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                  <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-                    {`Like (${likesCount})`}
-                  </div>
-                </div>
-              </div>
 
-              {/* Dislike Button */}
-              <div className="relative group/tooltip flex justify-center">
-                <button 
-                  onClick={handleDislike}
-                  className={`transition-all duration-200 focus:outline-none drop-shadow-md hover:scale-110 active:scale-95 cursor-pointer ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
-                >
-                  <svg width="17" height="17" viewBox="0 0 24 24" fill={hasDisliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasDisliked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
-                  </svg>
-                </button>
-                {/* Tooltip */}
-                <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                  <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-                    {`Dislike (${dislikesCount})`}
-                  </div>
-                </div>
-              </div>
-            </div>
+          {/* Feedback Buttons */}
+          {feedbackEnabled && (
+            <FeedbackButtons
+              profileId={profileId}
+              viewerId={viewerId}
+              initialLikes={likesCount}
+              initialDislikes={dislikesCount}
+              highlightColor={highlightColor}
+            />
           )}
         </div>
 
         {/* Floating Comments Button */}
         {commentsEnabled && (
-          <div 
+          <div
             className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-300"
             style={{
               '--comment-bg': highlightColor ? hexToRgba(highlightColor, 10) : 'rgba(255, 255, 255, 0.1)',
@@ -739,20 +650,20 @@ const Layout1 = ({
               '--comment-icon': highlightColor || '#ffffff',
             } as React.CSSProperties}
           >
-            <button 
+            <button
               onClick={() => setIsCommentsModalOpen(true)}
               className="w-12 h-12 rounded-full bg-[var(--comment-bg)] backdrop-blur-md border border-[var(--comment-border)] flex items-center justify-center hover:bg-[var(--comment-bg-hover)] hover:border-[var(--comment-border-hover)] hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] group focus:outline-none"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--comment-icon)] group-active:scale-95 transition-transform drop-shadow-md opacity-80 group-hover:opacity-100">
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
               </svg>
             </button>
           </div>
         )}
 
-        <CommentsModal 
-          isOpen={isCommentsModalOpen} 
-          onClose={() => setIsCommentsModalOpen(false)} 
+        <CommentsModal
+          isOpen={isCommentsModalOpen}
+          onClose={() => setIsCommentsModalOpen(false)}
           profileId={profileId}
           viewerId={viewerId}
           showCommentsPublicly={showCommentsPublicly}
@@ -792,6 +703,13 @@ const Layout1 = ({
           />
         )
       )}
+
+      <BackgroundEffect
+        effect={backgroundEffect ?? "none"}
+        intensity={backgroundEffectIntensity}
+        color={backgroundEffectColor}
+      />
+
       {/* Wrapper — content + background are siblings */}
       <div className="w-full max-w-[672px] relative flex flex-col items-center justify-center z-10">
         {/* Background card — this entire layer fades with opacity */}
@@ -921,7 +839,7 @@ const Layout1 = ({
           )}
 
           {bio && (
-            <p 
+            <p
               className="mt-1.5 leading-relaxed max-w-[90%] text-center break-words"
               style={{
                 fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
@@ -938,9 +856,9 @@ const Layout1 = ({
 
         {/* Views count badge in bottom left */}
         {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-          <div 
+          <div
             className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
-            style={{ 
+            style={{
               color: highlightColor || 'rgba(255, 255, 255, 0.6)',
               fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
               fontSize: `${highlightFontSize}px`,
@@ -952,7 +870,7 @@ const Layout1 = ({
               <div className="relative group/tooltip flex justify-center">
                 <div className="flex items-center gap-2">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
-                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
                   </svg>
                   <span>{viewsAnimationEnabled ? animatedViews : views}</span>
                 </div>
@@ -965,7 +883,7 @@ const Layout1 = ({
                 )}
               </div>
             )}
-            
+
             {joinDateEnabled && formattedJoinDate && (
               <>
                 {viewsEnabled && <span className="opacity-30">|</span>}
@@ -992,63 +910,23 @@ const Layout1 = ({
           </div>
         )}
 
-        {/* Feedback Buttons in bottom right */}
+        {/* Feedback Buttons */}
         {feedbackEnabled && (
-          <div 
-            className="absolute bottom-3 right-4 flex items-center gap-2.5 z-20"
-            style={{
-              '--feedback-color': highlightColor || '#ffffff',
-              '--feedback-color-muted': highlightColor ? hexToRgba(highlightColor, 60) : 'rgba(255, 255, 255, 0.6)'
-            } as React.CSSProperties}
-          >
-            {/* Like Button */}
-            <div className="relative group/tooltip flex justify-center">
-              <button 
-                onClick={viewerId === -1 ? undefined : handleLike}
-                disabled={viewerId === -1}
-                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasLiked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill={hasLiked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasLiked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
-                </svg>
-              </button>
-              {/* Tooltip */}
-              {showLikesTooltip && (
-                <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                  <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-                    {`Like (${likesCount})`}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Dislike Button */}
-            <div className="relative group/tooltip flex justify-center">
-              <button 
-                onClick={viewerId === -1 ? undefined : handleDislike}
-                disabled={viewerId === -1}
-                className={`transition-all duration-200 focus:outline-none drop-shadow-md ${viewerId === -1 ? 'cursor-default' : 'hover:scale-110 active:scale-95 cursor-pointer'} ${hasDisliked ? 'text-[color:var(--feedback-color)]' : 'text-[color:var(--feedback-color-muted)] hover:text-[color:var(--feedback-color)]'}`}
-              >
-                <svg width="17" height="17" viewBox="0 0 24 24" fill={hasDisliked ? "currentColor" : "none"} stroke="currentColor" strokeWidth={hasDisliked ? "1" : "2"} strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
-                </svg>
-              </button>
-              {/* Tooltip */}
-              {showDislikesTooltip && (
-                <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                  <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-                    {`Dislike (${dislikesCount})`}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <FeedbackButtons
+            profileId={profileId}
+            viewerId={viewerId}
+            initialLikes={likesCount}
+            initialDislikes={dislikesCount}
+            highlightColor={highlightColor}
+            showLikesTooltip={showLikesTooltip}
+            showDislikesTooltip={showDislikesTooltip}
+          />
         )}
       </div>
 
       {/* Floating Comments Button */}
       {commentsEnabled && (
-        <div 
+        <div
           className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-300"
           style={{
             '--comment-bg': highlightColor ? hexToRgba(highlightColor, 10) : 'rgba(255, 255, 255, 0.1)',
@@ -1058,20 +936,20 @@ const Layout1 = ({
             '--comment-icon': highlightColor || '#ffffff',
           } as React.CSSProperties}
         >
-          <button 
+          <button
             onClick={() => setIsCommentsModalOpen(true)}
             className="w-12 h-12 rounded-full bg-[var(--comment-bg)] backdrop-blur-md border border-[var(--comment-border)] flex items-center justify-center hover:bg-[var(--comment-bg-hover)] hover:border-[var(--comment-border-hover)] hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] group focus:outline-none"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--comment-icon)] group-active:scale-95 transition-transform drop-shadow-md opacity-80 group-hover:opacity-100">
-              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
             </svg>
           </button>
         </div>
       )}
 
-      <CommentsModal 
-        isOpen={isCommentsModalOpen} 
-        onClose={() => setIsCommentsModalOpen(false)} 
+      <CommentsModal
+        isOpen={isCommentsModalOpen}
+        onClose={() => setIsCommentsModalOpen(false)}
         profileId={profileId}
         viewerId={viewerId}
         showCommentsPublicly={showCommentsPublicly}

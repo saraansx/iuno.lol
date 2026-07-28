@@ -52,7 +52,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
     if (!isMounted) return [];
 
     const now = new Date();
-    const daysBack = 6; 
+    const daysBack = 7; 
     const viewMap = new Map<string, number>();
 
     for (const row of initialData) {

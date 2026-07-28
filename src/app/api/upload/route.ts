@@ -62,7 +62,22 @@ function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | n
     return { ext: "webp", mime: "image/webp" };
   }
 
-  if (buffer[4] === 0x66 && buffer[5] === 0x74 && buffer[6] === 0x79 && buffer[7] === 0x70) {
+  const hasFtyp = (offset: number) =>
+    buffer.length > offset + 3 &&
+    buffer[offset]     === 0x66 && 
+    buffer[offset + 1] === 0x74 && 
+    buffer[offset + 2] === 0x79 && 
+    buffer[offset + 3] === 0x70;   
+
+  const firstBoxSize = buffer.readUInt32BE(0); 
+  const dynamicOffset = firstBoxSize - 4;      
+  if (
+    hasFtyp(4) ||  
+    hasFtyp(8) ||                               
+    hasFtyp(12) ||                              
+    hasFtyp(16) ||                              
+    (dynamicOffset > 3 && dynamicOffset < 64 && hasFtyp(dynamicOffset)) 
+  ) {
     return { ext: "mp4", mime: "video/mp4" };
   }
 

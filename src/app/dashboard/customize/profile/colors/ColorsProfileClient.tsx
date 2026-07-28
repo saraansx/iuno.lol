@@ -2,14 +2,18 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import ProfilePreview from "@/components/dashboard/ProfilePreview";
+import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { updateColorsProfile } from "@/actions/profile";
+import { toast } from "@/components/ui/toast";
 import { type User } from "@/lib/db/schema";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
 
+import { useCustomizeProfile } from '../CustomizeProfileProvider';
+
 export default function ColorsProfileClient({ user }: { user: Omit<User, "password"> | null }) {
   const router = useRouter();
+  const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
 
   const initialUsernameColor = user?.usernameColor ?? "#ffffff";
   const initialBioColor = user?.bioColor ?? "#ffffff";
@@ -19,25 +23,21 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
 
   const [openSection, setOpenSection] = useState<string | null>(null);
 
-  const [usernameColor, setUsernameColor] = useState(initialUsernameColor);
-  const [bioColor, setBioColor] = useState(initialBioColor);
-  const [otherColor, setOtherColor] = useState(initialOtherColor);
-  const [highlightColor, setHighlightColor] = useState(initialHighlightColor);
-  const [pageBgColor, setPageBgColor] = useState(initialPageBgColor);
+  const usernameColor = overrides.usernameColor ?? initialUsernameColor;
+  const setUsernameColor = (val: any) => updateOverrides({ usernameColor: val });
+  const bioColor = overrides.bioColor ?? initialBioColor;
+  const setBioColor = (val: any) => updateOverrides({ bioColor: val });
+  const otherColor = overrides.otherColor ?? initialOtherColor;
+  const setOtherColor = (val: any) => updateOverrides({ otherColor: val });
+  const highlightColor = overrides.highlightColor ?? initialHighlightColor;
+  const setHighlightColor = (val: any) => updateOverrides({ highlightColor: val });
+  const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
+  const setPageBgColor = (val: any) => updateOverrides({ pageBgColor: val });
 
-  const hasChanges =
-    usernameColor !== initialUsernameColor ||
-    bioColor !== initialBioColor ||
-    otherColor !== initialOtherColor ||
-    highlightColor !== initialHighlightColor ||
-    pageBgColor !== initialPageBgColor;
+  const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
-    setUsernameColor(initialUsernameColor);
-    setBioColor(initialBioColor);
-    setOtherColor(initialOtherColor);
-    setHighlightColor(initialHighlightColor);
-    setPageBgColor(initialPageBgColor);
+    clearOverrides();
   };
 
   return (
@@ -60,77 +60,33 @@ export default function ColorsProfileClient({ user }: { user: Omit<User, "passwo
         />
       </div>
 
-      <ProfilePreview
-        userId={user?.id}
-        username={user?.username ?? undefined}
-        displayName={user?.displayName ?? undefined}
-        bio={user?.bio ?? undefined}
-        location={user?.location ?? undefined}
-        occupation={user?.occupation ?? undefined}
-        avatarUrl={user?.avatarUrl || undefined}
-        avatarShape={(user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
-        selectedDecoration={user?.avatarDecorationUrl ? { id: "custom", name: "Custom Decoration", url: user.avatarDecorationUrl } as any : null}
-        decorationHue={user?.avatarDecorationHue ?? 0}
-        bannerImageUrl={user?.bannerImageUrl || undefined}
-        bannerBackgroundUrl={user?.bannerBackgroundUrl || undefined}
-        pageBgColor={pageBgColor}
-        profileBgColor={user?.profileBgColor ?? "#ffffff"}
-        profileBgOpacity={user?.profileBgOpacity ?? 10}
-        profileBorderColor={user?.profileBorderColor ?? "#ffffff"}
-        profileBorderOpacity={user?.profileBorderOpacity ?? 10}
-        profileBorderWidth={user?.profileBorderWidth ?? 1}
-        profileBorderRadius={user?.profileBorderRadius ?? 24}
-        profileCardBlur={user?.profileCardBlur ?? 20}
-        profileBackgroundBlur={user?.profileBackgroundBlur ?? 0}
-        profileShadowColor={user?.profileShadowColor ?? "#000000"}
-        profileShadowOpacity={user?.profileShadowOpacity ?? 20}
-        profileOpacity={user?.profileOpacity ?? 100}
-        views={user?.views ?? 0}
-        usernameFont={user?.usernameFont ?? "inter"}
-        usernameFontSize={user?.usernameFontSize ?? 24}
-        usernameFontWeight={user?.usernameFontWeight ?? 700}
-        usernameLetterSpacing={user?.usernameLetterSpacing ?? 0}
-        usernameColor={usernameColor}
-        bioFont={user?.bioFont ?? "inter"}
-        bioFontSize={user?.bioFontSize ?? 15}
-        bioFontWeight={user?.bioFontWeight ?? 400}
-        bioLetterSpacing={user?.bioLetterSpacing ?? 0}
-        bioColor={bioColor}
-        otherFont={user?.otherFont ?? "inter"}
-        otherFontSize={user?.otherFontSize ?? 13}
-        otherFontWeight={user?.otherFontWeight ?? 400}
-        otherLetterSpacing={user?.otherLetterSpacing ?? 0}
-        otherColor={otherColor}
-        highlightColor={highlightColor}
-        joinDateEnabled={user?.joinDateEnabled ?? true}
-        joinDateFormat={user?.joinDateFormat ?? "standard"}
-        viewsEnabled={user?.viewsEnabled ?? true}
-        viewsAnimationEnabled={user?.viewsAnimationEnabled ?? true}
-        viewsAnimationDuration={user?.viewsAnimationDuration ?? 1000}
-        commentsEnabled={user?.commentsEnabled ?? true}
-        feedbackEnabled={user?.feedbackEnabled ?? true}
-        showUidTooltip={user?.showUidTooltip ?? true}
-        showLocationTooltip={user?.showLocationTooltip ?? true}
-        showOccupationTooltip={user?.showOccupationTooltip ?? true}
-        showLikesTooltip={user?.showLikesTooltip ?? true}
-        showDislikesTooltip={user?.showDislikesTooltip ?? true}
-        showJoinDateTooltip={user?.showJoinDateTooltip ?? true}
-        showViewsTooltip={user?.showViewsTooltip ?? true}
-        createdAt={user?.createdAt}
+      <DashboardProfilePreview
+        user={user}
+        overrides={{
+          ...overrides,
+          usernameColor,
+          bioColor,
+          otherColor,
+          highlightColor,
+          pageBgColor,
+        }}
       />
 
       <SaveBar
         show={hasChanges}
         onSave={async () => {
-          await updateColorsProfile({
-            username: user?.username || "",
-            usernameColor,
-            bioColor,
-            otherColor,
-            highlightColor,
-            pageBgColor,
-          });
-          router.refresh();
+          try {
+            await updateColorsProfile({
+              username: user?.username || "",
+              ...overrides
+            });
+            toast.success("Profile Saved Sucessfully");
+            scheduleClear();
+            router.refresh();
+          } catch (error) {
+            console.error(error);
+            toast.error("Failed to save colors");
+          }
         }}
         onRevert={handleRevert}
       />
