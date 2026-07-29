@@ -7,6 +7,7 @@ import {
   timestamp,
   varchar,
   uniqueIndex,
+  index,
   float,
   AnyMySqlColumn,
 } from 'drizzle-orm/mysql-core'
@@ -18,14 +19,28 @@ import { relations } from 'drizzle-orm'
 export const users = mysqlTable('users', {
   id: int('id').primaryKey().autoincrement(),
   username: varchar('username', { length: 32 }).notNull().unique(),
+  email: varchar('email', { length: 255 }).unique(),
+  password: varchar('password', { length: 255 }),
+  ip: varchar('ip', { length: 64 }),
+  role: mysqlEnum('role', ['user', 'admin', 'moderator']).default('user').notNull(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
+  discordId: varchar('discord_id', { length: 32 }).unique(),
+  discordUsername: varchar('discord_username', { length: 64 }),
+  views: int('views').default(0).notNull(),
+  likesCount: int('likes_count').default(0).notNull(),
+  dislikesCount: int('dislikes_count').default(0).notNull(),
+  passwordChangedAt: timestamp('password_changed_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+})
+
+export const userSettings = mysqlTable('user_settings', {
+  userId: int('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
   displayName: varchar('display_name', { length: 32 }),
   location: varchar('location', { length: 50 }),
   timezone: varchar('timezone', { length: 50 }).default('UTC'),
   occupation: varchar('occupation', { length: 50 }),
   bio: varchar('bio', { length: 1000 }),
-  email: varchar('email', { length: 255 }).unique(),
-  password: varchar('password', { length: 255 }),
-  ip: varchar('ip', { length: 64 }),
   avatarUrl: varchar('avatar_url', { length: 500 }),
   avatarDecorationUrl: varchar('avatar_decoration_url', { length: 500 }),
   avatarDecorationHue: int('avatar_decoration_hue').default(0),
@@ -47,11 +62,6 @@ export const users = mysqlTable('users', {
   profileShadowColor: varchar('profile_shadow_color', { length: 7 }).default('#000000'),
   profileShadowOpacity: float('profile_shadow_opacity').default(0),
   profileOpacity: float('profile_opacity').default(100),
-  role: mysqlEnum('role', ['user', 'admin', 'moderator']).default('user').notNull(),
-  emailVerified: boolean('email_verified').default(false).notNull(),
-  discordId: varchar('discord_id', { length: 32 }).unique(),
-  discordUsername: varchar('discord_username', { length: 64 }),
-  views: int('views').default(0).notNull(),
   usernameFont: varchar('username_font', { length: 50 }).default('Inter'),
   usernameFontSize: int('username_font_size').default(24),
   usernameFontWeight: int('username_font_weight').default(700),
@@ -90,12 +100,26 @@ export const users = mysqlTable('users', {
   showDislikesTooltip: boolean('show_dislikes_tooltip').default(true),
   showJoinDateTooltip: boolean('show_join_date_tooltip').default(true),
   showViewsTooltip: boolean('show_views_tooltip').default(true),
-  likesCount: int('likes_count').default(0).notNull(),
-  dislikesCount: int('dislikes_count').default(0).notNull(),
-  passwordChangedAt: timestamp('password_changed_at'),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 })
+
+export const usersRelations = relations(users, ({ one, many }) => ({
+  settings: one(userSettings, {
+    fields: [users.id],
+    references: [userSettings.userId],
+  }),
+  commentsAuthored: many(profileComments, { relationName: 'comment_author' }),
+  profileComments: many(profileComments, { relationName: 'profile_comments' }),
+  likes: many(commentLikes),
+  feedbackReceived: many(profileFeedback, { relationName: 'feedback_received' }),
+  feedbackGiven: many(profileFeedback, { relationName: 'feedback_given' }),
+}))
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+  user: one(users, {
+    fields: [userSettings.userId],
+    references: [users.id],
+  }),
+}))
 
 // ── OTP / Verification tokens ──────────────────────────────────────────────
 
@@ -105,7 +129,9 @@ export const otpTokens = mysqlTable('otp_tokens', {
   token: varchar('token', { length: 255 }).notNull(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-})
+}, (table) => ({
+  emailIdx: index('email_idx').on(table.email),
+}))
 
 // ── Email verification tokens ──────────────────────────────────────────────
 
@@ -115,7 +141,9 @@ export const verificationTokens = mysqlTable('verification_tokens', {
   token: varchar('token', { length: 64 }).notNull().unique(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-})
+}, (table) => ({
+  emailIdx: index('email_idx').on(table.email),
+}))
 
 // ── Password reset tokens ──────────────────────────────────────────────────
 
@@ -125,7 +153,9 @@ export const passwordResetTokens = mysqlTable('password_reset_tokens', {
   token: varchar('token', { length: 64 }).notNull().unique(),
   expiresAt: timestamp('expires_at').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-})
+}, (table) => ({
+  emailIdx: index('email_idx').on(table.email),
+}))
 
 // ── Profile views (per-day tracking) ───────────────────────────────────────
 
@@ -166,7 +196,9 @@ export const profileComments = mysqlTable('profile_comments', {
   replyToId: int('reply_to_id').references((): AnyMySqlColumn => profileComments.id, { onDelete: 'cascade' }), // optional parent comment ID
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-})
+}, (table) => ({
+  profileIdIdx: index('profile_id_idx').on(table.profileId),
+}))
 
 export const commentLikes = mysqlTable('comment_likes', {
   id: int('id').primaryKey().autoincrement(),
@@ -213,6 +245,7 @@ export const profileFeedback = mysqlTable('profile_feedback', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   feedbackIdx: uniqueIndex('feedback_idx').on(table.receiverId, table.giverId),
+  giverIdx: index('giver_idx').on(table.giverId),
 }))
 
 export const profileFeedbackRelations = relations(profileFeedback, ({ one }) => ({
@@ -233,6 +266,7 @@ export const profileFeedbackRelations = relations(profileFeedback, ({ one }) => 
 
 export const schema = {
   users,
+  userSettings,
   otpTokens,
   verificationTokens,
   passwordResetTokens,
@@ -241,9 +275,12 @@ export const schema = {
   profileComments,
   commentLikes,
   profileFeedback,
+  usersRelations,
+  userSettingsRelations,
   profileCommentsRelations,
   commentLikesRelations,
   profileFeedbackRelations,
 }
 
 export type User = typeof users.$inferSelect;
+export type UserSettings = typeof userSettings.$inferSelect;

@@ -5,12 +5,12 @@ import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { updateEffectsProfile } from "@/actions/profile";
-import { type User } from "@/lib/db/schema";
+import { type FullUser } from "@/lib/features/users/db";
 import EffectsCustomization from "@/components/dashboard/customize/effects/EffectsCustomization";
 import { toast } from "@/components/ui/toast";
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
-export default function EffectsProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+export default function EffectsProfileClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
 

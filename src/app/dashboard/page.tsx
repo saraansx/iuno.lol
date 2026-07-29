@@ -8,6 +8,8 @@ import RecentComments from "@/components/dashboard/RecentComments";
 import RecentFeedback from "@/components/dashboard/RecentFeedback";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
+import { getDashboardComments } from "@/actions/comments";
+import { getDashboardFeedback } from "@/actions/feedback";
 
 
 export const metadata: Metadata = {
@@ -24,8 +26,18 @@ export default async function DashboardPage() {
 
   const user = await getUserById(userId);
 
-  const rawViews = user ? await getAnalyticsData(user.id) : [];
-  const deviceStats = user ? await getDeviceStats(user.id) : { ios: 0, android: 0, windows: 0, mac: 0, other: 0 };
+  const [rawViews, deviceStats, commentsRes, feedbackRes] = await Promise.all([
+    user ? getAnalyticsData(user.id) : Promise.resolve([]),
+    user ? getDeviceStats(user.id) : Promise.resolve({ ios: 0, android: 0, windows: 0, mac: 0, other: 0 }),
+    getDashboardComments(),
+    getDashboardFeedback()
+  ]);
+
+  const commentsReceived = commentsRes.success ? (commentsRes.received as any) : [];
+  const commentsGiven = commentsRes.success ? (commentsRes.given as any) : [];
+  
+  const feedbackReceived = feedbackRes.success ? (feedbackRes.received as any) : [];
+  const feedbackGiven = feedbackRes.success ? (feedbackRes.given as any) : [];
 
   return (
     <div className="flex flex-col gap-8">
@@ -80,7 +92,9 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="md:col-span-2 min-w-0 min-h-0">
           <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} />
-        </div>
+      </div>
+
+
         <div className="md:col-span-1 min-w-0 min-h-0">
           <DeviceChart stats={deviceStats} />
         </div>
@@ -88,8 +102,8 @@ export default async function DashboardPage() {
 
       {/* Additional Stats / Features */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-        <RecentComments />
-        <RecentFeedback />
+        <RecentComments initialReceived={commentsReceived} initialGiven={commentsGiven} />
+        <RecentFeedback initialReceived={feedbackReceived} initialGiven={feedbackGiven} />
       </div>
     </div>
   );

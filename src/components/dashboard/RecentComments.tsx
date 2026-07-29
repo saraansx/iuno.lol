@@ -23,11 +23,16 @@ type CommentData = {
   isLiked: boolean;
 };
 
-export default function RecentComments() {
+interface RecentCommentsProps {
+  initialReceived: CommentData[];
+  initialGiven: CommentData[];
+}
+
+export default function RecentComments({ initialReceived, initialGiven }: RecentCommentsProps) {
   const [activeTab, setActiveTab] = useState<"received" | "given">("received");
-  const [received, setReceived] = useState<CommentData[]>([]);
-  const [given, setGiven] = useState<CommentData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [received, setReceived] = useState<CommentData[]>(initialReceived);
+  const [given, setGiven] = useState<CommentData[]>(initialGiven);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchComments = async () => {
     setIsLoading(true);
@@ -43,10 +48,6 @@ export default function RecentComments() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchComments();
-  }, []);
 
   const handleDelete = async (commentId: number, profileId: number) => {
     // Optimistic UI update

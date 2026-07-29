@@ -28,28 +28,38 @@ export function CommentsModal({
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchComments = useCallback(async (showLoading = true) => {
-    if (showLoading) setIsLoading(true);
-    const res = await getComments(profileId);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const fetchComments = useCallback(async (pageNum: number = 1, showLoading = true) => {
+    if (pageNum === 1 && showLoading) setIsLoading(true);
+    if (pageNum > 1) setIsLoadingMore(true);
+    
+    const res = await getComments(profileId, pageNum, 10, filter);
     if (res.success && res.comments) {
-      const sorted = [...res.comments] as unknown as CommentData[];
-      if (filter === "Oldest first") {
-        sorted.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-      } else if (filter === "Most liked") {
-        sorted.sort((a, b) => b.likesCount - a.likesCount);
+      const fetched = res.comments as unknown as CommentData[];
+      if (pageNum === 1) {
+        setComments(fetched);
+      } else {
+        setComments(prev => {
+          const newComments = fetched.filter(c => !prev.some(p => p.id === c.id));
+          return [...prev, ...newComments];
+        });
       }
-      // Pinned comments always stay on top
-      sorted.sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1));
-      setComments(sorted);
+      setHasMore(res.hasMore || false);
     }
-    if (showLoading) setIsLoading(false);
+    
+    if (pageNum === 1 && showLoading) setIsLoading(false);
+    if (pageNum > 1) setIsLoadingMore(false);
   }, [profileId, filter]);
 
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
         setShouldRender(true);
-        fetchComments();
+        setPage(1);
+        fetchComments(1);
       }, 0);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsAnimating(true));
@@ -60,6 +70,19 @@ export function CommentsModal({
       return () => clearTimeout(timer);
     }
   }, [isOpen, fetchComments]);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop <= clientHeight + 50) {
+      if (hasMore && !isLoadingMore && !isLoading) {
+        setPage(p => {
+          const nextPage = p + 1;
+          fetchComments(nextPage, false);
+          return nextPage;
+        });
+      }
+    }
+  };
 
   const handlePostComment = async () => {
     if (!commentText.trim()) return;
@@ -121,7 +144,7 @@ export function CommentsModal({
     ));
     // Background server call
     toggleLikeComment(id).catch(() => {
-      fetchComments();
+      // Silently fail or revert
     });
   };
 
@@ -146,14 +169,14 @@ export function CommentsModal({
       return updated;
     });
     togglePinComment(id, profileId).catch(() => {
-      fetchComments();
+      // Error
     });
   };
 
   const handleDelete = async (id: number) => {
     setComments(prev => prev.filter(c => c.id !== id && c.replyToId !== id));
     deleteComment(id, profileId).catch(() => {
-      fetchComments();
+      // Error
     });
   };
 
@@ -201,7 +224,7 @@ export function CommentsModal({
     if (newContent && newContent.trim() !== current.content) {
       setComments(prev => prev.map(c => c.id === id ? { ...c, content: newContent } : c));
       editComment(id, newContent).catch(() => {
-        fetchComments();
+        // Error
       });
     }
   };
@@ -287,7 +310,10 @@ export function CommentsModal({
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto max-h-[400px] flex flex-col p-4 pt-0 gap-2">
+        <div 
+          className="flex-1 overflow-y-auto max-h-[400px] flex flex-col p-4 pt-0 gap-2"
+          onScroll={handleScroll}
+        >
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-5 h-5 border-2 border-[#5b6cf5] border-t-transparent rounded-full animate-spin"></div>
@@ -299,21 +325,28 @@ export function CommentsModal({
               </p>
             </div>
           ) : (
-            topLevelComments.map((comment) => (
-              <CommentItem 
-                key={comment.id}
-                comment={comment}
-                viewerId={viewerId}
-                profileId={profileId}
-                allComments={visibleComments}
-                onLike={handleLike}
-                onPin={handlePin}
-                onDelete={handleDelete}
-                onEdit={handleEdit}
-                onPostReply={handlePostReply}
-                allowNewComments={allowNewComments}
-              />
-            ))
+            <>
+              {topLevelComments.map((comment) => (
+                <CommentItem 
+                  key={comment.id}
+                  comment={comment}
+                  viewerId={viewerId}
+                  profileId={profileId}
+                  allComments={visibleComments}
+                  onLike={handleLike}
+                  onPin={handlePin}
+                  onDelete={handleDelete}
+                  onEdit={handleEdit}
+                  onPostReply={handlePostReply}
+                  allowNewComments={allowNewComments}
+                />
+              ))}
+              {isLoadingMore && (
+                <div className="flex items-center justify-center py-4">
+                  <div className="w-4 h-4 border-2 border-[#5b6cf5] border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+            </>
           )}
         </div>
 

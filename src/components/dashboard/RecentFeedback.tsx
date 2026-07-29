@@ -23,11 +23,16 @@ type FeedbackData = {
   };
 };
 
-export default function RecentFeedback() {
+interface RecentFeedbackProps {
+  initialReceived: FeedbackData[];
+  initialGiven: FeedbackData[];
+}
+
+export default function RecentFeedback({ initialReceived, initialGiven }: RecentFeedbackProps) {
   const [activeTab, setActiveTab] = useState<"received" | "given">("received");
-  const [received, setReceived] = useState<FeedbackData[]>([]);
-  const [given, setGiven] = useState<FeedbackData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [received, setReceived] = useState<FeedbackData[]>(initialReceived);
+  const [given, setGiven] = useState<FeedbackData[]>(initialGiven);
+  const [isLoading, setIsLoading] = useState(false);
 
   const fetchFeedback = async () => {
     setIsLoading(true);
@@ -43,10 +48,6 @@ export default function RecentFeedback() {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchFeedback();
-  }, []);
 
   const data = activeTab === "received" ? received : given;
 

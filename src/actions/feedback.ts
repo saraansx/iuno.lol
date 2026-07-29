@@ -62,33 +62,63 @@ export async function getDashboardFeedback() {
   }
 
   try {
-    const received = await db.query.profileFeedback.findMany({
+    const receivedRaw = await db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.receiverId, sessionUserId),
       with: {
         giver: {
           columns: {
             id: true,
             username: true,
-            avatarUrl: true,
+          },
+          with: {
+            settings: {
+              columns: {
+                avatarUrl: true,
+              }
+            }
           }
         }
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
     });
 
-    const given = await db.query.profileFeedback.findMany({
+    const received = receivedRaw.map(r => ({
+      ...r,
+      giver: {
+        id: r.giver.id,
+        username: r.giver.username,
+        avatarUrl: r.giver.settings?.avatarUrl ?? null
+      }
+    }));
+
+    const givenRaw = await db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.giverId, sessionUserId),
       with: {
         receiver: {
           columns: {
             id: true,
             username: true,
-            avatarUrl: true,
+          },
+          with: {
+            settings: {
+              columns: {
+                avatarUrl: true,
+              }
+            }
           }
         }
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
     });
+
+    const given = givenRaw.map(g => ({
+      ...g,
+      receiver: {
+        id: g.receiver.id,
+        username: g.receiver.username,
+        avatarUrl: g.receiver.settings?.avatarUrl ?? null
+      }
+    }));
 
     return { success: true, received, given };
   } catch (error) {

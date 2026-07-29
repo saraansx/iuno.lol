@@ -3,7 +3,7 @@
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
-import { eq, and, desc, sql, or } from "drizzle-orm";
+import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { commentRateLimit } from "@/lib/rate-limit";
 
@@ -46,34 +46,65 @@ export async function addComment(profileId: number, content: string, replyToId?:
   return { success: true, comment: newComment };
 }
 
-export async function getComments(profileId: number) {
+export async function getComments(
+  profileId: number, 
+  page: number = 1, 
+  limit: number = 10,
+  filter: string = "Newest first"
+) {
   const viewerId = await getSessionUserId();
 
   const profile = await getUserById(profileId);
-  if (!profile) return { success: true, comments: [] };
+  if (!profile) return { success: true, comments: [], hasMore: false };
   if (!profile.showCommentsPublicly && viewerId !== profileId) {
-    return { success: true, comments: [] };
+    return { success: true, comments: [], hasMore: false };
+  }
+
+  let orderBys = [];
+  if (filter === "Oldest first") {
+    orderBys = [desc(schema.profileComments.isPinned), asc(schema.profileComments.createdAt)];
+  } else if (filter === "Most liked") {
+    orderBys = [desc(schema.profileComments.isPinned), desc(schema.profileComments.likesCount), desc(schema.profileComments.createdAt)];
+  } else {
+    // Default: Newest first
+    orderBys = [desc(schema.profileComments.isPinned), desc(schema.profileComments.createdAt)];
   }
 
   const rawComments = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, profileId),
     with: {
-      author: true,
+      author: {
+        with: {
+          settings: true
+        }
+      },
       likes: viewerId ? {
         where: eq(schema.commentLikes.userId, viewerId)
       } : undefined,
     },
-    orderBy: [desc(schema.profileComments.isPinned), desc(schema.profileComments.createdAt)],
+    orderBy: orderBys,
+    limit: limit + 1, // Fetch one extra to know if there's a next page
+    offset: (page - 1) * limit,
   });
 
-  const comments = rawComments.map(c => {
+  const hasMore = rawComments.length > limit;
+  const commentsToReturn = hasMore ? rawComments.slice(0, limit) : rawComments;
+
+  const comments = commentsToReturn.map(c => {
     const isLiked = c.likes && c.likes.length > 0;
     // Remove likes array from being sent to client for privacy/size
-    const { likes, ...rest } = c;
-    return { ...rest, isLiked };
+    const { likes, author, ...rest } = c;
+    return { 
+      ...rest, 
+      isLiked,
+      author: {
+        ...author,
+        ...(author.settings || {})
+      }
+    };
   });
 
-  return { success: true, comments };
+  return { success: true, comments, hasMore };
 }
 
 export async function toggleLikeComment(commentId: number) {

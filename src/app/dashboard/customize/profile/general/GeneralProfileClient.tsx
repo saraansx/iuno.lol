@@ -13,12 +13,12 @@ import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { decorationCount, type Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 
-import { type User } from "@/lib/db/schema";
+import { type FullUser } from "@/lib/features/users/db";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
-export default function GeneralProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+export default function GeneralProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
   const initialDisplayName = user?.displayName ?? "";

@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { users } from '@/lib/db/schema'
+import { users, userSettings } from '@/lib/db/schema'
 import { eq, sql } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
@@ -13,85 +13,90 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const { username } = await params
   await headers()
 
-  const userList = await db
+  const userListPromise = db
     .select({
       id: users.id,
       username: users.username,
-      displayName: users.displayName,
-      bio: users.bio,
-      location: users.location,
-      occupation: users.occupation,
-      avatarUrl: users.avatarUrl,
-      avatarShape: users.avatarShape,
-      avatarDecorationUrl: users.avatarDecorationUrl,
-      avatarDecorationHue: users.avatarDecorationHue,
-      bannerImageUrl: users.bannerImageUrl,
-      bannerBackgroundUrl: users.bannerBackgroundUrl,
-      profileBgColor: users.profileBgColor,
-      profileBgOpacity: users.profileBgOpacity,
-      profileBorderColor: users.profileBorderColor,
-      profileBorderOpacity: users.profileBorderOpacity,
-      profileBorderWidth: users.profileBorderWidth,
-      profileBorderRadius: users.profileBorderRadius,
-      profileCardBlur: users.profileCardBlur,
-      profileBackgroundBlur: users.profileBackgroundBlur,
-      profileShadowColor: users.profileShadowColor,
-      profileShadowOpacity: users.profileShadowOpacity,
-      profileOpacity: users.profileOpacity,
+      displayName: userSettings.displayName,
+      bio: userSettings.bio,
+      location: userSettings.location,
+      occupation: userSettings.occupation,
+      avatarUrl: userSettings.avatarUrl,
+      avatarShape: userSettings.avatarShape,
+      avatarDecorationUrl: userSettings.avatarDecorationUrl,
+      avatarDecorationHue: userSettings.avatarDecorationHue,
+      bannerImageUrl: userSettings.bannerImageUrl,
+      bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      profileBgColor: userSettings.profileBgColor,
+      profileBgOpacity: userSettings.profileBgOpacity,
+      profileBorderColor: userSettings.profileBorderColor,
+      profileBorderOpacity: userSettings.profileBorderOpacity,
+      profileBorderWidth: userSettings.profileBorderWidth,
+      profileBorderRadius: userSettings.profileBorderRadius,
+      profileCardBlur: userSettings.profileCardBlur,
+      profileBackgroundBlur: userSettings.profileBackgroundBlur,
+      profileShadowColor: userSettings.profileShadowColor,
+      profileShadowOpacity: userSettings.profileShadowOpacity,
+      profileOpacity: userSettings.profileOpacity,
       views: users.views,
-      usernameFont: users.usernameFont,
-      usernameFontSize: users.usernameFontSize,
-      usernameFontWeight: users.usernameFontWeight,
-      usernameLetterSpacing: users.usernameLetterSpacing,
-      usernameColor: users.usernameColor,
-      bioFont: users.bioFont,
-      bioFontSize: users.bioFontSize,
-      bioFontWeight: users.bioFontWeight,
-      bioLetterSpacing: users.bioLetterSpacing,
-      bioColor: users.bioColor,
-      otherFont: users.otherFont,
-      otherFontSize: users.otherFontSize,
-      otherFontWeight: users.otherFontWeight,
-      otherLetterSpacing: users.otherLetterSpacing,
-      otherColor: users.otherColor,
-      joinDateEnabled: users.joinDateEnabled,
-      joinDateFormat: users.joinDateFormat,
-      viewsEnabled: users.viewsEnabled,
-      viewsAnimationEnabled: users.viewsAnimationEnabled,
-      viewsAnimationDuration: users.viewsAnimationDuration,
-      commentsEnabled: users.commentsEnabled,
-      feedbackEnabled: users.feedbackEnabled,
-      showFeedbackPublicly: users.showFeedbackPublicly,
-      showUidTooltip: users.showUidTooltip,
-      showLocationTooltip: users.showLocationTooltip,
-      showOccupationTooltip: users.showOccupationTooltip,
-      showLikesTooltip: users.showLikesTooltip,
-      showDislikesTooltip: users.showDislikesTooltip,
-      showJoinDateTooltip: users.showJoinDateTooltip,
-      showViewsTooltip: users.showViewsTooltip,
+      usernameFont: userSettings.usernameFont,
+      usernameFontSize: userSettings.usernameFontSize,
+      usernameFontWeight: userSettings.usernameFontWeight,
+      usernameLetterSpacing: userSettings.usernameLetterSpacing,
+      usernameColor: userSettings.usernameColor,
+      bioFont: userSettings.bioFont,
+      bioFontSize: userSettings.bioFontSize,
+      bioFontWeight: userSettings.bioFontWeight,
+      bioLetterSpacing: userSettings.bioLetterSpacing,
+      bioColor: userSettings.bioColor,
+      otherFont: userSettings.otherFont,
+      otherFontSize: userSettings.otherFontSize,
+      otherFontWeight: userSettings.otherFontWeight,
+      otherLetterSpacing: userSettings.otherLetterSpacing,
+      otherColor: userSettings.otherColor,
+      joinDateEnabled: userSettings.joinDateEnabled,
+      joinDateFormat: userSettings.joinDateFormat,
+      viewsEnabled: userSettings.viewsEnabled,
+      viewsAnimationEnabled: userSettings.viewsAnimationEnabled,
+      viewsAnimationDuration: userSettings.viewsAnimationDuration,
+      commentsEnabled: userSettings.commentsEnabled,
+      feedbackEnabled: userSettings.feedbackEnabled,
+      showFeedbackPublicly: userSettings.showFeedbackPublicly,
+      showUidTooltip: userSettings.showUidTooltip,
+      showLocationTooltip: userSettings.showLocationTooltip,
+      showOccupationTooltip: userSettings.showOccupationTooltip,
+      showLikesTooltip: userSettings.showLikesTooltip,
+      showDislikesTooltip: userSettings.showDislikesTooltip,
+      showJoinDateTooltip: userSettings.showJoinDateTooltip,
+      showViewsTooltip: userSettings.showViewsTooltip,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
-      highlightFont: users.highlightFont,
-      highlightFontSize: users.highlightFontSize,
-      highlightFontWeight: users.highlightFontWeight,
-      highlightLetterSpacing: users.highlightLetterSpacing,
-      highlightColor: users.highlightColor,
-      pageBgColor: users.pageBgColor,
-      backgroundEffect: users.backgroundEffect,
-      backgroundEffectIntensity: users.backgroundEffectIntensity,
-      backgroundEffectColor: users.backgroundEffectColor,
+      highlightFont: userSettings.highlightFont,
+      highlightFontSize: userSettings.highlightFontSize,
+      highlightFontWeight: userSettings.highlightFontWeight,
+      highlightLetterSpacing: userSettings.highlightLetterSpacing,
+      highlightColor: userSettings.highlightColor,
+      pageBgColor: userSettings.pageBgColor,
+      backgroundEffect: userSettings.backgroundEffect,
+      backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
+      backgroundEffectColor: userSettings.backgroundEffectColor,
     })
     .from(users)
+    .leftJoin(userSettings, eq(users.id, userSettings.userId))
     .where(eq(users.username, username))
-    .limit(1)
+    .limit(1);
+
+  const viewerIdPromise = getSessionUserId();
+
+  const [userList, viewerIdResult] = await Promise.all([userListPromise, viewerIdPromise]);
 
   if (userList.length === 0) {
     notFound()
   }
 
   const user = userList[0]
-  const viewerId = await getSessionUserId() || null;
+  const viewerId = viewerIdResult || null;
   return (
     <div 
       className="min-h-screen relative overflow-hidden"

@@ -105,14 +105,24 @@ export async function updateGeneralProfile(data: {
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
 
-  if (avatarUrlVal === null) await emptyS3Directory(userId, "avatar");
-  if (bannerImageUrlVal === null) await emptyS3Directory(userId, "banner");
-  if (bannerBackgroundUrlVal === null) await emptyS3Directory(userId, "background");
+  const promises = [];
 
-  await db
-    .update(schema.users)
-    .set(setData)
-    .where(eq(schema.users.id, userId));
+  if (avatarUrlVal === null) promises.push(emptyS3Directory(userId, "avatar"));
+  if (bannerImageUrlVal === null) promises.push(emptyS3Directory(userId, "banner"));
+  if (bannerBackgroundUrlVal === null) promises.push(emptyS3Directory(userId, "background"));
+
+  if (Object.keys(setData).length > 0) {
+    promises.push(
+      db
+        .insert(schema.userSettings)
+        .values({ userId, ...setData })
+        .onDuplicateKeyUpdate({ set: setData })
+    );
+  }
+
+  if (promises.length > 0) {
+    await Promise.all(promises);
+  }
 
   revalidatePath("/dashboard/customize/profile/general");
   revalidatePath("/dashboard", "layout");
@@ -240,9 +250,9 @@ export async function updateAppearanceProfile(data: {
   if (Object.keys(setData).length === 0) return { success: true };
   
   await db
-    .update(schema.users)
-    .set(setData)
-    .where(eq(schema.users.id, userId));
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
 
   revalidatePath("/dashboard/customize/profile/appearance");
   revalidatePath("/dashboard", "layout");
@@ -282,9 +292,9 @@ export async function updateColorsProfile(data: {
   if (Object.keys(setData).length === 0) return { success: true };
   
   await db
-    .update(schema.users)
-    .set(setData)
-    .where(eq(schema.users.id, userId));
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
 
   revalidatePath("/dashboard/customize/profile/colors");
   revalidatePath("/dashboard", "layout");
@@ -320,9 +330,9 @@ export async function updateEffectsProfile(data: {
   if (Object.keys(setData).length === 0) return { success: true };
   
   await db
-    .update(schema.users)
-    .set(setData)
-    .where(eq(schema.users.id, userId));
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
 
   revalidatePath("/dashboard/customize/profile/effects");
   revalidatePath("/dashboard", "layout");

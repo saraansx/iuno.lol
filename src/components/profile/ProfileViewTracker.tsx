@@ -20,7 +20,7 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
         const result = await fp.get();
         const fingerprint = result.visitorId;
 
-        
+
         fetch('/api/track-view', {
           method: 'POST',
           headers: {

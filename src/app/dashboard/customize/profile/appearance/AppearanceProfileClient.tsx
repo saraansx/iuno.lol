@@ -13,7 +13,7 @@ import FeedbackSection from "@/components/dashboard/customize/appearance/Feedbac
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 
-import { type User } from "@/lib/db/schema";
+import { type FullUser } from "@/lib/features/users/db";
 
 type SectionKey =
   | "profile-bg"
@@ -61,7 +61,7 @@ const fontVariables: Record<string, string> = {
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
-export default function AppearanceProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;

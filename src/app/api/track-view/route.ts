@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     await p.exec();
 
     return NextResponse.json({ success: true });
-    
+
   } catch (error: any) {
     console.error('[views] Redis tracking failed:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

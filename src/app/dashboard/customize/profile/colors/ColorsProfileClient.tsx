@@ -6,12 +6,12 @@ import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePrev
 import SaveBar from "@/components/dashboard/SaveBar";
 import { updateColorsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
-import { type User } from "@/lib/db/schema";
+import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
-export default function ColorsProfileClient({ user }: { user: Omit<User, "password"> | null }) {
+export default function ColorsProfileClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
 

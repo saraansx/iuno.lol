@@ -1,10 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
-import { type User } from "@/lib/db/schema";
+import { type FullUser } from "@/lib/features/users/db";
 
 type CustomizeProfileContextType = {
-  initialUser: Omit<User, "password"> | null;
+  initialUser: FullUser | null;
   overrides: any;
   updateOverrides: (newOverrides: any) => void;
   clearOverrides: () => void;
@@ -17,7 +17,7 @@ export function CustomizeProfileProvider({
   initialUser,
   children,
 }: {
-  initialUser: Omit<User, "password"> | null;
+  initialUser: FullUser | null;
   children: ReactNode;
 }) {
   const [overrides, setOverrides] = useState<any>({});

@@ -6,82 +6,82 @@ import { randomBytes } from 'crypto'
 const userColumns = {
   id: schema.users.id,
   username: schema.users.username,
-  displayName: schema.users.displayName,
-  location: schema.users.location,
-  timezone: schema.users.timezone,
-  occupation: schema.users.occupation,
-  bio: schema.users.bio,
   email: schema.users.email,
   ip: schema.users.ip,
-  avatarUrl: schema.users.avatarUrl,
-  avatarDecorationUrl: schema.users.avatarDecorationUrl,
-  avatarDecorationHue: schema.users.avatarDecorationHue,
-  avatarShape: schema.users.avatarShape,
-  bannerImageUrl: schema.users.bannerImageUrl,
-  bannerBackgroundUrl: schema.users.bannerBackgroundUrl,
-  pageBgColor: schema.users.pageBgColor,
-  backgroundEffect: schema.users.backgroundEffect,
-  backgroundEffectIntensity: schema.users.backgroundEffectIntensity,
-  backgroundEffectColor: schema.users.backgroundEffectColor,
-  profileBgColor: schema.users.profileBgColor,
-  profileBgOpacity: schema.users.profileBgOpacity,
-  profileBorderColor: schema.users.profileBorderColor,
-  profileBorderOpacity: schema.users.profileBorderOpacity,
-  profileBorderWidth: schema.users.profileBorderWidth,
-  profileBorderRadius: schema.users.profileBorderRadius,
-  profileCardBlur: schema.users.profileCardBlur,
-  profileBackgroundBlur: schema.users.profileBackgroundBlur,
-  profileShadowColor: schema.users.profileShadowColor,
-  profileShadowOpacity: schema.users.profileShadowOpacity,
-  profileOpacity: schema.users.profileOpacity,
-  usernameFont: schema.users.usernameFont,
-  usernameFontSize: schema.users.usernameFontSize,
-  usernameFontWeight: schema.users.usernameFontWeight,
-  usernameLetterSpacing: schema.users.usernameLetterSpacing,
-  usernameColor: schema.users.usernameColor,
-  usernameMarginBottom: schema.users.usernameMarginBottom,
-  bioFont: schema.users.bioFont,
-  bioFontSize: schema.users.bioFontSize,
-  bioFontWeight: schema.users.bioFontWeight,
-  bioLetterSpacing: schema.users.bioLetterSpacing,
-  bioColor: schema.users.bioColor,
-  otherFont: schema.users.otherFont,
-  otherFontSize: schema.users.otherFontSize,
-  otherFontWeight: schema.users.otherFontWeight,
-  otherLetterSpacing: schema.users.otherLetterSpacing,
-  otherColor: schema.users.otherColor,
-  highlightFont: schema.users.highlightFont,
-  highlightFontSize: schema.users.highlightFontSize,
-  highlightFontWeight: schema.users.highlightFontWeight,
-  highlightLetterSpacing: schema.users.highlightLetterSpacing,
-  highlightColor: schema.users.highlightColor,
   role: schema.users.role,
   emailVerified: schema.users.emailVerified,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,
-  passwordChangedAt: schema.users.passwordChangedAt,
-  joinDateEnabled: schema.users.joinDateEnabled,
-  joinDateFormat: schema.users.joinDateFormat,
-  viewsEnabled: schema.users.viewsEnabled,
-  viewsAnimationEnabled: schema.users.viewsAnimationEnabled,
-  viewsAnimationDuration: schema.users.viewsAnimationDuration,
-  commentsEnabled: schema.users.commentsEnabled,
-  showCommentsPublicly: schema.users.showCommentsPublicly,
-  allowNewComments: schema.users.allowNewComments,
-  feedbackEnabled: schema.users.feedbackEnabled,
-  showFeedbackPublicly: schema.users.showFeedbackPublicly,
-  showUidTooltip: schema.users.showUidTooltip,
-  showLocationTooltip: schema.users.showLocationTooltip,
-  showOccupationTooltip: schema.users.showOccupationTooltip,
-  showLikesTooltip: schema.users.showLikesTooltip,
-  showDislikesTooltip: schema.users.showDislikesTooltip,
-  showJoinDateTooltip: schema.users.showJoinDateTooltip,
-  showViewsTooltip: schema.users.showViewsTooltip,
   likesCount: schema.users.likesCount,
   dislikesCount: schema.users.dislikesCount,
+  passwordChangedAt: schema.users.passwordChangedAt,
   createdAt: schema.users.createdAt,
   updatedAt: schema.users.updatedAt,
+  displayName: schema.userSettings.displayName,
+  location: schema.userSettings.location,
+  timezone: schema.userSettings.timezone,
+  occupation: schema.userSettings.occupation,
+  bio: schema.userSettings.bio,
+  avatarUrl: schema.userSettings.avatarUrl,
+  avatarDecorationUrl: schema.userSettings.avatarDecorationUrl,
+  avatarDecorationHue: schema.userSettings.avatarDecorationHue,
+  avatarShape: schema.userSettings.avatarShape,
+  bannerImageUrl: schema.userSettings.bannerImageUrl,
+  bannerBackgroundUrl: schema.userSettings.bannerBackgroundUrl,
+  pageBgColor: schema.userSettings.pageBgColor,
+  backgroundEffect: schema.userSettings.backgroundEffect,
+  backgroundEffectIntensity: schema.userSettings.backgroundEffectIntensity,
+  backgroundEffectColor: schema.userSettings.backgroundEffectColor,
+  profileBgColor: schema.userSettings.profileBgColor,
+  profileBgOpacity: schema.userSettings.profileBgOpacity,
+  profileBorderColor: schema.userSettings.profileBorderColor,
+  profileBorderOpacity: schema.userSettings.profileBorderOpacity,
+  profileBorderWidth: schema.userSettings.profileBorderWidth,
+  profileBorderRadius: schema.userSettings.profileBorderRadius,
+  profileCardBlur: schema.userSettings.profileCardBlur,
+  profileBackgroundBlur: schema.userSettings.profileBackgroundBlur,
+  profileShadowColor: schema.userSettings.profileShadowColor,
+  profileShadowOpacity: schema.userSettings.profileShadowOpacity,
+  profileOpacity: schema.userSettings.profileOpacity,
+  usernameFont: schema.userSettings.usernameFont,
+  usernameFontSize: schema.userSettings.usernameFontSize,
+  usernameFontWeight: schema.userSettings.usernameFontWeight,
+  usernameLetterSpacing: schema.userSettings.usernameLetterSpacing,
+  usernameColor: schema.userSettings.usernameColor,
+  usernameMarginBottom: schema.userSettings.usernameMarginBottom,
+  bioFont: schema.userSettings.bioFont,
+  bioFontSize: schema.userSettings.bioFontSize,
+  bioFontWeight: schema.userSettings.bioFontWeight,
+  bioLetterSpacing: schema.userSettings.bioLetterSpacing,
+  bioColor: schema.userSettings.bioColor,
+  otherFont: schema.userSettings.otherFont,
+  otherFontSize: schema.userSettings.otherFontSize,
+  otherFontWeight: schema.userSettings.otherFontWeight,
+  otherLetterSpacing: schema.userSettings.otherLetterSpacing,
+  otherColor: schema.userSettings.otherColor,
+  highlightFont: schema.userSettings.highlightFont,
+  highlightFontSize: schema.userSettings.highlightFontSize,
+  highlightFontWeight: schema.userSettings.highlightFontWeight,
+  highlightLetterSpacing: schema.userSettings.highlightLetterSpacing,
+  highlightColor: schema.userSettings.highlightColor,
+  joinDateEnabled: schema.userSettings.joinDateEnabled,
+  joinDateFormat: schema.userSettings.joinDateFormat,
+  viewsEnabled: schema.userSettings.viewsEnabled,
+  viewsAnimationEnabled: schema.userSettings.viewsAnimationEnabled,
+  viewsAnimationDuration: schema.userSettings.viewsAnimationDuration,
+  commentsEnabled: schema.userSettings.commentsEnabled,
+  showCommentsPublicly: schema.userSettings.showCommentsPublicly,
+  allowNewComments: schema.userSettings.allowNewComments,
+  feedbackEnabled: schema.userSettings.feedbackEnabled,
+  showFeedbackPublicly: schema.userSettings.showFeedbackPublicly,
+  showUidTooltip: schema.userSettings.showUidTooltip,
+  showLocationTooltip: schema.userSettings.showLocationTooltip,
+  showOccupationTooltip: schema.userSettings.showOccupationTooltip,
+  showLikesTooltip: schema.userSettings.showLikesTooltip,
+  showDislikesTooltip: schema.userSettings.showDislikesTooltip,
+  showJoinDateTooltip: schema.userSettings.showJoinDateTooltip,
+  showViewsTooltip: schema.userSettings.showViewsTooltip,
 } as const
 
 type CreateUserInput = {
@@ -107,6 +107,8 @@ export async function createUser(input: CreateUserInput) {
 
     const userId = (result as { insertId: number }).insertId
 
+    await db.insert(schema.userSettings).values({ userId })
+
     return { userId, username }
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
@@ -124,6 +126,7 @@ export async function getUserByEmail(email: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.email, email.toLowerCase().trim()))
     .limit(1)
   return result[0] || null
@@ -133,6 +136,7 @@ export async function getUserByEmailWithPassword(email: string) {
   const result = await db
     .select({ ...userColumns, password: schema.users.password })
     .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.email, email.toLowerCase().trim()))
     .limit(1)
   return result[0] || null
@@ -142,6 +146,7 @@ async function getUserByUsername(username: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.username, username.toLowerCase().trim()))
     .limit(1)
   return result[0] || null
@@ -151,11 +156,14 @@ export async function getUserById(id: number) {
   const result = await db
     .select(userColumns)
     .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.id, id))
     .limit(1)
 
   return result[0] || null
 }
+
+export type FullUser = NonNullable<Awaited<ReturnType<typeof getUserById>>>;
 
 export async function assertEmailAvailable(email: string) {
   const existing = await getUserByEmail(email)
@@ -188,6 +196,7 @@ export async function getUserByDiscordId(discordId: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.discordId, discordId))
     .limit(1)
   return result[0] || null
@@ -249,7 +258,9 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
         discordUsername,
         emailVerified: emailVerified ?? false,
       })
-      return (result as { insertId: number }).insertId
+      const insertId = (result as { insertId: number }).insertId
+      await db.insert(schema.userSettings).values({ userId: insertId })
+      return insertId
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
         const e = err as { code: string, message: string }
