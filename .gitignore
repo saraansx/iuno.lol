@@ -33,9 +33,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Lint/Type reports
+lint_report.txt
+check-lint.tsx
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# Custom python scraper scripts and dumps
-/scraper_tools
