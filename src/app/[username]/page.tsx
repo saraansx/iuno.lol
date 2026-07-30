@@ -178,7 +178,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         highlightLetterSpacing={user.highlightLetterSpacing ?? undefined}
         highlightColor={user.highlightColor ?? undefined}
       />
-      <ProfileViewTracker profileId={user.id} />
+      {viewerId !== user.id && <ProfileViewTracker profileId={user.id} />}
     </div>
   )
 }
