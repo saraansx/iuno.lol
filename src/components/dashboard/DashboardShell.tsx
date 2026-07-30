@@ -37,7 +37,7 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] font-poppins flex">
+    <div className="h-screen bg-[#050505] font-poppins flex overflow-hidden">
       {!isVerified && (
         <TurnstileVerification
           isOpen={showTurnstile}
