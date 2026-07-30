@@ -390,20 +390,20 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           {/* Profile Card */}
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
-              <div className="relative w-10 h-10 flex items-center justify-center">
-                <svg
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="absolute"
-                >
-                  <rect x="2" y="5" width="20" height="14" rx="2" stroke="#5b6cf5" strokeWidth="1.5" />
-                  <path d="M2 10h20" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="6" cy="7.5" r="1" fill="#5b6cf5" />
-                  <circle cx="9" cy="7.5" r="1" fill="#5b6cf5" />
-                </svg>
-              </div>
+              <svg
+                width="26"
+                height="26"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#5b6cf5"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="M2 10h20"/>
+                <path d="M6 15h4"/>
+              </svg>
               <h2 className="text-white font-normal text-[16px] tracking-tight">
                 Profile Card
               </h2>

@@ -48,7 +48,22 @@ export default async function Page() {
       {/* Page Header & Navigation */}
       <div className="flex flex-col gap-6 pb-2 w-full pt-2" style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}>
         <div>
-          <h1 className="text-[20px] font-semibold text-white tracking-tight">Profile Customization</h1>
+          <div className="flex items-center gap-3">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <h1 className="text-[20px] font-normal text-white tracking-tight">General Customization</h1>
+          </div>
           <p className="text-white/40 text-[13px] mt-0.5">Customize every aspect of your bio link page</p>
         </div>
 

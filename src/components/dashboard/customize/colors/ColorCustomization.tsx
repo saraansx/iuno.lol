@@ -34,30 +34,24 @@ export default function ColorCustomization({
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 flex items-center justify-center">
+        <div>
+          <div className="flex items-center gap-3">
             <svg
-              width="28"
-              height="28"
+              width="22"
+              height="22"
               viewBox="0 0 24 24"
               fill="none"
-              className="absolute"
               stroke="#5b6cf5"
               strokeWidth="1.5"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <circle cx="13.5" cy="6.5" r="1.5" fill="#5b6cf5" stroke="none" />
-              <circle cx="17.5" cy="10.5" r="1.5" fill="#5b6cf5" stroke="none" />
-              <circle cx="8.5" cy="7.5" r="1.5" fill="#5b6cf5" stroke="none" />
-              <circle cx="6.5" cy="12.5" r="1.5" fill="#5b6cf5" stroke="none" />
-              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+              <circle cx="12" cy="12" r="2" fill="#5b6cf5" stroke="none" opacity="0.3"/>
             </svg>
+            <h2 className="text-white font-normal text-[16px] tracking-tight">Color Settings</h2>
           </div>
-          <div>
-            <h2 className="text-white font-normal text-[16px] tracking-tight">Profile Customization</h2>
-            <p className="text-white/40 text-[13px] mt-0.5">Customize the colors for your profile text</p>
-          </div>
+          <p className="text-white/40 text-[13px] mt-0.5">Customize the colors for your profile text</p>
         </div>
 
         <div className="flex flex-col gap-2">

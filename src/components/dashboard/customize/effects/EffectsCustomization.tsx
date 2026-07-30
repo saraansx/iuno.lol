@@ -49,44 +49,24 @@ export default function EffectsCustomization({
   ];
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-3">
-          <div className="relative w-10 h-10 flex items-center justify-center">
-            <svg
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              className="absolute"
-              stroke="#5b6cf5"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72" />
-              <path d="m14 7 3 3" />
-              <path d="M5 6v4" />
-              <path d="M19 14v4" />
-              <path d="M10 2v2" />
-              <path d="M7 8H3" />
-              <path d="M21 16h-4" />
-              <path d="M11 3H9" />
-            </svg>
-          </div>
-          <div>
-            <h2 className="text-white font-normal text-[16px] tracking-tight">Effects Customization</h2>
-            <p className="text-white/40 text-[13px] mt-0.5">Customize the visual effects on your page</p>
-          </div>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col p-4 transition-all duration-200">
-            <div className="flex items-center gap-2 mb-4">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50">
-                <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                <circle cx="9" cy="9" r="2" />
-                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            <div className="flex items-center gap-3 mb-4">
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#5b6cf5"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect width="18" height="18" x="3" y="3" rx="2"/>
+                <circle cx="9" cy="9" r="2"/>
+                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
               </svg>
               <span className="text-[13px] font-medium text-white/90">Background Effect</span>
             </div>
@@ -132,8 +112,8 @@ export default function EffectsCustomization({
                             setDropdownOpen(false);
                           }}
                           className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${backgroundEffect === effect.id
-                              ? "bg-white/10 text-white font-medium"
-                              : "bg-transparent hover:bg-white/5 text-white/60"
+                            ? "bg-white/10 text-white font-medium"
+                            : "bg-transparent hover:bg-white/5 text-white/60"
                             }`}
                         >
                           <span className="text-[13px]">{effect.name}</span>
@@ -181,9 +161,8 @@ export default function EffectsCustomization({
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
                     />
                     <div
-                      className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${
-                        isDisabled ? "border-[#252a4a]" : "border-[#5b6cf5]"
-                      } rounded-full pointer-events-none transition-transform shadow-lg`}
+                      className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${isDisabled ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                        } rounded-full pointer-events-none transition-transform shadow-lg`}
                       style={{
                         left: `calc(${backgroundEffectIntensity}% - 8px)`
                       }}

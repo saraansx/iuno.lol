@@ -19,9 +19,24 @@ export default function FeedbackSection({
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-normal text-[16px] tracking-tight">
-            Feedback
-          </h2>
+          <div className="flex items-center gap-3">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              <circle cx="12" cy="12" r="3" fill="#5b6cf5" stroke="none" opacity="0.3"/>
+            </svg>
+            <h2 className="text-white font-normal text-[16px] tracking-tight">
+              Feedback
+            </h2>
+          </div>
           <button
             onClick={() => setIsFeedbackEnabled(!isFeedbackEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${

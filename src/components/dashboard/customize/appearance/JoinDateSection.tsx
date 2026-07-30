@@ -25,9 +25,27 @@ export default function JoinDateSection({
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-white font-normal text-[16px] tracking-tight">
-            Join date
-          </h2>
+          <div className="flex items-center gap-3">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4"/>
+              <path d="M8 2v4"/>
+              <path d="M3 10h18"/>
+              <circle cx="12" cy="15" r="2" fill="#5b6cf5" stroke="none"/>
+            </svg>
+            <h2 className="text-white font-normal text-[16px] tracking-tight">
+              Join date
+            </h2>
+          </div>
           <button
             onClick={() => setIsJoinDateEnabled(!isJoinDateEnabled)}
             className={`flex items-center gap-2.5 px-3 py-1.5 rounded-full transition-all cursor-pointer focus:outline-none border ${
