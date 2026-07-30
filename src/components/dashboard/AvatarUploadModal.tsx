@@ -62,7 +62,9 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
     if (!file) return;
 
     setRawSelectedFile(file);
-    if (file.type.startsWith("video/")) {
+    if (file.type.includes("gif")) {
+      processFile(file);
+    } else if (file.type.startsWith("video/")) {
       const videoUrl = URL.createObjectURL(file);
       setCropImageSrc(videoUrl);
       setCropModalOpen(true);
