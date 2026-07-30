@@ -84,7 +84,7 @@ export const DesktopSidebar = ({
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
+  const { open, animate } = useSidebar();
   return (
     <>
       <motion.div
@@ -95,8 +95,6 @@ export const DesktopSidebar = ({
         animate={{
           width: animate ? (open ? "260px" : "60px") : "260px",
         }}
-        onMouseEnter={() => setOpen(true)}
-        onMouseLeave={() => setOpen(false)}
         {...props}
       >
         {children}

@@ -46,15 +46,15 @@ interface SidebarContentProps {
 }
 
 const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, profileExpanded, setProfileExpanded }: SidebarContentProps) => {
-  const { open, animate } = useSidebar();
+  const { open, setOpen, animate } = useSidebar();
   
   return (
     <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0">
       
       {/* Top Content: Logo and Navigation */}
       <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar pt-2">
-        {/* Logo */}
-        <div className={`py-4 flex items-center transition-all shrink-0 ${open ? 'px-7 gap-2.5' : 'px-0 justify-center'}`}>
+        {/* Logo and Toggle */}
+        <div className={`py-4 flex transition-all shrink-0 items-center ${open ? 'px-6 justify-between flex-row' : 'px-0 justify-center flex-col gap-5'}`}>
           <Link href="/" className={`flex items-center hover:opacity-80 transition-opacity whitespace-nowrap ${open ? 'gap-2.5' : ''}`}>
             <Image src="/logo.png" alt="Iuno Logo" width={28} height={28} className="object-contain shrink-0" priority />
             <motion.span 
@@ -67,6 +67,22 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
               Iuno<span className="text-[#609fda] lowercase">.lol</span>
             </motion.span>
           </Link>
+
+          <button 
+            onClick={() => setOpen(!open)}
+            className={`p-1.5 rounded-lg transition-all flex items-center justify-center shrink-0 ${open ? 'text-white/30 hover:text-white/80 hover:bg-white/5' : 'bg-[#609fda]/10 text-[#609fda] border border-[#609fda]/20 hover:bg-[#609fda]/20'}`}
+            title="Toggle Sidebar"
+          >
+            {open ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m15 18-6-6 6-6"/>
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m9 18 6-6-6-6"/>
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Navigation */}
