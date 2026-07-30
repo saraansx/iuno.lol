@@ -162,9 +162,12 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
+            const { selectedDecoration, decorationHue, ...restOverrides } = overrides;
             await updateGeneralProfile({
               username: user?.username || "",
-              ...overrides
+              ...restOverrides,
+              avatarDecorationUrl: selectedDecoration?.url ?? null,
+              avatarDecorationHue: decorationHue,
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();
