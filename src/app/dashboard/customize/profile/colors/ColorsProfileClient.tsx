@@ -24,15 +24,15 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const [openSection, setOpenSection] = useState<string | null>(null);
 
   const usernameColor = overrides.usernameColor ?? initialUsernameColor;
-  const setUsernameColor = (val: any) => updateOverrides({ usernameColor: val });
+  const setUsernameColor = (val: any) => updateOverrides({ usernameColor: val === initialUsernameColor ? undefined : val });
   const bioColor = overrides.bioColor ?? initialBioColor;
-  const setBioColor = (val: any) => updateOverrides({ bioColor: val });
+  const setBioColor = (val: any) => updateOverrides({ bioColor: val === initialBioColor ? undefined : val });
   const otherColor = overrides.otherColor ?? initialOtherColor;
-  const setOtherColor = (val: any) => updateOverrides({ otherColor: val });
+  const setOtherColor = (val: any) => updateOverrides({ otherColor: val === initialOtherColor ? undefined : val });
   const highlightColor = overrides.highlightColor ?? initialHighlightColor;
-  const setHighlightColor = (val: any) => updateOverrides({ highlightColor: val });
+  const setHighlightColor = (val: any) => updateOverrides({ highlightColor: val === initialHighlightColor ? undefined : val });
   const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
-  const setPageBgColor = (val: any) => updateOverrides({ pageBgColor: val });
+  const setPageBgColor = (val: any) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 

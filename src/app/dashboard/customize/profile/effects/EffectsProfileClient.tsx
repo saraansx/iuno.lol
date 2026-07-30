@@ -19,11 +19,11 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const initialBackgroundEffectColor = user?.backgroundEffectColor ?? "#ffffff";
   const [openSection, setOpenSection] = useState<string | null>(null);
   const backgroundEffect = overrides.backgroundEffect ?? initialBackgroundEffect;
-  const setBackgroundEffect = (val: any) => updateOverrides({ backgroundEffect: val });
+  const setBackgroundEffect = (val: any) => updateOverrides({ backgroundEffect: val === initialBackgroundEffect ? undefined : val });
   const backgroundEffectIntensity = overrides.backgroundEffectIntensity ?? initialBackgroundEffectIntensity;
-  const setBackgroundEffectIntensity = (val: any) => updateOverrides({ backgroundEffectIntensity: val });
+  const setBackgroundEffectIntensity = (val: any) => updateOverrides({ backgroundEffectIntensity: val === initialBackgroundEffectIntensity ? undefined : val });
   const backgroundEffectColor = overrides.backgroundEffectColor ?? initialBackgroundEffectColor;
-  const setBackgroundEffectColor = (val: any) => updateOverrides({ backgroundEffectColor: val });
+  const setBackgroundEffectColor = (val: any) => updateOverrides({ backgroundEffectColor: val === initialBackgroundEffectColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
