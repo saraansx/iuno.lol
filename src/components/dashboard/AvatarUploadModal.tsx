@@ -61,13 +61,14 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
   const handleFileSelected = (file: File) => {
     if (!file) return;
 
+    if (file.type.startsWith("video/")) {
+      setErrorMsg("Video uploads are not supported for avatars");
+      return;
+    }
+
     setRawSelectedFile(file);
     if (file.type.includes("gif")) {
       processFile(file);
-    } else if (file.type.startsWith("video/")) {
-      const videoUrl = URL.createObjectURL(file);
-      setCropImageSrc(videoUrl);
-      setCropModalOpen(true);
     } else {
       const reader = new FileReader();
       reader.onload = () => {
