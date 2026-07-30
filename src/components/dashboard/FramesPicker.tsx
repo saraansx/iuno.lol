@@ -1,0 +1,269 @@
+"use client";
+
+import React, { useMemo, useState } from "react";
+import Image from "next/image";
+import frames from "@/Frames.json";
+import type { Decoration } from "@/components/dashboard/DecorationPicker";
+
+type FrameLayer = {
+  id: string;
+  url: string;
+  type: string;
+  order: string;
+  anchor?: string;
+};
+
+type Frame = {
+  id: string;
+  name: string;
+  sku_id: string;
+  inner_width?: number;
+  overflow_horizontal?: number;
+  overflow_top?: number;
+  overflow_bottom?: number;
+  layers: FrameLayer[];
+};
+
+interface FramesPickerProps {
+  open: boolean;
+  avatarUrl?: string | null;
+  avatarShape?: "square" | "soft" | "rounded" | "circle";
+  selectedFrame?: Decoration | null;
+  frameHue: number;
+  onClose: () => void;
+  onSelectFrame: (frame: Decoration | null) => void;
+  onFrameHueChange: (value: number) => void;
+}
+
+const typedFrames = frames as Frame[];
+const itemsPerPage = 8;
+
+export default function FramesPicker({
+  open,
+  avatarUrl,
+  avatarShape = "rounded",
+  selectedFrame,
+  frameHue,
+  onClose,
+  onSelectFrame,
+  onFrameHueChange,
+}: FramesPickerProps) {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+
+  const selectedFrameData = selectedFrame
+    ? typedFrames.find((f) => f.sku_id === selectedFrame.url.split("frame:")[1])
+    : null;
+
+  const filteredItems = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    if (!query) return typedFrames;
+    return typedFrames.filter((frame) =>
+      frame.name.toLowerCase().includes(query) || frame.id.toLowerCase().includes(query)
+    );
+  }, [search]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
+  const currentPage = Math.min(page, totalPages);
+  const visibleItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  if (!open) return null;
+
+  const avatarShapeClass = {
+    square: "rounded-lg",
+    soft: "rounded-[14px]",
+    rounded: "rounded-[22px]",
+    circle: "rounded-full",
+  }[avatarShape];
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setPage(1);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-sm">
+      <div className="relative flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)]">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Profile Frame</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.05] hover:text-white/75"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-[250px_1fr] gap-5 px-5 py-5">
+          <aside className="flex h-fit self-center flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
+            <p className="text-[14px] font-semibold text-white/90">Preview</p>
+            <div className="mt-5 flex items-center justify-center">
+              {/* Profile Card Mockup for Frames */}
+              <div className="relative w-full max-w-[160px] aspect-[4/5] bg-[#111] rounded-[14px] border border-white/5 flex flex-col items-center pt-8">
+                <div className="absolute top-0 left-0 w-full h-[60px] bg-[#1a1a1a] rounded-t-[14px]" />
+                <div className="relative w-12 h-12 z-10 mb-3">
+                  <div className={`absolute inset-0 overflow-hidden border-2 border-[#111] bg-[#1b1b1b] ${avatarShapeClass}`}>
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-white/20">
+                         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" /></svg>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="w-24 h-2.5 bg-white/10 rounded-full mb-2 z-10" />
+                <div className="w-16 h-2 bg-white/5 rounded-full z-10" />
+                
+                {/* Frame layers wrapper */}
+                {selectedFrameData && (
+                  <div className="absolute inset-0 pointer-events-none z-20 overflow-visible" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
+                     {selectedFrameData.layers.map((layer) => (
+                        <img 
+                          key={layer.id} 
+                          src={layer.url} 
+                          alt="Frame" 
+                          className="absolute max-w-none"
+                          style={{ 
+                            zIndex: layer.order === "back" ? -1 : 1,
+                            width: `${(((selectedFrameData.inner_width || 1200) + (selectedFrameData.overflow_horizontal || 0) * 2) / (selectedFrameData.inner_width || 1200)) * 100}%`,
+                            left: `${-((selectedFrameData.overflow_horizontal || 0) / (selectedFrameData.inner_width || 1200)) * 100}%`,
+                            top: layer.anchor === "top" ? 0 : undefined,
+                            bottom: layer.anchor === "bottom" ? 0 : undefined,
+                            marginTop: layer.anchor === "top" ? `${-((selectedFrameData.overflow_top || 0) / (selectedFrameData.inner_width || 1200)) * 100}%` : undefined,
+                            marginBottom: layer.anchor === "bottom" ? `${-((selectedFrameData.overflow_bottom || 0) / (selectedFrameData.inner_width || 1200)) * 100}%` : undefined,
+                          }}
+                        />
+                     ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-7 flex items-center justify-between">
+              <p className="text-[12px] font-semibold text-white/80">Hue rotation</p>
+              <span className="rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[11px] font-semibold text-white/65">
+                {frameHue}°
+              </span>
+            </div>
+            <input
+              type="range"
+              min="0"
+              max="360"
+              value={frameHue}
+              onChange={(event) => onFrameHueChange(Number(event.target.value))}
+              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#609fda]/50 [&::-webkit-slider-thumb]:bg-[#609fda] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(96,159,218,0.12)]"
+            />
+
+            <p className="mt-4 text-[13px] text-white/45 text-center">
+              {selectedFrameData ? selectedFrameData.name : "No frame selected"}
+            </p>
+
+            {selectedFrame && (
+              <button
+                type="button"
+                onClick={() => onSelectFrame(null)}
+                className="mt-4 h-9 rounded-xl border border-white/[0.07] text-[13px] font-medium text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white/75"
+              >
+                Clear selection
+              </button>
+            )}
+          </aside>
+
+          <section className="flex min-h-0 flex-col">
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/45" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  value={search}
+                  onChange={(event) => handleSearchChange(event.target.value)}
+                  placeholder={`Search frames...`}
+                  className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#609fda]/35"
+                />
+              </div>
+              <p className="w-20 text-right text-[13px] text-white/45">{filteredItems.length} results</p>
+            </div>
+
+            <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
+              {visibleItems.map((item: any) => {
+                const isSelected = selectedFrame?.url === `frame:${item.sku_id}`;
+                  
+                return (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => {
+                      onSelectFrame({
+                        id: item.id,
+                        name: item.name,
+                        url: `frame:${item.sku_id}`
+                      });
+                    }}
+                    className={`group flex flex-col rounded-[14px] border bg-[#050505] p-2.5 text-left transition-colors ${
+                      isSelected
+                        ? "border-[#609fda]/50 bg-[#609fda]/8"
+                        : "border-white/[0.07] hover:border-white/15 hover:bg-white/[0.025]"
+                    }`}
+                  >
+                    <div className="relative min-h-0 flex-1 w-full flex items-center justify-center">
+                      <div className="relative w-full h-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ filter: isSelected ? `hue-rotate(${frameHue}deg)` : "none" }}>
+                        {(item as Frame).layers.map((layer) => (
+                           <Image
+                             key={layer.id}
+                             src={layer.url}
+                             alt={item.name}
+                             fill
+                             unoptimized
+                             className="object-contain"
+                           />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90 w-full text-center">{item.name}</p>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/[0.07] bg-[#050505] px-4 py-3">
+              <p className="text-[13px] text-white/85">Page {currentPage} / {totalPages}</p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((value) => Math.max(1, value - 1))}
+                  disabled={currentPage === 1}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/60 transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPage((value) => Math.min(totalPages, value + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/[0.08] text-white/60 transition-colors hover:bg-white/[0.05] disabled:cursor-not-allowed disabled:opacity-35"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

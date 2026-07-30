@@ -4,6 +4,7 @@ import React, { useDeferredValue } from "react";
 import ProfilePreview from "@/components/dashboard/ProfilePreview";
 import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
+import frames from "@/Frames.json";
 
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
@@ -23,14 +24,23 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       occupation={deferredOverrides.occupation ?? user?.occupation ?? undefined}
       avatarUrl={deferredOverrides.avatarUrl ?? user?.avatarUrl ?? undefined}
       avatarShape={deferredOverrides.avatarShape ?? (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
-      selectedDecoration={
-        deferredOverrides.selectedDecoration !== undefined
-          ? deferredOverrides.selectedDecoration
-          : user?.avatarDecorationUrl
-          ? ({ id: "custom", name: "Custom Decoration", url: user.avatarDecorationUrl } as any)
-          : null
-      }
+      selectedDecoration={deferredOverrides.selectedDecoration !== undefined
+        ? deferredOverrides.selectedDecoration
+        : user?.avatarDecorationUrl
+        ? ({ id: "custom", name: "Custom Decoration", url: user.avatarDecorationUrl } as any)
+        : null}
+      selectedFrame={(() => {
+        if (deferredOverrides.selectedFrame !== undefined) {
+          if (!deferredOverrides.selectedFrame) return null;
+          return (frames as any[]).find(f => f.sku_id === deferredOverrides.selectedFrame.url.split("frame:")[1]) || null;
+        }
+        if (user?.profileFrameUrl) {
+          return (frames as any[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) || null;
+        }
+        return null;
+      })()}
       decorationHue={deferredOverrides.decorationHue ?? user?.avatarDecorationHue ?? 0}
+      frameHue={deferredOverrides.frameHue ?? user?.profileFrameHue ?? 0}
       bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}
       bannerBackgroundUrl={deferredOverrides.bannerBackgroundUrl ?? user?.bannerBackgroundUrl ?? undefined}
       backgroundEffect={deferredOverrides.backgroundEffect ?? user?.backgroundEffect ?? "none"}

@@ -11,7 +11,10 @@ import GeneralInfoSection from "@/components/dashboard/customize/general/General
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { decorationCount, type Decoration } from "@/components/dashboard/DecorationPicker";
+import FramesPicker from "@/components/dashboard/FramesPicker";
 import { isVideoUrl } from "@/lib/utils/media";
+import decorations from "@/Deco.json";
+import frames from "@/Frames.json";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -29,6 +32,8 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialAvatarShape = (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded";
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
   const initialDecorationHue = user?.avatarDecorationHue ?? 0;
+  const initialFrameUrl = user?.profileFrameUrl ?? null;
+  const initialFrameHue = user?.profileFrameHue ?? 0;
   const initialBannerImageUrl = user?.bannerImageUrl ?? "";
   const initialBannerBackgroundUrl = user?.bannerBackgroundUrl ?? "";
   const initialProfileBgColor = user?.profileBgColor ?? "#050505";
@@ -56,17 +61,44 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setBannerBackgroundUrl = (val: any) => updateOverrides({ bannerBackgroundUrl: val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
-  const [decorationModalOpen, setDecorationModalOpen] = useState(false);
+  const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
+  const [framesPickerOpen, setFramesPickerOpen] = useState(false);
 
-  // Set the initial decoration if url exists
   const initialDecoration = initialDecorationUrl
-    ? { id: "custom", name: "Custom Decoration", url: initialDecorationUrl } as Decoration
+    ? { 
+        id: (decorations as Decoration[]).find(d => d.url === initialDecorationUrl)?.id || "custom", 
+        name: (decorations as Decoration[]).find(d => d.url === initialDecorationUrl)?.name || "Custom Decoration", 
+        url: initialDecorationUrl 
+      } as Decoration
     : null;
 
-  const selectedDecoration = overrides.selectedDecoration ?? initialDecoration;
-  const setSelectedDecoration = (val: any) => updateOverrides({ selectedDecoration: val });
-  const decorationHue = overrides.decorationHue ?? initialDecorationHue;
-  const setDecorationHue = (val: any) => updateOverrides({ decorationHue: val });
+  const selectedDecoration = overrides.selectedDecoration !== undefined ? overrides.selectedDecoration : initialDecoration;
+  const setSelectedDecoration = (val: any) => {
+    const isSame = val ? val.url === initialDecorationUrl : !initialDecorationUrl;
+    updateOverrides({ selectedDecoration: isSame ? undefined : val });
+  };
+  const decorationHue = overrides.decorationHue !== undefined ? overrides.decorationHue : initialDecorationHue;
+  const setDecorationHue = (val: any) => {
+    updateOverrides({ decorationHue: val === initialDecorationHue ? undefined : val });
+  };
+
+  const initialFrame = initialFrameUrl
+    ? { 
+        id: "custom", 
+        name: (frames as any[]).find(f => f.sku_id === initialFrameUrl.split("frame:")[1])?.name || "Custom Frame", 
+        url: initialFrameUrl 
+      } as Decoration
+    : null;
+
+  const selectedFrame = overrides.selectedFrame !== undefined ? overrides.selectedFrame : initialFrame;
+  const setSelectedFrame = (val: any) => {
+    const isSame = val ? val.url === initialFrameUrl : !initialFrameUrl;
+    updateOverrides({ selectedFrame: isSame ? undefined : val });
+  };
+  const frameHue = overrides.frameHue !== undefined ? overrides.frameHue : initialFrameHue;
+  const setFrameHue = (val: any) => {
+    updateOverrides({ frameHue: val === initialFrameHue ? undefined : val });
+  };
 
 
 
@@ -83,13 +115,16 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setAvatarShape={setAvatarShape}
           selectedDecoration={selectedDecoration}
           decorationHue={decorationHue}
+          selectedFrame={selectedFrame}
+          frameHue={frameHue}
           decorationCount={decorationCount}
           bannerImageUrl={bannerImageUrl}
           setBannerImageUrl={setBannerImageUrl}
           bannerBackgroundUrl={bannerBackgroundUrl}
           setBannerBackgroundUrl={setBannerBackgroundUrl}
           setAvatarModalOpen={setAvatarModalOpen}
-          setDecorationModalOpen={setDecorationModalOpen}
+          setDecorationPickerOpen={setDecorationPickerOpen}
+          setFramesPickerOpen={setFramesPickerOpen}
           setBannerImageModalOpen={setBannerImageModalOpen}
           setBannerBackgroundModalOpen={setBannerBackgroundModalOpen}
           isVideoUrl={isVideoUrl}
@@ -129,14 +164,25 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
       />
 
       <DecorationPicker
-        open={decorationModalOpen}
+        open={decorationPickerOpen}
         avatarUrl={avatarUrl}
         avatarShape={avatarShape}
         selectedDecoration={selectedDecoration}
-        hueRotation={decorationHue}
-        onClose={() => setDecorationModalOpen(false)}
-        onSelect={setSelectedDecoration}
-        onHueRotationChange={setDecorationHue}
+        decorationHue={decorationHue}
+        onClose={() => setDecorationPickerOpen(false)}
+        onSelectDecoration={setSelectedDecoration}
+        onDecorationHueChange={setDecorationHue}
+      />
+
+      <FramesPicker
+        open={framesPickerOpen}
+        avatarUrl={avatarUrl}
+        avatarShape={avatarShape}
+        selectedFrame={selectedFrame}
+        frameHue={frameHue}
+        onClose={() => setFramesPickerOpen(false)}
+        onSelectFrame={setSelectedFrame}
+        onFrameHueChange={setFrameHue}
       />
 
 
@@ -153,6 +199,8 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           avatarShape,
           selectedDecoration,
           decorationHue,
+          selectedFrame,
+          frameHue,
           bannerImageUrl,
           bannerBackgroundUrl,
         }}
@@ -162,12 +210,14 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
-            const { selectedDecoration, decorationHue, ...restOverrides } = overrides;
+            const { selectedDecoration: _sd, decorationHue: _dh, selectedFrame: _sf, frameHue: _fh, ...restOverrides } = overrides;
             await updateGeneralProfile({
               username: user?.username || "",
               ...restOverrides,
-              avatarDecorationUrl: selectedDecoration?.url ?? null,
-              avatarDecorationHue: decorationHue,
+              ...(overrides.selectedDecoration !== undefined ? { avatarDecorationUrl: overrides.selectedDecoration?.url ?? null } : {}),
+              ...(overrides.decorationHue !== undefined ? { avatarDecorationHue: overrides.decorationHue } : {}),
+              ...(overrides.selectedFrame !== undefined ? { profileFrameUrl: overrides.selectedFrame?.url ?? null } : {}),
+              ...(overrides.frameHue !== undefined ? { profileFrameHue: overrides.frameHue } : {}),
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

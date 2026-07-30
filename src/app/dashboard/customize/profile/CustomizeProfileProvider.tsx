@@ -35,7 +35,15 @@ export function CustomizeProfileProvider({
   }, [initialUser]);
 
   const updateOverrides = (newOverrides: any) => {
-    setOverrides((prev: any) => ({ ...prev, ...newOverrides }));
+    setOverrides((prev: any) => {
+      const next = { ...prev, ...newOverrides };
+      Object.keys(next).forEach((key) => {
+        if (next[key] === undefined) {
+          delete next[key];
+        }
+      });
+      return next;
+    });
   };
 
   const clearOverrides = () => {

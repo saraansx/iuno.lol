@@ -57,6 +57,8 @@ interface Layout1Props {
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
   highlightColor?: string;
+  selectedFrame?: any;
+  frameHue?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -165,6 +167,8 @@ const Layout1 = ({
   avatarShape = "rounded",
   selectedDecoration,
   decorationHue = 0,
+  selectedFrame,
+  frameHue = 0,
   bannerImageUrl,
   bannerBackgroundUrl,
   backgroundEffect,
@@ -384,7 +388,29 @@ const Layout1 = ({
         />
 
         {/* Wrapper — content + background are siblings */}
-        <div className="w-full max-w-[672px] relative flex flex-col items-center overflow-visible z-10">
+        <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
+          {/* Profile Frame Overlay (Back Layers) */}
+          {selectedFrame && (
+            <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+              {selectedFrame.layers.filter((l: any) => l.order === 'back').map((layer: any) => (
+                <img
+                  key={layer.id}
+                  src={layer.url}
+                  alt="Profile Frame Layer"
+                  className="absolute max-w-none"
+                  style={{
+                    width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                    left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                    top: layer.anchor === "top" ? 0 : undefined,
+                    bottom: layer.anchor === "bottom" ? 0 : undefined,
+                    marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                    marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                    filter: `hue-rotate(${frameHue}deg)`
+                  }}
+                />
+              ))}
+            </div>
+          )}
           {/* Background card — this entire layer fades with opacity */}
           <div
             className="absolute inset-0"
@@ -409,6 +435,29 @@ const Layout1 = ({
               right: `${profileBorderWidth}px`
             }}
           />
+
+          {/* Profile Frame Overlay (Front Layers) */}
+          {selectedFrame && (
+            <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+              {selectedFrame.layers.filter((l: any) => l.order === 'front').map((layer: any) => (
+                <img
+                  key={layer.id}
+                  src={layer.url}
+                  alt="Profile Frame Layer"
+                  className="absolute max-w-none"
+                  style={{
+                    width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                    left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                    top: layer.anchor === "top" ? 0 : undefined,
+                    bottom: layer.anchor === "bottom" ? 0 : undefined,
+                    marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                    marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                    filter: `hue-rotate(${frameHue}deg)`
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
           {/* Content — always full opacity, positioned independently */}
           <div
@@ -572,7 +621,7 @@ const Layout1 = ({
           {/* Views count badge in bottom left */}
           {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
             <div
-              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
+              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
               style={{
                 color: highlightColor || 'rgba(255, 255, 255, 0.6)',
                 fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
@@ -628,13 +677,17 @@ const Layout1 = ({
 
           {/* Feedback Buttons */}
           {feedbackEnabled && (
-            <FeedbackButtons
-              profileId={profileId}
-              viewerId={viewerId}
-              initialLikes={likesCount}
-              initialDislikes={dislikesCount}
-              highlightColor={highlightColor}
-            />
+            <div className="absolute bottom-3.5 right-4.5 z-[70]">
+              <FeedbackButtons
+                profileId={profileId}
+                viewerId={viewerId}
+                initialLikes={likesCount}
+                initialDislikes={dislikesCount}
+                highlightColor={highlightColor}
+                showLikesTooltip={showLikesTooltip}
+                showDislikesTooltip={showDislikesTooltip}
+              />
+            </div>
           )}
         </div>
 
@@ -711,7 +764,29 @@ const Layout1 = ({
       />
 
       {/* Wrapper — content + background are siblings */}
-      <div className="w-full max-w-[672px] relative flex flex-col items-center justify-center z-10">
+      <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
+        {/* Profile Frame Overlay (Back Layers) */}
+        {selectedFrame && (
+          <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+            {selectedFrame.layers.filter((l: any) => l.order === 'back').map((layer: any) => (
+              <img
+                key={layer.id}
+                src={layer.url}
+                alt="Profile Frame Layer"
+                className="absolute max-w-none"
+                style={{
+                  width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                  left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                  top: layer.anchor === "top" ? 0 : undefined,
+                  bottom: layer.anchor === "bottom" ? 0 : undefined,
+                  marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                  marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                  filter: `hue-rotate(${frameHue}deg)`
+                }}
+              />
+            ))}
+          </div>
+        )}
         {/* Background card — this entire layer fades with opacity */}
         <div
           className="absolute inset-0"
@@ -736,6 +811,29 @@ const Layout1 = ({
             right: `${profileBorderWidth}px`
           }}
         />
+
+        {/* Profile Frame Overlay (Front Layers) */}
+        {selectedFrame && (
+          <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+            {selectedFrame.layers.filter((l: any) => l.order === 'front').map((layer: any) => (
+              <img
+                key={layer.id}
+                src={layer.url}
+                alt="Profile Frame Layer"
+                className="absolute max-w-none"
+                style={{
+                  width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                  left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
+                  top: layer.anchor === "top" ? 0 : undefined,
+                  bottom: layer.anchor === "bottom" ? 0 : undefined,
+                  marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                  marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
+                  filter: `hue-rotate(${frameHue}deg)`
+                }}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Content — always full opacity, positioned independently */}
         <div
@@ -857,7 +955,7 @@ const Layout1 = ({
         {/* Views count badge in bottom left */}
         {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
           <div
-            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-20 select-none"
+            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
             style={{
               color: highlightColor || 'rgba(255, 255, 255, 0.6)',
               fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
@@ -912,15 +1010,17 @@ const Layout1 = ({
 
         {/* Feedback Buttons */}
         {feedbackEnabled && (
-          <FeedbackButtons
-            profileId={profileId}
-            viewerId={viewerId}
-            initialLikes={likesCount}
-            initialDislikes={dislikesCount}
-            highlightColor={highlightColor}
-            showLikesTooltip={showLikesTooltip}
-            showDislikesTooltip={showDislikesTooltip}
-          />
+          <div className="absolute bottom-3.5 right-4.5 z-[70]">
+            <FeedbackButtons
+              profileId={profileId}
+              viewerId={viewerId}
+              initialLikes={likesCount}
+              initialDislikes={dislikesCount}
+              highlightColor={highlightColor}
+              showLikesTooltip={showLikesTooltip}
+              showDislikesTooltip={showDislikesTooltip}
+            />
+          </div>
         )}
       </div>
 

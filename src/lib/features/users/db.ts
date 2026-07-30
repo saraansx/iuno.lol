@@ -26,6 +26,8 @@ const userColumns = {
   avatarUrl: schema.userSettings.avatarUrl,
   avatarDecorationUrl: schema.userSettings.avatarDecorationUrl,
   avatarDecorationHue: schema.userSettings.avatarDecorationHue,
+  profileFrameUrl: schema.userSettings.profileFrameUrl,
+  profileFrameHue: schema.userSettings.profileFrameHue,
   avatarShape: schema.userSettings.avatarShape,
   bannerImageUrl: schema.userSettings.bannerImageUrl,
   bannerBackgroundUrl: schema.userSettings.bannerBackgroundUrl,

@@ -60,6 +60,8 @@ export async function updateGeneralProfile(data: {
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   avatarDecorationUrl?: string | null;
   avatarDecorationHue?: number;
+  profileFrameUrl?: string | null;
+  profileFrameHue?: number;
   bannerImageUrl?: string | null;
   bannerBackgroundUrl?: string | null;
 }) {
@@ -77,6 +79,9 @@ export async function updateGeneralProfile(data: {
 
   // Validate that all image URLs point to our own S3 bucket
   const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.avatarDecorationUrl];
+  if (data.profileFrameUrl && !data.profileFrameUrl.startsWith("frame:")) {
+    urlFields.push(data.profileFrameUrl);
+  }
   if (urlFields.some(url => !isValidMediaUrl(url))) {
     throw new Error("Invalid media URL.");
   }
@@ -102,6 +107,16 @@ export async function updateGeneralProfile(data: {
   if (data.avatarShape !== undefined) setData.avatarShape = data.avatarShape;
   if (data.avatarDecorationUrl !== undefined) setData.avatarDecorationUrl = data.avatarDecorationUrl;
   if (data.avatarDecorationHue !== undefined) setData.avatarDecorationHue = data.avatarDecorationHue;
+  
+  if (data.profileFrameUrl !== undefined) {
+    if (data.profileFrameUrl === "" || data.profileFrameUrl === null) {
+      setData.profileFrameUrl = null;
+    } else {
+      setData.profileFrameUrl = data.profileFrameUrl;
+    }
+  }
+  if (data.profileFrameHue !== undefined) setData.profileFrameHue = data.profileFrameHue;
+
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
 

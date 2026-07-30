@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import Image from "next/image";
 import decorations from "@/Deco.json";
+
 
 type Decoration = {
   id: string;
@@ -10,15 +11,17 @@ type Decoration = {
   url: string;
 };
 
+
+
 interface DecorationPickerProps {
   open: boolean;
   avatarUrl?: string | null;
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   selectedDecoration?: Decoration | null;
-  hueRotation: number;
+  decorationHue: number;
   onClose: () => void;
-  onSelect: (decoration: Decoration | null) => void;
-  onHueRotationChange: (value: number) => void;
+  onSelectDecoration: (decoration: Decoration | null) => void;
+  onDecorationHueChange: (value: number) => void;
 }
 
 const typedDecorations = decorations as Decoration[];
@@ -31,25 +34,25 @@ export default function DecorationPicker({
   avatarUrl,
   avatarShape = "rounded",
   selectedDecoration,
-  hueRotation,
+  decorationHue,
   onClose,
-  onSelect,
-  onHueRotationChange,
+  onSelectDecoration,
+  onDecorationHueChange,
 }: DecorationPickerProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const filteredDecorations = useMemo(() => {
+  const filteredItems = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return typedDecorations;
     return typedDecorations.filter((decoration) =>
-      decoration.name.toLowerCase().includes(query) || decoration.id.toLowerCase().includes(query),
+      decoration.name.toLowerCase().includes(query) || decoration.id.toLowerCase().includes(query)
     );
   }, [search]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredDecorations.length / itemsPerPage));
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
   const currentPage = Math.min(page, totalPages);
-  const visibleDecorations = filteredDecorations.slice(
+  const visibleItems = filteredItems.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage,
   );
@@ -68,11 +71,15 @@ export default function DecorationPicker({
     setPage(1);
   };
 
+
+
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-sm">
-      <div className="relative flex h-[min(600px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)]">
-        <div className="flex items-center justify-between px-5 py-4">
-          <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Decoration</h2>
+      <div className="relative flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)]">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-2">
+          <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Avatar Decoration</h2>
           <button
             type="button"
             onClick={onClose}
@@ -84,64 +91,67 @@ export default function DecorationPicker({
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[230px_1fr] gap-5 px-5 pb-5">
-          <aside className="flex min-h-0 flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
+
+
+        <div className="grid min-h-0 flex-1 grid-cols-[250px_1fr] gap-5 px-5 py-5">
+          <aside className="flex h-fit self-center flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
             <p className="text-[14px] font-semibold text-white/90">Preview</p>
-            <div className="mt-5 flex justify-center">
-              <div className="relative h-24 w-24">
-                <div className={`absolute inset-0 overflow-hidden border border-white/10 bg-[#1b1b1b] shadow-inner ${avatarShapeClass}`}>
-                  {avatarUrl ? (
-                    <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
-                  ) : (
-                    <div className="absolute inset-0 flex items-center justify-center text-white">
-                      <svg width="52" height="52" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="8" r="4" />
-                        <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" />
-                      </svg>
+            <div className="mt-5 flex items-center justify-center">
+
+                <div className="relative h-28 w-28">
+                  <div className={`absolute inset-0 overflow-hidden border border-white/10 bg-[#1b1b1b] shadow-inner ${avatarShapeClass}`}>
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center text-white">
+                        <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="12" cy="8" r="4" />
+                          <path d="M4 21c0-4.2 3.6-7 8-7s8 2.8 8 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  {selectedDecoration && (
+                    <div className="pointer-events-none absolute -inset-2">
+                      <Image
+                        src={selectedDecoration.url}
+                        alt={selectedDecoration.name}
+                        fill
+                        unoptimized
+                        className="object-contain"
+                        style={{ filter: `hue-rotate(${decorationHue}deg)` }}
+                      />
                     </div>
                   )}
                 </div>
-                {selectedDecoration && (
-                  <div className="pointer-events-none absolute -inset-2">
-                    <Image
-                      src={selectedDecoration.url}
-                      alt={selectedDecoration.name}
-                      fill
-                      unoptimized
-                      className="object-contain"
-                      style={{ filter: `hue-rotate(${hueRotation}deg)` }}
-                    />
-                  </div>
-                )}
-              </div>
             </div>
 
             <div className="mt-7 flex items-center justify-between">
               <p className="text-[12px] font-semibold text-white/80">Hue rotation</p>
               <span className="rounded-md border border-white/[0.06] bg-white/[0.03] px-2 py-0.5 text-[11px] font-semibold text-white/65">
-                {hueRotation}°
+                {decorationHue}°
               </span>
             </div>
             <input
               type="range"
               min="0"
               max="360"
-              value={hueRotation}
-              onChange={(event) => onHueRotationChange(Number(event.target.value))}
-              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#609fda]/50 [&::-webkit-slider-thumb]:bg-[#609fda] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(96,159,218,0.12)] [&::-moz-range-thumb]:h-3.5 [&::-moz-range-thumb]:w-3.5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border [&::-moz-range-thumb]:border-[#609fda]/50 [&::-moz-range-thumb]:bg-[#609fda]"
+              value={decorationHue}
+              onChange={(event) => onDecorationHueChange(Number(event.target.value))}
+              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#609fda]/50 [&::-webkit-slider-thumb]:bg-[#609fda] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(96,159,218,0.12)]"
             />
 
-            <p className="mt-4 text-[13px] text-white/45">
+            <p className="mt-4 text-[13px] text-white/45 text-center">
               {selectedDecoration ? selectedDecoration.name : "No decoration selected"}
             </p>
 
             {selectedDecoration && (
               <button
                 type="button"
-                onClick={() => onSelect(null)}
+                onClick={() => onSelectDecoration(null)}
                 className="mt-4 h-9 rounded-xl border border-white/[0.07] text-[13px] font-medium text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white/75"
               >
-                Clear decoration
+                Clear selection
               </button>
             )}
           </aside>
@@ -160,34 +170,36 @@ export default function DecorationPicker({
                   className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#609fda]/35"
                 />
               </div>
-              <p className="w-20 text-right text-[13px] text-white/45">{filteredDecorations.length} results</p>
+              <p className="w-20 text-right text-[13px] text-white/45">{filteredItems.length} results</p>
             </div>
 
             <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
-              {visibleDecorations.map((decoration) => {
-                const selected = selectedDecoration?.id === decoration.id;
+              {visibleItems.map((item: any) => {
+                const isSelected = selectedDecoration?.id === item.id;
+                  
                 return (
                   <button
                     type="button"
-                    key={decoration.id}
-                    onClick={() => onSelect(decoration)}
+                    key={item.id}
+                    onClick={() => {
+                      onSelectDecoration({
+                        id: item.id,
+                        name: item.name,
+                        url: item.url
+                      });
+                    }}
                     className={`group flex flex-col rounded-[14px] border bg-[#050505] p-2.5 text-left transition-colors ${
-                      selected
+                      isSelected
                         ? "border-[#609fda]/50 bg-[#609fda]/8"
                         : "border-white/[0.07] hover:border-white/15 hover:bg-white/[0.025]"
                     }`}
                   >
-                    <div className="relative min-h-0 flex-1 w-full">
-                      <Image
-                        src={decoration.url}
-                        alt={decoration.name}
-                        fill
-                        unoptimized
-                        className="object-contain p-2 transition-transform duration-200 group-hover:scale-105"
-                        style={{ filter: selected ? `hue-rotate(${hueRotation}deg)` : "none" }}
-                      />
+                    <div className="relative min-h-0 flex-1 w-full flex items-center justify-center">
+                      <div className="relative h-16 w-16 transition-transform duration-200 group-hover:scale-105">
+                        <Image src={item.url} alt={item.name} fill unoptimized className="object-contain" style={{ filter: isSelected ? `hue-rotate(${decorationHue}deg)` : "none" }} />
+                      </div>
                     </div>
-                    <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90">{decoration.name}</p>
+                    <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90 w-full text-center">{item.name}</p>
                   </button>
                 );
               })}

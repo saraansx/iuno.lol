@@ -11,13 +11,16 @@ interface AssetsSectionProps {
   setAvatarShape: (shape: "square" | "soft" | "rounded" | "circle") => void;
   selectedDecoration: Decoration | null;
   decorationHue: number;
+  selectedFrame: Decoration | null;
+  frameHue: number;
   decorationCount: number;
   bannerImageUrl: string;
   setBannerImageUrl: (url: string) => void;
   bannerBackgroundUrl: string;
   setBannerBackgroundUrl: (url: string) => void;
   setAvatarModalOpen: (open: boolean) => void;
-  setDecorationModalOpen: (open: boolean) => void;
+  setDecorationPickerOpen: (open: boolean) => void;
+  setFramesPickerOpen: (open: boolean) => void;
   setBannerImageModalOpen: (open: boolean) => void;
   setBannerBackgroundModalOpen: (open: boolean) => void;
   isVideoUrl: (url: string) => boolean;
@@ -30,13 +33,16 @@ export default function AssetsSection({
   setAvatarShape,
   selectedDecoration,
   decorationHue,
+  selectedFrame,
+  frameHue,
   decorationCount,
   bannerImageUrl,
   setBannerImageUrl,
   bannerBackgroundUrl,
   setBannerBackgroundUrl,
   setAvatarModalOpen,
-  setDecorationModalOpen,
+  setDecorationPickerOpen,
+  setFramesPickerOpen,
   setBannerImageModalOpen,
   setBannerBackgroundModalOpen,
   isVideoUrl,
@@ -86,7 +92,7 @@ export default function AssetsSection({
                   </svg>
                 )}
               </div>
-              {selectedDecoration && (
+              {selectedDecoration && !selectedDecoration.url.startsWith("frame:") && (
                 <div className="pointer-events-none absolute -inset-2 z-10">
                   <Image
                     src={selectedDecoration.url}
@@ -120,18 +126,32 @@ export default function AssetsSection({
                   </button>
                 )}
               </div>
-              <button
-                onClick={() => setDecorationModalOpen(true)}
-                className="w-full bg-[#161616] border border-white/5 hover:bg-white/[0.05] text-white/90 text-[13px] font-medium py-[9px] px-4 rounded-[10px] transition-colors flex items-center justify-between cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-                  Select Decoration
-                </div>
-                <span className="text-white/30 text-[11px] font-normal">
-                  {selectedDecoration ? selectedDecoration.name : `${decorationCount} items`}
-                </span>
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDecorationPickerOpen(true)}
+                  className="flex-1 bg-[#161616] border border-white/5 hover:bg-white/[0.05] text-white/90 text-[13px] font-medium py-[9px] px-3 rounded-[10px] transition-colors flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
+                >
+                  <div className="flex items-center gap-1.5 text-white/80">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7284f6]"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                    Avatar Deco
+                  </div>
+                  <span className="text-white/30 text-[10px] font-normal truncate w-full text-left">
+                    {selectedDecoration ? selectedDecoration.name : "None"}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setFramesPickerOpen(true)}
+                  className="flex-1 bg-[#161616] border border-white/5 hover:bg-white/[0.05] text-white/90 text-[13px] font-medium py-[9px] px-3 rounded-[10px] transition-colors flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
+                >
+                  <div className="flex items-center gap-1.5 text-white/80">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#7284f6]"><line x1="22" x2="2" y1="6" y2="6"/><line x1="22" x2="2" y1="18" y2="18"/><line x1="6" x2="6" y1="2" y2="22"/><line x1="18" x2="18" y1="2" y2="22"/></svg>
+                    Profile Frame
+                  </div>
+                  <span className="text-white/30 text-[10px] font-normal truncate w-full text-left">
+                    {selectedFrame ? selectedFrame.name : "None"}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
 

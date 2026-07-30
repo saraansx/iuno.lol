@@ -6,6 +6,7 @@ import { headers } from 'next/headers'
 import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
+import frames from '@/Frames.json'
 
 export const revalidate = 2592000; // Cache on the CDN for 30 days (flushed instantly when user saves dashboard)
 
@@ -25,6 +26,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       avatarShape: userSettings.avatarShape,
       avatarDecorationUrl: userSettings.avatarDecorationUrl,
       avatarDecorationHue: userSettings.avatarDecorationHue,
+      profileFrameUrl: userSettings.profileFrameUrl,
+      profileFrameHue: userSettings.profileFrameHue,
       bannerImageUrl: userSettings.bannerImageUrl,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
       profileBgColor: userSettings.profileBgColor,
@@ -97,6 +100,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const user = userList[0]
   const viewerId = viewerIdResult || null;
+
+  const selectedFrame = user.profileFrameUrl ? (frames as any[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
+
   return (
     <div 
       className="min-h-screen relative overflow-hidden"
@@ -111,7 +117,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         avatarUrl={user.avatarUrl ?? undefined}
         avatarShape={(user.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
         selectedDecoration={user.avatarDecorationUrl ? { id: "custom", name: "Decoration", url: user.avatarDecorationUrl } : null}
+        selectedFrame={selectedFrame}
         decorationHue={user.avatarDecorationHue ?? 0}
+        frameHue={user.profileFrameHue ?? 0}
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
