@@ -49,69 +49,72 @@ export function ShootingStarsEffect({ intensity = 50, color = "#ffffff" }: { int
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(canvas);
 
-    class Star {
+    type Star = {
       x: number;
       y: number;
       length: number;
       speed: number;
       opacity: number;
       active: boolean;
+      spawn: () => void;
+      update: () => void;
+      draw: (currentRgbColor: string) => void;
+    };
 
-      constructor() {
-        this.active = false;
-        this.x = 0;
-        this.y = 0;
-        this.length = 0;
-        this.speed = 0;
-        this.opacity = 0;
-      }
+    const createStar = (): Star => {
+      const star = {
+        active: false,
+        x: 0,
+        y: 0,
+        length: 0,
+        speed: 0,
+        opacity: 0,
+        spawn: () => {
+          star.x = Math.random() * width;
+          star.y = Math.random() * height * 0.5; // Spawn mostly in upper half
+          star.length = (Math.random() * 0.08 + 0.02) * width; // Relative length
+          star.speed = (Math.random() * 0.004 + 0.002) * width; // Relative speed
+          star.opacity = Math.random() * 0.8 + 0.2;
+          star.active = true;
+        },
+        update: () => {
+          if (!star.active) return;
+          
+          // Move down and left
+          star.x -= star.speed;
+          star.y += star.speed * 0.6; // Angle
+          star.opacity -= 0.005; // Fade out slower
 
-      spawn() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height * 0.5; // Spawn mostly in upper half
-        this.length = (Math.random() * 0.08 + 0.02) * width; // Relative length
-        this.speed = (Math.random() * 0.004 + 0.002) * width; // Relative speed
-        this.opacity = Math.random() * 0.8 + 0.2;
-        this.active = true;
-      }
-
-      update() {
-        if (!this.active) return;
-        
-        // Move down and left
-        this.x -= this.speed;
-        this.y += this.speed * 0.6; // Angle
-        this.opacity -= 0.005; // Fade out slower
-
-        if (this.opacity <= 0 || this.x < 0 || this.y > height) {
-          this.active = false;
+          if (star.opacity <= 0 || star.x < 0 || star.y > height) {
+            star.active = false;
+          }
+        },
+        draw: (currentRgbColor: string) => {
+          if (!star.active || !ctx) return;
+          
+          ctx.beginPath();
+          ctx.moveTo(star.x, star.y);
+          ctx.lineTo(star.x + star.length, star.y - star.length * 0.6);
+          
+          const gradient = ctx.createLinearGradient(star.x, star.y, star.x + star.length, star.y - star.length * 0.6);
+          gradient.addColorStop(0, `rgba(${currentRgbColor}, ${star.opacity})`);
+          gradient.addColorStop(1, `rgba(${currentRgbColor}, 0)`);
+          
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
         }
-      }
+      };
+      return star;
+    };
 
-      draw(currentRgbColor: string) {
-        if (!this.active || !ctx) return;
-        
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x + this.length, this.y - this.length * 0.6);
-        
-        const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.length, this.y - this.length * 0.6);
-        gradient.addColorStop(0, `rgba(${currentRgbColor}, ${this.opacity})`);
-        gradient.addColorStop(1, `rgba(${currentRgbColor}, 0)`);
-        
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-      }
-    }
-
-    let stars: Star[] = [];
+    const stars: Star[] = [];
 
     const render = () => {
       const currentRgbColor = hexToRgb(propsRef.current.color);
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 15) + 2;
       
-      while (stars.length < targetCount) stars.push(new Star());
+      while (stars.length < targetCount) stars.push(createStar());
       while (stars.length > targetCount) stars.pop();
 
       ctx.clearRect(0, 0, width, height);

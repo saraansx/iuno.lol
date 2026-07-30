@@ -49,39 +49,42 @@ export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensi
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(canvas);
 
-    class Particle {
+    type Particle = {
       x: number;
       y: number;
       vx: number;
       vy: number;
       radius: number;
       opacity: number;
+      update: () => void;
+      draw: (currentRgbColor: string) => void;
+    };
 
-      constructor() {
-        this.x = Math.random() * width;
-        this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
-        this.radius = Math.random() * 2.5 + 1;
-        this.opacity = Math.random() * 0.5 + 0.2;
-      }
+    const createParticle = (): Particle => {
+      const p = {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        radius: Math.random() * 2.5 + 1,
+        opacity: Math.random() * 0.5 + 0.2,
+        update: () => {
+          p.x += p.vx;
+          p.y += p.vy;
 
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-
-        if (this.x < 0 || this.x > width) this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
-      }
-
-      draw(currentRgbColor: string) {
-        if (!ctx) return;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${currentRgbColor}, ${this.opacity})`;
-        ctx.fill();
-      }
-    }
+          if (p.x < 0 || p.x > width) p.vx *= -1;
+          if (p.y < 0 || p.y > height) p.vy *= -1;
+        },
+        draw: (currentRgbColor: string) => {
+          if (!ctx) return;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${currentRgbColor}, ${p.opacity})`;
+          ctx.fill();
+        }
+      };
+      return p;
+    };
 
     const particles: Particle[] = [];
 
@@ -89,7 +92,7 @@ export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensi
       const currentRgbColor = hexToRgb(propsRef.current.color);
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 200);
       
-      while (particles.length < targetCount) particles.push(new Particle());
+      while (particles.length < targetCount) particles.push(createParticle());
       while (particles.length > targetCount) particles.pop();
 
       ctx.clearRect(0, 0, width, height);

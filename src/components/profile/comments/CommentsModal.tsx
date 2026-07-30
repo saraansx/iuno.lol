@@ -65,7 +65,7 @@ export function CommentsModal({
         requestAnimationFrame(() => setIsAnimating(true));
       });
     } else {
-      setIsAnimating(false);
+      requestAnimationFrame(() => setIsAnimating(false));
       const timer = setTimeout(() => setShouldRender(false), 100);
       return () => clearTimeout(timer);
     }

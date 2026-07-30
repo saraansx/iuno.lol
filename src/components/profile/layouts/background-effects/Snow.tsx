@@ -7,21 +7,25 @@ export function SnowEffect({ intensity = 50, color = "#ffffff" }: { intensity?: 
 
   useEffect(() => {
     const flakeCount = Math.floor((intensity / 100) * 150);
-    setFlakes((prev) => {
-      if (prev.length === flakeCount) return prev;
-      if (prev.length > flakeCount) return prev.slice(0, flakeCount);
-      const newFlakes = [...prev];
-      for (let i = prev.length; i < flakeCount; i++) {
-        newFlakes.push({
-          id: i,
-          left: Math.random() * 100,
-          animationDuration: Math.random() * 3 + 2,
-          delay: Math.random() * 5,
-          size: Math.random() * 4 + 2,
-        });
-      }
-      return newFlakes;
-    });
+    // Wrap in setTimeout to prevent synchronous cascading render warnings
+    const timeoutId = setTimeout(() => {
+      setFlakes((prev) => {
+        if (prev.length === flakeCount) return prev;
+        if (prev.length > flakeCount) return prev.slice(0, flakeCount);
+        const newFlakes = [...prev];
+        for (let i = prev.length; i < flakeCount; i++) {
+          newFlakes.push({
+            id: i,
+            left: Math.random() * 100,
+            animationDuration: Math.random() * 3 + 2,
+            delay: Math.random() * 5,
+            size: Math.random() * 4 + 2,
+          });
+        }
+        return newFlakes;
+      });
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [intensity]);
 
   return (

@@ -7,22 +7,26 @@ export function NightTimeEffect({ intensity = 50 }: { intensity?: number }) {
 
   useEffect(() => {
     const starCount = Math.floor((intensity / 100) * 100);
-    setStars((prev) => {
-      if (prev.length === starCount) return prev;
-      if (prev.length > starCount) return prev.slice(0, starCount);
-      const newStars = [...prev];
-      for (let i = prev.length; i < starCount; i++) {
-        newStars.push({
-          id: i,
-          left: Math.random() * 100,
-          top: Math.random() * 100,
-          size: Math.random() * 2 + 1,
-          animationDuration: Math.random() * 3 + 2,
-          delay: Math.random() * 5,
-        });
-      }
-      return newStars;
-    });
+    // Wrap in setTimeout to prevent synchronous cascading render warnings
+    const timeoutId = setTimeout(() => {
+      setStars((prev) => {
+        if (prev.length === starCount) return prev;
+        if (prev.length > starCount) return prev.slice(0, starCount);
+        const newStars = [...prev];
+        for (let i = prev.length; i < starCount; i++) {
+          newStars.push({
+            id: i,
+            left: Math.random() * 100,
+            top: Math.random() * 100,
+            size: Math.random() * 2 + 1,
+            animationDuration: Math.random() * 3 + 2,
+            delay: Math.random() * 5,
+          });
+        }
+        return newStars;
+      });
+    }, 0);
+    return () => clearTimeout(timeoutId);
   }, [intensity]);
 
   // The darkness opacity scales with intensity, up to 90% dark
