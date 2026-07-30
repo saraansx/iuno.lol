@@ -15,8 +15,8 @@ export async function GET(request: Request) {
     `)
 
     return NextResponse.json({ success: true, message: 'Cleaned up profile views older than 7 days.' })
-  } catch (error: any) {
+  } catch (error) {
     console.error('[cron] failed to run profile views daily cleanup:', error)
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
+    return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 })
   }
 }

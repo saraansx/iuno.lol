@@ -13,7 +13,7 @@ type FrameLayer = {
   anchor?: string;
 };
 
-type Frame = {
+export type Frame = {
   id: string;
   name: string;
   sku_id: string;
@@ -127,6 +127,7 @@ export default function FramesPicker({
                 {selectedFrameData && (
                   <div className="absolute inset-0 pointer-events-none z-20 overflow-visible" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
                      {selectedFrameData.layers.map((layer) => (
+                        /* eslint-disable-next-line @next/next/no-img-element */
                         <img 
                           key={layer.id} 
                           src={layer.url} 
@@ -196,7 +197,7 @@ export default function FramesPicker({
             </div>
 
             <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
-              {visibleItems.map((item: any) => {
+              {visibleItems.map((item: Frame) => {
                 const isSelected = selectedFrame?.url === `frame:${item.sku_id}`;
                   
                 return (
@@ -217,17 +218,27 @@ export default function FramesPicker({
                     }`}
                   >
                     <div className="relative min-h-0 flex-1 w-full flex items-center justify-center">
-                      <div className="relative w-full h-full overflow-hidden flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ filter: isSelected ? `hue-rotate(${frameHue}deg)` : "none" }}>
-                        {(item as Frame).layers.map((layer) => (
-                           <Image
-                             key={layer.id}
-                             src={layer.url}
-                             alt={item.name}
-                             fill
-                             unoptimized
-                             className="object-contain"
-                           />
-                        ))}
+                      <div className="relative w-full h-full flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ filter: isSelected ? `hue-rotate(${frameHue}deg)` : "none" }}>
+                        <div className="relative w-14 h-14 pointer-events-none">
+                          {(item as Frame).layers.map((layer) => (
+                             /* eslint-disable-next-line @next/next/no-img-element */
+                             <img 
+                               key={layer.id} 
+                               src={layer.url} 
+                               alt={item.name} 
+                               className="absolute max-w-none"
+                               style={{ 
+                                 zIndex: layer.order === "back" ? -1 : 1,
+                                 width: `${(((item.inner_width || 1200) + (item.overflow_horizontal || 0) * 2) / (item.inner_width || 1200)) * 100}%`,
+                                 left: `${-((item.overflow_horizontal || 0) / (item.inner_width || 1200)) * 100}%`,
+                                 top: layer.anchor === "top" ? 0 : undefined,
+                                 bottom: layer.anchor === "bottom" ? 0 : undefined,
+                                 marginTop: layer.anchor === "top" ? `${-((item.overflow_top || 0) / (item.inner_width || 1200)) * 100}%` : undefined,
+                                 marginBottom: layer.anchor === "bottom" ? `${-((item.overflow_bottom || 0) / (item.inner_width || 1200)) * 100}%` : undefined,
+                               }}
+                             />
+                          ))}
+                        </div>
                       </div>
                     </div>
                     <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90 w-full text-center">{item.name}</p>

@@ -4,7 +4,6 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
 import { commentRateLimit } from "@/lib/rate-limit";
 
 export async function addComment(profileId: number, content: string, replyToId?: number) {
@@ -92,7 +91,7 @@ export async function getComments(
 
   const comments = commentsToReturn.map(c => {
     const isLiked = c.likes && c.likes.length > 0;
-    // Remove likes array from being sent to client for privacy/size
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { likes, author, ...rest } = c;
     return { 
       ...rest, 
@@ -214,7 +213,9 @@ export async function getDashboardComments() {
   const rawReceived = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, userId),
     with: {
-      author: true,
+      author: {
+        with: { settings: true }
+      },
       likes: {
         where: eq(schema.commentLikes.userId, userId)
       },
@@ -227,7 +228,9 @@ export async function getDashboardComments() {
   const rawGiven = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.authorId, userId),
     with: {
-      author: true,
+      author: {
+        with: { settings: true }
+      },
       likes: {
         where: eq(schema.commentLikes.userId, userId)
       },
@@ -236,10 +239,19 @@ export async function getDashboardComments() {
     limit: 10,
   });
 
-  const mapComments = (raw: any[]) => raw.map(c => {
-    const isLiked = c.likes && c.likes.length > 0;
-    const { likes, ...rest } = c;
-    return { ...rest, isLiked };
+  const mapComments = <T extends { likes?: unknown[], author: { id: number, username: string, settings?: { avatarUrl?: string | null } | null } & Record<string, unknown> }>(raw: T[]) => raw.map(c => {
+    const isLiked = !!(c.likes && c.likes.length > 0);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { likes, author, ...rest } = c;
+    return { 
+      ...rest, 
+      isLiked,
+      author: {
+        ...author,
+        ...(author.settings || {}),
+        avatarUrl: author.settings?.avatarUrl ?? null
+      }
+    };
   });
 
   return {

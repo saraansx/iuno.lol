@@ -3,8 +3,6 @@
 import React, { useState, useRef, useEffect } from "react";
 
 interface EffectsCustomizationProps {
-  openSection: string | null;
-  setOpenSection: (val: string | null) => void;
   backgroundEffect: string;
   setBackgroundEffect: (val: string) => void;
   backgroundEffectIntensity: number;
@@ -14,8 +12,6 @@ interface EffectsCustomizationProps {
 }
 
 export default function EffectsCustomization({
-  openSection,
-  setOpenSection,
   backgroundEffect,
   setBackgroundEffect,
   backgroundEffectIntensity,

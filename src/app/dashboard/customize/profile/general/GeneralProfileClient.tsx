@@ -10,7 +10,7 @@ import AssetsSection from "@/components/dashboard/customize/general/AssetsSectio
 import GeneralInfoSection from "@/components/dashboard/customize/general/GeneralInfoSection";
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
-import DecorationPicker, { decorationCount, type Decoration } from "@/components/dashboard/DecorationPicker";
+import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import FramesPicker from "@/components/dashboard/FramesPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import decorations from "@/Deco.json";
@@ -36,68 +36,62 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialFrameHue = user?.profileFrameHue ?? 0;
   const initialBannerImageUrl = user?.bannerImageUrl ?? "";
   const initialBannerBackgroundUrl = user?.bannerBackgroundUrl ?? "";
-  const initialProfileBgColor = user?.profileBgColor ?? "#050505";
-  const initialProfileBgOpacity = user?.profileBgOpacity ?? 100;
-  const initialProfileShadowColor = user?.profileShadowColor ?? "#000000";
-  const initialProfileShadowOpacity = user?.profileShadowOpacity ?? 0;
-  const initialProfileOpacity = user?.profileOpacity ?? 100;
-
   const displayName = overrides.displayName ?? initialDisplayName;
-  const setDisplayName = (val: any) => updateOverrides({ displayName: val === initialDisplayName ? undefined : val });
+  const setDisplayName = (val: string) => updateOverrides({ displayName: val === initialDisplayName ? undefined : val });
   const location = overrides.location ?? initialLocation;
-  const setLocation = (val: any) => updateOverrides({ location: val === initialLocation ? undefined : val });
+  const setLocation = (val: string) => updateOverrides({ location: val === initialLocation ? undefined : val });
   const occupation = overrides.occupation ?? initialOccupation;
-  const setOccupation = (val: any) => updateOverrides({ occupation: val === initialOccupation ? undefined : val });
+  const setOccupation = (val: string) => updateOverrides({ occupation: val === initialOccupation ? undefined : val });
   const bio = overrides.bio ?? initialBio;
-  const setBio = (val: any) => updateOverrides({ bio: val === initialBio ? undefined : val });
+  const setBio = (val: string) => updateOverrides({ bio: val === initialBio ? undefined : val });
   const avatarUrl = overrides.avatarUrl ?? initialAvatarUrl;
-  const setAvatarUrl = (val: any) => updateOverrides({ avatarUrl: val === initialAvatarUrl ? undefined : val });
+  const setAvatarUrl = (val: string) => updateOverrides({ avatarUrl: val === initialAvatarUrl ? undefined : val });
   const avatarShape = overrides.avatarShape ?? initialAvatarShape;
-  const setAvatarShape = (val: any) => updateOverrides({ avatarShape: val === initialAvatarShape ? undefined : val });
+  const setAvatarShape = (val: "square" | "soft" | "rounded" | "circle") => updateOverrides({ avatarShape: val === initialAvatarShape ? undefined : val });
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const bannerImageUrl = overrides.bannerImageUrl ?? initialBannerImageUrl;
-  const setBannerImageUrl = (val: any) => updateOverrides({ bannerImageUrl: val === initialBannerImageUrl ? undefined : val });
+  const setBannerImageUrl = (val: string) => updateOverrides({ bannerImageUrl: val === initialBannerImageUrl ? undefined : val });
   const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
-  const setBannerBackgroundUrl = (val: any) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
+  const setBannerBackgroundUrl = (val: string) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
   const [framesPickerOpen, setFramesPickerOpen] = useState(false);
 
-  const initialDecoration = initialDecorationUrl
-    ? { 
-        id: (decorations as Decoration[]).find(d => d.url === initialDecorationUrl)?.id || "custom", 
-        name: (decorations as Decoration[]).find(d => d.url === initialDecorationUrl)?.name || "Custom Decoration", 
-        url: initialDecorationUrl 
+  const avatarDecorationUrl = overrides.avatarDecorationUrl !== undefined ? overrides.avatarDecorationUrl : initialDecorationUrl;
+  const selectedDecoration = avatarDecorationUrl
+    ? {
+        id: (decorations as Decoration[]).find(d => d.url === avatarDecorationUrl)?.id || "custom",
+        name: (decorations as Decoration[]).find(d => d.url === avatarDecorationUrl)?.name || "Custom Decoration",
+        url: avatarDecorationUrl
       } as Decoration
     : null;
-
-  const selectedDecoration = overrides.selectedDecoration !== undefined ? overrides.selectedDecoration : initialDecoration;
-  const setSelectedDecoration = (val: any) => {
-    const isSame = val ? val.url === initialDecorationUrl : !initialDecorationUrl;
-    updateOverrides({ selectedDecoration: isSame ? undefined : val });
+  const setSelectedDecoration = (val: Decoration | null) => {
+    const newUrl = val ? val.url : null;
+    const isSame = newUrl === initialDecorationUrl;
+    updateOverrides({ avatarDecorationUrl: isSame ? undefined : newUrl });
   };
-  const decorationHue = overrides.decorationHue !== undefined ? overrides.decorationHue : initialDecorationHue;
-  const setDecorationHue = (val: any) => {
-    updateOverrides({ decorationHue: val === initialDecorationHue ? undefined : val });
+  const decorationHue = overrides.avatarDecorationHue ?? initialDecorationHue ?? 0;
+  const setDecorationHue = (val: number) => {
+    updateOverrides({ avatarDecorationHue: val === initialDecorationHue ? undefined : val });
   };
 
-  const initialFrame = initialFrameUrl
-    ? { 
-        id: "custom", 
-        name: (frames as any[]).find(f => f.sku_id === initialFrameUrl.split("frame:")[1])?.name || "Custom Frame", 
-        url: initialFrameUrl 
+  const profileFrameUrl = overrides.profileFrameUrl !== undefined ? overrides.profileFrameUrl : initialFrameUrl;
+  const selectedFrame = profileFrameUrl
+    ? {
+        id: "custom",
+        name: (frames as { sku_id: string, name: string }[]).find(f => f.sku_id === profileFrameUrl.split("frame:")[1])?.name || "Custom Frame",
+        url: profileFrameUrl
       } as Decoration
     : null;
-
-  const selectedFrame = overrides.selectedFrame !== undefined ? overrides.selectedFrame : initialFrame;
-  const setSelectedFrame = (val: any) => {
-    const isSame = val ? val.url === initialFrameUrl : !initialFrameUrl;
-    updateOverrides({ selectedFrame: isSame ? undefined : val });
+  const setSelectedFrame = (val: Decoration | null) => {
+    const newUrl = val ? val.url : null;
+    const isSame = newUrl === initialFrameUrl;
+    updateOverrides({ profileFrameUrl: isSame ? undefined : newUrl });
   };
-  const frameHue = overrides.frameHue !== undefined ? overrides.frameHue : initialFrameHue;
-  const setFrameHue = (val: any) => {
-    updateOverrides({ frameHue: val === initialFrameHue ? undefined : val });
+  const frameHue = overrides.profileFrameHue ?? initialFrameHue ?? 0;
+  const setFrameHue = (val: number) => {
+    updateOverrides({ profileFrameHue: val === initialFrameHue ? undefined : val });
   };
 
 
@@ -116,8 +110,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           selectedDecoration={selectedDecoration}
           decorationHue={decorationHue}
           selectedFrame={selectedFrame}
-          frameHue={frameHue}
-          decorationCount={decorationCount}
           bannerImageUrl={bannerImageUrl}
           setBannerImageUrl={setBannerImageUrl}
           bannerBackgroundUrl={bannerBackgroundUrl}
@@ -197,10 +189,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           occupation,
           avatarUrl,
           avatarShape,
-          selectedDecoration,
-          decorationHue,
-          selectedFrame,
-          frameHue,
           bannerImageUrl,
           bannerBackgroundUrl,
         }}
@@ -210,14 +198,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
-            const { selectedDecoration: _sd, decorationHue: _dh, selectedFrame: _sf, frameHue: _fh, ...restOverrides } = overrides;
             await updateGeneralProfile({
               username: user?.username || "",
-              ...restOverrides,
-              ...(overrides.selectedDecoration !== undefined ? { avatarDecorationUrl: overrides.selectedDecoration?.url ?? null } : {}),
-              ...(overrides.decorationHue !== undefined ? { avatarDecorationHue: overrides.decorationHue } : {}),
-              ...(overrides.selectedFrame !== undefined ? { profileFrameUrl: overrides.selectedFrame?.url ?? null } : {}),
-              ...(overrides.frameHue !== undefined ? { profileFrameHue: overrides.frameHue } : {}),
+              ...(overrides as Omit<Parameters<typeof updateGeneralProfile>[0], "username">)
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

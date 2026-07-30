@@ -44,7 +44,7 @@ export async function registerRateLimit(email: string) {
   return checkRateLimit(`register:${email}`, 3, 30 * 60, 5 * 60);
 }
 
-async function resetPasswordRateLimit(email: string) {
+export async function resetPasswordRateLimit(email: string) {
   return checkRateLimit(`reset:${email}`, 3, 30 * 60, 5 * 60);
 }
 

@@ -2,7 +2,6 @@
 
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
@@ -278,11 +277,11 @@ export async function updateAppearanceProfile(data: {
 
 export async function updateColorsProfile(data: {
   username: string;
-  usernameColor?: string;
-  bioColor?: string;
-  otherColor?: string;
-  highlightColor?: string;
-  pageBgColor?: string;
+  usernameColor?: string | null;
+  bioColor?: string | null;
+  otherColor?: string | null;
+  highlightColor?: string | null;
+  pageBgColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -298,11 +297,11 @@ export async function updateColorsProfile(data: {
 
   const setData: Record<string, unknown> = {};
 
-  if (data.usernameColor !== undefined) setData.usernameColor = data.usernameColor.slice(0, 32);
-  if (data.bioColor !== undefined) setData.bioColor = data.bioColor.slice(0, 32);
-  if (data.otherColor !== undefined) setData.otherColor = data.otherColor.slice(0, 32);
-  if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor.slice(0, 32);
-  if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor.slice(0, 7);
+  if (data.usernameColor !== undefined) setData.usernameColor = data.usernameColor?.slice(0, 32) ?? null;
+  if (data.bioColor !== undefined) setData.bioColor = data.bioColor?.slice(0, 32) ?? null;
+  if (data.otherColor !== undefined) setData.otherColor = data.otherColor?.slice(0, 32) ?? null;
+  if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor?.slice(0, 32) ?? null;
+  if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor?.slice(0, 7) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   
@@ -320,9 +319,9 @@ export async function updateColorsProfile(data: {
 
 export async function updateEffectsProfile(data: {
   username: string;
-  backgroundEffect?: string;
-  backgroundEffectIntensity?: number;
-  backgroundEffectColor?: string;
+  backgroundEffect?: string | null;
+  backgroundEffectIntensity?: number | null;
+  backgroundEffectColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -338,9 +337,9 @@ export async function updateEffectsProfile(data: {
 
   const setData: Record<string, unknown> = {};
 
-  if (data.backgroundEffect !== undefined) setData.backgroundEffect = data.backgroundEffect.slice(0, 50);
+  if (data.backgroundEffect !== undefined) setData.backgroundEffect = data.backgroundEffect?.slice(0, 50) ?? null;
   if (data.backgroundEffectIntensity !== undefined) setData.backgroundEffectIntensity = data.backgroundEffectIntensity;
-  if (data.backgroundEffectColor !== undefined) setData.backgroundEffectColor = data.backgroundEffectColor.slice(0, 32);
+  if (data.backgroundEffectColor !== undefined) setData.backgroundEffectColor = data.backgroundEffectColor?.slice(0, 32) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

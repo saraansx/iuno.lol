@@ -152,6 +152,7 @@ export const FileUpload = ({
                             playsInline
                           />
                         ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={resolvedUrl}
                             alt="Avatar Preview"
@@ -174,6 +175,7 @@ export const FileUpload = ({
                             playsInline
                           />
                         ) : (
+                          /* eslint-disable-next-line @next/next/no-img-element */
                           <img
                             src={resolvedUrl}
                             alt="Uploaded Preview"

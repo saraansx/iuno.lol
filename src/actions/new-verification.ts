@@ -2,7 +2,6 @@
 
 import { consumeVerificationToken } from '@/lib/auth/tokens'
 import { markEmailVerified, getUserByEmail } from '@/lib/features/users/db'
-import { createSession } from '@/lib/auth/session'
 
 export async function newVerification(token: string) {
   try {

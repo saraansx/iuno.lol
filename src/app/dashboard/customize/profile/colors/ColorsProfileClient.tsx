@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -21,18 +21,16 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const initialHighlightColor = user?.highlightColor ?? "#ffffff";
   const initialPageBgColor = user?.pageBgColor ?? "#050505";
 
-  const [openSection, setOpenSection] = useState<string | null>(null);
-
   const usernameColor = overrides.usernameColor ?? initialUsernameColor;
-  const setUsernameColor = (val: any) => updateOverrides({ usernameColor: val === initialUsernameColor ? undefined : val });
+  const setUsernameColor = (val: string) => updateOverrides({ usernameColor: val === initialUsernameColor ? undefined : val });
   const bioColor = overrides.bioColor ?? initialBioColor;
-  const setBioColor = (val: any) => updateOverrides({ bioColor: val === initialBioColor ? undefined : val });
+  const setBioColor = (val: string) => updateOverrides({ bioColor: val === initialBioColor ? undefined : val });
   const otherColor = overrides.otherColor ?? initialOtherColor;
-  const setOtherColor = (val: any) => updateOverrides({ otherColor: val === initialOtherColor ? undefined : val });
+  const setOtherColor = (val: string) => updateOverrides({ otherColor: val === initialOtherColor ? undefined : val });
   const highlightColor = overrides.highlightColor ?? initialHighlightColor;
-  const setHighlightColor = (val: any) => updateOverrides({ highlightColor: val === initialHighlightColor ? undefined : val });
+  const setHighlightColor = (val: string) => updateOverrides({ highlightColor: val === initialHighlightColor ? undefined : val });
   const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
-  const setPageBgColor = (val: any) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
+  const setPageBgColor = (val: string) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -45,8 +43,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
       {/* Settings Content */}
       <div className="flex-1 flex flex-col gap-6 pr-[calc(var(--preview-width,380px)+2rem)] pb-20">
         <ColorCustomization
-          openSection={openSection}
-          setOpenSection={setOpenSection}
           usernameColor={usernameColor}
           setUsernameColor={setUsernameColor}
           bioColor={bioColor}

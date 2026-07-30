@@ -6,8 +6,7 @@ import AnalyticsChart from "@/components/charts/AnalyticsChart";
 import DeviceChart from "@/components/charts/DeviceChart";
 import RecentComments from "@/components/dashboard/RecentComments";
 import RecentFeedback from "@/components/dashboard/RecentFeedback";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
-import Link from "next/link";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { getDashboardComments } from "@/actions/comments";
 import { getDashboardFeedback } from "@/actions/feedback";
 
@@ -33,11 +32,11 @@ export default async function DashboardPage() {
     getDashboardFeedback()
   ]);
 
-  const commentsReceived = commentsRes.success ? (commentsRes.received as any) : [];
-  const commentsGiven = commentsRes.success ? (commentsRes.given as any) : [];
+  const commentsReceived = commentsRes.success && commentsRes.received ? commentsRes.received : [];
+  const commentsGiven = commentsRes.success && commentsRes.given ? commentsRes.given : [];
   
-  const feedbackReceived = feedbackRes.success ? (feedbackRes.received as any) : [];
-  const feedbackGiven = feedbackRes.success ? (feedbackRes.given as any) : [];
+  const feedbackReceived = feedbackRes.success && feedbackRes.received ? feedbackRes.received : [];
+  const feedbackGiven = feedbackRes.success && feedbackRes.given ? feedbackRes.given : [];
 
   return (
     <div className="flex flex-col gap-8">

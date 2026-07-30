@@ -11,7 +11,6 @@ import ViewsSection from "@/components/dashboard/customize/appearance/ViewsSecti
 import CommentsSection from "@/components/dashboard/customize/appearance/CommentsSection";
 import FeedbackSection from "@/components/dashboard/customize/appearance/FeedbackSection";
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
-import type { Decoration } from "@/components/dashboard/DecorationPicker";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -64,10 +63,6 @@ import SaveBar from "@/components/dashboard/SaveBar";
 export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
-  const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
-  const initialDecoration = initialDecorationUrl
-    ? ({ id: "custom", name: "Custom Decoration", url: initialDecorationUrl } as Decoration)
-    : null;
 
   const initialProfileBgColor = user?.profileBgColor ?? "#050505";
   const initialProfileBgOpacity = user?.profileBgOpacity ?? 100;
@@ -102,133 +97,133 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
   const profileBgOpacity = overrides.profileBgOpacity ?? initialProfileBgOpacity;
-  const setProfileBgOpacity = (val: any) => updateOverrides({ profileBgOpacity: val === initialProfileBgOpacity ? undefined : val });
+  const setProfileBgOpacity = (val: number) => updateOverrides({ profileBgOpacity: val === initialProfileBgOpacity ? undefined : val });
   const profileBgColor = overrides.profileBgColor ?? initialProfileBgColor;
-  const setProfileBgColor = (val: any) => updateOverrides({ profileBgColor: val === initialProfileBgColor ? undefined : val });
+  const setProfileBgColor = (val: string) => updateOverrides({ profileBgColor: val === initialProfileBgColor ? undefined : val });
   const profileBorderColor = overrides.profileBorderColor ?? initialProfileBorderColor;
-  const setProfileBorderColor = (val: any) => updateOverrides({ profileBorderColor: val === initialProfileBorderColor ? undefined : val });
+  const setProfileBorderColor = (val: string) => updateOverrides({ profileBorderColor: val === initialProfileBorderColor ? undefined : val });
   const profileBorderOpacity = overrides.profileBorderOpacity ?? initialProfileBorderOpacity;
-  const setProfileBorderOpacity = (val: any) => updateOverrides({ profileBorderOpacity: val === initialProfileBorderOpacity ? undefined : val });
+  const setProfileBorderOpacity = (val: number) => updateOverrides({ profileBorderOpacity: val === initialProfileBorderOpacity ? undefined : val });
   const profileBorderWidth = overrides.profileBorderWidth ?? initialProfileBorderWidth;
-  const setProfileBorderWidth = (val: any) => updateOverrides({ profileBorderWidth: val === initialProfileBorderWidth ? undefined : val });
+  const setProfileBorderWidth = (val: number) => updateOverrides({ profileBorderWidth: val === initialProfileBorderWidth ? undefined : val });
   const profileBorderRadius = overrides.profileBorderRadius ?? initialProfileBorderRadius;
-  const setProfileBorderRadius = (val: any) => updateOverrides({ profileBorderRadius: val === initialProfileBorderRadius ? undefined : val });
+  const setProfileBorderRadius = (val: number) => updateOverrides({ profileBorderRadius: val === initialProfileBorderRadius ? undefined : val });
   const profileCardBlur = overrides.profileCardBlur ?? initialProfileCardBlur;
-  const setProfileCardBlur = (val: any) => updateOverrides({ profileCardBlur: val === initialProfileCardBlur ? undefined : val });
+  const setProfileCardBlur = (val: number) => updateOverrides({ profileCardBlur: val === initialProfileCardBlur ? undefined : val });
   const profileBackgroundBlur = overrides.profileBackgroundBlur ?? initialProfileBackgroundBlur;
-  const setProfileBackgroundBlur = (val: any) => updateOverrides({ profileBackgroundBlur: val === initialProfileBackgroundBlur ? undefined : val });
+  const setProfileBackgroundBlur = (val: number) => updateOverrides({ profileBackgroundBlur: val === initialProfileBackgroundBlur ? undefined : val });
   const profileShadowOpacity = overrides.profileShadowOpacity ?? initialProfileShadowOpacity;
-  const setProfileShadowOpacity = (val: any) => updateOverrides({ profileShadowOpacity: val === initialProfileShadowOpacity ? undefined : val });
+  const setProfileShadowOpacity = (val: number) => updateOverrides({ profileShadowOpacity: val === initialProfileShadowOpacity ? undefined : val });
   const profileShadowColor = overrides.profileShadowColor ?? initialProfileShadowColor;
-  const setProfileShadowColor = (val: any) => updateOverrides({ profileShadowColor: val === initialProfileShadowColor ? undefined : val });
+  const setProfileShadowColor = (val: string) => updateOverrides({ profileShadowColor: val === initialProfileShadowColor ? undefined : val });
   const profileOpacity = overrides.profileOpacity ?? initialProfileOpacity;
-  const setProfileOpacity = (val: any) => updateOverrides({ profileOpacity: val === initialProfileOpacity ? undefined : val });
+  const setProfileOpacity = (val: number) => updateOverrides({ profileOpacity: val === initialProfileOpacity ? undefined : val });
   const usernameFont = overrides.usernameFont ?? initialUsernameFont;
-  const setUsernameFont = (val: any) => updateOverrides({ usernameFont: val === initialUsernameFont ? undefined : val });
+  const setUsernameFont = (val: string) => updateOverrides({ usernameFont: val === initialUsernameFont ? undefined : val });
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
   const usernameFontSize = overrides.usernameFontSize ?? initialUsernameFontSize;
-  const setUsernameFontSize = (val: any) => updateOverrides({ usernameFontSize: val === initialUsernameFontSize ? undefined : val });
+  const setUsernameFontSize = (val: number) => updateOverrides({ usernameFontSize: val === initialUsernameFontSize ? undefined : val });
   const usernameFontWeight = overrides.usernameFontWeight ?? initialUsernameFontWeight;
-  const setUsernameFontWeight = (val: any) => updateOverrides({ usernameFontWeight: val === initialUsernameFontWeight ? undefined : val });
+  const setUsernameFontWeight = (val: number) => updateOverrides({ usernameFontWeight: val === initialUsernameFontWeight ? undefined : val });
   const usernameLetterSpacing = overrides.usernameLetterSpacing ?? initialUsernameLetterSpacing;
-  const setUsernameLetterSpacing = (val: any) => updateOverrides({ usernameLetterSpacing: val === initialUsernameLetterSpacing ? undefined : val });
+  const setUsernameLetterSpacing = (val: number) => updateOverrides({ usernameLetterSpacing: val === initialUsernameLetterSpacing ? undefined : val });
 
   const bioFont = overrides.bioFont ?? initialBioFont;
-  const setBioFont = (val: any) => updateOverrides({ bioFont: val === initialBioFont ? undefined : val });
+  const setBioFont = (val: string) => updateOverrides({ bioFont: val === initialBioFont ? undefined : val });
   const [isBioFontDropdownOpen, setIsBioFontDropdownOpen] = useState(false);
   const bioFontSize = overrides.bioFontSize ?? initialBioFontSize;
-  const setBioFontSize = (val: any) => updateOverrides({ bioFontSize: val === initialBioFontSize ? undefined : val });
+  const setBioFontSize = (val: number) => updateOverrides({ bioFontSize: val === initialBioFontSize ? undefined : val });
   const bioFontWeight = overrides.bioFontWeight ?? initialBioFontWeight;
-  const setBioFontWeight = (val: any) => updateOverrides({ bioFontWeight: val === initialBioFontWeight ? undefined : val });
+  const setBioFontWeight = (val: number) => updateOverrides({ bioFontWeight: val === initialBioFontWeight ? undefined : val });
   const bioLetterSpacing = overrides.bioLetterSpacing ?? initialBioLetterSpacing;
-  const setBioLetterSpacing = (val: any) => updateOverrides({ bioLetterSpacing: val === initialBioLetterSpacing ? undefined : val });
+  const setBioLetterSpacing = (val: number) => updateOverrides({ bioLetterSpacing: val === initialBioLetterSpacing ? undefined : val });
 
   const otherFont = overrides.otherFont ?? initialOtherFont;
-  const setOtherFont = (val: any) => updateOverrides({ otherFont: val === initialOtherFont ? undefined : val });
+  const setOtherFont = (val: string) => updateOverrides({ otherFont: val === initialOtherFont ? undefined : val });
   const [isOtherFontDropdownOpen, setIsOtherFontDropdownOpen] = useState(false);
   const otherFontSize = overrides.otherFontSize ?? initialOtherFontSize;
-  const setOtherFontSize = (val: any) => updateOverrides({ otherFontSize: val === initialOtherFontSize ? undefined : val });
+  const setOtherFontSize = (val: number) => updateOverrides({ otherFontSize: val === initialOtherFontSize ? undefined : val });
   const otherFontWeight = overrides.otherFontWeight ?? initialOtherFontWeight;
-  const setOtherFontWeight = (val: any) => updateOverrides({ otherFontWeight: val === initialOtherFontWeight ? undefined : val });
+  const setOtherFontWeight = (val: number) => updateOverrides({ otherFontWeight: val === initialOtherFontWeight ? undefined : val });
   const otherLetterSpacing = overrides.otherLetterSpacing ?? initialOtherLetterSpacing;
-  const setOtherLetterSpacing = (val: any) => updateOverrides({ otherLetterSpacing: val === initialOtherLetterSpacing ? undefined : val });
+  const setOtherLetterSpacing = (val: number) => updateOverrides({ otherLetterSpacing: val === initialOtherLetterSpacing ? undefined : val });
 
   const highlightFont = overrides.highlightFont ?? initialHighlightFont;
-  const setHighlightFont = (val: any) => updateOverrides({ highlightFont: val === initialHighlightFont ? undefined : val });
+  const setHighlightFont = (val: string) => updateOverrides({ highlightFont: val === initialHighlightFont ? undefined : val });
   const [isHighlightFontDropdownOpen, setIsHighlightFontDropdownOpen] = useState(false);
   const highlightFontSize = overrides.highlightFontSize ?? initialHighlightFontSize;
-  const setHighlightFontSize = (val: any) => updateOverrides({ highlightFontSize: val === initialHighlightFontSize ? undefined : val });
+  const setHighlightFontSize = (val: number) => updateOverrides({ highlightFontSize: val === initialHighlightFontSize ? undefined : val });
   const highlightFontWeight = overrides.highlightFontWeight ?? initialHighlightFontWeight;
-  const setHighlightFontWeight = (val: any) => updateOverrides({ highlightFontWeight: val === initialHighlightFontWeight ? undefined : val });
+  const setHighlightFontWeight = (val: number) => updateOverrides({ highlightFontWeight: val === initialHighlightFontWeight ? undefined : val });
   const highlightLetterSpacing = overrides.highlightLetterSpacing ?? initialHighlightLetterSpacing;
-  const setHighlightLetterSpacing = (val: any) => updateOverrides({ highlightLetterSpacing: val === initialHighlightLetterSpacing ? undefined : val });
+  const setHighlightLetterSpacing = (val: number) => updateOverrides({ highlightLetterSpacing: val === initialHighlightLetterSpacing ? undefined : val });
 
   const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
   const initialJoinDateFormat = rawJoinDateFormat.includes(" (") ? rawJoinDateFormat.split(" (")[0] : rawJoinDateFormat;
 
   const isJoinDateEnabled = overrides.joinDateEnabled ?? initialJoinDateEnabled;
-  const setIsJoinDateEnabled = (val: any) => updateOverrides({ joinDateEnabled: val === initialJoinDateEnabled ? undefined : val });
+  const setIsJoinDateEnabled = (val: boolean) => updateOverrides({ joinDateEnabled: val === initialJoinDateEnabled ? undefined : val });
   const [isJoinDateFormatDropdownOpen, setIsJoinDateFormatDropdownOpen] = useState(false);
   const joinDateFormat = overrides.joinDateFormat ?? initialJoinDateFormat;
-  const setJoinDateFormat = (val: any) => updateOverrides({ joinDateFormat: val === initialJoinDateFormat ? undefined : val });
+  const setJoinDateFormat = (val: string) => updateOverrides({ joinDateFormat: val === initialJoinDateFormat ? undefined : val });
 
   const initialViewsEnabled = user?.viewsEnabled ?? true;
   const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
   const initialViewsAnimationDuration = user?.viewsAnimationDuration ?? 1000;
 
   const isViewsEnabled = overrides.viewsEnabled ?? initialViewsEnabled;
-  const setIsViewsEnabled = (val: any) => updateOverrides({ viewsEnabled: val === initialViewsEnabled ? undefined : val });
+  const setIsViewsEnabled = (val: boolean) => updateOverrides({ viewsEnabled: val === initialViewsEnabled ? undefined : val });
   const isViewsAnimationEnabled = overrides.viewsAnimationEnabled ?? initialViewsAnimationEnabled;
-  const setIsViewsAnimationEnabled = (val: any) => updateOverrides({ viewsAnimationEnabled: val === initialViewsAnimationEnabled ? undefined : val });
+  const setIsViewsAnimationEnabled = (val: boolean) => updateOverrides({ viewsAnimationEnabled: val === initialViewsAnimationEnabled ? undefined : val });
   const viewsAnimationDuration = overrides.viewsAnimationDuration ?? initialViewsAnimationDuration;
-  const setViewsAnimationDuration = (val: any) => updateOverrides({ viewsAnimationDuration: val === initialViewsAnimationDuration ? undefined : val });
+  const setViewsAnimationDuration = (val: number) => updateOverrides({ viewsAnimationDuration: val === initialViewsAnimationDuration ? undefined : val });
 
   const initialCommentsEnabled = user?.commentsEnabled ?? true;
   const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
   const initialAllowNewComments = user?.allowNewComments ?? true;
 
   const isCommentsEnabled = overrides.commentsEnabled ?? initialCommentsEnabled;
-  const setIsCommentsEnabled = (val: any) => updateOverrides({ commentsEnabled: val === initialCommentsEnabled ? undefined : val });
+  const setIsCommentsEnabled = (val: boolean) => updateOverrides({ commentsEnabled: val === initialCommentsEnabled ? undefined : val });
   const isShowCommentsPublicly = overrides.showCommentsPublicly ?? initialShowCommentsPublicly;
-  const setIsShowCommentsPublicly = (val: any) => updateOverrides({ showCommentsPublicly: val === initialShowCommentsPublicly ? undefined : val });
+  const setIsShowCommentsPublicly = (val: boolean) => updateOverrides({ showCommentsPublicly: val === initialShowCommentsPublicly ? undefined : val });
   const isAllowNewComments = overrides.allowNewComments ?? initialAllowNewComments;
-  const setIsAllowNewComments = (val: any) => updateOverrides({ allowNewComments: val === initialAllowNewComments ? undefined : val });
+  const setIsAllowNewComments = (val: boolean) => updateOverrides({ allowNewComments: val === initialAllowNewComments ? undefined : val });
 
   const initialFeedbackEnabled = user?.feedbackEnabled ?? false;
   const isFeedbackEnabled = overrides.feedbackEnabled ?? initialFeedbackEnabled;
-  const setIsFeedbackEnabled = (val: any) => updateOverrides({ feedbackEnabled: val === initialFeedbackEnabled ? undefined : val });
+  const setIsFeedbackEnabled = (val: boolean) => updateOverrides({ feedbackEnabled: val === initialFeedbackEnabled ? undefined : val });
   const initialShowFeedbackPublicly = user?.showFeedbackPublicly ?? false;
   const isShowFeedbackPublicly = overrides.showFeedbackPublicly ?? initialShowFeedbackPublicly;
-  const setIsShowFeedbackPublicly = (val: any) => updateOverrides({ showFeedbackPublicly: val === initialShowFeedbackPublicly ? undefined : val });
+  const setIsShowFeedbackPublicly = (val: boolean) => updateOverrides({ showFeedbackPublicly: val === initialShowFeedbackPublicly ? undefined : val });
 
   const initialUidTooltipEnabled = user?.showUidTooltip ?? true;
   const isUidTooltipEnabled = overrides.showUidTooltip ?? initialUidTooltipEnabled;
-  const setIsUidTooltipEnabled = (val: any) => updateOverrides({ showUidTooltip: val === initialUidTooltipEnabled ? undefined : val });
+  const setIsUidTooltipEnabled = (val: boolean) => updateOverrides({ showUidTooltip: val === initialUidTooltipEnabled ? undefined : val });
 
   const initialLocationTooltipEnabled = user?.showLocationTooltip ?? true;
   const isLocationTooltipEnabled = overrides.showLocationTooltip ?? initialLocationTooltipEnabled;
-  const setIsLocationTooltipEnabled = (val: any) => updateOverrides({ showLocationTooltip: val === initialLocationTooltipEnabled ? undefined : val });
+  const setIsLocationTooltipEnabled = (val: boolean) => updateOverrides({ showLocationTooltip: val === initialLocationTooltipEnabled ? undefined : val });
 
   const initialOccupationTooltipEnabled = user?.showOccupationTooltip ?? true;
   const isOccupationTooltipEnabled = overrides.showOccupationTooltip ?? initialOccupationTooltipEnabled;
-  const setIsOccupationTooltipEnabled = (val: any) => updateOverrides({ showOccupationTooltip: val === initialOccupationTooltipEnabled ? undefined : val });
+  const setIsOccupationTooltipEnabled = (val: boolean) => updateOverrides({ showOccupationTooltip: val === initialOccupationTooltipEnabled ? undefined : val });
 
   const initialLikesTooltipEnabled = user?.showLikesTooltip ?? true;
   const isLikesTooltipEnabled = overrides.showLikesTooltip ?? initialLikesTooltipEnabled;
-  const setIsLikesTooltipEnabled = (val: any) => updateOverrides({ showLikesTooltip: val === initialLikesTooltipEnabled ? undefined : val });
+  const setIsLikesTooltipEnabled = (val: boolean) => updateOverrides({ showLikesTooltip: val === initialLikesTooltipEnabled ? undefined : val });
 
   const initialDislikesTooltipEnabled = user?.showDislikesTooltip ?? true;
   const isDislikesTooltipEnabled = overrides.showDislikesTooltip ?? initialDislikesTooltipEnabled;
-  const setIsDislikesTooltipEnabled = (val: any) => updateOverrides({ showDislikesTooltip: val === initialDislikesTooltipEnabled ? undefined : val });
+  const setIsDislikesTooltipEnabled = (val: boolean) => updateOverrides({ showDislikesTooltip: val === initialDislikesTooltipEnabled ? undefined : val });
 
   const initialJoinDateTooltipEnabled = user?.showJoinDateTooltip ?? true;
   const isJoinDateTooltipEnabled = overrides.showJoinDateTooltip ?? initialJoinDateTooltipEnabled;
-  const setIsJoinDateTooltipEnabled = (val: any) => updateOverrides({ showJoinDateTooltip: val === initialJoinDateTooltipEnabled ? undefined : val });
+  const setIsJoinDateTooltipEnabled = (val: boolean) => updateOverrides({ showJoinDateTooltip: val === initialJoinDateTooltipEnabled ? undefined : val });
 
   const initialViewsTooltipEnabled = user?.showViewsTooltip ?? true;
   const isViewsTooltipEnabled = overrides.showViewsTooltip ?? initialViewsTooltipEnabled;
-  const setIsViewsTooltipEnabled = (val: any) => updateOverrides({ showViewsTooltip: val === initialViewsTooltipEnabled ? undefined : val });
+  const setIsViewsTooltipEnabled = (val: boolean) => updateOverrides({ showViewsTooltip: val === initialViewsTooltipEnabled ? undefined : val });
 
   const joinDateFormatOptions = [
     "Absolute",
@@ -442,7 +437,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileBgOpacity}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileBgOpacity("");
+                            if (val === "") setProfileBgOpacity(0);
                             else setProfileBgOpacity(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -506,7 +501,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileShadowOpacity}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileShadowOpacity("");
+                            if (val === "") setProfileShadowOpacity(0);
                             else setProfileShadowOpacity(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -606,7 +601,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileBorderWidth}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileBorderWidth("");
+                            if (val === "") setProfileBorderWidth(0);
                             else setProfileBorderWidth(Math.max(0, Math.min(20, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -628,7 +623,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileBorderRadius}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileBorderRadius("");
+                            if (val === "") setProfileBorderRadius(0);
                             else setProfileBorderRadius(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -682,7 +677,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileBorderOpacity}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileBorderOpacity("");
+                            if (val === "") setProfileBorderOpacity(0);
                             else setProfileBorderOpacity(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -707,7 +702,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileCardBlur}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileCardBlur("");
+                            if (val === "") setProfileCardBlur(0);
                             else setProfileCardBlur(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -729,7 +724,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={profileBackgroundBlur}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setProfileBackgroundBlur("");
+                            if (val === "") setProfileBackgroundBlur(0);
                             else setProfileBackgroundBlur(Math.max(0, Math.min(100, Number(val))));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -819,7 +814,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={usernameFontSize}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setUsernameFontSize("");
+                            if (val === "") setUsernameFontSize(0);
                             else setUsernameFontSize(Number(val));
                           }}
                           onBlur={() => {
@@ -843,7 +838,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={usernameFontWeight}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setUsernameFontWeight("");
+                            if (val === "") setUsernameFontWeight(0);
                             else setUsernameFontWeight(Number(val));
                           }}
                           onBlur={() => {
@@ -866,7 +861,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={usernameLetterSpacing}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setUsernameLetterSpacing("");
+                            if (val === "") setUsernameLetterSpacing(0);
                             else setUsernameLetterSpacing(Number(val));
                           }}
                           onBlur={() => {
@@ -937,7 +932,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={bioFontSize}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setBioFontSize("");
+                            if (val === "") setBioFontSize(0);
                             else setBioFontSize(Number(val));
                           }}
                           onBlur={() => {
@@ -961,7 +956,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={bioFontWeight}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setBioFontWeight("");
+                            if (val === "") setBioFontWeight(0);
                             else setBioFontWeight(Number(val));
                           }}
                           onBlur={() => {
@@ -984,7 +979,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={bioLetterSpacing}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setBioLetterSpacing("");
+                            if (val === "") setBioLetterSpacing(0);
                             else setBioLetterSpacing(Number(val));
                           }}
                           onBlur={() => {
@@ -1054,7 +1049,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={otherFontSize}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setOtherFontSize("");
+                            if (val === "") setOtherFontSize(0);
                             else setOtherFontSize(Number(val));
                           }}
                           onBlur={() => {
@@ -1078,7 +1073,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={otherFontWeight}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setOtherFontWeight("");
+                            if (val === "") setOtherFontWeight(0);
                             else setOtherFontWeight(Number(val));
                           }}
                           onBlur={() => {
@@ -1101,7 +1096,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={otherLetterSpacing}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setOtherLetterSpacing("");
+                            if (val === "") setOtherLetterSpacing(0);
                             else setOtherLetterSpacing(Number(val));
                           }}
                           onBlur={() => {
@@ -1174,7 +1169,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={highlightFontSize}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setHighlightFontSize("");
+                            if (val === "") setHighlightFontSize(0);
                             else setHighlightFontSize(Number(val));
                           }}
                           onBlur={() => {
@@ -1198,7 +1193,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={highlightFontWeight}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setHighlightFontWeight("");
+                            if (val === "") setHighlightFontWeight(0);
                             else setHighlightFontWeight(Number(val));
                           }}
                           onBlur={() => {
@@ -1219,7 +1214,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           value={highlightLetterSpacing}
                           onChange={(e) => {
                             const val = e.target.value;
-                            if (val === "") setHighlightLetterSpacing("");
+                            if (val === "") setHighlightLetterSpacing(0);
                             else setHighlightLetterSpacing(Number(val));
                           }}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -1296,9 +1291,9 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
         overrides={{
           ...overrides,
           profileBgColor,
-          profileBgOpacity: profileBgOpacity === "" ? 0 : profileBgOpacity,
+          profileBgOpacity,
           profileBorderColor,
-          profileBorderOpacity: profileBorderOpacity === "" ? 0 : profileBorderOpacity,
+          profileBorderOpacity,
           profileBorderWidth,
           profileBorderRadius,
           profileCardBlur,
@@ -1307,26 +1302,26 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           profileShadowOpacity,
           profileOpacity,
           usernameFont,
-          usernameFontSize: usernameFontSize === "" ? 18 : usernameFontSize,
-          usernameFontWeight: usernameFontWeight === "" ? 600 : usernameFontWeight,
-          usernameLetterSpacing: usernameLetterSpacing === "" ? -0.5 : usernameLetterSpacing,
+          usernameFontSize,
+          usernameFontWeight,
+          usernameLetterSpacing,
           bioFont,
-          bioFontSize: bioFontSize === "" ? 14 : bioFontSize,
-          bioFontWeight: bioFontWeight === "" ? 400 : bioFontWeight,
-          bioLetterSpacing: bioLetterSpacing === "" ? 0 : bioLetterSpacing,
+          bioFontSize,
+          bioFontWeight,
+          bioLetterSpacing,
           otherFont,
-          otherFontSize: otherFontSize === "" ? 13 : otherFontSize,
-          otherFontWeight: otherFontWeight === "" ? 400 : otherFontWeight,
-          otherLetterSpacing: otherLetterSpacing === "" ? 0 : otherLetterSpacing,
+          otherFontSize,
+          otherFontWeight,
+          otherLetterSpacing,
           highlightFont,
-          highlightFontSize: highlightFontSize === "" ? 13 : highlightFontSize,
-          highlightFontWeight: highlightFontWeight === "" ? 400 : highlightFontWeight,
-          highlightLetterSpacing: highlightLetterSpacing === "" ? 0 : highlightLetterSpacing,
+          highlightFontSize,
+          highlightFontWeight,
+          highlightLetterSpacing,
           joinDateEnabled: isJoinDateEnabled,
           joinDateFormat,
           viewsEnabled: isViewsEnabled,
           viewsAnimationEnabled: isViewsAnimationEnabled,
-          viewsAnimationDuration: viewsAnimationDuration === "" ? 1000 : viewsAnimationDuration,
+          viewsAnimationDuration,
           commentsEnabled: isCommentsEnabled,
           feedbackEnabled: isFeedbackEnabled,
           showUidTooltip: isUidTooltipEnabled,
@@ -1345,7 +1340,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           try {
             await updateAppearanceProfile({
               username: user?.username || "",
-              ...overrides
+              ...(overrides as Omit<Parameters<typeof updateAppearanceProfile>[0], "username">)
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

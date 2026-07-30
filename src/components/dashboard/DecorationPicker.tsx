@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState } from "react";
 import Image from "next/image";
 import decorations from "@/Deco.json";
 
@@ -174,7 +174,7 @@ export default function DecorationPicker({
             </div>
 
             <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
-              {visibleItems.map((item: any) => {
+              {visibleItems.map((item: Decoration) => {
                 const isSelected = selectedDecoration?.id === item.id;
                   
                 return (

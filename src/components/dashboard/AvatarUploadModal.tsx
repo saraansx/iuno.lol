@@ -30,8 +30,8 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
 
   useEffect(() => {
     // Reset state when modal opens/closes
-    if (!open) {
-      if (!isLoading) {
+    if (!open && !isLoading) {
+      const timer = setTimeout(() => {
         setResolvedUrl(null);
         setMediaType(null);
         setErrorMsg(null);
@@ -42,7 +42,8 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
         setCropImageSrc(null);
         setRawSelectedFile(null);
         xhrRef.current = null;
-      }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [open, isLoading]);
 

@@ -12,8 +12,6 @@ interface AssetsSectionProps {
   selectedDecoration: Decoration | null;
   decorationHue: number;
   selectedFrame: Decoration | null;
-  frameHue: number;
-  decorationCount: number;
   bannerImageUrl: string;
   setBannerImageUrl: (url: string) => void;
   bannerBackgroundUrl: string;
@@ -34,8 +32,6 @@ export default function AssetsSection({
   selectedDecoration,
   decorationHue,
   selectedFrame,
-  frameHue,
-  decorationCount,
   bannerImageUrl,
   setBannerImageUrl,
   bannerBackgroundUrl,

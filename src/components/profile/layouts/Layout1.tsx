@@ -57,7 +57,18 @@ interface Layout1Props {
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
   highlightColor?: string;
-  selectedFrame?: any;
+  selectedFrame?: {
+    inner_width?: number;
+    overflow_horizontal?: number;
+    overflow_top?: number;
+    overflow_bottom?: number;
+    layers: {
+      id: string;
+      url: string;
+      order: string;
+      anchor?: string;
+    }[];
+  } | null;
   frameHue?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
@@ -392,7 +403,8 @@ const Layout1 = ({
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
             <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
-              {selectedFrame.layers.filter((l: any) => l.order === 'back').map((layer: any) => (
+              {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   key={layer.id}
                   src={layer.url}
@@ -439,7 +451,8 @@ const Layout1 = ({
           {/* Profile Frame Overlay (Front Layers) */}
           {selectedFrame && (
             <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
-              {selectedFrame.layers.filter((l: any) => l.order === 'front').map((layer: any) => (
+              {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img
                   key={layer.id}
                   src={layer.url}
@@ -768,7 +781,8 @@ const Layout1 = ({
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
           <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
-            {selectedFrame.layers.filter((l: any) => l.order === 'back').map((layer: any) => (
+            {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={layer.id}
                 src={layer.url}
@@ -815,7 +829,8 @@ const Layout1 = ({
         {/* Profile Frame Overlay (Front Layers) */}
         {selectedFrame && (
           <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
-            {selectedFrame.layers.filter((l: any) => l.order === 'front').map((layer: any) => (
+            {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 key={layer.id}
                 src={layer.url}

@@ -13,7 +13,18 @@ interface ProfilePreviewProps {
   avatarUrl?: string | null;
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   selectedDecoration?: Decoration | null;
-  selectedFrame?: any;
+  selectedFrame?: {
+    inner_width?: number;
+    overflow_horizontal?: number;
+    overflow_top?: number;
+    overflow_bottom?: number;
+    layers: {
+      id: string;
+      url: string;
+      order: string;
+      anchor?: string;
+    }[];
+  } | null;
   decorationHue?: number;
   frameHue?: number;
   bannerImageUrl?: string | null;

@@ -1,13 +1,13 @@
 import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { headers } from 'next/headers'
 import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import frames from '@/Frames.json'
-
+import { Frame } from '@/components/dashboard/FramesPicker'
 export const revalidate = 2592000; // Cache on the CDN for 30 days (flushed instantly when user saves dashboard)
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
@@ -101,7 +101,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const user = userList[0]
   const viewerId = viewerIdResult || null;
 
-  const selectedFrame = user.profileFrameUrl ? (frames as any[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
+  const selectedFrame = user.profileFrameUrl ? (frames as Frame[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
 
   return (
     <div 

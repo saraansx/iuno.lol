@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { IconBrandDiscord, IconArrowRight } from "@tabler/icons-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MorphingText } from "@/components/ui/morphing-text";

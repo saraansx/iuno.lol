@@ -1,10 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 interface ColorCustomizationProps {
-  openSection: string | null;
-  setOpenSection: (val: string | null) => void;
   usernameColor: string;
   setUsernameColor: (val: string) => void;
   bioColor: string;
@@ -18,8 +16,6 @@ interface ColorCustomizationProps {
 }
 
 export default function ColorCustomization({
-  openSection,
-  setOpenSection,
   usernameColor,
   setUsernameColor,
   bioColor,
@@ -31,6 +27,8 @@ export default function ColorCustomization({
   pageBgColor,
   setPageBgColor,
 }: ColorCustomizationProps) {
+  const [openSection, setOpenSection] = useState<string | null>(null);
+
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
       <div className="flex flex-col gap-5">

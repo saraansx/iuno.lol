@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
-import { getDashboardFeedback } from "@/actions/feedback";
+
 
 type FeedbackData = {
   id: number;
@@ -30,24 +30,10 @@ interface RecentFeedbackProps {
 
 export default function RecentFeedback({ initialReceived, initialGiven }: RecentFeedbackProps) {
   const [activeTab, setActiveTab] = useState<"received" | "given">("received");
-  const [received, setReceived] = useState<FeedbackData[]>(initialReceived);
-  const [given, setGiven] = useState<FeedbackData[]>(initialGiven);
-  const [isLoading, setIsLoading] = useState(false);
+  const received = initialReceived;
+  const given = initialGiven;
+  const isLoading = false;
 
-  const fetchFeedback = async () => {
-    setIsLoading(true);
-    try {
-      const res = await getDashboardFeedback();
-      if (res.success) {
-        setReceived(res.received as unknown as FeedbackData[]);
-        setGiven(res.given as unknown as FeedbackData[]);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const data = activeTab === "received" ? received : given;
 

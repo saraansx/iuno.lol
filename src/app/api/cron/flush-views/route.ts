@@ -12,7 +12,7 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-async function handler(request: Request) {
+async function handler() {
   try {
     const profileIds = await redis.smembers('profiles_with_pending_views');
     
@@ -32,7 +32,7 @@ async function handler(request: Request) {
 
       try {
         data = await redis.hgetall(redisKey);
-      } catch (e) {
+      } catch {
         const legacyVal = await redis.get<string | number>(redisKey);
         if (legacyVal) legacyCount = typeof legacyVal === 'number' ? legacyVal : parseInt(String(legacyVal));
       }
@@ -82,9 +82,9 @@ async function handler(request: Request) {
       message: `Flushed ${totalFlushed} views across ${profileIds.length} profiles.` 
     });
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('[cron] Bulk flush failed:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || 'Internal Server Error' }, { status: 500 });
   }
 }
 

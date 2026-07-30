@@ -14,7 +14,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
   }
 
   try {
-    const setData: Record<string, any> = {};
+    const setData: Record<string, import("drizzle-orm").SQL> = {};
 
     if (type === 'like') {
       setData.likesCount = sql`${schema.users.likesCount} + 1`;

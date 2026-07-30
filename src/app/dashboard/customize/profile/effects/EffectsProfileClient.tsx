@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -17,13 +17,12 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const initialBackgroundEffect = user?.backgroundEffect ?? "none";
   const initialBackgroundEffectIntensity = user?.backgroundEffectIntensity ?? 50;
   const initialBackgroundEffectColor = user?.backgroundEffectColor ?? "#ffffff";
-  const [openSection, setOpenSection] = useState<string | null>(null);
   const backgroundEffect = overrides.backgroundEffect ?? initialBackgroundEffect;
-  const setBackgroundEffect = (val: any) => updateOverrides({ backgroundEffect: val === initialBackgroundEffect ? undefined : val });
+  const setBackgroundEffect = (val: string) => updateOverrides({ backgroundEffect: val === initialBackgroundEffect ? undefined : val });
   const backgroundEffectIntensity = overrides.backgroundEffectIntensity ?? initialBackgroundEffectIntensity;
-  const setBackgroundEffectIntensity = (val: any) => updateOverrides({ backgroundEffectIntensity: val === initialBackgroundEffectIntensity ? undefined : val });
+  const setBackgroundEffectIntensity = (val: number) => updateOverrides({ backgroundEffectIntensity: val === initialBackgroundEffectIntensity ? undefined : val });
   const backgroundEffectColor = overrides.backgroundEffectColor ?? initialBackgroundEffectColor;
-  const setBackgroundEffectColor = (val: any) => updateOverrides({ backgroundEffectColor: val === initialBackgroundEffectColor ? undefined : val });
+  const setBackgroundEffectColor = (val: string) => updateOverrides({ backgroundEffectColor: val === initialBackgroundEffectColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -36,8 +35,6 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
       {/* Settings Content */}
       <div className="flex-1 flex flex-col gap-6 pr-[calc(var(--preview-width,380px)+2rem)] pb-20">
         <EffectsCustomization
-          openSection={openSection}
-          setOpenSection={setOpenSection}
           backgroundEffect={backgroundEffect}
           setBackgroundEffect={setBackgroundEffect}
           backgroundEffectIntensity={backgroundEffectIntensity}

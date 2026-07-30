@@ -77,7 +77,7 @@ export async function register(input: RegisterInput) {
     await assertUsernameAvailable(username)
 
     // Create user
-    const { userId } = await createUser({ username, email, password, affiliateCode })
+    await createUser({ username, email, password, affiliateCode })
 
     // Send verification email
     const token = await createVerificationToken(email)
