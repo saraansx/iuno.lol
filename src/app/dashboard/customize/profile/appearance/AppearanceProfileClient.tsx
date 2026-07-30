@@ -167,7 +167,8 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
   const initialJoinDateFormat = rawJoinDateFormat.includes(" (") ? rawJoinDateFormat.split(" (")[0] : rawJoinDateFormat;
 
-  const [isJoinDateEnabled, setIsJoinDateEnabled] = useState(initialJoinDateEnabled);
+  const isJoinDateEnabled = overrides.joinDateEnabled ?? initialJoinDateEnabled;
+  const setIsJoinDateEnabled = (val: any) => updateOverrides({ joinDateEnabled: val === initialJoinDateEnabled ? undefined : val });
   const [isJoinDateFormatDropdownOpen, setIsJoinDateFormatDropdownOpen] = useState(false);
   const joinDateFormat = overrides.joinDateFormat ?? initialJoinDateFormat;
   const setJoinDateFormat = (val: any) => updateOverrides({ joinDateFormat: val === initialJoinDateFormat ? undefined : val });
@@ -176,8 +177,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
   const initialViewsAnimationDuration = user?.viewsAnimationDuration ?? 1000;
 
-  const [isViewsEnabled, setIsViewsEnabled] = useState(initialViewsEnabled);
-  const [isViewsAnimationEnabled, setIsViewsAnimationEnabled] = useState(initialViewsAnimationEnabled);
+  const isViewsEnabled = overrides.viewsEnabled ?? initialViewsEnabled;
+  const setIsViewsEnabled = (val: any) => updateOverrides({ viewsEnabled: val === initialViewsEnabled ? undefined : val });
+  const isViewsAnimationEnabled = overrides.viewsAnimationEnabled ?? initialViewsAnimationEnabled;
+  const setIsViewsAnimationEnabled = (val: any) => updateOverrides({ viewsAnimationEnabled: val === initialViewsAnimationEnabled ? undefined : val });
   const viewsAnimationDuration = overrides.viewsAnimationDuration ?? initialViewsAnimationDuration;
   const setViewsAnimationDuration = (val: any) => updateOverrides({ viewsAnimationDuration: val === initialViewsAnimationDuration ? undefined : val });
 
@@ -185,36 +188,47 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
   const initialAllowNewComments = user?.allowNewComments ?? true;
 
-  const [isCommentsEnabled, setIsCommentsEnabled] = useState(initialCommentsEnabled);
-  const [isShowCommentsPublicly, setIsShowCommentsPublicly] = useState(initialShowCommentsPublicly);
-  const [isAllowNewComments, setIsAllowNewComments] = useState(initialAllowNewComments);
+  const isCommentsEnabled = overrides.commentsEnabled ?? initialCommentsEnabled;
+  const setIsCommentsEnabled = (val: any) => updateOverrides({ commentsEnabled: val === initialCommentsEnabled ? undefined : val });
+  const isShowCommentsPublicly = overrides.showCommentsPublicly ?? initialShowCommentsPublicly;
+  const setIsShowCommentsPublicly = (val: any) => updateOverrides({ showCommentsPublicly: val === initialShowCommentsPublicly ? undefined : val });
+  const isAllowNewComments = overrides.allowNewComments ?? initialAllowNewComments;
+  const setIsAllowNewComments = (val: any) => updateOverrides({ allowNewComments: val === initialAllowNewComments ? undefined : val });
 
   const initialFeedbackEnabled = user?.feedbackEnabled ?? false;
+  const isFeedbackEnabled = overrides.feedbackEnabled ?? initialFeedbackEnabled;
+  const setIsFeedbackEnabled = (val: any) => updateOverrides({ feedbackEnabled: val === initialFeedbackEnabled ? undefined : val });
   const initialShowFeedbackPublicly = user?.showFeedbackPublicly ?? false;
-
-  const [isFeedbackEnabled, setIsFeedbackEnabled] = useState(initialFeedbackEnabled);
-  const [isShowFeedbackPublicly, setIsShowFeedbackPublicly] = useState(initialShowFeedbackPublicly);
+  const isShowFeedbackPublicly = overrides.showFeedbackPublicly ?? initialShowFeedbackPublicly;
+  const setIsShowFeedbackPublicly = (val: any) => updateOverrides({ showFeedbackPublicly: val === initialShowFeedbackPublicly ? undefined : val });
 
   const initialUidTooltipEnabled = user?.showUidTooltip ?? true;
-  const [isUidTooltipEnabled, setIsUidTooltipEnabled] = useState(initialUidTooltipEnabled);
+  const isUidTooltipEnabled = overrides.showUidTooltip ?? initialUidTooltipEnabled;
+  const setIsUidTooltipEnabled = (val: any) => updateOverrides({ showUidTooltip: val === initialUidTooltipEnabled ? undefined : val });
 
   const initialLocationTooltipEnabled = user?.showLocationTooltip ?? true;
-  const [isLocationTooltipEnabled, setIsLocationTooltipEnabled] = useState(initialLocationTooltipEnabled);
+  const isLocationTooltipEnabled = overrides.showLocationTooltip ?? initialLocationTooltipEnabled;
+  const setIsLocationTooltipEnabled = (val: any) => updateOverrides({ showLocationTooltip: val === initialLocationTooltipEnabled ? undefined : val });
 
   const initialOccupationTooltipEnabled = user?.showOccupationTooltip ?? true;
-  const [isOccupationTooltipEnabled, setIsOccupationTooltipEnabled] = useState(initialOccupationTooltipEnabled);
+  const isOccupationTooltipEnabled = overrides.showOccupationTooltip ?? initialOccupationTooltipEnabled;
+  const setIsOccupationTooltipEnabled = (val: any) => updateOverrides({ showOccupationTooltip: val === initialOccupationTooltipEnabled ? undefined : val });
 
   const initialLikesTooltipEnabled = user?.showLikesTooltip ?? true;
-  const [isLikesTooltipEnabled, setIsLikesTooltipEnabled] = useState(initialLikesTooltipEnabled);
+  const isLikesTooltipEnabled = overrides.showLikesTooltip ?? initialLikesTooltipEnabled;
+  const setIsLikesTooltipEnabled = (val: any) => updateOverrides({ showLikesTooltip: val === initialLikesTooltipEnabled ? undefined : val });
 
   const initialDislikesTooltipEnabled = user?.showDislikesTooltip ?? true;
-  const [isDislikesTooltipEnabled, setIsDislikesTooltipEnabled] = useState(initialDislikesTooltipEnabled);
+  const isDislikesTooltipEnabled = overrides.showDislikesTooltip ?? initialDislikesTooltipEnabled;
+  const setIsDislikesTooltipEnabled = (val: any) => updateOverrides({ showDislikesTooltip: val === initialDislikesTooltipEnabled ? undefined : val });
 
   const initialJoinDateTooltipEnabled = user?.showJoinDateTooltip ?? true;
-  const [isJoinDateTooltipEnabled, setIsJoinDateTooltipEnabled] = useState(initialJoinDateTooltipEnabled);
+  const isJoinDateTooltipEnabled = overrides.showJoinDateTooltip ?? initialJoinDateTooltipEnabled;
+  const setIsJoinDateTooltipEnabled = (val: any) => updateOverrides({ showJoinDateTooltip: val === initialJoinDateTooltipEnabled ? undefined : val });
 
   const initialViewsTooltipEnabled = user?.showViewsTooltip ?? true;
-  const [isViewsTooltipEnabled, setIsViewsTooltipEnabled] = useState(initialViewsTooltipEnabled);
+  const isViewsTooltipEnabled = overrides.showViewsTooltip ?? initialViewsTooltipEnabled;
+  const setIsViewsTooltipEnabled = (val: any) => updateOverrides({ showViewsTooltip: val === initialViewsTooltipEnabled ? undefined : val });
 
   const joinDateFormatOptions = [
     "Absolute",
@@ -1326,23 +1340,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
       />
 
       <SaveBar
-        show={
-          Object.keys(overrides).length > 0 ||
-          isJoinDateEnabled !== initialJoinDateEnabled ||
-          isViewsEnabled !== initialViewsEnabled ||
-          isViewsAnimationEnabled !== initialViewsAnimationEnabled ||
-          isCommentsEnabled !== initialCommentsEnabled ||
-          isFeedbackEnabled !== initialFeedbackEnabled ||
-          isUidTooltipEnabled !== initialUidTooltipEnabled ||
-          isLocationTooltipEnabled !== initialLocationTooltipEnabled ||
-          isOccupationTooltipEnabled !== initialOccupationTooltipEnabled ||
-          isLikesTooltipEnabled !== initialLikesTooltipEnabled ||
-          isDislikesTooltipEnabled !== initialDislikesTooltipEnabled ||
-          isJoinDateTooltipEnabled !== initialJoinDateTooltipEnabled ||
-          isViewsTooltipEnabled !== initialViewsTooltipEnabled ||
-          joinDateFormat !== initialJoinDateFormat ||
-          viewsAnimationDuration !== initialViewsAnimationDuration
-        }
+        show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
             await updateAppearanceProfile({
