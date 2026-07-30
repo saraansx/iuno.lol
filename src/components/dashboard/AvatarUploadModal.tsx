@@ -9,11 +9,10 @@ import MediaCropModal from "./MediaCropModal";
 interface AvatarUploadModalProps {
   open: boolean;
   onClose: () => void;
-  onApply?: (url: string) => void;
+  onApply?: (url: string, rawFile?: File) => void;
 }
 
 export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUploadModalProps) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "gif" | "video" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,66 +98,21 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
     setErrorMsg(null);
     setResolvedUrl(null);
     setMediaType(null);
-    setUploadProgress(0);
-    setStatusText("Uploading... 0%");
-
-    const formData = new FormData();
-    formData.append("reqtype", "fileupload");
-    formData.append("fileToUpload", file);
-    formData.append("assetType", "avatar");
+    setUploadProgress(100);
+    setStatusText("Ready");
 
     try {
-      const xhr = new XMLHttpRequest();
-      xhrRef.current = xhr;
-      xhr.open("POST", "/api/upload", true);
-
-      // Track browser-to-server upload progress
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const rawPercent = Math.round((event.loaded / event.total) * 100);
-          const displayPercent = rawPercent >= 100 ? 99 : Math.min(rawPercent, 98);
-          setUploadProgress(displayPercent);
-          if (rawPercent < 100) {
-            setStatusText(`Uploading... ${displayPercent}%`);
-          } else {
-            setStatusText("Saving to cloud... 99%");
-          }
-        }
-      };
-
-      xhr.onload = () => {
-        setIsLoading(false);
-        setUploadProgress(100);
-        setStatusText("Upload complete");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (xhr.status >= 200 && xhr.status < 300 && data.url) {
-            const url = data.url;
-            let finalUrl = url;
-            const isVid = file.type.startsWith("video");
-            if (isVid && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
-              finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
-            }
-            setResolvedUrl(finalUrl);
-            setMediaType(isVid ? "video" : file.type.includes("gif") ? "gif" : "image");
-          } else {
-            setErrorMsg(data.error || "Upload failed");
-          }
-        } catch {
-          setErrorMsg("Failed to parse response from server");
-        }
-      };
-
-      xhr.onerror = () => {
-        setIsLoading(false);
-        setUploadProgress(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        setErrorMsg("Upload failed due to connection error");
-      };
-
-      xhr.send(formData);
+      const localUrl = URL.createObjectURL(file);
+      setResolvedUrl(localUrl);
+      
+      const isVid = file.type.startsWith("video");
+      const isGif = file.type.includes("gif");
+      setMediaType(isVid ? "video" : isGif ? "gif" : "image");
+      
+      // Store the raw file to pass to onApply
+      setRawSelectedFile(file);
+      
+      setIsLoading(false);
     } catch (error) {
       const err = error as Error;
       setErrorMsg(err.message || "Failed to upload file");
@@ -173,7 +127,15 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
         finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
       }
-      onApply?.(finalUrl);
+      onApply?.(finalUrl, rawSelectedFile || undefined);
+      
+      // Reset state
+      setResolvedUrl(null);
+      setMediaType(null);
+      setRawSelectedFile(null);
+      setErrorMsg(null);
+      setUploadProgress(null);
+      setStatusText("");
       onClose();
     }
   };

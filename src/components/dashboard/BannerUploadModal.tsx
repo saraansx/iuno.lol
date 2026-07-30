@@ -7,14 +7,14 @@ import { FileUpload } from "@/components/ui/file-upload";
 interface BannerUploadModalProps {
   open: boolean;
   onClose: () => void;
-  onApply?: (url: string) => void;
+  onApply?: (url: string, rawFile?: File) => void;
   type?: "image" | "background";
 }
 
 export default function BannerUploadModal({ open, onClose, onApply, type = "image" }: BannerUploadModalProps) {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "gif" | "video" | null>(null);
+  const [rawSelectedFile, setRawSelectedFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -30,6 +30,7 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
         setTimeout(() => {
           setResolvedUrl(null);
           setMediaType(null);
+          setRawSelectedFile(null);
           setErrorMsg(null);
           setIsLoading(false);
           setUploadProgress(null);
@@ -64,71 +65,21 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
     setErrorMsg(null);
     setResolvedUrl(null);
     setMediaType(null);
-    setUploadProgress(0);
-    setStatusText("Uploading... 0%");
-
-    const formData = new FormData();
-    formData.append("reqtype", "fileupload");
-    formData.append("fileToUpload", file);
-    formData.append("assetType", type === "image" ? "banner" : "background");
+    setUploadProgress(100);
+    setStatusText("Ready");
 
     try {
-      const xhr = new XMLHttpRequest();
-      xhrRef.current = xhr;
-      xhr.open("POST", "/api/upload", true);
-
-      // Track browser-to-server upload progress
-      xhr.upload.onprogress = (event) => {
-        if (event.lengthComputable) {
-          const rawPercent = Math.round((event.loaded / event.total) * 100);
-          const displayPercent = rawPercent >= 100 ? 99 : Math.min(rawPercent, 98);
-          setUploadProgress(displayPercent);
-          if (rawPercent < 100) {
-            setStatusText(`Uploading... ${displayPercent}%`);
-          } else {
-            setStatusText("Saving to cloud... 99%");
-          }
-        }
-      };
-
-      xhr.onload = () => {
-        setIsLoading(false);
-        setUploadProgress(100);
-        setStatusText("Upload complete");
-        if (fileInputRef.current) fileInputRef.current.value = "";
-
-        try {
-          const data = JSON.parse(xhr.responseText);
-          if (xhr.status >= 200 && xhr.status < 300 && data.url) {
-            const url = data.url;
-            let finalUrl = url;
-            const isVid = file.type.startsWith("video");
-            if (isVid && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
-              finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
-            }
-            setResolvedUrl(finalUrl);
-            setMediaType(isVid ? "video" : file.type.includes("gif") ? "gif" : "image");
-          } else {
-            setErrorMsg(data.error || "Upload failed");
-          }
-        } catch {
-          setErrorMsg("Failed to parse response from server");
-        }
-      };
-
-      xhr.onerror = () => {
-        setIsLoading(false);
-        setUploadProgress(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-        setErrorMsg("Upload failed due to connection error");
-      };
-
-      xhr.send(formData);
-    } catch (error) {
-      const err = error as Error;
-      setErrorMsg(err.message || "Failed to upload file");
+      const localUrl = URL.createObjectURL(file);
+      const isVid = file.type.startsWith("video");
+      const isGif = file.type.includes("gif");
+      
+      setResolvedUrl(localUrl);
+      setMediaType(isVid ? "video" : isGif ? "gif" : "image");
+      setRawSelectedFile(file);
       setIsLoading(false);
-      setUploadProgress(null);
+    } catch {
+      setErrorMsg("Failed to process local file");
+      setIsLoading(false);
     }
   };
 
@@ -138,7 +89,14 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
       if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
         finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
       }
-      onApply?.(finalUrl);
+      onApply?.(finalUrl, rawSelectedFile || undefined);
+      
+      setResolvedUrl(null);
+      setMediaType(null);
+      setRawSelectedFile(null);
+      setErrorMsg(null);
+      setUploadProgress(null);
+      setStatusText("");
       onClose();
     }
   };

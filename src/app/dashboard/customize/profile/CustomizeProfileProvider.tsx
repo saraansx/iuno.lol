@@ -9,6 +9,9 @@ type CustomizeProfileContextType = {
   updateOverrides: (newOverrides: Partial<FullUser>) => void;
   clearOverrides: () => void;
   scheduleClear: () => void;
+  pendingFiles: { avatar?: File; background?: File; banner?: File };
+  setPendingFile: (type: "avatar" | "background" | "banner", file?: File) => void;
+  clearPendingFiles: () => void;
 };
 
 const CustomizeProfileContext = createContext<CustomizeProfileContextType | undefined>(undefined);
@@ -21,6 +24,7 @@ export function CustomizeProfileProvider({
   children: ReactNode;
 }) {
   const [overrides, setOverrides] = useState<Partial<FullUser>>({});
+  const [pendingFiles, setPendingFiles] = useState<{ avatar?: File; background?: File; banner?: File }>({});
   const pendingClearRef = useRef(false);
   const hasMounted = useRef(false);
   useEffect(() => {
@@ -54,8 +58,25 @@ export function CustomizeProfileProvider({
     pendingClearRef.current = true;
   };
 
+  const setPendingFile = (type: "avatar" | "background" | "banner", file?: File) => {
+    setPendingFiles((prev) => ({ ...prev, [type]: file }));
+  };
+
+  const clearPendingFiles = () => {
+    setPendingFiles({});
+  };
+
   return (
-    <CustomizeProfileContext.Provider value={{ initialUser, overrides, updateOverrides, clearOverrides, scheduleClear }}>
+    <CustomizeProfileContext.Provider value={{ 
+      initialUser, 
+      overrides, 
+      updateOverrides, 
+      clearOverrides, 
+      scheduleClear,
+      pendingFiles,
+      setPendingFile,
+      clearPendingFiles
+    }}>
       {children}
     </CustomizeProfileContext.Provider>
   );

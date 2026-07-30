@@ -22,7 +22,7 @@ import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
 export default function GeneralProfileClient({ user }: { user: FullUser | null }) {
-  const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
+  const { overrides, updateOverrides, clearOverrides, scheduleClear, pendingFiles, setPendingFile, clearPendingFiles } = useCustomizeProfile();
   const router = useRouter();
   const initialDisplayName = user?.displayName ?? "";
   const initialLocation = user?.location ?? "";
@@ -138,20 +138,29 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
       <AvatarUploadModal
         open={avatarModalOpen}
         onClose={() => setAvatarModalOpen(false)}
-        onApply={(url) => setAvatarUrl(url)}
+        onApply={(url, rawFile) => {
+          setAvatarUrl(url);
+          if (rawFile) setPendingFile("avatar", rawFile);
+        }}
       />
 
       <BannerUploadModal
         open={bannerImageModalOpen}
         onClose={() => setBannerImageModalOpen(false)}
-        onApply={(url) => setBannerImageUrl(url)}
+        onApply={(url, rawFile) => {
+          setBannerImageUrl(url);
+          if (rawFile) setPendingFile("banner", rawFile);
+        }}
         type="image"
       />
 
       <BannerUploadModal
         open={bannerBackgroundModalOpen}
         onClose={() => setBannerBackgroundModalOpen(false)}
-        onApply={(url) => setBannerBackgroundUrl(url)}
+        onApply={(url, rawFile) => {
+          setBannerBackgroundUrl(url);
+          if (rawFile) setPendingFile("background", rawFile);
+        }}
         type="background"
       />
 
@@ -198,11 +207,43 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
+            const finalOverrides = { ...overrides };
+
+            const uploadPendingFile = async (file: File, type: "avatar" | "background" | "banner"): Promise<string> => {
+              const formData = new FormData();
+              formData.append("reqtype", "fileupload");
+              formData.append("fileToUpload", file);
+              formData.append("assetType", type);
+              
+              const res = await fetch("/api/upload", {
+                method: "POST",
+                body: formData,
+              });
+              
+              if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || `Failed to upload ${type}`);
+              }
+              const data = await res.json();
+              return data.url;
+            };
+
+            if (pendingFiles.avatar) {
+              finalOverrides.avatarUrl = await uploadPendingFile(pendingFiles.avatar, "avatar");
+            }
+            if (pendingFiles.banner) {
+              finalOverrides.bannerImageUrl = await uploadPendingFile(pendingFiles.banner, "banner");
+            }
+            if (pendingFiles.background) {
+              finalOverrides.bannerBackgroundUrl = await uploadPendingFile(pendingFiles.background, "background");
+            }
+
             await updateGeneralProfile({
               username: user?.username || "",
-              ...(overrides as Omit<Parameters<typeof updateGeneralProfile>[0], "username">)
+              ...(finalOverrides as Omit<Parameters<typeof updateGeneralProfile>[0], "username">)
             });
             toast.success("Profile Saved Sucessfully");
+            clearPendingFiles();
             scheduleClear();
             router.refresh();
           } catch (error) {
@@ -210,7 +251,10 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
             toast.error(error instanceof Error ? error.message : "Failed to save profile");
           }
         }}
-        onRevert={clearOverrides}
+        onRevert={() => {
+          clearOverrides();
+          clearPendingFiles();
+        }}
       />
     </>
   );
