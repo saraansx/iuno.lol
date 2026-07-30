@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/actions/logout";
+import { Sidebar as AceSidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
   username?: string;
@@ -14,9 +16,243 @@ interface SidebarProps {
   decorationHue?: number;
 }
 
+interface SubItem {
+  label: string;
+  href: string;
+}
+
+interface NavItem {
+  label: string;
+  icon: React.ReactElement;
+  href?: string;
+  subItems?: SubItem[];
+}
+
+interface NavGroup {
+  section: string;
+  items: NavItem[];
+}
+
+interface SidebarContentProps {
+  username?: string;
+  userId?: number;
+  avatarUrl?: string;
+  decorationUrl?: string;
+  decorationHue?: number;
+  navItems: NavGroup[];
+  pathname: string;
+  profileExpanded: boolean;
+  setProfileExpanded: (expanded: boolean) => void;
+}
+
+const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, profileExpanded, setProfileExpanded }: SidebarContentProps) => {
+  const { open, animate } = useSidebar();
+  
+  return (
+    <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0">
+      
+      {/* Top Content: Logo and Navigation */}
+      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar pt-2">
+        {/* Logo */}
+        <div className="px-7 py-4 flex items-center gap-2.5 shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity whitespace-nowrap">
+            <Image src="/logo.png" alt="Iuno Logo" width={28} height={28} className="object-contain shrink-0" priority />
+            <motion.span 
+              animate={{
+                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                opacity: animate ? (open ? 1 : 0) : 1,
+              }}
+              className="font-normal text-white tracking-tight text-base uppercase whitespace-nowrap ml-1"
+            >
+              Iuno<span className="text-[#609fda] lowercase">.lol</span>
+            </motion.span>
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-2 flex flex-col gap-6">
+          {navItems.map((group: NavGroup) => (
+            <div key={group.section}>
+              <motion.p 
+                animate={{
+                  display: animate ? (open ? "block" : "none") : "block",
+                  opacity: animate ? (open ? 1 : 0) : 1,
+                }}
+                className="text-[10px] uppercase tracking-[0.2em] text-white/20 font-medium px-4 mb-2 whitespace-nowrap"
+              >
+                {group.section}
+              </motion.p>
+              
+              {!open && animate && <div className="h-4" />} 
+
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item: NavItem) => {
+                  if (item.subItems) {
+                    const isGroupActive = item.subItems.some((sub: SubItem) => pathname === sub.href) || pathname.startsWith("/dashboard/customize/profile");
+                    return (
+                      <div key={item.label} className="flex flex-col">
+                        <button
+                          onClick={() => {
+                             if (open) setProfileExpanded(!profileExpanded);
+                          }}
+                          className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
+                            isGroupActive
+                              ? "text-white"
+                              : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
+                          }`}
+                        >
+                          <span className="relative z-10 flex items-center gap-3">
+                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: "shrink-0" })}
+                            
+                            <motion.span
+                              animate={{
+                                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                                opacity: animate ? (open ? 1 : 0) : 1,
+                              }}
+                              className="whitespace-nowrap"
+                            >
+                              {item.label}
+                            </motion.span>
+                          </span>
+                          <motion.svg
+                            animate={{
+                              display: animate ? (open ? "block" : "none") : "block",
+                              opacity: animate ? (open ? 1 : 0) : 1,
+                            }}
+                            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                            className={`transition-transform duration-200 text-white/40 shrink-0 ${profileExpanded ? "rotate-180" : ""}`}
+                          >
+                            <path d="m6 9 6 6 6-6"/>
+                          </motion.svg>
+                        </button>
+                        
+                        <AnimatePresence>
+                          {profileExpanded && open && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              className="relative flex flex-col gap-1 mt-1 ml-5 pl-3 border-l border-white/8 overflow-hidden"
+                            >
+                              {item.subItems.map((subItem: SubItem) => {
+                                const isSubActive = pathname === subItem.href || (subItem.label === "General" && pathname === "/dashboard/customize/profile");
+                                return (
+                                  <Link
+                                    key={subItem.label}
+                                    href={subItem.href}
+                                    className={`px-4 py-2 rounded-[10px] text-[13px] font-medium transition-all whitespace-nowrap ${
+                                      isSubActive
+                                        ? "bg-[#609fda]/15 text-[#609fda]"
+                                        : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
+                                    }`}
+                                  >
+                                    {subItem.label}
+                                  </Link>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  const isActive = item.href ? pathname === item.href : false;
+                  return (
+                    <Link
+                      key={item.label}
+                      href={item.href!}
+                      className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
+                        isActive
+                          ? "bg-[#609fda]/15 text-[#609fda]"
+                          : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
+                      }`}
+                    >
+                      <span className="relative z-10 flex items-center gap-3">
+                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: "shrink-0" })}
+                        <motion.span
+                          animate={{
+                            display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                            opacity: animate ? (open ? 1 : 0) : 1,
+                          }}
+                          className="whitespace-nowrap"
+                        >
+                          {item.label}
+                        </motion.span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </nav>
+      </div>
+
+      {/* Bottom Section - User Widget */}
+      <div className={`pt-2 pb-3 shrink-0 transition-all ${open ? 'px-3' : 'px-2'}`}>
+        <div className={`rounded-xl border border-white/5 bg-[#0a0a0a] flex items-center transition-all ${open ? 'gap-3 p-2' : 'justify-center p-1.5'} overflow-hidden`}>
+          <div className="relative w-8 h-8 shrink-0">
+            <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
+              {avatarUrl ? (
+                <Image src={avatarUrl} alt="Profile picture" fill sizes="32px" className="object-cover" />
+              ) : (
+                username ? username[0] : "?"
+              )}
+            </div>
+            {/* Decoration Overlay */}
+            {decorationUrl && (
+              <div className="pointer-events-none absolute -inset-[3px] z-10">
+                <Image
+                  src={decorationUrl}
+                  alt="Decoration"
+                  fill
+                  sizes="40px"
+                  className="object-contain"
+                  style={{ filter: `hue-rotate(${decorationHue}deg)` }}
+                />
+              </div>
+            )}
+          </div>
+          
+          <motion.div 
+            animate={{
+              display: animate ? (open ? "flex" : "none") : "flex",
+              opacity: animate ? (open ? 1 : 0) : 1,
+            }}
+            className="flex-col flex-1 min-w-0"
+          >
+            <p className="text-sm text-white/80 font-medium truncate">
+              {username || "User"}
+            </p>
+            <p className="text-[10px] text-white/25 truncate">
+              UID {userId ?? "--"}
+            </p>
+          </motion.div>
+          
+          <motion.button 
+            animate={{
+              display: animate ? (open ? "flex" : "none") : "flex",
+              opacity: animate ? (open ? 1 : 0) : 1,
+            }}
+            onClick={() => logout()}
+            className="h-8 w-8 items-center justify-center rounded-lg border border-transparent text-white/20 hover:border-red-400/25 hover:bg-red-400/8 hover:text-red-400/60 transition-all cursor-pointer shrink-0"
+            title="Sign out"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </motion.button>
+        </div>
+      </div>
+    </SidebarBody>
+  );
+};
+
 const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0 }: SidebarProps) => {
   const pathname = usePathname();
   const [profileExpanded, setProfileExpanded] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const navItems = [
     {
@@ -50,145 +286,19 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
   ];
 
   return (
-    <aside className="w-full h-screen bg-transparent flex flex-col">
-      {/* Logo */}
-      <div className="px-7 py-6 flex items-center gap-2.5">
-        <Link href="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-          <Image src="/logo.png" alt="Iuno Logo" width={28} height={28} className="object-contain" priority />
-          <span className="font-normal text-white tracking-tight text-base uppercase">
-            Iuno<span className="text-[#609fda] lowercase">.lol</span>
-          </span>
-        </Link>
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 flex flex-col gap-6 overflow-y-auto">
-        {navItems.map((group) => (
-          <div key={group.section}>
-            <p className="text-[10px] uppercase tracking-[0.2em] text-white/20 font-medium px-4 mb-2">
-              {group.section}
-            </p>
-            <div className="flex flex-col gap-0.5">
-              {group.items.map((item) => {
-                if (item.subItems) {
-                  const isGroupActive = item.subItems.some(sub => pathname === sub.href) || pathname.startsWith("/dashboard/customize/profile");
-                  return (
-                    <div key={item.label} className="flex flex-col">
-                      <button
-                        onClick={() => setProfileExpanded(!profileExpanded)}
-                        className={`relative flex items-center justify-between px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
-                          isGroupActive
-                            ? "text-white"
-                            : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
-                        }`}
-                      >
-                        <span className="relative z-10 flex items-center gap-3">
-                          {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18 })}
-                          {item.label}
-                        </span>
-                        <svg
-                          width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                          className={`transition-transform duration-200 text-white/40 ${profileExpanded ? "rotate-180" : ""}`}
-                        >
-                          <path d="m6 9 6 6 6-6"/>
-                        </svg>
-                      </button>
-                      
-                      {profileExpanded && (
-                        <div className="relative flex flex-col gap-1 mt-1 ml-5.25 pl-3 border-l border-white/8">
-                          {item.subItems.map((subItem) => {
-                            const isSubActive = pathname === subItem.href || (subItem.label === "General" && pathname === "/dashboard/customize/profile");
-                            
-                            return (
-                              <Link
-                                key={subItem.label}
-                                href={subItem.href}
-                                className={`px-4 py-2 rounded-[10px] text-[13px] font-medium transition-all ${
-                                  isSubActive
-                                    ? "bg-[#609fda]/15 text-[#609fda]"
-                                    : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
-                                }`}
-                              >
-                                {subItem.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                const isActive = item.href ? pathname === item.href : false;
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href!}
-                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
-                      isActive
-                        ? "bg-[#609fda]/15 text-[#609fda]"
-                        : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
-                    }`}
-                  >
-                    <span className="relative z-10 flex items-center gap-3">
-                      {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18 })}
-                      {item.label}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </nav>
-
-      {/* Bottom Section */}
-      <div className="px-3 pt-2 pb-3">
-        <div className="rounded-xl border border-white/5 bg-[#0a0a0a] p-2">
-          <div className="flex items-center gap-3 px-3 py-2">
-            <div className="relative w-8 h-8 shrink-0">
-              <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
-                {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Profile picture" fill sizes="32px" className="object-cover" />
-                ) : (
-                  username ? username[0] : "?"
-                )}
-              </div>
-              {/* Decoration Overlay */}
-              {decorationUrl && (
-                <div className="pointer-events-none absolute -inset-[3px] z-10">
-                  <Image
-                    src={decorationUrl}
-                    alt="Decoration"
-                    fill
-                    sizes="40px"
-                    className="object-contain"
-                    style={{ filter: `hue-rotate(${decorationHue}deg)` }}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-            <p className="text-sm text-white/80 font-medium truncate">
-              {username || "User"}
-            </p>
-            <p className="text-[10px] text-white/25 truncate">
-              UID {userId ?? "--"}
-            </p>
-          </div>
-          <button 
-            onClick={() => logout()}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-white/20 hover:border-red-400/25 hover:bg-red-400/8 hover:text-red-400/60 transition-all cursor-pointer shrink-0"
-            title="Sign out"
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-      </div>
-    </aside>
+    <AceSidebar open={open} setOpen={setOpen}>
+      <SidebarContent 
+        username={username}
+        userId={userId}
+        avatarUrl={avatarUrl}
+        decorationUrl={decorationUrl}
+        decorationHue={decorationHue}
+        navItems={navItems}
+        pathname={pathname}
+        profileExpanded={profileExpanded}
+        setProfileExpanded={setProfileExpanded}
+      />
+    </AceSidebar>
   );
 };
 

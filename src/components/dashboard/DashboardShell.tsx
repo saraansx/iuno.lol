@@ -47,9 +47,7 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
       )}
 
       {/* Sidebar */}
-      <div className="w-65 shrink-0">
-        <Sidebar username={username} userId={userId} avatarUrl={avatarUrl} decorationUrl={decorationUrl} decorationHue={decorationHue} />
-      </div>
+      <Sidebar username={username} userId={userId} avatarUrl={avatarUrl} decorationUrl={decorationUrl} decorationHue={decorationHue} />
 
       {/* Main Content Area */}
       <main className="flex-1 p-4 pl-0 flex">

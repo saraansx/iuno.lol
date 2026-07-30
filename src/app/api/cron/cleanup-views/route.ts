@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   try {
     await db.execute(sql`
       DELETE FROM profile_views 
-      WHERE view_date < DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
+      WHERE view_date <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
     `)
 
     return NextResponse.json({ success: true, message: 'Cleaned up profile views older than 7 days.' })
