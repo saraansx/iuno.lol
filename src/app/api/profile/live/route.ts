@@ -2,8 +2,25 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 
-export const revalidate = 60;
+const getLiveStats = unstable_cache(
+  async (profileId: number) => {
+    const result = await db
+      .select({
+        views: users.views,
+        likesCount: users.likesCount,
+        dislikesCount: users.dislikesCount,
+      })
+      .from(users)
+      .where(eq(users.id, profileId))
+      .limit(1);
+    
+    return result.length > 0 ? result[0] : null;
+  },
+  ['profile-live-stats'],
+  { revalidate: 60, tags: ['profile-stats'] }
+);
 
 export async function GET(request: Request) {
   try {
@@ -20,25 +37,13 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
     }
 
-    const result = await db
-      .select({
-        views: users.views,
-        likesCount: users.likesCount,
-        dislikesCount: users.dislikesCount,
-      })
-      .from(users)
-      .where(eq(users.id, profileId))
-      .limit(1);
+    const stats = await getLiveStats(profileId);
 
-    if (result.length === 0) {
+    if (!stats) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    return NextResponse.json(result[0], {
-      headers: {
-        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
-      },
-    });
+    return NextResponse.json(stats);
   } catch (error) {
     console.error('[live-data] Error fetching live data:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
