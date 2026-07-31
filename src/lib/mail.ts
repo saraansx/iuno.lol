@@ -1,7 +1,6 @@
 import resend from './resend';
 
 const SENDER = 'iuno.lol <noreply@iuno.lol>';
-const LOGO_URL = 'https://files.catbox.moe/jvfyj2.png';
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/new-verification?token=${token}`;
@@ -13,7 +12,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     html: `
       <div style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 60px 20px; color: #ffffff; text-align: center; min-height: 100vh;">
         <div style="max-width: 480px; margin: 0 auto; background-color: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 24px; padding: 48px 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.8);">
-          <img src="${LOGO_URL}" alt="iuno.lol logo" width="56" height="56" style="margin-bottom: 24px; display: inline-block;" />
+          <div style="margin-bottom: 24px; font-size: 32px; font-weight: 800; letter-spacing: -2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"><span style="color: #ffffff;">iuno</span><span style="color: #609fda;">.lol</span></div>
           
           <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 16px 0; color: #ffffff; letter-spacing: -0.02em;">Verify your account</h1>
           <p style="font-size: 15px; color: #888888; margin: 0 0 32px 0; line-height: 1.6;">
@@ -50,7 +49,7 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
     html: `
       <div style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 60px 20px; color: #ffffff; text-align: center; min-height: 100vh;">
         <div style="max-width: 480px; margin: 0 auto; background-color: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 24px; padding: 48px 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.8);">
-          <img src="${LOGO_URL}" alt="iuno.lol logo" width="56" height="56" style="margin-bottom: 24px; display: inline-block;" />
+          <div style="margin-bottom: 24px; font-size: 32px; font-weight: 800; letter-spacing: -2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"><span style="color: #ffffff;">iuno</span><span style="color: #609fda;">.lol</span></div>
           
           <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 16px 0; color: #ffffff; letter-spacing: -0.02em;">Your security code</h1>
           <p style="font-size: 15px; color: #888888; margin: 0 0 32px 0; line-height: 1.6;">
@@ -91,7 +90,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
     html: `
       <div style="background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 60px 20px; color: #ffffff; text-align: center; min-height: 100vh;">
         <div style="max-width: 480px; margin: 0 auto; background-color: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 24px; padding: 48px 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.8);">
-          <img src="${LOGO_URL}" alt="iuno.lol logo" width="56" height="56" style="margin-bottom: 24px; display: inline-block;" />
+          <div style="margin-bottom: 24px; font-size: 32px; font-weight: 800; letter-spacing: -2px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"><span style="color: #ffffff;">iuno</span><span style="color: #609fda;">.lol</span></div>
           
           <h1 style="font-size: 24px; font-weight: 600; margin: 0 0 16px 0; color: #ffffff; letter-spacing: -0.02em;">Reset your password</h1>
           <p style="font-size: 15px; color: #888888; margin: 0 0 32px 0; line-height: 1.6;">
