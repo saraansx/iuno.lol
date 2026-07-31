@@ -48,11 +48,13 @@ export default function EffectsCustomization({
     { id: "dither", name: "Dither" },
   ];
 
+  const isDisabled = !backgroundEffect || backgroundEffect === "none";
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col p-4 transition-all duration-200">
+          <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <svg
                 width="22"
@@ -71,13 +73,14 @@ export default function EffectsCustomization({
               <span className="text-[13px] font-medium text-white/90">Background Effect</span>
             </div>
 
-            <div className="flex items-center justify-between mb-4 mt-2">
+            <div className={`flex items-center justify-between mb-4 mt-2 transition-opacity duration-200 ${isDisabled ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
               <span className="text-[12.5px] font-medium text-white/90">Render Above Container</span>
               <button
+                disabled={isDisabled}
                 onClick={() => setBackgroundEffectAboveContainer(!backgroundEffectAboveContainer)}
                 className={`relative inline-flex h-5 w-[34px] flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors duration-200 ease-in-out ${
                   backgroundEffectAboveContainer ? 'bg-[#5b6cf5]' : 'bg-[#1a1a1a]'
-                }`}
+                } ${isDisabled ? 'cursor-not-allowed' : ''}`}
               >
                 <span className="sr-only">Use setting</span>
                 <span
@@ -149,8 +152,6 @@ export default function EffectsCustomization({
             </div>
 
             {(() => {
-              const isDisabled = !backgroundEffect || backgroundEffect === "none";
-
               return (
                 <div className={`flex flex-col gap-3 mt-5 transition-opacity duration-200 ${isDisabled ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
                   <div className="flex items-center justify-between">
