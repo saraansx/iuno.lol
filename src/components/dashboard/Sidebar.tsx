@@ -54,23 +54,20 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
       {/* Top Content: Logo and Navigation */}
       <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar pt-2">
         {/* Logo and Toggle */}
-        <div className={`py-4 flex transition-all shrink-0 items-center ${open ? 'px-6 justify-between flex-row' : 'px-0 justify-center flex-col gap-5'}`}>
-          <Link href="/" className={`flex items-center hover:opacity-80 transition-opacity whitespace-nowrap ${open ? 'gap-2.5' : ''}`}>
+        <div className="py-4 relative flex transition-all shrink-0 items-center overflow-hidden h-[68px]">
+          <Link 
+            href="/" 
+            className={`absolute flex items-center hover:opacity-80 transition-all duration-300 whitespace-nowrap overflow-hidden ${open ? 'left-6 opacity-100' : 'left-6 opacity-0 pointer-events-none'}`}
+          >
             <Image src="/logo.png" alt="Iuno Logo" width={28} height={28} className="object-contain shrink-0" priority />
-            <motion.span 
-              animate={{
-                display: animate ? (open ? "inline-block" : "none") : "inline-block",
-                opacity: animate ? (open ? 1 : 0) : 1,
-              }}
-              className="font-normal text-white tracking-tight text-base uppercase whitespace-nowrap ml-1"
-            >
+            <span className="font-normal text-white tracking-tight text-base uppercase whitespace-nowrap ml-1 overflow-hidden">
               Iuno<span className="text-[#609fda] lowercase">.lol</span>
-            </motion.span>
+            </span>
           </Link>
 
           <button 
             onClick={() => setOpen(!open)}
-            className={`p-1.5 rounded-lg transition-all flex items-center justify-center shrink-0 ${open ? 'text-white/30 hover:text-white/80 hover:bg-white/5' : 'bg-[#609fda]/10 text-[#609fda] border border-[#609fda]/20 hover:bg-[#609fda]/20'}`}
+            className={`absolute transition-all duration-300 p-1.5 rounded-lg flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#609fda]/10 text-[#609fda] border border-[#609fda]/20 hover:bg-[#609fda]/20'}`}
             title="Toggle Sidebar"
           >
             {open ? (
@@ -111,7 +108,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                           onClick={() => {
                              if (open) setProfileExpanded(!profileExpanded);
                           }}
-                          className={`relative flex items-center ${open ? 'justify-between px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
+                          className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-medium group overflow-hidden ${
                             isGroupActive
                               ? (open ? "text-white" : "bg-[#609fda]/15 text-[#609fda]")
                               : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
@@ -122,21 +119,22 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                             
                             <motion.span
                               animate={{
-                                display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                                width: animate ? (open ? "auto" : 0) : "auto",
                                 opacity: animate ? (open ? 1 : 0) : 1,
+                                marginLeft: animate ? (open ? "12px" : "0px") : "12px",
                               }}
-                              className="whitespace-nowrap"
+                              className="whitespace-nowrap overflow-hidden"
                             >
                               {item.label}
                             </motion.span>
                           </span>
                           <motion.svg
                             animate={{
-                              display: animate ? (open ? "block" : "none") : "block",
+                              width: animate ? (open ? 14 : 0) : 14,
                               opacity: animate ? (open ? 1 : 0) : 1,
                             }}
-                            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                            className={`transition-transform duration-200 text-white/40 shrink-0 ${profileExpanded ? "rotate-180" : ""}`}
+                            height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                            className={`transition-transform duration-200 text-white/40 shrink-0 overflow-hidden ml-auto ${profileExpanded ? "rotate-180" : ""}`}
                           >
                             <path d="m6 9 6 6 6-6"/>
                           </motion.svg>
@@ -178,7 +176,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                     <Link
                       key={item.label}
                       href={item.href!}
-                      className={`relative flex items-center ${open ? 'px-3' : 'justify-center px-0'} py-2.5 rounded-xl text-[13.5px] font-medium transition-all group ${
+                      className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-medium group ${
                         isActive
                           ? "bg-[#609fda]/15 text-[#609fda]"
                           : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
@@ -188,10 +186,11 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                         {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 ${isActive ? 'text-[#609fda]' : 'text-[#609fda]/60 group-hover:text-[#609fda]'}` })}
                         <motion.span
                           animate={{
-                            display: animate ? (open ? "inline-block" : "none") : "inline-block",
+                            width: animate ? (open ? "auto" : 0) : "auto",
                             opacity: animate ? (open ? 1 : 0) : 1,
+                            marginLeft: animate ? (open ? "12px" : "0px") : "12px",
                           }}
-                          className="whitespace-nowrap"
+                          className="whitespace-nowrap overflow-hidden"
                         >
                           {item.label}
                         </motion.span>
@@ -207,7 +206,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 
       {/* Bottom Section - User Widget */}
       <div className={`pt-2 pb-3 shrink-0 transition-all ${open ? 'px-3' : 'px-2'}`}>
-        <div className={`rounded-xl border border-white/5 bg-[#0a0a0a] flex items-center transition-all ${open ? 'gap-3 p-2' : 'justify-center p-1.5'} overflow-hidden`}>
+        <div className={`rounded-xl border border-white/5 bg-[#0a0a0a] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
             <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
               {avatarUrl ? (
@@ -233,10 +232,11 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           
           <motion.div 
             animate={{
-              display: animate ? (open ? "flex" : "none") : "flex",
+              width: animate ? (open ? "auto" : 0) : "auto",
               opacity: animate ? (open ? 1 : 0) : 1,
+              marginLeft: animate ? (open ? "12px" : "0px") : "12px",
             }}
-            className="flex-col flex-1 min-w-0"
+            className="flex-col flex-1 min-w-0 overflow-hidden"
           >
             <p className="text-sm text-white/80 font-medium truncate">
               {username || "User"}
