@@ -19,8 +19,9 @@ export async function POST(request: Request) {
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
     const clientFingerprint = fingerprint || 'no_fp';
 
-    const visitorHash = Array.from(ip + userAgent + clientFingerprint)
-      .reduce((hash, char) => 0 | (31 * hash + char.charCodeAt(0)), 0)
+    const baseString = String(clientFingerprint !== 'no_fp' ? clientFingerprint : ip + userAgent);
+    const visitorHash = Array.from(baseString)
+      .reduce((hash: number, char: string) => 0 | (31 * hash + char.charCodeAt(0)), 0)
       .toString(36);
 
     const lockKey = `view_lock:${profileId}:${visitorHash}`;
