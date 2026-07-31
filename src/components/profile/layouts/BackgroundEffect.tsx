@@ -14,15 +14,17 @@ export function BackgroundEffect({
   effect,
   intensity = 50,
   color = "#ffffff",
+  aboveContainer = false,
 }: {
   effect?: string;
   intensity?: number;
   color?: string;
+  aboveContainer?: boolean;
 }) {
   if (!effect || effect === "none") return null;
 
   return (
-    <div className={`absolute inset-0 w-full h-full pointer-events-none overflow-hidden z-[1]`}>
+    <div className={`absolute inset-0 w-full h-full pointer-events-none overflow-hidden ${aboveContainer ? 'z-[20]' : 'z-[1]'}`}>
       {effect === "snow" && <SnowEffect intensity={intensity} color={color} />}
       {effect === "nighttime" && <NightTimeEffect intensity={intensity} />}
       {effect === "oldtv" && <OldTVEffect intensity={intensity} />}

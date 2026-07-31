@@ -9,6 +9,8 @@ interface EffectsCustomizationProps {
   setBackgroundEffectIntensity: (val: number) => void;
   backgroundEffectColor: string;
   setBackgroundEffectColor: (val: string) => void;
+  backgroundEffectAboveContainer: boolean;
+  setBackgroundEffectAboveContainer: (val: boolean) => void;
 }
 
 export default function EffectsCustomization({
@@ -18,6 +20,8 @@ export default function EffectsCustomization({
   setBackgroundEffectIntensity,
   backgroundEffectColor,
   setBackgroundEffectColor,
+  backgroundEffectAboveContainer,
+  setBackgroundEffectAboveContainer,
 }: EffectsCustomizationProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -65,6 +69,24 @@ export default function EffectsCustomization({
                 <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
               </svg>
               <span className="text-[13px] font-medium text-white/90">Background Effect</span>
+            </div>
+
+            <div className="flex items-center justify-between mb-4 mt-2">
+              <span className="text-[12.5px] font-medium text-white/90">Render Above Container</span>
+              <button
+                onClick={() => setBackgroundEffectAboveContainer(!backgroundEffectAboveContainer)}
+                className={`relative inline-flex h-5 w-[34px] flex-shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none transition-colors duration-200 ease-in-out ${
+                  backgroundEffectAboveContainer ? 'bg-[#5b6cf5]' : 'bg-[#1a1a1a]'
+                }`}
+              >
+                <span className="sr-only">Use setting</span>
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute left-0.5 inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                    backgroundEffectAboveContainer ? 'translate-x-[14px]' : 'translate-x-0'
+                  }`}
+                />
+              </button>
             </div>
 
             <div className="flex flex-col gap-2 mt-4">

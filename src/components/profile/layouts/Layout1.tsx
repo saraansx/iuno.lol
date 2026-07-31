@@ -25,6 +25,7 @@ interface Layout1Props {
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
+  backgroundEffectAboveContainer?: boolean;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -185,6 +186,7 @@ const Layout1 = ({
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
+  backgroundEffectAboveContainer = false,
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -396,6 +398,7 @@ const Layout1 = ({
           effect={backgroundEffect ?? "none"}
           intensity={backgroundEffectIntensity}
           color={backgroundEffectColor}
+          aboveContainer={backgroundEffectAboveContainer}
         />
 
         {/* Wrapper — content + background are siblings */}

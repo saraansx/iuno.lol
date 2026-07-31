@@ -23,6 +23,9 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const setBackgroundEffectIntensity = (val: number) => updateOverrides({ backgroundEffectIntensity: val === initialBackgroundEffectIntensity ? undefined : val });
   const backgroundEffectColor = overrides.backgroundEffectColor ?? initialBackgroundEffectColor;
   const setBackgroundEffectColor = (val: string) => updateOverrides({ backgroundEffectColor: val === initialBackgroundEffectColor ? undefined : val });
+  const initialBackgroundEffectAboveContainer = user?.backgroundEffectAboveContainer ?? false;
+  const backgroundEffectAboveContainer = overrides.backgroundEffectAboveContainer ?? initialBackgroundEffectAboveContainer;
+  const setBackgroundEffectAboveContainer = (val: boolean) => updateOverrides({ backgroundEffectAboveContainer: val === initialBackgroundEffectAboveContainer ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -41,6 +44,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setBackgroundEffectIntensity={setBackgroundEffectIntensity}
           backgroundEffectColor={backgroundEffectColor}
           setBackgroundEffectColor={setBackgroundEffectColor}
+          backgroundEffectAboveContainer={backgroundEffectAboveContainer}
+          setBackgroundEffectAboveContainer={setBackgroundEffectAboveContainer}
         />
       </div>
 
@@ -51,6 +56,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           backgroundEffect,
           backgroundEffectIntensity,
           backgroundEffectColor,
+          backgroundEffectAboveContainer,
         }}
       />
 

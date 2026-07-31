@@ -47,6 +47,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       backgroundEffect={deferredOverrides.backgroundEffect ?? user?.backgroundEffect ?? "none"}
       backgroundEffectIntensity={deferredOverrides.backgroundEffectIntensity ?? user?.backgroundEffectIntensity ?? 50}
       backgroundEffectColor={deferredOverrides.backgroundEffectColor ?? user?.backgroundEffectColor ?? "#ffffff"}
+      backgroundEffectAboveContainer={deferredOverrides.backgroundEffectAboveContainer ?? user?.backgroundEffectAboveContainer ?? false}
       pageBgColor={deferredOverrides.pageBgColor ?? user?.pageBgColor ?? "#050505"}
       profileBgColor={deferredOverrides.profileBgColor ?? user?.profileBgColor ?? "#ffffff"}
       profileBgOpacity={deferredOverrides.profileBgOpacity ?? user?.profileBgOpacity ?? 10}

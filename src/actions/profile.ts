@@ -322,6 +322,7 @@ export async function updateEffectsProfile(data: {
   backgroundEffect?: string | null;
   backgroundEffectIntensity?: number | null;
   backgroundEffectColor?: string | null;
+  backgroundEffectAboveContainer?: boolean | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -340,6 +341,7 @@ export async function updateEffectsProfile(data: {
   if (data.backgroundEffect !== undefined) setData.backgroundEffect = data.backgroundEffect?.slice(0, 50) ?? null;
   if (data.backgroundEffectIntensity !== undefined) setData.backgroundEffectIntensity = data.backgroundEffectIntensity;
   if (data.backgroundEffectColor !== undefined) setData.backgroundEffectColor = data.backgroundEffectColor?.slice(0, 32) ?? null;
+  if (data.backgroundEffectAboveContainer !== undefined) setData.backgroundEffectAboveContainer = data.backgroundEffectAboveContainer ?? false;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

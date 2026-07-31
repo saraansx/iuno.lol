@@ -35,6 +35,7 @@ const userColumns = {
   backgroundEffect: schema.userSettings.backgroundEffect,
   backgroundEffectIntensity: schema.userSettings.backgroundEffectIntensity,
   backgroundEffectColor: schema.userSettings.backgroundEffectColor,
+  backgroundEffectAboveContainer: schema.userSettings.backgroundEffectAboveContainer,
   profileBgColor: schema.userSettings.profileBgColor,
   profileBgOpacity: schema.userSettings.profileBgOpacity,
   profileBorderColor: schema.userSettings.profileBorderColor,
