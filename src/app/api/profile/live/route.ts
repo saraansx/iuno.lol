@@ -34,7 +34,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    return NextResponse.json(result[0]);
+    return NextResponse.json(result[0], {
+      headers: {
+        'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30',
+      },
+    });
   } catch (error) {
     console.error('[live-data] Error fetching live data:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
