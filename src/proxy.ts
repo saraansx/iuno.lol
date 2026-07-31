@@ -4,25 +4,25 @@ import type { NextRequest } from 'next/server'
 export default function proxy(request: NextRequest) {
   // 1. Check for the secret bypass URL parameter
   const secretKey = request.nextUrl.searchParams.get('admin_access')
-  
-  if (secretKey === 'iuno_admin') {
+
+  if (secretKey === 'iunolol_master_key') {
     // They got the password right! Set the cookie and redirect to home.
     const response = NextResponse.redirect(new URL('/', request.url))
-    
+
     // Give them a cookie that lasts for 1 year
-    response.cookies.set('admin_bypass_v2', 'true', {
+    response.cookies.set('admin_session_v3', 'true', {
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
     })
-    
+
     return response
   }
 
   // 2. Check if they already have the bypass cookie
-  const hasBypassCookie = request.cookies.get('admin_bypass_v2')?.value === 'true'
+  const hasBypassCookie = request.cookies.get('admin_session_v3')?.value === 'true'
 
   if (hasBypassCookie) {
     // Let them through! They are the admin.
@@ -34,9 +34,9 @@ export default function proxy(request: NextRequest) {
 
   // We need to make sure we don't redirect them if they are ALREADY on /coming-soon, 
   // or if they are requesting static assets (like images) or automated cron jobs.
-  const isPublicAsset = 
-    path === '/coming-soon' || 
-    path.startsWith('/_next/') || 
+  const isPublicAsset =
+    path === '/coming-soon' ||
+    path.startsWith('/_next/') ||
     path.startsWith('/api/cron/') ||
     path.includes('.') // like /logo.svg or /favicon.ico
 
