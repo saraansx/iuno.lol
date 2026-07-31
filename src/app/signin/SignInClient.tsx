@@ -47,7 +47,7 @@ export default function SignIn() {
         <div className="mt-8 text-center">
           <p className="text-xs text-white/40 font-light">
             Don&apos;t have an account?{" "}
-            <Link href="/register" className="text-[#609fda] hover:text-[#609fda]/80 transition-colors font-medium">
+            <Link href="/register" className="text-[#609fda] hover:text-[#609fda]/90 font-medium relative inline-block after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-[#609fda] hover:after:w-full after:transition-all after:duration-300">
               Create one
             </Link>
           </p>

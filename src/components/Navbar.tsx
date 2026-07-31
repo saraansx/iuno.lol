@@ -88,7 +88,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                 </button>
                 <button 
                   onClick={handleGetStarted}
-                  className="bg-[#609fda]/10 backdrop-blur-md border border-[#609fda]/20 text-[#609fda] px-6 py-2 rounded-full text-sm font-bold hover:bg-[#609fda]/20 transition-all shadow-[0_0_10px_rgba(96,159,218,0.05)] hover:shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+                  className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
                 >
                   Get Started
                 </button>
