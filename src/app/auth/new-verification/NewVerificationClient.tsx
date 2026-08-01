@@ -67,11 +67,11 @@ const NewVerificationForm = () => {
             </svg>
           </div>
 
-          <div className="space-y-2">
-            <p className="text-white/50 text-[13px] font-light tracking-wide">
-              {success ? "Email verified" : error ? "Verification failed" : "Awaiting email verification"}
-            </p>
-            <p className="text-white/25 text-[11px] font-light max-w-60">
+          <div className="space-y-3">
+            <h1 className="text-white text-xl font-medium tracking-tight">
+              {success ? "Email verified" : error ? "Verification failed" : "Awaiting verification"}
+            </h1>
+            <p className="text-white/50 text-sm font-light max-w-[280px] mx-auto">
               {success 
                 ? "Your account is ready. Redirecting you shortly..." 
                 : error 
@@ -92,7 +92,7 @@ const NewVerificationForm = () => {
           <div className="w-full pt-6 border-t border-white/3">
             <Link 
               href="/signin" 
-              className="text-white/25 text-[12px] font-light hover:text-white/50 transition-colors"
+              className="text-white/40 text-sm font-normal hover:text-white transition-colors"
             >
               Back to Sign In
             </Link>

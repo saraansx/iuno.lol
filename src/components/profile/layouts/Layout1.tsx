@@ -116,7 +116,7 @@ const AvatarInner = ({
 }) => (
   <div className="relative w-[88px] h-[88px]">
     <div
-      className={`absolute inset-0 bg-[#0a0a0a] flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
+      className={`absolute inset-0 bg-[#0a0a0a] border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
     >
       {avatarUrl ? (
         isVideoUrl(avatarUrl) ? (
@@ -866,7 +866,7 @@ const Layout1 = ({
           {/* Avatar sitting on the top border */}
           <div className="absolute -top-12 w-24 h-24">
             <div
-              className={`absolute inset-0 bg-[#0a0a0a] flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
+              className={`absolute inset-0 bg-[#0a0a0a] border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
             >
               {avatarUrl ? (
                 isVideoUrl(avatarUrl) ? (

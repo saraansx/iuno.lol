@@ -158,7 +158,7 @@ const LoginForm = () => {
       <div className="w-full bg-white/2 border border-white/5 rounded-xl p-1 flex relative">
         {/* Sliding indicator */}
         <motion.div
-          className="absolute top-1 bottom-1 bg-[#609fda]/10 border border-[#609fda]/20 rounded-lg shadow-[0_0_12px_rgba(96,159,218,0.08)]"
+          className="absolute top-1 bottom-1 bg-[#609fda]/20 rounded-lg shadow-[0_0_15px_rgba(96,159,218,0.1)]"
           initial={false}
           animate={{
             left: method === "password" ? "4px" : "50%",
@@ -171,10 +171,10 @@ const LoginForm = () => {
             key={tab.id}
             type="button"
             onClick={() => handleMethodSwitch(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-colors relative z-10 cursor-pointer ${
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-normal transition-colors relative z-10 cursor-pointer ${
               method === tab.id
-                ? "text-[#609fda]"
-                : "text-white/30 hover:text-white/50"
+                ? "text-white"
+                : "text-white/40 hover:text-white/60"
             }`}
           >
             {tab.icon}
