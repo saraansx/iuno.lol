@@ -39,11 +39,11 @@ async function emptyS3Directory(userId: number, assetType: string) {
   }
 }
 
-const CDN_BASE = `https://cdn.iuno.lol/`;
+const STORAGE_BASE = `https://storage.iuno.lol/`;
 
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
-  return url.startsWith(CDN_BASE) || 
+  return url.startsWith(STORAGE_BASE) ||
          url.startsWith("https://cdn.discordapp.com/") || 
          url.startsWith("https://discord-decoration.art/");
 }

@@ -150,7 +150,7 @@ export async function POST(req: Request) {
     deleteOldFile(userId, assetType, filename).catch((err) => console.error("Failed to delete old file:", err));
 
     const cacheBuster = Date.now();
-    const publicUrl = `https://cdn.iuno.lol/${filename}?v=${cacheBuster}`;
+    const publicUrl = `https://storage.iuno.lol/${filename}?v=${cacheBuster}`;
 
     return NextResponse.json({ url: publicUrl });
 
