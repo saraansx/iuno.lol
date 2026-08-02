@@ -41,7 +41,8 @@ export default function BorderEffectSection({
 
   const borderEffects = [
     { id: "none", name: "None" },
-    { id: "border-beam", name: "Border Beam" }
+    { id: "border-beam", name: "Border Beam" },
+    { id: "shine-border", name: "Shine Border" }
   ];
 
   const isBorderDisabled = !borderEffect || borderEffect === "none";

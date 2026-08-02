@@ -8,6 +8,7 @@ import { CommentsModal } from "../comments/CommentsModal";
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderBeam } from "@/components/ui/border-beam";
+import { ShineBorder } from "@/components/ui/shine-border";
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -522,6 +523,20 @@ const Layout1 = ({
             </div>
           )}
 
+          {/* Shine Border overlay */}
+          {borderEffect === "shine-border" && (
+            <div 
+              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
+              style={{ borderRadius: `${profileBorderRadius}px` }}
+            >
+              <ShineBorder
+                shineColor={borderFrom === borderTo ? borderFrom : [borderFrom, borderTo]}
+                borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+                duration={14}
+              />
+            </div>
+          )}
+
           {/* Background card — this entire layer fades with opacity */}
           <div
             className="absolute inset-0 z-0"
@@ -923,6 +938,20 @@ const Layout1 = ({
               size={100}
               duration={9}
               length={1.4}
+            />
+          </div>
+        )}
+
+        {/* Shine Border overlay */}
+        {borderEffect === "shine-border" && (
+          <div 
+            className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+            style={{ borderRadius: `${profileBorderRadius}px` }}
+          >
+            <ShineBorder
+              shineColor={borderFrom === borderTo ? borderFrom : [borderFrom, borderTo]}
+              borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+              duration={14}
             />
           </div>
         )}
