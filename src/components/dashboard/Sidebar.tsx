@@ -108,14 +108,14 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                           onClick={() => {
                              if (open) setProfileExpanded(!profileExpanded);
                           }}
-                          className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-medium group overflow-hidden ${
+                          className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group overflow-hidden ${
                             isGroupActive
-                              ? (open ? "text-white" : "bg-[#609fda]/15 text-[#609fda]")
+                              ? (open ? "text-white" : "bg-[#609fda]/20 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]")
                               : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
                           }`}
                         >
                           <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 ${isGroupActive ? 'text-[#609fda]' : 'text-[#609fda]/60 group-hover:text-[#609fda]'}` })}
+                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isGroupActive ? 'text-[#609fda]' : 'text-white/40 group-hover:text-white/80'}` })}
                             
                             <motion.span
                               animate={{
@@ -154,9 +154,9 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                                   <Link
                                     key={subItem.label}
                                     href={subItem.href}
-                                    className={`px-4 py-2 rounded-[10px] text-[13px] font-medium transition-all whitespace-nowrap ${
+                                    className={`px-4 py-2 rounded-[10px] text-[13px] font-normal transition-all whitespace-nowrap ${
                                       isSubActive
-                                        ? "bg-[#609fda]/15 text-[#609fda]"
+                                        ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
                                         : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
                                     }`}
                                   >
@@ -176,14 +176,14 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                     <Link
                       key={item.label}
                       href={item.href!}
-                      className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-medium group ${
+                      className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group ${
                         isActive
-                          ? "bg-[#609fda]/15 text-[#609fda]"
+                          ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
                           : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
                       }`}
                     >
                       <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 ${isActive ? 'text-[#609fda]' : 'text-[#609fda]/60 group-hover:text-[#609fda]'}` })}
+                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isActive ? 'text-[#609fda]' : 'text-white/40 group-hover:text-white/80'}` })}
                         <motion.span
                           animate={{
                             width: animate ? (open ? "auto" : 0) : "auto",
@@ -274,8 +274,8 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
     {
       section: "MAIN",
       items: [
-        { label: "Overview", href: "/dashboard", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 20h18"/><rect width="3" height="5" x="6" y="11" rx="1"/><rect width="3" height="9" x="11" y="7" rx="1"/><rect width="3" height="13" x="16" y="3" rx="1"/></svg> },
-        { label: "Leaderboard", href: "/dashboard/leaderboard", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> },
+        { label: "Overview", href: "/dashboard", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="9" x="3" y="3" rx="1.5"/><rect width="7" height="5" x="14" y="3" rx="1.5"/><rect width="7" height="9" x="14" y="12" rx="1.5"/><rect width="7" height="5" x="3" y="16" rx="1.5"/></svg> },
+        { label: "Leaderboard", href: "/dashboard/leaderboard", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/><path d="M2 20h20"/></svg> },
       ],
     },
     {
@@ -283,7 +283,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
       items: [
         {
           label: "Profile",
-          icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>,
+          icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7.5" r="3.5" fill="currentColor" stroke="none" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>,
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },
@@ -294,9 +294,9 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             { label: "Metadata", href: "/dashboard/customize/profile/metadata" },
           ]
         },
-        { label: "Links", href: "/dashboard/customize/links", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> },
-        { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> },
-        { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg> },
+        { label: "Links", href: "/dashboard/customize/links", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> },
+        { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+        { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
       ]
     }
   ];

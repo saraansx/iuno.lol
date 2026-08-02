@@ -9,6 +9,28 @@ import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderBeam } from "@/components/ui/border-beam";
 
+const renderFormattedText = (text: string) => {
+  if (!text) return null;
+
+  let parsed = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+
+  // Bold: **text**
+  parsed = parsed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  // Underline: __text__
+  parsed = parsed.replace(/__(.*?)__/g, "<u>$1</u>");
+  // Strikethrough: ~~text~~ or ~text~
+  parsed = parsed.replace(/~~(.*?)~~/g, "<s>$1</s>");
+  parsed = parsed.replace(/~(.*?)~/g, "<s>$1</s>");
+  // Italics: *text* or _text_
+  parsed = parsed.replace(/\*(.*?)\*/g, "<em>$1</em>");
+  parsed = parsed.replace(/_(.*?)_/g, "<em>$1</em>");
+
+  return <span dangerouslySetInnerHTML={{ __html: parsed }} />;
+};
+
 interface Layout1Props {
   profileId: number;
   viewerId: number | null;
@@ -665,7 +687,7 @@ const Layout1 = ({
                       color: bioColor,
                     }}
                   >
-                    {bio.trim()}
+                    {renderFormattedText(bio.trim())}
                   </p>
                 </div>
               )}
@@ -1027,7 +1049,7 @@ const Layout1 = ({
                 color: bioColor,
               }}
             >
-              {bio}
+              {renderFormattedText(bio)}
             </p>
           )}
         </div>

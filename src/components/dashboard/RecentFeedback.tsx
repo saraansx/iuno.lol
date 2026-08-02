@@ -48,13 +48,13 @@ export default function RecentFeedback({ initialReceived, initialGiven }: Recent
         <div className="flex border border-white/5 rounded-full p-1 gap-1">
           <button
             onClick={() => setActiveTab("received")}
-            className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${activeTab === "received" ? "bg-[#609fda]/10 text-[#609fda]" : "text-white/40 hover:text-white/60 hover:bg-white/5"}`}
+            className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all cursor-pointer ${activeTab === "received" ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]" : "text-white/40 hover:text-white/60 hover:bg-white/5"}`}
           >
             Received {received.length}
           </button>
           <button
             onClick={() => setActiveTab("given")}
-            className={`px-4 py-1.5 rounded-full text-[13px] font-medium transition-all ${activeTab === "given" ? "bg-[#609fda]/10 text-[#609fda]" : "text-white/40 hover:text-white/60 hover:bg-white/5"}`}
+            className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all cursor-pointer ${activeTab === "given" ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]" : "text-white/40 hover:text-white/60 hover:bg-white/5"}`}
           >
             Given {given.length}
           </button>
