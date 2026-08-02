@@ -71,7 +71,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             {isAuthenticated ? (
               <button 
                 onClick={() => router.push('/dashboard')}
-                className="bg-[#609fda]/10 backdrop-blur-md border border-[#609fda]/20 text-[#609fda] px-6 py-2 rounded-full text-sm font-bold hover:bg-[#609fda]/20 transition-all shadow-[0_0_10px_rgba(96,159,218,0.05)] hover:shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer flex items-center gap-2"
+                className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer flex items-center gap-2"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M2 17L12 22L22 17"/><path d="M2 12L12 17L22 12"/><path d="M12 2L2 7L12 12L22 7L12 2Z"/>
