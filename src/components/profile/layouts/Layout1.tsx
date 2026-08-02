@@ -26,6 +26,10 @@ interface Layout1Props {
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
   backgroundEffectAboveContainer?: boolean;
+  borderEffect?: string;
+  borderEffectIntensity?: number;
+  borderEffectColor?: string;
+  borderEffectAboveContainer?: boolean;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -187,6 +191,10 @@ const Layout1 = ({
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
   backgroundEffectAboveContainer = false,
+  borderEffect,
+  borderEffectIntensity = 50,
+  borderEffectColor = "#ffffff",
+  borderEffectAboveContainer = false,
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -400,6 +408,14 @@ const Layout1 = ({
           color={backgroundEffectColor}
           aboveContainer={backgroundEffectAboveContainer}
         />
+      {borderEffect && borderEffect !== "none" && (
+        <BackgroundEffect
+          effect={borderEffect ?? "none"}
+          intensity={borderEffectIntensity}
+          color={borderEffectColor}
+          aboveContainer={borderEffectAboveContainer}
+        />
+      )}
 
         {/* Wrapper — content + background are siblings */}
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
