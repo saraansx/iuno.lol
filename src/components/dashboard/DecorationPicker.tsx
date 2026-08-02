@@ -2,6 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import decorations from "@/Deco.json";
 
 
@@ -57,8 +58,6 @@ export default function DecorationPicker({
     currentPage * itemsPerPage,
   );
 
-  if (!open) return null;
-
   const avatarShapeClass = {
     square: "rounded-lg",
     soft: "rounded-[14px]",
@@ -71,17 +70,29 @@ export default function DecorationPicker({
     setPage(1);
   };
 
-
-
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/55 px-4 py-6 backdrop-blur-sm cursor-pointer"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
-      >
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[90] bg-black/35 backdrop-blur-[2px] cursor-pointer"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 8 }}
+            transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            onClick={(e) => e.stopPropagation()}
+            className="fixed z-[91] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
+          >
         
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
@@ -234,12 +245,14 @@ export default function DecorationPicker({
                     <path d="m9 18 6-6-6-6" />
                   </svg>
                 </button>
-              </div>
+             </div>
             </div>
           </section>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </>
+  )}
+</AnimatePresence>
   );
 }
 

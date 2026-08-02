@@ -114,7 +114,7 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[100] bg-black/45"
+            className="fixed inset-0 z-[100] bg-black/35 backdrop-blur-[2px]"
             onClick={handleCancelAndClose}
           />
 
