@@ -6,11 +6,15 @@ import { motion } from "framer-motion";
 import React, { Suspense, useState } from "react";
 import RegisterForm from "@/components/auth/RegisterForm";
 
+import BackToHome from "@/components/ui/BackToHome";
+
 export default function Register() {
     const [isSuccess, setIsSuccess] = useState(false);
 
     return (
     <main className="min-h-screen bg-transparent flex items-center justify-center p-4 font-poppins relative overflow-hidden">
+
+      <BackToHome />
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -38,7 +42,7 @@ export default function Register() {
           </motion.div>
         )}
 
-        <Suspense fallback={<div className="text-white/20 text-sm">Loading...</div>}>
+        <Suspense fallback={null}>
           <RegisterForm onSuccessStateChange={setIsSuccess} />
         </Suspense>
 

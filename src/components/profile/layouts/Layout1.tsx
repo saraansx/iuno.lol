@@ -248,6 +248,11 @@ const Layout1 = ({
 }: Layout1Props) => {
   const display = displayName || username;
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
+  const [borderFrom, borderTo] = React.useMemo(() => {
+    const parts = (borderEffectColor || "#ffffff").split(",");
+    const from = parts[0]?.trim() || "#ffffff";
+    return [from, parts[1]?.trim() || from] as const;
+  }, [borderEffectColor]);
   const [liveViews, setLiveViews] = useState(views);
   const [animatedViews, setAnimatedViews] = useState(viewsAnimationEnabled ? 0 : views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
@@ -447,9 +452,12 @@ const Layout1 = ({
               style={{ borderRadius: `${profileBorderRadius}px` }}
             >
               <BorderBeam
-                colorFrom={borderEffectColor}
-                colorTo={borderEffectColor}
+                colorFrom={borderFrom}
+                colorTo={borderTo}
                 borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+                size={100}
+                duration={9}
+                length={1.4}
               />
             </div>
           )}
@@ -849,9 +857,12 @@ const Layout1 = ({
             style={{ borderRadius: `${profileBorderRadius}px` }}
           >
             <BorderBeam
-              colorFrom={borderEffectColor}
-              colorTo={borderEffectColor}
+              colorFrom={borderFrom}
+              colorTo={borderTo}
               borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+              size={100}
+              duration={9}
+              length={1.4}
             />
           </div>
         )}

@@ -7,6 +7,8 @@ import React from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import { useSearchParams } from "next/navigation";
 
+import BackToHome from "@/components/ui/BackToHome";
+
 export default function SignIn() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
@@ -14,6 +16,7 @@ export default function SignIn() {
   return (
     <main className="min-h-screen bg-transparent flex items-center justify-center p-4 font-poppins relative overflow-hidden">
 
+      <BackToHome />
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}

@@ -49,6 +49,10 @@ interface BorderBeamProps {
    * The border width of the beam.
    */
   borderWidth?: number
+  /**
+   * The length of the beam relative to its thickness.
+   */
+  length?: number
 }
 
 export const BorderBeam = ({
@@ -63,6 +67,7 @@ export const BorderBeam = ({
   reverse = false,
   initialOffset = 0,
   borderWidth = 1,
+  length = 1,
 }: BorderBeamProps) => {
   return (
     <div
@@ -83,7 +88,8 @@ export const BorderBeam = ({
         )}
         style={
           {
-            width: size,
+            width: size * length,
+            height: size,
             offsetPath: `rect(0 auto auto 0 round ${size}px)`,
             backgroundImage: `linear-gradient(to left, ${colorFrom}, ${colorTo}, transparent)`,
             ...style,

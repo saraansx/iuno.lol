@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function NewPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <NewPasswordClient />
     </Suspense>
   );
