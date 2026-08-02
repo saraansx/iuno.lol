@@ -12,23 +12,61 @@ import { BorderBeam } from "@/components/ui/border-beam";
 const renderFormattedText = (text: string) => {
   if (!text) return null;
 
-  let parsed = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  const lines = text.split("\n");
 
-  // Bold: **text**
-  parsed = parsed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  // Underline: __text__
-  parsed = parsed.replace(/__(.*?)__/g, "<u>$1</u>");
-  // Strikethrough: ~~text~~ or ~text~
-  parsed = parsed.replace(/~~(.*?)~~/g, "<s>$1</s>");
-  parsed = parsed.replace(/~(.*?)~/g, "<s>$1</s>");
-  // Italics: *text* or _text_
-  parsed = parsed.replace(/\*(.*?)\*/g, "<em>$1</em>");
-  parsed = parsed.replace(/_(.*?)_/g, "<em>$1</em>");
+  const parsedLines = lines.map((line, idx) => {
+    let parsed = line
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
-  return <span dangerouslySetInnerHTML={{ __html: parsed }} />;
+    const isSubtext = /^-#\s+(.*)/.exec(parsed);
+    if (isSubtext) {
+      parsed = isSubtext[1];
+    }
+
+    const isBullet = /^(?:-|\*|•)\s+(.*)/.exec(parsed);
+    if (isBullet && !isSubtext) {
+      parsed = isBullet[1];
+    }
+
+    // Bold: **text**
+    parsed = parsed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // Underline: __text__
+    parsed = parsed.replace(/__(.*?)__/g, "<u>$1</u>");
+    // Strikethrough: ~~text~~ or ~text~
+    parsed = parsed.replace(/~~(.*?)~~/g, "<s>$1</s>");
+    parsed = parsed.replace(/~(.*?)~/g, "<s>$1</s>");
+    // Italics: *text* or _text_
+    parsed = parsed.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    parsed = parsed.replace(/_(.*?)_/g, "<em>$1</em>");
+
+    if (isSubtext) {
+      return (
+        <span key={idx} className="text-[11px] opacity-60 leading-tight block">
+          <span dangerouslySetInnerHTML={{ __html: parsed }} />
+        </span>
+      );
+    }
+
+    if (isBullet) {
+      return (
+        <span key={idx} className="flex items-center gap-2 justify-center">
+          <span className="text-[12px] opacity-70">•</span>
+          <span dangerouslySetInnerHTML={{ __html: parsed }} />
+        </span>
+      );
+    }
+
+    return (
+      <React.Fragment key={idx}>
+        <span dangerouslySetInnerHTML={{ __html: parsed }} />
+        {idx < lines.length - 1 && <br />}
+      </React.Fragment>
+    );
+  });
+
+  return <>{parsedLines}</>;
 };
 
 interface Layout1Props {

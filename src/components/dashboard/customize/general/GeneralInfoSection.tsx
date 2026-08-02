@@ -176,6 +176,14 @@ export default function GeneralInfoSection({
                 <span className="line-through text-white">Strikethrough</span>
                 <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">~~text~~</code>
               </div>
+              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                <span className="text-white flex items-center gap-1.5"><span className="text-[12px] opacity-70">•</span> Bullet List</span>
+                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">- text or • text</code>
+              </div>
+              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                <span className="text-white/60 text-[11px]">Subtext / Small Text</span>
+                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">-# text</code>
+              </div>
             </div>
           </div>
         )}
@@ -227,6 +235,22 @@ export default function GeneralInfoSection({
                 className="w-6.5 h-6.5 rounded flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4H9a3 3 0 0 0-2.83 4M14 12a4 4 0 0 1 0 8H6"/><line x1="4" x2="20" y1="12" y2="12"/></svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormat("- ", "")}
+                title="Bullet List (- text)"
+                className="w-6.5 h-6.5 rounded flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => insertFormat("-# ", "")}
+                title="Subtext (-# text)"
+                className="w-6.5 h-6.5 rounded flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-colors cursor-pointer font-mono text-[10px] font-semibold tracking-tighter"
+              >
+                -#
               </button>
             </div>
           </div>
