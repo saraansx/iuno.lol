@@ -28,15 +28,11 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const setBackgroundEffectAboveContainer = (val: boolean) => updateOverrides({ backgroundEffectAboveContainer: val === initialBackgroundEffectAboveContainer ? undefined : val });
 
   const initialBorderEffect = user?.borderEffect ?? "none";
-  const initialBorderEffectIntensity = user?.borderEffectIntensity ?? 50;
   const initialBorderEffectColor = user?.borderEffectColor ?? "#ffffff";
   const borderEffect = overrides.borderEffect ?? initialBorderEffect;
   const setBorderEffect = (val: string) => updateOverrides({ borderEffect: val === initialBorderEffect ? undefined : val });
-  const borderEffectIntensity = overrides.borderEffectIntensity ?? initialBorderEffectIntensity;
   const borderEffectColor = overrides.borderEffectColor ?? initialBorderEffectColor;
   const setBorderEffectColor = (val: string) => updateOverrides({ borderEffectColor: val === initialBorderEffectColor ? undefined : val });
-  const initialBorderEffectAboveContainer = user?.borderEffectAboveContainer ?? false;
-  const borderEffectAboveContainer = overrides.borderEffectAboveContainer ?? initialBorderEffectAboveContainer;
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -73,9 +69,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           backgroundEffectColor,
           backgroundEffectAboveContainer,
           borderEffect,
-          borderEffectIntensity,
           borderEffectColor,
-          borderEffectAboveContainer,
         }}
       />
 

@@ -7,6 +7,7 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
+import { BorderBeam } from "@/components/ui/border-beam";
 
 interface Layout1Props {
   profileId: number;
@@ -27,9 +28,7 @@ interface Layout1Props {
   backgroundEffectColor?: string;
   backgroundEffectAboveContainer?: boolean;
   borderEffect?: string;
-  borderEffectIntensity?: number;
   borderEffectColor?: string;
-  borderEffectAboveContainer?: boolean;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -192,9 +191,7 @@ const Layout1 = ({
   backgroundEffectColor = "#ffffff",
   backgroundEffectAboveContainer = false,
   borderEffect,
-  borderEffectIntensity = 50,
   borderEffectColor = "#ffffff",
-  borderEffectAboveContainer = false,
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -408,12 +405,12 @@ const Layout1 = ({
           color={backgroundEffectColor}
           aboveContainer={backgroundEffectAboveContainer}
         />
-      {borderEffect && borderEffect !== "none" && (
+      {borderEffect && borderEffect !== "none" && borderEffect !== "border-beam" && (
         <BackgroundEffect
           effect={borderEffect ?? "none"}
-          intensity={borderEffectIntensity}
+          intensity={50}
           color={borderEffectColor}
-          aboveContainer={borderEffectAboveContainer}
+          aboveContainer={false}
         />
       )}
 
@@ -442,9 +439,23 @@ const Layout1 = ({
               ))}
             </div>
           )}
+          {/* Border Beam overlay */}
+          {borderEffect === "border-beam" && (
+            <div 
+              className="absolute inset-0 pointer-events-none z-20"
+              style={{ borderRadius: `${profileBorderRadius}px` }}
+            >
+              <BorderBeam
+                colorFrom={borderEffectColor}
+                colorTo={borderEffectColor}
+                borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+              />
+            </div>
+          )}
+
           {/* Background card — this entire layer fades with opacity */}
           <div
-            className="absolute inset-0"
+            className="absolute inset-0 z-0"
             style={{
               backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
               WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,

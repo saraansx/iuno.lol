@@ -85,6 +85,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
       backgroundEffectColor: userSettings.backgroundEffectColor,
       backgroundEffectAboveContainer: userSettings.backgroundEffectAboveContainer,
+      borderEffect: userSettings.borderEffect,
+      borderEffectColor: userSettings.borderEffectColor,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -127,6 +129,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}
         backgroundEffectAboveContainer={user.backgroundEffectAboveContainer ?? undefined}
+        borderEffect={user.borderEffect ?? undefined}
+        borderEffectColor={user.borderEffectColor ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}

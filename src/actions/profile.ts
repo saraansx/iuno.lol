@@ -323,6 +323,8 @@ export async function updateEffectsProfile(data: {
   backgroundEffectIntensity?: number | null;
   backgroundEffectColor?: string | null;
   backgroundEffectAboveContainer?: boolean | null;
+  borderEffect?: string | null;
+  borderEffectColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -342,6 +344,9 @@ export async function updateEffectsProfile(data: {
   if (data.backgroundEffectIntensity !== undefined) setData.backgroundEffectIntensity = data.backgroundEffectIntensity;
   if (data.backgroundEffectColor !== undefined) setData.backgroundEffectColor = data.backgroundEffectColor?.slice(0, 32) ?? null;
   if (data.backgroundEffectAboveContainer !== undefined) setData.backgroundEffectAboveContainer = data.backgroundEffectAboveContainer ?? false;
+
+  if (data.borderEffect !== undefined) setData.borderEffect = data.borderEffect?.slice(0, 50) ?? null;
+  if (data.borderEffectColor !== undefined) setData.borderEffectColor = data.borderEffectColor?.slice(0, 32) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   
