@@ -7,8 +7,7 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
-import { BorderBeam } from "@/components/ui/border-beam";
-import { ShineBorder } from "@/components/ui/shine-border";
+import { BorderEffect } from "./BorderEffect";
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -309,11 +308,6 @@ const Layout1 = ({
 }: Layout1Props) => {
   const display = displayName || username;
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
-  const [borderFrom, borderTo] = React.useMemo(() => {
-    const parts = (borderEffectColor || "#ffffff").split(",");
-    const from = parts[0]?.trim() || "#ffffff";
-    return [from, parts[1]?.trim() || from] as const;
-  }, [borderEffectColor]);
   const [liveViews, setLiveViews] = useState(views);
   const [animatedViews, setAnimatedViews] = useState(viewsAnimationEnabled ? 0 : views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
@@ -472,14 +466,6 @@ const Layout1 = ({
           color={backgroundEffectColor}
           aboveContainer={backgroundEffectAboveContainer}
         />
-      {borderEffect && borderEffect !== "none" && borderEffect !== "border-beam" && (
-        <BackgroundEffect
-          effect={borderEffect ?? "none"}
-          intensity={50}
-          color={borderEffectColor}
-          aboveContainer={false}
-        />
-      )}
 
         {/* Wrapper — content + background are siblings */}
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
@@ -506,36 +492,14 @@ const Layout1 = ({
               ))}
             </div>
           )}
-          {/* Border Beam overlay */}
-          {borderEffect === "border-beam" && (
-            <div 
-              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
-              style={{ borderRadius: `${profileBorderRadius}px` }}
-            >
-              <BorderBeam
-                colorFrom={borderFrom}
-                colorTo={borderTo}
-                borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
-                size={100}
-                duration={9}
-                length={1.4}
-              />
-            </div>
-          )}
-
-          {/* Shine Border overlay */}
-          {borderEffect === "shine-border" && (
-            <div 
-              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
-              style={{ borderRadius: `${profileBorderRadius}px` }}
-            >
-              <ShineBorder
-                shineColor={borderFrom === borderTo ? borderFrom : [borderFrom, borderTo]}
-                borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
-                duration={14}
-              />
-            </div>
-          )}
+          {/* Border Effect Overlay */}
+          <BorderEffect
+            effect={borderEffect}
+            color={borderEffectColor}
+            borderRadius={profileBorderRadius}
+            borderWidth={profileBorderWidth}
+            zIndex={30}
+          />
 
           {/* Background card — this entire layer fades with opacity */}
           <div
@@ -891,14 +855,6 @@ const Layout1 = ({
         intensity={backgroundEffectIntensity}
         color={backgroundEffectColor}
       />
-      {borderEffect && borderEffect !== "none" && borderEffect !== "border-beam" && (
-        <BackgroundEffect
-          effect={borderEffect ?? "none"}
-          intensity={50}
-          color={borderEffectColor}
-          aboveContainer={false}
-        />
-      )}
 
       {/* Wrapper — content + background are siblings */}
       <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
@@ -925,36 +881,14 @@ const Layout1 = ({
             ))}
           </div>
         )}
-        {/* Border Beam overlay */}
-        {borderEffect === "border-beam" && (
-          <div 
-            className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
-            style={{ borderRadius: `${profileBorderRadius}px` }}
-          >
-            <BorderBeam
-              colorFrom={borderFrom}
-              colorTo={borderTo}
-              borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
-              size={100}
-              duration={9}
-              length={1.4}
-            />
-          </div>
-        )}
-
-        {/* Shine Border overlay */}
-        {borderEffect === "shine-border" && (
-          <div 
-            className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
-            style={{ borderRadius: `${profileBorderRadius}px` }}
-          >
-            <ShineBorder
-              shineColor={borderFrom === borderTo ? borderFrom : [borderFrom, borderTo]}
-              borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
-              duration={14}
-            />
-          </div>
-        )}
+        {/* Border Effect Overlay */}
+        <BorderEffect
+          effect={borderEffect}
+          color={borderEffectColor}
+          borderRadius={profileBorderRadius}
+          borderWidth={profileBorderWidth}
+          zIndex={10}
+        />
         {/* Background card — this entire layer fades with opacity */}
         <div
           className="absolute inset-0"

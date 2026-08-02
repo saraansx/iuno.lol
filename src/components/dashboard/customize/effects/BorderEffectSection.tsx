@@ -42,10 +42,12 @@ export default function BorderEffectSection({
   const borderEffects = [
     { id: "none", name: "None" },
     { id: "border-beam", name: "Border Beam" },
-    { id: "shine-border", name: "Shine Border" }
+    { id: "shine-border", name: "Shine Border" },
+    { id: "electric-border", name: "Electric Border" }
   ];
 
   const isBorderDisabled = !borderEffect || borderEffect === "none";
+  const isSingleColorEffect = borderEffect === "electric-border";
 
   const { from, to } = parseBorderColors(borderEffectColor);
 
@@ -53,7 +55,13 @@ export default function BorderEffectSection({
     setBorderEffectColor(nextFrom === nextTo ? nextFrom : `${nextFrom},${nextTo}`);
   };
 
-  const setFrom = (val: string) => setBorderColors(val, to);
+  const setFrom = (val: string) => {
+    if (isSingleColorEffect) {
+      setBorderEffectColor(val);
+    } else {
+      setBorderColors(val, to);
+    }
+  };
   const setTo = (val: string) => setBorderColors(from, val);
 
   const textInputClass = (disabled: boolean, valid: boolean) =>
@@ -73,48 +81,57 @@ export default function BorderEffectSection({
           strokeLinejoin="round"
         >
           <rect width="18" height="18" x="3" y="3" rx="2" />
-          <circle cx="9" cy="9" r="2" />
-          <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
         </svg>
-        <span className="text-[13px] font-medium text-white/90">Border Effect</span>
+        <span className="text-[16px] font-semibold text-white/90">Border Effect</span>
       </div>
 
-      <div className="flex flex-col gap-2 mt-4">
+      <div className="flex flex-col gap-3">
         <label className="text-[12.5px] font-medium text-white/90">
           Border Effect
         </label>
+
         <div className="relative" ref={borderDropdownRef}>
           <button
+            type="button"
             onClick={() => setBorderDropdownOpen(!borderDropdownOpen)}
-            className="w-full flex items-center justify-between px-3 h-[38px] rounded-xl border bg-[#161616] border-white/5 transition-all duration-200 focus:outline-none"
+            className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
           >
-            <span className="text-[13px] text-white font-medium">
+            <span>
               {borderEffects.find(e => e.id === borderEffect)?.name || "Select Effect"}
             </span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${borderDropdownOpen ? "rotate-180" : ""}`}>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className={`transition-transform duration-200 opacity-60 ${borderDropdownOpen ? "rotate-180" : ""}`}
+            >
               <path d="m6 9 6 6 6-6" />
             </svg>
           </button>
 
           {borderDropdownOpen && (
-            <div className="absolute top-full left-0 right-0 mt-1.5 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
-              <div className="flex flex-col">
+            <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto">
+              <div className="flex flex-col gap-0.5">
                 {borderEffects.map((effect) => (
                   <button
                     key={effect.id}
+                    type="button"
                     onClick={() => {
                       setBorderEffect(effect.id);
                       setBorderDropdownOpen(false);
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${borderEffect === effect.id
                       ? "bg-white/10 text-white font-medium"
-                      : "bg-transparent hover:bg-white/5 text-white/60"
+                      : "text-white/70 hover:bg-white/5 hover:text-white"
                       }`}
                   >
                     <span className="text-[13px]">{effect.name}</span>
                     {borderEffect === effect.id && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
-                        <polyline points="20 6 9 17 4 12" />
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M20 6L9 17l-5-5" />
                       </svg>
                     )}
                   </button>
@@ -127,7 +144,7 @@ export default function BorderEffectSection({
 
       <div className={`flex flex-col gap-3 mt-6 transition-opacity duration-200 ${isBorderDisabled ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
         <label className="text-[12.5px] font-medium text-white/90">
-          Gradient
+          {isSingleColorEffect ? "Color" : "Gradient"}
         </label>
 
         <div className="flex flex-col gap-2">
@@ -152,26 +169,28 @@ export default function BorderEffectSection({
             </div>
           </div>
 
-          <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px] group transition-colors focus-within:border-white/10">
-            <span className={`text-[13px] mr-2 ${isBorderDisabled ? 'text-white/10' : 'text-white/30'}`}>#</span>
-            <input
-              type="text"
-              disabled={isBorderDisabled}
-              value={to.replace('#', '')}
-              onChange={(e) => setTo('#' + e.target.value)}
-              className={textInputClass(isBorderDisabled, isValidHex(to))}
-              maxLength={6}
-            />
-            <div className={`relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+          {!isSingleColorEffect && (
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px] group transition-colors focus-within:border-white/10">
+              <span className={`text-[13px] mr-2 ${isBorderDisabled ? 'text-white/10' : 'text-white/30'}`}>#</span>
               <input
-                type="color"
+                type="text"
                 disabled={isBorderDisabled}
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                className={`absolute -inset-1 w-8 h-8 border-0 p-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                value={to.replace('#', '')}
+                onChange={(e) => setTo('#' + e.target.value)}
+                className={textInputClass(isBorderDisabled, isValidHex(to))}
+                maxLength={6}
               />
+              <div className={`relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                <input
+                  type="color"
+                  disabled={isBorderDisabled}
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  className={`absolute -inset-1 w-8 h-8 border-0 p-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
