@@ -247,6 +247,7 @@ const Layout1 = ({
   viewerId,
 }: Layout1Props) => {
   const display = displayName || username;
+  const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
   const [liveViews, setLiveViews] = useState(views);
   const [animatedViews, setAnimatedViews] = useState(viewsAnimationEnabled ? 0 : views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
@@ -442,7 +443,7 @@ const Layout1 = ({
           {/* Border Beam overlay */}
           {borderEffect === "border-beam" && (
             <div 
-              className="absolute inset-0 pointer-events-none z-20"
+              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
               style={{ borderRadius: `${profileBorderRadius}px` }}
             >
               <BorderBeam
@@ -508,40 +509,42 @@ const Layout1 = ({
             style={{ padding: `${profileBorderWidth}px` }}
           >
             {/* Banner */}
-            <div
-              className="w-full h-[130px] overflow-hidden relative shrink-0"
-              style={{
-                borderTopLeftRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
-                borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`
-              }}
-            >
-              {isVideoUrl(bannerImageUrl) ? (
-                <video
-                  key={bannerImageUrl}
-                  src={bannerImageUrl}
-                  className="absolute inset-0 w-full h-full object-cover"
-                  autoPlay
-                  muted
-                  ref={(el) => { if (el) el.defaultMuted = true; }}
-                  loop
-                  playsInline
-                />
-              ) : (
-                <Image
-                  src={bannerImageUrl}
-                  alt="Banner"
-                  fill
-                  className="object-cover"
-                  unoptimized
-                  priority
-                />
-              )}
-              {/* Bottom fade */}
-              <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/60 to-transparent" />
-            </div>
+            {hasBanner && (
+              <div
+                className="w-full h-[130px] overflow-hidden relative shrink-0"
+                style={{
+                  borderTopLeftRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
+                  borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`
+                }}
+              >
+                {isVideoUrl(bannerImageUrl!) ? (
+                  <video
+                    key={bannerImageUrl}
+                    src={bannerImageUrl!}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    autoPlay
+                    muted
+                    ref={(el) => { if (el) el.defaultMuted = true; }}
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <Image
+                    src={bannerImageUrl!}
+                    alt="Banner"
+                    fill
+                    className="object-cover"
+                    unoptimized
+                    priority
+                  />
+                )}
+                {/* Bottom fade */}
+                <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/60 to-transparent" />
+              </div>
+            )}
 
-            {/* Avatar overlapping banner bottom */}
-            <div className="relative w-full flex justify-center" style={{ marginTop: "-44px" }}>
+            {/* Avatar overlapping banner bottom or at top of card */}
+            <div className="relative w-full flex justify-center" style={{ marginTop: hasBanner ? "-44px" : "24px" }}>
               <AvatarInner
                 avatarUrl={avatarUrl}
                 shapeClass={shapeClass}
@@ -805,6 +808,14 @@ const Layout1 = ({
         intensity={backgroundEffectIntensity}
         color={backgroundEffectColor}
       />
+      {borderEffect && borderEffect !== "none" && borderEffect !== "border-beam" && (
+        <BackgroundEffect
+          effect={borderEffect ?? "none"}
+          intensity={50}
+          color={borderEffectColor}
+          aboveContainer={false}
+        />
+      )}
 
       {/* Wrapper — content + background are siblings */}
       <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
@@ -829,6 +840,19 @@ const Layout1 = ({
                 }}
               />
             ))}
+          </div>
+        )}
+        {/* Border Beam overlay */}
+        {borderEffect === "border-beam" && (
+          <div 
+            className="absolute inset-0 pointer-events-none z-10 overflow-hidden"
+            style={{ borderRadius: `${profileBorderRadius}px` }}
+          >
+            <BorderBeam
+              colorFrom={borderEffectColor}
+              colorTo={borderEffectColor}
+              borderWidth={profileBorderWidth > 0 ? profileBorderWidth : 2}
+            />
           </div>
         )}
         {/* Background card — this entire layer fades with opacity */}
