@@ -8,6 +8,7 @@ import { CommentsModal } from "../comments/CommentsModal";
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderEffect } from "./BorderEffect";
+import { CardEffect } from "./CardEffect";
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -89,6 +90,8 @@ interface Layout1Props {
   backgroundEffectAboveContainer?: boolean;
   borderEffect?: string;
   borderEffectColor?: string;
+  cardEffect?: string;
+  cardTransition?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -252,6 +255,7 @@ const Layout1 = ({
   backgroundEffectAboveContainer = false,
   borderEffect,
   borderEffectColor = "#ffffff",
+  cardEffect = "none",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -468,6 +472,7 @@ const Layout1 = ({
         />
 
         {/* Wrapper — content + background are siblings */}
+        <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
@@ -807,6 +812,8 @@ const Layout1 = ({
           </div>
         )}
 
+        </CardEffect>
+
         <CommentsModal
           isOpen={isCommentsModalOpen}
           onClose={() => setIsCommentsModalOpen(false)}
@@ -857,7 +864,8 @@ const Layout1 = ({
       />
 
       {/* Wrapper — content + background are siblings */}
-      <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
+      <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
+        <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
           <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
@@ -1149,6 +1157,7 @@ const Layout1 = ({
           </button>
         </div>
       )}
+      </CardEffect>
 
       <CommentsModal
         isOpen={isCommentsModalOpen}

@@ -34,6 +34,13 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const borderEffectColor = overrides.borderEffectColor ?? initialBorderEffectColor;
   const setBorderEffectColor = (val: string) => updateOverrides({ borderEffectColor: val === initialBorderEffectColor ? undefined : val });
 
+  const initialCardEffect = user?.cardEffect ?? "none";
+  const initialCardTransition = user?.cardTransition ?? "none";
+  const cardEffect = overrides.cardEffect ?? initialCardEffect;
+  const setCardEffect = (val: string) => updateOverrides({ cardEffect: val === initialCardEffect ? undefined : val });
+  const cardTransition = overrides.cardTransition ?? initialCardTransition;
+  const setCardTransition = (val: string) => updateOverrides({ cardTransition: val === initialCardTransition ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -57,6 +64,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setBorderEffect={setBorderEffect}
           borderEffectColor={borderEffectColor}
           setBorderEffectColor={setBorderEffectColor}
+          cardEffect={cardEffect}
+          setCardEffect={setCardEffect}
+          cardTransition={cardTransition}
+          setCardTransition={setCardTransition}
         />
       </div>
 
@@ -70,6 +81,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           backgroundEffectAboveContainer,
           borderEffect,
           borderEffectColor,
+          cardEffect,
+          cardTransition,
         }}
       />
 

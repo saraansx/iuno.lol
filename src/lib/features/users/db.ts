@@ -38,6 +38,8 @@ const userColumns = {
   backgroundEffectAboveContainer: schema.userSettings.backgroundEffectAboveContainer,
   borderEffect: schema.userSettings.borderEffect,
   borderEffectColor: schema.userSettings.borderEffectColor,
+  cardEffect: schema.userSettings.cardEffect,
+  cardTransition: schema.userSettings.cardTransition,
   profileBgColor: schema.userSettings.profileBgColor,
   profileBgOpacity: schema.userSettings.profileBgOpacity,
   profileBorderColor: schema.userSettings.profileBorderColor,

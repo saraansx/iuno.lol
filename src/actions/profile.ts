@@ -325,6 +325,8 @@ export async function updateEffectsProfile(data: {
   backgroundEffectAboveContainer?: boolean | null;
   borderEffect?: string | null;
   borderEffectColor?: string | null;
+  cardEffect?: string | null;
+  cardTransition?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -347,6 +349,9 @@ export async function updateEffectsProfile(data: {
 
   if (data.borderEffect !== undefined) setData.borderEffect = data.borderEffect?.slice(0, 50) ?? null;
   if (data.borderEffectColor !== undefined) setData.borderEffectColor = data.borderEffectColor?.slice(0, 32) ?? null;
+
+  if (data.cardEffect !== undefined) setData.cardEffect = data.cardEffect?.slice(0, 50) ?? null;
+  if (data.cardTransition !== undefined) setData.cardTransition = data.cardTransition?.slice(0, 50) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

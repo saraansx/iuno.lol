@@ -3,6 +3,7 @@
 import React from "react";
 import BackgroundEffectSection from "./BackgroundEffectSection";
 import BorderEffectSection from "./BorderEffectSection";
+import CardTransitionSection from "./CardTransitionSection";
 
 interface EffectsCustomizationProps {
   backgroundEffect: string;
@@ -17,6 +18,10 @@ interface EffectsCustomizationProps {
   setBorderEffect: (val: string) => void;
   borderEffectColor: string;
   setBorderEffectColor: (val: string) => void;
+  cardEffect: string;
+  setCardEffect: (val: string) => void;
+  cardTransition: string;
+  setCardTransition: (val: string) => void;
 }
 
 export default function EffectsCustomization({
@@ -32,7 +37,12 @@ export default function EffectsCustomization({
   setBorderEffect,
   borderEffectColor,
   setBorderEffectColor,
+  cardEffect,
+  setCardEffect,
+  cardTransition,
+  setCardTransition,
 }: EffectsCustomizationProps) {
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-5">
@@ -52,6 +62,12 @@ export default function EffectsCustomization({
             setBorderEffect={setBorderEffect}
             borderEffectColor={borderEffectColor}
             setBorderEffectColor={setBorderEffectColor}
+          />
+          <CardTransitionSection
+            cardEffect={cardEffect}
+            setCardEffect={setCardEffect}
+            cardTransition={cardTransition}
+            setCardTransition={setCardTransition}
           />
         </div>
       </div>
