@@ -20,7 +20,7 @@ export default function FadeCardTransition({ children, className = "" }: FadeCar
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transition: "opacity 0.8s ease-out",
+        transition: "opacity 1s ease-out",
       }}
     >
       {children}
