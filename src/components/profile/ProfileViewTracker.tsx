@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import fpPromise from '@fingerprintjs/fingerprintjs';
+import { getCurrentUserId } from '@/actions/get-viewer-id';
 
 interface ProfileViewTrackerProps {
   profileId: number;
@@ -17,7 +18,7 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
       return;
     }
-    
+
     hasTracked.current = true;
     if (typeof window !== 'undefined') {
       sessionStorage.setItem(sessionKey, 'true');
@@ -25,6 +26,10 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
 
     const trackView = async () => {
       try {
+        // Don't count your own profile views.
+        const viewerId = await getCurrentUserId();
+        if (viewerId === profileId) return;
+
         const fp = await fpPromise.load();
         const result = await fp.get();
         const fingerprint = result.visitorId;

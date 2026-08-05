@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { IconBrandDiscord, IconArrowRight } from "@tabler/icons-react";
+import { MessageCircle, ArrowRight } from "lucide-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MorphingText } from "@/components/ui/morphing-text";
 
@@ -98,7 +98,7 @@ export default function ComingSoonPage() {
             className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer flex items-center space-x-1.5 shrink-0"
           >
             <span>Reserve</span>
-            <IconArrowRight className="w-3.5 h-3.5 text-white/70" />
+            <ArrowRight className="w-3.5 h-3.5 text-white/70" />
           </button>
         </motion.form>
 
@@ -114,7 +114,7 @@ export default function ComingSoonPage() {
             rel="noreferrer"
             className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800/80 hover:border-zinc-700 text-zinc-400 hover:text-white text-xs font-medium transition-all backdrop-blur-md"
           >
-            <IconBrandDiscord className="w-4 h-4 text-[#5865F2]" />
+            <MessageCircle className="w-4 h-4 text-[#5865F2]" />
             <span>Join Discord for Priority Access</span>
           </Link>
         </motion.div>

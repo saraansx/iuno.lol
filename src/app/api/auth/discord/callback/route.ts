@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createSession } from '@/lib/auth/session'
 import { upsertDiscordUser } from '@/lib/features/users/db'
+import { discordOAuthRateLimit } from '@/lib/rate-limit'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
@@ -76,6 +77,13 @@ export async function GET(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+  // ── Rate limit: 10 Discord logins per 10 minutes per IP ──────────────────
+  const rateIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+  const rate = await discordOAuthRateLimit(rateIp)
+  if (!rate.ok) {
+    return NextResponse.redirect(`${appUrl}/signin?error=discord_rate_limited`)
+  }
+
   // User denied access
   if (error) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_denied`)
@@ -101,8 +109,8 @@ export async function GET(req: NextRequest) {
     // 2. Get Discord user info
     const discordUser = await fetchDiscordUser(accessToken)
 
-    // 3. Block if Discord email is unverified
-    if (discordUser.email && !discordUser.verified) {
+    // 3. Block if Discord has no email or it's unverified
+    if (!discordUser.email || !discordUser.verified) {
       return NextResponse.redirect(
         `${appUrl}/signin?error=discord_email_unverified`
       )

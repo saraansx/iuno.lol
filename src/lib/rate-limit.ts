@@ -36,12 +36,24 @@ async function checkRateLimit(
   return { ok: true };
 }
 
-export async function loginRateLimit(email: string) {
-  return checkRateLimit(`login:${email}`, 5, 10 * 60, 5 * 60);
+export async function loginRateLimit(email: string, ip: string) {
+  const emailRate = await checkRateLimit(`login:email:${email}`, 5, 10 * 60, 5 * 60);
+  if (!emailRate.ok) return emailRate;
+
+  const ipRate = await checkRateLimit(`login:ip:${ip}`, 20, 10 * 60, 5 * 60);
+  if (!ipRate.ok) return ipRate;
+
+  return { ok: true as const };
 }
 
-export async function registerRateLimit(email: string) {
-  return checkRateLimit(`register:${email}`, 3, 30 * 60, 5 * 60);
+export async function registerRateLimit(email: string, ip: string) {
+  const emailRate = await checkRateLimit(`register:email:${email}`, 3, 30 * 60, 5 * 60);
+  if (!emailRate.ok) return emailRate;
+
+  const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 30 * 60, 5 * 60);
+  if (!ipRate.ok) return ipRate;
+
+  return { ok: true as const };
 }
 
 export async function resetPasswordRateLimit(email: string) {
@@ -65,11 +77,32 @@ export async function resendVerificationRateLimit(email: string) {
 }
 
 export async function commentRateLimit(userId: number) {
-  // 5 comments per 2 minutes
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60, 2 * 60);
 }
 
+export async function trackViewRateLimit(ip: string) {
+  return checkRateLimit(`view:${ip}`, 1, 48 * 60 * 60, 48 * 60 * 60);
+}
+
 export async function profileUpdateRateLimit(userId: number) {
-  // 10 updates per 1 minute
   return checkRateLimit(`profile_update:${userId}`, 10, 60, 60);
+}
+
+export async function checkAvailabilityRateLimit(ip: string) {
+  return checkRateLimit(`check:${ip}`, 10, 60, 30);
+}
+
+export async function feedbackRateLimit(userId: number) {
+  // 20 feedback actions per minute per user
+  return checkRateLimit(`feedback:${userId}`, 20, 60, 60);
+}
+
+export async function discordOAuthRateLimit(ip: string) {
+  // 10 Discord login attempts per 10 minutes per IP
+  return checkRateLimit(`discord_oauth:${ip}`, 10, 10 * 60, 5 * 60);
+}
+
+export async function commentLikeRateLimit(userId: number) {
+  // 20 comment likes per minute per user
+  return checkRateLimit(`comment_like:${userId}`, 20, 60, 60);
 }

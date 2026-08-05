@@ -4,10 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build",
     "start": "next start",
-    "lint": "eslint",
-    "db:size": "node db-size.js"
+    "lint": "eslint"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1083.0",
@@ -15,7 +14,6 @@
     "@fingerprintjs/fingerprintjs": "^5.2.0",
     "@marsidev/react-turnstile": "^1.5.1",
     "@radix-ui/react-slot": "^1.3.3",
-    "@tabler/icons-react": "^3.45.0",
     "@upstash/qstash": "^2.11.3",
     "@upstash/redis": "^1.38.0",
     "@vercel/analytics": "^2.0.1",
@@ -27,7 +25,6 @@
     "framer-motion": "^12.38.0",
     "jose": "^6.2.3",
     "lucide-react": "^1.27.0",
-    "motion": "^12.43.0",
     "mysql2": "^3.22.3",
     "next": "16.2.1",
     "ogl": "^1.0.11",
@@ -48,6 +45,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "cross-env": "^10.1.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.1",
@@ -55,7 +53,6 @@
     "typescript": "^5"
   },
   "description": "",
-  "main": "db-size.js",
   "keywords": [],
   "author": "",
   "license": "ISC"

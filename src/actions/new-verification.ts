@@ -21,7 +21,7 @@ export async function newVerification(token: string) {
 
     return { success: 'Email verified successfully! You can now log in.', username: existingUser.username }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[newVerification] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

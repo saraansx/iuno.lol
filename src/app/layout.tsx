@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Displ
 import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
-import SharedBackground from "@/components/SharedBackground";
+import LazySharedBackground from "@/components/LazySharedBackground";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -17,17 +17,21 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Only Inter is preloaded — used as the body default font everywhere.
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const roboto = Roboto({ weight: ["400", "500", "700"], subsets: ["latin"], variable: "--font-roboto" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk" });
-const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
-const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
-const syne = Syne({ subsets: ["latin"], variable: "--font-syne" });
-const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
-const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-pacifico" });
-const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat" });
+
+// All other fonts: preload: false. They load on demand when a profile
+// actually references them via the fontClassMap in Layout1.
+const roboto = Roboto({ weight: ["400", "500", "700"], subsets: ["latin"], variable: "--font-roboto", preload: false });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", preload: false });
+const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", preload: false });
+const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", preload: false });
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", preload: false });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", preload: false });
+const syne = Syne({ subsets: ["latin"], variable: "--font-syne", preload: false });
+const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald", preload: false });
+const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-pacifico", preload: false });
+const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", preload: false });
 const paperNotes = localFont({
   src: [
     {
@@ -37,6 +41,7 @@ const paperNotes = localFont({
     }
   ],
   variable: "--font-paper-notes",
+  preload: false,
 });
 const matchaMint = localFont({
   src: [
@@ -47,8 +52,9 @@ const matchaMint = localFont({
     }
   ],
   variable: "--font-matcha-mint",
+  preload: false,
 });
-const dancingScript = Dancing_Script({ subsets: ["latin"], variable: "--font-dancing-script" });
+const dancingScript = Dancing_Script({ subsets: ["latin"], variable: "--font-dancing-script", preload: false });
 const comfortaa = localFont({
   src: [
     {
@@ -58,6 +64,7 @@ const comfortaa = localFont({
     }
   ],
   variable: "--font-comfortaa",
+  preload: false,
 });
 const elegantBloom = localFont({
   src: [
@@ -68,6 +75,7 @@ const elegantBloom = localFont({
     }
   ],
   variable: "--font-elegant-bloom",
+  preload: false,
 });
 const caviarDreams = localFont({
   src: [
@@ -78,9 +86,10 @@ const caviarDreams = localFont({
     }
   ],
   variable: "--font-caviar-dreams",
+  preload: false,
 });
-const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"], variable: "--font-indie-flower" });
-const lobster = Lobster({ weight: "400", subsets: ["latin"], variable: "--font-lobster" });
+const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"], variable: "--font-indie-flower", preload: false });
+const lobster = Lobster({ weight: "400", subsets: ["latin"], variable: "--font-lobster", preload: false });
 
 const poppins = localFont({
   src: [
@@ -106,6 +115,7 @@ const poppins = localFont({
     },
   ],
   variable: "--font-poppins",
+  preload: false,
 });
 
 import { SITE_CONFIG } from "@/lib/config";
@@ -132,7 +142,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oswald.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${matchaMint.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${indieFlower.variable} ${lobster.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
-        <SharedBackground />
+        <LazySharedBackground />
         <Toaster />
         <div className="relative z-10 flex-1 flex flex-col">
           {children}

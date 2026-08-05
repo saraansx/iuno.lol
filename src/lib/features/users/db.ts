@@ -1,6 +1,6 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
-import { eq, sql } from 'drizzle-orm'
+import { eq, sql, and, lt } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 
 const userColumns = {
@@ -105,16 +105,22 @@ export async function createUser(input: CreateUserInput) {
   const passwordHash = await hashPassword(input.password)
 
   try {
-    const [result] = await db.insert(schema.users).values({
-      username,
-      email,
-      password: passwordHash,
-      ip: input.ip ?? null,
+    // Both inserts run in one transaction — if userSettings fails, the user
+    // insert rolls back too (no orphaned user rows).
+    const userId = await db.transaction(async (tx) => {
+      const [result] = await tx.insert(schema.users).values({
+        username,
+        email,
+        password: passwordHash,
+        ip: input.ip ?? null,
+      })
+
+      const insertedId = (result as { insertId: number }).insertId
+
+      await tx.insert(schema.userSettings).values({ userId: insertedId })
+
+      return insertedId
     })
-
-    const userId = (result as { insertId: number }).insertId
-
-    await db.insert(schema.userSettings).values({ userId })
 
     return { userId, username }
   } catch (err: unknown) {
@@ -174,12 +180,27 @@ export type FullUser = NonNullable<Awaited<ReturnType<typeof getUserById>>>;
 
 export async function assertEmailAvailable(email: string) {
   const existing = await getUserByEmail(email)
-  if (existing) throw new Error('An account with that email already exists.')
+  if (!existing) return
+
+
+  if (!existing.emailVerified) {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+    if (existing.createdAt < fiveMinutesAgo) return
+  }
+
+  throw new Error('An account with that email already exists.')
 }
 
 export async function assertUsernameAvailable(username: string) {
   const existing = await getUserByUsername(username)
-  if (existing) throw new Error('That username is already taken.')
+  if (!existing) return
+
+  if (!existing.emailVerified) {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+    if (existing.createdAt < fiveMinutesAgo) return
+  }
+
+  throw new Error('That username is already taken.')
 }
 
 export async function deleteUnverifiedUserByEmail(email: string) {
@@ -188,6 +209,18 @@ export async function deleteUnverifiedUserByEmail(email: string) {
   if (!user || user.emailVerified) return
 
   await db.delete(schema.users).where(eq(schema.users.email, cleanEmail))
+}
+
+export async function cleanupExpiredUnverifiedUsers() {
+  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+  await db
+    .delete(schema.users)
+    .where(
+      and(
+        eq(schema.users.emailVerified, false),
+        lt(schema.users.createdAt, fiveMinutesAgo)
+      )
+    )
 }
 
 export async function markEmailVerified(email: string) {
@@ -217,11 +250,6 @@ type UpsertDiscordUserInput = {
   ip?: string
 }
 
-/**
- * Find existing user by discordId (or email if provided),
- * link discord to their account, or create a brand-new user.
- * Returns the user id.
- */
 export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<number> {
   const { discordId, discordUsername, email, emailVerified, ip } = input
 
@@ -236,10 +264,9 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
     return byDiscord.id
   }
 
-  // 2. Email matches an existing account → link discord to it
   if (email) {
     const byEmail = await getUserByEmail(email)
-    if (byEmail) {
+    if (byEmail && byEmail.emailVerified) {
       await db
         .update(schema.users)
         .set({ discordId, discordUsername, emailVerified: emailVerified ?? true })

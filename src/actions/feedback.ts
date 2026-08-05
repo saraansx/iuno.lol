@@ -1,11 +1,18 @@
 "use server";
 
 import { db, schema } from "@/lib/db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 
 import { getSessionUserId } from "@/lib/auth/session";
-import { and } from "drizzle-orm";
+import { feedbackRateLimit } from "@/lib/rate-limit";
 
+/**
+ * Handle feedback (like / dislike / unlike / undislike) with idempotent
+ * counter updates. Each action first checks whether the giver already has
+ * a feedback row for this receiver, and only adjusts the counter when the
+ * state is actually changing. A transaction with FOR UPDATE locks the
+ * existing row to prevent races from double-counting.
+ */
 export async function submitFeedbackAction(userId: number, type: 'like' | 'dislike' | 'unlike' | 'undislike') {
   const sessionUserId = await getSessionUserId();
 
@@ -13,40 +20,96 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
     return { success: false, error: "You must be logged in to like or dislike." };
   }
 
+  const rate = await feedbackRateLimit(sessionUserId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    return { success: false, error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
+  }
+
   try {
-    const setData: Record<string, import("drizzle-orm").SQL> = {};
-
-    if (type === 'like') {
-      setData.likesCount = sql`${schema.users.likesCount} + 1`;
-    } else if (type === 'dislike') {
-      setData.dislikesCount = sql`${schema.users.dislikesCount} + 1`;
-    } else if (type === 'unlike') {
-      setData.likesCount = sql`GREATEST(0, ${schema.users.likesCount} - 1)`;
-    } else if (type === 'undislike') {
-      setData.dislikesCount = sql`GREATEST(0, ${schema.users.dislikesCount} - 1)`;
-    }
-
-    if (Object.keys(setData).length === 0) return { success: true };
-
-    await db
-      .update(schema.users)
-      .set(setData)
-      .where(eq(schema.users.id, userId));
-
-    if (type === 'like' || type === 'dislike') {
-      await db.insert(schema.profileFeedback).values({
-        receiverId: userId,
-        giverId: sessionUserId,
-        type: type,
-      }).onDuplicateKeyUpdate({ set: { type: type, createdAt: sql`CURRENT_TIMESTAMP` } });
-    } else if (type === 'unlike' || type === 'undislike') {
-      await db.delete(schema.profileFeedback).where(
-        and(
-          eq(schema.profileFeedback.receiverId, userId),
-          eq(schema.profileFeedback.giverId, sessionUserId)
+    await db.transaction(async (tx) => {
+      // Lock the existing feedback row if one exists.
+      const existingRows = await tx
+        .select({ type: schema.profileFeedback.type })
+        .from(schema.profileFeedback)
+        .where(
+          and(
+            eq(schema.profileFeedback.receiverId, userId),
+            eq(schema.profileFeedback.giverId, sessionUserId)
+          )
         )
-      );
-    }
+        .for("update");
+
+      const existingType = existingRows[0]?.type as string | undefined;
+
+      const counterDiffs: Record<string, import("drizzle-orm").SQL> = {};
+
+      switch (type) {
+        case "like":
+          if (existingType === "like") {
+            // Already liked — no-op.
+            return { applied: false };
+          }
+          counterDiffs.likesCount = sql`${schema.users.likesCount} + 1`;
+          if (existingType === "dislike") {
+            counterDiffs.dislikesCount = sql`GREATEST(0, ${schema.users.dislikesCount} - 1)`;
+          }
+          break;
+
+        case "dislike":
+          if (existingType === "dislike") {
+            return { applied: false };
+          }
+          counterDiffs.dislikesCount = sql`${schema.users.dislikesCount} + 1`;
+          if (existingType === "like") {
+            counterDiffs.likesCount = sql`GREATEST(0, ${schema.users.likesCount} - 1)`;
+          }
+          break;
+
+        case "unlike":
+          if (existingType !== "like") {
+            return { applied: false };
+          }
+          counterDiffs.likesCount = sql`GREATEST(0, ${schema.users.likesCount} - 1)`;
+          break;
+
+        case "undislike":
+          if (existingType !== "dislike") {
+            return { applied: false };
+          }
+          counterDiffs.dislikesCount = sql`GREATEST(0, ${schema.users.dislikesCount} - 1)`;
+          break;
+      }
+
+      // Apply counter deltas if any.
+      if (Object.keys(counterDiffs).length > 0) {
+        await tx
+          .update(schema.users)
+          .set(counterDiffs)
+          .where(eq(schema.users.id, userId));
+      }
+
+      // Persist the feedback row.
+      if (type === "like" || type === "dislike") {
+        await tx
+          .insert(schema.profileFeedback)
+          .values({ receiverId: userId, giverId: sessionUserId, type })
+          .onDuplicateKeyUpdate({
+            set: { type, createdAt: sql`CURRENT_TIMESTAMP` },
+          });
+      } else {
+        await tx
+          .delete(schema.profileFeedback)
+          .where(
+            and(
+              eq(schema.profileFeedback.receiverId, userId),
+              eq(schema.profileFeedback.giverId, sessionUserId)
+            )
+          );
+      }
+
+      return { applied: true };
+    });
 
     return { success: true };
   } catch (error) {

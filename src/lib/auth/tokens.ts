@@ -7,10 +7,10 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
 }
 
-/** Create a one-time email verification token (expires in 5 min) */
+/** Create a one-time email verification token (expires in 4 min) */
 export async function createVerificationToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
-  const expiresAt = addMinutes(new Date(), 5)
+  const expiresAt = addMinutes(new Date(), 4)
   const hashed    = hashToken(token)
 
   // Cleanup all expired verification tokens

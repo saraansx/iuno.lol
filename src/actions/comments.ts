@@ -4,7 +4,53 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
-import { commentRateLimit } from "@/lib/rate-limit";
+import { commentRateLimit, commentLikeRateLimit } from "@/lib/rate-limit";
+
+/**
+ * Shape of the author object we're allowed to expose to the client.
+ * Never spread the full `users` row here — it contains the password hash,
+ * email, and ip.
+ */
+type PublicCommentAuthor = {
+  id: number;
+  username: string;
+  displayName: string | null;
+  avatarUrl: string | null;
+  avatarShape: "square" | "soft" | "rounded" | "circle" | null;
+};
+
+type CommentAuthorRow = {
+  id: number;
+  username: string;
+  settings?: {
+    displayName?: string | null;
+    avatarUrl?: string | null;
+    avatarShape?: "square" | "soft" | "rounded" | "circle" | null;
+  } | null;
+};
+
+function safeAuthor(author: CommentAuthorRow): PublicCommentAuthor {
+  return {
+    id: author.id,
+    username: author.username,
+    displayName: author.settings?.displayName ?? null,
+    avatarUrl: author.settings?.avatarUrl ?? null,
+    avatarShape: author.settings?.avatarShape ?? null,
+  };
+}
+
+const commentAuthorRelation = {
+  columns: { id: true, username: true },
+  with: {
+    settings: {
+      columns: {
+        displayName: true,
+        avatarUrl: true,
+        avatarShape: true,
+      },
+    },
+  },
+} as const;
 
 export async function addComment(profileId: number, content: string, replyToId?: number) {
   const authorId = await getSessionUserId();
@@ -39,10 +85,13 @@ export async function addComment(profileId: number, content: string, replyToId?:
 
   const newComment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, result.insertId),
-    with: { author: true }
+    with: { author: commentAuthorRelation }
   });
 
-  return { success: true, comment: newComment };
+  if (!newComment) return { success: true, comment: null };
+
+  const { author, ...rest } = newComment;
+  return { success: true, comment: { ...rest, author: safeAuthor(author) } };
 }
 
 export async function getComments(
@@ -72,11 +121,7 @@ export async function getComments(
   const rawComments = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, profileId),
     with: {
-      author: {
-        with: {
-          settings: true
-        }
-      },
+      author: commentAuthorRelation,
       likes: viewerId ? {
         where: eq(schema.commentLikes.userId, viewerId)
       } : undefined,
@@ -93,13 +138,10 @@ export async function getComments(
     const isLiked = c.likes && c.likes.length > 0;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { likes, author, ...rest } = c;
-    return { 
-      ...rest, 
+    return {
+      ...rest,
       isLiked,
-      author: {
-        ...author,
-        ...(author.settings || {})
-      }
+      author: safeAuthor(author),
     };
   });
 
@@ -109,6 +151,12 @@ export async function getComments(
 export async function toggleLikeComment(commentId: number) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
+
+  const rate = await commentLikeRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    return { error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
+  }
 
   const existingLike = await db.query.commentLikes.findFirst({
     where: and(
@@ -190,8 +238,14 @@ export async function deleteComment(commentId: number, profileId: number) {
 
   if (!comment) return { error: "Comment not found" };
 
+  // The profileId param is attacker-controllable, so it must never be used
+  // for authorization. Authorize against the comment's ACTUAL profile owner.
+  if (comment.profileId !== profileId) {
+    return { error: "Comment not found" };
+  }
+
   // Can delete if author OR if profile owner
-  if (comment.authorId !== userId && profileId !== userId) {
+  if (comment.authorId !== userId && comment.profileId !== userId) {
     return { error: "Unauthorized" };
   }
 
@@ -213,9 +267,7 @@ export async function getDashboardComments() {
   const rawReceived = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, userId),
     with: {
-      author: {
-        with: { settings: true }
-      },
+      author: commentAuthorRelation,
       likes: {
         where: eq(schema.commentLikes.userId, userId)
       },
@@ -228,9 +280,7 @@ export async function getDashboardComments() {
   const rawGiven = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.authorId, userId),
     with: {
-      author: {
-        with: { settings: true }
-      },
+      author: commentAuthorRelation,
       likes: {
         where: eq(schema.commentLikes.userId, userId)
       },
@@ -239,18 +289,14 @@ export async function getDashboardComments() {
     limit: 10,
   });
 
-  const mapComments = <T extends { likes?: unknown[], author: { id: number, username: string, settings?: { avatarUrl?: string | null } | null } & Record<string, unknown> }>(raw: T[]) => raw.map(c => {
+  const mapComments = <T extends { likes?: unknown[], author: CommentAuthorRow }>(raw: T[]) => raw.map(c => {
     const isLiked = !!(c.likes && c.likes.length > 0);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { likes, author, ...rest } = c;
-    return { 
-      ...rest, 
+    return {
+      ...rest,
       isLiked,
-      author: {
-        ...author,
-        ...(author.settings || {}),
-        avatarUrl: author.settings?.avatarUrl ?? null
-      }
+      author: safeAuthor(author),
     };
   });
 

@@ -32,7 +32,9 @@ export const users = mysqlTable('users', {
   passwordChangedAt: timestamp('password_changed_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-})
+}, (table) => ({
+  unverifiedCleanupIdx: index('unverified_cleanup_idx').on(table.emailVerified, table.createdAt),
+}))
 
 export const userSettings = mysqlTable('user_settings', {
   userId: int('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
@@ -178,6 +180,7 @@ export const profileViews = mysqlTable('profile_views', {
   otherCount: int('other_count').default(0).notNull(),
 }, (table) => ({
   userDateIdx: uniqueIndex('user_date_idx').on(table.userId, table.viewDate),
+  viewDateIdx: index('view_date_idx').on(table.viewDate),
 }))
 
 
@@ -205,6 +208,9 @@ export const profileComments = mysqlTable('profile_comments', {
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   profileIdIdx: index('profile_id_idx').on(table.profileId),
+  authorIdIdx: index('author_id_idx').on(table.authorId),
+  replyToIdIdx: index('reply_to_id_idx').on(table.replyToId),
+  profileDateIdx: index('profile_date_idx').on(table.profileId, table.createdAt),
 }))
 
 export const commentLikes = mysqlTable('comment_likes', {

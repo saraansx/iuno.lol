@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { Redis } from "@upstash/redis";
+import { db } from '@/lib/db';
+import { sql } from 'drizzle-orm';
+import { trackViewRateLimit } from '@/lib/rate-limit';
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
@@ -11,12 +14,35 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { profileId, fingerprint } = body;
 
-    if (!profileId || typeof profileId !== 'number') {
+    if (!profileId || typeof profileId !== 'number' || !Number.isInteger(profileId) || profileId < 1) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
     }
 
-    const userAgent = request.headers.get('user-agent') || '';
+    const existsCacheKey = `profile_exists:${profileId}`;
+    const cached = await redis.get(existsCacheKey);
+    if (cached === 'no') {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+    }
+    if (cached === null) {
+      const rows = await db.execute(
+        sql`SELECT id FROM users WHERE id = ${profileId} LIMIT 1`
+      );
+      const resultRows = (rows as unknown as [unknown[]])[0];
+      if (!Array.isArray(resultRows) || resultRows.length === 0) {
+        await redis.set(existsCacheKey, 'no', { ex: 600 });
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      }
+      await redis.set(existsCacheKey, 'yes', { ex: 300 });
+    }
+
+    // ── Rate limit: 1 view per IP per48 hours ────────────────────────────────
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const rate = await trackViewRateLimit(ip);
+    if (!rate.ok) {
+      return NextResponse.json({ success: true }); // Silently ignore — don't reveal rate limiting
+    }
+
+    const userAgent = request.headers.get('user-agent') || '';
     const clientFingerprint = fingerprint || 'no_fp';
 
     const baseString = String(clientFingerprint !== 'no_fp' ? clientFingerprint : ip + userAgent);
@@ -25,7 +51,7 @@ export async function POST(request: Request) {
       .toString(36);
 
     const lockKey = `view_lock:${profileId}:${visitorHash}`;
-    const acquiredLock = await redis.set(lockKey, 1, { ex: 86400, nx: true });
+    const acquiredLock = await redis.set(lockKey, 1, { ex: 172800, nx: true });
 
     if (!acquiredLock) {
       return NextResponse.json({ success: true, message: 'Already viewed recently' });
@@ -53,6 +79,6 @@ export async function POST(request: Request) {
 
   } catch (error) {
     console.error('[views] Redis tracking failed:', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

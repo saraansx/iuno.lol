@@ -1,10 +1,11 @@
 'use server'
 
 import { createVerificationToken } from '@/lib/auth/tokens'
-import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEmail, createUser } from '@/lib/features/users/db'
+import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { registerRateLimit } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 type RegisterInput = {
   username: string
@@ -63,29 +64,30 @@ export async function register(input: RegisterInput) {
       return { error: 'Invalid security token. Please refresh the page and try again.' }
     }
 
-    const rate = await registerRateLimit(email)
+    const h = await headers()
+    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+
+    const rate = await registerRateLimit(email, ip)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)
       return { error: `You're being rate limited. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
     }
 
-    // If an unverified account exists with this email, delete it so user can re-register
-    await deleteUnverifiedUserByEmail(email)
+    await cleanupExpiredUnverifiedUsers()
 
-    // Validate uniqueness
     await assertEmailAvailable(email)
     await assertUsernameAvailable(username)
 
-    // Create user
+    await deleteUnverifiedUserByEmail(email)
+
     await createUser({ username, email, password, affiliateCode })
 
-    // Send verification email
     const token = await createVerificationToken(email)
     await sendVerificationEmail(email, token)
 
     return { success: 'Account created! Please verify your email.' }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[register] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

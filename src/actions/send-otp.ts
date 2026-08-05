@@ -32,12 +32,20 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
       return { success: 'If an account exists, an OTP was sent!' }
     }
 
-    const otp = await createOTPToken(email)
-    await sendTwoFactorTokenEmail(email, otp)
-    
+    try {
+      const otp = await createOTPToken(email)
+      await sendTwoFactorTokenEmail(email, otp)
+    } catch (error) {
+      const message = error instanceof Error ? error.message : ''
+      if (message.startsWith('Please wait')) {
+        return { success: 'If an account exists, an OTP was sent!' }
+      }
+      throw error
+    }
+
     return { success: 'If an account exists, an OTP was sent!' }
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to send OTP.'
-    return { error: message }
+    console.error('[sendOTP] Failed:', error)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

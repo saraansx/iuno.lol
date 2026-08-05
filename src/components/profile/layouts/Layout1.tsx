@@ -297,6 +297,7 @@ const Layout1 = ({
   showCommentsPublicly = true,
   allowNewComments = true,
   feedbackEnabled = false,
+  showFeedbackPublicly = true,
   showUidTooltip = true,
   showLocationTooltip = true,
   showOccupationTooltip = true,
@@ -774,7 +775,7 @@ const Layout1 = ({
 
 
           {/* Feedback Buttons */}
-          {feedbackEnabled && (
+          {feedbackEnabled && showFeedbackPublicly && (
             <div className="absolute bottom-3.5 right-4.5 z-[70]">
               <FeedbackButtons
                 profileId={profileId}

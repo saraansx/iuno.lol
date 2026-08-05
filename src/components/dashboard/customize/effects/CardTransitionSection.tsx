@@ -36,6 +36,10 @@ export default function CardTransitionSection({
   const cardEffects = [
     { id: "none", name: "None" },
     { id: "skew", name: "Skew" },
+    { id: "magnet", name: "Magnet" },
+    { id: "zoom", name: "Zoom" },
+    { id: "elastic", name: "Elastic" },
+    { id: "dive", name: "Dive" },
   ];
 
   const cardTransitions = [
@@ -91,7 +95,7 @@ export default function CardTransitionSection({
             </button>
 
             {effectDropdownOpen && (
-              <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto">
+              <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
                 <div className="flex flex-col gap-0.5">
                   {cardEffects.map((item) => (
                     <button
@@ -150,7 +154,7 @@ export default function CardTransitionSection({
             </button>
 
             {transitionDropdownOpen && (
-              <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto">
+              <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
                 <div className="flex flex-col gap-0.5">
                   {cardTransitions.map((item) => (
                     <button

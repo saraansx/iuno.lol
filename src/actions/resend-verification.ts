@@ -37,12 +37,20 @@ export async function resendVerification(email: string, turnstileToken: string) 
       return { success: 'If an account exists, a verification email was sent!' }
     }
 
-    const token = await createVerificationToken(email)
-    await sendVerificationEmail(email, token)
+    try {
+      const token = await createVerificationToken(email)
+      await sendVerificationEmail(email, token)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : ''
+      if (message.startsWith('Please wait')) {
+        return { success: 'If an account exists, a verification email was sent!' }
+      }
+      throw err
+    }
 
     return { success: 'If an account exists, a verification email was sent!' }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[resendVerification] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

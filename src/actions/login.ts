@@ -6,6 +6,7 @@ import { getUserByEmailWithPassword } from '@/lib/features/users/db'
 import { isPasswordCorrect } from '@/lib/server/security/bcrypt'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { loginRateLimit } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 type LoginInput = {
   email: string
@@ -32,7 +33,9 @@ export async function login(input: LoginInput) {
       return { error: 'Invalid security token. Please refresh the page and try again.' }
     }
 
-    const rate = await loginRateLimit(email)
+    const h = await headers()
+    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const rate = await loginRateLimit(email, ip)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)
       return { error: `You're being rate limited. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
@@ -73,7 +76,7 @@ export async function login(input: LoginInput) {
 
     return { success: 'Logged in successfully!', username: user.username }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[login] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

@@ -29,16 +29,23 @@ export async function forgotPassword(email: string, turnstileToken: string) {
 
     const user = await getUserByEmail(email)
     if (!user) {
-      // Prevent email enumeration
       return { success: 'If an account exists, a reset link was sent!' }
     }
 
-    const token = await createPasswordResetToken(email)
-    await sendPasswordResetEmail(email, token)
+    try {
+      const token = await createPasswordResetToken(email)
+      await sendPasswordResetEmail(email, token)
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : ''
+      if (message.startsWith('Please wait')) {
+        return { success: 'If an account exists, a reset link was sent!' }
+      }
+      throw err
+    }
 
     return { success: 'If an account exists, a reset link was sent!' }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[forgotPassword] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

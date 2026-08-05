@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { IconUpload } from "@tabler/icons-react";
+import { Upload } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 
 function cn(...classes: (string | undefined | null | false)[]) {
@@ -216,10 +216,10 @@ export const FileUpload = ({
                     className="flex flex-col items-center text-xs text-white/80 font-medium"
                   >
                     Drop
-                    <IconUpload className="h-6 w-6 text-white/80 mt-1" />
+                    <Upload className="h-6 w-6 text-white/80 mt-1" />
                   </motion.p>
                 ) : (
-                  <IconUpload className="h-7 w-7 text-white/70" />
+                  <Upload className="h-7 w-7 text-white/70" />
                 )}
               </motion.div>
             )}

@@ -2,6 +2,7 @@
 
 import { consumePasswordResetToken } from '@/lib/auth/tokens'
 import { updatePassword } from '@/lib/features/users/db'
+import { resetPasswordRateLimit } from '@/lib/rate-limit'
 
 export async function newPassword(token: string, password: string) {
   try {
@@ -10,6 +11,12 @@ export async function newPassword(token: string, password: string) {
     }
     if (!password) {
       return { error: 'Password is required!' }
+    }
+
+    const rate = await resetPasswordRateLimit(token)
+    if (!rate.ok) {
+      const minutes = Math.ceil(rate.retryAfterSeconds / 60)
+      return { error: `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
     }
 
     if (password.length < 8) {
@@ -37,7 +44,7 @@ export async function newPassword(token: string, password: string) {
 
     return { success: 'Password updated successfully!' }
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Something went wrong.'
-    return { error: message }
+    console.error('[newPassword] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
   }
 }

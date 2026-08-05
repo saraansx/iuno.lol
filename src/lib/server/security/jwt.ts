@@ -1,6 +1,11 @@
 import { JWTPayload, SignJWT, jwtVerify } from 'jose'
 
-const encodedKey = new TextEncoder().encode(process.env.JWT_SECRET_KEY!)
+const secret = process.env.JWT_SECRET_KEY
+if (!secret) {
+  throw new Error('JWT_SECRET_KEY is not set. Sessions cannot be secured without it.')
+}
+
+const encodedKey = new TextEncoder().encode(secret)
 
 export async function encrypt(payload: JWTPayload & { expiresAt: Date }) {
   return new SignJWT(payload)
