@@ -7,7 +7,6 @@ import { updateColorsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
-import CardTransitionSection from "@/components/dashboard/customize/effects/CardTransitionSection";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
@@ -32,13 +31,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
   const setPageBgColor = (val: string) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
 
-  const initialCardEffect = user?.cardEffect ?? "none";
-  const initialCardTransition = user?.cardTransition ?? "none";
-  const cardEffect = overrides.cardEffect ?? initialCardEffect;
-  const setCardEffect = (val: string) => updateOverrides({ cardEffect: val === initialCardEffect ? undefined : val });
-  const cardTransition = overrides.cardTransition ?? initialCardTransition;
-  const setCardTransition = (val: string) => updateOverrides({ cardTransition: val === initialCardTransition ? undefined : val });
-
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -60,13 +52,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setHighlightColor={setHighlightColor}
           pageBgColor={pageBgColor}
           setPageBgColor={setPageBgColor}
-        />
-
-        <CardTransitionSection
-          cardEffect={cardEffect}
-          setCardEffect={setCardEffect}
-          cardTransition={cardTransition}
-          setCardTransition={setCardTransition}
         />
       </div>
 

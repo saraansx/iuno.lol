@@ -8,7 +8,6 @@ import { toast } from "@/components/ui/toast";
 
 import AssetsSection from "@/components/dashboard/customize/general/AssetsSection";
 import GeneralInfoSection from "@/components/dashboard/customize/general/GeneralInfoSection";
-import CardTransitionSection from "@/components/dashboard/customize/effects/CardTransitionSection";
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
@@ -58,13 +57,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
   const [framesPickerOpen, setFramesPickerOpen] = useState(false);
-
-  const initialCardEffect = user?.cardEffect ?? "none";
-  const initialCardTransition = user?.cardTransition ?? "none";
-  const cardEffect = overrides.cardEffect ?? initialCardEffect;
-  const setCardEffect = (val: string) => updateOverrides({ cardEffect: val === initialCardEffect ? undefined : val });
-  const cardTransition = overrides.cardTransition ?? initialCardTransition;
-  const setCardTransition = (val: string) => updateOverrides({ cardTransition: val === initialCardTransition ? undefined : val });
 
   const avatarDecorationUrl = overrides.avatarDecorationUrl !== undefined ? overrides.avatarDecorationUrl : initialDecorationUrl;
   const selectedDecoration = avatarDecorationUrl
@@ -139,13 +131,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setOccupation={setOccupation}
           bio={bio}
           setBio={setBio}
-        />
-
-        <CardTransitionSection
-          cardEffect={cardEffect}
-          setCardEffect={setCardEffect}
-          cardTransition={cardTransition}
-          setCardTransition={setCardTransition}
         />
       </div>
 
