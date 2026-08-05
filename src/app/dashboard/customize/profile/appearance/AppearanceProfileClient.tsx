@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, {  useState  } from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { updateAppearanceProfile } from "@/actions/profile";
@@ -11,6 +11,7 @@ import ViewsSection from "@/components/dashboard/customize/appearance/ViewsSecti
 import CommentsSection from "@/components/dashboard/customize/appearance/CommentsSection";
 import FeedbackSection from "@/components/dashboard/customize/appearance/FeedbackSection";
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
+import CardTransitionSection from "@/components/dashboard/customize/effects/CardTransitionSection";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -96,6 +97,13 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialHighlightLetterSpacing = user?.highlightLetterSpacing ?? 0;
 
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
+
+  const initialCardEffect = user?.cardEffect ?? "none";
+  const initialCardTransition = user?.cardTransition ?? "none";
+  const cardEffect = overrides.cardEffect ?? initialCardEffect;
+  const setCardEffect = (val: string) => updateOverrides({ cardEffect: val === initialCardEffect ? undefined : val });
+  const cardTransition = overrides.cardTransition ?? initialCardTransition;
+  const setCardTransition = (val: string) => updateOverrides({ cardTransition: val === initialCardTransition ? undefined : val });
   const profileBgOpacity = overrides.profileBgOpacity ?? initialProfileBgOpacity;
   const setProfileBgOpacity = (val: number) => updateOverrides({ profileBgOpacity: val === initialProfileBgOpacity ? undefined : val });
   const profileBgColor = overrides.profileBgColor ?? initialProfileBgColor;
@@ -1283,6 +1291,13 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
             onToggleViewsTooltip={() => setIsViewsTooltipEnabled(!isViewsTooltipEnabled)}
           />
         </div>
+
+        <CardTransitionSection
+          cardEffect={cardEffect}
+          setCardEffect={setCardEffect}
+          cardTransition={cardTransition}
+          setCardTransition={setCardTransition}
+        />
 
       </div>
 

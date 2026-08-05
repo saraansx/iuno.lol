@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getComments, addComment, toggleLikeComment, togglePinComment, deleteComment, editComment } from "@/actions/comments";
 import { CommentItem, type CommentData } from "./CommentItem";
 

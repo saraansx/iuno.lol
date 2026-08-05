@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import React, { Suspense, useState } from "react";
+import { Suspense, useState } from "react";
 import RegisterForm from "@/components/auth/RegisterForm";
 
 import BackToHome from "@/components/ui/BackToHome";

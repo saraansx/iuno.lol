@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { ShineBorder } from "@/components/ui/shine-border";
 
 interface ShineBorderEffectProps {

@@ -1,0 +1,29 @@
+"use client";
+
+import { useState, useEffect } from "react";
+interface FadeCardTransitionProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+
+export default function FadeCardTransition({ children, className = "" }: FadeCardTransitionProps) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    // Trigger the fade after mount so the transition actually animates
+    const raf = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <div
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 0.8s ease-out",
+      }}
+    >
+      {children}
+    </div>
+  );
+}

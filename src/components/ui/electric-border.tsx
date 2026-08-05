@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useCallback, CSSProperties, ReactNode } from 'react';
+import { useEffect, useRef, useCallback, CSSProperties, ReactNode } from "react";
 import './ElectricBorder.css';
 
 interface ElectricBorderProps {

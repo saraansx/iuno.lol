@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import BackgroundEffectSection from "./BackgroundEffectSection";
 import BorderEffectSection from "./BorderEffectSection";
 import CardTransitionSection from "./CardTransitionSection";

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useDeferredValue } from "react";
+import { useDeferredValue } from "react";
 import ProfilePreview from "@/components/dashboard/ProfilePreview";
 import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";

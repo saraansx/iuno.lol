@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-
+import { useState, useRef } from "react";
 interface GeneralInfoSectionProps {
   displayName: string;
   setDisplayName: (val: string) => void;

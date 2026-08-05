@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";

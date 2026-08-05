@@ -17,12 +17,6 @@
   }
 }
 
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
 @keyframes shine {
   0% {
     background-position: 0% 0%;

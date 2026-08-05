@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface CommentsSectionProps {
   isCommentsEnabled: boolean;
   setIsCommentsEnabled: (v: boolean) => void;

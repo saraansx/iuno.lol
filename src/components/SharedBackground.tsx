@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import LineWaves from "./LineWaves";
 
 const SharedBackground = () => {

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
-
+import { useRef, useState, useCallback } from "react";
 interface MagnetCardEffectProps {
   children?: React.ReactNode;
   className?: string;

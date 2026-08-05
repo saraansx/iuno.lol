@@ -3,7 +3,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import React from "react";
 import LoginForm from "@/components/auth/LoginForm";
 import { useSearchParams } from "next/navigation";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useTransition } from "react";
+import { useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SaveBarProps {

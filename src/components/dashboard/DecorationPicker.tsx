@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import decorations from "@/Deco.json";
@@ -27,8 +27,6 @@ interface DecorationPickerProps {
 
 const typedDecorations = decorations as Decoration[];
 const itemsPerPage = 8;
-
-export const decorationCount = typedDecorations.length;
 
 export default function DecorationPicker({
   open,

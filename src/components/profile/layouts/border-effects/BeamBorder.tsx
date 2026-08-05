@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { BorderBeam } from "@/components/ui/border-beam";
 
 interface BeamBorderProps {

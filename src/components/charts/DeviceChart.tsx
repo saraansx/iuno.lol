@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from "react";
 import { PieChart, Pie, Cell, Tooltip } from 'recharts';
 import type { DeviceStats } from '@/lib/features/users/db';
 

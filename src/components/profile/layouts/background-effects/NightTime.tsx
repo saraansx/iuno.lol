@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 export function NightTimeEffect({ intensity = 50 }: { intensity?: number }) {
   const [stars, setStars] = useState<{ id: number; left: number; top: number; size: number; animationDuration: number; delay: number }[]>([]);
 

@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 export function SnowEffect({ intensity = 50, color = "#ffffff" }: { intensity?: number; color?: string }) {
   const [flakes, setFlakes] = useState<{ id: number; left: number; animationDuration: number; delay: number; size: number }[]>([]);
 

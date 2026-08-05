@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface FeedbackSectionProps {
   isFeedbackEnabled: boolean;
   setIsFeedbackEnabled: (v: boolean) => void;

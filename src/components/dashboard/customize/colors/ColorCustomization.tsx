@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-
+import { useState } from "react";
 interface ColorCustomizationProps {
   usernameColor: string;
   setUsernameColor: (val: string) => void;

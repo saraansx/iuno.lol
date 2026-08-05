@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import Layout1 from "@/components/profile/layouts/Layout1";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 

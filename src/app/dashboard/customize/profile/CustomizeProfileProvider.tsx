@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
 import { type FullUser } from "@/lib/features/users/db";
 
 type CustomizeProfileContextType = {

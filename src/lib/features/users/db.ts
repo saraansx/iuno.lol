@@ -232,7 +232,7 @@ export async function markEmailVerified(email: string) {
 
 // ── Discord OAuth ──────────────────────────────────────────────────────────
 
-export async function getUserByDiscordId(discordId: string) {
+async function getUserByDiscordId(discordId: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)

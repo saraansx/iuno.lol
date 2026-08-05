@@ -1,25 +1,12 @@
 "use client";
-
-import React from "react";
-
-function hexToRgb(hex: string) {
-  let clean = hex.replace("#", "");
-  if (clean.length === 3) {
-    clean = clean.split("").map(c => c + c).join("");
-  }
-  if (clean.length !== 6) return "0, 0, 0";
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `${r}, ${g}, ${b}`;
-}
+import { hexToRgb } from "@/lib/utils";
 
 export function DitherEffect({ intensity = 50, color = "#000000" }: { intensity?: number, color?: string }) {
   // Intensity scales the opacity of the grain layer and darkness of dots
   const grainOpacity = 0.02 + (intensity / 100) * 0.08; 
   const dotOpacity = 0.2 + (intensity / 100) * 0.8;
   
-  const rgbColor = hexToRgb(color);
+  const rgbColor = hexToRgb(color, "0, 0, 0");
 
   return (
     <>

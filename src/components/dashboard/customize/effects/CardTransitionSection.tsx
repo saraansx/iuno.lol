@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-
+import { useState, useRef, useEffect } from "react";
 interface CardTransitionSectionProps {
   cardEffect?: string;
   setCardEffect?: (val: string) => void;
@@ -44,6 +43,7 @@ export default function CardTransitionSection({
 
   const cardTransitions = [
     { id: "none", name: "None" },
+    { id: "fade", name: "Fade" },
   ];
 
   return (

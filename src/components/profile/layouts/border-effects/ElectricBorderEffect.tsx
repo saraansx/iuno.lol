@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import ElectricBorder from "@/components/ui/electric-border";
 
 interface ElectricBorderEffectProps {

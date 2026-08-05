@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface ViewsSectionProps {
   isViewsEnabled: boolean;
   setIsViewsEnabled: (v: boolean) => void;

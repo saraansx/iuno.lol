@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
+import { cn } from "@/lib/utils";
 
 interface MorphingTextProps {
   className?: string;

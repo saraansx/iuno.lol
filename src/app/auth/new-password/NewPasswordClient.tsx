@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import NewPasswordForm from "@/components/auth/NewPasswordForm";
 
 export default function NewPasswordClient() {

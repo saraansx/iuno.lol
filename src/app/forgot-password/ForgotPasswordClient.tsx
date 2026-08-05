@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import React, { Suspense } from "react";
+import { Suspense } from "react";
 import ForgotPasswordForm from "@/components/auth/ForgotPasswordForm";
 
 import BackToHome from "@/components/ui/BackToHome";

@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 export function OldTVEffect({ intensity = 50 }: { intensity?: number }) {
   // Intensity scales the opacity of the static noise. Cap at a higher opacity (0.35) for more grain.
   const staticOpacity = (intensity / 100) * 0.35; 

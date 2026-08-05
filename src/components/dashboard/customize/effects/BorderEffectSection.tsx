@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-
+import { useState, useRef, useEffect } from "react";
 interface BorderEffectSectionProps {
   borderEffect: string;
   setBorderEffect: (val: string) => void;

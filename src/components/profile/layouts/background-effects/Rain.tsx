@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-
+import { useEffect, useRef } from "react";
 export function RainEffect({ intensity = 50, color = "#ffffff" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });

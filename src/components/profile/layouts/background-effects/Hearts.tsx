@@ -1,19 +1,7 @@
 "use client";
+import { hexToRgb } from "@/lib/utils";
 
-import React, { useEffect, useRef } from "react";
-
-function hexToRgb(hex: string) {
-  let clean = hex.replace("#", "");
-  if (clean.length === 3) {
-    clean = clean.split("").map(c => c + c).join("");
-  }
-  if (clean.length !== 6) return "255, 182, 193";
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `${r}, ${g}, ${b}`;
-}
-
+import { useEffect, useRef } from "react";
 export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });
@@ -121,7 +109,7 @@ export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?
     const hearts: Heart[] = [];
 
     const render = () => {
-      const currentRgbColor = hexToRgb(propsRef.current.color);
+      const currentRgbColor = hexToRgb(propsRef.current.color, "255, 182, 193");
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 80);
       
       while (hearts.length < targetCount) hearts.push(createHeart());

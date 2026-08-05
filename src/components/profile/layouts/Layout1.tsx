@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useEffect, useState  } from "react";
 import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
@@ -9,6 +9,7 @@ import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderEffect } from "./BorderEffect";
 import { CardEffect } from "./CardEffect";
+import { CardTransition } from "./CardTransition";
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -256,6 +257,7 @@ const Layout1 = ({
   borderEffect,
   borderEffectColor = "#ffffff",
   cardEffect = "none",
+  cardTransition = "none",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -474,6 +476,7 @@ const Layout1 = ({
 
         {/* Wrapper — content + background are siblings */}
         <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
@@ -813,6 +816,7 @@ const Layout1 = ({
           </div>
         )}
 
+        </CardTransition>
         </CardEffect>
 
         <CommentsModal
@@ -866,6 +870,7 @@ const Layout1 = ({
 
       {/* Wrapper — content + background are siblings */}
       <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
         <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
@@ -1158,6 +1163,7 @@ const Layout1 = ({
           </button>
         </div>
       )}
+      </CardTransition>
       </CardEffect>
 
       <CommentsModal

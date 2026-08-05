@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 interface TooltipsSectionProps {
   isUidTooltipEnabled: boolean;
   onToggleUidTooltip: () => void;

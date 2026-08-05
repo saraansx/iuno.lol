@@ -1,19 +1,7 @@
 "use client";
+import { hexToRgb } from "@/lib/utils";
 
-import React, { useEffect, useRef } from "react";
-
-function hexToRgb(hex: string) {
-  let clean = hex.replace("#", "");
-  if (clean.length === 3) {
-    clean = clean.split("").map(c => c + c).join("");
-  }
-  if (clean.length !== 6) return "255, 255, 255";
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `${r}, ${g}, ${b}`;
-}
-
+import { useEffect, useRef } from "react";
 export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });

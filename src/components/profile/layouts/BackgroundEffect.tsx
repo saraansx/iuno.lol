@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import dynamic from "next/dynamic";
 
 // Only the selected effect is downloaded — "none" downloads nothing extra.
