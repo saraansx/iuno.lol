@@ -1,11 +1,14 @@
 "use client";
 
 import React from "react";
-import SkewCardEffect from "./card-effects/SkewCardEffect";
-import MagnetCardEffect from "./card-effects/MagnetCardEffect";
-import ZoomCardEffect from "./card-effects/ZoomCardEffect";
-import ElasticCardEffect from "./card-effects/ElasticCardEffect";
-import DiveCardEffect from "./card-effects/DiveCardEffect";
+import dynamic from "next/dynamic";
+
+// Only the selected effect is downloaded — "none" downloads nothing extra.
+const SkewCardEffect = dynamic(() => import("./card-effects/SkewCardEffect"));
+const MagnetCardEffect = dynamic(() => import("./card-effects/MagnetCardEffect"));
+const ZoomCardEffect = dynamic(() => import("./card-effects/ZoomCardEffect"));
+const ElasticCardEffect = dynamic(() => import("./card-effects/ElasticCardEffect"));
+const DiveCardEffect = dynamic(() => import("./card-effects/DiveCardEffect"));
 
 interface CardEffectProps {
   effect?: string;

@@ -1,9 +1,12 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { BeamBorderEffect } from "./border-effects/BeamBorder";
-import { ShineBorderEffect } from "./border-effects/ShineBorderEffect";
-import { ElectricBorderEffect } from "./border-effects/ElectricBorderEffect";
+import dynamic from "next/dynamic";
+
+// Only the selected effect is downloaded — "none" downloads nothing extra.
+const BeamBorderEffect = dynamic(() => import("./border-effects/BeamBorder").then((m) => m.BeamBorderEffect), { ssr: false });
+const ShineBorderEffect = dynamic(() => import("./border-effects/ShineBorderEffect").then((m) => m.ShineBorderEffect), { ssr: false });
+const ElectricBorderEffect = dynamic(() => import("./border-effects/ElectricBorderEffect").then((m) => m.ElectricBorderEffect), { ssr: false });
 
 interface BorderEffectProps {
   effect?: string;
