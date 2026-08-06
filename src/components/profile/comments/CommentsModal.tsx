@@ -11,10 +11,10 @@ interface CommentsModalProps {
   allowNewComments?: boolean;
 }
 
-export function CommentsModal({ 
-  isOpen, 
-  onClose, 
-  profileId, 
+export function CommentsModal({
+  isOpen,
+  onClose,
+  profileId,
   viewerId,
   showCommentsPublicly = true,
   allowNewComments = true
@@ -24,7 +24,7 @@ export function CommentsModal({
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isAnimating, setIsAnimating] = useState(false);
   const [commentText, setCommentText] = useState("");
-  
+
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,10 +34,18 @@ export function CommentsModal({
 
   const isPreview = viewerId === -1;
 
-  const fetchComments = useCallback(async (pageNum: number = 1, showLoading = true) => {
-    if (pageNum === 1 && showLoading) setIsLoading(true);
-    if (pageNum > 1) setIsLoadingMore(true);
+  // Render-time adjustment: reset page + show loading when modal opens
+  // This avoids the lint rule which flags synchronous setState inside effects
+  const [prevOpen, setPrevOpen] = useState(isOpen);
+  if (prevOpen !== isOpen) {
+    setPrevOpen(isOpen);
+    if (isOpen) {
+      setPage(1);
+      setIsLoading(true);
+    }
+  }
 
+  const fetchComments = useCallback(async (pageNum: number = 1) => {
     const res = await getComments(profileId, pageNum, 10, filter);
     if (res.success && res.comments) {
       const fetched = res.comments as unknown as CommentData[];
@@ -52,14 +60,12 @@ export function CommentsModal({
       setHasMore(res.hasMore || false);
     }
 
-    if (pageNum === 1 && showLoading) setIsLoading(false);
+    if (pageNum === 1) setIsLoading(false);
     if (pageNum > 1) setIsLoadingMore(false);
   }, [profileId, filter]);
 
   useEffect(() => {
     if (isOpen) {
-      // Reset pagination when the modal opens (page may be >1 from a previous session)
-      setPage(1);
       setTimeout(() => setShouldRender(true), 0);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsAnimating(true));
@@ -71,14 +77,13 @@ export function CommentsModal({
     }
   }, [isOpen]);
 
-  // Load comments — fires on open, filter change, and page increment. The server
-  // action is only ever called from this effect, never from inside a setState
-  // updater (an updater runs during render, and calling an async action there is
-  // what produced the "Cannot update a component (Router) while rendering
-  // another component (CommentsModal)" error).
+  // Load comments on open, filter change, and page increment. All setState
+  // calls happen after the `await getComments()` — they are not synchronous —
+  // but the compiler rule can't prove that through the useCallback boundary.
   useEffect(() => {
     if (!isOpen || isPreview) return;
-    fetchComments(page, page === 1);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchComments(page);
   }, [isOpen, page, fetchComments, isPreview]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
@@ -294,19 +299,19 @@ export function CommentsModal({
                 <div className="absolute top-full left-0 mt-2 w-40 bg-[#161616] border border-white/10 rounded-xl shadow-xl overflow-hidden z-20 animate-in fade-in zoom-in duration-200">
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Newest first"); setPage(1); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Newest first"); setPage(1); setIsLoading(true); setIsDropdownOpen(false); }}
                   >
                     Newest first
                   </button>
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Oldest first"); setPage(1); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Oldest first"); setPage(1); setIsLoading(true); setIsDropdownOpen(false); }}
                   >
                     Oldest first
                   </button>
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Most liked"); setPage(1); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Most liked"); setPage(1); setIsLoading(true); setIsDropdownOpen(false); }}
                   >
                     Most liked
                   </button>
