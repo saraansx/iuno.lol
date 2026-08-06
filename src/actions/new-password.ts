@@ -13,7 +13,12 @@ export async function newPassword(token: string, password: string) {
       return { error: 'Password is required!' }
     }
 
-    const rate = await resetPasswordRateLimit(token)
+    const email = await consumePasswordResetToken(token)
+    if (!email) {
+      return { error: 'Invalid or expired reset link!' }
+    }
+
+    const rate = await resetPasswordRateLimit(email)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)
       return { error: `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
@@ -33,11 +38,6 @@ export async function newPassword(token: string, password: string) {
 
     if (!/[^A-Za-z0-9]/.test(password)) {
       return { error: 'Password must include a special character.' }
-    }
-
-    const email = await consumePasswordResetToken(token)
-    if (!email) {
-      return { error: 'Invalid or expired reset link!' }
     }
 
     await updatePassword(email, password)
