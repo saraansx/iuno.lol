@@ -27,8 +27,8 @@ export default async function DashboardPage() {
   const [rawViews, deviceStats, commentsRes, feedbackRes] = await Promise.all([
     user ? getAnalyticsData(user.id) : Promise.resolve([]),
     user ? getDeviceStats(user.id) : Promise.resolve({ ios: 0, android: 0, windows: 0, mac: 0, other: 0 }),
-    getDashboardComments(),
-    getDashboardFeedback()
+    getDashboardComments(1, 4),
+    getDashboardFeedback(1, 4)
   ]);
 
   const commentsReceived = commentsRes.success && commentsRes.received ? commentsRes.received : [];
@@ -100,8 +100,22 @@ export default async function DashboardPage() {
 
       {/* Additional Stats / Features */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
-        <RecentComments initialReceived={commentsReceived} initialGiven={commentsGiven} />
-        <RecentFeedback initialReceived={feedbackReceived} initialGiven={feedbackGiven} />
+        <RecentComments
+          initialReceived={commentsReceived}
+          initialGiven={commentsGiven}
+          initialReceivedHasMore={!!(commentsRes.success && commentsRes.receivedHasMore)}
+          initialGivenHasMore={!!(commentsRes.success && commentsRes.givenHasMore)}
+          initialReceivedTotal={commentsRes.success ? commentsRes.receivedTotal ?? 0 : 0}
+          initialGivenTotal={commentsRes.success ? commentsRes.givenTotal ?? 0 : 0}
+        />
+        <RecentFeedback
+          initialReceived={feedbackReceived}
+          initialGiven={feedbackGiven}
+          initialReceivedHasMore={!!(feedbackRes.success && feedbackRes.receivedHasMore)}
+          initialGivenHasMore={!!(feedbackRes.success && feedbackRes.givenHasMore)}
+          initialReceivedTotal={feedbackRes.success ? feedbackRes.receivedTotal ?? 0 : 0}
+          initialGivenTotal={feedbackRes.success ? feedbackRes.givenTotal ?? 0 : 0}
+        />
       </div>
     </div>
   );

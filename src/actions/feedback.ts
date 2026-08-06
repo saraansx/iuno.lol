@@ -118,13 +118,15 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
   }
 }
 
-export async function getDashboardFeedback() {
+export async function getDashboardFeedback(page: number = 1, limit: number = 4) {
   const sessionUserId = await getSessionUserId();
   if (!sessionUserId) {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
+    const offset = (page - 1) * limit;
+
     const receivedRaw = await db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.receiverId, sessionUserId),
       with: {
@@ -143,9 +145,14 @@ export async function getDashboardFeedback() {
         }
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
+      limit: limit + 1,
+      offset,
     });
 
-    const received = receivedRaw.map(r => ({
+    const receivedHasMore = receivedRaw.length > limit;
+    const receivedSlice = receivedHasMore ? receivedRaw.slice(0, limit) : receivedRaw;
+
+    const received = receivedSlice.map(r => ({
       ...r,
       giver: {
         id: r.giver.id,
@@ -172,9 +179,14 @@ export async function getDashboardFeedback() {
         }
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
+      limit: limit + 1,
+      offset,
     });
 
-    const given = givenRaw.map(g => ({
+    const givenHasMore = givenRaw.length > limit;
+    const givenSlice = givenHasMore ? givenRaw.slice(0, limit) : givenRaw;
+
+    const given = givenSlice.map(g => ({
       ...g,
       receiver: {
         id: g.receiver.id,
@@ -183,7 +195,25 @@ export async function getDashboardFeedback() {
       }
     }));
 
-    return { success: true, received, given };
+    // Total counts for tab labels
+    const [receivedTotal] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(schema.profileFeedback)
+      .where(eq(schema.profileFeedback.receiverId, sessionUserId));
+    const [givenTotal] = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(schema.profileFeedback)
+      .where(eq(schema.profileFeedback.giverId, sessionUserId));
+
+    return {
+      success: true,
+      received,
+      given,
+      receivedHasMore,
+      givenHasMore,
+      receivedTotal: receivedTotal?.count ?? 0,
+      givenTotal: givenTotal?.count ?? 0,
+    };
   } catch (error) {
     console.error("Failed to fetch dashboard feedback:", error);
     return { success: false, error: "Database error" };

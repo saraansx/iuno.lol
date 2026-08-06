@@ -28,14 +28,16 @@ export function CommentsModal({
   const [comments, setComments] = useState<CommentData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const isPreview = viewerId === -1;
 
   const fetchComments = useCallback(async (pageNum: number = 1, showLoading = true) => {
     if (pageNum === 1 && showLoading) setIsLoading(true);
     if (pageNum > 1) setIsLoadingMore(true);
-    
+
     const res = await getComments(profileId, pageNum, 10, filter);
     if (res.success && res.comments) {
       const fetched = res.comments as unknown as CommentData[];
@@ -49,18 +51,16 @@ export function CommentsModal({
       }
       setHasMore(res.hasMore || false);
     }
-    
+
     if (pageNum === 1 && showLoading) setIsLoading(false);
     if (pageNum > 1) setIsLoadingMore(false);
   }, [profileId, filter]);
 
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
-        setShouldRender(true);
-        setPage(1);
-        fetchComments(1);
-      }, 0);
+      // Reset pagination when the modal opens (page may be >1 from a previous session)
+      setPage(1);
+      setTimeout(() => setShouldRender(true), 0);
       requestAnimationFrame(() => {
         requestAnimationFrame(() => setIsAnimating(true));
       });
@@ -69,17 +69,26 @@ export function CommentsModal({
       const timer = setTimeout(() => setShouldRender(false), 100);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, fetchComments]);
+  }, [isOpen]);
+
+  // Load comments — fires on open, filter change, and page increment. The server
+  // action is only ever called from this effect, never from inside a setState
+  // updater (an updater runs during render, and calling an async action there is
+  // what produced the "Cannot update a component (Router) while rendering
+  // another component (CommentsModal)" error).
+  useEffect(() => {
+    if (!isOpen || isPreview) return;
+    fetchComments(page, page === 1);
+  }, [isOpen, page, fetchComments, isPreview]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     if (scrollHeight - scrollTop <= clientHeight + 50) {
       if (hasMore && !isLoadingMore && !isLoading) {
-        setPage(p => {
-          const nextPage = p + 1;
-          fetchComments(nextPage, false);
-          return nextPage;
-        });
+        // Throttle: flip the loading flag synchronously so rapid scroll events
+        // can't increment the page multiple times before the effect runs.
+        setIsLoadingMore(true);
+        setPage(p => p + 1);
       }
     }
   };
@@ -285,19 +294,19 @@ export function CommentsModal({
                 <div className="absolute top-full left-0 mt-2 w-40 bg-[#161616] border border-white/10 rounded-xl shadow-xl overflow-hidden z-20 animate-in fade-in zoom-in duration-200">
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Newest first"); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Newest first"); setPage(1); setIsDropdownOpen(false); }}
                   >
                     Newest first
                   </button>
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Oldest first"); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Oldest first"); setPage(1); setIsDropdownOpen(false); }}
                   >
                     Oldest first
                   </button>
                   <button 
                     className="w-full text-left px-4 py-2.5 text-[13px] text-white/70 hover:text-white hover:bg-white/5 transition-colors focus:outline-none"
-                    onClick={() => { setFilter("Most liked"); setIsDropdownOpen(false); }}
+                    onClick={() => { setFilter("Most liked"); setPage(1); setIsDropdownOpen(false); }}
                   >
                     Most liked
                   </button>
@@ -314,7 +323,13 @@ export function CommentsModal({
           className="flex-1 overflow-y-auto max-h-[400px] flex flex-col p-4 pt-0 gap-2"
           onScroll={handleScroll}
         >
-          {isLoading ? (
+          {isPreview ? (
+            <div className="flex items-center justify-center py-12">
+              <p className="text-[14px] font-thin text-white/50 text-center">
+                Comments are hidden in preview mode — save your changes to view them.
+              </p>
+            </div>
+          ) : isLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="w-5 h-5 border-2 border-[#5b6cf5] border-t-transparent rounded-full animate-spin"></div>
             </div>

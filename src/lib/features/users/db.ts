@@ -176,6 +176,19 @@ export async function getUserById(id: number) {
   return result[0] || null
 }
 
+export async function getUserForSession(id: number) {
+  const result = await db
+    .select({
+      id: schema.users.id,
+      passwordChangedAt: schema.users.passwordChangedAt,
+    })
+    .from(schema.users)
+    .where(eq(schema.users.id, id))
+    .limit(1)
+
+  return result[0] || null
+}
+
 export type FullUser = NonNullable<Awaited<ReturnType<typeof getUserById>>>;
 
 export async function assertEmailAvailable(email: string) {

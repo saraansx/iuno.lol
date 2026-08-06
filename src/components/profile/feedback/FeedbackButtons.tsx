@@ -24,6 +24,7 @@ interface FeedbackButtonsProps {
   className?: string;
   showLikesTooltip?: boolean;
   showDislikesTooltip?: boolean;
+  showFeedbackPublicly?: boolean;
 }
 
 export default function FeedbackButtons({
@@ -35,6 +36,7 @@ export default function FeedbackButtons({
   className = "absolute bottom-3 right-4 flex items-center gap-2.5 z-20",
   showLikesTooltip = true,
   showDislikesTooltip = true,
+  showFeedbackPublicly = true,
 }: FeedbackButtonsProps) {
   const isDisabled = viewerId === -1;
   const [likesCount, setLikesCount] = useState(initialLikes);
@@ -153,7 +155,7 @@ export default function FeedbackButtons({
         {showLikesTooltip && (
           <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
             <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-              {`Like (${likesCount})`}
+              {showFeedbackPublicly ? `Like (${likesCount})` : "Like"}
             </div>
           </div>
         )}
@@ -187,7 +189,7 @@ export default function FeedbackButtons({
         {showDislikesTooltip && (
           <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
             <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
-              {`Dislike (${dislikesCount})`}
+              {showFeedbackPublicly ? `Dislike (${dislikesCount})` : "Dislike"}
             </div>
           </div>
         )}

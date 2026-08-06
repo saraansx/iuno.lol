@@ -778,7 +778,7 @@ const Layout1 = ({
 
 
           {/* Feedback Buttons */}
-          {feedbackEnabled && showFeedbackPublicly && (
+          {feedbackEnabled && (
             <div className="absolute bottom-3.5 right-4.5 z-[70]">
               <FeedbackButtons
                 profileId={profileId}
@@ -788,6 +788,7 @@ const Layout1 = ({
                 highlightColor={highlightColor}
                 showLikesTooltip={showLikesTooltip}
                 showDislikesTooltip={showDislikesTooltip}
+                showFeedbackPublicly={showFeedbackPublicly}
               />
             </div>
           )}
@@ -1136,6 +1137,7 @@ const Layout1 = ({
               highlightColor={highlightColor}
               showLikesTooltip={showLikesTooltip}
               showDislikesTooltip={showDislikesTooltip}
+              showFeedbackPublicly={showFeedbackPublicly}
             />
           </div>
         )}

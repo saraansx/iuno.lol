@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
 import { getDashboardComments, deleteComment, toggleLikeComment, togglePinComment } from "@/actions/comments";
@@ -26,44 +26,84 @@ type CommentData = {
 interface RecentCommentsProps {
   initialReceived: CommentData[];
   initialGiven: CommentData[];
+  initialReceivedHasMore?: boolean;
+  initialGivenHasMore?: boolean;
+  initialReceivedTotal?: number;
+  initialGivenTotal?: number;
 }
 
-export default function RecentComments({ initialReceived, initialGiven }: RecentCommentsProps) {
+const PAGE_SIZE = 4;
+
+export default function RecentComments({
+  initialReceived,
+  initialGiven,
+  initialReceivedHasMore = false,
+  initialGivenHasMore = false,
+  initialReceivedTotal = 0,
+  initialGivenTotal = 0,
+}: RecentCommentsProps) {
   const [activeTab, setActiveTab] = useState<"received" | "given">("received");
   const [received, setReceived] = useState<CommentData[]>(initialReceived);
   const [given, setGiven] = useState<CommentData[]>(initialGiven);
+  const [receivedHasMore, setReceivedHasMore] = useState(initialReceivedHasMore);
+  const [givenHasMore, setGivenHasMore] = useState(initialGivenHasMore);
+  const [receivedTotal, setReceivedTotal] = useState(initialReceivedTotal);
+  const [givenTotal, setGivenTotal] = useState(initialGivenTotal);
+  const [receivedPage, setReceivedPage] = useState(1);
+  const [givenPage, setGivenPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async (page: number, forTab: "received" | "given" = activeTab) => {
     setIsLoading(true);
     try {
-      const res = await getDashboardComments();
+      const res = await getDashboardComments(page, PAGE_SIZE);
       if (res.success) {
-        setReceived(res.received as unknown as CommentData[]);
-        setGiven(res.given as unknown as CommentData[]);
+        if (forTab === "received") {
+          setReceived(res.received as unknown as CommentData[]);
+          setReceivedHasMore(!!res.receivedHasMore);
+          setReceivedPage(page);
+          setReceivedTotal(res.receivedTotal ?? 0);
+        } else {
+          setGiven(res.given as unknown as CommentData[]);
+          setGivenHasMore(!!res.givenHasMore);
+          setGivenPage(page);
+          setGivenTotal(res.givenTotal ?? 0);
+        }
       }
     } catch (err) {
       console.error(err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeTab]);
 
   const handleDelete = async (commentId: number, profileId: number) => {
-    // Optimistic UI update
-    if (activeTab === "received") {
-      setReceived(prev => prev.filter(c => c.id !== commentId && c.replyToId !== commentId));
-    } else {
-      setGiven(prev => prev.filter(c => c.id !== commentId && c.replyToId !== commentId));
-    }
+    const isReceived = activeTab === "received";
+    const currentPage = isReceived ? receivedPage : givenPage;
+    const currentList = isReceived ? received : given;
+    const setList = isReceived ? setReceived : setGiven;
+
+    // Optimistic UI update (list + total count)
+    setList(currentList.filter(c => c.id !== commentId && c.replyToId !== commentId));
+    if (isReceived) setReceivedTotal(t => Math.max(0, t - 1));
+    else setGivenTotal(t => Math.max(0, t - 1));
 
     try {
       const res = await deleteComment(commentId, profileId);
-      if (!res.success) {
-        fetchComments(); // revert
+      if (res.success) {
+        // If we just removed the last item on a page, step back one page
+        if (currentList.length === 1 && currentPage > 1) {
+          fetchComments(currentPage - 1, activeTab);
+          return;
+        }
+      } else {
+        // Failure: restore the current page of both tabs
+        fetchComments(currentPage, activeTab);
+        fetchComments(isReceived ? givenPage : receivedPage, isReceived ? "given" : "received");
       }
     } catch {
-      fetchComments(); // revert
+      fetchComments(currentPage, activeTab);
+      fetchComments(isReceived ? givenPage : receivedPage, isReceived ? "given" : "received");
     }
   };
 
@@ -80,10 +120,12 @@ export default function RecentComments({ initialReceived, initialGiven }: Recent
     try {
       const res = await toggleLikeComment(commentId);
       if (!res.success) {
-        fetchComments();
+        fetchComments(receivedPage, "received");
+        fetchComments(givenPage, "given");
       }
     } catch {
-      fetchComments();
+      fetchComments(receivedPage, "received");
+      fetchComments(givenPage, "given");
     }
   };
 
@@ -99,18 +141,31 @@ export default function RecentComments({ initialReceived, initialGiven }: Recent
     try {
       const res = await togglePinComment(commentId, profileId);
       if (!res.success) {
-        fetchComments();
+        fetchComments(receivedPage, "received");
       }
     } catch {
-      fetchComments();
+      fetchComments(receivedPage, "received");
     }
   };
 
+  const goToPage = useCallback(async (dir: 1 | -1) => {
+    const isReceived = activeTab === "received";
+    const currentPage = isReceived ? receivedPage : givenPage;
+    const nextPage = currentPage + dir;
+
+    if (nextPage < 1) return;
+    if (dir > 0 && (isReceived ? !receivedHasMore : !givenHasMore)) return;
+
+    fetchComments(nextPage, activeTab);
+  }, [activeTab, receivedPage, givenPage, receivedHasMore, givenHasMore, fetchComments]);
+
   const comments = activeTab === "received" ? received : given;
+  const page = activeTab === "received" ? receivedPage : givenPage;
+  const hasMore = activeTab === "received" ? receivedHasMore : givenHasMore;
 
   return (
-    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full flex flex-col min-h-[400px]">
-      <div className="flex items-start justify-between mb-6">
+    <div className="h-[500px] bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full flex flex-col">
+      <div className="flex items-start justify-between mb-4 shrink-0">
         <div>
           <h2 className="text-white font-inter font-medium text-lg tracking-wide">Recent comments</h2>
           <p className="text-white/40 text-[13px] mt-1 font-inter">Comments left on your profile and comments you wrote.</p>
@@ -123,7 +178,7 @@ export default function RecentComments({ initialReceived, initialGiven }: Recent
               : "text-white/40 hover:text-white/60 hover:bg-white/5"
               }`}
           >
-            Received {received.length}
+            Received {receivedTotal}
           </button>
           <button
             onClick={() => setActiveTab("given")}
@@ -132,17 +187,13 @@ export default function RecentComments({ initialReceived, initialGiven }: Recent
               : "text-white/40 hover:text-white/60 hover:bg-white/5"
               }`}
           >
-            Given {given.length}
+            Given {givenTotal}
           </button>
         </div>
       </div>
 
-      <div className={`flex-1 overflow-y-auto mt-2 min-h-0 ${isLoading || comments.length === 0 ? 'bg-white/[0.02] border border-white/5 rounded-[20px]' : ''} custom-scrollbar`}>
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full min-h-[200px]">
-            <div className="w-5 h-5 border-2 border-[#609fda] border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        ) : comments.length === 0 ? (
+      <div className={`flex-1 min-h-0 transition-opacity duration-200 ${isLoading ? 'opacity-40 pointer-events-none' : ''} ${comments.length === 0 && !isLoading ? 'bg-white/[0.02] border border-white/5 rounded-[20px]' : ''} overflow-y-auto custom-scrollbar`}>
+        {comments.length === 0 && !isLoading ? (
           <div className="flex flex-col items-center justify-center h-full min-h-[200px] text-center p-6">
              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/20 mb-3">
                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
@@ -228,6 +279,34 @@ export default function RecentComments({ initialReceived, initialGiven }: Recent
           </div>
         )}
       </div>
+
+      {/* Page nav arrows */}
+      {(received.length > 0 || given.length > 0) && (
+        <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-white/5 shrink-0">
+          <button
+            onClick={() => goToPage(-1)}
+            disabled={page <= 1 || isLoading}
+            className="w-8 h-8 rounded-full border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] flex items-center justify-center text-white/50 hover:text-white/80 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <div className="flex items-center gap-2">
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />}
+            <span className="text-[13px] text-white/40 tabular-nums">Page {page}</span>
+          </div>
+          <button
+            onClick={() => goToPage(1)}
+            disabled={!hasMore || isLoading}
+            className="w-8 h-8 rounded-full border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] flex items-center justify-center text-white/50 hover:text-white/80 transition-colors disabled:opacity-20 disabled:pointer-events-none cursor-pointer"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

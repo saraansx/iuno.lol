@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
+import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import frames from '@/Frames.json'
@@ -11,6 +12,7 @@ export const revalidate = 2592000; // Cache on the CDN for30 days (flushed insta
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username: rawUsername } = await params
   const username = rawUsername.toLowerCase().trim()
+  const viewerId = await getSessionUserId() ?? null
 
   const userListPromise = db
     .select({
@@ -176,7 +178,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}
         profileId={user.id}
-        viewerId={null}
+        viewerId={viewerId}
         highlightFont={user.highlightFont ?? undefined}
         highlightFontSize={user.highlightFontSize ?? undefined}
         highlightFontWeight={user.highlightFontWeight ?? undefined}

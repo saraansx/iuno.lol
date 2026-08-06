@@ -4,7 +4,7 @@ import { decrypt, encrypt } from '@/lib/server/security/jwt'
 import { addDays } from 'date-fns'
 import { cookies } from 'next/headers'
 import * as z from 'zod'
-import { getUserById } from '@/lib/features/users/db'
+import { getUserForSession } from '@/lib/features/users/db'
 
 type SessionPayload = {
   userId: number
@@ -53,7 +53,7 @@ async function verifySession(): Promise<Session | undefined> {
   const parsed = decryptedSessionSchema.safeParse(decoded)
   if (!parsed.success) return undefined
 
-  const user = await getUserById(parsed.data.userId)
+  const user = await getUserForSession(parsed.data.userId)
   if (!user) return undefined
   if (user.passwordChangedAt) {
     const sessionIssuedAt = new Date(parsed.data.iat * 1000)

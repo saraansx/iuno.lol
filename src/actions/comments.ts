@@ -259,9 +259,11 @@ export async function deleteComment(commentId: number, profileId: number) {
   return { success: true };
 }
 
-export async function getDashboardComments() {
+export async function getDashboardComments(page: number = 1, limit: number = 4) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
+
+  const offset = (page - 1) * limit;
 
   // Received comments (on this user's profile)
   const rawReceived = await db.query.profileComments.findMany({
@@ -273,7 +275,8 @@ export async function getDashboardComments() {
       },
     },
     orderBy: [desc(schema.profileComments.createdAt)],
-    limit: 10,
+    limit: limit + 1, // Fetch one extra to know if there's a next page
+    offset,
   });
 
   // Given comments (written by this user)
@@ -286,8 +289,25 @@ export async function getDashboardComments() {
       },
     },
     orderBy: [desc(schema.profileComments.createdAt)],
-    limit: 10,
+    limit: limit + 1, // Fetch one extra to know if there's a next page
+    offset,
   });
+
+  const receivedHasMore = rawReceived.length > limit;
+  const receivedSlice = receivedHasMore ? rawReceived.slice(0, limit) : rawReceived;
+  const givenHasMore = rawGiven.length > limit;
+  const givenSlice = givenHasMore ? rawGiven.slice(0, limit) : rawGiven;
+
+  // Total counts (not page-limited) so the tab labels can show "Received 60"
+  // even though only one page of 4 is rendered.
+  const [receivedCount] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(schema.profileComments)
+    .where(eq(schema.profileComments.profileId, userId));
+  const [givenCount] = await db
+    .select({ count: sql<number>`COUNT(*)` })
+    .from(schema.profileComments)
+    .where(eq(schema.profileComments.authorId, userId));
 
   const mapComments = <T extends { likes?: unknown[], author: CommentAuthorRow }>(raw: T[]) => raw.map(c => {
     const isLiked = !!(c.likes && c.likes.length > 0);
@@ -302,7 +322,11 @@ export async function getDashboardComments() {
 
   return {
     success: true,
-    received: mapComments(rawReceived),
-    given: mapComments(rawGiven)
+    received: mapComments(receivedSlice),
+    given: mapComments(givenSlice),
+    receivedHasMore,
+    givenHasMore,
+    receivedTotal: receivedCount?.count ?? 0,
+    givenTotal: givenCount?.count ?? 0,
   };
 }
