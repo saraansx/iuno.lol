@@ -4,6 +4,9 @@ import Navbar from "@/components/Navbar";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -36,6 +39,25 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
   return (
     <>
       <main className="min-h-screen bg-transparent relative">
+        {/* ColorBends background — behind all content */}
+        <div className="absolute inset-0 z-0 blur-[3px] pointer-events-none">
+          <ColorBends
+            colors={["#609fda", "#000000", "#90afcc"]}
+            rotation={90}
+            speed={0.2}
+            scale={1}
+            frequency={1}
+            warpStrength={1}
+            mouseInfluence={1}
+            noise={0.1}
+            parallax={0.5}
+            iterations={1}
+            intensity={0.4}
+            bandWidth={6}
+            transparent
+          />
+        </div>
+
         <Navbar isAuthenticated={isAuthenticated} />
 
         {/* Hero Content */}

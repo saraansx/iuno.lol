@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Displ
 import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
-import LazySharedBackground from "@/components/LazySharedBackground";
+import ConditionalBackground from "@/components/ConditionalBackground";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
@@ -142,7 +142,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oswald.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${matchaMint.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${indieFlower.variable} ${lobster.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
-        <LazySharedBackground />
+        <ConditionalBackground />
         <Toaster />
         <div className="relative z-10 flex-1 flex flex-col">
           {children}
