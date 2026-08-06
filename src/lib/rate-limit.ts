@@ -60,6 +60,12 @@ export async function resetPasswordRateLimit(email: string) {
   return checkRateLimit(`reset:${email}`, 3, 30 * 60, 5 * 60);
 }
 
+export async function uploadPreRateLimit(userId: number) {
+  // 20 total uploads per 5 minutes per user — checked before body is parsed
+  // to prevent memory exhaustion from concurrent large payloads.
+  return checkRateLimit(`upload:pre:${userId}`, 20, 5 * 60, 60);
+}
+
 export async function uploadRateLimit(userId: number, assetType: string) {
   return checkRateLimit(`upload:${userId}:${assetType}`, 10, 5 * 60, 60);
 }
