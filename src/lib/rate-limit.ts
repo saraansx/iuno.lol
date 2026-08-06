@@ -86,9 +86,6 @@ export async function commentRateLimit(userId: number) {
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60, 2 * 60);
 }
 
-export async function trackViewRateLimit(ip: string) {
-  return checkRateLimit(`view:${ip}`, 1, 48 * 60 * 60, 48 * 60 * 60);
-}
 
 export async function profileUpdateRateLimit(userId: number) {
   return checkRateLimit(`profile_update:${userId}`, 10, 60, 60);

@@ -1,21 +1,30 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Redis } from "@upstash/redis";
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
-import { trackViewRateLimit } from '@/lib/rate-limit';
+import { decrypt } from '@/lib/server/security/jwt';
 
 const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL!,
   token: process.env.UPSTASH_REDIS_REST_TOKEN!,
 });
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { profileId, fingerprint } = body;
 
     if (!profileId || typeof profileId !== 'number' || !Number.isInteger(profileId) || profileId < 1) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
+    }
+
+    // Owner viewing their own profile must not inflate their own view count.
+    const sessionCookie = request.cookies.get('iuno_session')?.value;
+    if (sessionCookie) {
+      const payload = await decrypt(sessionCookie);
+      if (payload && Number(payload.userId) === profileId) {
+        return NextResponse.json({ success: true, message: 'Owner view ignored' });
+      }
     }
 
     const existsCacheKey = `profile_exists:${profileId}`;
@@ -35,13 +44,7 @@ export async function POST(request: Request) {
       await redis.set(existsCacheKey, 'yes', { ex: 300 });
     }
 
-    // ── Rate limit: 1 view per IP per48 hours ────────────────────────────────
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
-    const rate = await trackViewRateLimit(ip);
-    if (!rate.ok) {
-      return NextResponse.json({ success: true }); // Silently ignore — don't reveal rate limiting
-    }
-
     const userAgent = request.headers.get('user-agent') || '';
     const clientFingerprint = fingerprint || 'no_fp';
 
