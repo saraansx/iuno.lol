@@ -112,3 +112,18 @@ export async function commentLikeRateLimit(userId: number) {
   // 20 comment likes per minute per user
   return checkRateLimit(`comment_like:${userId}`, 20, 60, 60);
 }
+
+export async function commentEditRateLimit(userId: number) {
+  // 10 comment edits per minute per user
+  return checkRateLimit(`comment_edit:${userId}`, 10, 60, 60);
+}
+
+export async function commentDeleteRateLimit(userId: number) {
+  // 10 comment deletes per minute per user
+  return checkRateLimit(`comment_delete:${userId}`, 10, 60, 60);
+}
+
+export async function commentPinRateLimit(userId: number) {
+  // 20 pin toggles per minute per user (pin is profile-owner only)
+  return checkRateLimit(`comment_pin:${userId}`, 20, 60, 60);
+}
