@@ -72,7 +72,7 @@ export default async function middleware(request: NextRequest) {
       path === '/coming-soon' ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
-      path.includes('.') // like /logo.svg or /favicon.ico
+      path.includes('.') 
 
     if (!isPublicAsset) {
       return NextResponse.redirect(new URL('/coming-soon', request.url))

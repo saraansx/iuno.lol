@@ -2,31 +2,6 @@
  AUDIT FIXES — PRIORITIZED
 ===============================================
 
-SECURITY (items 5-9)
-
-5. No rate limits on pin/edit/delete comment
-   togglePinComment, editComment, deleteComment are all spam-able.
-   Fix: add per-user rate limits on each.
-
-6. Coming-soon gate bypass
-   path.includes(".") treats any path with a dot as a public asset.
-   Usernames allow dots, so /john.doe bypasses the gate.
-   Fix: check file extension on the last segment only.
-
-7. Logout does not invalidate the session
-   JWT stays valid for 7 days after logout. A stolen cookie survives logout.
-   Fix: Redis denylist keyed by iat/jti on logout and password change.
-
-8. No Content-Security-Policy header
-   User bios are rendered via HTML. A future escaping regression becomes
-   unmitigated stored XSS.
-   Fix: add a CSP in the proxy.
-
-9. .env has localhost values
-   NEXT_PUBLIC_APP_URL, DISCORD_REDIRECT_URI, COMING_SOON_MODE all point
-   to localhost. Deploying as-is breaks Discord login and hides the site.
-   Fix: create a separate production env file with the real domain.
-
 
 SCALE (items 10-15, fix when you grow)
 

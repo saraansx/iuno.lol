@@ -27,8 +27,9 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files (never upload secrets to GitHub)
-.env 
+.env
 .env*.local
+.env.production
 
 # vercel
 .vercel
