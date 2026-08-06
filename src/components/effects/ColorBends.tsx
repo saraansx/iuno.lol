@@ -159,7 +159,6 @@ export default function ColorBends({
 
   // Mount effect initializes the renderer once; the effect below keeps
   // uniforms in sync when props change (react-bits pattern).
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const container = containerRef.current!;
     const scene = new THREE.Scene();
@@ -258,6 +257,7 @@ export default function ColorBends({
         container.removeChild(renderer.domElement);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
