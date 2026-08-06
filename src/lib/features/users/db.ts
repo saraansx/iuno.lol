@@ -2,6 +2,7 @@ import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
 import { eq, sql, and, lt } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
+import { cache } from 'react'
 
 const userColumns = {
   id: schema.users.id,
@@ -165,7 +166,7 @@ async function getUserByUsername(username: string) {
   return result[0] || null
 }
 
-export async function getUserById(id: number) {
+export const getUserById = cache(async (id: number) => {
   const result = await db
     .select(userColumns)
     .from(schema.users)
@@ -174,7 +175,7 @@ export async function getUserById(id: number) {
     .limit(1)
 
   return result[0] || null
-}
+})
 
 export async function getUserForSession(id: number) {
   const result = await db

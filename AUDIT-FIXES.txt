@@ -5,10 +5,6 @@
 
 SCALE (items 10-15, fix when you grow)
 
-10. Dashboard re-fetches 9+ queries per nav
-    No caching on any of them.
-    Fix: use unstable_cache or React cache().
-
 11. flush-views cron processes profiles one-by-one
     Can exceed the 60-second maxDuration during a viral spike.
     Fix: batch process or fan out via QStash.
