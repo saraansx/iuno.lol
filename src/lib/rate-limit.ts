@@ -27,7 +27,7 @@ async function checkRateLimit(
 
   const count = await redis.zcard(windowKey);
 
-  if (count > maxAttempts) {
+  if (count >= maxAttempts) {
     await redis.set(cooldownKey, "1", { ex: cooldownSeconds });
     await redis.del(windowKey);
     return { ok: false, retryAfterSeconds: cooldownSeconds };

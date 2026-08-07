@@ -2,6 +2,7 @@
 
 import React, {  useEffect, useState  } from "react";
 import Image from "next/image";
+import DOMPurify from "dompurify";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
@@ -46,7 +47,7 @@ const renderFormattedText = (text: string) => {
     if (isSubtext) {
       return (
         <span key={idx} className="text-[11px] opacity-60 leading-tight block">
-          <span dangerouslySetInnerHTML={{ __html: parsed }} />
+          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
         </span>
       );
     }
@@ -55,14 +56,14 @@ const renderFormattedText = (text: string) => {
       return (
         <span key={idx} className="flex items-center gap-2 justify-center">
           <span className="text-[12px] opacity-70">•</span>
-          <span dangerouslySetInnerHTML={{ __html: parsed }} />
+          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
         </span>
       );
     }
 
     return (
       <React.Fragment key={idx}>
-        <span dangerouslySetInnerHTML={{ __html: parsed }} />
+        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
         {idx < lines.length - 1 && <br />}
       </React.Fragment>
     );
