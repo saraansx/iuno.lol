@@ -295,14 +295,7 @@ const LoginForm = () => {
 
 
       {/* Divider */}
-      <div className="relative my-2">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-white/5"></div>
-        </div>
-        <div className="relative flex justify-center text-[10px] uppercase tracking-[0.15em] font-bold">
-          <span className="bg-[#0c0c0c] px-4 text-white/20">Or continue with</span>
-        </div>
-      </div>
+      <div className="my-4 border-t border-white/5" />
 
       {/* Discord */}
       <button
