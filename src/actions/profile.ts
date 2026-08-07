@@ -5,6 +5,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -138,10 +139,12 @@ export async function updateGeneralProfile(data: {
     await Promise.all(promises);
   }
 
+  await invalidateLiveStatsCache(userId);
+
   revalidatePath("/dashboard/customize/profile/general");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
-  
+
   return { success: true };
 }
 
@@ -262,16 +265,19 @@ export async function updateAppearanceProfile(data: {
   if (data.showViewsTooltip !== undefined) setData.showViewsTooltip = data.showViewsTooltip;
 
   if (Object.keys(setData).length === 0) return { success: true };
-  
+
   await db
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
+  // Invalidate live stats cache (views/likes/dislikes toggles affect live stats)
+  await invalidateLiveStatsCache(userId);
+
   revalidatePath("/dashboard/customize/profile/appearance");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
-  
+
   return { success: true };
 }
 

@@ -17,7 +17,7 @@ const poolConnection = globalForDb.pool ?? mysql.createPool({
   password:         process.env.DB_PASS!,
   database:         process.env.DB_NAME!,
   waitForConnections: true,
-  connectionLimit:  10,
+  connectionLimit:  20,
   queueLimit:       0, // 0 = unlimited queue — wait for a free connection instead of crashing
   enableKeepAlive:  true,
   keepAliveInitialDelay: 10000,
