@@ -40,6 +40,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const cardTransition = overrides.cardTransition ?? initialCardTransition;
   const setCardTransition = (val: string) => updateOverrides({ cardTransition: val === initialCardTransition ? undefined : val });
 
+  const initialUsernameEffect = user?.usernameEffect ?? "none";
+  const usernameEffect = overrides.usernameEffect ?? initialUsernameEffect;
+  const setUsernameEffect = (val: string) => updateOverrides({ usernameEffect: val === initialUsernameEffect ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -67,6 +71,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setCardEffect={setCardEffect}
           cardTransition={cardTransition}
           setCardTransition={setCardTransition}
+          usernameEffect={usernameEffect}
+          setUsernameEffect={setUsernameEffect}
         />
       </div>
 
@@ -82,6 +88,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           borderEffectColor,
           cardEffect,
           cardTransition,
+          usernameEffect,
         }}
       />
 
