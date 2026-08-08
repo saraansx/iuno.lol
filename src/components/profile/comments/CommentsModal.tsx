@@ -260,8 +260,8 @@ export function CommentsModal({
         }}
       />
       
-      <div 
-        className={`absolute top-[88px] right-6 z-[100] w-[400px] max-w-[calc(100vw-3rem)] bg-[#0c0c0c] border border-white/5 rounded-[24px] shadow-2xl flex flex-col overflow-hidden origin-top-right transition-all duration-100 ease-out ${
+      <div
+        className={`fixed top-[88px] right-6 z-[100] w-[400px] max-w-[calc(100vw-3rem)] bg-[#0c0c0c] border border-white/5 rounded-[24px] shadow-2xl flex flex-col overflow-hidden origin-top-right transition-all duration-100 ease-out ${
           isAnimating ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"
         }`}
       >

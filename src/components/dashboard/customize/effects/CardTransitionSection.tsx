@@ -44,6 +44,12 @@ export default function CardTransitionSection({
   const cardTransitions = [
     { id: "none", name: "None" },
     { id: "fade", name: "Fade" },
+    { id: "slide-up", name: "Slide Up" },
+    { id: "slide-down", name: "Slide Down" },
+    { id: "zoom-in", name: "Zoom In" },
+    { id: "flip", name: "Flip" },
+    { id: "bounce", name: "Bounce" },
+    { id: "blur", name: "Blur" },
   ];
 
   return (

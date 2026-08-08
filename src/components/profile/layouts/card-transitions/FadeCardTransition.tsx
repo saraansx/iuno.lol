@@ -21,6 +21,8 @@ export default function FadeCardTransition({ children, className = "" }: FadeCar
       style={{
         opacity: visible ? 1 : 0,
         transition: "opacity 1s ease-out",
+        overflow: "visible",
+        willChange: "opacity",
       }}
     >
       {children}
