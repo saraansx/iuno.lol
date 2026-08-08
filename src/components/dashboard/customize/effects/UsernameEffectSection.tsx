@@ -26,6 +26,7 @@ export default function UsernameEffectSection({
 
   const usernameEffects = [
     { id: "none", name: "None" },
+    { id: "blur", name: "Blur" },
   ];
 
   return (

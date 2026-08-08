@@ -11,6 +11,7 @@ import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderEffect } from "./BorderEffect";
 import { CardEffect } from "./CardEffect";
 import { CardTransition } from "./CardTransition";
+import { UsernameEffect } from "./UsernameEffect";
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -94,6 +95,7 @@ interface Layout1Props {
   borderEffectColor?: string;
   cardEffect?: string;
   cardTransition?: string;
+  usernameEffect?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -259,6 +261,7 @@ const Layout1 = ({
   borderEffectColor = "#ffffff",
   cardEffect = "none",
   cardTransition = "none",
+  usernameEffect = "none",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -614,9 +617,11 @@ const Layout1 = ({
             <div className="w-full flex flex-col items-center px-6 pb-12 pt-3">
               {display && (
                 <div className="relative group/uid flex justify-center">
-                  <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor }}>
-                    {display}
-                  </h1>
+                  <UsernameEffect effect={usernameEffect}>
+                    <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor }}>
+                      {display}
+                    </h1>
+                  </UsernameEffect>
                   {showUidTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/uid:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/uid:translate-y-0">
                       <div className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap">
@@ -1017,9 +1022,11 @@ const Layout1 = ({
           </div>
 
           {display && (
-            <h1 className="text-white tracking-tight text-center mt-8" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px` }}>
-              {display}
-            </h1>
+            <UsernameEffect effect={usernameEffect}>
+              <h1 className="text-white tracking-tight text-center mt-8" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px` }}>
+                {display}
+              </h1>
+            </UsernameEffect>
           )}
 
           {location && (

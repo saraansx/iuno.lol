@@ -52,6 +52,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       borderEffectColor={deferredOverrides.borderEffectColor ?? user?.borderEffectColor ?? "#ffffff"}
       cardEffect={deferredOverrides.cardEffect ?? user?.cardEffect ?? "none"}
       cardTransition={deferredOverrides.cardTransition ?? user?.cardTransition ?? "none"}
+      usernameEffect={deferredOverrides.usernameEffect ?? user?.usernameEffect ?? "none"}
       pageBgColor={deferredOverrides.pageBgColor ?? user?.pageBgColor ?? "#050505"}
       profileBgColor={deferredOverrides.profileBgColor ?? user?.profileBgColor ?? "#ffffff"}
       profileBgOpacity={deferredOverrides.profileBgOpacity ?? user?.profileBgOpacity ?? 10}
