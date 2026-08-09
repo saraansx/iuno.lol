@@ -4,6 +4,7 @@ import BackgroundEffectSection from "./BackgroundEffectSection";
 import BorderEffectSection from "./BorderEffectSection";
 import CardTransitionSection from "./CardTransitionSection";
 import UsernameEffectSection from "./UsernameEffectSection";
+import DescriptionEffectSection from "./DescriptionEffectSection";
 
 interface EffectsCustomizationProps {
   backgroundEffect: string;
@@ -24,6 +25,8 @@ interface EffectsCustomizationProps {
   setCardTransition: (val: string) => void;
   usernameEffect: string;
   setUsernameEffect: (val: string) => void;
+  descriptionEffect: string;
+  setDescriptionEffect: (val: string) => void;
 }
 
 export default function EffectsCustomization({
@@ -45,6 +48,8 @@ export default function EffectsCustomization({
   setCardTransition,
   usernameEffect,
   setUsernameEffect,
+  descriptionEffect,
+  setDescriptionEffect,
 }: EffectsCustomizationProps) {
 
   return (
@@ -76,6 +81,10 @@ export default function EffectsCustomization({
           <UsernameEffectSection
             usernameEffect={usernameEffect}
             setUsernameEffect={setUsernameEffect}
+          />
+          <DescriptionEffectSection
+            descriptionEffect={descriptionEffect}
+            setDescriptionEffect={setDescriptionEffect}
           />
         </div>
       </div>

@@ -38,6 +38,7 @@ interface ProfilePreviewProps {
   cardEffect?: string;
   cardTransition?: string;
   usernameEffect?: string;
+  descriptionEffect?: string;
   pageBgColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
@@ -90,7 +91,7 @@ interface ProfilePreviewProps {
   createdAt?: string | Date;
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedFrame, decorationHue, frameHue, bannerImageUrl, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, highlightColor, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedFrame, decorationHue, frameHue, bannerImageUrl, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, highlightColor, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -204,6 +205,7 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             cardEffect={cardEffect}
             cardTransition={cardTransition}
             usernameEffect={usernameEffect}
+            descriptionEffect={descriptionEffect}
             profileBgColor={profileBgColor}
             profileBgOpacity={profileBgOpacity}
             profileBorderColor={profileBorderColor}

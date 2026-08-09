@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Turnstile } from "@marsidev/react-turnstile";
 
@@ -13,6 +14,14 @@ interface TurnstileVerificationProps {
 const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, onClose, onSuccess }) => {
   const [rayId, setRayId] = useState("");
 
+  // false during SSR, true after hydration — the portal target (document.body)
+  // only exists on the client, so skip rendering until we've hydrated.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
   useEffect(() => {
     if (isOpen) {
       const fetchRayId = async () => {
@@ -20,7 +29,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
           // Fetch from root to get Cloudflare headers
           const res = await fetch(window.location.origin, { method: "HEAD" });
           const cfRay = res.headers.get("cf-ray");
-          
+
           if (cfRay) {
             // cf-ray header format is usually "RayID-AirportCode", we just want the ID part
             setRayId(cfRay.split('-')[0]);
@@ -37,12 +46,17 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
           console.error("Failed to fetch ray ID", error);
         }
       };
-      
+
       fetchRayId();
     }
   }, [isOpen]);
 
-  return (
+  // Render through a portal to <body> so the fixed overlay escapes any ancestor
+  // containing block. The auth card's backdrop-filter / the swap animation's
+  // filter blur would otherwise trap the modal inside the card and clip it.
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
@@ -102,7 +116,8 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 };
 

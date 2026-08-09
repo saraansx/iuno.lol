@@ -62,6 +62,7 @@ export const userSettings = mysqlTable('user_settings', {
   cardEffect: varchar('card_effect', { length: 50 }).default('none'),
   cardTransition: varchar('card_transition', { length: 50 }).default('none'),
   usernameEffect: varchar('username_effect', { length: 50 }).default('none'),
+  descriptionEffect: varchar('description_effect', { length: 50 }).default('none'),
   profileBgOpacity: float('profile_bg_opacity').default(10),
   profileBorderColor: varchar('profile_border_color', { length: 7 }).default('#ffffff'),
   profileBorderOpacity: float('profile_border_opacity').default(100),

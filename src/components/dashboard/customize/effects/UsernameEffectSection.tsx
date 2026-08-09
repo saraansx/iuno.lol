@@ -27,6 +27,12 @@ export default function UsernameEffectSection({
   const usernameEffects = [
     { id: "none", name: "None" },
     { id: "blur", name: "Blur" },
+    { id: "float", name: "Float" },
+    { id: "pulse", name: "Pulse" },
+    { id: "flip", name: "Flip" },
+    { id: "sparkle", name: "Sparkle" },
+    { id: "shuffle", name: "Shuffle" },
+    { id: "typewriter", name: "Typewriter" },
   ];
 
   return (

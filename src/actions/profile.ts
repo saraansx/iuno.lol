@@ -334,6 +334,7 @@ export async function updateEffectsProfile(data: {
   cardEffect?: string | null;
   cardTransition?: string | null;
   usernameEffect?: string | null;
+  descriptionEffect?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -360,6 +361,7 @@ export async function updateEffectsProfile(data: {
   if (data.cardEffect !== undefined) setData.cardEffect = data.cardEffect?.slice(0, 50) ?? null;
   if (data.cardTransition !== undefined) setData.cardTransition = data.cardTransition?.slice(0, 50) ?? null;
   if (data.usernameEffect !== undefined) setData.usernameEffect = data.usernameEffect?.slice(0, 50) ?? null;
+  if (data.descriptionEffect !== undefined) setData.descriptionEffect = data.descriptionEffect?.slice(0, 50) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

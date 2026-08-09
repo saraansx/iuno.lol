@@ -90,6 +90,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       cardEffect: userSettings.cardEffect,
       cardTransition: userSettings.cardTransition,
       usernameEffect: userSettings.usernameEffect,
+      descriptionEffect: userSettings.descriptionEffect,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -134,6 +135,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         cardEffect={user.cardEffect ?? undefined}
         cardTransition={user.cardTransition ?? undefined}
         usernameEffect={user.usernameEffect ?? undefined}
+        descriptionEffect={user.descriptionEffect ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}

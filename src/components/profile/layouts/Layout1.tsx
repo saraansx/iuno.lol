@@ -12,6 +12,16 @@ import { BorderEffect } from "./BorderEffect";
 import { CardEffect } from "./CardEffect";
 import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
+import { DescriptionEffect } from "./DescriptionEffect";
+
+// DOMPurify needs a real DOM. During SSR of this client component it resolves
+// to a bare factory with no .sanitize, so guard on isSupported. The fallback is
+// safe because renderFormattedText escapes &, < and > out of the input before
+// inserting its own tags — the only markup left is <strong>/<u>/<s>/<em> with no
+// attributes, so there is nothing for DOMPurify to strip and server and client
+// produce identical HTML.
+const sanitizeFormatted = (html: string) =>
+  DOMPurify.isSupported ? DOMPurify.sanitize(html) : html;
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -48,7 +58,7 @@ const renderFormattedText = (text: string) => {
     if (isSubtext) {
       return (
         <span key={idx} className="text-[11px] opacity-60 leading-tight block">
-          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
+          <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
         </span>
       );
     }
@@ -57,14 +67,14 @@ const renderFormattedText = (text: string) => {
       return (
         <span key={idx} className="flex items-center gap-2 justify-center">
           <span className="text-[12px] opacity-70">•</span>
-          <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
+          <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
         </span>
       );
     }
 
     return (
       <React.Fragment key={idx}>
-        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(parsed) }} />
+        <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
         {idx < lines.length - 1 && <br />}
       </React.Fragment>
     );
@@ -96,6 +106,7 @@ interface Layout1Props {
   cardEffect?: string;
   cardTransition?: string;
   usernameEffect?: string;
+  descriptionEffect?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -262,6 +273,7 @@ const Layout1 = ({
   cardEffect = "none",
   cardTransition = "none",
   usernameEffect = "none",
+  descriptionEffect = "none",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -709,18 +721,20 @@ const Layout1 = ({
               )}
               {bio?.trim() && (
                 <div className="w-full mt-1.5 flex justify-center">
-                  <p
-                    className="leading-relaxed max-w-[90%] text-center break-words"
-                    style={{
-                      fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
-                      fontSize: `${bioFontSize}px`,
-                      fontWeight: bioFontWeight,
-                      letterSpacing: `${bioLetterSpacing}px`,
-                      color: bioColor,
-                    }}
-                  >
-                    {renderFormattedText(bio.trim())}
-                  </p>
+                  <DescriptionEffect effect={descriptionEffect}>
+                    <p
+                      className="leading-relaxed max-w-[90%] text-center break-words"
+                      style={{
+                        fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+                        fontSize: `${bioFontSize}px`,
+                        fontWeight: bioFontWeight,
+                        letterSpacing: `${bioLetterSpacing}px`,
+                        color: bioColor,
+                      }}
+                    >
+                      {renderFormattedText(bio.trim())}
+                    </p>
+                  </DescriptionEffect>
                 </div>
               )}
             </div>
@@ -1063,18 +1077,20 @@ const Layout1 = ({
           )}
 
           {bio && (
-            <p
-              className="mt-1.5 leading-relaxed max-w-[90%] text-center break-words"
-              style={{
-                fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
-                fontSize: `${bioFontSize}px`,
-                fontWeight: bioFontWeight,
-                letterSpacing: `${bioLetterSpacing}px`,
-                color: bioColor,
-              }}
-            >
-              {renderFormattedText(bio)}
-            </p>
+            <DescriptionEffect effect={descriptionEffect}>
+              <p
+                className="mt-1.5 leading-relaxed max-w-[90%] text-center break-words"
+                style={{
+                  fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+                  fontSize: `${bioFontSize}px`,
+                  fontWeight: bioFontWeight,
+                  letterSpacing: `${bioLetterSpacing}px`,
+                  color: bioColor,
+                }}
+              >
+                {renderFormattedText(bio)}
+              </p>
+            </DescriptionEffect>
           )}
         </div>
 

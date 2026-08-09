@@ -42,6 +42,7 @@ const userColumns = {
   cardEffect: schema.userSettings.cardEffect,
   cardTransition: schema.userSettings.cardTransition,
   usernameEffect: schema.userSettings.usernameEffect,
+  descriptionEffect: schema.userSettings.descriptionEffect,
   profileBgColor: schema.userSettings.profileBgColor,
   profileBgOpacity: schema.userSettings.profileBgOpacity,
   profileBorderColor: schema.userSettings.profileBorderColor,
