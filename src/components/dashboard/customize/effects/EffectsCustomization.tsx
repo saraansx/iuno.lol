@@ -5,6 +5,7 @@ import BorderEffectSection from "./BorderEffectSection";
 import CardTransitionSection from "./CardTransitionSection";
 import UsernameEffectSection from "./UsernameEffectSection";
 import DescriptionEffectSection from "./DescriptionEffectSection";
+import CursorTrailSection from "./CursorTrailSection";
 
 interface EffectsCustomizationProps {
   backgroundEffect: string;
@@ -27,6 +28,10 @@ interface EffectsCustomizationProps {
   setUsernameEffect: (val: string) => void;
   descriptionEffect: string;
   setDescriptionEffect: (val: string) => void;
+  cursorTrail: string;
+  setCursorTrail: (val: string) => void;
+  cursorTrailColor: string;
+  setCursorTrailColor: (val: string) => void;
 }
 
 export default function EffectsCustomization({
@@ -50,6 +55,10 @@ export default function EffectsCustomization({
   setUsernameEffect,
   descriptionEffect,
   setDescriptionEffect,
+  cursorTrail,
+  setCursorTrail,
+  cursorTrailColor,
+  setCursorTrailColor,
 }: EffectsCustomizationProps) {
 
   return (
@@ -85,6 +94,12 @@ export default function EffectsCustomization({
           <DescriptionEffectSection
             descriptionEffect={descriptionEffect}
             setDescriptionEffect={setDescriptionEffect}
+          />
+          <CursorTrailSection
+            cursorTrail={cursorTrail}
+            setCursorTrail={setCursorTrail}
+            cursorTrailColor={cursorTrailColor}
+            setCursorTrailColor={setCursorTrailColor}
           />
         </div>
       </div>

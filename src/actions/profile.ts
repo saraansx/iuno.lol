@@ -335,6 +335,8 @@ export async function updateEffectsProfile(data: {
   cardTransition?: string | null;
   usernameEffect?: string | null;
   descriptionEffect?: string | null;
+  cursorTrail?: string | null;
+  cursorTrailColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -362,6 +364,8 @@ export async function updateEffectsProfile(data: {
   if (data.cardTransition !== undefined) setData.cardTransition = data.cardTransition?.slice(0, 50) ?? null;
   if (data.usernameEffect !== undefined) setData.usernameEffect = data.usernameEffect?.slice(0, 50) ?? null;
   if (data.descriptionEffect !== undefined) setData.descriptionEffect = data.descriptionEffect?.slice(0, 50) ?? null;
+  if (data.cursorTrail !== undefined) setData.cursorTrail = data.cursorTrail?.slice(0, 50) ?? null;
+  if (data.cursorTrailColor !== undefined) setData.cursorTrailColor = data.cursorTrailColor?.slice(0, 32) ?? null;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

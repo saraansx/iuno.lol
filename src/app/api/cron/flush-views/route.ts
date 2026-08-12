@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
-import { Redis } from "@upstash/redis";
+import { redis } from '@/lib/redis';
 import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
 
 const SET_KEY = 'profiles_with_pending_views';
@@ -14,11 +14,6 @@ const BATCH_SIZE = 500;
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
 
 async function handler() {
   try {

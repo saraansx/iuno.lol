@@ -4,12 +4,7 @@ import { eq, lt } from 'drizzle-orm'
 import { randomInt } from 'crypto'
 import bcrypt from 'bcrypt'
 
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+import { redis } from '@/lib/redis'
 
 function generateOTP(): string {
   return randomInt(100000, 1000000).toString()

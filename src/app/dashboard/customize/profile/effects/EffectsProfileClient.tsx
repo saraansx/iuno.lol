@@ -48,6 +48,13 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const descriptionEffect = overrides.descriptionEffect ?? initialDescriptionEffect;
   const setDescriptionEffect = (val: string) => updateOverrides({ descriptionEffect: val === initialDescriptionEffect ? undefined : val });
 
+  const initialCursorTrail = user?.cursorTrail ?? "none";
+  const initialCursorTrailColor = user?.cursorTrailColor ?? "#ffffff";
+  const cursorTrail = overrides.cursorTrail ?? initialCursorTrail;
+  const setCursorTrail = (val: string) => updateOverrides({ cursorTrail: val === initialCursorTrail ? undefined : val });
+  const cursorTrailColor = overrides.cursorTrailColor ?? initialCursorTrailColor;
+  const setCursorTrailColor = (val: string) => updateOverrides({ cursorTrailColor: val === initialCursorTrailColor ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -79,6 +86,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setUsernameEffect={setUsernameEffect}
           descriptionEffect={descriptionEffect}
           setDescriptionEffect={setDescriptionEffect}
+          cursorTrail={cursorTrail}
+          setCursorTrail={setCursorTrail}
+          cursorTrailColor={cursorTrailColor}
+          setCursorTrailColor={setCursorTrailColor}
         />
       </div>
 
@@ -96,6 +107,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           cardTransition,
           usernameEffect,
           descriptionEffect,
+          cursorTrail,
+          cursorTrailColor,
         }}
       />
 

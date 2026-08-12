@@ -13,6 +13,7 @@ import { CardEffect } from "./CardEffect";
 import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
 import { DescriptionEffect } from "./DescriptionEffect";
+import { CursorTrail } from "./CursorTrail";
 
 // DOMPurify needs a real DOM. During SSR of this client component it resolves
 // to a bare factory with no .sanitize, so guard on isSupported. The fallback is
@@ -107,6 +108,8 @@ interface Layout1Props {
   cardTransition?: string;
   usernameEffect?: string;
   descriptionEffect?: string;
+  cursorTrail?: string;
+  cursorTrailColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -162,6 +165,7 @@ interface Layout1Props {
   allowNewComments?: boolean;
   feedbackEnabled?: boolean;
   showFeedbackPublicly?: boolean;
+  viewerFeedback?: 'like' | 'dislike' | null;
   showUidTooltip?: boolean;
   showLocationTooltip?: boolean;
   showOccupationTooltip?: boolean;
@@ -274,6 +278,8 @@ const Layout1 = ({
   cardTransition = "none",
   usernameEffect = "none",
   descriptionEffect = "none",
+  cursorTrail = "none",
+  cursorTrailColor = "#ffffff",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -316,6 +322,7 @@ const Layout1 = ({
   allowNewComments = true,
   feedbackEnabled = false,
   showFeedbackPublicly = true,
+  viewerFeedback = null,
   showUidTooltip = true,
   showLocationTooltip = true,
   showOccupationTooltip = true,
@@ -489,6 +496,8 @@ const Layout1 = ({
           color={backgroundEffectColor}
           aboveContainer={backgroundEffectAboveContainer}
         />
+
+        <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
         {/* Wrapper — content + background are siblings */}
         <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
@@ -805,6 +814,7 @@ const Layout1 = ({
                 viewerId={viewerId}
                 initialLikes={likesCount}
                 initialDislikes={dislikesCount}
+                initialFeedback={viewerFeedback}
                 highlightColor={highlightColor}
                 showLikesTooltip={showLikesTooltip}
                 showDislikesTooltip={showDislikesTooltip}
@@ -888,6 +898,8 @@ const Layout1 = ({
         intensity={backgroundEffectIntensity}
         color={backgroundEffectColor}
       />
+
+      <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
       {/* Wrapper — content + background are siblings */}
       <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
@@ -1158,6 +1170,7 @@ const Layout1 = ({
               viewerId={viewerId}
               initialLikes={likesCount}
               initialDislikes={dislikesCount}
+              initialFeedback={viewerFeedback}
               highlightColor={highlightColor}
               showLikesTooltip={showLikesTooltip}
               showDislikesTooltip={showDislikesTooltip}

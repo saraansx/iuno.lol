@@ -1,9 +1,19 @@
-import { Redis } from "@upstash/redis";
+import { redis } from "@/lib/redis";
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+const RATE_LIMIT_SCRIPT = `
+local cd = redis.call('TTL', KEYS[1])
+if cd > 0 then return {0, cd} end
+redis.call('ZADD', KEYS[2], ARGV[2], ARGV[3])
+redis.call('ZREMRANGEBYSCORE', KEYS[2], 0, ARGV[4])
+redis.call('EXPIRE', KEYS[2], ARGV[5])
+local count = redis.call('ZCARD', KEYS[2])
+if count > tonumber(ARGV[1]) then
+  redis.call('SET', KEYS[1], '1', 'EX', ARGV[6])
+  redis.call('DEL', KEYS[2])
+  return {0, tonumber(ARGV[6])}
+end
+return {1, 0}
+`;
 
 async function checkRateLimit(
   key: string,
@@ -11,29 +21,27 @@ async function checkRateLimit(
   windowSeconds: number,
   cooldownSeconds: number,
 ): Promise<{ ok: true } | { ok: false; retryAfterSeconds: number }> {
-  const cooldownKey = `cooldown:${key}`;
-
-  const cooldownTtl = await redis.ttl(cooldownKey);
-  if (cooldownTtl > 0) {
-    return { ok: false, retryAfterSeconds: cooldownTtl };
-  }
-
   const now = Date.now();
-  const windowKey = `window:${key}`;
+  const cutoff = now - windowSeconds * 1000;
+  const member = `${now}:${Math.random()}`;
 
-  await redis.zadd(windowKey, { score: now, member: `${now}:${Math.random()}` });
-  await redis.zremrangebyscore(windowKey, 0, now - windowSeconds * 1000);
-  await redis.expire(windowKey, windowSeconds);
+  const [ok, retryAfter] = (await redis.eval(
+    RATE_LIMIT_SCRIPT,
+    [`rl:cd:${key}`, `rl:w:${key}`],
+    [
+      String(maxAttempts),
+      String(now),
+      member,
+      String(cutoff),
+      String(windowSeconds),
+      String(cooldownSeconds),
+    ],
+  )) as [number, number];
 
-  const count = await redis.zcard(windowKey);
-
-  if (count >= maxAttempts) {
-    await redis.set(cooldownKey, "1", { ex: cooldownSeconds });
-    await redis.del(windowKey);
-    return { ok: false, retryAfterSeconds: cooldownSeconds };
+  if (ok === 1) {
+    return { ok: true };
   }
-
-  return { ok: true };
+  return { ok: false, retryAfterSeconds: retryAfter };
 }
 
 export async function loginRateLimit(email: string, ip: string) {
@@ -47,17 +55,20 @@ export async function loginRateLimit(email: string, ip: string) {
 }
 
 export async function registerRateLimit(email: string, ip: string) {
-  const emailRate = await checkRateLimit(`register:email:${email}`, 3, 30 * 60, 5 * 60);
+  const emailRate = await checkRateLimit(`register:email:${email}`, 3, 10 * 60, 5 * 60);
   if (!emailRate.ok) return emailRate;
 
-  const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 30 * 60, 5 * 60);
+  const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 10 * 60, 5 * 60);
   if (!ipRate.ok) return ipRate;
 
   return { ok: true as const };
 }
 
-export async function resetPasswordRateLimit(email: string) {
-  return checkRateLimit(`reset:${email}`, 3, 30 * 60, 5 * 60);
+export async function resetPasswordRateLimit(ip: string) {
+  // Keyed by IP, not email — the email is only known after the token lookup
+  // succeeds, so an email key can't guard the lookup itself. 10 attempts per
+  // 10 minutes caps how fast anyone can hammer the reset-token table.
+  return checkRateLimit(`reset:ip:${ip}`, 10, 10 * 60, 5 * 60);
 }
 
 export async function uploadPreRateLimit(userId: number) {

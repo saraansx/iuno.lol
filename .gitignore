@@ -42,3 +42,7 @@ check-lint.tsx
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# AI harness skills / config (installed locally, don't commit)
+.claude/
+.agents/

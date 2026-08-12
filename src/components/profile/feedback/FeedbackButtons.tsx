@@ -20,6 +20,7 @@ interface FeedbackButtonsProps {
   viewerId: number | null | undefined;
   initialLikes: number;
   initialDislikes: number;
+  initialFeedback?: 'like' | 'dislike' | null;
   highlightColor?: string | null;
   className?: string;
   showLikesTooltip?: boolean;
@@ -32,6 +33,7 @@ export default function FeedbackButtons({
   viewerId,
   initialLikes,
   initialDislikes,
+  initialFeedback = null,
   highlightColor,
   className = "absolute bottom-3 right-4 flex items-center gap-2.5 z-20",
   showLikesTooltip = true,
@@ -41,19 +43,16 @@ export default function FeedbackButtons({
   const isDisabled = viewerId === -1;
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
-  const [hasLiked, setHasLiked] = useState(false);
-  const [hasDisliked, setHasDisliked] = useState(false);
+  const [hasLiked, setHasLiked] = useState(initialFeedback === "like");
+  const [hasDisliked, setHasDisliked] = useState(initialFeedback === "dislike");
+  const [pending, setPending] = useState(false);
 
+  // Server is the source of truth for whether this viewer already voted, so a
+  // new browser or device shows the correct state instead of an empty heart.
   useEffect(() => {
-    if (typeof window !== "undefined" && profileId) {
-      const stored = localStorage.getItem(`iuno:feedback:${profileId}`);
-      if (stored === "like") {
-        setHasLiked(true);
-      } else if (stored === "dislike") {
-        setHasDisliked(true);
-      }
-    }
-  }, [profileId]);
+    setHasLiked(initialFeedback === "like");
+    setHasDisliked(initialFeedback === "dislike");
+  }, [initialFeedback]);
 
   useEffect(() => {
     setLikesCount(initialLikes);
@@ -63,57 +62,71 @@ export default function FeedbackButtons({
     setDislikesCount(initialDislikes);
   }, [initialDislikes]);
 
-  const handleLike = async () => {
-    if (viewerId === -1) {
+  const handleVote = async (intent: "like" | "dislike") => {
+    if (isDisabled || pending) {
       return;
     }
     if (viewerId === null || viewerId === undefined) {
       toast.error("Please sign in to like or dislike profiles.");
       return;
     }
-    if (hasLiked) {
-      setLikesCount((prev) => Math.max(0, prev - 1));
-      setHasLiked(false);
-      localStorage.removeItem(`iuno:feedback:${profileId}`);
-      await submitFeedbackAction(profileId, "unlike");
-    } else {
-      setLikesCount((prev) => prev + 1);
-      setHasLiked(true);
-      localStorage.setItem(`iuno:feedback:${profileId}`, "like");
-      await submitFeedbackAction(profileId, "like");
-      if (hasDisliked) {
-        setDislikesCount((prev) => Math.max(0, prev - 1));
-        setHasDisliked(false);
-        await submitFeedbackAction(profileId, "undislike");
+
+    // Snapshot so a rejected action can be rolled back.
+    const prev = {
+      likes: likesCount,
+      dislikes: dislikesCount,
+      liked: hasLiked,
+      disliked: hasDisliked,
+    };
+
+    let action: "like" | "dislike" | "unlike" | "undislike";
+
+    if (intent === "like") {
+      if (hasLiked) {
+        action = "unlike";
+        setLikesCount((v) => Math.max(0, v - 1));
+        setHasLiked(false);
+      } else {
+        action = "like";
+        setLikesCount((v) => v + 1);
+        setHasLiked(true);
+        // A single "like" call also clears an existing dislike server-side.
+        if (hasDisliked) {
+          setDislikesCount((v) => Math.max(0, v - 1));
+          setHasDisliked(false);
+        }
       }
+    } else {
+      if (hasDisliked) {
+        action = "undislike";
+        setDislikesCount((v) => Math.max(0, v - 1));
+        setHasDisliked(false);
+      } else {
+        action = "dislike";
+        setDislikesCount((v) => v + 1);
+        setHasDisliked(true);
+        if (hasLiked) {
+          setLikesCount((v) => Math.max(0, v - 1));
+          setHasLiked(false);
+        }
+      }
+    }
+
+    setPending(true);
+    const res = await submitFeedbackAction(profileId, action);
+    setPending(false);
+
+    if (!res?.success) {
+      setLikesCount(prev.likes);
+      setDislikesCount(prev.dislikes);
+      setHasLiked(prev.liked);
+      setHasDisliked(prev.disliked);
+      toast.error(res?.error || "Something went wrong. Please try again.");
     }
   };
 
-  const handleDislike = async () => {
-    if (viewerId === -1) {
-      return;
-    }
-    if (viewerId === null || viewerId === undefined) {
-      toast.error("Please sign in to like or dislike profiles.");
-      return;
-    }
-    if (hasDisliked) {
-      setDislikesCount((prev) => Math.max(0, prev - 1));
-      setHasDisliked(false);
-      localStorage.removeItem(`iuno:feedback:${profileId}`);
-      await submitFeedbackAction(profileId, "undislike");
-    } else {
-      setDislikesCount((prev) => prev + 1);
-      setHasDisliked(true);
-      localStorage.setItem(`iuno:feedback:${profileId}`, "dislike");
-      await submitFeedbackAction(profileId, "dislike");
-      if (hasLiked) {
-        setLikesCount((prev) => Math.max(0, prev - 1));
-        setHasLiked(false);
-        await submitFeedbackAction(profileId, "unlike");
-      }
-    }
-  };
+  const handleLike = () => handleVote("like");
+  const handleDislike = () => handleVote("dislike");
 
   return (
     <div

@@ -3,6 +3,7 @@
 import { consumePasswordResetToken } from '@/lib/auth/tokens'
 import { updatePassword } from '@/lib/features/users/db'
 import { resetPasswordRateLimit } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 export async function newPassword(token: string, password: string) {
   try {
@@ -13,17 +14,9 @@ export async function newPassword(token: string, password: string) {
       return { error: 'Password is required!' }
     }
 
-    const email = await consumePasswordResetToken(token)
-    if (!email) {
-      return { error: 'Invalid or expired reset link!' }
-    }
-
-    const rate = await resetPasswordRateLimit(email)
-    if (!rate.ok) {
-      const minutes = Math.ceil(rate.retryAfterSeconds / 60)
-      return { error: `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
-    }
-
+    // Validate the password BEFORE consuming the token. consumePasswordResetToken
+    // deletes the row, so rejecting a weak password afterwards would burn the
+    // one-time link and force the user to request a whole new email.
     if (password.length < 8) {
       return { error: 'Password must be at least 8 characters.' }
     }
@@ -38,6 +31,22 @@ export async function newPassword(token: string, password: string) {
 
     if (!/[^A-Za-z0-9]/.test(password)) {
       return { error: 'Password must include a special character.' }
+    }
+
+    // Rate limit BEFORE the token lookup. Keyed by IP because the email is only
+    // known once the lookup succeeds, and running it after would let a tripped
+    // limit destroy an otherwise valid one-time token.
+    const h = await headers()
+    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const rate = await resetPasswordRateLimit(ip)
+    if (!rate.ok) {
+      const minutes = Math.ceil(rate.retryAfterSeconds / 60)
+      return { error: `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
+    }
+
+    const email = await consumePasswordResetToken(token)
+    if (!email) {
+      return { error: 'Invalid or expired reset link!' }
     }
 
     await updatePassword(email, password)

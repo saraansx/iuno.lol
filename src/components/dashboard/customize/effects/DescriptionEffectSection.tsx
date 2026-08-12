@@ -24,10 +24,17 @@ export default function DescriptionEffectSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Only "None" for now. Adding an effect = one entry here plus a case in
-  // DescriptionEffect.tsx — the column is a free-form varchar, so no migration.
+  // Adding an effect = one entry here plus a case in DescriptionEffect.tsx —
+  // the column is a free-form varchar, so no migration is needed.
   const descriptionEffects = [
     { id: "none", name: "None" },
+    { id: "blur", name: "Blur" },
+    { id: "float", name: "Float" },
+    { id: "pulse", name: "Pulse" },
+    { id: "flip", name: "Flip" },
+    { id: "sparkle", name: "Sparkle" },
+    { id: "shuffle", name: "Shuffle" },
+    { id: "typewriter", name: "Typewriter" },
   ];
 
   return (

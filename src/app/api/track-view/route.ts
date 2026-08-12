@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Redis } from "@upstash/redis";
-import { db } from '@/lib/db';
-import { sql } from 'drizzle-orm';
+import { redis } from '@/lib/redis';
+import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
 
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+// Acquire the per-visitor dedupe lock and, only if it's newly acquired,
+// increment the pending counters + mark the profile — all in one round trip.
+// Returns 1 when the view was counted, 0 when the visitor was already seen.
+const TRACK_VIEW_SCRIPT = `
+if redis.call('SET', KEYS[1], '1', 'NX', 'EX', ARGV[1]) then
+  redis.call('HINCRBY', KEYS[2], 'total', 1)
+  redis.call('HINCRBY', KEYS[2], ARGV[2], 1)
+  redis.call('SADD', KEYS[3], ARGV[3])
+  return 1
+end
+return 0
+`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,38 +34,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const existsCacheKey = `profile_exists:${profileId}`;
-    const cached = await redis.get(existsCacheKey);
-    if (cached === 'no') {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-    }
-    if (cached === null) {
-      const rows = await db.execute(
-        sql`SELECT id FROM users WHERE id = ${profileId} LIMIT 1`
-      );
-      const resultRows = (rows as unknown as [unknown[]])[0];
-      if (!Array.isArray(resultRows) || resultRows.length === 0) {
-        await redis.set(existsCacheKey, 'no', { ex: 600 });
-        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-      }
-      await redis.set(existsCacheKey, 'yes', { ex: 300 });
-    }
+    // No profile-existence check here: the flush cron verifies each profile
+    // exists before writing to the DB, so a view for a deleted/nonexistent
+    // id is simply dropped there — no FK risk, and one fewer round trip here.
 
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
     const userAgent = request.headers.get('user-agent') || '';
-    const clientFingerprint = fingerprint || 'no_fp';
-
-    const baseString = String(clientFingerprint !== 'no_fp' ? clientFingerprint : ip + userAgent);
-    const visitorHash = Array.from(baseString)
-      .reduce((hash: number, char: string) => 0 | (31 * hash + char.charCodeAt(0)), 0)
-      .toString(36);
-
-    const lockKey = `view_lock:${profileId}:${visitorHash}`;
-    const acquiredLock = await redis.set(lockKey, 1, { ex: 172800, nx: true });
-
-    if (!acquiredLock) {
-      return NextResponse.json({ success: true, message: 'Already viewed recently' });
-    }
+    const clientFingerprint =
+      typeof fingerprint === 'string' && fingerprint.length > 0 ? fingerprint : null;
+    const baseString = clientFingerprint ?? ip + userAgent;
+    const visitorHash = createHash('sha256').update(baseString).digest('hex').slice(0, 16);
 
     const ua = userAgent.toLowerCase();
     let device = 'other';
@@ -72,11 +57,15 @@ export async function POST(request: NextRequest) {
       device = 'mac';
     }
 
-    const p = redis.pipeline();
-    p.hincrby(`views_pending:${profileId}`, 'total', 1);
-    p.hincrby(`views_pending:${profileId}`, device, 1);
-    p.sadd('profiles_with_pending_views', profileId);
-    await p.exec();
+    const counted = await redis.eval(
+      TRACK_VIEW_SCRIPT,
+      [`v:${profileId}:${visitorHash}`, `views_pending:${profileId}`, 'profiles_with_pending_views'],
+      ['172800', device, String(profileId)],
+    );
+
+    if (counted !== 1) {
+      return NextResponse.json({ success: true, message: 'Already viewed recently' });
+    }
 
     return NextResponse.json({ success: true });
 

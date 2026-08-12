@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
-import { users, userSettings } from '@/lib/db/schema'
-import { eq } from 'drizzle-orm'
+import { users, userSettings, profileFeedback } from '@/lib/db/schema'
+import { eq, and } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
 import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
@@ -63,6 +63,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       viewsAnimationEnabled: userSettings.viewsAnimationEnabled,
       viewsAnimationDuration: userSettings.viewsAnimationDuration,
       commentsEnabled: userSettings.commentsEnabled,
+      showCommentsPublicly: userSettings.showCommentsPublicly,
+      allowNewComments: userSettings.allowNewComments,
       feedbackEnabled: userSettings.feedbackEnabled,
       showFeedbackPublicly: userSettings.showFeedbackPublicly,
       showUidTooltip: userSettings.showUidTooltip,
@@ -91,6 +93,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       cardTransition: userSettings.cardTransition,
       usernameEffect: userSettings.usernameEffect,
       descriptionEffect: userSettings.descriptionEffect,
+      cursorTrail: userSettings.cursorTrail,
+      cursorTrailColor: userSettings.cursorTrailColor,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -104,6 +108,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   }
 
   const user = userList[0]
+
+  let viewerFeedback: 'like' | 'dislike' | null = null
+  if (viewerId && viewerId !== -1) {
+    const rows = await db
+      .select({ type: profileFeedback.type })
+      .from(profileFeedback)
+      .where(and(
+        eq(profileFeedback.receiverId, user.id),
+        eq(profileFeedback.giverId, viewerId),
+      ))
+      .limit(1)
+    const type = rows[0]?.type
+    if (type === 'like' || type === 'dislike') viewerFeedback = type
+  }
 
   const selectedFrame = user.profileFrameUrl ? (frames as Frame[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
 
@@ -136,6 +154,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         cardTransition={user.cardTransition ?? undefined}
         usernameEffect={user.usernameEffect ?? undefined}
         descriptionEffect={user.descriptionEffect ?? undefined}
+        cursorTrail={user.cursorTrail ?? undefined}
+        cursorTrailColor={user.cursorTrailColor ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}
@@ -169,8 +189,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         viewsAnimationEnabled={user.viewsAnimationEnabled ?? undefined}
         viewsAnimationDuration={user.viewsAnimationDuration ?? undefined}
         commentsEnabled={user.commentsEnabled ?? undefined}
+        showCommentsPublicly={user.showCommentsPublicly ?? true}
+        allowNewComments={user.allowNewComments ?? true}
         feedbackEnabled={user.feedbackEnabled ?? false}
         showFeedbackPublicly={user.showFeedbackPublicly ?? false}
+        viewerFeedback={viewerFeedback}
         showUidTooltip={user.showUidTooltip ?? true}
         showLocationTooltip={user.showLocationTooltip ?? true}
         showOccupationTooltip={user.showOccupationTooltip ?? true}
