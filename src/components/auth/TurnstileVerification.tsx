@@ -93,8 +93,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
 
             {/* Turnstile Container */}
             <div className="mb-6">
-              <div className="w-full bg-white/2 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center min-h-22.5 relative overflow-hidden group shadow-inner">
-                <div className="absolute inset-0 bg-linear-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-full bg-white/2 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center min-h-22.5 relative overflow-hidden shadow-inner">
                 <Turnstile
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                   onSuccess={onSuccess}
