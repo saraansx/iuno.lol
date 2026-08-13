@@ -1,18 +1,32 @@
 import { db } from '@/lib/db'
-import { users, userSettings, profileFeedback } from '@/lib/db/schema'
-import { eq, and } from 'drizzle-orm'
+import { users, userSettings } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import { getSessionUserId } from '@/lib/auth/session'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import frames from '@/Frames.json'
 import { Frame } from '@/components/dashboard/FramesPicker'
-export const revalidate = 2592000; // Cache on the CDN for30 days (flushed instantly when user saves dashboard)
+
+// This page reads no per-request state (no cookies/headers), so Next serves it
+// from the CDN as ISR and only regenerates on first view, after the 30-day
+// window, or when the owner saves (revalidatePath(`/${username}`) in the
+// profile actions). Viewer-specific bits (who's viewing, their own feedback)
+// are fetched client-side in Layout1 via /api/profile/me so they never get
+// baked into the shared cache.
+export const revalidate = 2592000; // 30 days
+
+// Opt this dynamic route into ISR. No usernames are prebuilt at build time
+// (empty array), but without this export Next treats the route as fully dynamic
+// and ignores `revalidate`. With it, each profile is rendered once on first
+// visit, then served from the CDN until the window elapses or the owner saves.
+export const dynamicParams = true;
+export async function generateStaticParams() {
+  return [];
+}
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username: rawUsername } = await params
   const username = rawUsername.toLowerCase().trim()
-  const viewerId = await getSessionUserId() ?? null
 
   const userListPromise = db
     .select({
@@ -109,20 +123,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const user = userList[0]
 
-  let viewerFeedback: 'like' | 'dislike' | null = null
-  if (viewerId && viewerId !== -1) {
-    const rows = await db
-      .select({ type: profileFeedback.type })
-      .from(profileFeedback)
-      .where(and(
-        eq(profileFeedback.receiverId, user.id),
-        eq(profileFeedback.giverId, viewerId),
-      ))
-      .limit(1)
-    const type = rows[0]?.type
-    if (type === 'like' || type === 'dislike') viewerFeedback = type
-  }
-
   const selectedFrame = user.profileFrameUrl ? (frames as Frame[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
 
   return (
@@ -193,7 +193,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         allowNewComments={user.allowNewComments ?? true}
         feedbackEnabled={user.feedbackEnabled ?? false}
         showFeedbackPublicly={user.showFeedbackPublicly ?? false}
-        viewerFeedback={viewerFeedback}
         showUidTooltip={user.showUidTooltip ?? true}
         showLocationTooltip={user.showLocationTooltip ?? true}
         showOccupationTooltip={user.showOccupationTooltip ?? true}
@@ -205,7 +204,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}
         profileId={user.id}
-        viewerId={viewerId}
+        viewerId={null}
         highlightFont={user.highlightFont ?? undefined}
         highlightFontSize={user.highlightFontSize ?? undefined}
         highlightFontWeight={user.highlightFontWeight ?? undefined}

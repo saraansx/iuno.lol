@@ -322,7 +322,7 @@ const Layout1 = ({
   allowNewComments = true,
   feedbackEnabled = false,
   showFeedbackPublicly = true,
-  viewerFeedback = null,
+  viewerFeedback: viewerFeedbackProp = null,
   showUidTooltip = true,
   showLocationTooltip = true,
   showOccupationTooltip = true,
@@ -334,7 +334,7 @@ const Layout1 = ({
   initialDislikes = 0,
   createdAt,
   profileId,
-  viewerId,
+  viewerId: viewerIdProp,
 }: Layout1Props) => {
   const display = displayName || username;
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
@@ -343,6 +343,32 @@ const Layout1 = ({
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
+
+  // Viewer-specific state (is this visitor signed in? did they already vote?)
+  // is fetched client-side so the page HTML stays identical for every visitor
+  // and can be served from the CDN. Starts from the server-provided props
+  // (null) so there's no hydration mismatch, then hydrates after mount.
+  const [viewerId, setViewerId] = useState<number | null>(viewerIdProp ?? null);
+  const [viewerFeedback, setViewerFeedback] = useState<'like' | 'dislike' | null>(viewerFeedbackProp);
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !profileId) return;
+    // Dashboard preview renders with viewerId={-1} as a sentinel that disables
+    // interactions. Keep it — don't run the real lookup or overwrite it.
+    if (viewerIdProp === -1) return;
+    let cancelled = false;
+    fetch(`/api/profile/me?profileId=${profileId}`, { credentials: 'include' })
+      .then(res => res.json())
+      .then(data => {
+        if (cancelled || !data || data.error) return;
+        setViewerId(typeof data.viewerId === 'number' ? data.viewerId : null);
+        setViewerFeedback(
+          data.feedback === 'like' || data.feedback === 'dislike' ? data.feedback : null
+        );
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [profileId, viewerIdProp]);
 
 
   useEffect(() => {
