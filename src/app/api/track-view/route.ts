@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
+import { getClientIp } from '@/lib/server/security/ip';
 
 // Acquire the per-visitor dedupe lock and, only if it's newly acquired,
 // increment the pending counters + mark the profile — all in one round trip.
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     // exists before writing to the DB, so a view for a deleted/nonexistent
     // id is simply dropped there — no FK risk, and one fewer round trip here.
 
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown';
+    const ip = getClientIp(request.headers) || 'direct';
     const userAgent = request.headers.get('user-agent') || '';
     const clientFingerprint =
       typeof fingerprint === 'string' && fingerprint.length > 0 ? fingerprint : null;

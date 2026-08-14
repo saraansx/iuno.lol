@@ -127,6 +127,7 @@ const NewPasswordForm = () => {
         <Input
           label="New Password"
           isPassword
+          maxLength={128}
           value={password}
           onChange={(e) => handleInputChange("password", e.target.value, setPassword)}
           placeholder="••••••••••••"
@@ -137,6 +138,7 @@ const NewPasswordForm = () => {
         <Input
           label="Confirm New Password"
           isPassword
+          maxLength={128}
           value={confirmPassword}
           onChange={(e) => handleInputChange("confirmPassword", e.target.value, setConfirmPassword)}
           placeholder="••••••••••••"

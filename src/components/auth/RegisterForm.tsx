@@ -221,6 +221,7 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
           id="password"
           label="Create Password"
           isPassword
+          maxLength={128}
           value={password}
           onChange={(e) => handleInputChange("password", e.target.value, setPassword)}
           error={errors.password}
@@ -231,6 +232,7 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
           id="confirm-password"
           label="Confirm Password"
           isPassword
+          maxLength={128}
           value={confirmPassword}
           onChange={(e) => handleInputChange("confirmPassword", e.target.value, setConfirmPassword)}
           error={errors.confirmPassword}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createSession } from '@/lib/auth/session'
 import { upsertDiscordUser } from '@/lib/features/users/db'
+import { getClientIp } from '@/lib/server/security/ip'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
 
 const DISCORD_API = 'https://discord.com/api/v10'
@@ -78,7 +79,7 @@ export async function GET(req: NextRequest) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
   // ── Rate limit: 10 Discord logins per 10 minutes per IP ──────────────────
-  const rateIp = req.headers.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+  const rateIp = getClientIp(req.headers)
   const rate = await discordOAuthRateLimit(rateIp)
   if (!rate.ok) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_rate_limited`)
@@ -117,7 +118,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 4. Upsert user in DB (create or link account)
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0].trim() ?? undefined
+    const ip = getClientIp(req.headers) ?? undefined
     const userId = await upsertDiscordUser({
       discordId:       discordUser.id,
       discordUsername: discordUser.username,

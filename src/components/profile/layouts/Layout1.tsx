@@ -2,7 +2,6 @@
 
 import React, {  useEffect, useState  } from "react";
 import Image from "next/image";
-import DOMPurify from "dompurify";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { CommentsModal } from "../comments/CommentsModal";
@@ -15,14 +14,52 @@ import { UsernameEffect } from "./UsernameEffect";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
 
-// DOMPurify needs a real DOM. During SSR of this client component it resolves
-// to a bare factory with no .sanitize, so guard on isSupported. The fallback is
-// safe because renderFormattedText escapes &, < and > out of the input before
-// inserting its own tags — the only markup left is <strong>/<u>/<s>/<em> with no
-// attributes, so there is nothing for DOMPurify to strip and server and client
-// produce identical HTML.
-const sanitizeFormatted = (html: string) =>
-  DOMPurify.isSupported ? DOMPurify.sanitize(html) : html;
+const parseInlineFormatting = (text: string): React.ReactNode => {
+  if (!text) return null;
+
+  const rules: { regex: RegExp; render: (inner: React.ReactNode, key: number) => React.ReactNode }[] = [
+    { regex: /^\*\*(.+?)\*\*/, render: (inner, key) => <strong key={key}>{inner}</strong> },
+    { regex: /^__(.+?)__/, render: (inner, key) => <u key={key}>{inner}</u> },
+    { regex: /^~~(.+?)~~/, render: (inner, key) => <s key={key}>{inner}</s> },
+    { regex: /^~(.+?)~/, render: (inner, key) => <s key={key}>{inner}</s> },
+    { regex: /^\*(.+?)\*/, render: (inner, key) => <em key={key}>{inner}</em> },
+    { regex: /^_(.+?)_/, render: (inner, key) => <em key={key}>{inner}</em> },
+  ];
+
+  const nodes: React.ReactNode[] = [];
+  let remaining = text;
+  let key = 0;
+
+  while (remaining.length > 0) {
+    let matched = false;
+
+    for (const { regex, render } of rules) {
+      const match = remaining.match(regex);
+      if (match) {
+        nodes.push(render(parseInlineFormatting(match[1]), key++));
+        remaining = remaining.slice(match[0].length);
+        matched = true;
+        break;
+      }
+    }
+
+    if (!matched) {
+      const nextIndex = remaining.search(/[*~_]/);
+      if (nextIndex === -1) {
+        nodes.push(remaining);
+        break;
+      } else if (nextIndex === 0) {
+        nodes.push(remaining[0]);
+        remaining = remaining.slice(1);
+      } else {
+        nodes.push(remaining.slice(0, nextIndex));
+        remaining = remaining.slice(nextIndex);
+      }
+    }
+  }
+
+  return nodes.length === 1 ? nodes[0] : nodes;
+};
 
 const renderFormattedText = (text: string) => {
   if (!text) return null;
@@ -30,36 +67,24 @@ const renderFormattedText = (text: string) => {
   const lines = text.split("\n");
 
   const parsedLines = lines.map((line, idx) => {
-    let parsed = line
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    let content = line;
 
-    const isSubtext = /^-#\s+(.*)/.exec(parsed);
+    const isSubtext = /^-#\s+(.*)/.exec(content);
     if (isSubtext) {
-      parsed = isSubtext[1];
+      content = isSubtext[1];
     }
 
-    const isBullet = /^(?:-|\*|•)\s+(.*)/.exec(parsed);
+    const isBullet = /^(?:-|\*|•)\s+(.*)/.exec(content);
     if (isBullet && !isSubtext) {
-      parsed = isBullet[1];
+      content = isBullet[1];
     }
 
-    // Bold: **text**
-    parsed = parsed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    // Underline: __text__
-    parsed = parsed.replace(/__(.*?)__/g, "<u>$1</u>");
-    // Strikethrough: ~~text~~ or ~text~
-    parsed = parsed.replace(/~~(.*?)~~/g, "<s>$1</s>");
-    parsed = parsed.replace(/~(.*?)~/g, "<s>$1</s>");
-    // Italics: *text* or _text_
-    parsed = parsed.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    parsed = parsed.replace(/_(.*?)_/g, "<em>$1</em>");
+    const formatted = parseInlineFormatting(content);
 
     if (isSubtext) {
       return (
         <span key={idx} className="text-[11px] opacity-60 leading-tight block">
-          <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
+          {formatted}
         </span>
       );
     }
@@ -68,14 +93,14 @@ const renderFormattedText = (text: string) => {
       return (
         <span key={idx} className="flex items-center gap-2 justify-center">
           <span className="text-[12px] opacity-70">•</span>
-          <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
+          <span>{formatted}</span>
         </span>
       );
     }
 
     return (
       <React.Fragment key={idx}>
-        <span dangerouslySetInnerHTML={{ __html: sanitizeFormatted(parsed) }} />
+        <span>{formatted}</span>
         {idx < lines.length - 1 && <br />}
       </React.Fragment>
     );
@@ -380,9 +405,9 @@ const Layout1 = ({
   }, [initialDislikes]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && profileId && viewerId !== -1) {
-      // Fetch live data (views, likes, dislikes) from the API
-      fetch(`/api/profile/live?profileId=${profileId}`)
+    if (typeof window !== "undefined" && username && viewerId !== -1) {
+      // Fetch live data (views, likes, dislikes) from the API by username (prevents enumeration)
+      fetch(`/api/profile/live?username=${encodeURIComponent(username)}`)
         .then(res => res.json())
         .then(data => {
           if (data && !data.error) {
@@ -393,7 +418,7 @@ const Layout1 = ({
         })
         .catch(err => console.error("Failed to fetch live profile data:", err));
     }
-  }, [profileId, views, initialLikes, initialDislikes, viewerId]);
+  }, [username, views, initialLikes, initialDislikes, viewerId]);
 
 
   useEffect(() => {
@@ -402,6 +427,7 @@ const Layout1 = ({
       return;
     }
 
+    let frameId: number;
     const startTime = Date.now();
     const duration = viewsAnimationDuration || 1000;
     const startValue = 0;
@@ -415,13 +441,17 @@ const Layout1 = ({
       setAnimatedViews(Math.floor(startValue + (endValue - startValue) * easeOut));
 
       if (progress < 1) {
-        requestAnimationFrame(animate);
+        frameId = requestAnimationFrame(animate);
       } else {
         setAnimatedViews(liveViews);
       }
     };
 
-    requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
+
+    return () => {
+      cancelAnimationFrame(frameId);
+    };
   }, [liveViews, viewsAnimationEnabled, viewsAnimationDuration]);
 
   const formattedJoinDate = React.useMemo(() => {

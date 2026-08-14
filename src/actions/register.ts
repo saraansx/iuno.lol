@@ -4,6 +4,7 @@ import { createVerificationToken } from '@/lib/auth/tokens'
 import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
+import { getClientIp } from '@/lib/server/security/ip'
 import { registerRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 
@@ -39,6 +40,10 @@ export async function register(input: RegisterInput) {
       return { error: 'Password must be at least 8 characters.' }
     }
 
+    if (password.length > 128) {
+      return { error: 'Password must be 128 characters or fewer.' }
+    }
+
     if (!/[A-Z]/.test(password)) {
       return { error: 'Password must include an uppercase letter.' }
     }
@@ -65,7 +70,7 @@ export async function register(input: RegisterInput) {
     }
 
     const h = await headers()
-    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const ip = getClientIp(h)
 
     const rate = await registerRateLimit(email, ip)
     if (!rate.ok) {

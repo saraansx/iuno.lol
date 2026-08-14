@@ -44,30 +44,35 @@ async function checkRateLimit(
   return { ok: false, retryAfterSeconds: retryAfter };
 }
 
-export async function loginRateLimit(email: string, ip: string) {
+export async function loginRateLimit(email: string, ip: string | null) {
   const emailRate = await checkRateLimit(`login:email:${email}`, 5, 10 * 60, 5 * 60);
   if (!emailRate.ok) return emailRate;
 
-  const ipRate = await checkRateLimit(`login:ip:${ip}`, 20, 10 * 60, 5 * 60);
-  if (!ipRate.ok) return ipRate;
+  if (ip) {
+    const ipRate = await checkRateLimit(`login:ip:${ip}`, 20, 10 * 60, 5 * 60);
+    if (!ipRate.ok) return ipRate;
+  }
 
   return { ok: true as const };
 }
 
-export async function registerRateLimit(email: string, ip: string) {
+export async function registerRateLimit(email: string, ip: string | null) {
   const emailRate = await checkRateLimit(`register:email:${email}`, 3, 10 * 60, 5 * 60);
   if (!emailRate.ok) return emailRate;
 
-  const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 10 * 60, 5 * 60);
-  if (!ipRate.ok) return ipRate;
+  if (ip) {
+    const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 10 * 60, 5 * 60);
+    if (!ipRate.ok) return ipRate;
+  }
 
   return { ok: true as const };
 }
 
-export async function resetPasswordRateLimit(ip: string) {
+export async function resetPasswordRateLimit(ip: string | null) {
   // Keyed by IP, not email — the email is only known after the token lookup
   // succeeds, so an email key can't guard the lookup itself. 10 attempts per
   // 10 minutes caps how fast anyone can hammer the reset-token table.
+  if (!ip) return { ok: true as const };
   return checkRateLimit(`reset:ip:${ip}`, 10, 10 * 60, 5 * 60);
 }
 
@@ -102,7 +107,8 @@ export async function profileUpdateRateLimit(userId: number) {
   return checkRateLimit(`profile_update:${userId}`, 10, 60, 60);
 }
 
-export async function checkAvailabilityRateLimit(ip: string) {
+export async function checkAvailabilityRateLimit(ip: string | null) {
+  if (!ip) return { ok: true as const };
   return checkRateLimit(`check:${ip}`, 10, 60, 30);
 }
 
@@ -111,8 +117,9 @@ export async function feedbackRateLimit(userId: number) {
   return checkRateLimit(`feedback:${userId}`, 20, 60, 60);
 }
 
-export async function discordOAuthRateLimit(ip: string) {
+export async function discordOAuthRateLimit(ip: string | null) {
   // 10 Discord login attempts per 10 minutes per IP
+  if (!ip) return { ok: true as const };
   return checkRateLimit(`discord_oauth:${ip}`, 10, 10 * 60, 5 * 60);
 }
 

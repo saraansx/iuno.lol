@@ -2,6 +2,7 @@
 
 import { consumePasswordResetToken } from '@/lib/auth/tokens'
 import { updatePassword } from '@/lib/features/users/db'
+import { getClientIp } from '@/lib/server/security/ip'
 import { resetPasswordRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 
@@ -21,6 +22,10 @@ export async function newPassword(token: string, password: string) {
       return { error: 'Password must be at least 8 characters.' }
     }
 
+    if (password.length > 128) {
+      return { error: 'Password must be 128 characters or fewer.' }
+    }
+
     if (!/[A-Z]/.test(password)) {
       return { error: 'Password must include an uppercase letter.' }
     }
@@ -37,7 +42,7 @@ export async function newPassword(token: string, password: string) {
     // known once the lookup succeeds, and running it after would let a tripped
     // limit destroy an otherwise valid one-time token.
     const h = await headers()
-    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const ip = getClientIp(h)
     const rate = await resetPasswordRateLimit(ip)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)

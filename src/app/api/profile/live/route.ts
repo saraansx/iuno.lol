@@ -7,15 +7,16 @@ import { redis } from '@/lib/redis';
 const CACHE_TTL = 60; // seconds
 const CACHE_PREFIX = 'live:';
 
-async function getLiveStatsFromDB(profileId: number) {
+async function getLiveStatsByUsername(username: string) {
   const result = await db
     .select({
+      id: users.id,
       views: users.views,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
     })
     .from(users)
-    .where(eq(users.id, profileId))
+    .where(eq(users.username, username))
     .limit(1);
 
   return result.length > 0 ? result[0] : null;
@@ -24,19 +25,18 @@ async function getLiveStatsFromDB(profileId: number) {
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const profileIdStr = searchParams.get('profileId');
+    const username = searchParams.get('username')?.trim().toLowerCase();
 
-    if (!profileIdStr) {
-      return NextResponse.json({ error: 'Missing profileId' }, { status: 400 });
+    if (!username) {
+      return NextResponse.json({ error: 'Missing username' }, { status: 400 });
     }
 
-    const profileId = parseInt(profileIdStr, 10);
-
-    if (isNaN(profileId)) {
-      return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
+    // Validate username format to prevent injection/abuse
+    if (username.length > 32 || !/^[a-z0-9_.]+$/.test(username)) {
+      return NextResponse.json({ error: 'Invalid username' }, { status: 400 });
     }
 
-    const cacheKey = `${CACHE_PREFIX}${profileId}`;
+    const cacheKey = `${CACHE_PREFIX}${username}`;
 
     // 1. Try Redis cache first
     const cached = await redis.get(cacheKey);
@@ -47,16 +47,22 @@ export async function GET(request: Request) {
     }
 
     // 2. Cache miss - fetch from DB
-    const stats = await getLiveStatsFromDB(profileId);
+    const stats = await getLiveStatsByUsername(username);
 
     if (!stats) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
-    // 3. Store in Redis with TTL (auto-expires, no cleanup needed)
-    await redis.set(cacheKey, stats, { ex: CACHE_TTL });
+    const responseData = {
+      views: stats.views,
+      likesCount: stats.likesCount,
+      dislikesCount: stats.dislikesCount,
+    };
 
-    return NextResponse.json(stats, {
+    // 3. Store in Redis with TTL
+    await redis.set(cacheKey, responseData, { ex: CACHE_TTL });
+
+    return NextResponse.json(responseData, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
     });
   } catch (error) {
@@ -65,8 +71,21 @@ export async function GET(request: Request) {
   }
 }
 
-// Helper to invalidate cache when profile stats change
-export async function invalidateLiveStatsCache(profileId: number) {
-  const cacheKey = `${CACHE_PREFIX}${profileId}`;
-  await redis.del(cacheKey);
+// Helper to invalidate cache when profile stats change (accepts username or numeric id)
+export async function invalidateLiveStatsCache(identifier: string | number) {
+  if (typeof identifier === 'string') {
+    await redis.del(`${CACHE_PREFIX}${identifier.toLowerCase()}`);
+    return;
+  }
+
+  // If numeric ID passed, find username to bust key
+  const [user] = await db
+    .select({ username: users.username })
+    .from(users)
+    .where(eq(users.id, identifier))
+    .limit(1);
+
+  if (user?.username) {
+    await redis.del(`${CACHE_PREFIX}${user.username.toLowerCase()}`);
+  }
 }

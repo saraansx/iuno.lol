@@ -5,6 +5,7 @@ import { createSession } from '@/lib/auth/session'
 import { getUserByEmailWithPassword } from '@/lib/features/users/db'
 import { isPasswordCorrect } from '@/lib/server/security/bcrypt'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
+import { getClientIp } from '@/lib/server/security/ip'
 import { loginRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 
@@ -34,7 +35,7 @@ export async function login(input: LoginInput) {
     }
 
     const h = await headers()
-    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const ip = getClientIp(h)
     const rate = await loginRateLimit(email, ip)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)
@@ -54,7 +55,11 @@ export async function login(input: LoginInput) {
       if (!password) {
         return { error: 'Password is required.' }
       }
-      
+
+      if (password.length > 128) {
+        return { error: 'Invalid credentials.' }
+      }
+
       if (!user.password || !(await isPasswordCorrect(password, user.password))) {
         return { error: 'Invalid credentials.' }
       }

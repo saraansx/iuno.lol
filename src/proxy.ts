@@ -38,11 +38,33 @@ export default async function middleware(request: NextRequest) {
   const response = NextResponse.next()
   const path = request.nextUrl.pathname
 
-  // ── Security headers ──────────────────────────────────────────────────────
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    )
+  }
+
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://va.vercel-scripts.com",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' data: blob: https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com https://cdn.iuno.lol https://cdn.discordapp.com https://discord-decoration.art",
+    "media-src 'self' data: blob: https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com https://cdn.iuno.lol",
+    "connect-src 'self' https://challenges.cloudflare.com https://va.vercel-scripts.com https://vitals.vercel-insights.com https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com",
+    "frame-src 'self' https://challenges.cloudflare.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self' https://discord.com",
+  ].join('; ')
+
+  response.headers.set('Content-Security-Policy', cspDirectives)
 
   const secretKey = request.nextUrl.searchParams.get('admin_access')
   if (secretKey && process.env.ADMIN_BYPASS_KEY && secretKey === process.env.ADMIN_BYPASS_KEY) {

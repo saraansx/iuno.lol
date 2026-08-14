@@ -2,12 +2,13 @@
 
 import { assertUsernameAvailable, getUserByEmail } from '@/lib/features/users/db'
 import { headers } from 'next/headers'
+import { getClientIp } from '@/lib/server/security/ip'
 import { checkAvailabilityRateLimit } from '@/lib/rate-limit'
 
 export async function checkAvailability({ username, email }: { username: string; email: string }) {
   try {
     const h = await headers()
-    const ip = h.get('x-forwarded-for')?.split(',')[0].trim() || 'unknown'
+    const ip = getClientIp(h)
     const rate = await checkAvailabilityRateLimit(ip)
     if (!rate.ok) {
       return { error: 'You\'re checking too fast. Please try again shortly.' }

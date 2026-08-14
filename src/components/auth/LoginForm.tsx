@@ -208,6 +208,7 @@ const LoginForm = () => {
             id="password"
             label="Password"
             isPassword
+            maxLength={128}
             value={password}
             onChange={(e) => handleInputChange("password", e.target.value, setPassword)}
             error={errors.password}
