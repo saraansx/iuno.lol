@@ -12,6 +12,20 @@ interface BackgroundEffectSectionProps {
   setBackgroundEffectAboveContainer: (val: boolean) => void;
 }
 
+const BACKGROUND_EFFECTS = [
+  { id: "none", name: "None" },
+  { id: "snow", name: "Snow" },
+  { id: "rain", name: "Rain" },
+  { id: "particles", name: "Particles" },
+  { id: "shootingstars", name: "Shooting Stars" },
+  { id: "hearts", name: "Hearts" },
+  { id: "nighttime", name: "Night Time" },
+  { id: "oldtv", name: "Old TV" },
+  { id: "dither", name: "Dither" },
+];
+
+const EFFECTS_WITH_COLOR = ["dither", "snow", "rain", "particles", "shootingstars", "hearts"];
+
 export default function BackgroundEffectSection({
   backgroundEffect,
   setBackgroundEffect,
@@ -35,20 +49,9 @@ export default function BackgroundEffectSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const effects = [
-    { id: "none", name: "None" },
-    { id: "snow", name: "Snow" },
-    { id: "rain", name: "Rain" },
-    { id: "particles", name: "Particles" },
-    { id: "shootingstars", name: "Shooting Stars" },
-    { id: "hearts", name: "Hearts" },
-    { id: "nighttime", name: "Night Time" },
-    { id: "oldtv", name: "Old TV" },
-    { id: "dither", name: "Dither" },
-  ];
-
+  const effects = BACKGROUND_EFFECTS;
   const isBgDisabled = !backgroundEffect || backgroundEffect === "none";
-  const effectsWithColor = ["dither", "snow", "rain", "particles", "shootingstars", "hearts"];
+  const effectsWithColor = EFFECTS_WITH_COLOR;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">

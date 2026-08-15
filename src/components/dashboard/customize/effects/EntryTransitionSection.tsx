@@ -7,6 +7,10 @@ interface EntryTransitionSectionProps {
   setEntryTransition: (val: string) => void;
 }
 
+const ENTRY_TRANSITIONS = [
+  { id: "none", name: "None" },
+];
+
 export default function EntryTransitionSection({
   entryTransition,
   setEntryTransition,
@@ -24,9 +28,7 @@ export default function EntryTransitionSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const entryTransitions = [
-    { id: "none", name: "None" },
-  ];
+  const entryTransitions = ENTRY_TRANSITIONS;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">

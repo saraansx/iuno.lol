@@ -13,6 +13,14 @@ function isValidHex(value: string): boolean {
   return /^#?[0-9a-fA-F]{6}$/.test(value.trim());
 }
 
+const CURSOR_TRAILS = [
+  { id: "none", name: "None" },
+  { id: "fluid-line", name: "Fluid Line" },
+  { id: "stars", name: "Sparkles" },
+  { id: "ghost", name: "Ghost" },
+  { id: "sakura", name: "Sakura Petals" },
+];
+
 export default function CursorTrailSection({
   cursorTrail,
   setCursorTrail,
@@ -32,16 +40,7 @@ export default function CursorTrailSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Adding a trail = one entry here plus a case in CursorTrail.tsx —
-  // the column is a free-form varchar, so no migration is needed.
-  const cursorTrails = [
-    { id: "none", name: "None" },
-    { id: "fluid-line", name: "Fluid Line" },
-    { id: "stars", name: "Sparkles" },
-    { id: "ghost", name: "Ghost" },
-    { id: "sakura", name: "Sakura Petals" },
-  ];
-
+  const cursorTrails = CURSOR_TRAILS;
   const isColorDisabled = !cursorTrail || cursorTrail === "none";
 
   return (

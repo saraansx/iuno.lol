@@ -3,6 +3,7 @@
 import { assertUsernameAvailable, getUserByEmail } from '@/lib/features/users/db'
 import { headers } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
+import { validateUsername, validateEmail } from '@/lib/server/security/validation'
 import { checkAvailabilityRateLimit } from '@/lib/rate-limit'
 
 export async function checkAvailability({ username, email }: { username: string; email: string }) {
@@ -17,20 +18,11 @@ export async function checkAvailability({ username, email }: { username: string;
     const cleanUsername = username.trim().toLowerCase()
     const cleanEmail = email.trim().toLowerCase()
 
-    if (!cleanUsername) return { error: 'Username is required.' }
-    if (!cleanEmail) return { error: 'Email is required.' }
+    const usernameError = validateUsername(cleanUsername)
+    if (usernameError) return { error: usernameError }
 
-    if (cleanUsername.length < 3 || cleanUsername.length > 32) {
-      return { error: 'Username must be between 3 and 32 characters.' }
-    }
-
-    if (!/^[a-z0-9_.]+$/.test(cleanUsername)) {
-      return { error: 'Invalid username characters.' }
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
-      return { error: 'Invalid email format.' }
-    }
+    const emailError = validateEmail(cleanEmail)
+    if (emailError) return { error: emailError }
 
     // Check both — if either exists, return the same generic message so the
     // response never reveals which field is taken.

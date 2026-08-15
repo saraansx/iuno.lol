@@ -61,17 +61,22 @@ export async function verifyOTPToken(email: string, otp: string): Promise<{ succ
   }
 
   const attemptsKey = `otp_attempts:${email}:${row.id}`
+  const attempts = await redis.incr(attemptsKey)
+  if (attempts === 1) {
+    await redis.expire(attemptsKey, 300) // 5 min window
+  }
+
+  const maxAttempts = 3
+  if (attempts > maxAttempts) {
+    await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
+    await redis.del(attemptsKey)
+    return { success: false, error: 'Too many failed attempts. Please request a new OTP.' }
+  }
 
   const isValid = await isOTPCorrect(otp, row.token)
   if (!isValid) {
-    const attempts = await redis.incr(attemptsKey)
-    await redis.expire(attemptsKey, 300) // 5 min window
-
-    const maxAttempts = 3
     const remaining = maxAttempts - attempts
-
     if (remaining <= 0) {
-      // Too many failures, delete the OTP token completely
       await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
       await redis.del(attemptsKey)
       return { success: false, error: 'Too many failed attempts. Please request a new OTP.' }

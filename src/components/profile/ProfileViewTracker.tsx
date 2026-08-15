@@ -14,14 +14,12 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     if (hasTracked.current) return;
 
     const sessionKey = `viewed_profile_${profileId}`;
-    if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) {
+    if (sessionStorage.getItem(sessionKey)) {
       return;
     }
 
     hasTracked.current = true;
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(sessionKey, 'true');
-    }
+    sessionStorage.setItem(sessionKey, 'true');
 
     const trackView = async () => {
       try {

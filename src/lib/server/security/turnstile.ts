@@ -34,3 +34,14 @@ export async function verifyTurnstileToken(token: string, ip?: string): Promise<
     return false;
   }
 }
+
+export async function assertTurnstile(token: string | undefined | null, ip?: string): Promise<string | null> {
+  if (!token) {
+    return 'Please complete the security check.'
+  }
+  const isValid = await verifyTurnstileToken(token, ip)
+  if (!isValid) {
+    return 'Invalid security token. Please refresh the page and try again.'
+  }
+  return null
+}

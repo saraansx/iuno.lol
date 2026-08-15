@@ -3,7 +3,7 @@
 import { createPasswordResetToken } from '@/lib/auth/tokens'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendPasswordResetEmail } from '@/lib/mail'
-import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
+import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { forgotPasswordRateLimit } from '@/lib/rate-limit'
 
 export async function forgotPassword(email: string, turnstileToken: string) {
@@ -12,14 +12,8 @@ export async function forgotPassword(email: string, turnstileToken: string) {
       return { error: 'Email is required.' }
     }
 
-    if (!turnstileToken) {
-      return { error: 'Security verification is required.' }
-    }
-
-    const isVerified = await verifyTurnstileToken(turnstileToken)
-    if (!isVerified) {
-      return { error: 'Security verification failed.' }
-    }
+    const turnstileError = await assertTurnstile(turnstileToken)
+    if (turnstileError) return { error: turnstileError }
 
     const rate = await forgotPasswordRateLimit(email)
     if (!rate.ok) {

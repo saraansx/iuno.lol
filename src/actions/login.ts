@@ -4,7 +4,7 @@ import { verifyOTPToken } from '@/lib/auth/otp'
 import { createSession } from '@/lib/auth/session'
 import { getUserByEmailWithPassword } from '@/lib/features/users/db'
 import { isPasswordCorrect } from '@/lib/server/security/bcrypt'
-import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
+import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
 import { loginRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
@@ -25,14 +25,8 @@ export async function login(input: LoginInput) {
       return { error: 'Email is required.' }
     }
 
-    if (!turnstileToken) {
-      return { error: 'Please complete the security check.' }
-    }
-
-    const isTurnstileValid = await verifyTurnstileToken(turnstileToken)
-    if (!isTurnstileValid) {
-      return { error: 'Invalid security token. Please refresh the page and try again.' }
-    }
+    const turnstileError = await assertTurnstile(turnstileToken)
+    if (turnstileError) return { error: turnstileError }
 
     const h = await headers()
     const ip = getClientIp(h)

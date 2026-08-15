@@ -25,13 +25,14 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
   const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [rawSelectedFile, setRawSelectedFile] = useState<File | null>(null);
 
-  const xhrRef = React.useRef<XMLHttpRequest | null>(null);
-
   useEffect(() => {
     // Reset state when modal opens/closes
     if (!open && !isLoading) {
       const timer = setTimeout(() => {
-        setResolvedUrl(null);
+        setResolvedUrl((prev) => {
+          if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+          return null;
+        });
         setMediaType(null);
         setErrorMsg(null);
         setIsLoading(false);
@@ -40,17 +41,20 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
         setCropModalOpen(false);
         setCropImageSrc(null);
         setRawSelectedFile(null);
-        xhrRef.current = null;
       }, 0);
       return () => clearTimeout(timer);
     }
   }, [open, isLoading]);
 
+  useEffect(() => {
+    return () => {
+      if (resolvedUrl && resolvedUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(resolvedUrl);
+      }
+    };
+  }, [resolvedUrl]);
+
   const handleCancelAndClose = () => {
-    if (xhrRef.current) {
-      xhrRef.current.abort();
-      xhrRef.current = null;
-    }
     setIsLoading(false);
     setUploadProgress(null);
     setStatusText("");

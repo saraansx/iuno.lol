@@ -13,7 +13,7 @@ export function BeamBorderEffect({ colorFrom, colorTo, borderWidth = 2 }: BeamBo
     <BorderBeam
       colorFrom={colorFrom}
       colorTo={colorTo}
-      borderWidth={borderWidth > 0 ? borderWidth : 2}
+      borderWidth={borderWidth}
       size={100}
       duration={9}
       length={1.4}

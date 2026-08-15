@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useRef, useEffect } from "react";
+import { createContext, useContext, useState, ReactNode, useRef, useEffect, useMemo, useCallback } from "react";
 import { type FullUser } from "@/lib/features/users/db";
 
 type CustomizeProfileContextType = {
@@ -27,18 +27,20 @@ export function CustomizeProfileProvider({
   const [pendingFiles, setPendingFiles] = useState<{ avatar?: File; background?: File; banner?: File }>({});
   const pendingClearRef = useRef(false);
   const hasMounted = useRef(false);
+
   useEffect(() => {
     if (hasMounted.current) {
       if (pendingClearRef.current) {
         pendingClearRef.current = false;
-        setTimeout(() => setOverrides({}), 0);
+        // Queue clear on next frame to prevent sync render cascades
+        requestAnimationFrame(() => setOverrides({}));
       }
     } else {
       hasMounted.current = true;
     }
   }, [initialUser]);
 
-  const updateOverrides = (newOverrides: Partial<FullUser>) => {
+  const updateOverrides = useCallback((newOverrides: Partial<FullUser>) => {
     setOverrides((prev) => {
       const next = { ...prev, ...newOverrides };
       (Object.keys(next) as Array<keyof Partial<FullUser>>).forEach((key) => {
@@ -48,35 +50,49 @@ export function CustomizeProfileProvider({
       });
       return next;
     });
-  };
+  }, []);
 
-  const clearOverrides = () => {
+  const clearOverrides = useCallback(() => {
     setOverrides({});
-  };
+  }, []);
 
-  const scheduleClear = () => {
+  const scheduleClear = useCallback(() => {
     pendingClearRef.current = true;
-  };
+  }, []);
 
-  const setPendingFile = (type: "avatar" | "background" | "banner", file?: File) => {
+  const setPendingFile = useCallback((type: "avatar" | "background" | "banner", file?: File) => {
     setPendingFiles((prev) => ({ ...prev, [type]: file }));
-  };
+  }, []);
 
-  const clearPendingFiles = () => {
+  const clearPendingFiles = useCallback(() => {
     setPendingFiles({});
-  };
+  }, []);
 
-  return (
-    <CustomizeProfileContext.Provider value={{ 
-      initialUser, 
-      overrides, 
-      updateOverrides, 
-      clearOverrides, 
+  const value = useMemo(
+    () => ({
+      initialUser,
+      overrides,
+      updateOverrides,
+      clearOverrides,
       scheduleClear,
       pendingFiles,
       setPendingFile,
-      clearPendingFiles
-    }}>
+      clearPendingFiles,
+    }),
+    [
+      initialUser,
+      overrides,
+      updateOverrides,
+      clearOverrides,
+      scheduleClear,
+      pendingFiles,
+      setPendingFile,
+      clearPendingFiles,
+    ]
+  );
+
+  return (
+    <CustomizeProfileContext.Provider value={value}>
       {children}
     </CustomizeProfileContext.Provider>
   );

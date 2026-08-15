@@ -19,6 +19,13 @@ function isValidHex(value: string): boolean {
   return /^#?[0-9a-fA-F]{6}$/.test(value.trim());
 }
 
+const BORDER_EFFECTS = [
+  { id: "none", name: "None" },
+  { id: "border-beam", name: "Border Beam" },
+  { id: "shine-border", name: "Shine Border" },
+  { id: "electric-border", name: "Electric Border" }
+];
+
 export default function BorderEffectSection({
   borderEffect,
   setBorderEffect,
@@ -38,13 +45,7 @@ export default function BorderEffectSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const borderEffects = [
-    { id: "none", name: "None" },
-    { id: "border-beam", name: "Border Beam" },
-    { id: "shine-border", name: "Shine Border" },
-    { id: "electric-border", name: "Electric Border" }
-  ];
-
+  const borderEffects = BORDER_EFFECTS;
   const isBorderDisabled = !borderEffect || borderEffect === "none";
   const isSingleColorEffect = borderEffect === "electric-border";
 

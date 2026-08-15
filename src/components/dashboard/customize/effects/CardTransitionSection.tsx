@@ -8,6 +8,26 @@ interface CardTransitionSectionProps {
   setCardTransition?: (val: string) => void;
 }
 
+const CARD_EFFECTS = [
+  { id: "none", name: "None" },
+  { id: "skew", name: "Skew" },
+  { id: "magnet", name: "Magnet" },
+  { id: "zoom", name: "Zoom" },
+  { id: "elastic", name: "Elastic" },
+  { id: "dive", name: "Dive" },
+];
+
+const CARD_TRANSITIONS = [
+  { id: "none", name: "None" },
+  { id: "fade", name: "Fade" },
+  { id: "slide-up", name: "Slide Up" },
+  { id: "slide-down", name: "Slide Down" },
+  { id: "zoom-in", name: "Zoom In" },
+  { id: "flip", name: "Flip" },
+  { id: "bounce", name: "Bounce" },
+  { id: "blur", name: "Blur" },
+];
+
 export default function CardTransitionSection({
   cardEffect = "none",
   setCardEffect,
@@ -32,25 +52,8 @@ export default function CardTransitionSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const cardEffects = [
-    { id: "none", name: "None" },
-    { id: "skew", name: "Skew" },
-    { id: "magnet", name: "Magnet" },
-    { id: "zoom", name: "Zoom" },
-    { id: "elastic", name: "Elastic" },
-    { id: "dive", name: "Dive" },
-  ];
-
-  const cardTransitions = [
-    { id: "none", name: "None" },
-    { id: "fade", name: "Fade" },
-    { id: "slide-up", name: "Slide Up" },
-    { id: "slide-down", name: "Slide Down" },
-    { id: "zoom-in", name: "Zoom In" },
-    { id: "flip", name: "Flip" },
-    { id: "bounce", name: "Bounce" },
-    { id: "blur", name: "Blur" },
-  ];
+  const cardEffects = CARD_EFFECTS;
+  const cardTransitions = CARD_TRANSITIONS;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm col-span-1 md:col-span-2">

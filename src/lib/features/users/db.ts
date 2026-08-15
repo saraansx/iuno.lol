@@ -310,17 +310,20 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
 
   while (true) {
     try {
-      const [result] = await db.insert(schema.users).values({
-        username,
-        email: email ?? null,
-        password: null,
-        ip: ip ?? null,
-        discordId,
-        discordUsername,
-        emailVerified: emailVerified ?? false,
+      const insertId = await db.transaction(async (tx) => {
+        const [result] = await tx.insert(schema.users).values({
+          username,
+          email: email ?? null,
+          password: null,
+          ip: ip ?? null,
+          discordId,
+          discordUsername,
+          emailVerified: emailVerified ?? false,
+        })
+        const id = (result as { insertId: number }).insertId
+        await tx.insert(schema.userSettings).values({ userId: id })
+        return id
       })
-      const insertId = (result as { insertId: number }).insertId
-      await db.insert(schema.userSettings).values({ userId: insertId })
       return insertId
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
@@ -346,7 +349,7 @@ export async function updatePassword(email: string, passwordUnhashed: string) {
 
 // ── Profile views analytics ───────────────────────────────────────────────
 
-interface AnalyticsRow { view_hour?: number; view_date?: string | Date; m?: number; count: string | number; }
+interface AnalyticsRow { view_date?: string | Date; count: string | number; }
 
 export interface RawViewBin {
   d: string; // YYYY-MM-DD

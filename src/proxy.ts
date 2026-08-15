@@ -67,18 +67,30 @@ export default async function middleware(request: NextRequest) {
   response.headers.set('Content-Security-Policy', cspDirectives)
 
   const secretKey = request.nextUrl.searchParams.get('admin_access')
-  if (secretKey && process.env.ADMIN_BYPASS_KEY && secretKey === process.env.ADMIN_BYPASS_KEY) {
-    const token = await signAdminToken()
-    if (token) {
-      const redirectResponse = NextResponse.redirect(new URL('/', request.url))
-      redirectResponse.cookies.set(ADMIN_COOKIE, token, {
-        maxAge: 60 * 60 * 24 * 365,
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      })
-      return redirectResponse
+  const envBypassKey = process.env.ADMIN_BYPASS_KEY
+  if (secretKey && envBypassKey && secretKey.length === envBypassKey.length) {
+    const encoder = new TextEncoder()
+    const secretBuf = encoder.encode(secretKey)
+    const bypassBuf = encoder.encode(envBypassKey)
+    let diff = 0
+    for (let i = 0; i < secretBuf.length; i++) {
+      diff |= secretBuf[i] ^ bypassBuf[i]
+    }
+    if (diff === 0) {
+      const token = await signAdminToken()
+      if (token) {
+        const redirectUrl = new URL(request.url)
+        redirectUrl.searchParams.delete('admin_access')
+        const redirectResponse = NextResponse.redirect(redirectUrl)
+        redirectResponse.cookies.set(ADMIN_COOKIE, token, {
+          maxAge: 60 * 60 * 24 * 365,
+          path: '/',
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+        })
+        return redirectResponse
+      }
     }
   }
 
@@ -90,12 +102,13 @@ export default async function middleware(request: NextRequest) {
 
   // 3. Coming-soon gate
   if (GATE_ENABLED) {
+    const isStaticFile = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|webp|mp4|webm|json|xml|txt)$/i.test(path)
     const isPublicAsset =
       path === '/coming-soon' ||
       path === '/api/health' ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
-      path.includes('.') 
+      isStaticFile
 
     if (!isPublicAsset) {
       return NextResponse.redirect(new URL('/coming-soon', request.url))

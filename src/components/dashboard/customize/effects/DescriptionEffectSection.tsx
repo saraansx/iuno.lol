@@ -7,6 +7,17 @@ interface DescriptionEffectSectionProps {
   setDescriptionEffect: (val: string) => void;
 }
 
+const DESCRIPTION_EFFECTS = [
+  { id: "none", name: "None" },
+  { id: "blur", name: "Blur" },
+  { id: "float", name: "Float" },
+  { id: "pulse", name: "Pulse" },
+  { id: "flip", name: "Flip" },
+  { id: "sparkle", name: "Sparkle" },
+  { id: "shuffle", name: "Shuffle" },
+  { id: "typewriter", name: "Typewriter" },
+];
+
 export default function DescriptionEffectSection({
   descriptionEffect,
   setDescriptionEffect,
@@ -24,18 +35,7 @@ export default function DescriptionEffectSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Adding an effect = one entry here plus a case in DescriptionEffect.tsx —
-  // the column is a free-form varchar, so no migration is needed.
-  const descriptionEffects = [
-    { id: "none", name: "None" },
-    { id: "blur", name: "Blur" },
-    { id: "float", name: "Float" },
-    { id: "pulse", name: "Pulse" },
-    { id: "flip", name: "Flip" },
-    { id: "sparkle", name: "Sparkle" },
-    { id: "shuffle", name: "Shuffle" },
-    { id: "typewriter", name: "Typewriter" },
-  ];
+  const descriptionEffects = DESCRIPTION_EFFECTS;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">

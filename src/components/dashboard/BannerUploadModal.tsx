@@ -21,31 +21,34 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [statusText, setStatusText] = useState<string>("");
 
-  const xhrRef = React.useRef<XMLHttpRequest | null>(null);
-
   useEffect(() => {
     // Reset state when modal opens/closes
-    if (!open) {
-      if (!isLoading) {
-        setTimeout(() => {
-          setResolvedUrl(null);
-          setMediaType(null);
-          setRawSelectedFile(null);
-          setErrorMsg(null);
-          setIsLoading(false);
-          setUploadProgress(null);
-          setStatusText("");
-          xhrRef.current = null;
-        }, 0);
-      }
+    if (!open && !isLoading) {
+      const timer = setTimeout(() => {
+        setResolvedUrl((prev) => {
+          if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+          return null;
+        });
+        setMediaType(null);
+        setRawSelectedFile(null);
+        setErrorMsg(null);
+        setIsLoading(false);
+        setUploadProgress(null);
+        setStatusText("");
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [open, isLoading]);
 
+  useEffect(() => {
+    return () => {
+      if (resolvedUrl && resolvedUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(resolvedUrl);
+      }
+    };
+  }, [resolvedUrl]);
+
   const handleCancelAndClose = () => {
-    if (xhrRef.current) {
-      xhrRef.current.abort();
-      xhrRef.current = null;
-    }
     setIsLoading(false);
     setUploadProgress(null);
     setStatusText("");

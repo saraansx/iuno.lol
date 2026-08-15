@@ -7,6 +7,17 @@ interface UsernameEffectSectionProps {
   setUsernameEffect: (val: string) => void;
 }
 
+const USERNAME_EFFECTS = [
+  { id: "none", name: "None" },
+  { id: "blur", name: "Blur" },
+  { id: "float", name: "Float" },
+  { id: "pulse", name: "Pulse" },
+  { id: "flip", name: "Flip" },
+  { id: "sparkle", name: "Sparkle" },
+  { id: "shuffle", name: "Shuffle" },
+  { id: "typewriter", name: "Typewriter" },
+];
+
 export default function UsernameEffectSection({
   usernameEffect,
   setUsernameEffect,
@@ -24,16 +35,7 @@ export default function UsernameEffectSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const usernameEffects = [
-    { id: "none", name: "None" },
-    { id: "blur", name: "Blur" },
-    { id: "float", name: "Float" },
-    { id: "pulse", name: "Pulse" },
-    { id: "flip", name: "Flip" },
-    { id: "sparkle", name: "Sparkle" },
-    { id: "shuffle", name: "Shuffle" },
-    { id: "typewriter", name: "Typewriter" },
-  ];
+  const usernameEffects = USERNAME_EFFECTS;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">

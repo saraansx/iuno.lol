@@ -76,11 +76,23 @@ export async function addComment(profileId: number, content: string, replyToId?:
     return { error: "Comment is too long (maximum 200 characters)" };
   }
 
+  if (replyToId) {
+    const parentComment = await db.query.profileComments.findFirst({
+      where: and(
+        eq(schema.profileComments.id, replyToId),
+        eq(schema.profileComments.profileId, profileId)
+      ),
+    });
+    if (!parentComment) {
+      return { error: "Parent comment not found on this profile." };
+    }
+  }
+
   const [result] = await db.insert(schema.profileComments).values({
     profileId,
     authorId,
     content: content.trim(),
-    replyToId,
+    replyToId: replyToId ?? null,
   });
 
   const newComment = await db.query.profileComments.findFirst({
@@ -158,26 +170,32 @@ export async function toggleLikeComment(commentId: number) {
     return { error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
   }
 
-  const existingLike = await db.query.commentLikes.findFirst({
-    where: and(
-      eq(schema.commentLikes.commentId, commentId),
-      eq(schema.commentLikes.userId, userId)
-    ),
-  });
+  await db.transaction(async (tx) => {
+    const existingLikes = await tx
+      .select({ id: schema.commentLikes.id })
+      .from(schema.commentLikes)
+      .where(
+        and(
+          eq(schema.commentLikes.commentId, commentId),
+          eq(schema.commentLikes.userId, userId)
+        )
+      )
+      .for("update");
 
-  if (existingLike) {
-    await db.delete(schema.commentLikes).where(eq(schema.commentLikes.id, existingLike.id));
-    // Atomic decrement (ensures it doesn't drop below 0)
-    await db.update(schema.profileComments)
-      .set({ likesCount: sql`GREATEST(0, ${schema.profileComments.likesCount} - 1)` })
-      .where(eq(schema.profileComments.id, commentId));
-  } else {
-    await db.insert(schema.commentLikes).values({ commentId, userId });
-    // Atomic increment
-    await db.update(schema.profileComments)
-      .set({ likesCount: sql`${schema.profileComments.likesCount} + 1` })
-      .where(eq(schema.profileComments.id, commentId));
-  }
+    if (existingLikes.length > 0) {
+      await tx.delete(schema.commentLikes).where(eq(schema.commentLikes.id, existingLikes[0].id));
+      // Atomic decrement (ensures it doesn't drop below 0)
+      await tx.update(schema.profileComments)
+        .set({ likesCount: sql`GREATEST(0, ${schema.profileComments.likesCount} - 1)` })
+        .where(eq(schema.profileComments.id, commentId));
+    } else {
+      await tx.insert(schema.commentLikes).values({ commentId, userId });
+      // Atomic increment
+      await tx.update(schema.profileComments)
+        .set({ likesCount: sql`${schema.profileComments.likesCount} + 1` })
+        .where(eq(schema.profileComments.id, commentId));
+    }
+  });
 
   return { success: true };
 }

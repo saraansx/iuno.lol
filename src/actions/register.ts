@@ -5,6 +5,7 @@ import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEm
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
+import { validatePassword, validateUsername, validateEmail } from '@/lib/server/security/validation'
 import { registerRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 
@@ -20,45 +21,14 @@ export async function register(input: RegisterInput) {
   try {
     const { username, email, password, turnstileToken, affiliateCode } = input
 
-    if (!username || !email || !password) {
-      return { error: 'Username, email and password are required.' }
-    }
+    const usernameError = validateUsername(username)
+    if (usernameError) return { error: usernameError }
 
-    if (username.length < 3 || username.length > 32) {
-      return { error: 'Username must be between 3 and 32 characters.' }
-    }
+    const emailError = validateEmail(email)
+    if (emailError) return { error: emailError }
 
-    if (!/^[a-z0-9_.]+$/.test(username)) {
-      return { error: 'Invalid username characters.' }
-    }
-
-    if (!/^[a-z0-9]$/.test(username.slice(-1))) {
-      return { error: 'Username must end with a letter or number.' }
-    }
-
-    if (password.length < 8) {
-      return { error: 'Password must be at least 8 characters.' }
-    }
-
-    if (password.length > 128) {
-      return { error: 'Password must be 128 characters or fewer.' }
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      return { error: 'Password must include an uppercase letter.' }
-    }
-
-    if (!/[0-9]/.test(password)) {
-      return { error: 'Password must include a number.' }
-    }
-
-    if (!/[^A-Za-z0-9]/.test(password)) {
-      return { error: 'Password must include a special character.' }
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return { error: 'Invalid email format.' }
-    }
+    const passwordError = validatePassword(password)
+    if (passwordError) return { error: passwordError }
 
     if (!turnstileToken) {
       return { error: 'Please complete the security check.' }

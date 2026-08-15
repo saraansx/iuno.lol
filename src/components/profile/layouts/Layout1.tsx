@@ -14,17 +14,47 @@ import { UsernameEffect } from "./UsernameEffect";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
 
+const FORMAT_RULES: { regex: RegExp; render: (inner: React.ReactNode, key: number) => React.ReactNode }[] = [
+  { regex: /^\*\*(.+?)\*\*/, render: (inner, key) => <strong key={key}>{inner}</strong> },
+  { regex: /^__(.+?)__/, render: (inner, key) => <u key={key}>{inner}</u> },
+  { regex: /^~~(.+?)~~/, render: (inner, key) => <s key={key}>{inner}</s> },
+  { regex: /^~(.+?)~/, render: (inner, key) => <s key={key}>{inner}</s> },
+  { regex: /^\*(.+?)\*/, render: (inner, key) => <em key={key}>{inner}</em> },
+  { regex: /^_(.+?)_/, render: (inner, key) => <em key={key}>{inner}</em> },
+];
+
+const FONT_CLASS_MAP: Record<string, string> = {
+  "Inter": "var(--font-inter)",
+  "Roboto": "var(--font-roboto)",
+  "Outfit": "var(--font-outfit)",
+  "Space Grotesk": "var(--font-space-grotesk)",
+  "Playfair Display": "var(--font-playfair)",
+  "Poppins": "var(--font-poppins)",
+  "Montserrat": "var(--font-montserrat)",
+  "DM Sans": "var(--font-dm-sans)",
+  "Syne": "var(--font-syne)",
+  "Oswald": "var(--font-oswald)",
+  "Pacifico": "var(--font-pacifico)",
+  "Caveat": "var(--font-caveat)",
+  "Paper Notes": "var(--font-paper-notes)",
+  "Matcha Mint": "var(--font-matcha-mint)",
+  "Dancing Script": "var(--font-dancing-script)",
+  "Comfortaa": "var(--font-comfortaa)",
+  "Elegant Bloom": "var(--font-elegant-bloom)",
+  "Caviar Dreams": "var(--font-caviar-dreams)",
+  "Indie Flower": "var(--font-indie-flower)",
+  "Lobster": "var(--font-lobster)",
+};
+
+const SHAPE_CLASSES: Record<string, string> = {
+  square: "rounded-lg",
+  soft: "rounded-[14px]",
+  rounded: "rounded-[24px]",
+  circle: "rounded-full",
+};
+
 const parseInlineFormatting = (text: string): React.ReactNode => {
   if (!text) return null;
-
-  const rules: { regex: RegExp; render: (inner: React.ReactNode, key: number) => React.ReactNode }[] = [
-    { regex: /^\*\*(.+?)\*\*/, render: (inner, key) => <strong key={key}>{inner}</strong> },
-    { regex: /^__(.+?)__/, render: (inner, key) => <u key={key}>{inner}</u> },
-    { regex: /^~~(.+?)~~/, render: (inner, key) => <s key={key}>{inner}</s> },
-    { regex: /^~(.+?)~/, render: (inner, key) => <s key={key}>{inner}</s> },
-    { regex: /^\*(.+?)\*/, render: (inner, key) => <em key={key}>{inner}</em> },
-    { regex: /^_(.+?)_/, render: (inner, key) => <em key={key}>{inner}</em> },
-  ];
 
   const nodes: React.ReactNode[] = [];
   let remaining = text;
@@ -57,7 +87,7 @@ const parseInlineFormatting = (text: string): React.ReactNode => {
 
     // 2. Check formatting rules (bold, italic, etc.)
     let matched = false;
-    for (const { regex, render } of rules) {
+    for (const { regex, render } of FORMAT_RULES) {
       const match = remaining.match(regex);
       if (match) {
         nodes.push(render(parseInlineFormatting(match[1]), key++));
@@ -432,20 +462,30 @@ const Layout1 = ({
     // Dashboard preview renders with viewerId={-1} as a sentinel that disables
     // interactions. Keep it — don't run the real lookup or overwrite it.
     if (viewerIdProp === -1) return;
-    let cancelled = false;
-    fetch(`/api/profile/me?profileId=${profileId}`, { credentials: 'include' })
+
+    const controller = new AbortController();
+    fetch(`/api/profile/me?profileId=${profileId}`, {
+      credentials: 'include',
+      signal: controller.signal,
+    })
       .then(res => res.json())
       .then(data => {
-        if (cancelled || !data || data.error) return;
+        if (!data || data.error) return;
         setViewerId(typeof data.viewerId === 'number' ? data.viewerId : null);
         setViewerFeedback(
           data.feedback === 'like' || data.feedback === 'dislike' ? data.feedback : null
         );
       })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [profileId, viewerIdProp]);
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error('[Layout1] Failed to fetch viewer feedback:', err);
+        }
+      });
 
+    return () => {
+      controller.abort();
+    };
+  }, [profileId, viewerIdProp]);
 
   useEffect(() => {
     setLikesCount(initialLikes);
@@ -457,8 +497,11 @@ const Layout1 = ({
 
   useEffect(() => {
     if (typeof window !== "undefined" && username && viewerId !== -1) {
+      const controller = new AbortController();
       // Fetch live data (views, likes, dislikes) from the API by username (prevents enumeration)
-      fetch(`/api/profile/live?username=${encodeURIComponent(username)}`)
+      fetch(`/api/profile/live?username=${encodeURIComponent(username)}`, {
+        signal: controller.signal,
+      })
         .then(res => res.json())
         .then(data => {
           if (data && !data.error) {
@@ -467,7 +510,15 @@ const Layout1 = ({
             setDislikesCount(data.dislikesCount ?? initialDislikes);
           }
         })
-        .catch(err => console.error("Failed to fetch live profile data:", err));
+        .catch(err => {
+          if (err.name !== 'AbortError') {
+            console.error("Failed to fetch live profile data:", err);
+          }
+        });
+
+      return () => {
+        controller.abort();
+      };
     }
   }, [username, views, initialLikes, initialDislikes, viewerId]);
 
@@ -532,36 +583,8 @@ const Layout1 = ({
     }
   }, [createdAt, joinDateFormat]);
 
-  const fontClassMap: Record<string, string> = {
-    "Inter": "var(--font-inter)",
-    "Roboto": "var(--font-roboto)",
-    "Outfit": "var(--font-outfit)",
-    "Space Grotesk": "var(--font-space-grotesk)",
-    "Playfair Display": "var(--font-playfair)",
-    "Poppins": "var(--font-poppins)",
-    "Montserrat": "var(--font-montserrat)",
-    "DM Sans": "var(--font-dm-sans)",
-    "Syne": "var(--font-syne)",
-    "Oswald": "var(--font-oswald)",
-    "Pacifico": "var(--font-pacifico)",
-    "Caveat": "var(--font-caveat)",
-    "Paper Notes": "var(--font-paper-notes)",
-    "Matcha Mint": "var(--font-matcha-mint)",
-    "Dancing Script": "var(--font-dancing-script)",
-    "Comfortaa": "var(--font-comfortaa)",
-    "Elegant Bloom": "var(--font-elegant-bloom)",
-    "Caviar Dreams": "var(--font-caviar-dreams)",
-    "Indie Flower": "var(--font-indie-flower)",
-    "Lobster": "var(--font-lobster)",
-  };
-
-  const shapeClass =
-    {
-      square: "rounded-lg",
-      soft: "rounded-[14px]",
-      rounded: "rounded-[24px]",
-      circle: "rounded-full",
-    }[avatarShape] || "rounded-[24px]";
+  const fontClassMap = FONT_CLASS_MAP;
+  const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
   /* ── WITH BANNER ─────────────────────────────────────────────────── */
   if (bannerImageUrl) {
@@ -634,7 +657,7 @@ const Layout1 = ({
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
-            <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+            <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
               {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -691,7 +714,7 @@ const Layout1 = ({
 
           {/* Profile Frame Overlay (Front Layers) */}
           {selectedFrame && (
-            <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+            <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
               {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -1019,6 +1042,7 @@ const Layout1 = ({
       {bannerBackgroundUrl && (
         isVideoUrl(bannerBackgroundUrl) ? (
           <video
+            key={bannerBackgroundUrl}
             src={bannerBackgroundUrl}
             className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
             style={{
@@ -1026,6 +1050,7 @@ const Layout1 = ({
             }}
             autoPlay
             muted
+            ref={(el) => { if (el) el.defaultMuted = true; }}
             loop
             playsInline
           />
@@ -1058,7 +1083,7 @@ const Layout1 = ({
         <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
-          <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+          <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
             {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img

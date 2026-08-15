@@ -14,7 +14,7 @@ export function ShineBorderEffect({ colorFrom, colorTo, borderWidth = 2 }: Shine
   return (
     <ShineBorder
       shineColor={shineColor}
-      borderWidth={borderWidth > 0 ? borderWidth : 2}
+      borderWidth={borderWidth}
       duration={14}
     />
   );

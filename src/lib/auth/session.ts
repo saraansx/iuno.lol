@@ -67,7 +67,15 @@ async function verifySession(): Promise<Session | undefined> {
 
 export async function deleteSession() {
   const cookieStore = await cookies()
-  cookieStore.delete(SESSION_COOKIE_NAME)
+  const isProduction = process.env.NODE_ENV === 'production'
+  cookieStore.set(SESSION_COOKIE_NAME, '', {
+    maxAge: 0,
+    path: '/',
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax',
+    ...(isProduction && { domain: '.iuno.lol' }),
+  })
 }
 
 export async function getSessionUserId(): Promise<number | undefined> {

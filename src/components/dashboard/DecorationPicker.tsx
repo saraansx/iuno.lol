@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import decorations from "@/Deco.json";
 
 
-type Decoration = {
+export type Decoration = {
   id: string;
   name: string;
   url: string;
@@ -253,5 +253,3 @@ export default function DecorationPicker({
 </AnimatePresence>
   );
 }
-
-export type { Decoration };

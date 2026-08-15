@@ -3,7 +3,7 @@
 import { createOTPToken } from '@/lib/auth/otp'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendTwoFactorTokenEmail } from '@/lib/mail'
-import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
+import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { sendOTPRateLimit } from '@/lib/rate-limit'
 
 export const sendOTP = async (email: string, turnstileToken: string) => {
@@ -12,14 +12,8 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
       return { error: 'Email is required.' }
     }
 
-    if (!turnstileToken) {
-      return { error: 'Please complete the security check.' }
-    }
-
-    const isTurnstileValid = await verifyTurnstileToken(turnstileToken)
-    if (!isTurnstileValid) {
-      return { error: 'Invalid security token. Please refresh the page and try again.' }
-    }
+    const turnstileError = await assertTurnstile(turnstileToken)
+    if (turnstileError) return { error: turnstileError }
 
     const rate = await sendOTPRateLimit(email)
     if (!rate.ok) {
