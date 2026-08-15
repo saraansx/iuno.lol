@@ -160,6 +160,7 @@ interface Layout1Props {
   descriptionEffect?: string;
   cursorTrail?: string;
   cursorTrailColor?: string;
+  entryTransition?: string;
   enterScreenEnabled?: boolean;
   enterScreenText?: string;
   enterScreenFont?: string;
@@ -338,6 +339,7 @@ const Layout1 = ({
   descriptionEffect = "none",
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
+  entryTransition = "none",
   enterScreenEnabled = false,
   enterScreenText = "click to enter",
   enterScreenFont = "Inter",
@@ -568,6 +570,7 @@ const Layout1 = ({
         {enterScreenEnabled && !hasEntered && (
           <div
             onClick={() => setHasEntered(true)}
+            data-transition={entryTransition}
             className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
           >
             <p
@@ -994,6 +997,7 @@ const Layout1 = ({
       {enterScreenEnabled && !hasEntered && (
         <div
           onClick={() => setHasEntered(true)}
+          data-transition={entryTransition}
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
         >
           <p

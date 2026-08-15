@@ -44,6 +44,7 @@ const userColumns = {
   usernameEffect: schema.userSettings.usernameEffect,
   cursorTrail: schema.userSettings.cursorTrail,
   cursorTrailColor: schema.userSettings.cursorTrailColor,
+  entryTransition: schema.userSettings.entryTransition,
   enterScreenEnabled: schema.userSettings.enterScreenEnabled,
   enterScreenText: schema.userSettings.enterScreenText,
   enterScreenFont: schema.userSettings.enterScreenFont,

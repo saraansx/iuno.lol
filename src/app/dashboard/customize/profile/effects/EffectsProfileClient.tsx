@@ -55,6 +55,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const cursorTrailColor = overrides.cursorTrailColor ?? initialCursorTrailColor;
   const setCursorTrailColor = (val: string) => updateOverrides({ cursorTrailColor: val === initialCursorTrailColor ? undefined : val });
 
+  const initialEntryTransition = user?.entryTransition ?? "none";
+  const entryTransition = overrides.entryTransition ?? initialEntryTransition;
+  const setEntryTransition = (val: string) => updateOverrides({ entryTransition: val === initialEntryTransition ? undefined : val });
+
   const initialEnterScreenEnabled = user?.enterScreenEnabled ?? false;
   const initialEnterScreenText = user?.enterScreenText ?? "click to enter";
   const initialEnterScreenFont = user?.enterScreenFont ?? "Inter";
@@ -116,6 +120,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setCursorTrail={setCursorTrail}
           cursorTrailColor={cursorTrailColor}
           setCursorTrailColor={setCursorTrailColor}
+          entryTransition={entryTransition}
+          setEntryTransition={setEntryTransition}
           enterScreenEnabled={enterScreenEnabled}
           setEnterScreenEnabled={setEnterScreenEnabled}
           enterScreenText={enterScreenText}
@@ -151,6 +157,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           descriptionEffect,
           cursorTrail,
           cursorTrailColor,
+          entryTransition,
           enterScreenEnabled,
           enterScreenText,
         }}

@@ -6,6 +6,7 @@ import CardTransitionSection from "./CardTransitionSection";
 import UsernameEffectSection from "./UsernameEffectSection";
 import DescriptionEffectSection from "./DescriptionEffectSection";
 import CursorTrailSection from "./CursorTrailSection";
+import EntryTransitionSection from "./EntryTransitionSection";
 import TapToEnterSection from "./TapToEnterSection";
 
 interface EffectsCustomizationProps {
@@ -33,6 +34,8 @@ interface EffectsCustomizationProps {
   setCursorTrail: (val: string) => void;
   cursorTrailColor: string;
   setCursorTrailColor: (val: string) => void;
+  entryTransition: string;
+  setEntryTransition: (val: string) => void;
   enterScreenEnabled: boolean;
   setEnterScreenEnabled: (val: boolean) => void;
   enterScreenText: string;
@@ -76,6 +79,8 @@ export default function EffectsCustomization({
   setCursorTrail,
   cursorTrailColor,
   setCursorTrailColor,
+  entryTransition,
+  setEntryTransition,
   enterScreenEnabled,
   setEnterScreenEnabled,
   enterScreenText,
@@ -133,6 +138,10 @@ export default function EffectsCustomization({
             setCursorTrail={setCursorTrail}
             cursorTrailColor={cursorTrailColor}
             setCursorTrailColor={setCursorTrailColor}
+          />
+          <EntryTransitionSection
+            entryTransition={entryTransition}
+            setEntryTransition={setEntryTransition}
           />
           <TapToEnterSection
             enterScreenEnabled={enterScreenEnabled}

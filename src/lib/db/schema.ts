@@ -65,6 +65,7 @@ export const userSettings = mysqlTable('user_settings', {
   descriptionEffect: varchar('description_effect', { length: 50 }).default('none'),
   cursorTrail: varchar('cursor_trail', { length: 50 }).default('none'),
   cursorTrailColor: varchar('cursor_trail_color', { length: 32 }).default('#ffffff'),
+  entryTransition: varchar('entry_transition', { length: 50 }).default('none'),
   enterScreenEnabled: boolean('enter_screen_enabled').default(false),
   enterScreenText: varchar('enter_screen_text', { length: 100 }).default('click to enter'),
   enterScreenFont: varchar('enter_screen_font', { length: 50 }).default('Inter'),

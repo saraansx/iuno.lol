@@ -109,6 +109,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       descriptionEffect: userSettings.descriptionEffect,
       cursorTrail: userSettings.cursorTrail,
       cursorTrailColor: userSettings.cursorTrailColor,
+      entryTransition: userSettings.entryTransition,
       enterScreenEnabled: userSettings.enterScreenEnabled,
       enterScreenText: userSettings.enterScreenText,
       enterScreenFont: userSettings.enterScreenFont,
@@ -164,6 +165,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         descriptionEffect={user.descriptionEffect ?? undefined}
         cursorTrail={user.cursorTrail ?? undefined}
         cursorTrailColor={user.cursorTrailColor ?? undefined}
+        entryTransition={user.entryTransition ?? undefined}
         enterScreenEnabled={user.enterScreenEnabled ?? undefined}
         enterScreenText={user.enterScreenText ?? undefined}
         enterScreenFont={user.enterScreenFont ?? undefined}
