@@ -92,6 +92,7 @@ export default async function middleware(request: NextRequest) {
   if (GATE_ENABLED) {
     const isPublicAsset =
       path === '/coming-soon' ||
+      path === '/api/health' ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
       path.includes('.') 
