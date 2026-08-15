@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ColorPickerInput from "@/components/ui/color-picker";
 interface BackgroundEffectSectionProps {
   backgroundEffect: string;
   setBackgroundEffect: (val: string) => void;
@@ -187,26 +188,11 @@ export default function BackgroundEffectSection({
             <label className="text-[12.5px] font-medium text-white/90">
               Color
             </label>
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px] group transition-colors focus-within:border-white/10">
-              <span className={`text-[13px] mr-2 ${isColorDisabled ? 'text-white/10' : 'text-white/30'}`}>#</span>
-              <input
-                type="text"
-                disabled={isColorDisabled}
-                value={(backgroundEffectColor || "#ffffff").replace('#', '')}
-                onChange={(e) => setBackgroundEffectColor('#' + e.target.value)}
-                className={`w-full bg-transparent text-[13px] focus:outline-none ${isColorDisabled ? 'text-white/30 cursor-not-allowed' : 'text-white'}`}
-                maxLength={6}
-              />
-              <div className={`relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 ${isColorDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                <input
-                  type="color"
-                  disabled={isColorDisabled}
-                  value={backgroundEffectColor || "#ffffff"}
-                  onChange={(e) => setBackgroundEffectColor(e.target.value)}
-                  className={`absolute -inset-1 w-8 h-8 border-0 p-0 ${isColorDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                />
-              </div>
-            </div>
+            <ColorPickerInput
+              disabled={isColorDisabled}
+              value={backgroundEffectColor || "#ffffff"}
+              onChange={setBackgroundEffectColor}
+            />
           </div>
         );
       })()}

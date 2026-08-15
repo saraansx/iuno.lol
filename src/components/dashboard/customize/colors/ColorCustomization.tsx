@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import ColorPickerInput from "@/components/ui/color-picker";
+
 interface ColorCustomizationProps {
   usernameColor: string;
   setUsernameColor: (val: string) => void;
@@ -105,28 +107,10 @@ export default function ColorCustomization({
               <div className="px-4 pb-4 pt-0.5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                    <span className="text-[13px] text-white/30 mr-2">#</span>
-                    <input
-                      type="text"
-                      value={usernameColor.replace('#', '')}
-                      onChange={(e) => {
-                        setUsernameColor('#' + e.target.value);
-                      }}
-                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
-                    />
-                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
-                      <input
-                        type="color"
-                        value={usernameColor}
-                        onChange={(e) => {
-                          setUsernameColor(e.target.value);
-                        }}
-                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
-                      />
-                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: usernameColor }} />
-                    </div>
-                  </div>
+                  <ColorPickerInput
+                    value={usernameColor}
+                    onChange={setUsernameColor}
+                  />
                 </div>
               </div>
             )}
@@ -156,28 +140,10 @@ export default function ColorCustomization({
               <div className="px-4 pb-4 pt-0.5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                    <span className="text-[13px] text-white/30 mr-2">#</span>
-                    <input
-                      type="text"
-                      value={bioColor.replace('#', '')}
-                      onChange={(e) => {
-                        setBioColor('#' + e.target.value);
-                      }}
-                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
-                    />
-                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
-                      <input
-                        type="color"
-                        value={bioColor}
-                        onChange={(e) => {
-                          setBioColor(e.target.value);
-                        }}
-                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
-                      />
-                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: bioColor }} />
-                    </div>
-                  </div>
+                  <ColorPickerInput
+                    value={bioColor}
+                    onChange={setBioColor}
+                  />
                 </div>
               </div>
             )}
@@ -207,28 +173,10 @@ export default function ColorCustomization({
               <div className="px-4 pb-4 pt-0.5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                    <span className="text-[13px] text-white/30 mr-2">#</span>
-                    <input
-                      type="text"
-                      value={otherColor.replace('#', '')}
-                      onChange={(e) => {
-                        setOtherColor('#' + e.target.value);
-                      }}
-                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
-                    />
-                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
-                      <input
-                        type="color"
-                        value={otherColor}
-                        onChange={(e) => {
-                          setOtherColor(e.target.value);
-                        }}
-                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
-                      />
-                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: otherColor }} />
-                    </div>
-                  </div>
+                  <ColorPickerInput
+                    value={otherColor}
+                    onChange={setOtherColor}
+                  />
                 </div>
               </div>
             )}
@@ -256,28 +204,10 @@ export default function ColorCustomization({
               <div className="px-4 pb-4 pt-0.5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                    <span className="text-[13px] text-white/30 mr-2">#</span>
-                    <input
-                      type="text"
-                      value={highlightColor.replace('#', '')}
-                      onChange={(e) => {
-                        setHighlightColor('#' + e.target.value);
-                      }}
-                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
-                    />
-                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
-                      <input
-                        type="color"
-                        value={highlightColor}
-                        onChange={(e) => {
-                          setHighlightColor(e.target.value);
-                        }}
-                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
-                      />
-                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: highlightColor }} />
-                    </div>
-                  </div>
+                  <ColorPickerInput
+                    value={highlightColor}
+                    onChange={setHighlightColor}
+                  />
                 </div>
               </div>
             )}
@@ -308,28 +238,10 @@ export default function ColorCustomization({
               <div className="px-4 pb-4 pt-0.5">
                 <div className="flex flex-col gap-2">
                   <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                    <span className="text-[13px] text-white/30 mr-2">#</span>
-                    <input
-                      type="text"
-                      value={pageBgColor.replace('#', '')}
-                      onChange={(e) => {
-                        setPageBgColor('#' + e.target.value);
-                      }}
-                      className="w-full bg-transparent text-[13px] text-white focus:outline-none"
-                    />
-                    <div className="relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 cursor-pointer">
-                      <input
-                        type="color"
-                        value={pageBgColor}
-                        onChange={(e) => {
-                          setPageBgColor(e.target.value);
-                        }}
-                        className="absolute -inset-4 w-12 h-12 cursor-pointer opacity-0 outline-none focus:outline-none focus:ring-0"
-                      />
-                      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: pageBgColor }} />
-                    </div>
-                  </div>
+                  <ColorPickerInput
+                    value={pageBgColor}
+                    onChange={setPageBgColor}
+                  />
                   <p className="text-[11px] text-white/40 mt-1">This applies behind the profile card if no background image is set.</p>
                 </div>
               </div>

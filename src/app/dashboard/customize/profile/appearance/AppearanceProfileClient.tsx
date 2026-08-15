@@ -11,6 +11,7 @@ import ViewsSection from "@/components/dashboard/customize/appearance/ViewsSecti
 import CommentsSection from "@/components/dashboard/customize/appearance/CommentsSection";
 import FeedbackSection from "@/components/dashboard/customize/appearance/FeedbackSection";
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
+import ColorPickerInput from "@/components/ui/color-picker";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -451,37 +452,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Color
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: profileBgColor }}
-                        >
-                          <input
-                            type="color"
-                            value={profileBgColor}
-                            onChange={(e) => setProfileBgColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={profileBgColor}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            if (/^#[0-9A-Fa-f]{0,6}$/.test(v) || v === "#") {
-                              setProfileBgColor(v);
-                            }
-                          }}
-                          maxLength={7}
-                          className="flex-1 bg-transparent text-[13px] text-white font-mono tracking-wide focus:outline-none"
-                        />
-                        <span className="text-white/30 ml-1 shrink-0">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                          </svg>
-                        </span>
-                      </div>
+                      <ColorPickerInput
+                        value={profileBgColor}
+                        onChange={setProfileBgColor}
+                      />
                     </div>
                   </div>
                 ))}
@@ -515,37 +489,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Shadow Color
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: profileShadowColor }}
-                        >
-                          <input
-                            type="color"
-                            value={profileShadowColor}
-                            onChange={(e) => setProfileShadowColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={profileShadowColor}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            if (/^#[0-9A-Fa-f]{0,6}$/.test(v) || v === "#") {
-                              setProfileShadowColor(v);
-                            }
-                          }}
-                          maxLength={7}
-                          className="flex-1 bg-transparent text-[13px] text-white font-mono tracking-wide focus:outline-none"
-                        />
-                        <span className="text-white/30 ml-1 shrink-0">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                          </svg>
-                        </span>
-                      </div>
+                      <ColorPickerInput
+                        value={profileShadowColor}
+                        onChange={setProfileShadowColor}
+                      />
                     </div>
                   </div>
                 ))}
@@ -637,31 +584,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Color
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <label
-                          className="w-5 h-5 rounded-full cursor-pointer shrink-0 mr-2"
-                          style={{ backgroundColor: profileBorderColor }}
-                        >
-                          <input
-                            type="color"
-                            value={profileBorderColor}
-                            onChange={(e) => setProfileBorderColor(e.target.value)}
-                            className="opacity-0 w-full h-full cursor-pointer"
-                          />
-                        </label>
-                        <input
-                          type="text"
-                          value={profileBorderColor}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            if (/^#[0-9A-Fa-f]{0,6}$/.test(v) || v === "#") {
-                              setProfileBorderColor(v);
-                            }
-                          }}
-                          maxLength={7}
-                          className="flex-1 bg-transparent text-[13px] text-white font-mono tracking-wide focus:outline-none"
-                        />
-                      </div>
+                      <ColorPickerInput
+                        value={profileBorderColor}
+                        onChange={setProfileBorderColor}
+                      />
                     </div>
                     {/* Border Opacity */}
                     <div className="flex flex-col gap-2">

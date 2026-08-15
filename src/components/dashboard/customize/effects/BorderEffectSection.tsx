@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import ColorPickerInput from "@/components/ui/color-picker";
 interface BorderEffectSectionProps {
   borderEffect: string;
   setBorderEffect: (val: string) => void;
@@ -13,10 +14,6 @@ function parseBorderColors(value: string): { from: string; to: string } {
   const from = parts[0]?.trim() || "#ffffff";
   const to = parts[1]?.trim() || from;
   return { from, to };
-}
-
-function isValidHex(value: string): boolean {
-  return /^#?[0-9a-fA-F]{6}$/.test(value.trim());
 }
 
 const BORDER_EFFECTS = [
@@ -63,9 +60,6 @@ export default function BorderEffectSection({
     }
   };
   const setTo = (val: string) => setBorderColors(from, val);
-
-  const textInputClass = (disabled: boolean, valid: boolean) =>
-    `w-full bg-transparent text-[13px] focus:outline-none ${disabled ? 'text-white/30 cursor-not-allowed' : valid ? 'text-white' : 'text-red-400'}`;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">
@@ -148,48 +142,18 @@ export default function BorderEffectSection({
         </label>
 
         <div className="flex flex-col gap-2">
-          <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px] group transition-colors focus-within:border-white/10">
-            <span className={`text-[13px] mr-2 ${isBorderDisabled ? 'text-white/10' : 'text-white/30'}`}>#</span>
-            <input
-              type="text"
-              disabled={isBorderDisabled}
-              value={from.replace('#', '')}
-              onChange={(e) => setFrom('#' + e.target.value)}
-              className={textInputClass(isBorderDisabled, isValidHex(from))}
-              maxLength={6}
-            />
-            <div className={`relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-              <input
-                type="color"
-                disabled={isBorderDisabled}
-                value={from}
-                onChange={(e) => setFrom(e.target.value)}
-                className={`absolute -inset-1 w-8 h-8 border-0 p-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-              />
-            </div>
-          </div>
+          <ColorPickerInput
+            disabled={isBorderDisabled}
+            value={from}
+            onChange={setFrom}
+          />
 
           {!isSingleColorEffect && (
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px] group transition-colors focus-within:border-white/10">
-              <span className={`text-[13px] mr-2 ${isBorderDisabled ? 'text-white/10' : 'text-white/30'}`}>#</span>
-              <input
-                type="text"
-                disabled={isBorderDisabled}
-                value={to.replace('#', '')}
-                onChange={(e) => setTo('#' + e.target.value)}
-                className={textInputClass(isBorderDisabled, isValidHex(to))}
-                maxLength={6}
-              />
-              <div className={`relative w-5 h-5 rounded-md ml-2 border border-white/10 overflow-hidden shrink-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-                <input
-                  type="color"
-                  disabled={isBorderDisabled}
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  className={`absolute -inset-1 w-8 h-8 border-0 p-0 ${isBorderDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                />
-              </div>
-            </div>
+            <ColorPickerInput
+              disabled={isBorderDisabled}
+              value={to}
+              onChange={setTo}
+            />
           )}
         </div>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import ColorPickerInput from "@/components/ui/color-picker";
 
 const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
@@ -186,29 +187,11 @@ export default function TapToEnterSection({
           {/* Text Color */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Text Color</label>
-            <div className="flex items-center gap-2.5 bg-[#161616] border border-white/5 rounded-xl px-3 h-[40px]">
-              <div className="relative w-5 h-5 rounded-full overflow-hidden shrink-0 border border-white/10 shadow-sm cursor-pointer">
-                <input
-                  type="color"
-                  disabled={!enterScreenEnabled}
-                  value={enterScreenColor || "#ffffff"}
-                  onChange={(e) => setEnterScreenColor(e.target.value)}
-                  className="absolute -top-2 -left-2 w-10 h-10 cursor-pointer opacity-0"
-                />
-                <div
-                  className="w-full h-full"
-                  style={{ backgroundColor: enterScreenColor || "#ffffff" }}
-                />
-              </div>
-              <input
-                type="text"
-                disabled={!enterScreenEnabled}
-                value={enterScreenColor || "#ffffff"}
-                onChange={(e) => setEnterScreenColor(e.target.value)}
-                maxLength={9}
-                className="flex-1 bg-transparent text-[13px] text-white font-mono tracking-wide focus:outline-none"
-              />
-            </div>
+            <ColorPickerInput
+              disabled={!enterScreenEnabled}
+              value={enterScreenColor || "#ffffff"}
+              onChange={setEnterScreenColor}
+            />
           </div>
         </div>
 
