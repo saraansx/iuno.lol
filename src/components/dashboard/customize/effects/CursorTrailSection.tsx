@@ -37,6 +37,9 @@ export default function CursorTrailSection({
   const cursorTrails = [
     { id: "none", name: "None" },
     { id: "fluid-line", name: "Fluid Line" },
+    { id: "stars", name: "Sparkles" },
+    { id: "ghost", name: "Ghost" },
+    { id: "sakura", name: "Sakura Petals" },
   ];
 
   const isColorDisabled = !cursorTrail || cursorTrail === "none";
