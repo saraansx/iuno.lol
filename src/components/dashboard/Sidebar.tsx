@@ -71,12 +71,16 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
             title="Toggle Sidebar"
           >
             {open ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m15 18-6-6 6-6"/>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="shrink-0">
+                <line x1="19" y1="5" x2="19" y2="19" strokeWidth="2.5" strokeLinecap="round" />
+                <line x1="14" y1="5" x2="14" y2="19" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M9 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="currentColor" stroke="none" />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m9 18 6-6-6-6"/>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" className="shrink-0">
+                <line x1="5" y1="5" x2="5" y2="19" strokeWidth="2.5" strokeLinecap="round" />
+                <line x1="10" y1="5" x2="10" y2="19" strokeWidth="2.5" strokeLinecap="round" />
+                <path d="M15 5h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" fill="currentColor" stroke="none" />
               </svg>
             )}
           </button>
@@ -283,7 +287,14 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
       items: [
         {
           label: "Profile",
-          icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="7.5" r="3.5" fill="currentColor" stroke="none" /><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>,
+          icon: (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="7" r="4" />
+              <path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+            </svg>
+          ),
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },

@@ -5,15 +5,22 @@ import { useState, useRef, useEffect } from "react";
 interface EntryTransitionSectionProps {
   entryTransition: string;
   setEntryTransition: (val: string) => void;
+  disabled?: boolean;
 }
 
 const ENTRY_TRANSITIONS = [
   { id: "none", name: "None" },
+  { id: "fade-black", name: "Fade Blackout" },
+  { id: "fade", name: "Smooth Fade" },
+  { id: "curtain", name: "Curtain Split" },
+  { id: "iris", name: "Iris Zoom" },
+  { id: "blur-dissolve", name: "Blur Dissolve" },
 ];
 
 export default function EntryTransitionSection({
   entryTransition,
   setEntryTransition,
+  disabled = false,
 }: EntryTransitionSectionProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -28,10 +35,12 @@ export default function EntryTransitionSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const entryTransitions = ENTRY_TRANSITIONS;
-
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm">
+    <div
+      className={`bg-[#0c0c0c] border border-white/5 rounded-[20px] flex flex-col p-6 transition-all duration-200 shadow-sm ${
+        disabled ? "opacity-40 pointer-events-none" : ""
+      }`}
+    >
       <div className="flex items-center gap-3 mb-4">
         <svg
           width="22"
@@ -61,7 +70,7 @@ export default function EntryTransitionSection({
             className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
           >
             <span>
-              {entryTransitions.find((t) => t.id === entryTransition)?.name || "None"}
+              {ENTRY_TRANSITIONS.find((t) => t.id === entryTransition)?.name || "None"}
             </span>
             <svg
               width="14"
@@ -79,7 +88,7 @@ export default function EntryTransitionSection({
           {dropdownOpen && (
             <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
               <div className="flex flex-col gap-0.5">
-                {entryTransitions.map((item) => (
+                {ENTRY_TRANSITIONS.map((item) => (
                   <button
                     key={item.id}
                     type="button"
@@ -105,6 +114,11 @@ export default function EntryTransitionSection({
             </div>
           )}
         </div>
+
+        <p className="flex items-center gap-1.5 text-[11.5px] text-white/40 pt-1">
+          <span className="w-1 h-1 rounded-full bg-white/40 inline-block shrink-0" />
+          <span>Enable Enter Text below to activate profile entry transitions.</span>
+        </p>
       </div>
     </div>
   );

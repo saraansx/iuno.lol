@@ -67,6 +67,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const initialEnterScreenLetterSpacing = user?.enterScreenLetterSpacing ?? 2;
   const initialEnterScreenColor = user?.enterScreenColor ?? "#ffffff";
   const initialEnterScreenOpacity = user?.enterScreenOpacity ?? 80;
+  const initialEnterScreenBlur = user?.enterScreenBlur ?? 16;
+  const initialEnterScreenBlurColor = user?.enterScreenBlurColor ?? "#000000";
 
   const enterScreenEnabled = overrides.enterScreenEnabled ?? initialEnterScreenEnabled;
   const setEnterScreenEnabled = (val: boolean) => updateOverrides({ enterScreenEnabled: val === initialEnterScreenEnabled ? undefined : val });
@@ -84,6 +86,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const setEnterScreenColor = (val: string) => updateOverrides({ enterScreenColor: val === initialEnterScreenColor ? undefined : val });
   const enterScreenOpacity = overrides.enterScreenOpacity ?? initialEnterScreenOpacity;
   const setEnterScreenOpacity = (val: number) => updateOverrides({ enterScreenOpacity: val === initialEnterScreenOpacity ? undefined : val });
+  const enterScreenBlur = overrides.enterScreenBlur ?? initialEnterScreenBlur;
+  const setEnterScreenBlur = (val: number) => updateOverrides({ enterScreenBlur: val === initialEnterScreenBlur ? undefined : val });
+  const enterScreenBlurColor = overrides.enterScreenBlurColor ?? initialEnterScreenBlurColor;
+  const setEnterScreenBlurColor = (val: string) => updateOverrides({ enterScreenBlurColor: val === initialEnterScreenBlurColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -138,6 +144,10 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setEnterScreenColor={setEnterScreenColor}
           enterScreenOpacity={enterScreenOpacity}
           setEnterScreenOpacity={setEnterScreenOpacity}
+          enterScreenBlur={enterScreenBlur}
+          setEnterScreenBlur={setEnterScreenBlur}
+          enterScreenBlurColor={enterScreenBlurColor}
+          setEnterScreenBlurColor={setEnterScreenBlurColor}
         />
       </div>
 
@@ -160,6 +170,14 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           entryTransition,
           enterScreenEnabled,
           enterScreenText,
+          enterScreenFont,
+          enterScreenFontSize,
+          enterScreenFontWeight,
+          enterScreenLetterSpacing,
+          enterScreenColor,
+          enterScreenOpacity,
+          enterScreenBlur,
+          enterScreenBlurColor,
         }}
       />
 

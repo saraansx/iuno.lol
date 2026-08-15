@@ -13,15 +13,8 @@ import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
-
-const FORMAT_RULES: { regex: RegExp; render: (inner: React.ReactNode, key: number) => React.ReactNode }[] = [
-  { regex: /^\*\*(.+?)\*\*/, render: (inner, key) => <strong key={key}>{inner}</strong> },
-  { regex: /^__(.+?)__/, render: (inner, key) => <u key={key}>{inner}</u> },
-  { regex: /^~~(.+?)~~/, render: (inner, key) => <s key={key}>{inner}</s> },
-  { regex: /^~(.+?)~/, render: (inner, key) => <s key={key}>{inner}</s> },
-  { regex: /^\*(.+?)\*/, render: (inner, key) => <em key={key}>{inner}</em> },
-  { regex: /^_(.+?)_/, render: (inner, key) => <em key={key}>{inner}</em> },
-];
+import { EntryTransition } from "./EntryTransition";
+import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 
 const FONT_CLASS_MAP: Record<string, string> = {
   "Inter": "var(--font-inter)",
@@ -51,69 +44,6 @@ const SHAPE_CLASSES: Record<string, string> = {
   soft: "rounded-[14px]",
   rounded: "rounded-[24px]",
   circle: "rounded-full",
-};
-
-const parseInlineFormatting = (text: string): React.ReactNode => {
-  if (!text) return null;
-
-  const nodes: React.ReactNode[] = [];
-  let remaining = text;
-  let key = 0;
-
-  while (remaining.length > 0) {
-    // 1. Check for Discord Custom Emoji at start of remaining
-    const emojiMatch = remaining.match(/^<(a)?:([a-zA-Z0-9_~]+):([0-9]+)>/);
-    if (emojiMatch) {
-      const isAnimated = Boolean(emojiMatch[1]);
-      const name = emojiMatch[2];
-      const id = emojiMatch[3];
-      const ext = isAnimated ? 'gif' : 'png';
-      const emojiUrl = `https://cdn.discordapp.com/emojis/${id}.${ext}?size=48&quality=lossless`;
-
-      nodes.push(
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img
-          key={key++}
-          src={emojiUrl}
-          alt={`:${name}:`}
-          title={`:${name}:`}
-          className="inline-block align-middle object-contain mx-0.5"
-          style={{ height: '1.25em', width: 'auto', maxHeight: '1.25em' }}
-        />
-      );
-      remaining = remaining.slice(emojiMatch[0].length);
-      continue;
-    }
-
-    // 2. Check formatting rules (bold, italic, etc.)
-    let matched = false;
-    for (const { regex, render } of FORMAT_RULES) {
-      const match = remaining.match(regex);
-      if (match) {
-        nodes.push(render(parseInlineFormatting(match[1]), key++));
-        remaining = remaining.slice(match[0].length);
-        matched = true;
-        break;
-      }
-    }
-
-    // 3. Find next potential trigger (< for emoji, *~_ for styles)
-    if (!matched) {
-      const nextIndex = remaining.search(/[<*~_]/);
-      if (nextIndex === -1) {
-        nodes.push(remaining);
-        break;
-      } else if (nextIndex === 0) {
-        nodes.push(remaining[0]);
-        remaining = remaining.slice(1);
-      } else {
-        nodes.push(remaining.slice(0, nextIndex));
-        remaining = remaining.slice(nextIndex);
-      }
-    }
-  }
-
-  return nodes.length === 1 ? nodes[0] : nodes;
 };
 
 const renderFormattedText = (text: string) => {
@@ -199,6 +129,8 @@ interface Layout1Props {
   enterScreenLetterSpacing?: number;
   enterScreenColor?: string;
   enterScreenOpacity?: number;
+  enterScreenBlur?: number;
+  enterScreenBlurColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -378,6 +310,8 @@ const Layout1 = ({
   enterScreenLetterSpacing = 2,
   enterScreenColor = "#ffffff",
   enterScreenOpacity = 80,
+  enterScreenBlur = 16,
+  enterScreenBlurColor = "#000000",
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -441,14 +375,6 @@ const Layout1 = ({
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
-  const [hasEntered, setHasEntered] = useState(!enterScreenEnabled);
-
-  useEffect(() => {
-    // If preview toggles enterScreen off, reveal immediately
-    if (!enterScreenEnabled) {
-      setHasEntered(true);
-    }
-  }, [enterScreenEnabled]);
 
   // Viewer-specific state (is this visitor signed in? did they already vote?)
   // is fetched client-side so the page HTML stays identical for every visitor
@@ -590,27 +516,20 @@ const Layout1 = ({
   if (bannerImageUrl) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
-        {enterScreenEnabled && !hasEntered && (
-          <div
-            onClick={() => setHasEntered(true)}
-            data-transition={entryTransition}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
-          >
-            <p
-              className="flex items-center justify-center gap-1.5"
-              style={{
-                fontFamily: fontClassMap[enterScreenFont] || "var(--font-inter)",
-                fontSize: `${enterScreenFontSize}px`,
-                fontWeight: enterScreenFontWeight,
-                letterSpacing: `${enterScreenLetterSpacing}px`,
-                color: enterScreenColor || "#ffffff",
-                opacity: enterScreenOpacity / 100,
-              }}
-            >
-              {parseInlineFormatting(enterScreenText || "click to enter")}
-            </p>
-          </div>
-        )}
+        <EntryTransition
+          transition={entryTransition}
+          enabled={enterScreenEnabled}
+          text={enterScreenText}
+          font={enterScreenFont}
+          fontSize={enterScreenFontSize}
+          fontWeight={enterScreenFontWeight}
+          letterSpacing={enterScreenLetterSpacing}
+          color={enterScreenColor}
+          opacity={enterScreenOpacity}
+          blur={enterScreenBlur}
+          blurColor={enterScreenBlurColor}
+          fontClassMap={FONT_CLASS_MAP}
+        />
 
         {bannerBackgroundUrl && (
           isVideoUrl(bannerBackgroundUrl) ? (
@@ -1017,27 +936,18 @@ const Layout1 = ({
   /* ── NO BANNER — original layout ────────────────────────────────── */
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
-      {enterScreenEnabled && !hasEntered && (
-        <div
-          onClick={() => setHasEntered(true)}
-          data-transition={entryTransition}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
-        >
-          <p
-            className="flex items-center justify-center gap-1.5"
-            style={{
-              fontFamily: fontClassMap[enterScreenFont] || "var(--font-inter)",
-              fontSize: `${enterScreenFontSize}px`,
-              fontWeight: enterScreenFontWeight,
-              letterSpacing: `${enterScreenLetterSpacing}px`,
-              color: enterScreenColor || "#ffffff",
-              opacity: enterScreenOpacity / 100,
-            }}
-          >
-            {parseInlineFormatting(enterScreenText || "click to enter")}
-          </p>
-        </div>
-      )}
+      <EntryTransition
+        transition={entryTransition}
+        enabled={enterScreenEnabled}
+        text={enterScreenText}
+        font={enterScreenFont}
+        fontSize={enterScreenFontSize}
+        fontWeight={enterScreenFontWeight}
+        letterSpacing={enterScreenLetterSpacing}
+        color={enterScreenColor}
+        opacity={enterScreenOpacity}
+        fontClassMap={FONT_CLASS_MAP}
+      />
 
       {bannerBackgroundUrl && (
         isVideoUrl(bannerBackgroundUrl) ? (
@@ -1139,7 +1049,7 @@ const Layout1 = ({
 
         {/* Profile Frame Overlay (Front Layers) */}
         {selectedFrame && (
-          <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${decorationHue}deg)` }}>
+          <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
             {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img

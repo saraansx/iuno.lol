@@ -346,6 +346,8 @@ export async function updateEffectsProfile(data: {
   enterScreenLetterSpacing?: number | null;
   enterScreenColor?: string | null;
   enterScreenOpacity?: number | null;
+  enterScreenBlur?: number | null;
+  enterScreenBlurColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -384,6 +386,8 @@ export async function updateEffectsProfile(data: {
   if (data.enterScreenLetterSpacing !== undefined) setData.enterScreenLetterSpacing = data.enterScreenLetterSpacing;
   if (data.enterScreenColor !== undefined) setData.enterScreenColor = data.enterScreenColor?.slice(0, 32) ?? '#ffffff';
   if (data.enterScreenOpacity !== undefined) setData.enterScreenOpacity = data.enterScreenOpacity;
+  if (data.enterScreenBlur !== undefined) setData.enterScreenBlur = data.enterScreenBlur;
+  if (data.enterScreenBlurColor !== undefined) setData.enterScreenBlurColor = data.enterScreenBlurColor?.slice(0, 32) ?? '#000000';
 
   if (Object.keys(setData).length === 0) return { success: true };
   

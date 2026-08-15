@@ -52,6 +52,10 @@ interface EffectsCustomizationProps {
   setEnterScreenColor: (val: string) => void;
   enterScreenOpacity: number;
   setEnterScreenOpacity: (val: number) => void;
+  enterScreenBlur: number;
+  setEnterScreenBlur: (val: number) => void;
+  enterScreenBlurColor: string;
+  setEnterScreenBlurColor: (val: string) => void;
 }
 
 export default function EffectsCustomization({
@@ -97,6 +101,10 @@ export default function EffectsCustomization({
   setEnterScreenColor,
   enterScreenOpacity,
   setEnterScreenOpacity,
+  enterScreenBlur,
+  setEnterScreenBlur,
+  enterScreenBlurColor,
+  setEnterScreenBlurColor,
 }: EffectsCustomizationProps) {
 
   return (
@@ -142,6 +150,7 @@ export default function EffectsCustomization({
           <EntryTransitionSection
             entryTransition={entryTransition}
             setEntryTransition={setEntryTransition}
+            disabled={!enterScreenEnabled}
           />
           <TapToEnterSection
             enterScreenEnabled={enterScreenEnabled}
@@ -160,6 +169,10 @@ export default function EffectsCustomization({
             setEnterScreenColor={setEnterScreenColor}
             enterScreenOpacity={enterScreenOpacity}
             setEnterScreenOpacity={setEnterScreenOpacity}
+            enterScreenBlur={enterScreenBlur}
+            setEnterScreenBlur={setEnterScreenBlur}
+            enterScreenBlurColor={enterScreenBlurColor}
+            setEnterScreenBlurColor={setEnterScreenBlurColor}
           />
         </div>
       </div>

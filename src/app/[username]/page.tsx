@@ -118,6 +118,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenLetterSpacing: userSettings.enterScreenLetterSpacing,
       enterScreenColor: userSettings.enterScreenColor,
       enterScreenOpacity: userSettings.enterScreenOpacity,
+      enterScreenBlur: userSettings.enterScreenBlur,
+      enterScreenBlurColor: userSettings.enterScreenBlurColor,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -174,6 +176,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         enterScreenLetterSpacing={user.enterScreenLetterSpacing ?? undefined}
         enterScreenColor={user.enterScreenColor ?? undefined}
         enterScreenOpacity={user.enterScreenOpacity ?? undefined}
+        enterScreenBlur={user.enterScreenBlur ?? undefined}
+        enterScreenBlurColor={user.enterScreenBlurColor ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}

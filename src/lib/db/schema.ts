@@ -74,6 +74,8 @@ export const userSettings = mysqlTable('user_settings', {
   enterScreenLetterSpacing: float('enter_screen_letter_spacing').default(2),
   enterScreenColor: varchar('enter_screen_color', { length: 32 }).default('#ffffff'),
   enterScreenOpacity: float('enter_screen_opacity').default(80),
+  enterScreenBlur: float('enter_screen_blur').default(16),
+  enterScreenBlurColor: varchar('enter_screen_blur_color', { length: 32 }).default('#000000'),
   profileBgOpacity: float('profile_bg_opacity').default(10),
   profileBorderColor: varchar('profile_border_color', { length: 7 }).default('#ffffff'),
   profileBorderOpacity: float('profile_border_opacity').default(100),

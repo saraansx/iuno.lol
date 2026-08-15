@@ -53,6 +53,8 @@ const userColumns = {
   enterScreenLetterSpacing: schema.userSettings.enterScreenLetterSpacing,
   enterScreenColor: schema.userSettings.enterScreenColor,
   enterScreenOpacity: schema.userSettings.enterScreenOpacity,
+  enterScreenBlur: schema.userSettings.enterScreenBlur,
+  enterScreenBlurColor: schema.userSettings.enterScreenBlurColor,
   descriptionEffect: schema.userSettings.descriptionEffect,
   profileBgColor: schema.userSettings.profileBgColor,
   profileBgOpacity: schema.userSettings.profileBgOpacity,

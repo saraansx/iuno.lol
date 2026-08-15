@@ -50,6 +50,10 @@ interface TapToEnterSectionProps {
   setEnterScreenColor: (val: string) => void;
   enterScreenOpacity: number;
   setEnterScreenOpacity: (val: number) => void;
+  enterScreenBlur: number;
+  setEnterScreenBlur: (val: number) => void;
+  enterScreenBlurColor: string;
+  setEnterScreenBlurColor: (val: string) => void;
 }
 
 export default function TapToEnterSection({
@@ -69,6 +73,10 @@ export default function TapToEnterSection({
   setEnterScreenColor,
   enterScreenOpacity,
   setEnterScreenOpacity,
+  enterScreenBlur,
+  setEnterScreenBlur,
+  enterScreenBlurColor,
+  setEnterScreenBlurColor,
 }: TapToEnterSectionProps) {
   const [isFontDropdownOpen, setIsFontDropdownOpen] = useState(false);
 
@@ -314,9 +322,65 @@ export default function TapToEnterSection({
           </div>
         </div>
 
-        <p className="text-[11.5px] text-white/40">
-          Visitors will see a fullscreen overlay with this text and style, and must click to reveal your profile. Supports Markdown and custom Discord emojis (e.g. &lt;:emoji:id&gt; or &lt;a:emoji:id&gt;).
-        </p>
+        {/* Blur Intensity & Blur Color */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          {/* Blur Intensity Slider */}
+          <div className="flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <label className="text-[12.5px] font-medium text-white/90">Blur Intensity</label>
+              <span className="text-[12px] text-white/40 font-mono">{enterScreenBlur}px</span>
+            </div>
+            <div className="relative flex items-center h-5 group w-full">
+              <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="absolute h-full bg-[#5b6cf5]"
+                  style={{ width: `${(Math.min(enterScreenBlur, 40) / 40) * 100}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                disabled={!enterScreenEnabled}
+                min={0}
+                max={40}
+                step={1}
+                value={enterScreenBlur}
+                onChange={(e) => setEnterScreenBlur(Number(e.target.value))}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              <div
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                style={{
+                  left: `calc(${(Math.min(enterScreenBlur, 40) / 40) * 100}% - 8px)`
+                }}
+              />
+            </div>
+            <div className="flex justify-between text-[11px] text-white/30">
+              <span>0 px</span>
+              <span>20 px</span>
+              <span>40 px</span>
+            </div>
+          </div>
+
+          {/* Blur Color */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[12.5px] font-medium text-white/90">Blur Color</label>
+            <ColorPickerInput
+              disabled={!enterScreenEnabled}
+              value={enterScreenBlurColor || "#000000"}
+              onChange={setEnterScreenBlurColor}
+            />
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 text-[11.5px] text-white/40">
+          <p>
+            Visitors will see a fullscreen overlay with this text and style, and must click to reveal your profile.
+          </p>
+          <p className="flex items-center gap-1.5">
+            <span className="w-1 h-1 rounded-full bg-white/40 inline-block shrink-0" />
+            <span>Supports Markdown and custom Discord emojis (e.g. &lt;:emoji:id&gt; or &lt;a:emoji:id&gt;).</span>
+          </p>
+        </div>
       </div>
     </div>
   );
