@@ -109,6 +109,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       descriptionEffect: userSettings.descriptionEffect,
       cursorTrail: userSettings.cursorTrail,
       cursorTrailColor: userSettings.cursorTrailColor,
+      enterScreenEnabled: userSettings.enterScreenEnabled,
+      enterScreenText: userSettings.enterScreenText,
+      enterScreenFont: userSettings.enterScreenFont,
+      enterScreenFontSize: userSettings.enterScreenFontSize,
+      enterScreenFontWeight: userSettings.enterScreenFontWeight,
+      enterScreenLetterSpacing: userSettings.enterScreenLetterSpacing,
+      enterScreenColor: userSettings.enterScreenColor,
+      enterScreenOpacity: userSettings.enterScreenOpacity,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -156,6 +164,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         descriptionEffect={user.descriptionEffect ?? undefined}
         cursorTrail={user.cursorTrail ?? undefined}
         cursorTrailColor={user.cursorTrailColor ?? undefined}
+        enterScreenEnabled={user.enterScreenEnabled ?? undefined}
+        enterScreenText={user.enterScreenText ?? undefined}
+        enterScreenFont={user.enterScreenFont ?? undefined}
+        enterScreenFontSize={user.enterScreenFontSize ?? undefined}
+        enterScreenFontWeight={user.enterScreenFontWeight ?? undefined}
+        enterScreenLetterSpacing={user.enterScreenLetterSpacing ?? undefined}
+        enterScreenColor={user.enterScreenColor ?? undefined}
+        enterScreenOpacity={user.enterScreenOpacity ?? undefined}
         profileBgColor={user.profileBgColor ?? undefined}
         profileBgOpacity={user.profileBgOpacity ?? undefined}
         profileBorderColor={user.profileBorderColor ?? undefined}

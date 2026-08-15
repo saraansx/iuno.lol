@@ -210,6 +210,7 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             descriptionEffect={descriptionEffect}
             cursorTrail={cursorTrail}
             cursorTrailColor={cursorTrailColor}
+            enterScreenEnabled={false}
             profileBgColor={profileBgColor}
             profileBgOpacity={profileBgOpacity}
             profileBorderColor={profileBorderColor}

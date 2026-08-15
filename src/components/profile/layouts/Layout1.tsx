@@ -31,8 +31,32 @@ const parseInlineFormatting = (text: string): React.ReactNode => {
   let key = 0;
 
   while (remaining.length > 0) {
-    let matched = false;
+    // 1. Check for Discord Custom Emoji at start of remaining
+    const emojiMatch = remaining.match(/^<(a)?:([a-zA-Z0-9_~]+):([0-9]+)>/);
+    if (emojiMatch) {
+      const isAnimated = Boolean(emojiMatch[1]);
+      const name = emojiMatch[2];
+      const id = emojiMatch[3];
+      const ext = isAnimated ? 'gif' : 'png';
+      const emojiUrl = `https://cdn.discordapp.com/emojis/${id}.${ext}?size=48&quality=lossless`;
 
+      nodes.push(
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img
+          key={key++}
+          src={emojiUrl}
+          alt={`:${name}:`}
+          title={`:${name}:`}
+          className="inline-block align-middle object-contain mx-0.5"
+          style={{ height: '1.25em', width: 'auto', maxHeight: '1.25em' }}
+        />
+      );
+      remaining = remaining.slice(emojiMatch[0].length);
+      continue;
+    }
+
+    // 2. Check formatting rules (bold, italic, etc.)
+    let matched = false;
     for (const { regex, render } of rules) {
       const match = remaining.match(regex);
       if (match) {
@@ -43,8 +67,9 @@ const parseInlineFormatting = (text: string): React.ReactNode => {
       }
     }
 
+    // 3. Find next potential trigger (< for emoji, *~_ for styles)
     if (!matched) {
-      const nextIndex = remaining.search(/[*~_]/);
+      const nextIndex = remaining.search(/[<*~_]/);
       if (nextIndex === -1) {
         nodes.push(remaining);
         break;
@@ -135,6 +160,14 @@ interface Layout1Props {
   descriptionEffect?: string;
   cursorTrail?: string;
   cursorTrailColor?: string;
+  enterScreenEnabled?: boolean;
+  enterScreenText?: string;
+  enterScreenFont?: string;
+  enterScreenFontSize?: number;
+  enterScreenFontWeight?: number;
+  enterScreenLetterSpacing?: number;
+  enterScreenColor?: string;
+  enterScreenOpacity?: number;
   profileBgColor?: string;
   profileBgOpacity?: number;
   profileBorderColor?: string;
@@ -305,6 +338,14 @@ const Layout1 = ({
   descriptionEffect = "none",
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
+  enterScreenEnabled = false,
+  enterScreenText = "click to enter",
+  enterScreenFont = "Inter",
+  enterScreenFontSize = 14,
+  enterScreenFontWeight = 500,
+  enterScreenLetterSpacing = 2,
+  enterScreenColor = "#ffffff",
+  enterScreenOpacity = 80,
   profileBgColor = "#050505",
   profileBgOpacity = 100,
   profileBorderColor = "#ffffff",
@@ -368,6 +409,14 @@ const Layout1 = ({
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
+  const [hasEntered, setHasEntered] = useState(!enterScreenEnabled);
+
+  useEffect(() => {
+    // If preview toggles enterScreen off, reveal immediately
+    if (!enterScreenEnabled) {
+      setHasEntered(true);
+    }
+  }, [enterScreenEnabled]);
 
   // Viewer-specific state (is this visitor signed in? did they already vote?)
   // is fetched client-side so the page HTML stays identical for every visitor
@@ -516,6 +565,27 @@ const Layout1 = ({
   if (bannerImageUrl) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
+        {enterScreenEnabled && !hasEntered && (
+          <div
+            onClick={() => setHasEntered(true)}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
+          >
+            <p
+              className="flex items-center justify-center gap-1.5"
+              style={{
+                fontFamily: fontClassMap[enterScreenFont] || "var(--font-inter)",
+                fontSize: `${enterScreenFontSize}px`,
+                fontWeight: enterScreenFontWeight,
+                letterSpacing: `${enterScreenLetterSpacing}px`,
+                color: enterScreenColor || "#ffffff",
+                opacity: enterScreenOpacity / 100,
+              }}
+            >
+              {parseInlineFormatting(enterScreenText || "click to enter")}
+            </p>
+          </div>
+        )}
+
         {bannerBackgroundUrl && (
           isVideoUrl(bannerBackgroundUrl) ? (
             <video
@@ -921,6 +991,27 @@ const Layout1 = ({
   /* ── NO BANNER — original layout ────────────────────────────────── */
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
+      {enterScreenEnabled && !hasEntered && (
+        <div
+          onClick={() => setHasEntered(true)}
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl cursor-pointer select-none transition-opacity duration-500 animate-in fade-in"
+        >
+          <p
+            className="flex items-center justify-center gap-1.5"
+            style={{
+              fontFamily: fontClassMap[enterScreenFont] || "var(--font-inter)",
+              fontSize: `${enterScreenFontSize}px`,
+              fontWeight: enterScreenFontWeight,
+              letterSpacing: `${enterScreenLetterSpacing}px`,
+              color: enterScreenColor || "#ffffff",
+              opacity: enterScreenOpacity / 100,
+            }}
+          >
+            {parseInlineFormatting(enterScreenText || "click to enter")}
+          </p>
+        </div>
+      )}
+
       {bannerBackgroundUrl && (
         isVideoUrl(bannerBackgroundUrl) ? (
           <video

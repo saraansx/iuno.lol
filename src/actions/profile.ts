@@ -337,6 +337,14 @@ export async function updateEffectsProfile(data: {
   descriptionEffect?: string | null;
   cursorTrail?: string | null;
   cursorTrailColor?: string | null;
+  enterScreenEnabled?: boolean | null;
+  enterScreenText?: string | null;
+  enterScreenFont?: string | null;
+  enterScreenFontSize?: number | null;
+  enterScreenFontWeight?: number | null;
+  enterScreenLetterSpacing?: number | null;
+  enterScreenColor?: string | null;
+  enterScreenOpacity?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -366,6 +374,14 @@ export async function updateEffectsProfile(data: {
   if (data.descriptionEffect !== undefined) setData.descriptionEffect = data.descriptionEffect?.slice(0, 50) ?? null;
   if (data.cursorTrail !== undefined) setData.cursorTrail = data.cursorTrail?.slice(0, 50) ?? null;
   if (data.cursorTrailColor !== undefined) setData.cursorTrailColor = data.cursorTrailColor?.slice(0, 32) ?? null;
+  if (data.enterScreenEnabled !== undefined) setData.enterScreenEnabled = data.enterScreenEnabled ?? false;
+  if (data.enterScreenText !== undefined) setData.enterScreenText = data.enterScreenText?.slice(0, 100) ?? 'click to enter';
+  if (data.enterScreenFont !== undefined) setData.enterScreenFont = data.enterScreenFont?.slice(0, 50) ?? 'Inter';
+  if (data.enterScreenFontSize !== undefined) setData.enterScreenFontSize = data.enterScreenFontSize;
+  if (data.enterScreenFontWeight !== undefined) setData.enterScreenFontWeight = data.enterScreenFontWeight;
+  if (data.enterScreenLetterSpacing !== undefined) setData.enterScreenLetterSpacing = data.enterScreenLetterSpacing;
+  if (data.enterScreenColor !== undefined) setData.enterScreenColor = data.enterScreenColor?.slice(0, 32) ?? '#ffffff';
+  if (data.enterScreenOpacity !== undefined) setData.enterScreenOpacity = data.enterScreenOpacity;
 
   if (Object.keys(setData).length === 0) return { success: true };
   

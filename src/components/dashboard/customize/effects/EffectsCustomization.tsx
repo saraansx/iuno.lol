@@ -6,6 +6,7 @@ import CardTransitionSection from "./CardTransitionSection";
 import UsernameEffectSection from "./UsernameEffectSection";
 import DescriptionEffectSection from "./DescriptionEffectSection";
 import CursorTrailSection from "./CursorTrailSection";
+import TapToEnterSection from "./TapToEnterSection";
 
 interface EffectsCustomizationProps {
   backgroundEffect: string;
@@ -32,6 +33,22 @@ interface EffectsCustomizationProps {
   setCursorTrail: (val: string) => void;
   cursorTrailColor: string;
   setCursorTrailColor: (val: string) => void;
+  enterScreenEnabled: boolean;
+  setEnterScreenEnabled: (val: boolean) => void;
+  enterScreenText: string;
+  setEnterScreenText: (val: string) => void;
+  enterScreenFont: string;
+  setEnterScreenFont: (val: string) => void;
+  enterScreenFontSize: number;
+  setEnterScreenFontSize: (val: number) => void;
+  enterScreenFontWeight: number;
+  setEnterScreenFontWeight: (val: number) => void;
+  enterScreenLetterSpacing: number;
+  setEnterScreenLetterSpacing: (val: number) => void;
+  enterScreenColor: string;
+  setEnterScreenColor: (val: string) => void;
+  enterScreenOpacity: number;
+  setEnterScreenOpacity: (val: number) => void;
 }
 
 export default function EffectsCustomization({
@@ -59,6 +76,22 @@ export default function EffectsCustomization({
   setCursorTrail,
   cursorTrailColor,
   setCursorTrailColor,
+  enterScreenEnabled,
+  setEnterScreenEnabled,
+  enterScreenText,
+  setEnterScreenText,
+  enterScreenFont,
+  setEnterScreenFont,
+  enterScreenFontSize,
+  setEnterScreenFontSize,
+  enterScreenFontWeight,
+  setEnterScreenFontWeight,
+  enterScreenLetterSpacing,
+  setEnterScreenLetterSpacing,
+  enterScreenColor,
+  setEnterScreenColor,
+  enterScreenOpacity,
+  setEnterScreenOpacity,
 }: EffectsCustomizationProps) {
 
   return (
@@ -100,6 +133,24 @@ export default function EffectsCustomization({
             setCursorTrail={setCursorTrail}
             cursorTrailColor={cursorTrailColor}
             setCursorTrailColor={setCursorTrailColor}
+          />
+          <TapToEnterSection
+            enterScreenEnabled={enterScreenEnabled}
+            setEnterScreenEnabled={setEnterScreenEnabled}
+            enterScreenText={enterScreenText}
+            setEnterScreenText={setEnterScreenText}
+            enterScreenFont={enterScreenFont}
+            setEnterScreenFont={setEnterScreenFont}
+            enterScreenFontSize={enterScreenFontSize}
+            setEnterScreenFontSize={setEnterScreenFontSize}
+            enterScreenFontWeight={enterScreenFontWeight}
+            setEnterScreenFontWeight={setEnterScreenFontWeight}
+            enterScreenLetterSpacing={enterScreenLetterSpacing}
+            setEnterScreenLetterSpacing={setEnterScreenLetterSpacing}
+            enterScreenColor={enterScreenColor}
+            setEnterScreenColor={setEnterScreenColor}
+            enterScreenOpacity={enterScreenOpacity}
+            setEnterScreenOpacity={setEnterScreenOpacity}
           />
         </div>
       </div>

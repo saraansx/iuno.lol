@@ -55,6 +55,32 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const cursorTrailColor = overrides.cursorTrailColor ?? initialCursorTrailColor;
   const setCursorTrailColor = (val: string) => updateOverrides({ cursorTrailColor: val === initialCursorTrailColor ? undefined : val });
 
+  const initialEnterScreenEnabled = user?.enterScreenEnabled ?? false;
+  const initialEnterScreenText = user?.enterScreenText ?? "click to enter";
+  const initialEnterScreenFont = user?.enterScreenFont ?? "Inter";
+  const initialEnterScreenFontSize = user?.enterScreenFontSize ?? 14;
+  const initialEnterScreenFontWeight = user?.enterScreenFontWeight ?? 500;
+  const initialEnterScreenLetterSpacing = user?.enterScreenLetterSpacing ?? 2;
+  const initialEnterScreenColor = user?.enterScreenColor ?? "#ffffff";
+  const initialEnterScreenOpacity = user?.enterScreenOpacity ?? 80;
+
+  const enterScreenEnabled = overrides.enterScreenEnabled ?? initialEnterScreenEnabled;
+  const setEnterScreenEnabled = (val: boolean) => updateOverrides({ enterScreenEnabled: val === initialEnterScreenEnabled ? undefined : val });
+  const enterScreenText = overrides.enterScreenText ?? initialEnterScreenText;
+  const setEnterScreenText = (val: string) => updateOverrides({ enterScreenText: val === initialEnterScreenText ? undefined : val });
+  const enterScreenFont = overrides.enterScreenFont ?? initialEnterScreenFont;
+  const setEnterScreenFont = (val: string) => updateOverrides({ enterScreenFont: val === initialEnterScreenFont ? undefined : val });
+  const enterScreenFontSize = overrides.enterScreenFontSize ?? initialEnterScreenFontSize;
+  const setEnterScreenFontSize = (val: number) => updateOverrides({ enterScreenFontSize: val === initialEnterScreenFontSize ? undefined : val });
+  const enterScreenFontWeight = overrides.enterScreenFontWeight ?? initialEnterScreenFontWeight;
+  const setEnterScreenFontWeight = (val: number) => updateOverrides({ enterScreenFontWeight: val === initialEnterScreenFontWeight ? undefined : val });
+  const enterScreenLetterSpacing = overrides.enterScreenLetterSpacing ?? initialEnterScreenLetterSpacing;
+  const setEnterScreenLetterSpacing = (val: number) => updateOverrides({ enterScreenLetterSpacing: val === initialEnterScreenLetterSpacing ? undefined : val });
+  const enterScreenColor = overrides.enterScreenColor ?? initialEnterScreenColor;
+  const setEnterScreenColor = (val: string) => updateOverrides({ enterScreenColor: val === initialEnterScreenColor ? undefined : val });
+  const enterScreenOpacity = overrides.enterScreenOpacity ?? initialEnterScreenOpacity;
+  const setEnterScreenOpacity = (val: number) => updateOverrides({ enterScreenOpacity: val === initialEnterScreenOpacity ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -90,6 +116,22 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setCursorTrail={setCursorTrail}
           cursorTrailColor={cursorTrailColor}
           setCursorTrailColor={setCursorTrailColor}
+          enterScreenEnabled={enterScreenEnabled}
+          setEnterScreenEnabled={setEnterScreenEnabled}
+          enterScreenText={enterScreenText}
+          setEnterScreenText={setEnterScreenText}
+          enterScreenFont={enterScreenFont}
+          setEnterScreenFont={setEnterScreenFont}
+          enterScreenFontSize={enterScreenFontSize}
+          setEnterScreenFontSize={setEnterScreenFontSize}
+          enterScreenFontWeight={enterScreenFontWeight}
+          setEnterScreenFontWeight={setEnterScreenFontWeight}
+          enterScreenLetterSpacing={enterScreenLetterSpacing}
+          setEnterScreenLetterSpacing={setEnterScreenLetterSpacing}
+          enterScreenColor={enterScreenColor}
+          setEnterScreenColor={setEnterScreenColor}
+          enterScreenOpacity={enterScreenOpacity}
+          setEnterScreenOpacity={setEnterScreenOpacity}
         />
       </div>
 
@@ -109,6 +151,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           descriptionEffect,
           cursorTrail,
           cursorTrailColor,
+          enterScreenEnabled,
+          enterScreenText,
         }}
       />
 
