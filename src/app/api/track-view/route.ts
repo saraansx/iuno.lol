@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const counted = await redis.eval(
       TRACK_VIEW_SCRIPT,
       [`v:${profileId}:${visitorHash}`, `views_pending:${profileId}`, 'profiles_with_pending_views'],
-      ['172800', device, String(profileId)],
+      ['86400', device, String(profileId)],
     );
 
     if (counted !== 1) {
