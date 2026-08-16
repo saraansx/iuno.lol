@@ -80,6 +80,27 @@ export function useDiscordPresence(id: string) {
           signal: controller.signal,
         });
         const json = (await res.json()) as DiscordPresenceData;
+
+        // If server couldn't get profile badges (datacenter IP block), fetch client-side directly
+        if (json?.user && (!json.user.profile_badges || json.user.profile_badges.length === 0)) {
+          try {
+            const clientRes = await fetch(
+              `https://discord.com/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`,
+              {
+                signal: controller.signal,
+              }
+            );
+            if (clientRes.ok) {
+              const clientProfile = await clientRes.json();
+              if (clientProfile?.badges?.length) {
+                json.user.profile_badges = clientProfile.badges;
+              }
+            }
+          } catch {
+            // Client fetch error ignored
+          }
+        }
+
         if (!cancelled) setData(json);
       } catch {
         // Aborted by unmount, or the request failed outright
