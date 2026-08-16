@@ -149,28 +149,36 @@ export async function GET(
         const exactSuperProps =
           "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiaGFzX2NsaWVudF9tb2RzIjpmYWxzZSwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1MS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTUxLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6Imh0dHBzOi8vZGlzY29yZC5jb20vIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiZGlzY29yZC5jb20iLCJyZWxlYXNlX2NoYW5uZWwiOiJzdGFibGUiLCJjbGllbnRfYnVpbGRfbnVtYmVyIjo1OTQwMzEsImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGwsImNsaWVudF9sYXVuY2hfaWQiOiI2ODU0ODYyZC02MmU2LTQ1MzItYjU0Mi03YThmMGQ0YTBiNDkiLCJsYXVuY2hfc2lnbmF0dXJlIjoiOTAxZTY5NDUtOTQ2Ni00MTRmLTllNjYtYjQ5NzEwZjQ1MTdjIiwiY2xpZW50X2hlYXJ0YmVhdF9zZXNzaW9uX2lkIjoiOGI5NzRjYWMtNTZmNi00NWY1LWE1OGUtNzNmMWJmOWFhNjQ3IiwiY2xpZW50X2FwcF9zdGF0ZSI6ImZvY3VzZWQifQ==";
 
+        const discordCookie = process.env.DISCORD_COOKIE || "";
+
+        const headers: Record<string, string> = {
+          Accept: "*/*",
+          "Accept-Language": "en-US,en;q=0.9",
+          Authorization: userToken,
+          Priority: "u=1, i",
+          Referer: "https://discord.com/channels/@me",
+          "Sec-Ch-Ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+          "Sec-Ch-Ua-Mobile": "?0",
+          "Sec-Ch-Ua-Platform": '"Windows"',
+          "Sec-Fetch-Dest": "empty",
+          "Sec-Fetch-Mode": "cors",
+          "Sec-Fetch-Site": "same-origin",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+          "X-Debug-Options": "bugReporterEnabled",
+          "X-Discord-Locale": "en-US",
+          "X-Discord-Timezone": "Asia/Calcutta",
+          "X-Super-Properties": exactSuperProps,
+        };
+
+        if (discordCookie) {
+          headers["Cookie"] = discordCookie;
+        }
+
         const profileRes = await fetch(
           `https://discord.com/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`,
           {
-            headers: {
-              Accept: "*/*",
-              "Accept-Language": "en-US,en;q=0.9",
-              Authorization: userToken,
-              Priority: "u=1, i",
-              Referer: "https://discord.com/channels/@me",
-              "Sec-Ch-Ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
-              "Sec-Ch-Ua-Mobile": "?0",
-              "Sec-Ch-Ua-Platform": '"Windows"',
-              "Sec-Fetch-Dest": "empty",
-              "Sec-Fetch-Mode": "cors",
-              "Sec-Fetch-Site": "same-origin",
-              "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
-              "X-Debug-Options": "bugReporterEnabled",
-              "X-Discord-Locale": "en-US",
-              "X-Discord-Timezone": "Asia/Calcutta",
-              "X-Super-Properties": exactSuperProps,
-            },
+            headers,
             next: { revalidate: 300 },
           }
         );
