@@ -140,18 +140,45 @@ export async function GET(
 
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
-    // 3. Badges lookup: Fallback to official public_flags if user token is blocked/fails
+    // 3. Direct user profile lookup via user token (Full Nitro/Badges)
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
     const userToken = process.env.DISCORD_USER_TOKEN;
 
     if (userToken) {
       try {
+        // Base64 client fingerprint to pass Discord cloud gateway validation
+        const clientProps = Buffer.from(
+          JSON.stringify({
+            os: "Windows",
+            browser: "Chrome",
+            device: "",
+            system_locale: "en-US",
+            browser_user_agent:
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            browser_version: "126.0.0.0",
+            os_version: "10",
+            referrer: "",
+            referring_domain: "",
+            referrer_current: "",
+            referring_domain_current: "",
+            release_channel: "stable",
+            client_build_number: 300000,
+            client_event_source: null,
+          })
+        ).toString("base64");
+
         const profileRes = await fetch(
           `https://discord.com/api/v10/users/${id}/profile?with_mutual_guilds=false&guild_id=${guildId}`,
           {
             headers: {
               Authorization: userToken,
-              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+              "X-Super-Properties": clientProps,
+              "Accept-Language": "en-US,en;q=0.9",
+              "Sec-Fetch-Dest": "empty",
+              "Sec-Fetch-Mode": "cors",
+              "Sec-Fetch-Site": "same-origin",
             },
             next: { revalidate: 300 },
           }
