@@ -98,7 +98,7 @@ export default function TapToEnterSection({
             <polyline points="10 17 15 12 10 7" />
             <line x1="15" y1="12" x2="3" y2="12" />
           </svg>
-          <span className="text-[16px] font-semibold text-white/90">Enter text</span>
+          <span className="text-[14px] font-normal text-white/90">Enter text</span>
         </div>
 
         {/* Toggle Switch */}

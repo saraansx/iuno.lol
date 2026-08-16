@@ -55,7 +55,7 @@ export default function CursorTrailSection({
         >
           <path d="M5 3l6.5 17 2-6.5L20 11.5 5 3z" />
         </svg>
-        <span className="text-[16px] font-semibold text-white/90">Cursor Trail</span>
+        <span className="text-[14px] font-normal text-white/90">Cursor Trail</span>
       </div>
 
       <div className="flex flex-col gap-3">

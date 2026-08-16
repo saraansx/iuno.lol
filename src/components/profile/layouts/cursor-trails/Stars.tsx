@@ -50,9 +50,11 @@ function drawFourPointStar(
 export function StarsTrail({ color = "#ffffff" }: { color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colorRef = useRef(color);
+  const rgbColorRef = useRef(hexToRgb(color));
 
   useEffect(() => {
     colorRef.current = color;
+    rgbColorRef.current = hexToRgb(color);
   }, [color]);
 
   useEffect(() => {
@@ -131,7 +133,7 @@ export function StarsTrail({ color = "#ffffff" }: { color?: string }) {
       ctx.clearRect(0, 0, width, height);
 
       if (particles.length > 0) {
-        const rgb = hexToRgb(colorRef.current);
+        const rgb = rgbColorRef.current;
 
         for (let i = particles.length - 1; i >= 0; i--) {
           const p = particles[i];

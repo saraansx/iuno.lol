@@ -2,6 +2,7 @@
 
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
@@ -399,6 +400,70 @@ export async function updateEffectsProfile(data: {
   revalidatePath("/dashboard/customize/profile/effects");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
-  
+
   return { success: true };
 }
+
+export async function updateProfileWidgets(data: {
+  username?: string;
+  widgets: Array<{
+    id: string;
+    platform: string;
+    type: string;
+    targetId: string;
+    useLinked: boolean;
+    enabled: boolean;
+  }>;
+}) {
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
+    const platform = w.platform === "discord" ? "discord" : "discord";
+    const type = w.type === "server" ? "server" : "presence";
+    const useLinked = Boolean(w.useLinked) && Boolean(user.discordId);
+    let targetId = String(w.targetId || "").replace(/\D/g, "").slice(0, 20);
+    if (useLinked && user.discordId) {
+      targetId = user.discordId;
+    }
+
+    if (!/^\d{17,20}$/.test(targetId)) {
+      throw new Error("Invalid Discord ID format");
+    }
+
+    return {
+      id: String(w.id || `widget_${Date.now()}`).slice(0, 50),
+      platform,
+      type,
+      targetId,
+      useLinked,
+      enabled: Boolean(w.enabled),
+    };
+  });
+
+  await db
+    .insert(schema.userSettings)
+    .values({ userId, widgets: sanitizedWidgets })
+    .onDuplicateKeyUpdate({ set: { widgets: sanitizedWidgets } });
+
+  revalidatePath("/dashboard/customize/profile/widgets");
+  revalidatePath("/dashboard", "layout");
+  revalidatePath(`/${user.username}`);
+
+  return { success: true };
+}
+

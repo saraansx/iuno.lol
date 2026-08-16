@@ -21,6 +21,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "discord-decoration.art",
+      },
+      {
+        protocol: "https",
+        hostname: "i.scdn.co",
+      },
+      {
+        protocol: "https",
+        hostname: "media.discordapp.net",
       }
     ],
   },

@@ -54,7 +54,7 @@ export default function DescriptionEffectSection({
           <line x1="4" y1="12" x2="20" y2="12" />
           <line x1="4" y1="17" x2="14" y2="17" />
         </svg>
-        <span className="text-[16px] font-semibold text-white/90">Description Effect</span>
+        <span className="text-[14px] font-normal text-white/90">Description Effect</span>
       </div>
 
       <div className="flex flex-col gap-3">

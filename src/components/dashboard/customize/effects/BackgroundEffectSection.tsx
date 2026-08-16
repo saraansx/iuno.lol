@@ -71,7 +71,7 @@ export default function BackgroundEffectSection({
           <circle cx="9" cy="9" r="2" />
           <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
         </svg>
-        <span className="text-[13px] font-medium text-white/90">Background Effect</span>
+        <span className="text-[14px] font-normal text-white/90">Background Effect</span>
       </div>
 
       <div className={`flex items-center justify-between mb-4 mt-2 transition-opacity duration-200 ${isBgDisabled ? "opacity-40 pointer-events-none" : "opacity-100"}`}>

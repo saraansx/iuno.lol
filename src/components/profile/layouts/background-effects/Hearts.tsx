@@ -5,9 +5,11 @@ import { useEffect, useRef } from "react";
 export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });
+  const rgbColorRef = useRef(hexToRgb(color, "255, 182, 193"));
 
   useEffect(() => {
     propsRef.current = { intensity, color };
+    rgbColorRef.current = hexToRgb(color, "255, 182, 193");
   }, [intensity, color]);
 
   useEffect(() => {
@@ -75,32 +77,27 @@ export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?
         },
         draw: (currentRgbColor: string) => {
           if (!ctx) return;
-          
-          ctx.save();
-          ctx.translate(heart.x, heart.y);
-          
-          // Draw heart shape using bezier curves
-          ctx.beginPath();
+
+          // Draw heart directly with offsets without save/restore state overhead
           const topCurveHeight = heart.size * 0.3;
-          ctx.moveTo(0, topCurveHeight);
+          ctx.beginPath();
+          ctx.moveTo(heart.x, heart.y + topCurveHeight);
           // top left curve
           ctx.bezierCurveTo(
-            -heart.size / 2, -heart.size / 2, 
-            -heart.size, topCurveHeight, 
-            0, heart.size
+            heart.x - heart.size / 2, heart.y - heart.size / 2,
+            heart.x - heart.size, heart.y + topCurveHeight,
+            heart.x, heart.y + heart.size
           );
           // top right curve
           ctx.bezierCurveTo(
-            heart.size, topCurveHeight, 
-            heart.size / 2, -heart.size / 2, 
-            0, topCurveHeight
+            heart.x + heart.size, heart.y + topCurveHeight,
+            heart.x + heart.size / 2, heart.y - heart.size / 2,
+            heart.x, heart.y + topCurveHeight
           );
           ctx.closePath();
-          
+
           ctx.fillStyle = `rgba(${currentRgbColor}, ${heart.opacity})`;
           ctx.fill();
-          
-          ctx.restore();
         }
       };
       return heart;
@@ -109,7 +106,7 @@ export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?
     const hearts: Heart[] = [];
 
     const render = () => {
-      const currentRgbColor = hexToRgb(propsRef.current.color, "255, 182, 193");
+      const currentRgbColor = rgbColorRef.current;
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 80);
       
       while (hearts.length < targetCount) hearts.push(createHeart());

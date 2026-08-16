@@ -9,6 +9,7 @@ import {
   uniqueIndex,
   index,
   float,
+  json,
   AnyMySqlColumn,
 } from 'drizzle-orm/mysql-core'
 
@@ -124,6 +125,14 @@ export const userSettings = mysqlTable('user_settings', {
   showDislikesTooltip: boolean('show_dislikes_tooltip').default(true),
   showJoinDateTooltip: boolean('show_join_date_tooltip').default(true),
   showViewsTooltip: boolean('show_views_tooltip').default(true),
+  widgets: json('widgets').$type<Array<{
+    id: string;
+    platform: string;
+    type: string;
+    targetId: string;
+    useLinked: boolean;
+    enabled: boolean;
+  }>>().default([]),
 })
 
 export const usersRelations = relations(users, ({ one, many }) => ({

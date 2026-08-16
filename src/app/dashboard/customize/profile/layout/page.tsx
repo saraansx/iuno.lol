@@ -13,7 +13,7 @@ export default function Page() {
   return (
     <div className="flex flex-col gap-8 h-full">
       {/* Breadcrumb */}
-      <div className="border-b border-white/4 pb-5 -mx-12 px-12 w-full">
+      <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>

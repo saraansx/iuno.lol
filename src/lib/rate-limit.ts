@@ -15,7 +15,7 @@ end
 return {1, 0}
 `;
 
-async function checkRateLimit(
+export async function checkRateLimit(
   key: string,
   maxAttempts: number,
   windowSeconds: number,

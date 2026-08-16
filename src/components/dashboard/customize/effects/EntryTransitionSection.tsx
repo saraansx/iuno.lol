@@ -55,7 +55,7 @@ export default function EntryTransitionSection({
           <path d="M5 12h14" />
           <path d="m12 5 7 7-7 7" />
         </svg>
-        <span className="text-[16px] font-semibold text-white/90">Entry Transition</span>
+        <span className="text-[14px] font-normal text-white/90">Entry Transition</span>
       </div>
 
       <div className="flex flex-col gap-3">

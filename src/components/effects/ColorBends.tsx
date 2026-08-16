@@ -225,7 +225,13 @@ export default function ColorBends({
     ro.observe(container);
     resizeObserverRef.current = ro;
 
+    let isVisible = !document.hidden;
+
     const loop = () => {
+      if (!isVisible) {
+        rafRef.current = null;
+        return;
+      }
       timer.update();
       const dt = timer.getDelta();
       const elapsed = timer.getElapsed();
@@ -245,9 +251,23 @@ export default function ColorBends({
       renderer.render(scene, camera);
       rafRef.current = requestAnimationFrame(loop);
     };
+
+    const handleVisibilityChange = () => {
+      isVisible = !document.hidden;
+      if (isVisible && rafRef.current === null) {
+        timer.update(); // Prevent delta time spike on tab reactivation
+        rafRef.current = requestAnimationFrame(loop);
+      } else if (!isVisible && rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     rafRef.current = requestAnimationFrame(loop);
 
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       resizeObserverRef.current?.disconnect();
       geometry.dispose();

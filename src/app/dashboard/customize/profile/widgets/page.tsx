@@ -2,18 +2,23 @@ import { Metadata } from "next";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
-
+import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
+import WidgetsProfileClient from "./WidgetsProfileClient";
 
 export const metadata: Metadata = {
   title: "Widgets",
   description: "Widgets profile settings.",
 };
 
-export default function Page() {
+export default async function Page() {
+  const userId = await getSessionUserId();
+  const user = userId ? await getUserById(userId) : null;
+
   return (
     <div className="flex flex-col gap-8 h-full">
       {/* Breadcrumb */}
-      <div className="border-b border-white/4 pb-5 -mx-12 px-12 w-full">
+      <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>
@@ -42,24 +47,29 @@ export default function Page() {
       {/* Page Header & Navigation */}
       <div className="flex flex-col gap-6 pb-2 w-full pt-2" style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}>
         <div>
-          <h1 className="text-[20px] font-semibold text-white tracking-tight">Profile Customization</h1>
-          <p className="text-white/40 text-[13px] mt-0.5">Customize every aspect of your bio link page</p>
+          <div className="flex items-center gap-3">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect width="7" height="7" x="14" y="3" rx="1" />
+              <path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" />
+            </svg>
+            <h1 className="text-[20px] font-normal text-white tracking-tight">Widgets Customization</h1>
+          </div>
+          <p className="text-white/40 text-[13px] mt-0.5">Customize widgets and integrations on your page</p>
         </div>
 
         <ProfileCustomizeNav />
       </div>
 
-      {/* In Progress Content */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10">
-        <svg className="text-white/15 mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4l3 3"/>
-        </svg>
-
-        <h2 className="text-[15px] font-medium text-white tracking-tight">Profile Widgets in progress</h2>
-        <p className="text-white/30 text-[13px] mt-1.5 max-w-60 mx-auto">
-          We&apos;re currently working on this section. Check back soon.
-        </p>
-      </div>
+      <WidgetsProfileClient user={user} />
     </div>
   );
 }

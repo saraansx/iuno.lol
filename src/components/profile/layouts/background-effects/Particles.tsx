@@ -5,9 +5,11 @@ import { useEffect, useRef } from "react";
 export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });
+  const rgbColorRef = useRef(hexToRgb(color));
 
   useEffect(() => {
     propsRef.current = { intensity, color };
+    rgbColorRef.current = hexToRgb(color);
   }, [intensity, color]);
 
   useEffect(() => {
@@ -54,8 +56,8 @@ export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensi
         y: Math.random() * height,
         vx: (Math.random() - 0.5) * 0.4,
         vy: (Math.random() - 0.5) * 0.4,
-        radius: Math.random() * 2.5 + 1,
-        opacity: Math.random() * 0.5 + 0.2,
+        radius: Math.random() * 1.8 + 1.6,
+        opacity: Math.random() * 0.35 + 0.45,
         update: () => {
           p.x += p.vx;
           p.y += p.vy;
@@ -68,6 +70,8 @@ export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensi
           ctx.beginPath();
           ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
           ctx.fillStyle = `rgba(${currentRgbColor}, ${p.opacity})`;
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = `rgba(${currentRgbColor}, ${p.opacity * 0.6})`;
           ctx.fill();
         }
       };
@@ -77,7 +81,7 @@ export function ParticlesEffect({ intensity = 50, color = "#ffffff" }: { intensi
     const particles: Particle[] = [];
 
     const render = () => {
-      const currentRgbColor = hexToRgb(propsRef.current.color);
+      const currentRgbColor = rgbColorRef.current;
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 200);
       
       while (particles.length < targetCount) particles.push(createParticle());

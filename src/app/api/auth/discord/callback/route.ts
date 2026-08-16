@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { createSession } from '@/lib/auth/session'
-import { upsertDiscordUser } from '@/lib/features/users/db'
+import { createSession, getSessionUserId } from '@/lib/auth/session'
+import { upsertDiscordUser, getUserByDiscordId } from '@/lib/features/users/db'
 import { getClientIp } from '@/lib/server/security/ip'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
+import { db } from '@/lib/db'
+import * as schema from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
@@ -117,23 +120,49 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // 4. Upsert user in DB (create or link account)
+    // 4. Upsert or link Discord to current logged-in user or account
+    const loggedInUserId = await getSessionUserId()
     const ip = getClientIp(req.headers) ?? undefined
-    const userId = await upsertDiscordUser({
-      discordId:       discordUser.id,
-      discordUsername: discordUser.username,
-      email:           discordUser.email,
-      emailVerified:   discordUser.verified,
-      ip,
-    })
 
-    // 4. Add user to Discord guild (non-fatal if it fails)
+    let userId: number
+
+    if (loggedInUserId) {
+      // User is already logged in — verify discord ID is not claimed by another user
+      const existingUser = await getUserByDiscordId(discordUser.id);
+      if (existingUser && existingUser.id !== loggedInUserId) {
+        return NextResponse.redirect(
+          `${appUrl}/dashboard/customize/profile/widgets?error=discord_already_linked`
+        );
+      }
+
+      // Link Discord directly to this session's account
+      await db
+        .update(schema.users)
+        .set({
+          discordId: discordUser.id,
+          discordUsername: discordUser.username,
+        })
+        .where(eq(schema.users.id, loggedInUserId))
+      userId = loggedInUserId
+    } else {
+      userId = await upsertDiscordUser({
+        discordId:       discordUser.id,
+        discordUsername: discordUser.username,
+        email:           discordUser.email,
+        emailVerified:   discordUser.verified,
+        ip,
+      })
+    }
+
+    // 5. Add user to Discord guild (non-fatal if it fails)
     await addUserToGuild(discordUser.id, accessToken)
 
-    // 5. Create session
-    await createSession(userId)
+    // 6. Create session if not logged in
+    if (!loggedInUserId) {
+      await createSession(userId)
+    }
 
-    return NextResponse.redirect(`${appUrl}/dashboard`)
+    return NextResponse.redirect(`${appUrl}/dashboard/customize/profile/widgets`)
   } catch (err) {
     console.error('[Discord OAuth]', err)
     return NextResponse.redirect(`${appUrl}/signin?error=discord_failed`)

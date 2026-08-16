@@ -5,9 +5,11 @@ import { useEffect, useRef } from "react";
 export function ShootingStarsEffect({ intensity = 50, color = "#ffffff" }: { intensity?: number; color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const propsRef = useRef({ intensity, color });
+  const rgbColorRef = useRef(hexToRgb(color));
 
   useEffect(() => {
     propsRef.current = { intensity, color };
+    rgbColorRef.current = hexToRgb(color);
   }, [intensity, color]);
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export function ShootingStarsEffect({ intensity = 50, color = "#ffffff" }: { int
     const stars: Star[] = [];
 
     const render = () => {
-      const currentRgbColor = hexToRgb(propsRef.current.color);
+      const currentRgbColor = rgbColorRef.current;
       const targetCount = Math.floor((propsRef.current.intensity / 100) * 15) + 2;
       
       while (stars.length < targetCount) stars.push(createStar());

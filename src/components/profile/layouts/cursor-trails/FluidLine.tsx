@@ -19,9 +19,11 @@ const PASSES = [
 export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colorRef = useRef(color);
+  const rgbColorRef = useRef(hexToRgb(color));
 
   useEffect(() => {
     colorRef.current = color;
+    rgbColorRef.current = hexToRgb(color);
   }, [color]);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
     window.addEventListener("mousemove", handleMouseMove);
 
     const draw = () => {
-      const rgb = hexToRgb(colorRef.current);
+      const rgb = rgbColorRef.current;
       const last = points.length - 1;
 
       ctx.lineCap = "round";

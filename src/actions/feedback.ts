@@ -2,9 +2,11 @@
 
 import { db, schema } from "@/lib/db";
 import { eq, sql, and } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 import { getSessionUserId } from "@/lib/auth/session";
 import { feedbackRateLimit } from "@/lib/rate-limit";
+import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 
 /**
  * Handle feedback (like / dislike / unlike / undislike) with idempotent
@@ -110,6 +112,20 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
       return { applied: true };
     });
+
+    try {
+      await invalidateLiveStatsCache(userId);
+      const [receiver] = await db
+        .select({ username: schema.users.username })
+        .from(schema.users)
+        .where(eq(schema.users.id, userId))
+        .limit(1);
+      if (receiver?.username) {
+        revalidatePath(`/${receiver.username}`);
+      }
+    } catch (e) {
+      console.error("Failed to invalidate cache/revalidate profile:", e);
+    }
 
     return { success: true };
   } catch (error) {

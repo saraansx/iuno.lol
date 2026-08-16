@@ -7,9 +7,17 @@ interface SaveBarProps {
   show: boolean;
   onSave: () => Promise<void> | void;
   onRevert: () => void;
+  saveLabel?: string;
+  revertLabel?: string;
 }
 
-const SaveBar = ({ show, onSave, onRevert }: SaveBarProps) => {
+const SaveBar = ({
+  show,
+  onSave,
+  onRevert,
+  saveLabel = "Save",
+  revertLabel = "Revert",
+}: SaveBarProps) => {
   const [isPending, startTransition] = useTransition();
 
   const handleSave = () => {
@@ -50,7 +58,7 @@ const SaveBar = ({ show, onSave, onRevert }: SaveBarProps) => {
                 disabled={isPending}
                 className="text-[13px] text-white/40 hover:text-white/80 px-3 py-2 rounded-[10px] transition-colors duration-200 disabled:opacity-40 cursor-pointer"
               >
-                Revert
+                {revertLabel}
               </button>
 
               <button
@@ -64,7 +72,7 @@ const SaveBar = ({ show, onSave, onRevert }: SaveBarProps) => {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
                 ) : (
-                  "Save"
+                  saveLabel
                 )}
               </button>
             </div>

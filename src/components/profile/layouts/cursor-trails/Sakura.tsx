@@ -19,37 +19,47 @@ interface Petal {
   maxLife: number;
 }
 
-// Draw smooth, organic petal / snowflake shape
+// Pre-cached normalized petal Path2D
+const PETAL_PATH = new Path2D(
+  "M 0 -1 C 0.75 -0.5, 0.8 0.6, 0 1 C -0.8 0.6, -0.75 -0.5, 0 -1 Z"
+);
+
+// Draw smooth, organic petal shape using direct transform matrix without save/restore state stack
 function drawPetal(
   ctx: CanvasRenderingContext2D,
+  dpr: number,
   x: number,
   y: number,
   size: number,
   rotation: number,
   flip: number
 ) {
-  ctx.save();
-  ctx.translate(x, y);
-  ctx.rotate(rotation);
-  ctx.scale(Math.cos(flip), 1); // 3D tumbling illusion
+  const cosR = Math.cos(rotation);
+  const sinR = Math.sin(rotation);
+  const scaleX = size * Math.cos(flip);
+  const scaleY = size;
 
-  ctx.beginPath();
-  // Organic petal: teardrop curve with soft tip
-  ctx.moveTo(0, -size);
-  ctx.bezierCurveTo(size * 0.75, -size * 0.5, size * 0.8, size * 0.6, 0, size);
-  ctx.bezierCurveTo(-size * 0.8, size * 0.6, -size * 0.75, -size * 0.5, 0, -size);
-  ctx.closePath();
+  // Set transformed matrix directly (dpr scaled)
+  ctx.setTransform(
+    (cosR * scaleX) * dpr,
+    (sinR * scaleX) * dpr,
+    (-sinR * scaleY) * dpr,
+    (cosR * scaleY) * dpr,
+    x * dpr,
+    y * dpr
+  );
 
-  ctx.fill();
-  ctx.restore();
+  ctx.fill(PETAL_PATH);
 }
 
 export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const colorRef = useRef(color);
+  const rgbColorRef = useRef(hexToRgb(color));
 
   useEffect(() => {
     colorRef.current = color;
+    rgbColorRef.current = hexToRgb(color);
   }, [color]);
 
   useEffect(() => {
@@ -131,7 +141,7 @@ export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
       time += 1;
 
       if (petals.length > 0) {
-        const rgb = hexToRgb(colorRef.current);
+        const rgb = rgbColorRef.current;
 
         for (let i = petals.length - 1; i >= 0; i--) {
           const p = petals[i];
@@ -156,8 +166,11 @@ export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
           ctx.shadowColor = `rgba(${rgb}, ${alpha * 0.6})`;
           ctx.fillStyle = `rgba(${rgb}, ${alpha})`;
 
-          drawPetal(ctx, p.x, p.y, p.size, p.rotation, p.flip);
+          drawPetal(ctx, dpr, p.x, p.y, p.size, p.rotation, p.flip);
         }
+
+        // Reset transform once after loop
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 
       animationFrameId = requestAnimationFrame(render);

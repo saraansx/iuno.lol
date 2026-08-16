@@ -71,7 +71,7 @@ export default function CardTransitionSection({
           <rect width="18" height="18" x="3" y="3" rx="2" />
           <path d="M9 3v18" />
         </svg>
-        <span className="text-[16px] font-semibold text-white/90">Card Effect & Card Transition</span>
+        <span className="text-[14px] font-normal text-white/90">Card Effect & Card Transition</span>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

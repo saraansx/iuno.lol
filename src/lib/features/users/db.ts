@@ -105,6 +105,7 @@ const userColumns = {
   showDislikesTooltip: schema.userSettings.showDislikesTooltip,
   showJoinDateTooltip: schema.userSettings.showJoinDateTooltip,
   showViewsTooltip: schema.userSettings.showViewsTooltip,
+  widgets: schema.userSettings.widgets,
 } as const
 
 type CreateUserInput = {
@@ -261,7 +262,7 @@ export async function markEmailVerified(email: string) {
 
 // ── Discord OAuth ──────────────────────────────────────────────────────────
 
-async function getUserByDiscordId(discordId: string) {
+export async function getUserByDiscordId(discordId: string) {
   const result = await db
     .select(userColumns)
     .from(schema.users)

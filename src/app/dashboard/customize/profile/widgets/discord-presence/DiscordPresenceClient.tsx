@@ -1,0 +1,406 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import SaveBar from "@/components/dashboard/SaveBar";
+import { type FullUser } from "@/lib/features/users/db";
+import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
+import { updateProfileWidgets } from "@/actions/profile";
+import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
+import { toast } from "sonner";
+
+export default function DiscordPresenceClient({ user }: { user: FullUser | null }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const widgetId = searchParams.get("widgetId");
+  const isEditing = Boolean(widgetId);
+
+  const initialTargetId = searchParams.get("id") || user?.discordId || "";
+  const initialUseLinked = searchParams.get("linked") === "true";
+
+  const [useLinked, setUseLinked] = useState(initialUseLinked && Boolean(user?.discordId));
+  const [discordId, setDiscordId] = useState(initialTargetId);
+
+  const effectiveId = useLinked ? (user?.discordId || "") : discordId;
+  const isChanged = useLinked !== initialUseLinked || discordId !== initialTargetId;
+
+  const [, startTransition] = useTransition();
+
+  // Presence fetched once per ID — refreshes on reload, not on a timer
+  const { data: discordData, loading: loadingPreview, isValidId } = useDiscordPresence(effectiveId);
+
+  const handleSaveWidgetConfirm = () => {
+    if (!user?.username) return;
+    if (!isValidId) {
+      toast.error("Please enter a valid 17-20 digit Discord ID");
+      return;
+    }
+
+    const existingList: WidgetItem[] = (user?.widgets as WidgetItem[]) || [];
+    let updated: WidgetItem[];
+
+    if (isEditing) {
+      updated = existingList.map((w) =>
+        w.id === widgetId
+          ? {
+              ...w,
+              targetId: effectiveId,
+              useLinked,
+            }
+          : w
+      );
+    } else {
+      const newWidget: WidgetItem = {
+        id: `widget_${Date.now()}`,
+        platform: "discord",
+        type: "presence",
+        targetId: effectiveId,
+        useLinked,
+        enabled: true,
+      };
+      updated = [newWidget, ...existingList];
+    }
+
+    startTransition(async () => {
+      try {
+        const res = await updateProfileWidgets({
+          username: user.username,
+          widgets: updated,
+        });
+        if (res.success) {
+          toast.success(isEditing ? "Widget saved successfully" : "Widget added successfully");
+          router.push("/dashboard/customize/profile/widgets");
+        }
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Failed to save widget");
+      }
+    });
+  };
+
+  const avatarUrl = discordData?.user?.avatar
+    ? `https://cdn.discordapp.com/avatars/${discordData.user.id}/${discordData.user.avatar}.${
+        discordData.user.avatar.startsWith("a_") ? "gif" : "png"
+      }?size=128`
+    : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(effectiveId && /^\d+$/.test(effectiveId) ? effectiveId : "0") % BigInt(5))}.png`;
+
+  // Badges strictly from Discord user token profile endpoint
+  const userBadges: { name: string; icon: string }[] = [];
+
+  if (discordData?.user?.profile_badges && Array.isArray(discordData.user.profile_badges)) {
+    for (const badge of discordData.user.profile_badges) {
+      if (!badge.icon) continue;
+      userBadges.push({
+        name: badge.description || badge.id,
+        icon: `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`,
+      });
+    }
+  }
+
+  const decorationAsset = discordData?.user?.avatar_decoration_data?.asset;
+  const decorationUrl = decorationAsset
+    ? `https://cdn.discordapp.com/avatar-decoration-presets/${decorationAsset}.png`
+    : null;
+
+  const handleRevert = () => {
+    if (isEditing) {
+      // Revert values back to initial state without leaving page
+      setUseLinked(initialUseLinked && Boolean(user?.discordId));
+      setDiscordId(initialTargetId);
+    } else {
+      // If creating new widget, cancel exits back to widgets list
+      router.push("/dashboard/customize/profile/widgets");
+    }
+  };
+
+  return (
+    <>
+      <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6 pb-24">
+        {/* Left Side: Account Settings Card */}
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+          <div>
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
+            <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
+              Tell us which account this widget should fetch.
+            </p>
+          </div>
+
+          {/* Toggle Linked Account */}
+          <div className="flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl">
+            <div className="flex flex-col gap-0.5 pr-4">
+              <span className="text-[13px] font-normal text-white/90 tracking-tight">
+                Use linked Discord account
+              </span>
+              <p className="text-[11.5px] text-white/40 leading-relaxed">
+                Follow the Discord account connected to your iuno.lol account instead of a fixed ID.
+                {!user?.discordId && (
+                  <span className="block text-amber-400/70 mt-1">
+                    No Discord account linked yet — connect via account settings.
+                  </span>
+                )}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              disabled={!user?.discordId}
+              onClick={() => setUseLinked(!useLinked)}
+              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                useLinked ? "bg-[#609fda]" : "bg-white/10"
+              } ${!user?.discordId ? "opacity-40 cursor-not-allowed" : ""}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                  useLinked ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* Discord ID Input */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[12.5px] font-normal text-white/80">Discord ID</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/30">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </div>
+              <input
+                type="text"
+                disabled={useLinked}
+                value={useLinked ? user?.discordId || "" : discordId}
+                onChange={(e) => setDiscordId(e.target.value.trim())}
+                placeholder="200770268778463233"
+                className={`w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors ${
+                  useLinked ? "opacity-50 cursor-not-allowed bg-white/[0.02]" : ""
+                }`}
+              />
+            </div>
+            <p className="text-[11.5px] text-white/35">
+              Your Discord user ID (Settings → Advanced → enable Developer Mode, then right-click your name → Copy User ID).
+            </p>
+          </div>
+        </div>
+
+        {/* Right Side: Live Discord Widget Preview Card */}
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+          <div>
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
+            <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
+              A live look at how this widget will appear on your page.
+            </p>
+          </div>
+
+          <div className="w-full flex-1 flex items-center justify-start p-6 bg-[#141414]/40 border border-white/5 rounded-2xl min-h-[180px]">
+            {isValidId ? (
+              discordData?.in_server === false ? (
+                /* User NOT in the iuno Discord Server (Matches Haunt.gg UI) */
+                <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
+                  <div className="w-14 h-14 rounded-full bg-white/[0.04] border border-white/5 shrink-0" />
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[14.5px] font-semibold text-white tracking-tight">
+                      Not in the server
+                    </span>
+                    <span className="text-[12px] text-white/35">
+                      This user isn&apos;t in the iuno.lol Discord.
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                /* User IS in the server -> Show full presence, badges & avatar */
+                <div className="w-full flex items-center justify-between gap-4 py-2 transition-all duration-200">
+                  <div className="flex items-center gap-4 min-w-0">
+                    {/* Avatar + Status badge + Discord Avatar Decoration */}
+                    <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-white/5 border border-white/10 relative shadow-md">
+                        <Image
+                          src={avatarUrl}
+                          alt="Discord avatar"
+                          fill
+                          sizes="64px"
+                          priority
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+
+                      {/* Discord Avatar Decoration preset */}
+                      {decorationUrl && (
+                        <div className="pointer-events-none absolute -inset-[7px] z-10">
+                          <Image
+                            src={decorationUrl}
+                            alt="Avatar decoration"
+                            fill
+                            sizes="78px"
+                            priority
+                            loading="eager"
+                            className="object-contain"
+                            unoptimized
+                          />
+                        </div>
+                      )}
+
+                      {/* Status Indicator Icon */}
+                      <div className="absolute bottom-0 right-0 z-20 w-4.5 h-4.5 rounded-full bg-[#0c0c0c] flex items-center justify-center">
+                        {discordData?.status === "dnd" ? (
+                          <span className="w-3.5 h-3.5 rounded-full bg-rose-500 flex items-center justify-center">
+                            <span className="w-2 h-0.5 bg-[#0c0c0c] rounded-full" />
+                          </span>
+                        ) : discordData?.status === "idle" ? (
+                          <span className="w-3.5 h-3.5 rounded-full bg-amber-500" />
+                        ) : discordData?.status === "online" ? (
+                          <span className="w-3.5 h-3.5 rounded-full bg-emerald-500" />
+                        ) : (
+                          <span className="w-3.5 h-3.5 rounded-full bg-zinc-500 flex items-center justify-center">
+                            <span className="w-1.5 h-1.5 bg-[#0c0c0c] rounded-full" />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* User Details + Badges + Subtitle Status / Activity */}
+                    <div className="flex flex-col gap-1 min-w-0">
+                      {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[16px] font-semibold text-white tracking-tight">
+                          {discordData?.user?.global_name || discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
+                        </span>
+
+                        {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
+                        {discordData?.user?.clan?.tag && (
+                          <span className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-md text-[12px] font-medium text-white/85 tracking-tight">
+                            {discordData.user.clan.badge && (
+                              <Image
+                                src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
+                                alt="Clan badge"
+                                width={14}
+                                height={14}
+                                className="object-contain"
+                                unoptimized
+                              />
+                            )}
+                            <span>{discordData.user.clan.tag}</span>
+                          </span>
+                        )}
+
+                        {/* Discord Badges (No container wrapper) */}
+                        {userBadges.length > 0 && (
+                          <div className="flex items-center gap-1.5">
+                            {userBadges.map((badge) => (
+                              <div key={badge.name} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
+                                <Image
+                                  src={badge.icon}
+                                  alt={badge.name}
+                                  width={20}
+                                  height={20}
+                                  className="object-contain"
+                                  unoptimized
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
+                      {discordData?.primary_activity ? (
+                        <div className="flex flex-col text-[12.5px] leading-tight">
+                          <span className="font-medium text-white/90 truncate">
+                            {discordData.primary_activity.name}
+                          </span>
+                          {(discordData.primary_activity.details || discordData.primary_activity.state) && (
+                            <span className="text-[11.5px] text-white/50 truncate">
+                              {discordData.primary_activity.details || discordData.primary_activity.state}
+                            </span>
+                          )}
+                        </div>
+                      ) : discordData?.spotify ? (
+                        <div className="flex flex-col text-[12.5px] leading-tight">
+                          <span className="font-medium text-white/90 truncate">
+                            {discordData.spotify.song}
+                          </span>
+                          <span className="text-[11.5px] text-white/50 truncate">
+                            {discordData.spotify.artist}
+                          </span>
+                        </div>
+                      ) : discordData?.custom_status?.text ? (
+                        <div className="flex items-center gap-1.5 text-[12.5px] text-white/70 font-normal truncate">
+                          {discordData.custom_status.emoji?.id ? (
+                            <div className="relative w-4 h-4 shrink-0">
+                              <Image
+                                src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
+                                alt={discordData.custom_status.emoji.name || "Emoji"}
+                                fill
+                                sizes="16px"
+                                className="object-contain"
+                                unoptimized
+                              />
+                            </div>
+                          ) : discordData.custom_status.emoji?.name ? (
+                            <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
+                          ) : null}
+                          <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-[12px] text-white/40 capitalize">
+                          <span>{discordData?.status || "offline"}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Side: Activity / Spotify Rich Media Thumbnail */}
+                  {discordData?.primary_activity?.large_image_url ? (
+                    <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={discordData.primary_activity.large_image_url}
+                        alt=""
+                        className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ) : discordData?.spotify?.album_art_url ? (
+                    <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={discordData.spotify.album_art_url}
+                        alt=""
+                        className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              )
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center py-4">
+                <div className="w-8 h-8 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/30 mb-2">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                </div>
+                <span className="text-[12.5px] text-white/40">
+                  Enter a valid Discord ID to see live preview
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Save/Add Widget Bar */}
+      <SaveBar
+        show={isChanged || !isEditing}
+        onSave={handleSaveWidgetConfirm}
+        onRevert={handleRevert}
+        saveLabel={isEditing ? "Save" : "Add widget"}
+        revertLabel={isEditing ? "Revert" : "Cancel"}
+      />
+    </>
+  );
+}

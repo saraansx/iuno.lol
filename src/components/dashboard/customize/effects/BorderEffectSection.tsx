@@ -76,7 +76,7 @@ export default function BorderEffectSection({
         >
           <rect width="18" height="18" x="3" y="3" rx="2" />
         </svg>
-        <span className="text-[16px] font-semibold text-white/90">Border Effect</span>
+        <span className="text-[14px] font-normal text-white/90">Border Effect</span>
       </div>
 
       <div className="flex flex-col gap-3">
