@@ -140,25 +140,69 @@ export async function GET(
 
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
-    // 3. Direct user profile lookup via user token
-    const userToken = process.env.DISCORD_USER_TOKEN;
+    // 3. Badges lookup: Fallback to official public_flags if user token is blocked/fails
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
+    const userToken = process.env.DISCORD_USER_TOKEN;
 
     if (userToken) {
-      const profileRes = await fetch(
-        `https://discord.com/api/v10/users/${id}/profile?with_mutual_guilds=false&guild_id=${guildId}`,
-        {
-          headers: {
-            Authorization: userToken,
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-          },
-          next: { revalidate: 300 },
-        }
-      );
+      try {
+        const profileRes = await fetch(
+          `https://discord.com/api/v10/users/${id}/profile?with_mutual_guilds=false&guild_id=${guildId}`,
+          {
+            headers: {
+              Authorization: userToken,
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
+            },
+            next: { revalidate: 300 },
+          }
+        );
 
-      if (profileRes.ok) {
-        const profileData = await profileRes.json();
-        userProfileBadges = profileData.badges || [];
+        if (profileRes.ok) {
+          const profileData = await profileRes.json();
+          userProfileBadges = profileData.badges || [];
+        }
+      } catch {
+        // User profile fetch failed
+      }
+    }
+
+    // If private profile endpoint failed or was blocked, compute badges from public_flags & premium_type
+    if (userProfileBadges.length === 0 && discordUser) {
+      const flags = Number(discordUser.public_flags || discordUser.flags || 0);
+
+      // Discord Public Flags mapping
+      const FLAG_BADGES: Array<{ flag: number; id: string; description: string; icon: string }> = [
+        { flag: 1 << 0, id: "discord_employee", description: "Discord Staff", icon: "staff" },
+        { flag: 1 << 1, id: "partnered_server_owner", description: "Partnered Server Owner", icon: "partner" },
+        { flag: 1 << 2, id: "hypesquad_events", description: "HypeSquad Events", icon: "hypesquad" },
+        { flag: 1 << 3, id: "bug_hunter_level_1", description: "Bug Hunter Level 1", icon: "bug_hunter_level_1" },
+        { flag: 1 << 6, id: "house_bravery", description: "HypeSquad Bravery", icon: "8a88d63823d8a71cd5e390baa45efa02" },
+        { flag: 1 << 7, id: "house_brilliance", description: "HypeSquad Brilliance", icon: "011940fd013da3f7fb926e4a1cd2e618" },
+        { flag: 1 << 8, id: "house_balance", description: "HypeSquad Balance", icon: "3aa41de486fa12454c3761e8e223442e" },
+        { flag: 1 << 9, id: "early_supporter", description: "Early Supporter", icon: "7060786766ace08b3949153e61165e8e" },
+        { flag: 1 << 14, id: "bug_hunter_level_2", description: "Bug Hunter Level 2", icon: "bug_hunter_level_2" },
+        { flag: 1 << 17, id: "verified_bot_developer", description: "Early Verified Bot Developer", icon: "6df5892e0f358b52b8b524b6664d7846" },
+        { flag: 1 << 18, id: "certified_moderator", description: "Discord Certified Moderator", icon: "certified_moderator" },
+        { flag: 1 << 22, id: "active_developer", description: "Active Developer", icon: "6bdcbe2b6877ce961323e444e990c1cb" },
+      ];
+
+      for (const item of FLAG_BADGES) {
+        if ((flags & item.flag) === item.flag) {
+          userProfileBadges.push({
+            id: item.id,
+            description: item.description,
+            icon: item.icon,
+          });
+        }
+      }
+
+      // Nitro & Boost badge fallback from avatar decoration or premium data
+      if (discordUser.avatar_decoration_data) {
+        userProfileBadges.push({
+          id: "premium",
+          description: "Subscriber",
+          icon: "2ba85e8026a8614b640c2837bcd2177b",
+        });
       }
     }
 
