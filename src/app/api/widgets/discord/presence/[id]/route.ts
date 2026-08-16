@@ -213,26 +213,6 @@ export async function GET(
       primary_activity: presenceData?.primary_activity || null,
       activities: presenceData?.activities || [],
     });
-        username: discordUser.username,
-        global_name: discordUser.global_name || memberData.nick || null,
-        avatar: discordUser.avatar || null,
-        avatar_decoration_data: discordUser.avatar_decoration_data || null,
-        clan: clan
-          ? {
-              identity_guild_id: clan.identity_guild_id || clan.id || undefined,
-              identity_enabled: clan.identity_enabled,
-              tag: clan.tag,
-              badge: clan.badge,
-            }
-          : null,
-        profile_badges: userProfileBadges,
-      },
-      status: presenceData?.status || "offline",
-      custom_status: presenceData?.custom_status || null,
-      spotify: presenceData?.spotify || null,
-      primary_activity: presenceData?.primary_activity || null,
-      activities: presenceData?.activities || [],
-    });
   } catch (err) {
     console.error("[Discord Presence API Error]", err);
     return NextResponse.json({ in_server: false, error: "Internal Server Error" }, { status: 500 });
