@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { redis } from "@/lib/redis";
 
 // NOTE: do not add `export const dynamic = "force-dynamic"` here. It rewrites every
 // fetch in this route to `no-store`, which defeats the revalidate windows below and
@@ -62,10 +63,8 @@ interface PresenceResponse {
   }>;
 }
 
-// In-memory memory cache for Badges so Cloudflare Worker is NEVER hit on repeated polls.
-// Key: Discord snowflake ID -> Value: { badges: Array, timestamp: number }
-const badgesCache = new Map<string, { badges: Array<{ id: string; description?: string; icon?: string }>; timestamp: number }>();
-const BADGES_CACHE_TTL = 48 * 60 * 60 * 1000; // 48 hours
+// 48 hours TTL in Redis (seconds)
+const BADGES_CACHE_TTL_SEC = 48 * 60 * 60;
 
 export async function GET(
   _req: NextRequest,
@@ -148,14 +147,31 @@ export async function GET(
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
     // 3. Direct user profile lookup strictly via user token matching exact Discord Web Client
-    // Uses in-memory Map cache so Cloudflare worker is called ONLY ONCE per 24 hours per ID.
+    // Uses Redis cache so external proxy / user profile endpoint is called ONLY ONCE per 48 hours per ID.
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
-    const cachedBadgeEntry = badgesCache.get(id);
-    const now = Date.now();
+    const redisBadgesKey = `discord:badges:${id}`;
 
-    if (cachedBadgeEntry && (now - cachedBadgeEntry.timestamp < BADGES_CACHE_TTL)) {
-      userProfileBadges = cachedBadgeEntry.badges;
-    } else {
+    try {
+      const cached = await redis.get(redisBadgesKey);
+      if (cached) {
+        // Format: Array of [id, icon] or legacy [{ id, description, icon }]
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          if (Array.isArray(parsed[0])) {
+            userProfileBadges = (parsed as Array<[string, string]>).map(([bId, bIcon]) => ({
+              id: bId,
+              icon: bIcon,
+            }));
+          } else {
+            userProfileBadges = parsed;
+          }
+        }
+      }
+    } catch {
+      // Redis read failure fallback
+    }
+
+    if (!userProfileBadges || userProfileBadges.length === 0) {
       const userToken = process.env.DISCORD_USER_TOKEN;
 
       if (userToken) {
@@ -197,8 +213,27 @@ export async function GET(
 
           if (profileRes.ok) {
             const profileData = await profileRes.json();
-            userProfileBadges = profileData.badges || [];
-            badgesCache.set(id, { badges: userProfileBadges, timestamp: now });
+            const rawBadges = (profileData.badges || []) as Array<{ id: string; description?: string; icon?: string }>;
+            // Compact storage: [id, icon] tuples
+            const compactBadges = rawBadges
+              .filter((b) => Boolean(b.icon))
+              .map((b) => [b.id, b.icon]);
+
+            userProfileBadges = rawBadges.map((b) => ({
+              id: b.id,
+              icon: b.icon || "",
+            }));
+
+            try {
+              await redis.set(
+                redisBadgesKey,
+                JSON.stringify(compactBadges),
+                "EX",
+                BADGES_CACHE_TTL_SEC
+              );
+            } catch {
+              // Redis set failure ignored
+            }
           } else {
             console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());
           }

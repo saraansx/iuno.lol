@@ -1,11 +1,14 @@
 "use client";
 
 import ImageShapeSetting from "../discord-presence/settings/ImageShapeSetting";
+import PlacementSetting from "../discord-presence/settings/PlacementSetting";
 import ShowMemberCountSetting from "./settings/ShowMemberCountSetting";
 import ShowOnlineCountSetting from "./settings/ShowOnlineCountSetting";
 import ShowBannerSetting from "./settings/ShowBannerSetting";
 
 interface ServerCustomizationProps {
+  placement: "inside" | "outside";
+  onPlacementChange: (val: "inside" | "outside") => void;
   imageShape: "circle" | "rounded" | "square";
   onImageShapeChange: (shape: "circle" | "rounded" | "square") => void;
   showMemberCount: boolean;
@@ -17,6 +20,8 @@ interface ServerCustomizationProps {
 }
 
 export default function ServerCustomization({
+  placement,
+  onPlacementChange,
   imageShape,
   onImageShapeChange,
   showMemberCount,
@@ -38,6 +43,10 @@ export default function ServerCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
+        <PlacementSetting
+          value={placement}
+          onChange={onPlacementChange}
+        />
         <ImageShapeSetting
           value={imageShape}
           onChange={onImageShapeChange}

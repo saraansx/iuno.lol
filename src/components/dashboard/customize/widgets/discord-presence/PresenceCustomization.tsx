@@ -1,6 +1,7 @@
 "use client";
 
 import ImageShapeSetting from "./settings/ImageShapeSetting";
+import PlacementSetting from "./settings/PlacementSetting";
 import ShowActivitySetting from "./settings/ShowActivitySetting";
 import ShowActivityImageSetting from "./settings/ShowActivityImageSetting";
 import ActivityImageShapeSetting from "./settings/ActivityImageShapeSetting";
@@ -11,6 +12,8 @@ import ShowLastSeenSetting from "./settings/ShowLastSeenSetting";
 import FallbackTextSetting from "./settings/FallbackTextSetting";
 
 interface PresenceCustomizationProps {
+  placement: "inside" | "outside";
+  onPlacementChange: (val: "inside" | "outside") => void;
   imageShape: "circle" | "rounded" | "square";
   onImageShapeChange: (shape: "circle" | "rounded" | "square") => void;
   showActivity: boolean;
@@ -32,6 +35,8 @@ interface PresenceCustomizationProps {
 }
 
 export default function PresenceCustomization({
+  placement,
+  onPlacementChange,
   imageShape,
   onImageShapeChange,
   showActivity,
@@ -63,6 +68,10 @@ export default function PresenceCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
+        <PlacementSetting
+          value={placement}
+          onChange={onPlacementChange}
+        />
         <ImageShapeSetting
           value={imageShape}
           onChange={onImageShapeChange}

@@ -120,6 +120,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenOpacity: userSettings.enterScreenOpacity,
       enterScreenBlur: userSettings.enterScreenBlur,
       enterScreenBlurColor: userSettings.enterScreenBlurColor,
+      widgets: userSettings.widgets,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -232,6 +233,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         highlightFontWeight={user.highlightFontWeight ?? undefined}
         highlightLetterSpacing={user.highlightLetterSpacing ?? undefined}
         highlightColor={user.highlightColor ?? undefined}
+        widgets={user.widgets ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />
     </div>

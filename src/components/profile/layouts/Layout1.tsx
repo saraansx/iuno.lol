@@ -15,6 +15,8 @@ import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
 import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
+import ProfileWidgets from "../widgets/ProfileWidgets";
+import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 
 const FONT_CLASS_MAP: Record<string, string> = {
   "Inter": "var(--font-inter)",
@@ -197,6 +199,7 @@ interface Layout1Props {
   initialLikes?: number;
   initialDislikes?: number;
   createdAt?: string | Date;
+  widgets?: WidgetItem[];
 }
 
 function hexToRgba(hex: string | undefined, opacity: number): string {
@@ -365,6 +368,7 @@ const Layout1 = ({
   initialLikes = 0,
   initialDislikes = 0,
   createdAt,
+  widgets = [],
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -571,6 +575,7 @@ const Layout1 = ({
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
         {/* Wrapper — content + background are siblings */}
+        <div className="w-full max-w-[600px] flex flex-col items-center z-10">
         <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
         <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
         <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
@@ -817,6 +822,9 @@ const Layout1 = ({
                   </DescriptionEffect>
                 </div>
               )}
+
+              {/* Inside Card Widgets */}
+              <ProfileWidgets widgets={widgets} placement="inside" />
             </div>
           </div>
 
@@ -897,6 +905,10 @@ const Layout1 = ({
 
         </CardTransition>
         </CardEffect>
+
+        {/* Outside Card Widgets */}
+        <ProfileWidgets widgets={widgets} placement="outside" />
+        </div>
 
         {/* Floating Comments Button */}
         {commentsEnabled && (
@@ -988,6 +1000,7 @@ const Layout1 = ({
       <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
       {/* Wrapper — content + background are siblings */}
+      <div className="w-full max-w-[600px] flex flex-col items-center z-10">
       <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
         <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
         <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
@@ -1190,6 +1203,9 @@ const Layout1 = ({
               </p>
             </DescriptionEffect>
           )}
+
+          {/* Inside Card Widgets */}
+          <ProfileWidgets widgets={widgets} placement="inside" />
         </div>
 
         {/* Views count badge in bottom left */}
@@ -1267,6 +1283,10 @@ const Layout1 = ({
       </div>
       </CardTransition>
       </CardEffect>
+
+      {/* Outside Card Widgets */}
+      <ProfileWidgets widgets={widgets} placement="outside" />
+      </div>
 
       <CommentsModal
         isOpen={isCommentsModalOpen}

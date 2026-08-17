@@ -146,6 +146,7 @@ export const userSettings = mysqlTable('user_settings', {
     showMemberCount?: boolean;
     showOnlineCount?: boolean;
     showBanner?: boolean;
+    placement?: 'inside' | 'outside';
   }>>().default([]),
 })
 

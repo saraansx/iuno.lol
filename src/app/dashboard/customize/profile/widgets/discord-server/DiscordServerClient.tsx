@@ -23,8 +23,10 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
   const initialShowMemberCount = currentWidget?.showMemberCount !== undefined ? currentWidget.showMemberCount : true;
   const initialShowOnlineCount = currentWidget?.showOnlineCount !== undefined ? currentWidget.showOnlineCount : true;
   const initialShowBanner = currentWidget?.showBanner !== undefined ? currentWidget.showBanner : true;
+  const initialPlacement = currentWidget?.placement || "inside";
 
   const [inviteCode, setInviteCode] = useState(initialTargetId);
+  const [placement, setPlacement] = useState<"inside" | "outside">(initialPlacement);
   const [imageShape, setImageShape] = useState<"circle" | "rounded" | "square">(initialImageShape);
   const [showMemberCount, setShowMemberCount] = useState<boolean>(initialShowMemberCount);
   const [showOnlineCount, setShowOnlineCount] = useState<boolean>(initialShowOnlineCount);
@@ -39,7 +41,8 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
     imageShape !== initialImageShape ||
     showMemberCount !== initialShowMemberCount ||
     showOnlineCount !== initialShowOnlineCount ||
-    showBanner !== initialShowBanner;
+    showBanner !== initialShowBanner ||
+    placement !== initialPlacement;
 
   const [, startTransition] = useTransition();
 
@@ -63,6 +66,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
               showMemberCount,
               showOnlineCount,
               showBanner,
+              placement,
             }
           : w
       );
@@ -78,6 +82,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
         showMemberCount,
         showOnlineCount,
         showBanner,
+        placement,
       };
       updated = [newWidget, ...existingList];
     }
@@ -298,6 +303,8 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
 
         {/* Bottom Section: Dedicated Full-Width Server Customization Container */}
         <ServerCustomization
+          placement={placement}
+          onPlacementChange={setPlacement}
           imageShape={imageShape}
           onImageShapeChange={setImageShape}
           showMemberCount={showMemberCount}

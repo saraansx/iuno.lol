@@ -44,9 +44,11 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const initialFallbackText = currentWidget?.fallbackText !== undefined ? currentWidget.fallbackText : "Currently doing nothing";
   const initialBadgeOrder = currentWidget?.badgeOrder || [];
   const initialHiddenBadges = currentWidget?.hiddenBadges || [];
+  const initialPlacement = currentWidget?.placement || "inside";
 
   const [useLinked, setUseLinked] = useState(initialUseLinked && Boolean(user?.discordId));
   const [discordId, setDiscordId] = useState(initialTargetId);
+  const [placement, setPlacement] = useState<"inside" | "outside">(initialPlacement);
   const [imageShape, setImageShape] = useState<"circle" | "rounded" | "square">(initialImageShape);
   const [showActivity, setShowActivity] = useState<boolean>(initialShowActivity);
   const [showActivityImage, setShowActivityImage] = useState<boolean>(initialShowActivityImage);
@@ -92,6 +94,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     showBadges !== initialShowBadges ||
     showLastSeen !== initialShowLastSeen ||
     fallbackText !== initialFallbackText ||
+    placement !== initialPlacement ||
     isBadgeOrderChanged ||
     isHiddenBadgesChanged;
 
@@ -125,6 +128,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               fallbackText,
               badgeOrder,
               hiddenBadges,
+              placement,
             }
           : w
       );
@@ -147,6 +151,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         fallbackText,
         badgeOrder,
         hiddenBadges,
+        placement,
       };
       updated = [newWidget, ...existingList];
     }
@@ -598,6 +603,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
         {/* Bottom Section: Dedicated Full-Width Presence Customization Container */}
         <PresenceCustomization
+          placement={placement}
+          onPlacementChange={setPlacement}
           imageShape={imageShape}
           onImageShapeChange={setImageShape}
           showActivity={showActivity}

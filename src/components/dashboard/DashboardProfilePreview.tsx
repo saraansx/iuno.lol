@@ -106,6 +106,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? true}
       showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
+      widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
     />
   );
 }

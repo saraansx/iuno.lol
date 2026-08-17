@@ -427,6 +427,7 @@ export async function updateProfileWidgets(data: {
     showMemberCount?: boolean;
     showOnlineCount?: boolean;
     showBanner?: boolean;
+    placement?: "inside" | "outside";
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -496,6 +497,7 @@ export async function updateProfileWidgets(data: {
       showMemberCount: w.showMemberCount !== undefined ? Boolean(w.showMemberCount) : true,
       showOnlineCount: w.showOnlineCount !== undefined ? Boolean(w.showOnlineCount) : true,
       showBanner: w.showBanner !== undefined ? Boolean(w.showBanner) : true,
+      placement: (w.placement === "outside" ? "outside" : "inside") as "inside" | "outside",
     };
   });
 

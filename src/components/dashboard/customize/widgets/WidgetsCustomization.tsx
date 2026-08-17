@@ -25,6 +25,7 @@ export interface WidgetItem {
   showMemberCount?: boolean;
   showOnlineCount?: boolean;
   showBanner?: boolean;
+  placement?: 'inside' | 'outside';
 }
 
 interface WidgetsCustomizationProps {
