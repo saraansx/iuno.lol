@@ -11,6 +11,13 @@ export interface WidgetItem {
   targetId: string;
   useLinked: boolean;
   enabled: boolean;
+  imageShape?: 'circle' | 'rounded' | 'square';
+  showActivity?: boolean;
+  showActivityImage?: boolean;
+  activityImageShape?: 'circle' | 'rounded' | 'square';
+  showAvatarDecoration?: boolean;
+  showGuildTag?: boolean;
+  showBadges?: boolean;
 }
 
 interface WidgetsCustomizationProps {

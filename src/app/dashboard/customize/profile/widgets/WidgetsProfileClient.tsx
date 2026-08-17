@@ -19,7 +19,14 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.type === target.type &&
       item.targetId === target.targetId &&
       item.useLinked === target.useLinked &&
-      item.enabled === target.enabled
+      item.enabled === target.enabled &&
+      item.imageShape === target.imageShape &&
+      item.showActivity === target.showActivity &&
+      item.showActivityImage === target.showActivityImage &&
+      item.activityImageShape === target.activityImageShape &&
+      item.showAvatarDecoration === target.showAvatarDecoration &&
+      item.showGuildTag === target.showGuildTag &&
+      item.showBadges === target.showBadges
     );
   });
 }

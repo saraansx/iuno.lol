@@ -57,7 +57,7 @@ export interface DiscordPresenceData {
  * Polls status, activity, and Spotify in real-time every 2 seconds when tab is active.
  * Badges and heavy profile data are cached server-side (48h) and preserve state across polls.
  */
-export function useDiscordPresence(id: string) {
+export function useDiscordPresence(id: string, poll = true) {
   const [data, setData] = useState<DiscordPresenceData | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -75,7 +75,7 @@ export function useDiscordPresence(id: string) {
 
     const fetchPresence = async (isInitial = false) => {
       if (isFetching || !isMounted) return;
-      if (document.hidden) return; // Pause polling when user switches tabs to save CPU/Network
+      if (document.hidden) return; // Pause polling when tab is hidden to save CPU
 
       isFetching = true;
       if (isInitial) setLoading(true);
@@ -88,7 +88,6 @@ export function useDiscordPresence(id: string) {
         if (res.ok && isMounted) {
           const json = (await res.json()) as DiscordPresenceData;
           setData((prev) => {
-            // Keep previous cached badges/user data if momentary payload drops
             if (prev?.user?.profile_badges?.length && (!json.user?.profile_badges || json.user.profile_badges.length === 0)) {
               if (json.user) json.user.profile_badges = prev.user.profile_badges;
             }
@@ -96,22 +95,26 @@ export function useDiscordPresence(id: string) {
           });
         }
       } catch {
-        // Fetch error ignored during continuous polling
+        // Fetch error ignored
       } finally {
         isFetching = false;
         if (isInitial && isMounted) setLoading(false);
       }
     };
 
-    // Initial immediate fetch
     fetchPresence(true);
 
-    // Realtime polling interval: 2 seconds
+    if (!poll) {
+      return () => {
+        isMounted = false;
+      };
+    }
+
+    // Realtime polling: 2 seconds interval
     const interval = setInterval(() => {
       fetchPresence(false);
     }, 2000);
 
-    // Resume immediately when tab becomes visible again
     const handleVisibilityChange = () => {
       if (!document.hidden) {
         fetchPresence(false);
@@ -125,7 +128,7 @@ export function useDiscordPresence(id: string) {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [id, isValidId]);
+  }, [id, isValidId, poll]);
 
   return { data, loading, isValidId };
 }

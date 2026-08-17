@@ -62,6 +62,11 @@ interface PresenceResponse {
   }>;
 }
 
+// In-memory memory cache for Badges so Cloudflare Worker is NEVER hit on repeated polls.
+// Key: Discord snowflake ID -> Value: { badges: Array, timestamp: number }
+const badgesCache = new Map<string, { badges: Array<{ id: string; description?: string; icon?: string }>; timestamp: number }>();
+const BADGES_CACHE_TTL = 48 * 60 * 60 * 1000; // 48 hours
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -143,57 +148,63 @@ export async function GET(
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
     // 3. Direct user profile lookup strictly via user token matching exact Discord Web Client
+    // Uses in-memory Map cache so Cloudflare worker is called ONLY ONCE per 24 hours per ID.
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
-    const userToken = process.env.DISCORD_USER_TOKEN;
+    const cachedBadgeEntry = badgesCache.get(id);
+    const now = Date.now();
 
-    if (userToken) {
-      try {
-        const exactSuperProps =
-          "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiaGFzX2NsaWVudF9tb2RzIjpmYWxzZSwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1MS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTUxLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6Imh0dHBzOi8vZGlzY29yZC5jb20vIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiZGlzY29yZC5jb20iLCJyZWxlYXNlX2NoYW5uZWwiOiJzdGFibGUiLCJjbGllbnRfYnVpbGRfbnVtYmVyIjo1OTQwMzEsImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGwsImNsaWVudF9sYXVuY2hfaWQiOiI2ODU0ODYyZC02MmU2LTQ1MzItYjU0Mi03YThmMGQ0YTBiNDkiLCJsYXVuY2hfc2lnbmF0dXJlIjoiOTAxZTY5NDUtOTQ2Ni00MTRmLTllNjYtYjQ5NzEwZjQ1MTdjIiwiY2xpZW50X2hlYXJ0YmVhdF9zZXNzaW9uX2lkIjoiOGI5NzRjYWMtNTZmNi00NWY1LWE1OGUtNzNmMWJmOWFhNjQ3IiwiY2xpZW50X2FwcF9zdGF0ZSI6ImZvY3VzZWQifQ==";
+    if (cachedBadgeEntry && (now - cachedBadgeEntry.timestamp < BADGES_CACHE_TTL)) {
+      userProfileBadges = cachedBadgeEntry.badges;
+    } else {
+      const userToken = process.env.DISCORD_USER_TOKEN;
 
-        const discordCookie = process.env.DISCORD_COOKIE || "";
+      if (userToken) {
+        try {
+          const exactSuperProps =
+            "eyJvcyI6IldpbmRvd3MiLCJicm93c2VyIjoiQ2hyb21lIiwiZGV2aWNlIjoiIiwic3lzdGVtX2xvY2FsZSI6ImVuLVVTIiwiaGFzX2NsaWVudF9tb2RzIjpmYWxzZSwiYnJvd3Nlcl91c2VyX2FnZW50IjoiTW96aWxsYS81LjAgKFdpbmRvd3MgTlQgMTAuMDsgV2luNjQ7IHg2NCkgQXBwbGVXZWJLaXQvNTM3LjM2IChLSFRNTCwgbGlrZSBHZWNrbykgQ2hyb21lLzE1MS4wLjAuMCBTYWZhcmkvNTM3LjM2IiwiYnJvd3Nlcl92ZXJzaW9uIjoiMTUxLjAuMC4wIiwib3NfdmVyc2lvbiI6IjEwIiwicmVmZXJyZXIiOiIiLCJyZWZlcnJpbmdfZG9tYWluIjoiIiwicmVmZXJyZXJfY3VycmVudCI6Imh0dHBzOi8vZGlzY29yZC5jb20vIiwicmVmZXJyaW5nX2RvbWFpbl9jdXJyZW50IjoiZGlzY29yZC5jb20iLCJyZWxlYXNlX2NoYW5uZWwiOiJzdGFibGUiLCJjbGllbnRfYnVpbGRfbnVtYmVyIjo1OTQwMzEsImNsaWVudF9ldmVudF9zb3VyY2UiOm51bGwsImNsaWVudF9sYXVuY2hfaWQiOiI2ODU0ODYyZC02MmU2LTQ1MzItYjU0Mi03YThmMGQ0YTBiNDkiLCJsYXVuY2hfc2lnbmF0dXJlIjoiOTAxZTY5NDUtOTQ2Ni00MTRmLTllNjYtYjQ5NzEwZjQ1MTdjIiwiY2xpZW50X2hlYXJ0YmVhdF9zZXNzaW9uX2lkIjoiOGI5NzRjYWMtNTZmNi00NWY1LWE1OGUtNzNmMWJmOWFhNjQ3IiwiY2xpZW50X2FwcF9zdGF0ZSI6ImZvY3VzZWQifQ==";
 
-        const headers: Record<string, string> = {
-          Accept: "*/*",
-          "Accept-Language": "en-US,en;q=0.9",
-          Authorization: userToken,
-          Priority: "u=1, i",
-          Referer: "https://discord.com/channels/@me",
-          "Sec-Ch-Ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
-          "Sec-Ch-Ua-Mobile": "?0",
-          "Sec-Ch-Ua-Platform": '"Windows"',
-          "Sec-Fetch-Dest": "empty",
-          "Sec-Fetch-Mode": "cors",
-          "Sec-Fetch-Site": "same-origin",
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
-          "X-Debug-Options": "bugReporterEnabled",
-          "X-Discord-Locale": "en-US",
-          "X-Discord-Timezone": "Asia/Calcutta",
-          "X-Super-Properties": exactSuperProps,
-        };
+          const discordCookie = process.env.DISCORD_COOKIE || "";
 
-        if (discordCookie) {
-          headers["Cookie"] = discordCookie;
+          const headers: Record<string, string> = {
+            Accept: "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
+            Authorization: userToken,
+            Priority: "u=1, i",
+            Referer: "https://discord.com/channels/@me",
+            "Sec-Ch-Ua": '"Not=A?Brand";v="99", "Google Chrome";v="151", "Chromium";v="151"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",
+            "X-Debug-Options": "bugReporterEnabled",
+            "X-Discord-Locale": "en-US",
+            "X-Discord-Timezone": "Asia/Calcutta",
+            "X-Super-Properties": exactSuperProps,
+          };
+
+          if (discordCookie) {
+            headers["Cookie"] = discordCookie;
+          }
+
+          // Proxy target support (Cloudflare Worker)
+          const proxyOrigin = (process.env.DISCORD_PROXY_URL || "https://discord.com").replace(/\/$/, "");
+          const targetEndpoint = `${proxyOrigin}/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`;
+
+          const profileRes = await fetch(targetEndpoint, { headers });
+
+          if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            userProfileBadges = profileData.badges || [];
+            badgesCache.set(id, { badges: userProfileBadges, timestamp: now });
+          } else {
+            console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());
+          }
+        } catch (e) {
+          console.error("[Discord User Token Profile Error]", e);
         }
-
-        // Proxy target support (Cloudflare Worker or direct Discord)
-        const proxyOrigin = (process.env.DISCORD_PROXY_URL || "https://discord.com").replace(/\/$/, "");
-        const targetEndpoint = `${proxyOrigin}/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`;
-
-        const profileRes = await fetch(targetEndpoint, {
-          headers,
-          next: { revalidate: 172800 }, // 48 hours cache (172800 seconds)
-        });
-
-        if (profileRes.ok) {
-          const profileData = await profileRes.json();
-          userProfileBadges = profileData.badges || [];
-        } else {
-          console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());
-        }
-      } catch (e) {
-        console.error("[Discord User Token Profile Error]", e);
       }
     }
 

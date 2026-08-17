@@ -413,6 +413,13 @@ export async function updateProfileWidgets(data: {
     targetId: string;
     useLinked: boolean;
     enabled: boolean;
+    imageShape?: "circle" | "rounded" | "square";
+    showActivity?: boolean;
+    showActivityImage?: boolean;
+    activityImageShape?: "circle" | "rounded" | "square";
+    showAvatarDecoration?: boolean;
+    showGuildTag?: boolean;
+    showBadges?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -445,6 +452,13 @@ export async function updateProfileWidgets(data: {
       throw new Error("Invalid Discord ID format");
     }
 
+    const imageShape: "circle" | "rounded" | "square" =
+      w.imageShape === "rounded" || w.imageShape === "square" ? w.imageShape : "circle";
+    const activityImageShape: "circle" | "rounded" | "square" =
+      w.activityImageShape === "circle" || w.activityImageShape === "square"
+        ? w.activityImageShape
+        : "rounded";
+
     return {
       id: String(w.id || `widget_${Date.now()}`).slice(0, 50),
       platform,
@@ -452,6 +466,13 @@ export async function updateProfileWidgets(data: {
       targetId,
       useLinked,
       enabled: Boolean(w.enabled),
+      imageShape,
+      showActivity: w.showActivity !== undefined ? Boolean(w.showActivity) : true,
+      showActivityImage: w.showActivityImage !== undefined ? Boolean(w.showActivityImage) : true,
+      activityImageShape,
+      showAvatarDecoration: w.showAvatarDecoration !== undefined ? Boolean(w.showAvatarDecoration) : true,
+      showGuildTag: w.showGuildTag !== undefined ? Boolean(w.showGuildTag) : true,
+      showBadges: w.showBadges !== undefined ? Boolean(w.showBadges) : true,
     };
   });
 
