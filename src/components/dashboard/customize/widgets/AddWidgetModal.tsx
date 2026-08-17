@@ -76,7 +76,7 @@ export default function AddWidgetModal({
       ? useLinkedAccount
         ? Boolean(linkedDiscordId)
         : /^\d{17,20}$/.test(customDiscordId.trim())
-      : /^\d{17,20}$/.test(serverId.trim())
+      : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
     : false;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -330,19 +330,19 @@ export default function AddWidgetModal({
             {/* Discord Server Settings */}
             {isServer && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
-                <label className="text-[12px] font-normal text-white/60">Discord Server ID (Guild ID)</label>
+                <label className="text-[12px] font-normal text-white/60">Discord Server Invite Code</label>
                 <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
                   <input
                     type="text"
                     value={serverId}
-                    onChange={(e) => setServerId(e.target.value.replace(/\D/g, ""))}
-                    placeholder="e.g. 1024354678901234567"
-                    maxLength={20}
+                    onChange={(e) => setServerId(e.target.value)}
+                    placeholder="e.g. QgZEkJjF8q"
+                    maxLength={100}
                     className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
                   />
                 </div>
                 <p className="text-[11px] text-white/30 leading-normal mt-0.5">
-                  Right-click your server icon in Discord → Copy Server ID. (Server widget must be enabled in Server Settings → Widget).
+                  The code from your permanent invite link (e.g. &apos;QgZEkJjF8q&apos; from discord.gg/QgZEkJjF8q).
                 </p>
               </div>
             )}

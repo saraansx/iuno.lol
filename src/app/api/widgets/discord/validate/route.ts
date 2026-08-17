@@ -18,14 +18,19 @@ export async function POST(req: NextRequest) {
     }
 
     const { type, id } = await req.json();
-    if (!id || typeof id !== "string" || !/^\d{17,20}$/.test(id)) {
-      return NextResponse.json({ ok: false, error: "Invalid Discord ID format" });
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ ok: false, error: "Identifier is required" });
     }
 
     if (type === "server") {
-      // Validate server widget via Discord's public widget JSON API
-      const res = await fetch(`https://discord.com/api/v10/guilds/${id}/widget.json`, {
-        headers: { "User-Agent": "iuno-profile-widget/1.0" },
+      const cleanCode = id.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "");
+      if (!cleanCode || cleanCode.length < 2) {
+        return NextResponse.json({ ok: false, error: "Invalid Discord invite code format" });
+      }
+
+      // Validate invite code via Discord API
+      const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true`, {
+        headers: { "User-Agent": "iuno-presence-proxy/1.0" },
         cache: "no-store",
       });
 
@@ -34,19 +39,24 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({
           ok: true,
           data: {
-            name: data.name,
-            instant_invite: data.instant_invite,
-            presence_count: data.presence_count,
+            code: data.code || cleanCode,
+            guild: data.guild || null,
+            approximate_member_count: data.approximate_member_count || 0,
+            approximate_presence_count: data.approximate_presence_count || 0,
           },
         });
-      } else if (res.status === 403 || res.status === 404) {
+      } else if (res.status === 404) {
         return NextResponse.json({
           ok: false,
-          error: "Server not found or Widget disabled in Server Settings → Widget",
+          error: "Invite code is invalid or expired",
         });
       } else {
-        return NextResponse.json({ ok: false, error: "Could not verify Discord server" });
+        return NextResponse.json({ ok: false, error: "Could not verify Discord server invite" });
       }
+    }
+
+    if (!/^\d{17,20}$/.test(id)) {
+      return NextResponse.json({ ok: false, error: "Invalid Discord ID format" });
     }
 
     // Presence type: Validate user via bot token or public gateway

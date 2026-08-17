@@ -33,14 +33,9 @@ export default function BadgesOrderCustomization({
 
   const activeDragIdRef = useRef<string | null>(null);
   const targetHoverIdRef = useRef<string | null>(null);
-  const sortedBadgesRef = useRef<BadgeItemData[]>([]);
-
-  if (!availableBadges || availableBadges.length === 0) {
-    return null;
-  }
 
   // Sort available badges according to badgeOrder
-  const sortedBadges = [...availableBadges].sort((a, b) => {
+  const sortedBadges = (availableBadges || []).sort((a, b) => {
     const idxA = badgeOrder.indexOf(a.id);
     const idxB = badgeOrder.indexOf(b.id);
     if (idxA === -1 && idxB === -1) return 0;
@@ -48,8 +43,6 @@ export default function BadgesOrderCustomization({
     if (idxB === -1) return -1;
     return idxA - idxB;
   });
-
-  sortedBadgesRef.current = sortedBadges;
 
   const handleToggleBadge = (badgeId: string) => {
     if (hiddenBadges.includes(badgeId)) {
@@ -116,7 +109,7 @@ export default function BadgesOrderCustomization({
       const dropTargetId = targetHoverIdRef.current;
 
       if (draggedId && dropTargetId && draggedId !== dropTargetId) {
-        const currentIds = sortedBadgesRef.current.map((b) => b.id);
+        const currentIds = sortedBadges.map((b) => b.id);
         const fromIndex = currentIds.indexOf(draggedId);
         const toIndex = currentIds.indexOf(dropTargetId);
 
@@ -143,7 +136,11 @@ export default function BadgesOrderCustomization({
       window.removeEventListener("pointerup", handlePointerUp);
       window.removeEventListener("pointercancel", handlePointerUp);
     };
-  }, [dragOffset, onOrderChange]);
+  }, [dragOffset, onOrderChange, sortedBadges]);
+
+  if (!availableBadges || availableBadges.length === 0) {
+    return null;
+  }
 
   const activeDraggingBadge = sortedBadges.find((b) => b.id === activeDragId);
 

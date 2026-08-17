@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { type FullUser } from "@/lib/features/users/db";
@@ -27,6 +28,11 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.showAvatarDecoration === target.showAvatarDecoration &&
       item.showGuildTag === target.showGuildTag &&
       item.showBadges === target.showBadges &&
+      item.showLastSeen === target.showLastSeen &&
+      item.fallbackText === target.fallbackText &&
+      item.showMemberCount === target.showMemberCount &&
+      item.showOnlineCount === target.showOnlineCount &&
+      item.showBanner === target.showBanner &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );
@@ -34,7 +40,8 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
 }
 
 export default function WidgetsProfileClient({ user }: { user: FullUser | null }) {
-  const { overrides, updateOverrides, clearOverrides } = useCustomizeProfile();
+  const router = useRouter();
+  const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const [, startTransition] = useTransition();
 
   const userSavedWidgets: WidgetItem[] = useMemo(
@@ -71,7 +78,8 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
         });
         if (res.success) {
           toast.success("Widgets updated successfully");
-          clearOverrides();
+          scheduleClear();
+          router.refresh();
         }
       } catch (err: unknown) {
         toast.error(err instanceof Error ? err.message : "Failed to update widgets");

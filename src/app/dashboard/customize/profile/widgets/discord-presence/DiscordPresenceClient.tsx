@@ -159,7 +159,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         });
         if (res?.success) {
           toast.success(isEditing ? "Widget saved successfully" : "Widget added successfully");
-          router.refresh();
+          router.push("/dashboard/customize/profile/widgets");
         }
       } catch (err: unknown) {
         toast.error(err instanceof Error ? err.message : "Failed to save widget");

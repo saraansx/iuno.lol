@@ -143,6 +143,9 @@ export const userSettings = mysqlTable('user_settings', {
     hiddenBadges?: string[];
     showLastSeen?: boolean;
     fallbackText?: string;
+    showMemberCount?: boolean;
+    showOnlineCount?: boolean;
+    showBanner?: boolean;
   }>>().default([]),
 })
 

@@ -423,6 +423,10 @@ export async function updateProfileWidgets(data: {
     badgeOrder?: string[];
     hiddenBadges?: string[];
     showLastSeen?: boolean;
+    fallbackText?: string;
+    showMemberCount?: boolean;
+    showOnlineCount?: boolean;
+    showBanner?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -445,18 +449,27 @@ export async function updateProfileWidgets(data: {
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
     const platform = w.platform === "discord" ? "discord" : "discord";
     const type = w.type === "server" ? "server" : "presence";
-    const useLinked = Boolean(w.useLinked) && Boolean(user.discordId);
-    let targetId = String(w.targetId || "").replace(/\D/g, "").slice(0, 20);
-    if (useLinked && user.discordId) {
-      targetId = user.discordId;
-    }
+    let targetId = "";
+    let useLinked = false;
 
-    if (!/^\d{17,20}$/.test(targetId)) {
-      throw new Error("Invalid Discord ID format");
+    if (type === "server") {
+      targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").slice(0, 100);
+      if (!targetId || targetId.length < 2) {
+        throw new Error("Invalid Discord invite code format");
+      }
+    } else {
+      useLinked = Boolean(w.useLinked) && Boolean(user.discordId);
+      targetId = String(w.targetId || "").replace(/\D/g, "").slice(0, 20);
+      if (useLinked && user.discordId) {
+        targetId = user.discordId;
+      }
+      if (!/^\d{17,20}$/.test(targetId)) {
+        throw new Error("Invalid Discord ID format");
+      }
     }
 
     const imageShape: "circle" | "rounded" | "square" =
-      w.imageShape === "rounded" || w.imageShape === "square" ? w.imageShape : "circle";
+      w.imageShape === "circle" || w.imageShape === "square" ? w.imageShape : "rounded";
     const activityImageShape: "circle" | "rounded" | "square" =
       w.activityImageShape === "circle" || w.activityImageShape === "square"
         ? w.activityImageShape
@@ -479,6 +492,10 @@ export async function updateProfileWidgets(data: {
       badgeOrder: Array.isArray(w.badgeOrder) ? w.badgeOrder.map(String).slice(0, 50) : undefined,
       hiddenBadges: Array.isArray(w.hiddenBadges) ? w.hiddenBadges.map(String).slice(0, 50) : undefined,
       showLastSeen: w.showLastSeen !== undefined ? Boolean(w.showLastSeen) : true,
+      fallbackText: typeof w.fallbackText === "string" ? w.fallbackText.slice(0, 100) : undefined,
+      showMemberCount: w.showMemberCount !== undefined ? Boolean(w.showMemberCount) : true,
+      showOnlineCount: w.showOnlineCount !== undefined ? Boolean(w.showOnlineCount) : true,
+      showBanner: w.showBanner !== undefined ? Boolean(w.showBanner) : true,
     };
   });
 

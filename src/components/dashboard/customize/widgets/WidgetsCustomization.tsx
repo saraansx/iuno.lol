@@ -22,6 +22,9 @@ export interface WidgetItem {
   hiddenBadges?: string[];
   showLastSeen?: boolean;
   fallbackText?: string;
+  showMemberCount?: boolean;
+  showOnlineCount?: boolean;
+  showBanner?: boolean;
 }
 
 interface WidgetsCustomizationProps {
