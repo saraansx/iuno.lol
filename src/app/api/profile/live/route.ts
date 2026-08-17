@@ -41,7 +41,8 @@ export async function GET(request: Request) {
     // 1. Try Redis cache first
     const cached = await redis.get(cacheKey);
     if (cached) {
-      return NextResponse.json(cached, {
+      const parsed = typeof cached === "string" ? JSON.parse(cached) : cached;
+      return NextResponse.json(parsed, {
         headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
       });
     }
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
     };
 
     // 3. Store in Redis with TTL
-    await redis.set(cacheKey, responseData, { ex: CACHE_TTL });
+    await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL);
 
     return NextResponse.json(responseData, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },

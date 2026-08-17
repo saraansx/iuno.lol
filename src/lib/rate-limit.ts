@@ -27,15 +27,15 @@ export async function checkRateLimit(
 
   const [ok, retryAfter] = (await redis.eval(
     RATE_LIMIT_SCRIPT,
-    [`rl:cd:${key}`, `rl:w:${key}`],
-    [
-      String(maxAttempts),
-      String(now),
-      member,
-      String(cutoff),
-      String(windowSeconds),
-      String(cooldownSeconds),
-    ],
+    2,
+    `rl:cd:${key}`,
+    `rl:w:${key}`,
+    String(maxAttempts),
+    String(now),
+    member,
+    String(cutoff),
+    String(windowSeconds),
+    String(cooldownSeconds),
   )) as [number, number];
 
   if (ok === 1) {

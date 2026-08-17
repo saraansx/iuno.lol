@@ -58,11 +58,16 @@ export async function POST(request: NextRequest) {
       device = 'mac';
     }
 
-    const counted = await redis.eval(
+    const counted = (await redis.eval(
       TRACK_VIEW_SCRIPT,
-      [`v:${profileId}:${visitorHash}`, `views_pending:${profileId}`, 'profiles_with_pending_views'],
-      ['86400', device, String(profileId)],
-    );
+      3,
+      `v:${profileId}:${visitorHash}`,
+      `views_pending:${profileId}`,
+      'profiles_with_pending_views',
+      '86400',
+      device,
+      String(profileId),
+    )) as number;
 
     if (counted !== 1) {
       return NextResponse.json({ success: true, message: 'Already viewed recently' });

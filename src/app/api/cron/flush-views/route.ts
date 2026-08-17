@@ -29,7 +29,12 @@ async function handler() {
       for (const idStr of profileIds) {
         pipe.hgetall(`views_pending:${idStr}`);
       }
-      hgetResults = (await pipe.exec()) as (Record<string, string> | null)[];
+      const rawExec = await pipe.exec();
+      hgetResults = (rawExec || []).map((tuple) => {
+        const [err, res] = tuple;
+        if (err || !res) return null;
+        return res as Record<string, string>;
+      });
     } catch {
       hgetResults = null;
     }
@@ -68,8 +73,8 @@ async function handler() {
 
         if (!data) {
           try {
-            const legacyVal = await redis.get<string | number>(redisKey);
-            if (legacyVal) legacyCount = typeof legacyVal === 'number' ? legacyVal : parseInt(String(legacyVal));
+            const legacyVal = await redis.get(redisKey);
+            if (legacyVal) legacyCount = parseInt(String(legacyVal));
           } catch {
             // ignore
           }
