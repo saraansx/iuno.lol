@@ -181,7 +181,7 @@ export async function GET(
 
         const profileRes = await fetch(targetEndpoint, {
           headers,
-          next: { revalidate: 86400 }, // 24 hours cache (86400 seconds)
+          next: { revalidate: 172800 }, // 48 hours cache (172800 seconds)
         });
 
         if (profileRes.ok) {
