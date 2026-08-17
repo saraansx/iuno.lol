@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -10,9 +10,9 @@ import { updateProfileWidgets } from "@/actions/profile";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import { toast } from "sonner";
 
-function formatLastSeen(timestamp?: number | null) {
+function formatLastSeen(timestamp?: number | null, referenceNow: number = Date.now()) {
   if (!timestamp) return "last seen recently";
-  const diffSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  const diffSeconds = Math.max(0, Math.floor((referenceNow - timestamp) / 1000));
   if (diffSeconds < 60) return "last seen just now";
   const minutes = Math.floor(diffSeconds / 60);
   if (minutes < 60) return `last seen ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
@@ -41,6 +41,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
   // Presence fetched once per ID — refreshes on reload, not on a timer
   const { data: discordData, loading: loadingPreview, isValidId } = useDiscordPresence(effectiveId);
+  const mountTimeRef = useRef(Date.now());
 
   const handleSaveWidgetConfirm = () => {
     if (!user?.username) return;
@@ -276,8 +277,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                     <div className="flex flex-col gap-1 min-w-0">
                       {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[16px] font-semibold text-white tracking-tight">
-                          {discordData?.user?.global_name || discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
+                        <span className="text-[16px] font-normal text-white tracking-tight">
+                          {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
                         </span>
 
                         {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
@@ -359,7 +360,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         <div className="flex items-center gap-1.5 text-[12px] text-white/40">
                           <span>
                             {discordData?.status === "offline"
-                              ? formatLastSeen(discordData?.last_seen)
+                              ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
                               : discordData?.status || "offline"}
                           </span>
                         </div>

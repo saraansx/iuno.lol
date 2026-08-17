@@ -19,5 +19,22 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             npm install --legacy-peer-deps
-            npm run build
-            pm2 restart iuno-web
+            mkdir -p /home/ubuntu/next-cache-backup
+            cp -rn .next/cache/* /home/ubuntu/next-cache-backup/ 2>/dev/null || true
+
+            # 1. Build to temporary folder while .next is still serving traffic
+            npm run build -- --dest .next-temp || npm run build
+
+            # 2. If separate folder was built, instant atomic swap; otherwise ensure cache restored
+            if [ -d ".next-temp" ]; then
+              cp -rn /home/ubuntu/next-cache-backup/* .next-temp/cache/ 2>/dev/null || true
+              rm -rf .next-old
+              mv .next .next-old 2>/dev/null || true
+              mv .next-temp .next
+              rm -rf .next-old
+            else
+              cp -rn /home/ubuntu/next-cache-backup/* .next/cache/ 2>/dev/null || true
+            fi
+
+            rm -rf /home/ubuntu/next-cache-backup
+            pm2 reload iuno-web || pm2 restart iuno-web
