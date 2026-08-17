@@ -175,13 +175,14 @@ export async function GET(
           headers["Cookie"] = discordCookie;
         }
 
-        const profileRes = await fetch(
-          `https://discord.com/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`,
-          {
-            headers,
-            next: { revalidate: 300 },
-          }
-        );
+        // Proxy target support (Cloudflare Worker or direct Discord)
+        const proxyOrigin = (process.env.DISCORD_PROXY_URL || "https://discord.com").replace(/\/$/, "");
+        const targetEndpoint = `${proxyOrigin}/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`;
+
+        const profileRes = await fetch(targetEndpoint, {
+          headers,
+          next: { revalidate: 86400 }, // 24 hours cache (86400 seconds)
+        });
 
         if (profileRes.ok) {
           const profileData = await profileRes.json();
