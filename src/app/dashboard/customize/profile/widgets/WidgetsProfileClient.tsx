@@ -26,7 +26,9 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.activityImageShape === target.activityImageShape &&
       item.showAvatarDecoration === target.showAvatarDecoration &&
       item.showGuildTag === target.showGuildTag &&
-      item.showBadges === target.showBadges
+      item.showBadges === target.showBadges &&
+      JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
+      JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );
   });
 }

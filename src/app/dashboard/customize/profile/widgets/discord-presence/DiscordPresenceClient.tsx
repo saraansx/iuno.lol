@@ -9,6 +9,7 @@ import { type WidgetItem } from "@/components/dashboard/customize/widgets/Widget
 import { updateProfileWidgets } from "@/actions/profile";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import PresenceCustomization from "@/components/dashboard/customize/widgets/discord-presence/PresenceCustomization";
+import BadgesOrderCustomization from "@/components/dashboard/customize/widgets/discord-presence/BadgesOrderCustomization";
 import { toast } from "sonner";
 
 function formatLastSeen(timestamp?: number | null, referenceNow: number = Date.now()) {
@@ -39,6 +40,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const initialShowAvatarDecoration = currentWidget?.showAvatarDecoration !== undefined ? currentWidget.showAvatarDecoration : true;
   const initialShowGuildTag = currentWidget?.showGuildTag !== undefined ? currentWidget.showGuildTag : true;
   const initialShowBadges = currentWidget?.showBadges !== undefined ? currentWidget.showBadges : true;
+  const initialBadgeOrder = currentWidget?.badgeOrder || [];
+  const initialHiddenBadges = currentWidget?.hiddenBadges || [];
 
   const [useLinked, setUseLinked] = useState(initialUseLinked && Boolean(user?.discordId));
   const [discordId, setDiscordId] = useState(initialTargetId);
@@ -49,8 +52,30 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [showAvatarDecoration, setShowAvatarDecoration] = useState<boolean>(initialShowAvatarDecoration);
   const [showGuildTag, setShowGuildTag] = useState<boolean>(initialShowGuildTag);
   const [showBadges, setShowBadges] = useState<boolean>(initialShowBadges);
+  const [badgeOrder, setBadgeOrder] = useState<string[]>(initialBadgeOrder);
+  const [hiddenBadges, setHiddenBadges] = useState<string[]>(initialHiddenBadges);
 
   const effectiveId = useLinked ? (user?.discordId || "") : discordId;
+
+  // Presence fetched once per ID — refreshes on reload, not on a timer
+  const { data: discordData, loading: loadingPreview, isValidId } = useDiscordPresence(effectiveId);
+  const mountTimeRef = useRef(Date.now());
+
+  const defaultBadgeIds = (discordData?.user?.profile_badges || [])
+    .filter((b: { icon?: string }) => Boolean(b.icon))
+    .map((b: { id: string }) => b.id);
+
+  const effectiveInitialOrder = initialBadgeOrder.length > 0 ? initialBadgeOrder : defaultBadgeIds;
+  const effectiveCurrentOrder = badgeOrder.length > 0 ? badgeOrder : defaultBadgeIds;
+
+  const isBadgeOrderChanged =
+    effectiveCurrentOrder.length > 0 &&
+    effectiveInitialOrder.length > 0 &&
+    JSON.stringify(effectiveCurrentOrder) !== JSON.stringify(effectiveInitialOrder);
+
+  const isHiddenBadgesChanged =
+    JSON.stringify([...hiddenBadges].sort()) !== JSON.stringify([...initialHiddenBadges].sort());
+
   const isChanged =
     useLinked !== initialUseLinked ||
     discordId !== initialTargetId ||
@@ -60,13 +85,11 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     activityImageShape !== initialActivityImageShape ||
     showAvatarDecoration !== initialShowAvatarDecoration ||
     showGuildTag !== initialShowGuildTag ||
-    showBadges !== initialShowBadges;
+    showBadges !== initialShowBadges ||
+    isBadgeOrderChanged ||
+    isHiddenBadgesChanged;
 
   const [, startTransition] = useTransition();
-
-  // Presence fetched once per ID — refreshes on reload, not on a timer
-  const { data: discordData, loading: loadingPreview, isValidId } = useDiscordPresence(effectiveId);
-  const mountTimeRef = useRef(Date.now());
 
   const handleSaveWidgetConfirm = () => {
     if (!user?.username) return;
@@ -92,6 +115,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               showAvatarDecoration,
               showGuildTag,
               showBadges,
+              badgeOrder,
+              hiddenBadges,
             }
           : w
       );
@@ -110,6 +135,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         showAvatarDecoration,
         showGuildTag,
         showBadges,
+        badgeOrder,
+        hiddenBadges,
       };
       updated = [newWidget, ...existingList];
     }
@@ -136,18 +163,61 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
       }?size=128`
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(effectiveId && /^\d+$/.test(effectiveId) ? effectiveId : "0") % BigInt(5))}.png`;
 
+  function getCleanBadgeName(badge: { id: string; description?: string }): string {
+    const id = badge.id.toLowerCase();
+    const desc = badge.description || "";
+
+    if (id.includes("premium") || id.includes("nitro") || desc.toLowerCase().includes("subscriber since")) {
+      return "Discord Nitro";
+    }
+    if (id.includes("orb") || desc.toLowerCase().includes("orb")) {
+      return "Orb";
+    }
+    if (id.includes("guild_booster") || id.includes("boost") || desc.toLowerCase().includes("server boosting")) {
+      return "Server Booster";
+    }
+    if (id.includes("staff")) return "Discord Staff";
+    if (id.includes("partner")) return "Partnered Server Owner";
+    if (id.includes("hypesquad_house_1") || id.includes("bravery")) return "HypeSquad Bravery";
+    if (id.includes("hypesquad_house_2") || id.includes("brilliance")) return "HypeSquad Brilliance";
+    if (id.includes("hypesquad_house_3") || id.includes("balance")) return "HypeSquad Balance";
+    if (id.includes("hypesquad_events") || id.includes("hypesquad")) return "HypeSquad Events";
+    if (id.includes("bug_hunter_level_2")) return "Discord Bug Hunter (Gold)";
+    if (id.includes("bug_hunter_level_1") || id.includes("bug_hunter")) return "Discord Bug Hunter";
+    if (id.includes("verified_developer") || id.includes("bot_developer")) return "Early Verified Bot Developer";
+    if (id.includes("early_supporter")) return "Early Supporter";
+    if (id.includes("legacy_username")) return "Legacy Username";
+    if (id.includes("quest")) return "Quest Completed";
+    if (id.includes("active_developer")) return "Active Developer";
+
+    return desc || badge.id;
+  }
+
   // Badges strictly from Discord user token profile endpoint
-  const userBadges: { name: string; icon: string }[] = [];
+  const userBadges: { id: string; name: string; icon: string }[] = [];
 
   if (discordData?.user?.profile_badges && Array.isArray(discordData.user.profile_badges)) {
     for (const badge of discordData.user.profile_badges) {
       if (!badge.icon) continue;
       userBadges.push({
-        name: badge.description || badge.id,
+        id: badge.id,
+        name: getCleanBadgeName(badge),
         icon: `https://cdn.discordapp.com/badge-icons/${badge.icon}.png`,
       });
     }
   }
+
+  // Sorted and filtered preview badges according to badgeOrder and hiddenBadges
+  const previewBadges = [...userBadges]
+    .filter((b) => !hiddenBadges.includes(b.id))
+    .sort((a, b) => {
+      const idxA = badgeOrder.indexOf(a.id);
+      const idxB = badgeOrder.indexOf(b.id);
+      if (idxA === -1 && idxB === -1) return 0;
+      if (idxA === -1) return 1;
+      if (idxB === -1) return -1;
+      return idxA - idxB;
+    });
 
   const decorationAsset = discordData?.user?.avatar_decoration_data?.asset;
   const decorationUrl = decorationAsset
@@ -166,6 +236,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
       setShowAvatarDecoration(initialShowAvatarDecoration);
       setShowGuildTag(initialShowGuildTag);
       setShowBadges(initialShowBadges);
+      setBadgeOrder(initialBadgeOrder);
+      setHiddenBadges(initialHiddenBadges);
     } else {
       // If creating new widget, cancel exits back to widgets list
       router.push("/dashboard/customize/profile/widgets");
@@ -377,10 +449,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         )}
 
                         {/* Discord Badges (No container wrapper) */}
-                        {showBadges && userBadges.length > 0 && (
+                        {showBadges && previewBadges.length > 0 && (
                           <div className="flex items-center gap-1.5">
-                            {userBadges.map((badge) => (
-                              <div key={badge.name} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
+                            {previewBadges.map((badge) => (
+                              <div key={badge.id} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
                                 <Image
                                   src={badge.icon}
                                   alt={badge.name}
@@ -523,6 +595,16 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
           showBadges={showBadges}
           onShowBadgesChange={setShowBadges}
         />
+        {/* Badges & Order Customization Card (Shows when user has badges) */}
+        {showBadges && userBadges.length > 0 && (
+          <BadgesOrderCustomization
+            availableBadges={userBadges}
+            badgeOrder={badgeOrder}
+            hiddenBadges={hiddenBadges}
+            onOrderChange={setBadgeOrder}
+            onHiddenChange={setHiddenBadges}
+          />
+        )}
       </div>
 
       {/* Floating Save/Add Widget Bar */}

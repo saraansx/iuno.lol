@@ -139,6 +139,8 @@ export const userSettings = mysqlTable('user_settings', {
     showAvatarDecoration?: boolean;
     showGuildTag?: boolean;
     showBadges?: boolean;
+    badgeOrder?: string[];
+    hiddenBadges?: string[];
   }>>().default([]),
 })
 

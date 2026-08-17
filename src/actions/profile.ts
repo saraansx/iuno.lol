@@ -420,6 +420,8 @@ export async function updateProfileWidgets(data: {
     showAvatarDecoration?: boolean;
     showGuildTag?: boolean;
     showBadges?: boolean;
+    badgeOrder?: string[];
+    hiddenBadges?: string[];
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -473,6 +475,8 @@ export async function updateProfileWidgets(data: {
       showAvatarDecoration: w.showAvatarDecoration !== undefined ? Boolean(w.showAvatarDecoration) : true,
       showGuildTag: w.showGuildTag !== undefined ? Boolean(w.showGuildTag) : true,
       showBadges: w.showBadges !== undefined ? Boolean(w.showBadges) : true,
+      badgeOrder: Array.isArray(w.badgeOrder) ? w.badgeOrder.map(String).slice(0, 50) : undefined,
+      hiddenBadges: Array.isArray(w.hiddenBadges) ? w.hiddenBadges.map(String).slice(0, 50) : undefined,
     };
   });
 

@@ -18,6 +18,8 @@ export interface WidgetItem {
   showAvatarDecoration?: boolean;
   showGuildTag?: boolean;
   showBadges?: boolean;
+  badgeOrder?: string[];
+  hiddenBadges?: string[];
 }
 
 interface WidgetsCustomizationProps {
