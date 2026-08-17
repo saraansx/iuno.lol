@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
       `v:${profileId}:${visitorHash}`,
       `views_pending:${profileId}`,
       'profiles_with_pending_views',
-      '86400',
+      '172800',
       device,
       String(profileId),
     )) as number;
