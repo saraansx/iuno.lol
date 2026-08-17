@@ -41,6 +41,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const initialShowGuildTag = currentWidget?.showGuildTag !== undefined ? currentWidget.showGuildTag : true;
   const initialShowBadges = currentWidget?.showBadges !== undefined ? currentWidget.showBadges : true;
   const initialShowLastSeen = currentWidget?.showLastSeen !== undefined ? currentWidget.showLastSeen : true;
+  const initialFallbackText = currentWidget?.fallbackText !== undefined ? currentWidget.fallbackText : "Currently doing nothing";
   const initialBadgeOrder = currentWidget?.badgeOrder || [];
   const initialHiddenBadges = currentWidget?.hiddenBadges || [];
 
@@ -54,6 +55,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [showGuildTag, setShowGuildTag] = useState<boolean>(initialShowGuildTag);
   const [showBadges, setShowBadges] = useState<boolean>(initialShowBadges);
   const [showLastSeen, setShowLastSeen] = useState<boolean>(initialShowLastSeen);
+  const [fallbackText, setFallbackText] = useState<string>(initialFallbackText);
   const [badgeOrder, setBadgeOrder] = useState<string[]>(initialBadgeOrder);
   const [hiddenBadges, setHiddenBadges] = useState<string[]>(initialHiddenBadges);
 
@@ -89,6 +91,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     showGuildTag !== initialShowGuildTag ||
     showBadges !== initialShowBadges ||
     showLastSeen !== initialShowLastSeen ||
+    fallbackText !== initialFallbackText ||
     isBadgeOrderChanged ||
     isHiddenBadgesChanged;
 
@@ -119,6 +122,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               showGuildTag,
               showBadges,
               showLastSeen,
+              fallbackText,
               badgeOrder,
               hiddenBadges,
             }
@@ -140,6 +144,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         showGuildTag,
         showBadges,
         showLastSeen,
+        fallbackText,
         badgeOrder,
         hiddenBadges,
       };
@@ -242,6 +247,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
       setShowGuildTag(initialShowGuildTag);
       setShowBadges(initialShowBadges);
       setShowLastSeen(initialShowLastSeen);
+      setFallbackText(initialFallbackText);
       setBadgeOrder(initialBadgeOrder);
       setHiddenBadges(initialHiddenBadges);
     } else {
@@ -475,9 +481,11 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
                       {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
                       {!showActivity ? (
-                        <div className="flex items-center gap-1.5 text-[12px] text-white/40">
-                          <span>Currently doing nothing</span>
-                        </div>
+                        fallbackText ? (
+                          <div className="flex items-center gap-1.5 text-[12px] text-white/40">
+                            <span>{fallbackText}</span>
+                          </div>
+                        ) : null
                       ) : discordData?.primary_activity ? (
                         <div className="flex flex-col text-[12.5px] leading-tight">
                           <span className="font-medium text-white/90 truncate">
@@ -604,6 +612,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
           onShowBadgesChange={setShowBadges}
           showLastSeen={showLastSeen}
           onShowLastSeenChange={setShowLastSeen}
+          fallbackText={fallbackText}
+          onFallbackTextChange={setFallbackText}
         />
         {/* Badges & Order Customization Card (Shows when user has badges) */}
         {showBadges && userBadges.length > 0 && (

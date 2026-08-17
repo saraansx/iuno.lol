@@ -8,6 +8,7 @@ import ShowAvatarDecorationSetting from "./settings/ShowAvatarDecorationSetting"
 import ShowGuildTagSetting from "./settings/ShowGuildTagSetting";
 import ShowBadgesSetting from "./settings/ShowBadgesSetting";
 import ShowLastSeenSetting from "./settings/ShowLastSeenSetting";
+import FallbackTextSetting from "./settings/FallbackTextSetting";
 
 interface PresenceCustomizationProps {
   imageShape: "circle" | "rounded" | "square";
@@ -26,6 +27,8 @@ interface PresenceCustomizationProps {
   onShowBadgesChange: (val: boolean) => void;
   showLastSeen: boolean;
   onShowLastSeenChange: (val: boolean) => void;
+  fallbackText: string;
+  onFallbackTextChange: (val: string) => void;
 }
 
 export default function PresenceCustomization({
@@ -45,6 +48,8 @@ export default function PresenceCustomization({
   onShowBadgesChange,
   showLastSeen,
   onShowLastSeenChange,
+  fallbackText,
+  onFallbackTextChange,
 }: PresenceCustomizationProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
@@ -90,6 +95,10 @@ export default function PresenceCustomization({
         <ShowLastSeenSetting
           value={showLastSeen}
           onChange={onShowLastSeenChange}
+        />
+        <FallbackTextSetting
+          value={fallbackText}
+          onChange={onFallbackTextChange}
         />
       </div>
     </div>

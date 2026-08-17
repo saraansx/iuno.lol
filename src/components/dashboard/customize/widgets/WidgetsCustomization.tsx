@@ -21,6 +21,7 @@ export interface WidgetItem {
   badgeOrder?: string[];
   hiddenBadges?: string[];
   showLastSeen?: boolean;
+  fallbackText?: string;
 }
 
 interface WidgetsCustomizationProps {
