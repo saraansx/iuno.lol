@@ -207,193 +207,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
           </div>
 
           <div className="w-full flex-1 flex items-center justify-start p-6 bg-[#141414]/40 border border-white/5 rounded-2xl min-h-[180px]">
-            {isValidId ? (
-              discordData?.in_server === false ? (
-                /* User NOT in the iuno Discord Server (Matches Haunt.gg UI) */
-                <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
-                  <div className="w-14 h-14 rounded-full bg-white/[0.04] border border-white/5 shrink-0" />
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-[14.5px] font-semibold text-white tracking-tight">
-                      Not in the server
-                    </span>
-                    <span className="text-[12px] text-white/35">
-                      This user isn&apos;t in the iuno.lol Discord.
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                /* User IS in the server -> Show full presence, badges & avatar */
-                <div className="w-full flex items-center justify-between gap-4 py-2 transition-all duration-200">
-                  <div className="flex items-center gap-4 min-w-0">
-                    {/* Avatar + Status badge + Discord Avatar Decoration */}
-                    <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-white/5 border border-white/10 relative shadow-md">
-                        <Image
-                          src={avatarUrl}
-                          alt="Discord avatar"
-                          fill
-                          sizes="64px"
-                          priority
-                          className="object-cover"
-                          unoptimized
-                        />
-                      </div>
-
-                      {/* Discord Avatar Decoration preset */}
-                      {decorationUrl && (
-                        <div className="pointer-events-none absolute -inset-[7px] z-10">
-                          <Image
-                            src={decorationUrl}
-                            alt="Avatar decoration"
-                            fill
-                            sizes="78px"
-                            priority
-                            loading="eager"
-                            className="object-contain"
-                            unoptimized
-                          />
-                        </div>
-                      )}
-
-                      {/* Status Indicator Icon */}
-                      <div className="absolute bottom-0 right-0 z-20 w-4.5 h-4.5 rounded-full bg-[#0c0c0c] flex items-center justify-center">
-                        {discordData?.status === "dnd" ? (
-                          <span className="w-3.5 h-3.5 rounded-full bg-rose-500 flex items-center justify-center">
-                            <span className="w-2 h-0.5 bg-[#0c0c0c] rounded-full" />
-                          </span>
-                        ) : discordData?.status === "idle" ? (
-                          <span className="w-3.5 h-3.5 rounded-full bg-amber-500" />
-                        ) : discordData?.status === "online" ? (
-                          <span className="w-3.5 h-3.5 rounded-full bg-emerald-500" />
-                        ) : (
-                          <span className="w-3.5 h-3.5 rounded-full bg-zinc-500 flex items-center justify-center">
-                            <span className="w-1.5 h-1.5 bg-[#0c0c0c] rounded-full" />
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* User Details + Badges + Subtitle Status / Activity */}
-                    <div className="flex flex-col gap-1 min-w-0">
-                      {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[16px] font-normal text-white tracking-tight">
-                          {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
-                        </span>
-
-                        {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
-                        {discordData?.user?.clan?.tag && (
-                          <span className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-md text-[12px] font-medium text-white/85 tracking-tight">
-                            {discordData.user.clan.badge && (
-                              <Image
-                                src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
-                                alt="Clan badge"
-                                width={14}
-                                height={14}
-                                className="object-contain"
-                                unoptimized
-                              />
-                            )}
-                            <span>{discordData.user.clan.tag}</span>
-                          </span>
-                        )}
-
-                        {/* Discord Badges (No container wrapper) */}
-                        {userBadges.length > 0 && (
-                          <div className="flex items-center gap-1.5">
-                            {userBadges.map((badge) => (
-                              <div key={badge.name} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
-                                <Image
-                                  src={badge.icon}
-                                  alt={badge.name}
-                                  width={20}
-                                  height={20}
-                                  className="object-contain"
-                                  unoptimized
-                                />
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
-                      {discordData?.primary_activity ? (
-                        <div className="flex flex-col text-[12.5px] leading-tight">
-                          <span className="font-medium text-white/90 truncate">
-                            {discordData.primary_activity.name}
-                          </span>
-                          {(discordData.primary_activity.details || discordData.primary_activity.state) && (
-                            <span className="text-[11.5px] text-white/50 truncate">
-                              {discordData.primary_activity.details || discordData.primary_activity.state}
-                            </span>
-                          )}
-                        </div>
-                      ) : discordData?.spotify ? (
-                        <div className="flex flex-col text-[12.5px] leading-tight">
-                          <span className="font-medium text-white/90 truncate">
-                            {discordData.spotify.song}
-                          </span>
-                          <span className="text-[11.5px] text-white/50 truncate">
-                            {discordData.spotify.artist}
-                          </span>
-                        </div>
-                      ) : discordData?.custom_status?.text ? (
-                        <div className="flex items-center gap-1.5 text-[12.5px] text-white/70 font-normal truncate">
-                          {discordData.custom_status.emoji?.id ? (
-                            <div className="relative w-4 h-4 shrink-0">
-                              <Image
-                                src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
-                                alt={discordData.custom_status.emoji.name || "Emoji"}
-                                fill
-                                sizes="16px"
-                                className="object-contain"
-                                unoptimized
-                              />
-                            </div>
-                          ) : discordData.custom_status.emoji?.name ? (
-                            <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
-                          ) : null}
-                          <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-[12px] text-white/40">
-                          <span>
-                            {discordData?.status === "offline"
-                              ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
-                              : discordData?.status || "offline"}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right Side: Activity / Spotify Rich Media Thumbnail */}
-                  {discordData?.primary_activity?.large_image_url ? (
-                    <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={discordData.primary_activity.large_image_url}
-                        alt=""
-                        className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  ) : discordData?.spotify?.album_art_url ? (
-                    <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={discordData.spotify.album_art_url}
-                        alt=""
-                        className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  ) : null}
-                </div>
-              )
-            ) : (
-              <div className="flex flex-col items-center justify-center text-center py-4">
+            {!isValidId ? (
+              <div className="flex flex-col items-center justify-center text-center py-4 w-full">
                 <div className="w-8 h-8 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/30 mb-2">
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
@@ -404,6 +219,199 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 <span className="text-[12.5px] text-white/40">
                   Enter a valid Discord ID to see live preview
                 </span>
+              </div>
+            ) : loadingPreview && !discordData ? (
+              /* Centered clean loader matching iuno.lol aesthetic */
+              <div className="w-full flex items-center justify-center py-6">
+                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 px-4 py-2.5 rounded-xl">
+                  <div className="w-4 h-4 border-2 border-[#609fda]/20 border-t-[#609fda] rounded-full animate-spin" />
+                  <span className="text-[12.5px] text-white/50 font-normal">
+                    Fetching Discord presence...
+                  </span>
+                </div>
+              </div>
+            ) : discordData?.in_server === false ? (
+              /* User NOT in the iuno Discord Server (Matches Haunt.gg UI) */
+              <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
+                <div className="w-14 h-14 rounded-full bg-white/[0.04] border border-white/5 shrink-0" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[14.5px] font-semibold text-white tracking-tight">
+                    Not in the server
+                  </span>
+                  <span className="text-[12px] text-white/35">
+                    This user isn&apos;t in the iuno.lol Discord.
+                  </span>
+                </div>
+              </div>
+            ) : (
+              /* User IS in the server -> Show full presence, badges & avatar */
+              <div className="w-full flex items-center justify-between gap-4 py-2 transition-all duration-200">
+                <div className="flex items-center gap-4 min-w-0">
+                  {/* Avatar + Status badge + Discord Avatar Decoration */}
+                  <div className="relative w-16 h-16 shrink-0 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full overflow-hidden bg-white/5 border border-white/10 relative shadow-md">
+                      <Image
+                        src={avatarUrl}
+                        alt="Discord avatar"
+                        fill
+                        sizes="64px"
+                        priority
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+
+                    {/* Discord Avatar Decoration preset */}
+                    {decorationUrl && (
+                      <div className="pointer-events-none absolute -inset-[7px] z-10">
+                        <Image
+                          src={decorationUrl}
+                          alt="Avatar decoration"
+                          fill
+                          sizes="78px"
+                          priority
+                          loading="eager"
+                          className="object-contain"
+                          unoptimized
+                        />
+                      </div>
+                    )}
+
+                    {/* Status Indicator Icon */}
+                    <div className="absolute bottom-0 right-0 z-20 w-4.5 h-4.5 rounded-full bg-[#0c0c0c] flex items-center justify-center">
+                      {discordData?.status === "dnd" ? (
+                        <span className="w-3.5 h-3.5 rounded-full bg-rose-500 flex items-center justify-center">
+                          <span className="w-2 h-0.5 bg-[#0c0c0c] rounded-full" />
+                        </span>
+                      ) : discordData?.status === "idle" ? (
+                        <span className="w-3.5 h-3.5 rounded-full bg-amber-500" />
+                      ) : discordData?.status === "online" ? (
+                        <span className="w-3.5 h-3.5 rounded-full bg-emerald-500" />
+                      ) : (
+                        <span className="w-3.5 h-3.5 rounded-full bg-zinc-500 flex items-center justify-center">
+                          <span className="w-1.5 h-1.5 bg-[#0c0c0c] rounded-full" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* User Details + Badges + Subtitle Status / Activity */}
+                  <div className="flex flex-col gap-1 min-w-0">
+                    {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[16px] font-normal text-white tracking-tight">
+                        {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
+                      </span>
+
+                      {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
+                      {discordData?.user?.clan?.tag && (
+                        <span className="inline-flex items-center gap-1.5 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-md text-[12px] font-medium text-white/85 tracking-tight">
+                          {discordData.user.clan.badge && (
+                            <Image
+                              src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
+                              alt="Clan badge"
+                              width={14}
+                              height={14}
+                              className="object-contain"
+                              unoptimized
+                            />
+                          )}
+                          <span>{discordData.user.clan.tag}</span>
+                        </span>
+                      )}
+
+                      {/* Discord Badges (No container wrapper) */}
+                      {userBadges.length > 0 && (
+                        <div className="flex items-center gap-1.5">
+                          {userBadges.map((badge) => (
+                            <div key={badge.name} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
+                              <Image
+                                src={badge.icon}
+                                alt={badge.name}
+                                width={20}
+                                height={20}
+                                className="object-contain"
+                                unoptimized
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
+                    {discordData?.primary_activity ? (
+                      <div className="flex flex-col text-[12.5px] leading-tight">
+                        <span className="font-medium text-white/90 truncate">
+                          {discordData.primary_activity.name}
+                        </span>
+                        {(discordData.primary_activity.details || discordData.primary_activity.state) && (
+                          <span className="text-[11.5px] text-white/50 truncate">
+                            {discordData.primary_activity.details || discordData.primary_activity.state}
+                          </span>
+                        )}
+                      </div>
+                    ) : discordData?.spotify ? (
+                      <div className="flex flex-col text-[12.5px] leading-tight">
+                        <span className="font-medium text-white/90 truncate">
+                          {discordData.spotify.song}
+                        </span>
+                        <span className="text-[11.5px] text-white/50 truncate">
+                          {discordData.spotify.artist}
+                        </span>
+                      </div>
+                    ) : discordData?.custom_status?.text ? (
+                      <div className="flex items-center gap-1.5 text-[12.5px] text-white/70 font-normal truncate">
+                        {discordData.custom_status.emoji?.id ? (
+                          <div className="relative w-4 h-4 shrink-0">
+                            <Image
+                              src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
+                              alt={discordData.custom_status.emoji.name || "Emoji"}
+                              fill
+                              sizes="16px"
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        ) : discordData.custom_status.emoji?.name ? (
+                          <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
+                        ) : null}
+                        <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-[12px] text-white/40">
+                        <span>
+                          {discordData?.status === "offline"
+                            ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
+                            : discordData?.status || "offline"}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right Side: Activity / Spotify Rich Media Thumbnail */}
+                {discordData?.primary_activity?.large_image_url ? (
+                  <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={discordData.primary_activity.large_image_url}
+                      alt=""
+                      className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ) : discordData?.spotify?.album_art_url ? (
+                  <div className="w-[72px] h-[72px] shrink-0 rounded-2xl overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={discordData.spotify.album_art_url}
+                      alt=""
+                      className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block rounded-2xl"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                ) : null}
               </div>
             )}
           </div>
