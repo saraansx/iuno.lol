@@ -141,6 +141,7 @@ export const userSettings = mysqlTable('user_settings', {
     showBadges?: boolean;
     badgeOrder?: string[];
     hiddenBadges?: string[];
+    showLastSeen?: boolean;
   }>>().default([]),
 })
 

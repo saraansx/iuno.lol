@@ -40,6 +40,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const initialShowAvatarDecoration = currentWidget?.showAvatarDecoration !== undefined ? currentWidget.showAvatarDecoration : true;
   const initialShowGuildTag = currentWidget?.showGuildTag !== undefined ? currentWidget.showGuildTag : true;
   const initialShowBadges = currentWidget?.showBadges !== undefined ? currentWidget.showBadges : true;
+  const initialShowLastSeen = currentWidget?.showLastSeen !== undefined ? currentWidget.showLastSeen : true;
   const initialBadgeOrder = currentWidget?.badgeOrder || [];
   const initialHiddenBadges = currentWidget?.hiddenBadges || [];
 
@@ -52,6 +53,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [showAvatarDecoration, setShowAvatarDecoration] = useState<boolean>(initialShowAvatarDecoration);
   const [showGuildTag, setShowGuildTag] = useState<boolean>(initialShowGuildTag);
   const [showBadges, setShowBadges] = useState<boolean>(initialShowBadges);
+  const [showLastSeen, setShowLastSeen] = useState<boolean>(initialShowLastSeen);
   const [badgeOrder, setBadgeOrder] = useState<string[]>(initialBadgeOrder);
   const [hiddenBadges, setHiddenBadges] = useState<string[]>(initialHiddenBadges);
 
@@ -86,6 +88,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     showAvatarDecoration !== initialShowAvatarDecoration ||
     showGuildTag !== initialShowGuildTag ||
     showBadges !== initialShowBadges ||
+    showLastSeen !== initialShowLastSeen ||
     isBadgeOrderChanged ||
     isHiddenBadgesChanged;
 
@@ -115,6 +118,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               showAvatarDecoration,
               showGuildTag,
               showBadges,
+              showLastSeen,
               badgeOrder,
               hiddenBadges,
             }
@@ -135,6 +139,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         showAvatarDecoration,
         showGuildTag,
         showBadges,
+        showLastSeen,
         badgeOrder,
         hiddenBadges,
       };
@@ -236,6 +241,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
       setShowAvatarDecoration(initialShowAvatarDecoration);
       setShowGuildTag(initialShowGuildTag);
       setShowBadges(initialShowBadges);
+      setShowLastSeen(initialShowLastSeen);
       setBadgeOrder(initialBadgeOrder);
       setHiddenBadges(initialHiddenBadges);
     } else {
@@ -514,7 +520,9 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         <div className="flex items-center gap-1.5 text-[12px] text-white/40">
                           <span>
                             {discordData?.status === "offline"
-                              ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
+                              ? showLastSeen
+                                ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
+                                : "offline"
                               : discordData?.status || "offline"}
                           </span>
                         </div>
@@ -594,6 +602,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
           onShowGuildTagChange={setShowGuildTag}
           showBadges={showBadges}
           onShowBadgesChange={setShowBadges}
+          showLastSeen={showLastSeen}
+          onShowLastSeenChange={setShowLastSeen}
         />
         {/* Badges & Order Customization Card (Shows when user has badges) */}
         {showBadges && userBadges.length > 0 && (

@@ -422,6 +422,7 @@ export async function updateProfileWidgets(data: {
     showBadges?: boolean;
     badgeOrder?: string[];
     hiddenBadges?: string[];
+    showLastSeen?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -477,6 +478,7 @@ export async function updateProfileWidgets(data: {
       showBadges: w.showBadges !== undefined ? Boolean(w.showBadges) : true,
       badgeOrder: Array.isArray(w.badgeOrder) ? w.badgeOrder.map(String).slice(0, 50) : undefined,
       hiddenBadges: Array.isArray(w.hiddenBadges) ? w.hiddenBadges.map(String).slice(0, 50) : undefined,
+      showLastSeen: w.showLastSeen !== undefined ? Boolean(w.showLastSeen) : true,
     };
   });
 

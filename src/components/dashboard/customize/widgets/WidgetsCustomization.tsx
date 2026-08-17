@@ -20,6 +20,7 @@ export interface WidgetItem {
   showBadges?: boolean;
   badgeOrder?: string[];
   hiddenBadges?: string[];
+  showLastSeen?: boolean;
 }
 
 interface WidgetsCustomizationProps {

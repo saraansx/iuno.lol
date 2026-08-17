@@ -7,6 +7,7 @@ import ActivityImageShapeSetting from "./settings/ActivityImageShapeSetting";
 import ShowAvatarDecorationSetting from "./settings/ShowAvatarDecorationSetting";
 import ShowGuildTagSetting from "./settings/ShowGuildTagSetting";
 import ShowBadgesSetting from "./settings/ShowBadgesSetting";
+import ShowLastSeenSetting from "./settings/ShowLastSeenSetting";
 
 interface PresenceCustomizationProps {
   imageShape: "circle" | "rounded" | "square";
@@ -23,6 +24,8 @@ interface PresenceCustomizationProps {
   onShowGuildTagChange: (val: boolean) => void;
   showBadges: boolean;
   onShowBadgesChange: (val: boolean) => void;
+  showLastSeen: boolean;
+  onShowLastSeenChange: (val: boolean) => void;
 }
 
 export default function PresenceCustomization({
@@ -40,6 +43,8 @@ export default function PresenceCustomization({
   onShowGuildTagChange,
   showBadges,
   onShowBadgesChange,
+  showLastSeen,
+  onShowLastSeenChange,
 }: PresenceCustomizationProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
@@ -81,6 +86,10 @@ export default function PresenceCustomization({
         <ShowBadgesSetting
           value={showBadges}
           onChange={onShowBadgesChange}
+        />
+        <ShowLastSeenSetting
+          value={showLastSeen}
+          onChange={onShowLastSeenChange}
         />
       </div>
     </div>
