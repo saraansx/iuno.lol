@@ -10,6 +10,18 @@ import { updateProfileWidgets } from "@/actions/profile";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import { toast } from "sonner";
 
+function formatLastSeen(timestamp?: number | null) {
+  if (!timestamp) return "last seen recently";
+  const diffSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000));
+  if (diffSeconds < 60) return "last seen just now";
+  const minutes = Math.floor(diffSeconds / 60);
+  if (minutes < 60) return `last seen ${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `last seen ${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.floor(hours / 24);
+  return `last seen ${days} day${days === 1 ? "" : "s"} ago`;
+}
+
 export default function DiscordPresenceClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -344,8 +356,12 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                           <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 text-[12px] text-white/40 capitalize">
-                          <span>{discordData?.status || "offline"}</span>
+                        <div className="flex items-center gap-1.5 text-[12px] text-white/40">
+                          <span>
+                            {discordData?.status === "offline"
+                              ? formatLastSeen(discordData?.last_seen)
+                              : discordData?.status || "offline"}
+                          </span>
                         </div>
                       )}
                     </div>

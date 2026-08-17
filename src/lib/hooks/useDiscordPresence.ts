@@ -25,6 +25,7 @@ export interface DiscordPresenceData {
     }>;
   } | null;
   status: "online" | "idle" | "dnd" | "offline";
+  last_seen?: number | null;
   custom_status?: {
     text?: string | null;
     emoji?: {

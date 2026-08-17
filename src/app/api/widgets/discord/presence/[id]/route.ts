@@ -29,6 +29,7 @@ interface PresenceResponse {
     }>;
   } | null;
   status: "online" | "idle" | "dnd" | "offline";
+  last_seen?: number | null;
   custom_status?: {
     text?: string | null;
     emoji?: {
@@ -118,6 +119,7 @@ export async function GET(
     // 2. Fetch live presence from the hosted Bot gateway worker (Zero DB / Zero Redis)
     let presenceData: {
       status?: "online" | "idle" | "dnd" | "offline";
+      last_seen?: number | null;
       custom_status?: PresenceResponse["custom_status"];
       spotify?: PresenceResponse["spotify"];
       primary_activity?: PresenceResponse["primary_activity"];
@@ -214,6 +216,7 @@ export async function GET(
         profile_badges: userProfileBadges,
       },
       status: presenceData?.status || "offline",
+      last_seen: presenceData?.last_seen || null,
       custom_status: presenceData?.custom_status || null,
       spotify: presenceData?.spotify || null,
       primary_activity: presenceData?.primary_activity || null,
