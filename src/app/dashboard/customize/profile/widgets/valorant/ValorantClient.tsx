@@ -297,7 +297,22 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                 </div>
               ) : (
                 /* Live Valorant Widget Card Preview */
-                <div className={`relative w-full ${showViewButton ? "py-3.5" : "h-[98px]"} overflow-hidden rounded-[26px] bg-[#101010]/80 backdrop-blur-md border border-white/10 shadow-md flex flex-col justify-center relative box-border`}>
+                <a
+                  href={`https://tracker.gg/valorant/profile/riot/${encodeURIComponent(valorantData.name)}%23${encodeURIComponent(valorantData.tag)}/overview`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+                >
+                  {/* Top-Right Redirect Badge */}
+                  {showViewButton && (
+                    <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 17L17 7" />
+                        <path d="M7 7h10v10" />
+                      </svg>
+                    </div>
+                  )}
+
                   {/* Background Layer */}
                   {bgImageUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -311,93 +326,74 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  <div className="px-4.5 flex flex-col gap-2.5 relative z-10 w-full">
-                    <div className="flex items-center gap-3 min-w-0 w-full">
-                      {/* Avatar Icon */}
-                      <div className="relative w-[52px] h-[52px] shrink-0 flex items-center justify-center">
-                        {avatarUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={avatarUrl}
-                            alt=""
-                            className="w-full h-full object-contain block transition-transform duration-200 hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-white/10" />
-                        )}
-                      </div>
-
-                      {/* Info + Badges */}
-                      <div className="flex flex-col gap-1 min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[15px] font-normal text-white tracking-tight truncate">
-                            {valorantData.name}
-                          </span>
-                          <span className="text-[12px] font-mono text-white/40 truncate">
-                            #{valorantData.tag}
-                          </span>
-                        </div>
-
-                        {/* Badges / Stats */}
-                        <div className="flex items-center gap-2 text-[12px] text-white/70 font-normal whitespace-nowrap overflow-hidden">
-                          {showRank && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              {rankIconUrl && (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={rankIconUrl} alt="" className="w-3.5 h-3.5 object-contain inline" />
-                              )}
-                              {rankStyle !== "icon" && (
-                                <span className="text-white/90 font-normal">
-                                  {rankData?.tier_name || "Unrated"}
-                                </span>
-                              )}
-                            </div>
-                          )}
-
-                          {showRR && rankMode === "current" && (
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/80 shrink-0">
-                                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z" />
-                              </svg>
-                              <span className="text-white/90 font-normal">
-                                {valorantData.current_rank.rr} RR
-                              </span>
-                            </div>
-                          )}
-
-                          {showLevel && (
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/80 shrink-0">
-                                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                              </svg>
-                              <span className="text-white/90 font-normal">
-                                Level {valorantData.account_level}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                  <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
+                    {/* Avatar Icon */}
+                    <div className="relative w-[60px] h-[60px] shrink-0 flex items-center justify-center">
+                      {avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={avatarUrl}
+                          alt=""
+                          className="w-full h-full object-contain block transition-transform duration-200 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-white/10" />
+                      )}
                     </div>
 
-                    {/* View Button (Below) */}
-                    {showViewButton && (
-                      <a
-                        href={`https://tracker.gg/valorant/profile/riot/${encodeURIComponent(valorantData.name)}%23${encodeURIComponent(valorantData.tag)}/overview`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full h-8 px-7 py-2.5 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-sm transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-                      >
-                        <span>View Profile</span>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                      </a>
-                    )}
+                    {/* Info + Badges */}
+                    <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                          {valorantData.name}
+                        </span>
+                        <span className="text-[12px] font-mono text-white/40 truncate">
+                          #{valorantData.tag}
+                        </span>
+                      </div>
+
+                      {/* Badges / Stats */}
+                      <div className="flex items-center gap-2.5 text-[13px] text-white/70 font-normal whitespace-nowrap overflow-hidden">
+                        {showRank && (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            {rankIconUrl && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={rankIconUrl} alt="" className="w-4 h-4 object-contain inline" />
+                            )}
+                            {rankStyle !== "icon" && (
+                              <span className="text-white/90 font-normal">
+                                {rankData?.tier_name || "Unrated"}
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {showRR && rankMode === "current" && (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/80 shrink-0">
+                              <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z" />
+                            </svg>
+                            <span className="text-white/90 font-normal">
+                              {valorantData.current_rank.rr} RR
+                            </span>
+                          </div>
+                        )}
+
+                        {showLevel && (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/80 shrink-0">
+                              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                              <circle cx="12" cy="7" r="4" />
+                            </svg>
+                            <span className="text-white/90 font-normal">
+                              Level {valorantData.account_level}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
+                </a>
               )}
             </div>
           </div>

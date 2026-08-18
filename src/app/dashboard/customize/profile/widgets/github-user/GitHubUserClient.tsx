@@ -209,10 +209,10 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                   </span>
                 </div>
               ) : loadingPreview && !userData ? (
-                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] px-4 shadow-md flex flex-col justify-center gap-2.5`}>
-                  <div className="flex items-center gap-3 min-w-0 w-full">
+                <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+                  <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                       }`}
                     />
@@ -221,7 +221,6 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                       <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
                     </div>
                   </div>
-                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
                 </div>
               ) : !userData ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
@@ -237,7 +236,22 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                 </div>
               ) : (
                 /* Live GitHub User Widget Card */
-                <div className={`relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 ${showViewButton ? "py-3.5 px-4" : "h-[98px] px-4"} flex flex-col justify-center gap-2.5 transition-all duration-200 shadow-md`}>
+                <a
+                  href={userData.html_url || `https://github.com/${encodeURIComponent(cleanUsername)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+                >
+                  {/* Top-Right Redirect Badge */}
+                  {showViewButton && (
+                    <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 17L17 7" />
+                        <path d="M7 7h10v10" />
+                      </svg>
+                    </div>
+                  )}
+
                   {/* Background Avatar Ambient Overlay */}
                   {showBackgroundOverlay && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -270,94 +284,75 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  <div className="relative z-10 flex flex-col gap-2.5 w-full">
-                    <div className="flex items-center gap-3 min-w-0 w-full">
-                      {/* Avatar */}
-                      <div
-                        className={`relative w-[52px] h-[52px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
-                          imageShape === "square"
-                            ? "rounded-none"
-                            : imageShape === "circle"
-                            ? "rounded-full"
-                            : "rounded-2xl"
-                        }`}
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={avatarUrl}
-                          alt=""
-                          className="w-full h-full object-cover block"
-                          onError={(e) => {
-                            const target = e.currentTarget;
-                            if (userData?.avatar_url && target.src !== userData.avatar_url) {
-                              target.src = userData.avatar_url;
-                            }
-                          }}
-                        />
-                      </div>
-
-                      {/* Info + Counts */}
-                      <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[15px] font-normal text-white tracking-tight truncate">
-                            {userData.name || userData.login}
-                          </span>
-                          {userData.name && (
-                            <span className="text-[12px] font-mono text-white/40 truncate">
-                              @{userData.login}
-                            </span>
-                          )}
-                        </div>
-
-                        {(showFollowers || showFollowing || showPublicRepos) && (
-                          <div className="flex items-center gap-2.5 text-[12px] text-white/60 font-normal whitespace-nowrap">
-                            {showFollowers && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-white/90 font-medium">
-                                  {Number(userData.followers || 0).toLocaleString()}
-                                </span>
-                                <span className="text-white/40">followers</span>
-                              </div>
-                            )}
-                            {showFollowing && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-white/90 font-medium">
-                                  {Number(userData.following || 0).toLocaleString()}
-                                </span>
-                                <span className="text-white/40">following</span>
-                              </div>
-                            )}
-                            {showPublicRepos && (
-                              <div className="flex items-center gap-1">
-                                <span className="text-white/90 font-medium">
-                                  {Number(userData.public_repos || 0).toLocaleString()}
-                                </span>
-                                <span className="text-white/40">repos</span>
-                              </div>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                  <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
+                    {/* Avatar */}
+                    <div
+                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                        imageShape === "square"
+                          ? "rounded-none"
+                          : imageShape === "circle"
+                          ? "rounded-full"
+                          : "rounded-2xl"
+                      }`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={avatarUrl}
+                        alt=""
+                        className="w-full h-full object-cover block"
+                        onError={(e) => {
+                          const target = e.currentTarget;
+                          if (userData?.avatar_url && target.src !== userData.avatar_url) {
+                            target.src = userData.avatar_url;
+                          }
+                        }}
+                      />
                     </div>
 
-                    {/* View Button */}
-                    {showViewButton && (
-                      <a
-                        href={userData.html_url || `https://github.com/${encodeURIComponent(cleanUsername)}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full h-8 px-7 py-2.5 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-sm transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-                      >
-                        <span>View Profile</span>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                      </a>
-                    )}
+                    {/* Info + Counts */}
+                    <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                          {userData.name || userData.login}
+                        </span>
+                        {userData.name && (
+                          <span className="text-[12px] font-mono text-white/40 truncate">
+                            @{userData.login}
+                          </span>
+                        )}
+                      </div>
+
+                      {(showFollowers || showFollowing || showPublicRepos) && (
+                        <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap">
+                          {showFollowers && (
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-white/90 font-medium">
+                                {Number(userData.followers || 0).toLocaleString()}
+                              </span>
+                              <span className="text-white/40">followers</span>
+                            </div>
+                          )}
+                          {showFollowing && (
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-white/90 font-medium">
+                                {Number(userData.following || 0).toLocaleString()}
+                              </span>
+                              <span className="text-white/40">following</span>
+                            </div>
+                          )}
+                          {showPublicRepos && (
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-white/90 font-medium">
+                                {Number(userData.public_repos || 0).toLocaleString()}
+                              </span>
+                              <span className="text-white/40">repos</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </a>
               )}
             </div>
           </div>

@@ -226,7 +226,22 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                 </div>
               ) : (
                 /* Live Pinterest Board Widget Card */
-                <div className={`relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 ${showViewButton ? "py-3.5 px-4" : "h-[98px] px-4"} flex flex-col justify-center gap-2.5 transition-all duration-200 shadow-md`}>
+                <a
+                  href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+                >
+                  {/* Top-Right Redirect Badge */}
+                  {showViewButton && (
+                    <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 17L17 7" />
+                        <path d="M7 7h10v10" />
+                      </svg>
+                    </div>
+                  )}
+
                   {/* Blurred Background Layer */}
                   {showBackgroundOverlay && bgImageUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -240,69 +255,50 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                     </div>
                   )}
 
-                  <div className="relative z-10 flex flex-col gap-2.5 w-full">
-                    <div className="flex items-center gap-3 min-w-0 w-full">
-                      {/* Cover / Pin Image */}
-                      <div
-                        className={`relative w-[52px] h-[52px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
-                          imageShape === "square"
-                            ? "rounded-none"
-                            : imageShape === "circle"
-                            ? "rounded-full"
-                            : "rounded-2xl"
-                        }`}
-                      >
-                        {coverUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={coverUrl}
-                            alt=""
-                            className="w-full h-full object-cover block"
-                          />
-                        ) : (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="#e60023">
-                            <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
-                          </svg>
-                        )}
-                      </div>
-
-                      {/* Info + Counts */}
-                      <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[15px] font-normal text-white tracking-tight truncate">
-                            {boardData.name}
-                          </span>
-                        </div>
-
-                        {showPinCount && (
-                          <div className="flex items-center gap-1 text-[12px] text-white/60 font-normal">
-                            <span className="text-white/90 font-medium">
-                              {Number(boardData.pin_count || 0).toLocaleString()}+
-                            </span>
-                            <span className="text-white/40">pins</span>
-                          </div>
-                        )}
-                      </div>
+                  <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
+                    {/* Cover / Pin Image */}
+                    <div
+                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                        imageShape === "square"
+                          ? "rounded-none"
+                          : imageShape === "circle"
+                          ? "rounded-full"
+                          : "rounded-2xl"
+                      }`}
+                    >
+                      {coverUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={coverUrl}
+                          alt=""
+                          className="w-full h-full object-cover block"
+                        />
+                      ) : (
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#e60023">
+                          <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
+                        </svg>
+                      )}
                     </div>
 
-                    {/* View Button */}
-                    {showViewButton && (
-                      <a
-                        href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full h-8 px-7 py-2.5 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-sm transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-                      >
-                        <span>View Board</span>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                          <polyline points="15 3 21 3 21 9" />
-                          <line x1="10" y1="14" x2="21" y2="3" />
-                        </svg>
-                      </a>
-                    )}
+                    {/* Info + Counts */}
+                    <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                          {boardData.name}
+                        </span>
+                      </div>
+
+                      {showPinCount && (
+                        <div className="flex items-center gap-1 text-[13px] text-white/60 font-normal">
+                          <span className="text-white/90 font-medium">
+                            {Number(boardData.pin_count || 0).toLocaleString()}+
+                          </span>
+                          <span className="text-white/40">pins</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </a>
               )}
             </div>
           </div>

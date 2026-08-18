@@ -59,11 +59,11 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
 
   if (loading || !discordData) {
     return (
-      <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 shadow-md flex flex-col justify-center gap-2.5 box-border`}>
-        <div className="flex items-center gap-3 min-w-0 w-full">
+      <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+        <div className="flex items-center gap-3.5 min-w-0 w-full">
           {/* Avatar Skeleton */}
           <div
-            className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -73,7 +73,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
           </div>
         </div>
-        {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
       </div>
     );
   }
@@ -132,7 +131,22 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         </div>
       )}
 
-      <div className={`w-full ${showViewButton ? "h-[116px] p-3.5" : "h-[88px] px-3.5 py-3"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[22px] shadow-md flex flex-col justify-between transition-all duration-200 hover:border-white/20 box-border relative overflow-hidden`}>
+      <a
+        href={`https://discord.com/users/${widget.targetId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 box-border relative overflow-hidden cursor-pointer"
+      >
+        {/* Top-Right Redirect Badge */}
+        {showViewButton && (
+          <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 17L17 7" />
+              <path d="M7 7h10v10" />
+            </svg>
+          </div>
+        )}
+
         {/* Right Half Blended Activity / Spotify / Avatar Background */}
         {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ? (
           <div
@@ -162,20 +176,20 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between gap-3 min-w-0 w-full relative z-10">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
+        <div className="flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
+          <div className="flex items-center gap-3.5 min-w-0 flex-1">
             {/* Avatar */}
             <div className="relative shrink-0 flex items-center justify-center">
               <div
-                className={`relative w-11 h-11 overflow-hidden bg-[#181818] border border-white/10 ${
-                  imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-xl"
+                className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border border-white/10 ${
+                  imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                 }`}
               >
                 <Image
                   src={avatarUrl}
                   alt=""
                   fill
-                  sizes="44px"
+                  sizes="60px"
                   priority
                   className="object-cover"
                   unoptimized
@@ -183,19 +197,19 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
               </div>
 
               {/* Status Indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 z-20 w-3.5 h-3.5 rounded-full bg-[#101010] flex items-center justify-center">
+              <div className="absolute -bottom-0.5 -right-0.5 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
                 {discordData?.status === "dnd" ? (
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#f23f43] flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-[#f23f43] flex items-center justify-center">
                     <span className="w-1.5 h-0.5 bg-[#101010] rounded-full" />
                   </span>
                 ) : discordData?.status === "idle" ? (
-                  <span className="relative w-2.5 h-2.5 rounded-full bg-[#f0b232] flex items-center justify-center overflow-hidden">
-                    <span className="absolute -top-0.5 -left-0.5 w-1 h-1 rounded-full bg-[#101010]" />
+                  <span className="relative w-3 h-3 rounded-full bg-[#f0b232] flex items-center justify-center overflow-hidden">
+                    <span className="absolute -top-0.5 -left-0.5 w-1.5 h-1.5 rounded-full bg-[#101010]" />
                   </span>
                 ) : discordData?.status === "online" ? (
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#23a55a]" />
+                  <span className="w-3 h-3 rounded-full bg-[#23a55a]" />
                 ) : (
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#80848e] flex items-center justify-center">
+                  <span className="w-3 h-3 rounded-full bg-[#80848e] flex items-center justify-center">
                     <span className="w-1 h-1 bg-[#101010] rounded-full" />
                   </span>
                 )}
@@ -203,12 +217,12 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
 
               {/* Avatar Decoration */}
               {showAvatarDecoration && discordData?.user?.avatar_decoration_data?.asset && (
-                <div className="absolute -inset-1.5 pointer-events-none z-10 flex items-center justify-center">
+                <div className="absolute -inset-2.5 pointer-events-none z-10 flex items-center justify-center">
                   <Image
                     src={`https://cdn.discordapp.com/avatar-decoration-presets/${discordData.user.avatar_decoration_data.asset}.png`}
                     alt=""
-                    width={56}
-                    height={56}
+                    width={74}
+                    height={74}
                     className="object-contain"
                     unoptimized
                   />
@@ -217,21 +231,21 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             </div>
 
             {/* User Info */}
-            <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
-              {/* Header Row: Auto-scrolls ping-pong ONLY when content overflows */}
+            <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+              {/* Header Row */}
               <OverflowPingPong deps={[discordData, showGuildTag, showBadges]}>
-                <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
+                <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
                   {discordData?.user?.username || (loading ? "Loading..." : "Discord User")}
                 </span>
 
                 {showGuildTag && discordData?.user?.clan?.tag && (
-                  <span className="inline-flex items-center gap-1 bg-white/[0.07] border border-white/10 px-1.5 py-0.5 rounded-[5px] text-[11px] font-normal leading-none text-white/85 shrink-0 ml-1.5">
+                  <span className="inline-flex items-center gap-1 bg-white/[0.07] border border-white/10 px-1.5 py-0.5 rounded-[5px] text-[11.5px] font-normal leading-none text-white/85 shrink-0 ml-1.5">
                     {discordData.user.clan.badge && (
                       <Image
                         src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
                         alt=""
-                        width={12}
-                        height={12}
+                        width={13}
+                        height={13}
                         className="object-contain"
                         unoptimized
                       />
@@ -270,54 +284,54 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                 )}
               </OverflowPingPong>
 
-              {/* Activity / Status with ping-pong overflow scroll */}
+              {/* Activity / Status */}
               <OverflowPingPong deps={[discordData, showActivity, fallbackText]}>
                 {!showActivity ? (
                   fallbackText ? (
-                    <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
+                    <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
                   ) : null
                 ) : discordData?.primary_activity ? (
-                  <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
                     <span className="text-white/85">
                       {discordData.primary_activity.name}
                     </span>
                     {(discordData.primary_activity.details || discordData.primary_activity.state) && (
-                      <span className="text-[11px] text-white/50">
+                      <span className="text-[12px] text-white/50">
                         • {discordData.primary_activity.details || discordData.primary_activity.state}
                       </span>
                     )}
                   </div>
                 ) : discordData?.spotify ? (
-                  <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
                     <span className="text-white/85">
                       {discordData.spotify.song}
                     </span>
                     {discordData.spotify.artist && (
-                      <span className="text-[11px] text-white/50">
+                      <span className="text-[12px] text-white/50">
                         • {discordData.spotify.artist}
                       </span>
                     )}
                   </div>
                 ) : discordData?.custom_status?.text ? (
-                  <div className="flex items-center gap-1.5 text-[12px] text-white/70 font-normal shrink-0 whitespace-nowrap">
+                  <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal shrink-0 whitespace-nowrap">
                     {discordData.custom_status.emoji?.id ? (
-                      <div className="relative w-3.5 h-3.5 shrink-0">
+                      <div className="relative w-4 h-4 shrink-0">
                         <Image
                           src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
                           alt=""
                           fill
-                          sizes="14px"
+                          sizes="16px"
                           className="object-contain"
                           unoptimized
                         />
                       </div>
                     ) : discordData.custom_status.emoji?.name ? (
-                      <span className="text-[12px]">{discordData.custom_status.emoji.name}</span>
+                      <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
                     ) : null}
                     <span>{discordData.custom_status.text}</span>
                   </div>
                 ) : (
-                  <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">
+                  <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">
                     {discordData?.status === "offline"
                       ? showLastSeen
                         ? formatLastSeen(discordData?.last_seen)
@@ -329,24 +343,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             </div>
           </div>
         </div>
-
-        {/* View Profile Button (Below) */}
-        {showViewButton && (
-          <a
-            href={`https://discord.com/users/${widget.targetId}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full h-7.5 px-3 py-1 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-[13px] transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer relative z-10"
-          >
-            <span>View Profile</span>
-            <svg width="10.5" height="10.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </a>
-        )}
-      </div>
+      </a>
     </>
   );
 }

@@ -110,10 +110,10 @@ export function useDiscordPresence(id: string, poll = true) {
       };
     }
 
-    // Realtime polling: 2 seconds interval
+    // Realtime polling: 5 seconds interval
     const interval = setInterval(() => {
       fetchPresence(false);
-    }, 2000);
+    }, 5000);
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {

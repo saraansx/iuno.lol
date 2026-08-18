@@ -45,10 +45,10 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
 
   if (loading || !repoData) {
     return (
-      <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 shadow-md flex flex-col justify-center gap-2.5 box-border`}>
-        <div className="flex items-center gap-3 min-w-0 w-full">
+      <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+        <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -57,7 +57,6 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
             <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
           </div>
         </div>
-        {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
       </div>
     );
   }
@@ -65,7 +64,22 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
   const langColor = repoData.language ? LANGUAGE_COLORS[repoData.language] || "#609fda" : "#609fda";
 
   return (
-    <div className={`w-full ${showViewButton ? "h-[116px] p-3.5" : "h-[88px] px-3.5 py-3"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[22px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 flex flex-col justify-between relative box-border`}>
+    <a
+      href={repoData.html_url || `https://github.com/${encodeURIComponent(cleanRepo)}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+    >
+      {/* Top-Right Redirect Badge */}
+      {showViewButton && (
+        <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M7 17L17 7" />
+            <path d="M7 7h10v10" />
+          </svg>
+        </div>
+      )}
+
       {/* Background Avatar Ambient Overlay */}
       {showBackgroundOverlay && ownerName && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -79,120 +93,101 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
         </div>
       )}
 
-      <div className="flex flex-col justify-between h-full relative z-10 w-full">
-        <div className="flex items-center gap-3 min-w-0 w-full">
-          {/* Owner / Repo Icon */}
-          <div
-            className={`relative w-11 h-11 shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
-              imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-xl"
-            }`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
-              alt=""
-              className="w-full h-full object-cover block"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (repoData?.owner?.avatar_url && target.src !== repoData.owner.avatar_url) {
-                  target.src = repoData.owner.avatar_url;
-                }
-              }}
-            />
-          </div>
-
-          {/* Repo Info & Stats */}
-          <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
-            {/* Repo Name with ping-pong overflow scroll */}
-            <OverflowPingPong deps={[repoData, repoData?.name, repoData?.full_name]}>
-              <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
-                {repoData.full_name || cleanRepo}
-              </span>
-            </OverflowPingPong>
-
-            {/* Stats Row */}
-            {(showStars || showForks || showWatchers || showOpenIssues || (showPrimaryLanguage && repoData.language)) && (
-              <OverflowPingPong deps={[repoData, showStars, showForks, showWatchers, showOpenIssues, showPrimaryLanguage]}>
-                <div className="flex items-center gap-2 text-[12px] text-white/60 font-normal whitespace-nowrap shrink-0">
-                  {showPrimaryLanguage && repoData.language && (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: langColor }} />
-                      <span className="text-white/80">{repoData.language}</span>
-                    </div>
-                  )}
-
-                  {showStars && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" className="text-amber-400">
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                      <span className="text-white/90 font-medium">
-                        {Number(repoData.stargazers_count || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-
-                  {showForks && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                        <line x1="6" y1="3" x2="6" y2="15" />
-                        <circle cx="18" cy="6" r="3" />
-                        <circle cx="6" cy="18" r="3" />
-                        <path d="M18 9a9 9 0 0 1-9 9" />
-                      </svg>
-                      <span className="text-white/90 font-medium">
-                        {Number(repoData.forks_count || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-
-                  {showWatchers && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
-                      <span className="text-white/90 font-medium">
-                        {Number(repoData.subscribers_count || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-
-                  {showOpenIssues && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="8" x2="12" y2="12" />
-                        <line x1="12" y1="16" x2="12.01" y2="16" />
-                      </svg>
-                      <span className="text-white/90 font-medium">
-                        {Number(repoData.open_issues_count || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </OverflowPingPong>
-            )}
-          </div>
+      <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
+        {/* Owner / Repo Icon */}
+        <div
+          className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+            imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
+          }`}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
+            alt=""
+            className="w-full h-full object-cover block"
+            onError={(e) => {
+              const target = e.currentTarget;
+              if (repoData?.owner?.avatar_url && target.src !== repoData.owner.avatar_url) {
+                target.src = repoData.owner.avatar_url;
+              }
+            }}
+          />
         </div>
 
-        {/* View Repo Button (Below) */}
-        {showViewButton && (
-          <a
-            href={repoData.html_url || `https://github.com/${encodeURIComponent(cleanRepo)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full h-7.5 px-3 py-1 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-[13px] transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
-          >
-            <span>View Repository</span>
-            <svg width="10.5" height="10.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-              <polyline points="15 3 21 3 21 9" />
-              <line x1="10" y1="14" x2="21" y2="3" />
-            </svg>
-          </a>
-        )}
+        {/* Repo Info & Stats */}
+        <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+          {/* Repo Name with ping-pong overflow scroll */}
+          <OverflowPingPong deps={[repoData, repoData?.name, repoData?.full_name]}>
+            <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
+              {repoData.full_name || cleanRepo}
+            </span>
+          </OverflowPingPong>
+
+          {/* Stats Row */}
+          {(showStars || showForks || showWatchers || showOpenIssues || (showPrimaryLanguage && repoData.language)) && (
+            <OverflowPingPong deps={[repoData, showStars, showForks, showWatchers, showOpenIssues, showPrimaryLanguage]}>
+              <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap shrink-0">
+                {showPrimaryLanguage && repoData.language && (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: langColor }} />
+                    <span className="text-white/80">{repoData.language}</span>
+                  </div>
+                )}
+
+                {showStars && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-amber-400">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                    <span className="text-white/90 font-medium">
+                      {Number(repoData.stargazers_count || 0).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {showForks && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+                      <line x1="6" y1="3" x2="6" y2="15" />
+                      <circle cx="18" cy="6" r="3" />
+                      <circle cx="6" cy="18" r="3" />
+                      <path d="M18 9a9 9 0 0 1-9 9" />
+                    </svg>
+                    <span className="text-white/90 font-medium">
+                      {Number(repoData.forks_count || 0).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {showWatchers && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span className="text-white/90 font-medium">
+                      {Number(repoData.subscribers_count || 0).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+
+                {showOpenIssues && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span className="text-white/90 font-medium">
+                      {Number(repoData.open_issues_count || 0).toLocaleString()}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </OverflowPingPong>
+          )}
+        </div>
       </div>
-    </div>
+    </a>
   );
 }

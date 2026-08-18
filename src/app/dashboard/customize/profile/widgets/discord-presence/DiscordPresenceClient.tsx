@@ -388,10 +388,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 </div>
               ) : loadingPreview && !discordData ? (
                 /* Static dark glass skeleton loader matching widget shape */
-                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 shadow-md flex flex-col justify-center gap-2.5 box-border`}>
-                  <div className="flex items-center gap-3 min-w-0 w-full">
+                <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+                  <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "rounded"
@@ -404,7 +404,6 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
                     </div>
                   </div>
-                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
                 </div>
               ) : discordData?.in_server === false ? (
                 /* User NOT in the iuno Discord Server (Matches Haunt.gg UI) */
@@ -421,7 +420,22 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 </div>
               ) : (
                 /* User IS in the server -> Show full presence, badges & avatar */
-                <div className={`relative w-full overflow-hidden rounded-[26px] bg-[#101010]/80 backdrop-blur-md border border-white/10 px-4.5 ${showViewButton ? "py-3.5" : "h-[98px]"} flex flex-col justify-center gap-2.5 transition-all duration-200 shadow-md box-border`}>
+                <a
+                  href={`https://discord.com/users/${discordId || user?.discordId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 box-border relative overflow-hidden cursor-pointer"
+                >
+                  {/* Top-Right Redirect Badge */}
+                  {showViewButton && (
+                    <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M7 17L17 7" />
+                        <path d="M7 7h10v10" />
+                      </svg>
+                    </div>
+                  )}
+
                   {/* Right Half Blended Activity / Spotify / Avatar Background */}
                   {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ? (
                     <div
@@ -451,12 +465,12 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                     </div>
                   ) : null}
 
-                  <div className="relative z-10 flex items-center justify-between gap-3 min-w-0 w-full">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
+                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
                       {/* Avatar + Status badge + Discord Avatar Decoration */}
                       <div className="relative shrink-0 flex items-center justify-center">
                         <div
-                          className={`w-[52px] h-[52px] overflow-hidden bg-[#181818] border border-white/10 relative shadow-md ${
+                          className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border border-white/10 shadow-md ${
                             imageShape === "square"
                               ? "rounded-none"
                               : imageShape === "rounded"
@@ -468,31 +482,15 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             src={avatarUrl}
                             alt="Discord avatar"
                             fill
-                            sizes="52px"
+                            sizes="60px"
                             priority
                             className="object-cover"
                             unoptimized
                           />
                         </div>
 
-                        {/* Discord Avatar Decoration preset */}
-                        {showAvatarDecoration && decorationUrl && (
-                          <div className="pointer-events-none absolute -inset-2 z-10 flex items-center justify-center">
-                            <Image
-                              src={decorationUrl}
-                              alt="Avatar decoration"
-                              width={64}
-                              height={64}
-                              priority
-                              loading="eager"
-                              className="object-contain"
-                              unoptimized
-                            />
-                          </div>
-                        )}
-
                         {/* Status Indicator Icon */}
-                        <div className="absolute bottom-0 right-0 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
+                        <div className="absolute -bottom-0.5 -right-0.5 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
                           {discordData?.status === "dnd" ? (
                             <span className="w-3 h-3 rounded-full bg-[#f23f43] flex items-center justify-center">
                               <span className="w-1.5 h-0.5 bg-[#101010] rounded-full" />
@@ -505,29 +503,45 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             <span className="w-3 h-3 rounded-full bg-[#23a55a]" />
                           ) : (
                             <span className="w-3 h-3 rounded-full bg-[#80848e] flex items-center justify-center">
-                              <span className="w-1.5 h-1.5 bg-[#101010] rounded-full" />
+                              <span className="w-1 h-1 bg-[#101010] rounded-full" />
                             </span>
                           )}
                         </div>
+
+                        {/* Discord Avatar Decoration preset */}
+                        {showAvatarDecoration && decorationUrl && (
+                          <div className="pointer-events-none absolute -inset-2.5 z-10 flex items-center justify-center">
+                            <Image
+                              src={decorationUrl}
+                              alt="Avatar decoration"
+                              width={74}
+                              height={74}
+                              priority
+                              loading="eager"
+                              className="object-contain"
+                              unoptimized
+                            />
+                          </div>
+                        )}
                       </div>
 
                       {/* User Details + Badges + Subtitle Status / Activity */}
                       <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                         {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[16px] font-normal text-white/95 tracking-tight">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
                             {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
                           </span>
 
                           {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
                           {showGuildTag && discordData?.user?.clan?.tag && (
-                            <span className="inline-flex items-center gap-1.5 bg-white/[0.07] border border-white/10 px-2 py-1 rounded-[6px] text-[12px] font-normal leading-none text-white/85 shrink-0 ml-2">
+                            <span className="inline-flex items-center gap-1 bg-white/[0.07] border border-white/10 px-1.5 py-0.5 rounded-[5px] text-[11.5px] font-normal leading-none text-white/85 shrink-0 ml-1">
                               {discordData.user.clan.badge && (
                                 <Image
                                   src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
                                   alt="Clan badge"
-                                  width={14}
-                                  height={14}
+                                  width={13}
+                                  height={13}
                                   className="object-contain"
                                   unoptimized
                                 />
@@ -536,13 +550,13 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             </span>
                           )}
 
-                          {/* Discord Badges (No container wrapper) */}
+                          {/* Discord Badges */}
                           {showBadges && previewBadges.length > 0 && (
-                            <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                            <div className="flex items-center gap-1 shrink-0 ml-1">
                               {previewBadges.map((badge) => (
                                 <div
                                   key={badge.id}
-                                  className="relative w-5 h-5 flex items-center justify-center shrink-0 cursor-pointer"
+                                  className="relative w-4 h-4 flex items-center justify-center shrink-0 cursor-pointer"
                                   onMouseEnter={(e) => {
                                     const rect = e.currentTarget.getBoundingClientRect();
                                     setHoveredBadge({
@@ -556,8 +570,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                                   <Image
                                     src={badge.icon}
                                     alt={badge.name}
-                                    width={20}
-                                    height={20}
+                                    width={16}
+                                    height={16}
                                     className="object-contain pointer-events-none"
                                     unoptimized
                                   />
@@ -570,10 +584,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
                         {!showActivity ? (
                           fallbackText ? (
-                            <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
+                            <span className="text-[13px] font-normal text-white/40 truncate">{fallbackText}</span>
                           ) : null
                         ) : discordData?.primary_activity ? (
-                          <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight truncate">
                             <span className="text-white/85">
                               {discordData.primary_activity.name}
                             </span>
@@ -584,23 +598,25 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             )}
                           </div>
                         ) : discordData?.spotify ? (
-                          <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight truncate">
                             <span className="text-white/85">
                               {discordData.spotify.song}
                             </span>
-                            <span className="text-[12px] text-white/50">
-                              • {discordData.spotify.artist}
-                            </span>
+                            {discordData.spotify.artist && (
+                              <span className="text-[12px] text-white/50">
+                                • {discordData.spotify.artist}
+                              </span>
+                            )}
                           </div>
                         ) : discordData?.custom_status?.text ? (
-                          <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal shrink-0 whitespace-nowrap">
+                          <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal truncate">
                             {discordData.custom_status.emoji?.id ? (
-                              <div className="relative w-4.5 h-4.5 shrink-0">
+                              <div className="relative w-4 h-4 shrink-0">
                                 <Image
                                   src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
-                                  alt={discordData.custom_status.emoji.name || "Emoji"}
+                                  alt=""
                                   fill
-                                  sizes="18px"
+                                  sizes="16px"
                                   className="object-contain"
                                   unoptimized
                                 />
@@ -608,13 +624,13 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             ) : discordData.custom_status.emoji?.name ? (
                               <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
                             ) : null}
-                            <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
+                            <span>{discordData.custom_status.text}</span>
                           </div>
                         ) : (
-                          <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">
+                          <span className="text-[13px] font-normal text-white/40 truncate">
                             {discordData?.status === "offline"
                               ? showLastSeen
-                                ? formatLastSeen(discordData?.last_seen, mountTimeRef.current)
+                                ? formatLastSeen(discordData?.last_seen)
                                 : "offline"
                               : discordData?.status || "offline"}
                           </span>
@@ -622,24 +638,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       </div>
                     </div>
                   </div>
-
-                  {/* View Profile Button (Below) */}
-                  {showViewButton && (
-                    <a
-                      href={`https://discord.com/users/${effectiveId}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full h-8 px-7 py-2.5 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-sm transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer relative z-10"
-                    >
-                      <span>View Profile</span>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                        <polyline points="15 3 21 3 21 9" />
-                        <line x1="10" y1="14" x2="21" y2="3" />
-                      </svg>
-                    </a>
-                  )}
-                </div>
+                </a>
               )}
             </div>
           </div>

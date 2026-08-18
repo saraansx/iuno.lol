@@ -6,6 +6,7 @@ import ShowMemberCountSetting from "./settings/ShowMemberCountSetting";
 import ShowOnlineCountSetting from "./settings/ShowOnlineCountSetting";
 import ShowBannerSetting from "./settings/ShowBannerSetting";
 import ShowBackgroundOverlaySetting from "./settings/ShowBackgroundOverlaySetting";
+import ShowViewButtonSetting from "../discord-presence/settings/ShowViewButtonSetting";
 
 interface ServerCustomizationProps {
   placement: "inside" | "outside";
@@ -20,6 +21,8 @@ interface ServerCustomizationProps {
   onShowBannerChange: (val: boolean) => void;
   showBackgroundOverlay: boolean;
   onShowBackgroundOverlayChange: (val: boolean) => void;
+  showViewButton: boolean;
+  onShowViewButtonChange: (val: boolean) => void;
 }
 
 export default function ServerCustomization({
@@ -35,6 +38,8 @@ export default function ServerCustomization({
   onShowBannerChange,
   showBackgroundOverlay,
   onShowBackgroundOverlayChange,
+  showViewButton,
+  onShowViewButtonChange,
 }: ServerCustomizationProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
@@ -71,6 +76,10 @@ export default function ServerCustomization({
         <ShowBackgroundOverlaySetting
           value={showBackgroundOverlay}
           onChange={onShowBackgroundOverlayChange}
+        />
+        <ShowViewButtonSetting
+          value={showViewButton}
+          onChange={onShowViewButtonChange}
         />
       </div>
     </div>
