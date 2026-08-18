@@ -110,7 +110,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Title with pingpong overflow scroll */}
           <OverflowPingPong deps={[serverData, guild?.name]}>
-            <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
+            <span className="text-[15px] font-normal text-white tracking-tight shrink-0">
               {guild?.name || (loading ? "Loading..." : "Discord Server")}
             </span>
           </OverflowPingPong>

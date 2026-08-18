@@ -298,7 +298,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                     {/* Server Info + Stats */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                        <span className="text-[15px] font-normal text-white tracking-tight truncate">
                           {guild.name}
                         </span>
                       </div>

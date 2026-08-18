@@ -529,19 +529,19 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                         {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                          <span className="text-[15px] font-normal text-white tracking-tight truncate">
                             {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
                           </span>
 
                           {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
                           {showGuildTag && discordData?.user?.clan?.tag && (
-                            <span className="inline-flex items-center gap-1 bg-white/[0.07] border border-white/10 px-1.5 py-0.5 rounded-[5px] text-[11.5px] font-normal leading-none text-white/85 shrink-0 ml-1">
+                            <span className="inline-flex items-center gap-1.5 bg-white/[0.08] border border-white/10 px-2 py-0.5 rounded-[6px] text-[12.5px] font-medium leading-none text-white/90 shrink-0 ml-1.5">
                               {discordData.user.clan.badge && (
                                 <Image
                                   src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
                                   alt="Clan badge"
-                                  width={13}
-                                  height={13}
+                                  width={15}
+                                  height={15}
                                   className="object-contain"
                                   unoptimized
                                 />
@@ -552,11 +552,11 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
                           {/* Discord Badges */}
                           {showBadges && previewBadges.length > 0 && (
-                            <div className="flex items-center gap-1 shrink-0 ml-1">
+                            <div className="flex items-center gap-1.5 shrink-0 ml-1.5">
                               {previewBadges.map((badge) => (
                                 <div
                                   key={badge.id}
-                                  className="relative w-4 h-4 flex items-center justify-center shrink-0 cursor-pointer"
+                                  className="relative w-[18px] h-[18px] flex items-center justify-center shrink-0 cursor-pointer"
                                   onMouseEnter={(e) => {
                                     const rect = e.currentTarget.getBoundingClientRect();
                                     setHoveredBadge({
@@ -570,8 +570,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                                   <Image
                                     src={badge.icon}
                                     alt={badge.name}
-                                    width={16}
-                                    height={16}
+                                    width={18}
+                                    height={18}
                                     className="object-contain pointer-events-none"
                                     unoptimized
                                   />
