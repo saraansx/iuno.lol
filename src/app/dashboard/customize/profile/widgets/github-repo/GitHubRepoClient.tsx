@@ -374,7 +374,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
                           href={repoData.html_url || `https://github.com/${encodeURIComponent(cleanRepo)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-black hover:bg-white/90 rounded-full text-[12px] font-medium transition-colors shadow-sm shrink-0"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#609fda]/20 hover:bg-[#609fda]/30 border border-[#609fda]/30 rounded-xl text-[12px] font-medium text-white transition-all duration-150 shadow-[0_0_12px_rgba(96,159,218,0.15)] shrink-0"
                         >
                           <span>View</span>
                           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

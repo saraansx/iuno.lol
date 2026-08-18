@@ -163,7 +163,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
             href={userData.html_url || `https://github.com/${encodeURIComponent(cleanUsername)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-[12px] font-medium text-white transition-colors flex items-center gap-1.5"
+            className="shrink-0 px-3 py-1.5 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 border border-[#609fda]/30 text-[12px] font-medium text-white transition-all duration-150 flex items-center gap-1.5 shadow-[0_0_12px_rgba(96,159,218,0.15)]"
           >
             <span>View</span>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
