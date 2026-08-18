@@ -7,6 +7,7 @@ import GitHubUserWidget from "./GitHubUserWidget";
 import GitHubRepoWidget from "./GitHubRepoWidget";
 import PinterestProfileWidget from "./PinterestProfileWidget";
 import PinterestBoardWidget from "./PinterestBoardWidget";
+import ValorantWidget from "./ValorantWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -26,6 +27,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "pinterest-board") {
     return <PinterestBoardWidget widget={w} />;
+  }
+  if (w.type === "valorant-profile" || w.platform === "valorant") {
+    return <ValorantWidget widget={w} />;
   }
   return null;
 }

@@ -441,6 +441,14 @@ export async function updateProfileWidgets(data: {
     showPrimaryLanguage?: boolean;
     showPinCount?: boolean;
     imageBackground?: boolean;
+    valorantRankMode?: "current" | "highest";
+    valorantAvatar?: "rank-icon" | "last-agent";
+    valorantBackground?: "none" | "player-card" | "last-map";
+    valorantMatchSource?: "any" | "competitive";
+    showRank?: boolean;
+    valorantRankStyle?: "name" | "icon";
+    showRR?: boolean;
+    showLevel?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -460,13 +468,14 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
   let githubRepoCount = 0;
   let pinterestProfileCount = 0;
   let pinterestBoardCount = 0;
+  let valorantCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -479,6 +488,8 @@ export async function updateProfileWidgets(data: {
         ? "pinterest-profile"
         : w.type === "pinterest-board" || w.type === "board"
         ? "pinterest-board"
+        : w.type === "valorant-profile" || w.platform === "valorant"
+        ? "valorant-profile"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -486,6 +497,7 @@ export async function updateProfileWidgets(data: {
     if (type === "github-repo") githubRepoCount++;
     if (type === "pinterest-profile") pinterestProfileCount++;
     if (type === "pinterest-board") pinterestBoardCount++;
+    if (type === "valorant-profile") valorantCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -505,9 +517,19 @@ export async function updateProfileWidgets(data: {
   if (pinterestBoardCount > 1) {
     throw new Error("You can only add 1 Pinterest Board widget.");
   }
+  if (valorantCount > 1) {
+    throw new Error("You can only add 1 Valorant Profile widget.");
+  }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
-    const platform = w.platform === "github" ? "github" : w.platform === "pinterest" ? "pinterest" : "discord";
+    const platform =
+      w.platform === "github"
+        ? "github"
+        : w.platform === "pinterest"
+        ? "pinterest"
+        : w.platform === "valorant"
+        ? "valorant"
+        : "discord";
     const type =
       w.type === "server"
         ? "server"
@@ -519,6 +541,8 @@ export async function updateProfileWidgets(data: {
         ? "pinterest-profile"
         : w.type === "pinterest-board" || w.type === "board"
         ? "pinterest-board"
+        : w.type === "valorant-profile" || w.platform === "valorant"
+        ? "valorant-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -565,6 +589,11 @@ export async function updateProfileWidgets(data: {
           throw new Error("Invalid Pinterest username format");
         }
       }
+    } else if (platform === "valorant") {
+      targetId = String(w.targetId || "").trim().slice(0, 30);
+      if (!/^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(targetId)) {
+        throw new Error("Invalid Riot ID format (name#tag)");
+      }
     }
 
     const imageShape: "circle" | "rounded" | "square" =
@@ -609,6 +638,17 @@ export async function updateProfileWidgets(data: {
       showPrimaryLanguage: w.showPrimaryLanguage !== undefined ? Boolean(w.showPrimaryLanguage) : true,
       showPinCount: w.showPinCount !== undefined ? Boolean(w.showPinCount) : true,
       imageBackground: w.imageBackground !== undefined ? Boolean(w.imageBackground) : true,
+      valorantRankMode: w.valorantRankMode === "highest" ? "highest" : "current",
+      valorantAvatar: w.valorantAvatar === "last-agent" ? "last-agent" : "rank-icon",
+      valorantBackground:
+        w.valorantBackground === "none" || w.valorantBackground === "player-card"
+          ? w.valorantBackground
+          : "last-map",
+      valorantMatchSource: w.valorantMatchSource === "any" ? "any" : "competitive",
+      showRank: w.showRank !== undefined ? Boolean(w.showRank) : true,
+      valorantRankStyle: w.valorantRankStyle === "icon" ? "icon" : "name",
+      showRR: w.showRR !== undefined ? Boolean(w.showRR) : true,
+      showLevel: w.showLevel !== undefined ? Boolean(w.showLevel) : true,
     };
   });
 

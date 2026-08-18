@@ -15,6 +15,7 @@ interface AddWidgetModalProps {
   hasGitHubRepoWidget?: boolean;
   hasPinterestProfileWidget?: boolean;
   hasPinterestBoardWidget?: boolean;
+  hasValorantWidget?: boolean;
 }
 
 const PLATFORMS = [
@@ -22,6 +23,7 @@ const PLATFORMS = [
   { id: "discord", name: "Discord" },
   { id: "github", name: "GitHub" },
   { id: "pinterest", name: "Pinterest" },
+  { id: "valorant", name: "Valorant" },
 ];
 
 export default function AddWidgetModal({
@@ -36,10 +38,11 @@ export default function AddWidgetModal({
   hasGitHubRepoWidget = false,
   hasPinterestProfileWidget = false,
   hasPinterestBoardWidget = false,
+  hasValorantWidget = false,
 }: AddWidgetModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
-  const [widgetType, setWidgetType] = useState<"presence" | "server" | "github-user" | "github-repo" | "pinterest-profile" | "pinterest-board">("presence");
+  const [widgetType, setWidgetType] = useState<"presence" | "server" | "github-user" | "github-repo" | "pinterest-profile" | "pinterest-board" | "valorant-profile">("presence");
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
@@ -47,6 +50,7 @@ export default function AddWidgetModal({
   const [githubRepo, setGithubRepo] = useState("");
   const [pinterestUsername, setPinterestUsername] = useState("");
   const [pinterestBoard, setPinterestBoard] = useState("");
+  const [valorantId, setValorantId] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -60,14 +64,16 @@ export default function AddWidgetModal({
         setWidgetType(hasGitHubUserWidget && !hasGitHubRepoWidget ? "github-repo" : "github-user");
       } else if (selectedPlatform === "pinterest") {
         setWidgetType(hasPinterestProfileWidget && !hasPinterestBoardWidget ? "pinterest-board" : "pinterest-profile");
+      } else if (selectedPlatform === "valorant") {
+        setWidgetType("valorant-profile");
       }
       setValidationError(null);
     }
-  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget]);
+  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget]);
 
   useEffect(() => {
     setValidationError(null);
-  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, githubUsername, githubRepo, pinterestUsername, pinterestBoard]);
+  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -95,6 +101,7 @@ export default function AddWidgetModal({
   const isDiscord = selectedPlatform === "discord";
   const isGitHub = selectedPlatform === "github";
   const isPinterest = selectedPlatform === "pinterest";
+  const isValorant = selectedPlatform === "valorant";
   const isPresence = widgetType === "presence";
   const isServer = widgetType === "server";
   const isGitHubUser = widgetType === "github-user";
@@ -116,6 +123,8 @@ export default function AddWidgetModal({
     ? isPinterestProfile
       ? pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
       : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
+    : isValorant
+    ? valorantId.trim()
     : "";
 
   const isFormatValid = isDiscord
@@ -146,6 +155,10 @@ export default function AddWidgetModal({
       : hasPinterestBoardWidget
       ? false
       : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
+    : isValorant
+    ? hasValorantWidget
+      ? false
+      : /^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(valorantId.trim())
     : false;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -253,6 +266,36 @@ export default function AddWidgetModal({
       } finally {
         setIsValidating(false);
       }
+    } else if (isValorant) {
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const res = await fetch("/api/widgets/valorant/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: targetId }),
+        });
+        const result = await res.json();
+
+        if (!result.ok) {
+          setValidationError(result.error || "Invalid Riot ID or player not found");
+          setIsValidating(false);
+          return;
+        }
+
+        onAdd({
+          platform: selectedPlatform,
+          type: widgetType,
+          useLinked: false,
+          customId: targetId,
+        });
+        onClose();
+      } catch {
+        setValidationError("Failed to verify Riot ID. Try again.");
+      } finally {
+        setIsValidating(false);
+      }
     }
   };
 
@@ -309,7 +352,11 @@ export default function AddWidgetModal({
                   </svg>
                 ) : selectedPlatform === "pinterest" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#E60023">
-                    <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                    <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                  </svg>
+                ) : selectedPlatform === "valorant" ? (
+                  <svg width="18" height="18" viewBox="0 0 100 100" fill="#FF4655">
+                    <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
                   </svg>
                 ) : null}
                 <span>{PLATFORMS.find((p) => p.id === selectedPlatform)?.name || "Select platform"}</span>
@@ -358,6 +405,10 @@ export default function AddWidgetModal({
                         ) : platform.id === "pinterest" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#E60023">
                             <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                          </svg>
+                        ) : platform.id === "valorant" ? (
+                          <svg width="16" height="16" viewBox="0 0 100 100" fill="#FF4655">
+                            <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
                           </svg>
                         ) : null}
                         <span>{platform.name}</span>
@@ -659,6 +710,25 @@ export default function AddWidgetModal({
               </div>
             )}
           </>
+        )}
+
+        {isValorant && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Riot ID</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={valorantId}
+                onChange={(e) => setValorantId(e.target.value)}
+                placeholder="e.g. tenz#sen"
+                maxLength={30}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Riot ID in &apos;name#tag&apos; format (e.g. &apos;tenz#sen&apos;). Find it on your Riot account page.
+            </p>
+          </div>
         )}
 
         {/* Validation Error */}

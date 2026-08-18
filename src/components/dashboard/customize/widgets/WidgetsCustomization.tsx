@@ -39,6 +39,14 @@ export interface WidgetItem {
   showPrimaryLanguage?: boolean;
   showPinCount?: boolean;
   imageBackground?: boolean;
+  valorantRankMode?: 'current' | 'highest';
+  valorantAvatar?: 'rank-icon' | 'last-agent';
+  valorantBackground?: 'none' | 'player-card' | 'last-map';
+  valorantMatchSource?: 'any' | 'competitive';
+  showRank?: boolean;
+  valorantRankStyle?: 'name' | 'icon';
+  showRR?: boolean;
+  showLevel?: boolean;
 }
 
 interface WidgetsCustomizationProps {
@@ -109,6 +117,10 @@ export default function WidgetsCustomization({
           `/dashboard/customize/profile/widgets/pinterest-board?id=${encodeURIComponent(widget.customId)}`
         );
       }
+    } else if (widget.platform === "valorant") {
+      router.push(
+        `/dashboard/customize/profile/widgets/valorant?id=${encodeURIComponent(widget.customId)}`
+      );
     }
   };
 
@@ -156,6 +168,12 @@ export default function WidgetsCustomization({
           )}&id=${encodeURIComponent(w.targetId)}`
         );
       }
+    } else if (w.platform === "valorant") {
+      router.push(
+        `/dashboard/customize/profile/widgets/valorant?widgetId=${encodeURIComponent(
+          w.id
+        )}&id=${encodeURIComponent(w.targetId)}`
+      );
     }
   };
 
@@ -237,6 +255,10 @@ export default function WidgetsCustomization({
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#E60023">
                           <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
                         </svg>
+                      ) : w.platform === "valorant" ? (
+                        <svg width="18" height="18" viewBox="0 0 100 100" fill="#FF4655">
+                          <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
+                        </svg>
                       ) : (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                           <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -258,7 +280,9 @@ export default function WidgetsCustomization({
                             ? "GitHub Repository"
                             : w.type === "pinterest-profile" || w.type === "profile"
                             ? "Pinterest Profile"
-                            : "Pinterest Board"}
+                            : w.type === "pinterest-board" || w.type === "board"
+                            ? "Pinterest Board"
+                            : "Valorant Profile"}
                         </span>
                         {!w.enabled && (
                           <span className="px-2 py-0.5 rounded-[6px] bg-red-500/[0.08] border border-red-500/15 text-[11.5px] text-red-400 font-light tracking-normal leading-none">

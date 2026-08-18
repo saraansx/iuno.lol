@@ -47,6 +47,14 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.showPrimaryLanguage === target.showPrimaryLanguage &&
       item.showPinCount === target.showPinCount &&
       item.imageBackground === target.imageBackground &&
+      item.valorantRankMode === target.valorantRankMode &&
+      item.valorantAvatar === target.valorantAvatar &&
+      item.valorantBackground === target.valorantBackground &&
+      item.valorantMatchSource === target.valorantMatchSource &&
+      item.showRank === target.showRank &&
+      item.valorantRankStyle === target.valorantRankStyle &&
+      item.showRR === target.showRR &&
+      item.showLevel === target.showLevel &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );
