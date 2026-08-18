@@ -81,10 +81,10 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
           </div>
 
           {/* Guild Info */}
-          <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
+          <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
             {/* Title with pingpong overflow scroll */}
             <OverflowPingPong deps={[serverData, guild?.name]}>
-              <span className="text-[14px] font-normal text-white/90 tracking-tight shrink-0">
+              <span className="text-[16px] font-normal text-white/95 tracking-tight shrink-0">
                 {guild?.name || (loading ? "Loading..." : "Discord Server")}
               </span>
             </OverflowPingPong>
@@ -92,16 +92,16 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             {/* Counts */}
             {(showOnlineCount || showMemberCount) && (
               <OverflowPingPong deps={[serverData, showOnlineCount, showMemberCount]}>
-                <div className="flex items-center gap-2.5 text-[11.5px] text-white/50 font-normal whitespace-nowrap shrink-0">
+                <div className="flex items-center gap-2.5 text-[12.5px] text-white/60 font-normal whitespace-nowrap shrink-0">
                   {showOnlineCount && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#23a55a] shrink-0" />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-[#23a55a] shrink-0" />
                       <span>{Number(serverData?.approximate_presence_count || 0).toLocaleString()}</span>
                     </div>
                   )}
                   {showMemberCount && (
-                    <div className="flex items-center gap-1 shrink-0">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#80848e] shrink-0" />
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="w-2 h-2 rounded-full bg-[#80848e] shrink-0" />
                       <span>{Number(serverData?.approximate_member_count || 0).toLocaleString()}</span>
                     </div>
                   )}

@@ -161,21 +161,21 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         </div>
 
         {/* User Info */}
-        <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Header Row: Auto-scrolls ping-pong ONLY when content overflows */}
           <OverflowPingPong deps={[discordData, showGuildTag, showBadges]}>
-            <span className="text-[14px] font-normal text-white/90 tracking-tight shrink-0">
+            <span className="text-[16px] font-normal text-white/95 tracking-tight shrink-0">
               {discordData?.user?.username || (loading ? "Loading..." : "Discord User")}
             </span>
 
             {showGuildTag && discordData?.user?.clan?.tag && (
-              <span className="inline-flex items-center gap-1 bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded text-[11px] font-normal text-white/80 shrink-0 ml-1.5">
+              <span className="inline-flex items-center gap-1.5 bg-white/[0.07] border border-white/10 px-2 py-1 rounded-[6px] text-[12px] font-normal leading-none text-white/85 shrink-0 ml-2">
                 {discordData.user.clan.badge && (
                   <Image
                     src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
                     alt=""
-                    width={13}
-                    height={13}
+                    width={14}
+                    height={14}
                     className="object-contain"
                     unoptimized
                   />
@@ -185,14 +185,14 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             )}
 
             {showBadges && visibleBadges.length > 0 && (
-              <div className="flex items-center gap-1 shrink-0 ml-1.5">
+              <div className="flex items-center gap-1.5 shrink-0 ml-2">
                 {visibleBadges.map((badge) => (
-                  <div key={badge.id} title={badge.name} className="relative w-4 h-4 shrink-0">
+                  <div key={badge.id} title={badge.name} className="relative w-5 h-5 shrink-0">
                     <Image
                       src={badge.icon}
                       alt={badge.name}
-                      width={16}
-                      height={16}
+                      width={20}
+                      height={20}
                       className="object-contain"
                       unoptimized
                     />
@@ -206,48 +206,48 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           <OverflowPingPong deps={[discordData, showActivity, fallbackText]}>
             {!showActivity ? (
               fallbackText ? (
-                <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
+                <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
               ) : null
             ) : discordData?.primary_activity ? (
-              <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
-                <span className="text-white/80">
+              <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                <span className="text-white/85">
                   {discordData.primary_activity.name}
                 </span>
                 {(discordData.primary_activity.details || discordData.primary_activity.state) && (
-                  <span className="text-[11px] text-white/45">
+                  <span className="text-[12px] text-white/50">
                     • {discordData.primary_activity.details || discordData.primary_activity.state}
                   </span>
                 )}
               </div>
             ) : discordData?.spotify ? (
-              <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
-                <span className="text-white/80">
+              <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                <span className="text-white/85">
                   {discordData.spotify.song}
                 </span>
-                <span className="text-[11px] text-white/45">
+                <span className="text-[12px] text-white/50">
                   • {discordData.spotify.artist}
                 </span>
               </div>
             ) : discordData?.custom_status?.text ? (
-              <div className="flex items-center gap-1 text-[12px] text-white/65 font-normal shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal shrink-0 whitespace-nowrap">
                 {discordData.custom_status.emoji?.id ? (
-                  <div className="relative w-3.5 h-3.5 shrink-0">
+                  <div className="relative w-4.5 h-4.5 shrink-0">
                     <Image
                       src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
                       alt=""
                       fill
-                      sizes="14px"
+                      sizes="18px"
                       className="object-contain"
                       unoptimized
                     />
                   </div>
                 ) : discordData.custom_status.emoji?.name ? (
-                  <span className="text-[12px]">{discordData.custom_status.emoji.name}</span>
+                  <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
                 ) : null}
                 <span>{discordData.custom_status.text}</span>
               </div>
             ) : (
-              <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">
+              <span className="text-[13px] font-normal text-white/40 whitespace-nowrap">
                 {discordData?.status === "offline"
                   ? showLastSeen
                     ? formatLastSeen(discordData?.last_seen)
