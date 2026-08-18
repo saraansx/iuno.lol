@@ -447,6 +447,21 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
+  // Validate max 1 presence and max 1 server widget limit
+  let presenceCount = 0;
+  let serverCount = 0;
+  for (const w of data.widgets || []) {
+    const type = w.type === "server" ? "server" : "presence";
+    if (type === "presence") presenceCount++;
+    if (type === "server") serverCount++;
+  }
+  if (presenceCount > 1) {
+    throw new Error("You can only add 1 Discord Presence widget.");
+  }
+  if (serverCount > 1) {
+    throw new Error("You can only add 1 Discord Server widget.");
+  }
+
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
     const platform = w.platform === "discord" ? "discord" : "discord";
     const type = w.type === "server" ? "server" : "presence";

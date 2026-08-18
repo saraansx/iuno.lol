@@ -33,6 +33,7 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.showMemberCount === target.showMemberCount &&
       item.showOnlineCount === target.showOnlineCount &&
       item.showBanner === target.showBanner &&
+      item.placement === target.placement &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

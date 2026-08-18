@@ -304,6 +304,8 @@ export default function WidgetsCustomization({
         onAdd={handleAddWidget}
         linkedDiscordId={linkedDiscordId}
         linkedDiscordUsername={linkedDiscordUsername}
+        hasPresenceWidget={widgets.some((w) => w.type === "presence")}
+        hasServerWidget={widgets.some((w) => w.type === "server")}
       />
     </>
   );

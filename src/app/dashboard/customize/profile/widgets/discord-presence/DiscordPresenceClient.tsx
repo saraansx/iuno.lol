@@ -61,6 +61,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [badgeOrder, setBadgeOrder] = useState<string[]>(initialBadgeOrder);
   const [hiddenBadges, setHiddenBadges] = useState<string[]>(initialHiddenBadges);
 
+  const [hoveredBadge, setHoveredBadge] = useState<{ name: string; x: number; y: number } | null>(null);
+
   const effectiveId = useLinked ? (user?.discordId || "") : discordId;
 
   // Presence fetched once per ID — refreshes on reload, not on a timer
@@ -179,18 +181,13 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(effectiveId && /^\d+$/.test(effectiveId) ? effectiveId : "0") % BigInt(5))}.png`;
 
   function getCleanBadgeName(badge: { id: string; description?: string }): string {
-    const id = badge.id.toLowerCase();
-    const desc = badge.description || "";
+    const desc = badge.description?.trim();
+    if (desc) return desc;
 
-    if (id.includes("premium") || id.includes("nitro") || desc.toLowerCase().includes("subscriber since")) {
-      return "Discord Nitro";
-    }
-    if (id.includes("orb") || desc.toLowerCase().includes("orb")) {
-      return "Orb";
-    }
-    if (id.includes("guild_booster") || id.includes("boost") || desc.toLowerCase().includes("server boosting")) {
-      return "Server Booster";
-    }
+    const id = badge.id.toLowerCase();
+    if (id.includes("premium") || id.includes("nitro")) return "Discord Nitro";
+    if (id.includes("orb")) return "Orb";
+    if (id.includes("guild_booster") || id.includes("boost")) return "Server Booster";
     if (id.includes("staff")) return "Discord Staff";
     if (id.includes("partner")) return "Partnered Server Owner";
     if (id.includes("hypesquad_house_1") || id.includes("bravery")) return "HypeSquad Bravery";
@@ -204,8 +201,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     if (id.includes("legacy_username")) return "Legacy Username";
     if (id.includes("quest")) return "Quest Completed";
     if (id.includes("active_developer")) return "Active Developer";
-
-    return desc || badge.id;
+    return "Discord Badge";
   }
 
   // Badges strictly from Discord user token profile endpoint
@@ -263,6 +259,28 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
   return (
     <>
+      {hoveredBadge && (
+        <div
+          className="fixed pointer-events-none z-[99999] -translate-x-1/2 -translate-y-full mb-2 flex flex-col items-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150"
+          style={{
+            left: `${hoveredBadge.x}px`,
+            top: `${hoveredBadge.y - 6}px`,
+          }}
+        >
+          <div
+            className="bg-[#0f0f12]/80 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-xl"
+            style={{
+              fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "normal",
+            }}
+          >
+            {hoveredBadge.name}
+          </div>
+        </div>
+      )}
+
       <div className="w-full flex flex-col gap-6 pb-24">
         {/* Top 2-Column Grid: Account on Left, Live Preview on Right */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -481,13 +499,25 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                           {showBadges && previewBadges.length > 0 && (
                             <div className="flex items-center gap-1.5">
                               {previewBadges.map((badge) => (
-                                <div key={badge.id} title={badge.name} className="relative w-4.5 h-4.5 flex items-center justify-center shrink-0">
+                                <div
+                                  key={badge.id}
+                                  className="relative w-5 h-5 flex items-center justify-center shrink-0 cursor-pointer"
+                                  onMouseEnter={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setHoveredBadge({
+                                      name: badge.name,
+                                      x: rect.left + rect.width / 2,
+                                      y: rect.top,
+                                    });
+                                  }}
+                                  onMouseLeave={() => setHoveredBadge(null)}
+                                >
                                   <Image
                                     src={badge.icon}
                                     alt={badge.name}
-                                    width={18}
-                                    height={18}
-                                    className="object-contain"
+                                    width={20}
+                                    height={20}
+                                    className="object-contain pointer-events-none"
                                     unoptimized
                                   />
                                 </div>
