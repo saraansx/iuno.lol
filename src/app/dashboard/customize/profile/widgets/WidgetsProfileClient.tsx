@@ -34,6 +34,17 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.showOnlineCount === target.showOnlineCount &&
       item.showBanner === target.showBanner &&
       item.placement === target.placement &&
+      item.showFollowers === target.showFollowers &&
+      item.showFollowing === target.showFollowing &&
+      item.showPublicRepos === target.showPublicRepos &&
+      item.showViewButton === target.showViewButton &&
+      item.showBackgroundOverlay === target.showBackgroundOverlay &&
+      item.showContributionHeatmap === target.showContributionHeatmap &&
+      item.showStars === target.showStars &&
+      item.showForks === target.showForks &&
+      item.showWatchers === target.showWatchers &&
+      item.showOpenIssues === target.showOpenIssues &&
+      item.showPrimaryLanguage === target.showPrimaryLanguage &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

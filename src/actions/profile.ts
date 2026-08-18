@@ -428,6 +428,17 @@ export async function updateProfileWidgets(data: {
     showOnlineCount?: boolean;
     showBanner?: boolean;
     placement?: "inside" | "outside";
+    showFollowers?: boolean;
+    showFollowing?: boolean;
+    showPublicRepos?: boolean;
+    showViewButton?: boolean;
+    showBackgroundOverlay?: boolean;
+    showContributionHeatmap?: boolean;
+    showStars?: boolean;
+    showForks?: boolean;
+    showWatchers?: boolean;
+    showOpenIssues?: boolean;
+    showPrimaryLanguage?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -447,13 +458,24 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence and max 1 server widget limit
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo
   let presenceCount = 0;
   let serverCount = 0;
+  let githubUserCount = 0;
+  let githubRepoCount = 0;
   for (const w of data.widgets || []) {
-    const type = w.type === "server" ? "server" : "presence";
+    const type =
+      w.type === "server"
+        ? "server"
+        : w.type === "github-user" || w.type === "user"
+        ? "github-user"
+        : w.type === "github-repo" || w.type === "repo"
+        ? "github-repo"
+        : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
+    if (type === "github-user") githubUserCount++;
+    if (type === "github-repo") githubRepoCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -461,26 +483,54 @@ export async function updateProfileWidgets(data: {
   if (serverCount > 1) {
     throw new Error("You can only add 1 Discord Server widget.");
   }
+  if (githubUserCount > 1) {
+    throw new Error("You can only add 1 GitHub User widget.");
+  }
+  if (githubRepoCount > 1) {
+    throw new Error("You can only add 1 GitHub Repository widget.");
+  }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
-    const platform = w.platform === "discord" ? "discord" : "discord";
-    const type = w.type === "server" ? "server" : "presence";
+    const platform = w.platform === "github" ? "github" : "discord";
+    const type =
+      w.type === "server"
+        ? "server"
+        : w.type === "github-user" || w.type === "user"
+        ? "github-user"
+        : w.type === "github-repo" || w.type === "repo"
+        ? "github-repo"
+        : "presence";
     let targetId = "";
     let useLinked = false;
 
-    if (type === "server") {
-      targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").slice(0, 100);
-      if (!targetId || targetId.length < 2) {
-        throw new Error("Invalid Discord invite code format");
+    if (platform === "discord") {
+      if (type === "server") {
+        targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").slice(0, 100);
+        if (!targetId || targetId.length < 2) {
+          throw new Error("Invalid Discord invite code format");
+        }
+      } else {
+        useLinked = Boolean(w.useLinked) && Boolean(user.discordId);
+        targetId = String(w.targetId || "").replace(/\D/g, "").slice(0, 20);
+        if (useLinked && user.discordId) {
+          targetId = user.discordId;
+        }
+        if (!/^\d{17,20}$/.test(targetId)) {
+          throw new Error("Invalid Discord ID format");
+        }
       }
-    } else {
-      useLinked = Boolean(w.useLinked) && Boolean(user.discordId);
-      targetId = String(w.targetId || "").replace(/\D/g, "").slice(0, 20);
-      if (useLinked && user.discordId) {
-        targetId = user.discordId;
-      }
-      if (!/^\d{17,20}$/.test(targetId)) {
-        throw new Error("Invalid Discord ID format");
+    } else if (platform === "github") {
+      if (type === "github-repo") {
+        targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").slice(0, 100);
+        const parts = targetId.split("/");
+        if (parts.length !== 2 || !parts[0] || !parts[1]) {
+          throw new Error("Invalid GitHub repository format (owner/repo)");
+        }
+      } else {
+        targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").slice(0, 39);
+        if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(targetId)) {
+          throw new Error("Invalid GitHub username format");
+        }
       }
     }
 
@@ -513,6 +563,17 @@ export async function updateProfileWidgets(data: {
       showOnlineCount: w.showOnlineCount !== undefined ? Boolean(w.showOnlineCount) : true,
       showBanner: w.showBanner !== undefined ? Boolean(w.showBanner) : true,
       placement: (w.placement === "outside" ? "outside" : "inside") as "inside" | "outside",
+      showFollowers: w.showFollowers !== undefined ? Boolean(w.showFollowers) : true,
+      showFollowing: w.showFollowing !== undefined ? Boolean(w.showFollowing) : true,
+      showPublicRepos: w.showPublicRepos !== undefined ? Boolean(w.showPublicRepos) : true,
+      showViewButton: w.showViewButton !== undefined ? Boolean(w.showViewButton) : true,
+      showBackgroundOverlay: w.showBackgroundOverlay !== undefined ? Boolean(w.showBackgroundOverlay) : true,
+      showContributionHeatmap: w.showContributionHeatmap !== undefined ? Boolean(w.showContributionHeatmap) : false,
+      showStars: w.showStars !== undefined ? Boolean(w.showStars) : true,
+      showForks: w.showForks !== undefined ? Boolean(w.showForks) : true,
+      showWatchers: w.showWatchers !== undefined ? Boolean(w.showWatchers) : true,
+      showOpenIssues: w.showOpenIssues !== undefined ? Boolean(w.showOpenIssues) : true,
+      showPrimaryLanguage: w.showPrimaryLanguage !== undefined ? Boolean(w.showPrimaryLanguage) : true,
     };
   });
 

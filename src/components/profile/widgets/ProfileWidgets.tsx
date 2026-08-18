@@ -3,6 +3,24 @@
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import DiscordPresenceWidget from "./DiscordPresenceWidget";
 import DiscordServerWidget from "./DiscordServerWidget";
+import GitHubUserWidget from "./GitHubUserWidget";
+import GitHubRepoWidget from "./GitHubRepoWidget";
+
+function renderWidget(w: WidgetItem) {
+  if (w.type === "presence") {
+    return <DiscordPresenceWidget widget={w} />;
+  }
+  if (w.type === "server") {
+    return <DiscordServerWidget widget={w} />;
+  }
+  if (w.type === "github-user" || w.type === "user") {
+    return <GitHubUserWidget widget={w} />;
+  }
+  if (w.type === "github-repo" || w.type === "repo") {
+    return <GitHubRepoWidget widget={w} />;
+  }
+  return null;
+}
 
 export default function ProfileWidgets({
   widgets = [],
@@ -26,11 +44,7 @@ export default function ProfileWidgets({
         }`}
       >
         <div className="w-full max-w-[340px]">
-          {w.type === "presence" ? (
-            <DiscordPresenceWidget widget={w} />
-          ) : (
-            <DiscordServerWidget widget={w} />
-          )}
+          {renderWidget(w)}
         </div>
       </div>
     );
@@ -44,11 +58,7 @@ export default function ProfileWidgets({
     >
       {activeWidgets.map((w) => (
         <div key={w.id} className="w-full min-w-0">
-          {w.type === "presence" ? (
-            <DiscordPresenceWidget widget={w} />
-          ) : (
-            <DiscordServerWidget widget={w} />
-          )}
+          {renderWidget(w)}
         </div>
       ))}
     </div>
