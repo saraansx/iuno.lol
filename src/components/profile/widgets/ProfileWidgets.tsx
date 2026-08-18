@@ -17,17 +17,33 @@ export default function ProfileWidgets({
 
   if (activeWidgets.length === 0) return null;
 
+  if (activeWidgets.length === 1) {
+    const w = activeWidgets[0];
+    return (
+      <div
+        className={`w-full mt-4 flex justify-center items-center ${
+          placement === "outside" ? "z-10" : ""
+        }`}
+      >
+        <div className="w-full max-w-[340px]">
+          {w.type === "presence" ? (
+            <DiscordPresenceWidget widget={w} />
+          ) : (
+            <DiscordServerWidget widget={w} />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className={`w-full mt-4 grid grid-cols-1 ${
-        activeWidgets.length === 1 ? "" : "min-[640px]:grid-cols-2"
-      } gap-3 ${placement === "outside" ? "z-10" : ""}`}
+      className={`w-full mt-4 grid grid-cols-1 min-[640px]:grid-cols-2 gap-3 ${
+        placement === "outside" ? "z-10" : ""
+      }`}
     >
       {activeWidgets.map((w) => (
-        <div
-          key={w.id}
-          className="w-full min-w-0"
-        >
+        <div key={w.id} className="w-full min-w-0">
           {w.type === "presence" ? (
             <DiscordPresenceWidget widget={w} />
           ) : (
