@@ -575,10 +575,10 @@ const Layout1 = ({
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
         {/* Wrapper — content + background are siblings */}
-        <div className="w-full max-w-[600px] flex flex-col items-center z-10">
-        <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
-        <div className="w-full max-w-[600px] relative flex flex-col items-center overflow-visible z-10">
+        <div className="w-full max-w-[704px] flex flex-col items-center z-10">
+        <CardEffect effect={cardEffect} className="w-full max-w-[704px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[704px]">
+        <div className="w-full max-w-[704px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
             <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
@@ -668,7 +668,7 @@ const Layout1 = ({
             {/* Banner */}
             {hasBanner && (
               <div
-                className="w-full h-[130px] overflow-hidden relative shrink-0"
+                className="w-full h-[160px] overflow-hidden relative shrink-0"
                 style={{
                   borderTopLeftRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
                   borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`
@@ -711,7 +711,7 @@ const Layout1 = ({
             </div>
 
             {/* Content */}
-            <div className="w-full flex flex-col items-center px-6 pb-12 pt-3">
+            <div className="w-full flex flex-col items-center px-6 pb-16 pt-3">
               {display && (
                 <div className="relative group/uid flex justify-center">
                   <UsernameEffect effect={usernameEffect}>
@@ -1000,10 +1000,10 @@ const Layout1 = ({
       <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
       {/* Wrapper — content + background are siblings */}
-      <div className="w-full max-w-[600px] flex flex-col items-center z-10">
-      <CardEffect effect={cardEffect} className="w-full max-w-[600px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[600px]">
-        <div className="w-full max-w-[600px] relative flex flex-col items-center justify-center z-10">
+      <div className="w-full max-w-[704px] flex flex-col items-center z-10">
+      <CardEffect effect={cardEffect} className="w-full max-w-[704px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[704px]">
+        <div className="w-full max-w-[704px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
           <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>

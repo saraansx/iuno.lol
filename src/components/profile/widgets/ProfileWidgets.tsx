@@ -19,20 +19,14 @@ export default function ProfileWidgets({
 
   return (
     <div
-      className={`w-full ${
-        placement === "outside"
-          ? "max-w-[340px] mt-4 flex flex-wrap justify-center gap-3 z-10"
-          : "mt-4 w-full flex flex-wrap justify-center gap-3"
-      }`}
+      className={`w-full mt-4 grid grid-cols-1 ${
+        activeWidgets.length === 1 ? "" : "min-[640px]:grid-cols-2"
+      } gap-3 ${placement === "outside" ? "z-10" : ""}`}
     >
       {activeWidgets.map((w) => (
         <div
           key={w.id}
-          className={`${
-            activeWidgets.length === 1
-              ? "w-fit max-w-full"
-              : "w-full sm:w-[calc(50%-6px)] flex-1 min-w-[160px]"
-          }`}
+          className="w-full min-w-0"
         >
           {w.type === "presence" ? (
             <DiscordPresenceWidget widget={w} />

@@ -59,7 +59,7 @@ export interface DiscordPresenceData {
  */
 export function useDiscordPresence(id: string, poll = true) {
   const [data, setData] = useState<DiscordPresenceData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const isValidId = /^\d{17,20}$/.test(id);
 

@@ -8,7 +8,7 @@ export function useDiscordServer(inviteCode: string) {
   const isValidCode = cleanCode.length >= 2;
 
   const [data, setData] = useState<DiscordServerData | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {

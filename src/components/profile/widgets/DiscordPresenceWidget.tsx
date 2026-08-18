@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
+import OverflowPingPong from "./OverflowPingPong";
 
 function formatLastSeen(timestamp?: number | null) {
   if (!timestamp) return "last seen recently";
@@ -54,13 +55,13 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
   const showLastSeen = widget.showLastSeen !== undefined ? widget.showLastSeen : true;
   const fallbackText = widget.fallbackText !== undefined ? widget.fallbackText : "Currently doing nothing";
 
-  if (loading && !discordData) {
+  if (loading || !discordData) {
     return (
-      <div className="bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-6 py-5 shadow-md flex items-center justify-between gap-5">
-        <div className="flex items-center gap-4.5 min-w-0 flex-1">
+      <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-5 py-4 shadow-md flex items-center justify-between gap-3.5 box-border">
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
           {/* Avatar Skeleton */}
           <div
-            className={`w-[64px] h-[64px] shrink-0 bg-white/[0.05] ${
+            className={`w-[62px] h-[62px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -105,12 +106,12 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(widget.targetId && /^\d+$/.test(widget.targetId) ? widget.targetId : "0") % BigInt(5))}.png`;
 
   return (
-    <div className="bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-6 py-5 shadow-md flex items-center justify-between gap-5 transition-all duration-200 hover:border-white/20">
-      <div className="flex items-center gap-4.5 min-w-0">
+    <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 transition-all duration-200 hover:border-white/20 box-border">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         {/* Avatar */}
         <div className="relative shrink-0 flex items-center justify-center">
           <div
-            className={`relative w-[64px] h-[64px] overflow-hidden bg-[#181818] border border-white/10 ${
+            className={`relative w-[62px] h-[62px] overflow-hidden bg-[#181818] border border-white/10 ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           >
@@ -118,7 +119,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
               src={avatarUrl}
               alt=""
               fill
-              sizes="64px"
+              sizes="62px"
               priority
               className="object-cover"
               unoptimized
@@ -126,19 +127,19 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           </div>
 
           {/* Status Indicator */}
-          <div className="absolute bottom-0 right-0 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
+          <div className="absolute bottom-0 right-0 z-20 w-4.5 h-4.5 rounded-full bg-[#101010] flex items-center justify-center">
             {discordData?.status === "dnd" ? (
-              <span className="w-3 h-3 rounded-full bg-[#f23f43] flex items-center justify-center">
-                <span className="w-1.5 h-0.5 bg-[#101010] rounded-full" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#f23f43] flex items-center justify-center">
+                <span className="w-2 h-0.5 bg-[#101010] rounded-full" />
               </span>
             ) : discordData?.status === "idle" ? (
-              <span className="relative w-3 h-3 rounded-full bg-[#f0b232] flex items-center justify-center overflow-hidden">
+              <span className="relative w-3.5 h-3.5 rounded-full bg-[#f0b232] flex items-center justify-center overflow-hidden">
                 <span className="absolute -top-0.5 -left-0.5 w-2 h-2 rounded-full bg-[#101010]" />
               </span>
             ) : discordData?.status === "online" ? (
-              <span className="w-3 h-3 rounded-full bg-[#23a55a]" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#23a55a]" />
             ) : (
-              <span className="w-3 h-3 rounded-full bg-[#80848e] flex items-center justify-center">
+              <span className="w-3.5 h-3.5 rounded-full bg-[#80848e] flex items-center justify-center">
                 <span className="w-1.5 h-1.5 bg-[#101010] rounded-full" />
               </span>
             )}
@@ -160,20 +161,21 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         </div>
 
         {/* User Info */}
-        <div className="flex flex-col gap-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap min-w-0">
-            <span className="text-[16px] font-medium text-white tracking-tight truncate">
+        <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
+          {/* Header Row: Auto-scrolls ping-pong ONLY when content overflows */}
+          <OverflowPingPong deps={[discordData, showGuildTag, showBadges]}>
+            <span className="text-[14px] font-normal text-white/90 tracking-tight shrink-0">
               {discordData?.user?.username || (loading ? "Loading..." : "Discord User")}
             </span>
 
             {showGuildTag && discordData?.user?.clan?.tag && (
-              <span className="inline-flex items-center gap-1 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded-md text-[12px] font-medium text-white/85">
+              <span className="inline-flex items-center gap-1 bg-white/[0.06] border border-white/10 px-1.5 py-0.5 rounded text-[11px] font-normal text-white/80 shrink-0 ml-1.5">
                 {discordData.user.clan.badge && (
                   <Image
                     src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
                     alt=""
-                    width={14}
-                    height={14}
+                    width={13}
+                    height={13}
                     className="object-contain"
                     unoptimized
                   />
@@ -183,14 +185,14 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             )}
 
             {showBadges && visibleBadges.length > 0 && (
-              <div className="flex items-center gap-1.5 shrink-0">
+              <div className="flex items-center gap-1 shrink-0 ml-1.5">
                 {visibleBadges.map((badge) => (
-                  <div key={badge.id} title={badge.name} className="relative w-4.5 h-4.5 shrink-0">
+                  <div key={badge.id} title={badge.name} className="relative w-4 h-4 shrink-0">
                     <Image
                       src={badge.icon}
                       alt={badge.name}
-                      width={18}
-                      height={18}
+                      width={16}
+                      height={16}
                       className="object-contain"
                       unoptimized
                     />
@@ -198,67 +200,69 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                 ))}
               </div>
             )}
-          </div>
+          </OverflowPingPong>
 
-          {/* Activity / Status */}
-          {!showActivity ? (
-            fallbackText ? (
-              <span className="text-[13px] text-white/40 truncate">{fallbackText}</span>
-            ) : null
-          ) : discordData?.primary_activity ? (
-            <div className="flex flex-col text-[13px] leading-snug min-w-0">
-              <span className="font-medium text-white/90 truncate">
-                {discordData.primary_activity.name}
-              </span>
-              {(discordData.primary_activity.details || discordData.primary_activity.state) && (
-                <span className="text-[12px] text-white/50 truncate">
-                  {discordData.primary_activity.details || discordData.primary_activity.state}
+          {/* Activity / Status with ping-pong overflow scroll */}
+          <OverflowPingPong deps={[discordData, showActivity, fallbackText]}>
+            {!showActivity ? (
+              fallbackText ? (
+                <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">{fallbackText}</span>
+              ) : null
+            ) : discordData?.primary_activity ? (
+              <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                <span className="text-white/80">
+                  {discordData.primary_activity.name}
                 </span>
-              )}
-            </div>
-          ) : discordData?.spotify ? (
-            <div className="flex flex-col text-[13px] leading-snug min-w-0">
-              <span className="font-medium text-white/90 truncate">
-                {discordData.spotify.song}
+                {(discordData.primary_activity.details || discordData.primary_activity.state) && (
+                  <span className="text-[11px] text-white/45">
+                    • {discordData.primary_activity.details || discordData.primary_activity.state}
+                  </span>
+                )}
+              </div>
+            ) : discordData?.spotify ? (
+              <div className="flex items-center gap-1.5 text-[12px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                <span className="text-white/80">
+                  {discordData.spotify.song}
+                </span>
+                <span className="text-[11px] text-white/45">
+                  • {discordData.spotify.artist}
+                </span>
+              </div>
+            ) : discordData?.custom_status?.text ? (
+              <div className="flex items-center gap-1 text-[12px] text-white/65 font-normal shrink-0 whitespace-nowrap">
+                {discordData.custom_status.emoji?.id ? (
+                  <div className="relative w-3.5 h-3.5 shrink-0">
+                    <Image
+                      src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
+                      alt=""
+                      fill
+                      sizes="14px"
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                ) : discordData.custom_status.emoji?.name ? (
+                  <span className="text-[12px]">{discordData.custom_status.emoji.name}</span>
+                ) : null}
+                <span>{discordData.custom_status.text}</span>
+              </div>
+            ) : (
+              <span className="text-[12px] font-normal text-white/40 whitespace-nowrap">
+                {discordData?.status === "offline"
+                  ? showLastSeen
+                    ? formatLastSeen(discordData?.last_seen)
+                    : "offline"
+                  : discordData?.status || "offline"}
               </span>
-              <span className="text-[12px] text-white/50 truncate">
-                {discordData.spotify.artist}
-              </span>
-            </div>
-          ) : discordData?.custom_status?.text ? (
-            <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal truncate">
-              {discordData.custom_status.emoji?.id ? (
-                <div className="relative w-4 h-4 shrink-0">
-                  <Image
-                    src={`https://cdn.discordapp.com/emojis/${discordData.custom_status.emoji.id}.${discordData.custom_status.emoji.animated ? "gif" : "png"}?size=32`}
-                    alt=""
-                    fill
-                    sizes="16px"
-                    className="object-contain"
-                    unoptimized
-                  />
-                </div>
-              ) : discordData.custom_status.emoji?.name ? (
-                <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
-              ) : null}
-              <span className="truncate">{discordData.custom_status.text}</span>
-            </div>
-          ) : (
-            <span className="text-[13px] text-white/40 truncate">
-              {discordData?.status === "offline"
-                ? showLastSeen
-                  ? formatLastSeen(discordData?.last_seen)
-                  : "offline"
-                : discordData?.status || "offline"}
-            </span>
-          )}
+            )}
+          </OverflowPingPong>
         </div>
       </div>
 
       {/* Right Thumbnail */}
       {showActivity && showActivityImage && discordData?.primary_activity?.large_image_url ? (
         <div
-          className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`w-[66px] h-[66px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
             activityImageShape === "square"
               ? "rounded-none"
               : activityImageShape === "circle"
@@ -270,13 +274,13 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           <img
             src={discordData.primary_activity.large_image_url}
             alt=""
-            className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block"
+            className="w-[66px] h-[66px] min-w-[66px] min-h-[66px] object-cover block"
             referrerPolicy="no-referrer"
           />
         </div>
       ) : showActivity && showActivityImage && discordData?.spotify?.album_art_url ? (
         <div
-          className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`w-[66px] h-[66px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
             activityImageShape === "square"
               ? "rounded-none"
               : activityImageShape === "circle"
@@ -288,7 +292,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           <img
             src={discordData.spotify.album_art_url}
             alt=""
-            className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block"
+            className="w-[66px] h-[66px] min-w-[66px] min-h-[66px] object-cover block"
             referrerPolicy="no-referrer"
           />
         </div>

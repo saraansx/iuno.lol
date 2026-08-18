@@ -178,7 +178,7 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
       </div>
 
       {/* Full Page Preview */}
-      <div 
+      <div
         className="flex-1 overflow-hidden relative"
         style={{ backgroundColor: pageBgColor || '#0a0a0a' }}
       >

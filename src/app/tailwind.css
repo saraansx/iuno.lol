@@ -33,6 +33,28 @@
   animation: shine var(--duration, 14s) infinite linear;
 }
 
+@keyframes pingpong-scroll {
+  0%, 16.66% {
+    transform: translateX(0px);
+  }
+  50%, 66.66% {
+    transform: translateX(calc(-1 * var(--scroll-shift, 0px)));
+  }
+  100% {
+    transform: translateX(0px);
+  }
+}
+
+.animate-pingpong {
+  display: inline-flex;
+  width: max-content;
+  animation: pingpong-scroll var(--duration, 6s) linear infinite;
+}
+
+.animate-pingpong:hover {
+  animation-play-state: paused;
+}
+
 /* Global scrollbar — applies to the whole page and any container */
 ::-webkit-scrollbar {
   width: 6px;
