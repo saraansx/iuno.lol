@@ -34,6 +34,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const initialUseLinked = searchParams.get("linked") === "true";
   const currentWidget = ((user?.widgets as WidgetItem[]) || []).find((w) => w.id === widgetId);
   const initialImageShape = currentWidget?.imageShape || "circle";
+  const initialShowBackgroundOverlay = currentWidget?.showBackgroundOverlay !== undefined ? currentWidget.showBackgroundOverlay : true;
   const initialShowActivity = currentWidget?.showActivity !== undefined ? currentWidget.showActivity : true;
   const initialShowActivityImage = currentWidget?.showActivityImage !== undefined ? currentWidget.showActivityImage : true;
   const initialActivityImageShape = currentWidget?.activityImageShape || "rounded";
@@ -50,6 +51,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [discordId, setDiscordId] = useState(initialTargetId);
   const [placement, setPlacement] = useState<"inside" | "outside">(initialPlacement);
   const [imageShape, setImageShape] = useState<"circle" | "rounded" | "square">(initialImageShape);
+  const [showBackgroundOverlay, setShowBackgroundOverlay] = useState<boolean>(initialShowBackgroundOverlay);
   const [showActivity, setShowActivity] = useState<boolean>(initialShowActivity);
   const [showActivityImage, setShowActivityImage] = useState<boolean>(initialShowActivityImage);
   const [activityImageShape, setActivityImageShape] = useState<"circle" | "rounded" | "square">(initialActivityImageShape);
@@ -88,6 +90,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
     useLinked !== initialUseLinked ||
     discordId !== initialTargetId ||
     imageShape !== initialImageShape ||
+    showBackgroundOverlay !== initialShowBackgroundOverlay ||
     showActivity !== initialShowActivity ||
     showActivityImage !== initialShowActivityImage ||
     activityImageShape !== initialActivityImageShape ||
@@ -120,6 +123,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               targetId: effectiveId,
               useLinked,
               imageShape,
+              showBackgroundOverlay,
               showActivity,
               showActivityImage,
               activityImageShape,
@@ -143,6 +147,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         useLinked,
         enabled: true,
         imageShape,
+        showBackgroundOverlay,
         showActivity,
         showActivityImage,
         activityImageShape,
@@ -241,6 +246,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
       setUseLinked(initialUseLinked && Boolean(user?.discordId));
       setDiscordId(initialTargetId);
       setImageShape(initialImageShape);
+      setShowBackgroundOverlay(initialShowBackgroundOverlay);
       setShowActivity(initialShowActivity);
       setShowActivityImage(initialShowActivityImage);
       setActivityImageShape(initialActivityImageShape);
@@ -410,6 +416,19 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               ) : (
                 /* User IS in the server -> Show full presence, badges & avatar */
                 <div className="relative w-full overflow-hidden rounded-[26px] bg-[#101010]/80 backdrop-blur-md border border-white/10 px-6 py-5.5 transition-all duration-200 shadow-md">
+                  {/* Background Avatar Ambient Overlay */}
+                  {showBackgroundOverlay && avatarUrl && (
+                    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={avatarUrl}
+                        alt=""
+                        className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+                      />
+                      <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+                    </div>
+                  )}
+
                   <div className="relative z-10 flex items-center justify-between gap-6">
                     <div className="flex items-center gap-4.5 min-w-0">
                       {/* Avatar + Status badge + Discord Avatar Decoration */}
@@ -648,6 +667,8 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
           onPlacementChange={setPlacement}
           imageShape={imageShape}
           onImageShapeChange={setImageShape}
+          showBackgroundOverlay={showBackgroundOverlay}
+          onShowBackgroundOverlayChange={setShowBackgroundOverlay}
           showActivity={showActivity}
           onShowActivityChange={setShowActivity}
           showActivityImage={showActivityImage}

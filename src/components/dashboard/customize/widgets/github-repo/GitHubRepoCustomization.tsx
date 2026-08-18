@@ -2,6 +2,7 @@
 
 import PlacementSetting from "@/components/dashboard/customize/widgets/discord-presence/settings/PlacementSetting";
 import ImageShapeSetting from "@/components/dashboard/customize/widgets/discord-presence/settings/ImageShapeSetting";
+import ShowBackgroundOverlaySetting from "./settings/ShowBackgroundOverlaySetting";
 import ShowStarsSetting from "./settings/ShowStarsSetting";
 import ShowForksSetting from "./settings/ShowForksSetting";
 import ShowWatchersSetting from "./settings/ShowWatchersSetting";
@@ -14,6 +15,8 @@ interface GitHubRepoCustomizationProps {
   onPlacementChange: (val: "inside" | "outside") => void;
   imageShape: "circle" | "rounded" | "square";
   onImageShapeChange: (val: "circle" | "rounded" | "square") => void;
+  showBackgroundOverlay: boolean;
+  onShowBackgroundOverlayChange: (val: boolean) => void;
   showStars: boolean;
   onShowStarsChange: (val: boolean) => void;
   showForks: boolean;
@@ -33,6 +36,8 @@ export default function GitHubRepoCustomization({
   onPlacementChange,
   imageShape,
   onImageShapeChange,
+  showBackgroundOverlay,
+  onShowBackgroundOverlayChange,
   showStars,
   onShowStarsChange,
   showForks,
@@ -64,6 +69,7 @@ export default function GitHubRepoCustomization({
         <ShowOpenIssuesSetting value={showOpenIssues} onChange={onShowOpenIssuesChange} />
         <ShowPrimaryLanguageSetting value={showPrimaryLanguage} onChange={onShowPrimaryLanguageChange} />
         <ShowRepoViewButtonSetting value={showViewButton} onChange={onShowViewButtonChange} />
+        <ShowBackgroundOverlaySetting value={showBackgroundOverlay} onChange={onShowBackgroundOverlayChange} />
       </div>
     </div>
   );

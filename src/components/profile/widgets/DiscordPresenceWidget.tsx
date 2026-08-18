@@ -43,6 +43,7 @@ function getCleanBadgeName(badge: { id: string; description?: string }): string 
 export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }) {
   const { data: discordData, loading } = useDiscordPresence(widget.targetId);
 
+  const showBackgroundOverlay = widget.showBackgroundOverlay !== undefined ? widget.showBackgroundOverlay : true;
   const showActivity = widget.showActivity !== undefined ? widget.showActivity : true;
   const showActivityImage = widget.showActivityImage !== undefined ? widget.showActivityImage : true;
   const activityImageShape = widget.activityImageShape || "rounded";
@@ -129,8 +130,21 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         </div>
       )}
 
-      <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 transition-all duration-200 hover:border-white/20 box-border">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 transition-all duration-200 hover:border-white/20 box-border relative overflow-hidden">
+        {/* Background Avatar Ambient Overlay */}
+        {showBackgroundOverlay && avatarUrl && (
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={avatarUrl}
+              alt=""
+              className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+            />
+            <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+          </div>
+        )}
+
+        <div className="flex items-center gap-3 min-w-0 flex-1 relative z-10">
         {/* Avatar */}
         <div className="relative shrink-0 flex items-center justify-center">
           <div

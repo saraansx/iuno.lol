@@ -14,6 +14,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
   const showMemberCount = widget.showMemberCount !== undefined ? widget.showMemberCount : true;
   const showOnlineCount = widget.showOnlineCount !== undefined ? widget.showOnlineCount : true;
   const showBanner = widget.showBanner !== undefined ? widget.showBanner : true;
+  const showBackgroundOverlay = widget.showBackgroundOverlay !== undefined ? widget.showBackgroundOverlay : false;
 
   const iconUrl = guild?.icon
     ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.${guild.icon.startsWith("a_") ? "gif" : "png"}?size=128`
@@ -46,8 +47,8 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
 
   return (
     <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 flex flex-col justify-center relative box-border">
-      {/* Banner */}
-      {showBanner && bannerUrl && (
+      {/* Banner or Icon Background Overlay */}
+      {showBanner && bannerUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden">
           <Image
             src={bannerUrl}
@@ -59,7 +60,17 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
           />
           <div className="absolute inset-0 bg-gradient-to-r from-[#101010]/90 via-[#101010]/80 to-[#101010]/40" />
         </div>
-      )}
+      ) : showBackgroundOverlay && iconUrl ? (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={iconUrl}
+            alt=""
+            className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+          />
+          <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+        </div>
+      ) : null}
 
       <div className="px-4.5 py-3.5 flex items-center justify-between gap-3 relative z-10 w-full">
         <div className="flex items-center gap-3 min-w-0 flex-1">

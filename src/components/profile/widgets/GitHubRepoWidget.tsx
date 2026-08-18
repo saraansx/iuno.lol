@@ -33,6 +33,7 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
   const { data: repoData, loading } = useGitHubRepo(cleanRepo);
 
   const imageShape = widget.imageShape || "rounded";
+  const showBackgroundOverlay = widget.showBackgroundOverlay !== undefined ? widget.showBackgroundOverlay : true;
   const showStars = widget.showStars !== undefined ? widget.showStars : true;
   const showForks = widget.showForks !== undefined ? widget.showForks : true;
   const showWatchers = widget.showWatchers !== undefined ? widget.showWatchers : true;
@@ -65,6 +66,19 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
 
   return (
     <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 flex flex-col justify-center relative box-border">
+      {/* Background Avatar Ambient Overlay */}
+      {showBackgroundOverlay && ownerName && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
+            alt=""
+            className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+          />
+          <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+        </div>
+      )}
+
       <div className="px-4.5 py-3.5 flex items-center justify-between gap-3 relative z-10 w-full">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           {/* Owner / Repo Icon */}

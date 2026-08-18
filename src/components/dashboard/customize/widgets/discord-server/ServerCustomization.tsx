@@ -5,6 +5,7 @@ import PlacementSetting from "../discord-presence/settings/PlacementSetting";
 import ShowMemberCountSetting from "./settings/ShowMemberCountSetting";
 import ShowOnlineCountSetting from "./settings/ShowOnlineCountSetting";
 import ShowBannerSetting from "./settings/ShowBannerSetting";
+import ShowBackgroundOverlaySetting from "./settings/ShowBackgroundOverlaySetting";
 
 interface ServerCustomizationProps {
   placement: "inside" | "outside";
@@ -17,6 +18,8 @@ interface ServerCustomizationProps {
   onShowOnlineCountChange: (val: boolean) => void;
   showBanner: boolean;
   onShowBannerChange: (val: boolean) => void;
+  showBackgroundOverlay: boolean;
+  onShowBackgroundOverlayChange: (val: boolean) => void;
 }
 
 export default function ServerCustomization({
@@ -30,6 +33,8 @@ export default function ServerCustomization({
   onShowOnlineCountChange,
   showBanner,
   onShowBannerChange,
+  showBackgroundOverlay,
+  onShowBackgroundOverlayChange,
 }: ServerCustomizationProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
@@ -62,6 +67,11 @@ export default function ServerCustomization({
         <ShowBannerSetting
           value={showBanner}
           onChange={onShowBannerChange}
+        />
+        <ShowBackgroundOverlaySetting
+          value={showBackgroundOverlay}
+          onChange={onShowBackgroundOverlayChange}
+          disabled={showBanner}
         />
       </div>
     </div>

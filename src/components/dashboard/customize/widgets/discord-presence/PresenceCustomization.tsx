@@ -2,6 +2,7 @@
 
 import ImageShapeSetting from "./settings/ImageShapeSetting";
 import PlacementSetting from "./settings/PlacementSetting";
+import ShowBackgroundOverlaySetting from "./settings/ShowBackgroundOverlaySetting";
 import ShowActivitySetting from "./settings/ShowActivitySetting";
 import ShowActivityImageSetting from "./settings/ShowActivityImageSetting";
 import ActivityImageShapeSetting from "./settings/ActivityImageShapeSetting";
@@ -16,6 +17,8 @@ interface PresenceCustomizationProps {
   onPlacementChange: (val: "inside" | "outside") => void;
   imageShape: "circle" | "rounded" | "square";
   onImageShapeChange: (shape: "circle" | "rounded" | "square") => void;
+  showBackgroundOverlay: boolean;
+  onShowBackgroundOverlayChange: (val: boolean) => void;
   showActivity: boolean;
   onShowActivityChange: (val: boolean) => void;
   showActivityImage: boolean;
@@ -39,6 +42,8 @@ export default function PresenceCustomization({
   onPlacementChange,
   imageShape,
   onImageShapeChange,
+  showBackgroundOverlay,
+  onShowBackgroundOverlayChange,
   showActivity,
   onShowActivityChange,
   showActivityImage,
@@ -75,6 +80,10 @@ export default function PresenceCustomization({
         <ImageShapeSetting
           value={imageShape}
           onChange={onImageShapeChange}
+        />
+        <ShowBackgroundOverlaySetting
+          value={showBackgroundOverlay}
+          onChange={onShowBackgroundOverlayChange}
         />
         <ShowActivitySetting
           value={showActivity}

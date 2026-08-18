@@ -23,6 +23,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
   const initialShowMemberCount = currentWidget?.showMemberCount !== undefined ? currentWidget.showMemberCount : true;
   const initialShowOnlineCount = currentWidget?.showOnlineCount !== undefined ? currentWidget.showOnlineCount : true;
   const initialShowBanner = currentWidget?.showBanner !== undefined ? currentWidget.showBanner : true;
+  const initialShowBackgroundOverlay = currentWidget?.showBackgroundOverlay !== undefined ? currentWidget.showBackgroundOverlay : false;
   const initialPlacement = currentWidget?.placement || "inside";
 
   const [inviteCode, setInviteCode] = useState(initialTargetId);
@@ -31,6 +32,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
   const [showMemberCount, setShowMemberCount] = useState<boolean>(initialShowMemberCount);
   const [showOnlineCount, setShowOnlineCount] = useState<boolean>(initialShowOnlineCount);
   const [showBanner, setShowBanner] = useState<boolean>(initialShowBanner);
+  const [showBackgroundOverlay, setShowBackgroundOverlay] = useState<boolean>(initialShowBackgroundOverlay);
 
   const cleanInvite = inviteCode.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "");
 
@@ -42,6 +44,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
     showMemberCount !== initialShowMemberCount ||
     showOnlineCount !== initialShowOnlineCount ||
     showBanner !== initialShowBanner ||
+    showBackgroundOverlay !== initialShowBackgroundOverlay ||
     placement !== initialPlacement;
 
   const [, startTransition] = useTransition();
@@ -66,6 +69,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
               showMemberCount,
               showOnlineCount,
               showBanner,
+              showBackgroundOverlay,
               placement,
             }
           : w
@@ -82,6 +86,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
         showMemberCount,
         showOnlineCount,
         showBanner,
+        showBackgroundOverlay,
         placement,
       };
       updated = [newWidget, ...existingList];
@@ -110,6 +115,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
       setShowMemberCount(initialShowMemberCount);
       setShowOnlineCount(initialShowOnlineCount);
       setShowBanner(initialShowBanner);
+      setShowBackgroundOverlay(initialShowBackgroundOverlay);
     } else {
       router.push("/dashboard/customize/profile/widgets");
     }
@@ -221,7 +227,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                 /* Live Discord Server Widget Card */
                 <div className="relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 p-4 transition-all duration-200 shadow-md">
                   {/* Banner Background Cover */}
-                  {showBanner && bannerUrl && (
+                  {showBanner && bannerUrl ? (
                     <div className="absolute inset-0 z-0">
                       <Image
                         src={bannerUrl}
@@ -232,7 +238,17 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#101010] via-[#101010]/80 to-transparent" />
                     </div>
-                  )}
+                  ) : showBackgroundOverlay && iconUrl ? (
+                    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={iconUrl}
+                        alt=""
+                        className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+                      />
+                      <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+                    </div>
+                  ) : null}
 
                   <div className="relative z-10 flex items-center gap-3.5">
                     {/* Server Icon */}
@@ -318,6 +334,8 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
           onShowOnlineCountChange={setShowOnlineCount}
           showBanner={showBanner}
           onShowBannerChange={setShowBanner}
+          showBackgroundOverlay={showBackgroundOverlay}
+          onShowBackgroundOverlayChange={setShowBackgroundOverlay}
         />
       </div>
 

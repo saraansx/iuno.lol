@@ -40,6 +40,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
   const initialTargetId = searchParams.get("id") || "";
   const currentWidget = ((user?.widgets as WidgetItem[]) || []).find((w) => w.id === widgetId);
   const initialImageShape = currentWidget?.imageShape || "rounded";
+  const initialShowBackgroundOverlay = currentWidget?.showBackgroundOverlay !== undefined ? currentWidget.showBackgroundOverlay : true;
   const initialShowStars = currentWidget?.showStars !== undefined ? currentWidget.showStars : true;
   const initialShowForks = currentWidget?.showForks !== undefined ? currentWidget.showForks : true;
   const initialShowWatchers = currentWidget?.showWatchers !== undefined ? currentWidget.showWatchers : true;
@@ -51,6 +52,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
   const [repoString, setRepoString] = useState(initialTargetId);
   const [placement, setPlacement] = useState<"inside" | "outside">(initialPlacement);
   const [imageShape, setImageShape] = useState<"circle" | "rounded" | "square">(initialImageShape);
+  const [showBackgroundOverlay, setShowBackgroundOverlay] = useState<boolean>(initialShowBackgroundOverlay);
   const [showStars, setShowStars] = useState<boolean>(initialShowStars);
   const [showForks, setShowForks] = useState<boolean>(initialShowForks);
   const [showWatchers, setShowWatchers] = useState<boolean>(initialShowWatchers);
@@ -68,6 +70,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
   const isChanged =
     cleanRepo !== initialTargetId ||
     imageShape !== initialImageShape ||
+    showBackgroundOverlay !== initialShowBackgroundOverlay ||
     showStars !== initialShowStars ||
     showForks !== initialShowForks ||
     showWatchers !== initialShowWatchers ||
@@ -95,6 +98,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
               ...w,
               targetId: cleanRepo,
               imageShape,
+              showBackgroundOverlay,
               showStars,
               showForks,
               showWatchers,
@@ -114,6 +118,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
         useLinked: false,
         enabled: true,
         imageShape,
+        showBackgroundOverlay,
         showStars,
         showForks,
         showWatchers,
@@ -145,6 +150,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
     if (isEditing) {
       setRepoString(initialTargetId);
       setImageShape(initialImageShape);
+      setShowBackgroundOverlay(initialShowBackgroundOverlay);
       setShowStars(initialShowStars);
       setShowForks(initialShowForks);
       setShowWatchers(initialShowWatchers);
@@ -251,6 +257,19 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
               ) : (
                 /* Live GitHub Repo Widget Card */
                 <div className="relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 p-4 transition-all duration-200 shadow-md">
+                  {/* Background Avatar Ambient Overlay */}
+                  {showBackgroundOverlay && ownerName && (
+                    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
+                        alt=""
+                        className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+                      />
+                      <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+                    </div>
+                  )}
+
                   <div className="relative z-10 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3.5 min-w-0 flex-1">
                       {/* Owner Avatar */}
@@ -379,6 +398,8 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
           onPlacementChange={setPlacement}
           imageShape={imageShape}
           onImageShapeChange={setImageShape}
+          showBackgroundOverlay={showBackgroundOverlay}
+          onShowBackgroundOverlayChange={setShowBackgroundOverlay}
           showStars={showStars}
           onShowStarsChange={setShowStars}
           showForks={showForks}
