@@ -147,6 +147,19 @@ export const userSettings = mysqlTable('user_settings', {
     showOnlineCount?: boolean;
     showBanner?: boolean;
     placement?: 'inside' | 'outside';
+    showFollowers?: boolean;
+    showFollowing?: boolean;
+    showPublicRepos?: boolean;
+    showViewButton?: boolean;
+    showBackgroundOverlay?: boolean;
+    showContributionHeatmap?: boolean;
+    showStars?: boolean;
+    showForks?: boolean;
+    showWatchers?: boolean;
+    showOpenIssues?: boolean;
+    showPrimaryLanguage?: boolean;
+    showPinCount?: boolean;
+    imageBackground?: boolean;
   }>>().default([]),
 })
 

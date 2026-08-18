@@ -164,12 +164,12 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                   type="text"
                   value={inviteCode}
                   onChange={(e) => setInviteCode(e.target.value)}
-                  placeholder="QgZEkJjF8q"
+                  placeholder="e.g. QgZEkJjF8q"
                   className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors"
                 />
               </div>
               <p className="text-[11.5px] text-white/35">
-                The code from your invite link (e.g. &apos;haunt&apos; from discord.gg/hauntbio). Use a permanent invite so the widget keeps working.
+                The code from your invite link (e.g. &apos;QgZEkJjF8q&apos; from discord.gg/QgZEkJjF8q). Use a permanent invite so the widget keeps working.
               </p>
             </div>
           </div>

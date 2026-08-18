@@ -1,0 +1,58 @@
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const imageUrl = searchParams.get("url");
+
+    if (!imageUrl) {
+      return new NextResponse(null, { status: 400 });
+    }
+
+    // Security check: Only proxy valid Pinterest CDN domains or safe origins
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(imageUrl);
+    } catch {
+      return new NextResponse(null, { status: 400 });
+    }
+
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isAllowedHost =
+      hostname.endsWith(".pinimg.com") ||
+      hostname.endsWith(".pinterest.com") ||
+      hostname.endsWith(".pinimg.cn") ||
+      hostname === "pinimg.com" ||
+      hostname === "pinterest.com";
+
+    if (!isAllowedHost) {
+      return new NextResponse(null, { status: 403 });
+    }
+
+    const res = await fetch(imageUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Referer: "https://www.pinterest.com/",
+      },
+      next: { revalidate: 86400 },
+    });
+
+    if (!res.ok) {
+      return new NextResponse(null, { status: res.status });
+    }
+
+    const buffer = await res.arrayBuffer();
+    const contentType = res.headers.get("content-type") || "image/jpeg";
+
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+      },
+    });
+  } catch (err) {
+    console.error("[Pinterest Image Proxy Error]", err);
+    return new NextResponse(null, { status: 500 });
+  }
+}

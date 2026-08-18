@@ -196,7 +196,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
                   type="text"
                   value={repoString}
                   onChange={(e) => setRepoString(e.target.value)}
-                  placeholder="torvalds/linux"
+                  placeholder="e.g. torvalds/linux"
                   className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors"
                 />
               </div>

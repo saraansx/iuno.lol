@@ -346,7 +346,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                   disabled={useLinked}
                   value={useLinked ? user?.discordId || "" : discordId}
                   onChange={(e) => setDiscordId(e.target.value.trim())}
-                  placeholder="200770268778463233"
+                  placeholder="e.g. 1024354678901234567"
                   className={`w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors ${
                     useLinked ? "opacity-50 cursor-not-allowed bg-white/[0.02]" : ""
                   }`}

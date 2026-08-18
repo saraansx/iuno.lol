@@ -45,6 +45,8 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.showWatchers === target.showWatchers &&
       item.showOpenIssues === target.showOpenIssues &&
       item.showPrimaryLanguage === target.showPrimaryLanguage &&
+      item.showPinCount === target.showPinCount &&
+      item.imageBackground === target.imageBackground &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

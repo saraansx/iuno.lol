@@ -13,12 +13,15 @@ interface AddWidgetModalProps {
   hasServerWidget?: boolean;
   hasGitHubUserWidget?: boolean;
   hasGitHubRepoWidget?: boolean;
+  hasPinterestProfileWidget?: boolean;
+  hasPinterestBoardWidget?: boolean;
 }
 
 const PLATFORMS = [
   { id: "none", name: "None" },
   { id: "discord", name: "Discord" },
   { id: "github", name: "GitHub" },
+  { id: "pinterest", name: "Pinterest" },
 ];
 
 export default function AddWidgetModal({
@@ -31,15 +34,19 @@ export default function AddWidgetModal({
   hasServerWidget = false,
   hasGitHubUserWidget = false,
   hasGitHubRepoWidget = false,
+  hasPinterestProfileWidget = false,
+  hasPinterestBoardWidget = false,
 }: AddWidgetModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
-  const [widgetType, setWidgetType] = useState<"presence" | "server" | "github-user" | "github-repo">("presence");
+  const [widgetType, setWidgetType] = useState<"presence" | "server" | "github-user" | "github-repo" | "pinterest-profile" | "pinterest-board">("presence");
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
   const [githubRepo, setGithubRepo] = useState("");
+  const [pinterestUsername, setPinterestUsername] = useState("");
+  const [pinterestBoard, setPinterestBoard] = useState("");
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -51,14 +58,16 @@ export default function AddWidgetModal({
         setWidgetType(hasPresenceWidget && !hasServerWidget ? "server" : "presence");
       } else if (selectedPlatform === "github") {
         setWidgetType(hasGitHubUserWidget && !hasGitHubRepoWidget ? "github-repo" : "github-user");
+      } else if (selectedPlatform === "pinterest") {
+        setWidgetType(hasPinterestProfileWidget && !hasPinterestBoardWidget ? "pinterest-board" : "pinterest-profile");
       }
       setValidationError(null);
     }
-  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasGitHubUserWidget, hasGitHubRepoWidget]);
+  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget]);
 
   useEffect(() => {
     setValidationError(null);
-  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, githubUsername, githubRepo]);
+  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, githubUsername, githubRepo, pinterestUsername, pinterestBoard]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -85,10 +94,13 @@ export default function AddWidgetModal({
 
   const isDiscord = selectedPlatform === "discord";
   const isGitHub = selectedPlatform === "github";
+  const isPinterest = selectedPlatform === "pinterest";
   const isPresence = widgetType === "presence";
   const isServer = widgetType === "server";
   const isGitHubUser = widgetType === "github-user";
   const isGitHubRepo = widgetType === "github-repo";
+  const isPinterestProfile = widgetType === "pinterest-profile";
+  const isPinterestBoard = widgetType === "pinterest-board";
 
   const targetId = isDiscord
     ? isPresence
@@ -100,6 +112,10 @@ export default function AddWidgetModal({
     ? isGitHubUser
       ? githubUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "")
       : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "")
+    : isPinterest
+    ? isPinterestProfile
+      ? pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
+      : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
     : "";
 
   const isFormatValid = isDiscord
@@ -122,6 +138,14 @@ export default function AddWidgetModal({
       : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/").length === 2 &&
         Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[0]) &&
         Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[1])
+    : isPinterest
+    ? isPinterestProfile
+      ? hasPinterestProfileWidget
+        ? false
+        : /^[a-zA-Z0-9_]{1,30}$/.test(pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, ""))
+      : hasPinterestBoardWidget
+      ? false
+      : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
     : false;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -199,6 +223,36 @@ export default function AddWidgetModal({
       } finally {
         setIsValidating(false);
       }
+    } else if (isPinterest) {
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const res = await fetch("/api/widgets/pinterest/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: widgetType, id: targetId }),
+        });
+        const result = await res.json();
+
+        if (!result.ok) {
+          setValidationError(result.error || "Invalid Pinterest account/board");
+          setIsValidating(false);
+          return;
+        }
+
+        onAdd({
+          platform: selectedPlatform,
+          type: widgetType,
+          useLinked: false,
+          customId: targetId,
+        });
+        onClose();
+      } catch {
+        setValidationError("Failed to verify Pinterest account/board. Try again.");
+      } finally {
+        setIsValidating(false);
+      }
     }
   };
 
@@ -253,6 +307,10 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
                   </svg>
+                ) : selectedPlatform === "pinterest" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#E60023">
+                    <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                  </svg>
                 ) : null}
                 <span>{PLATFORMS.find((p) => p.id === selectedPlatform)?.name || "Select platform"}</span>
               </div>
@@ -296,6 +354,10 @@ export default function AddWidgetModal({
                         ) : platform.id === "github" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                             <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                          </svg>
+                        ) : platform.id === "pinterest" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#E60023">
+                            <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.546.535 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
                           </svg>
                         ) : null}
                         <span>{platform.name}</span>
@@ -514,6 +576,85 @@ export default function AddWidgetModal({
                 </div>
                 <p className="text-[11px] text-white/30 leading-normal mt-0.5">
                   Format as &apos;owner/repository&apos; or full repository link.
+                </p>
+              </div>
+            )}
+          </>
+        )}
+
+        {isPinterest && (
+          <>
+            {/* Widget Type */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  disabled={hasPinterestProfileWidget}
+                  onClick={() => setWidgetType("pinterest-profile")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    hasPinterestProfileWidget
+                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
+                      : widgetType === "pinterest-profile"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Pinterest Profile
+                </button>
+                <button
+                  type="button"
+                  disabled={hasPinterestBoardWidget}
+                  onClick={() => setWidgetType("pinterest-board")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    hasPinterestBoardWidget
+                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
+                      : widgetType === "pinterest-board"
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  Pinterest Board
+                </button>
+              </div>
+            </div>
+
+            {/* Pinterest Profile Settings */}
+            {isPinterestProfile && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">Pinterest Username</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={pinterestUsername}
+                    onChange={(e) => setPinterestUsername(e.target.value)}
+                    placeholder="e.g. username"
+                    maxLength={30}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Your Pinterest username or profile link (e.g. &apos;username&apos; from pinterest.com/username). The profile must be public.
+                </p>
+              </div>
+            )}
+
+            {/* Pinterest Board Settings */}
+            {isPinterestBoard && (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">Pinterest Board</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={pinterestBoard}
+                    onChange={(e) => setPinterestBoard(e.target.value)}
+                    placeholder="e.g. username/board"
+                    maxLength={100}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  The board in &apos;username/board&apos; format (e.g. &apos;username/board&apos; from pinterest.com/username/board).
                 </p>
               </div>
             )}

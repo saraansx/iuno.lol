@@ -439,6 +439,8 @@ export async function updateProfileWidgets(data: {
     showWatchers?: boolean;
     showOpenIssues?: boolean;
     showPrimaryLanguage?: boolean;
+    showPinCount?: boolean;
+    imageBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -458,11 +460,13 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
   let githubRepoCount = 0;
+  let pinterestProfileCount = 0;
+  let pinterestBoardCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -471,11 +475,17 @@ export async function updateProfileWidgets(data: {
         ? "github-user"
         : w.type === "github-repo" || w.type === "repo"
         ? "github-repo"
+        : w.type === "pinterest-profile" || w.type === "profile"
+        ? "pinterest-profile"
+        : w.type === "pinterest-board" || w.type === "board"
+        ? "pinterest-board"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
     if (type === "github-user") githubUserCount++;
     if (type === "github-repo") githubRepoCount++;
+    if (type === "pinterest-profile") pinterestProfileCount++;
+    if (type === "pinterest-board") pinterestBoardCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -489,9 +499,15 @@ export async function updateProfileWidgets(data: {
   if (githubRepoCount > 1) {
     throw new Error("You can only add 1 GitHub Repository widget.");
   }
+  if (pinterestProfileCount > 1) {
+    throw new Error("You can only add 1 Pinterest Profile widget.");
+  }
+  if (pinterestBoardCount > 1) {
+    throw new Error("You can only add 1 Pinterest Board widget.");
+  }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
-    const platform = w.platform === "github" ? "github" : "discord";
+    const platform = w.platform === "github" ? "github" : w.platform === "pinterest" ? "pinterest" : "discord";
     const type =
       w.type === "server"
         ? "server"
@@ -499,6 +515,10 @@ export async function updateProfileWidgets(data: {
         ? "github-user"
         : w.type === "github-repo" || w.type === "repo"
         ? "github-repo"
+        : w.type === "pinterest-profile" || w.type === "profile"
+        ? "pinterest-profile"
+        : w.type === "pinterest-board" || w.type === "board"
+        ? "pinterest-board"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -530,6 +550,19 @@ export async function updateProfileWidgets(data: {
         targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").slice(0, 39);
         if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(targetId)) {
           throw new Error("Invalid GitHub username format");
+        }
+      }
+    } else if (platform === "pinterest") {
+      if (type === "pinterest-board") {
+        targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").slice(0, 100);
+        const parts = targetId.split("/").filter(Boolean);
+        if (parts.length < 2 || !parts[0] || !parts[1]) {
+          throw new Error("Invalid Pinterest board format (username/board)");
+        }
+      } else {
+        targetId = String(w.targetId || "").trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").slice(0, 30);
+        if (!/^[a-zA-Z0-9_]{1,30}$/.test(targetId)) {
+          throw new Error("Invalid Pinterest username format");
         }
       }
     }
@@ -574,6 +607,8 @@ export async function updateProfileWidgets(data: {
       showWatchers: w.showWatchers !== undefined ? Boolean(w.showWatchers) : true,
       showOpenIssues: w.showOpenIssues !== undefined ? Boolean(w.showOpenIssues) : true,
       showPrimaryLanguage: w.showPrimaryLanguage !== undefined ? Boolean(w.showPrimaryLanguage) : true,
+      showPinCount: w.showPinCount !== undefined ? Boolean(w.showPinCount) : true,
+      imageBackground: w.imageBackground !== undefined ? Boolean(w.imageBackground) : true,
     };
   });
 

@@ -1,0 +1,62 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { type PinterestUserData } from "@/app/api/widgets/pinterest/user/[username]/route";
+
+export function usePinterestUser(username: string) {
+  const cleanUsername = (username || "").trim().toLowerCase();
+  const isValidUsername = /^[a-zA-Z0-9_]{1,30}$/.test(cleanUsername);
+
+  const [data, setData] = useState<PinterestUserData | null>(null);
+  const [loading, setLoading] = useState<boolean>(isValidUsername);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    if (!isValidUsername) {
+      setData(null);
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    const controller = new AbortController();
+
+    const fetchUser = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch(`/api/widgets/pinterest/user/${encodeURIComponent(cleanUsername)}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error("Failed to load Pinterest user");
+        const json = (await res.json()) as PinterestUserData;
+        if (isMounted) {
+          setData(json);
+          setLoading(false);
+        }
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        if (isMounted) {
+          setError(err instanceof Error ? err : new Error("Failed to load Pinterest user"));
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchUser();
+
+    return () => {
+      isMounted = false;
+      controller.abort();
+    };
+  }, [cleanUsername, isValidUsername]);
+
+  return {
+    data: isValidUsername ? data : null,
+    loading: isValidUsername ? loading : false,
+    error: isValidUsername ? error : null,
+    isValidUsername,
+    cleanUsername,
+  };
+}

@@ -5,6 +5,8 @@ import DiscordPresenceWidget from "./DiscordPresenceWidget";
 import DiscordServerWidget from "./DiscordServerWidget";
 import GitHubUserWidget from "./GitHubUserWidget";
 import GitHubRepoWidget from "./GitHubRepoWidget";
+import PinterestProfileWidget from "./PinterestProfileWidget";
+import PinterestBoardWidget from "./PinterestBoardWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -18,6 +20,12 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "github-repo" || w.type === "repo") {
     return <GitHubRepoWidget widget={w} />;
+  }
+  if (w.type === "pinterest-profile") {
+    return <PinterestProfileWidget widget={w} />;
+  }
+  if (w.type === "pinterest-board") {
+    return <PinterestBoardWidget widget={w} />;
   }
   return null;
 }

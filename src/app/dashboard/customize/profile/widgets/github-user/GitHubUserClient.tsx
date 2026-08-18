@@ -175,7 +175,7 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="octocat"
+                  placeholder="e.g. octocat"
                   className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors"
                 />
               </div>

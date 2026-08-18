@@ -15,12 +15,12 @@ export default function ShowBackgroundOverlaySetting({
     <div className={`flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl transition-opacity ${disabled ? "opacity-60" : ""}`}>
       <div className="flex flex-col gap-0.5 pr-4">
         <span className="text-[13px] font-normal text-white/90 tracking-tight">
-          Background Overlay
+          Background Image
         </span>
         <span className="text-[12px] font-normal text-white/40">
           {disabled
-            ? "Turn off Server Banner first to enable Icon Background Overlay."
-            : "Display a subtle blurred server icon glow in the widget background."}
+            ? "Turn off Server Banner first to enable Background Image."
+            : "Display a subtle blurred server icon in the widget background."}
         </span>
       </div>
       <button
