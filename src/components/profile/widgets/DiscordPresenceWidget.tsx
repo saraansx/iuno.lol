@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
@@ -18,16 +19,13 @@ function formatLastSeen(timestamp?: number | null) {
 }
 
 function getCleanBadgeName(badge: { id: string; description?: string }): string {
-  const id = badge.id.toLowerCase();
-  const desc = badge.description || "";
+  const desc = badge.description?.trim();
+  if (desc) return desc;
 
-  if (id.includes("premium") || id.includes("nitro") || desc.toLowerCase().includes("subscriber since")) {
-    return "Discord Nitro";
-  }
-  if (id.includes("orb") || desc.toLowerCase().includes("orb")) return "Orb";
-  if (id.includes("guild_booster") || id.includes("boost") || desc.toLowerCase().includes("server boosting")) {
-    return "Server Booster";
-  }
+  const id = badge.id.toLowerCase();
+  if (id.includes("premium") || id.includes("nitro")) return "Discord Nitro";
+  if (id.includes("orb")) return "Orb";
+  if (id.includes("guild_booster") || id.includes("boost")) return "Server Booster";
   if (id.includes("staff")) return "Discord Staff";
   if (id.includes("partner")) return "Partnered Server Owner";
   if (id.includes("hypesquad_house_1") || id.includes("bravery")) return "HypeSquad Bravery";
@@ -39,7 +37,7 @@ function getCleanBadgeName(badge: { id: string; description?: string }): string 
   if (id.includes("verified_developer") || id.includes("bot_developer")) return "Early Verified Bot Developer";
   if (id.includes("early_supporter")) return "Early Supporter";
   if (id.includes("legacy_username")) return "Legacy Username";
-  return badge.description || "Discord Badge";
+  return "Discord Badge";
 }
 
 export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }) {
@@ -54,6 +52,8 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
   const showBadges = widget.showBadges !== undefined ? widget.showBadges : true;
   const showLastSeen = widget.showLastSeen !== undefined ? widget.showLastSeen : true;
   const fallbackText = widget.fallbackText !== undefined ? widget.fallbackText : "Currently doing nothing";
+
+  const [hoveredBadge, setHoveredBadge] = useState<{ name: string; x: number; y: number } | null>(null);
 
   if (loading || !discordData) {
     return (
@@ -106,8 +106,31 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(widget.targetId && /^\d+$/.test(widget.targetId) ? widget.targetId : "0") % BigInt(5))}.png`;
 
   return (
-    <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 transition-all duration-200 hover:border-white/20 box-border">
-      <div className="flex items-center gap-3 min-w-0 flex-1">
+    <>
+      {hoveredBadge && (
+        <div
+          className="fixed pointer-events-none z-[99999] -translate-x-1/2 -translate-y-full mb-2 flex flex-col items-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150"
+          style={{
+            left: `${hoveredBadge.x}px`,
+            top: `${hoveredBadge.y - 6}px`,
+          }}
+        >
+          <div
+            className="bg-[#0f0f12]/80 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-xl"
+            style={{
+              fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
+              fontSize: "11px",
+              fontWeight: 500,
+              letterSpacing: "normal",
+            }}
+          >
+            {hoveredBadge.name}
+          </div>
+        </div>
+      )}
+
+      <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 transition-all duration-200 hover:border-white/20 box-border">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
         {/* Avatar */}
         <div className="relative shrink-0 flex items-center justify-center">
           <div
@@ -187,13 +210,25 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             {showBadges && visibleBadges.length > 0 && (
               <div className="flex items-center gap-1.5 shrink-0 ml-2">
                 {visibleBadges.map((badge) => (
-                  <div key={badge.id} title={badge.name} className="relative w-5 h-5 shrink-0">
+                  <div
+                    key={badge.id}
+                    className="relative w-5 h-5 shrink-0 flex items-center justify-center cursor-pointer"
+                    onMouseEnter={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setHoveredBadge({
+                        name: badge.name,
+                        x: rect.left + rect.width / 2,
+                        y: rect.top,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredBadge(null)}
+                  >
                     <Image
                       src={badge.icon}
                       alt={badge.name}
                       width={20}
                       height={20}
-                      className="object-contain"
+                      className="object-contain pointer-events-none"
                       unoptimized
                     />
                   </div>
@@ -298,5 +333,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         </div>
       ) : null}
     </div>
+    </>
   );
 }

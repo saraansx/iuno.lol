@@ -149,18 +149,19 @@ export async function GET(
     // 3. Direct user profile lookup strictly via user token matching exact Discord Web Client
     // Uses Redis cache so external proxy / user profile endpoint is called ONLY ONCE per 48 hours per ID.
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
-    const redisBadgesKey = `discord:badges:${id}`;
+    const redisBadgesKey = `discord:badges:v2:${id}`;
 
     try {
       const cached = await redis.get(redisBadgesKey);
       if (cached) {
-        // Format: Array of [id, icon] or legacy [{ id, description, icon }]
+        // Format: Array of [id, icon, description] or legacy [{ id, description, icon }]
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
           if (Array.isArray(parsed[0])) {
-            userProfileBadges = (parsed as Array<[string, string]>).map(([bId, bIcon]) => ({
+            userProfileBadges = (parsed as Array<[string, string, string?]>).map(([bId, bIcon, bDesc]) => ({
               id: bId,
               icon: bIcon,
+              description: bDesc || "",
             }));
           } else {
             userProfileBadges = parsed;
@@ -214,15 +215,17 @@ export async function GET(
           if (profileRes.ok) {
             const profileData = await profileRes.json();
             const rawBadges = (profileData.badges || []) as Array<{ id: string; description?: string; icon?: string }>;
-            // Compact storage: [id, icon] tuples
-            const compactBadges = rawBadges
-              .filter((b) => Boolean(b.icon))
-              .map((b) => [b.id, b.icon]);
 
-            userProfileBadges = rawBadges.map((b) => ({
-              id: b.id,
-              icon: b.icon || "",
-            }));
+            userProfileBadges = rawBadges
+              .filter((b) => Boolean(b.icon))
+              .map((b) => ({
+                id: b.id,
+                description: b.description || "",
+                icon: b.icon || "",
+              }));
+
+            // Compact storage: [id, icon, description] tuples
+            const compactBadges = userProfileBadges.map((b) => [b.id, b.icon, b.description]);
 
             try {
               await redis.set(
