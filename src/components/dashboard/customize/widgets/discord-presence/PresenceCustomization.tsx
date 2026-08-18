@@ -11,6 +11,7 @@ import ShowGuildTagSetting from "./settings/ShowGuildTagSetting";
 import ShowBadgesSetting from "./settings/ShowBadgesSetting";
 import ShowLastSeenSetting from "./settings/ShowLastSeenSetting";
 import FallbackTextSetting from "./settings/FallbackTextSetting";
+import ShowViewButtonSetting from "./settings/ShowViewButtonSetting";
 
 interface PresenceCustomizationProps {
   placement: "inside" | "outside";
@@ -35,6 +36,8 @@ interface PresenceCustomizationProps {
   onShowLastSeenChange: (val: boolean) => void;
   fallbackText: string;
   onFallbackTextChange: (val: string) => void;
+  showViewButton: boolean;
+  onShowViewButtonChange: (val: boolean) => void;
 }
 
 export default function PresenceCustomization({
@@ -60,6 +63,8 @@ export default function PresenceCustomization({
   onShowLastSeenChange,
   fallbackText,
   onFallbackTextChange,
+  showViewButton,
+  onShowViewButtonChange,
 }: PresenceCustomizationProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
@@ -117,6 +122,10 @@ export default function PresenceCustomization({
         <FallbackTextSetting
           value={fallbackText}
           onChange={onFallbackTextChange}
+        />
+        <ShowViewButtonSetting
+          value={showViewButton}
+          onChange={onShowViewButtonChange}
         />
       </div>
     </div>

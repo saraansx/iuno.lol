@@ -28,10 +28,10 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
 
   if (loading || !serverData) {
     return (
-      <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 py-3.5 shadow-md flex items-center justify-between gap-3 box-border">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className="w-full py-3.5 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 shadow-md flex flex-col justify-center gap-2.5 box-border">
+        <div className="flex items-center gap-3 min-w-0 w-full">
           <div
-            className={`w-[62px] h-[62px] shrink-0 bg-white/[0.05] ${
+            className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -40,14 +40,14 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
           </div>
         </div>
-        <div className="w-12 h-7 bg-white/[0.05] rounded-xl shrink-0" />
+        <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />
       </div>
     );
   }
 
   return (
-    <div className="w-full h-[98px] bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 flex flex-col justify-center relative box-border">
-      {/* Banner or Icon Background Overlay */}
+    <div className="w-full h-[116px] p-3.5 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[22px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 flex flex-col justify-between relative box-border">
+      {/* Background Layer: Banner, Icon Ambient Overlay, or none */}
       {showBanner && bannerUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden">
           <Image
@@ -55,36 +55,37 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             alt=""
             fill
             sizes="(max-width: 600px) 100vw, 400px"
-            className="object-cover opacity-30 filter blur-[1px]"
+            className="object-cover opacity-60 filter blur-[0.5px]"
             unoptimized
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#101010]/90 via-[#101010]/80 to-[#101010]/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#101010]/80 via-[#101010]/50 to-[#101010]/30" />
         </div>
-      ) : showBackgroundOverlay && iconUrl ? (
+      ) : null}
+      {showBackgroundOverlay && iconUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={iconUrl}
             alt=""
-            className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+            className="w-full h-full object-cover opacity-60 filter blur-[8px] scale-125"
           />
-          <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+          <div className="absolute inset-0 bg-[#101010]/40 backdrop-blur-[1px]" />
         </div>
       ) : null}
 
-      <div className="px-4.5 py-3.5 flex items-center justify-between gap-3 relative z-10 w-full">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
+      <div className="flex flex-col justify-between h-full relative z-10 w-full">
+        <div className="flex items-center gap-3 min-w-0 w-full">
           {/* Guild Icon */}
           <div
-            className={`relative w-[62px] h-[62px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
-              imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
+            className={`relative w-11 h-11 shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
+              imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-xl"
             }`}
           >
             <Image
               src={iconUrl}
               alt=""
               fill
-              sizes="62px"
+              sizes="44px"
               priority
               className="object-cover"
               unoptimized
@@ -92,10 +93,10 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
           </div>
 
           {/* Guild Info */}
-          <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+          <div className="flex flex-col gap-0.5 min-w-0 flex-1 overflow-hidden">
             {/* Title with pingpong overflow scroll */}
             <OverflowPingPong deps={[serverData, guild?.name]}>
-              <span className="text-[16px] font-normal text-white/95 tracking-tight shrink-0">
+              <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                 {guild?.name || (loading ? "Loading..." : "Discord Server")}
               </span>
             </OverflowPingPong>
@@ -103,16 +104,16 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             {/* Counts */}
             {(showOnlineCount || showMemberCount) && (
               <OverflowPingPong deps={[serverData, showOnlineCount, showMemberCount]}>
-                <div className="flex items-center gap-2.5 text-[12.5px] text-white/60 font-normal whitespace-nowrap shrink-0">
+                <div className="flex items-center gap-2 text-[12px] text-white/60 font-normal whitespace-nowrap shrink-0">
                   {showOnlineCount && (
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="w-2 h-2 rounded-full bg-[#23a55a] shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#23a55a] shrink-0" />
                       <span>{Number(serverData?.approximate_presence_count || 0).toLocaleString()}</span>
                     </div>
                   )}
                   {showMemberCount && (
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="w-2 h-2 rounded-full bg-[#80848e] shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#80848e] shrink-0" />
                       <span>{Number(serverData?.approximate_member_count || 0).toLocaleString()}</span>
                     </div>
                   )}
@@ -122,14 +123,19 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
           </div>
         </div>
 
-        {/* Join button */}
+        {/* Join Server Button (Below) */}
         <a
           href={`https://discord.gg/${encodeURIComponent(cleanInvite)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 text-[12px] font-medium text-white transition-colors"
+          className="w-full h-7.5 px-3 py-1 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-[13px] transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
         >
-          Join
+          <span>Join Server</span>
+          <svg width="10.5" height="10.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
         </a>
       </div>
     </div>

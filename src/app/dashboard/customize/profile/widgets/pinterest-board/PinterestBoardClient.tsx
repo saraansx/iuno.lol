@@ -198,17 +198,19 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   </span>
                 </div>
               ) : loadingPreview && !boardData ? (
-                <div className="w-full bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] p-4 shadow-md flex items-center gap-3.5">
-                  <div
-                    className={`w-12 h-12 shrink-0 bg-white/[0.05] ${
-                      imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
-                    }`}
-                  />
-                  <div className="flex flex-col gap-2 min-w-0 flex-1">
-                    <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
-                    <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
+                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] px-4 shadow-md flex flex-col justify-center gap-2.5`}>
+                  <div className="flex items-center gap-3 min-w-0 w-full">
+                    <div
+                      className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+                        imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
+                      }`}
+                    />
+                    <div className="flex flex-col gap-2 min-w-0 flex-1">
+                      <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
+                      <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
+                    </div>
                   </div>
-                  {showViewButton && <div className="w-12 h-7 bg-white/[0.05] rounded-xl shrink-0" />}
+                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
                 </div>
               ) : !boardData ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
@@ -224,7 +226,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                 </div>
               ) : (
                 /* Live Pinterest Board Widget Card */
-                <div className="relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 p-4 transition-all duration-200 shadow-md">
+                <div className={`relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 ${showViewButton ? "py-3.5 px-4" : "h-[98px] px-4"} flex flex-col justify-center gap-2.5 transition-all duration-200 shadow-md`}>
                   {/* Blurred Background Layer */}
                   {showBackgroundOverlay && bgImageUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -238,11 +240,11 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                     </div>
                   )}
 
-                  <div className="relative z-10 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  <div className="relative z-10 flex flex-col gap-2.5 w-full">
+                    <div className="flex items-center gap-3 min-w-0 w-full">
                       {/* Cover / Pin Image */}
                       <div
-                        className={`relative w-[62px] h-[62px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                        className={`relative w-[52px] h-[52px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                           imageShape === "square"
                             ? "rounded-none"
                             : imageShape === "circle"
@@ -265,7 +267,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                       </div>
 
                       {/* Info + Counts */}
-                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                      <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                         <div className="flex items-center gap-1.5 min-w-0">
                           <span className="text-[15px] font-normal text-white tracking-tight truncate">
                             {boardData.name}
@@ -285,21 +287,19 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
 
                     {/* View Button */}
                     {showViewButton && (
-                      <div className="pt-0.5">
-                        <a
-                          href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#609fda]/20 hover:bg-[#609fda]/30 border border-[#609fda]/30 rounded-xl text-[12px] font-medium text-white transition-all duration-150 shadow-[0_0_12px_rgba(96,159,218,0.15)] shrink-0"
-                        >
-                          <span>View</span>
-                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                            <polyline points="15 3 21 3 21 9" />
-                            <line x1="10" y1="14" x2="21" y2="3" />
-                          </svg>
-                        </a>
-                      </div>
+                      <a
+                        href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full h-8 px-7 py-2.5 bg-[#1a2b3c] hover:bg-[#1a2b3c]/90 text-[#80bbf2] border border-[#609fda]/25 rounded-xl font-normal text-sm transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0 cursor-pointer"
+                      >
+                        <span>View Board</span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </a>
                     )}
                   </div>
                 </div>

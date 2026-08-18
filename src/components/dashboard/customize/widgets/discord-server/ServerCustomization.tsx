@@ -71,7 +71,6 @@ export default function ServerCustomization({
         <ShowBackgroundOverlaySetting
           value={showBackgroundOverlay}
           onChange={onShowBackgroundOverlayChange}
-          disabled={showBanner}
         />
       </div>
     </div>
