@@ -56,32 +56,20 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
 
   if (loading && !discordData) {
     return (
-      <div className="bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-6 py-5 shadow-md flex items-center justify-between gap-5 animate-pulse">
+      <div className="bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-6 py-5 shadow-md flex items-center justify-between gap-5">
         <div className="flex items-center gap-4.5 min-w-0 flex-1">
           {/* Avatar Skeleton */}
           <div
-            className={`w-[64px] h-[64px] shrink-0 bg-white/[0.08] ${
+            className={`w-[64px] h-[64px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
           {/* User & Status Skeleton */}
           <div className="flex flex-col gap-2 min-w-0 flex-1">
-            <div className="h-4 w-28 bg-white/[0.08] rounded-md" />
-            <div className="h-3 w-20 bg-white/[0.04] rounded-md" />
+            <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
+            <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
           </div>
         </div>
-        {/* Activity Image Skeleton */}
-        {showActivity && showActivityImage && (
-          <div
-            className={`w-16 h-16 shrink-0 bg-white/[0.06] ${
-              activityImageShape === "square"
-                ? "rounded-none"
-                : activityImageShape === "circle"
-                ? "rounded-full"
-                : "rounded-2xl"
-            }`}
-          />
-        )}
       </div>
     );
   }
@@ -270,7 +258,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
       {/* Right Thumbnail */}
       {showActivity && showActivityImage && discordData?.primary_activity?.large_image_url ? (
         <div
-          className={`w-16 h-16 shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
             activityImageShape === "square"
               ? "rounded-none"
               : activityImageShape === "circle"
@@ -282,13 +270,13 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           <img
             src={discordData.primary_activity.large_image_url}
             alt=""
-            className="w-16 h-16 min-w-16 min-h-16 object-cover block"
+            className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block"
             referrerPolicy="no-referrer"
           />
         </div>
       ) : showActivity && showActivityImage && discordData?.spotify?.album_art_url ? (
         <div
-          className={`w-16 h-16 shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-sm flex items-center justify-center ${
             activityImageShape === "square"
               ? "rounded-none"
               : activityImageShape === "circle"
@@ -300,7 +288,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           <img
             src={discordData.spotify.album_art_url}
             alt=""
-            className="w-16 h-16 min-w-16 min-h-16 object-cover block"
+            className="w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block"
             referrerPolicy="no-referrer"
           />
         </div>

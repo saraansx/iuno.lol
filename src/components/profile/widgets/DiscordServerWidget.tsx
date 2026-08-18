@@ -26,17 +26,17 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
 
   if (loading && !serverData) {
     return (
-      <div className="w-full bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] p-4 shadow-md flex items-center gap-3.5 animate-pulse">
+      <div className="w-full bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] p-4 shadow-md flex items-center gap-3.5">
         <div
-          className={`w-12 h-12 shrink-0 bg-white/[0.08] ${
+          className={`w-12 h-12 shrink-0 bg-white/[0.05] ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
           }`}
         />
         <div className="flex flex-col gap-2 min-w-0 flex-1">
-          <div className="h-4 w-28 bg-white/[0.08] rounded-md" />
-          <div className="h-3 w-16 bg-white/[0.04] rounded-md" />
+          <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
+          <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
         </div>
-        <div className="w-12 h-7 bg-white/[0.06] rounded-xl shrink-0" />
+        <div className="w-12 h-7 bg-white/[0.05] rounded-xl shrink-0" />
       </div>
     );
   }

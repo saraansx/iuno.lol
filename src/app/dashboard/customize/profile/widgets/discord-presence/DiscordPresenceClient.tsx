@@ -358,13 +358,22 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                   </span>
                 </div>
               ) : loadingPreview && !discordData ? (
-                /* Centered clean loader matching iuno.lol aesthetic */
-                <div className="w-full flex items-center justify-center py-6">
-                  <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 px-4 py-2.5 rounded-xl">
-                    <div className="w-4 h-4 border-2 border-[#609fda]/20 border-t-[#609fda] rounded-full animate-spin" />
-                    <span className="text-[12.5px] text-white/50 font-normal">
-                      Fetching Discord presence...
-                    </span>
+                /* Static dark glass skeleton loader matching widget shape */
+                <div className="w-full bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] p-4 shadow-md flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div
+                      className={`w-14 h-14 shrink-0 bg-white/[0.05] ${
+                        imageShape === "square"
+                          ? "rounded-lg"
+                          : imageShape === "rounded"
+                          ? "rounded-2xl"
+                          : "rounded-full"
+                      }`}
+                    />
+                    <div className="flex flex-col gap-2 min-w-0 flex-1">
+                      <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
+                      <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
+                    </div>
                   </div>
                 </div>
               ) : discordData?.in_server === false ? (
@@ -382,15 +391,15 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 </div>
               ) : (
                 /* User IS in the server -> Show full presence, badges & avatar */
-                <div className="relative w-full overflow-hidden rounded-[20px] bg-[#101010] border border-white/10 p-4 transition-all duration-200 shadow-md">
-                  <div className="relative z-10 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4 min-w-0">
+                <div className="relative w-full overflow-hidden rounded-[26px] bg-[#101010]/80 backdrop-blur-md border border-white/10 px-6 py-5.5 transition-all duration-200 shadow-md">
+                  <div className="relative z-10 flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-4.5 min-w-0">
                       {/* Avatar + Status badge + Discord Avatar Decoration */}
-                      <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                      <div className="relative shrink-0 flex items-center justify-center">
                         <div
-                          className={`w-14 h-14 overflow-hidden bg-white/5 border border-white/10 relative shadow-md ${
+                          className={`w-[64px] h-[64px] overflow-hidden bg-[#181818] border border-white/10 relative shadow-md ${
                             imageShape === "square"
-                              ? "rounded-lg"
+                              ? "rounded-none"
                               : imageShape === "rounded"
                               ? "rounded-2xl"
                               : "rounded-full"
@@ -400,7 +409,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             src={avatarUrl}
                             alt="Discord avatar"
                             fill
-                            sizes="56px"
+                            sizes="64px"
                             priority
                             className="object-cover"
                             unoptimized
@@ -409,12 +418,12 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
                         {/* Discord Avatar Decoration preset */}
                         {showAvatarDecoration && decorationUrl && (
-                          <div className="pointer-events-none absolute -inset-[6px] z-10">
+                          <div className="pointer-events-none absolute -inset-2.5 z-10 flex items-center justify-center">
                             <Image
                               src={decorationUrl}
                               alt="Avatar decoration"
-                              fill
-                              sizes="68px"
+                              width={78}
+                              height={78}
                               priority
                               loading="eager"
                               className="object-contain"
@@ -426,15 +435,17 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         {/* Status Indicator Icon */}
                         <div className="absolute bottom-0 right-0 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
                           {discordData?.status === "dnd" ? (
-                            <span className="w-3 h-3 rounded-full bg-rose-500 flex items-center justify-center">
+                            <span className="w-3 h-3 rounded-full bg-[#f23f43] flex items-center justify-center">
                               <span className="w-1.5 h-0.5 bg-[#101010] rounded-full" />
                             </span>
                           ) : discordData?.status === "idle" ? (
-                            <span className="w-3 h-3 rounded-full bg-amber-500" />
+                            <span className="relative w-3 h-3 rounded-full bg-[#f0b232] flex items-center justify-center overflow-hidden">
+                              <span className="absolute -top-0.5 -left-0.5 w-2 h-2 rounded-full bg-[#101010]" />
+                            </span>
                           ) : discordData?.status === "online" ? (
-                            <span className="w-3 h-3 rounded-full bg-emerald-500" />
+                            <span className="w-3 h-3 rounded-full bg-[#23a55a]" />
                           ) : (
-                            <span className="w-3 h-3 rounded-full bg-zinc-500 flex items-center justify-center">
+                            <span className="w-3 h-3 rounded-full bg-[#80848e] flex items-center justify-center">
                               <span className="w-1.5 h-1.5 bg-[#101010] rounded-full" />
                             </span>
                           )}
@@ -442,10 +453,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       </div>
 
                       {/* User Details + Badges + Subtitle Status / Activity */}
-                      <div className="flex flex-col gap-1 min-w-0">
+                      <div className="flex flex-col gap-1.5 min-w-0">
                         {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[15px] font-normal text-white tracking-tight">
+                          <span className="text-[16px] font-medium text-white tracking-tight">
                             {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
                           </span>
 
@@ -470,12 +481,12 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                           {showBadges && previewBadges.length > 0 && (
                             <div className="flex items-center gap-1.5">
                               {previewBadges.map((badge) => (
-                                <div key={badge.id} title={badge.name} className="relative w-5 h-5 flex items-center justify-center shrink-0">
+                                <div key={badge.id} title={badge.name} className="relative w-4.5 h-4.5 flex items-center justify-center shrink-0">
                                   <Image
                                     src={badge.icon}
                                     alt={badge.name}
-                                    width={20}
-                                    height={20}
+                                    width={18}
+                                    height={18}
                                     className="object-contain"
                                     unoptimized
                                   />
@@ -488,32 +499,32 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
                         {!showActivity ? (
                           fallbackText ? (
-                            <div className="flex items-center gap-1.5 text-[12px] text-white/40">
+                            <div className="flex items-center gap-1.5 text-[13px] text-white/40">
                               <span>{fallbackText}</span>
                             </div>
                           ) : null
                         ) : discordData?.primary_activity ? (
-                          <div className="flex flex-col text-[12.5px] leading-tight">
+                          <div className="flex flex-col text-[13px] leading-snug">
                             <span className="font-medium text-white/90 truncate">
                               {discordData.primary_activity.name}
                             </span>
                             {(discordData.primary_activity.details || discordData.primary_activity.state) && (
-                              <span className="text-[11.5px] text-white/50 truncate">
+                              <span className="text-[12px] text-white/50 truncate">
                                 {discordData.primary_activity.details || discordData.primary_activity.state}
                               </span>
                             )}
                           </div>
                         ) : discordData?.spotify ? (
-                          <div className="flex flex-col text-[12.5px] leading-tight">
+                          <div className="flex flex-col text-[13px] leading-snug">
                             <span className="font-medium text-white/90 truncate">
                               {discordData.spotify.song}
                             </span>
-                            <span className="text-[11.5px] text-white/50 truncate">
+                            <span className="text-[12px] text-white/50 truncate">
                               {discordData.spotify.artist}
                             </span>
                           </div>
                         ) : discordData?.custom_status?.text ? (
-                          <div className="flex items-center gap-1.5 text-[12.5px] text-white/70 font-normal truncate">
+                          <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal truncate">
                             {discordData.custom_status.emoji?.id ? (
                               <div className="relative w-4 h-4 shrink-0">
                                 <Image
@@ -531,7 +542,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             <span className="truncate text-white/70 font-normal">{discordData.custom_status.text}</span>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-1.5 text-[12px] text-white/40">
+                          <div className="flex items-center gap-1.5 text-[13px] text-white/40">
                             <span>
                               {discordData?.status === "offline"
                                 ? showLastSeen
@@ -547,7 +558,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                     {/* Right Side: Activity / Spotify Rich Media Thumbnail */}
                     {showActivity && showActivityImage && discordData?.primary_activity?.large_image_url ? (
                       <div
-                        className={`w-[60px] h-[60px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center ${
+                        className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center ${
                           activityImageShape === "square"
                             ? "rounded-none"
                             : activityImageShape === "circle"
@@ -559,7 +570,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         <img
                           src={discordData.primary_activity.large_image_url}
                           alt=""
-                          className={`w-[60px] h-[60px] min-w-[60px] min-h-[60px] object-cover block ${
+                          className={`w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block ${
                             activityImageShape === "square"
                               ? "rounded-none"
                               : activityImageShape === "circle"
@@ -571,7 +582,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       </div>
                     ) : showActivity && showActivityImage && discordData?.spotify?.album_art_url ? (
                       <div
-                        className={`w-[60px] h-[60px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center ${
+                        className={`w-[72px] h-[72px] shrink-0 overflow-hidden bg-white/[0.04] border border-white/10 shadow-md flex items-center justify-center ${
                           activityImageShape === "square"
                             ? "rounded-none"
                             : activityImageShape === "circle"
@@ -583,7 +594,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         <img
                           src={discordData.spotify.album_art_url}
                           alt=""
-                          className={`w-[60px] h-[60px] min-w-[60px] min-h-[60px] object-cover block ${
+                          className={`w-[72px] h-[72px] min-w-[72px] min-h-[72px] object-cover block ${
                             activityImageShape === "square"
                               ? "rounded-none"
                               : activityImageShape === "circle"

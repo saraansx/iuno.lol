@@ -192,13 +192,18 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                   </span>
                 </div>
               ) : loadingPreview && !serverData ? (
-                <div className="w-full flex items-center justify-center py-6">
-                  <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 px-4 py-2.5 rounded-xl">
-                    <div className="w-4 h-4 border-2 border-[#609fda]/20 border-t-[#609fda] rounded-full animate-spin" />
-                    <span className="text-[12.5px] text-white/50 font-normal">
-                      Fetching Discord server...
-                    </span>
+                /* Static dark glass skeleton loader matching server widget */
+                <div className="w-full bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] p-4 shadow-md flex items-center gap-3.5">
+                  <div
+                    className={`w-12 h-12 shrink-0 bg-white/[0.05] ${
+                      imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
+                    }`}
+                  />
+                  <div className="flex flex-col gap-2 min-w-0 flex-1">
+                    <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
+                    <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
                   </div>
+                  <div className="w-12 h-7 bg-white/[0.05] rounded-xl shrink-0" />
                 </div>
               ) : !guild ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
