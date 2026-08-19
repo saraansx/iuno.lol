@@ -41,7 +41,7 @@ export async function GET(
       headers: {
         "User-Agent": "iuno-presence-proxy/1.0",
       },
-      next: { revalidate: 600 }, // 10 min cache
+      cache: "no-store",
     });
 
     if (res.status === 404) {

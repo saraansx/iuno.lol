@@ -449,6 +449,12 @@ export async function updateProfileWidgets(data: {
     valorantRankStyle?: "name" | "icon";
     showRR?: boolean;
     showLevel?: boolean;
+    steamShowLevel?: boolean;
+    steamShowGames?: boolean;
+    steamShowMemberSince?: boolean;
+    steamShowAvatarFrame?: boolean;
+    steamShowAnimatedAvatar?: boolean;
+    steamBackground?: "none" | "large" | "small";
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -468,7 +474,7 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
@@ -476,6 +482,7 @@ export async function updateProfileWidgets(data: {
   let pinterestProfileCount = 0;
   let pinterestBoardCount = 0;
   let valorantCount = 0;
+  let steamCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -490,6 +497,8 @@ export async function updateProfileWidgets(data: {
         ? "pinterest-board"
         : w.type === "valorant-profile" || w.platform === "valorant"
         ? "valorant-profile"
+        : w.type === "steam-profile" || w.platform === "steam"
+        ? "steam-profile"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -498,6 +507,7 @@ export async function updateProfileWidgets(data: {
     if (type === "pinterest-profile") pinterestProfileCount++;
     if (type === "pinterest-board") pinterestBoardCount++;
     if (type === "valorant-profile") valorantCount++;
+    if (type === "steam-profile") steamCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -520,6 +530,9 @@ export async function updateProfileWidgets(data: {
   if (valorantCount > 1) {
     throw new Error("You can only add 1 Valorant Profile widget.");
   }
+  if (steamCount > 1) {
+    throw new Error("You can only add 1 Steam Profile widget.");
+  }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
     const platform =
@@ -529,6 +542,8 @@ export async function updateProfileWidgets(data: {
         ? "pinterest"
         : w.platform === "valorant"
         ? "valorant"
+        : w.platform === "steam"
+        ? "steam"
         : "discord";
     const type =
       w.type === "server"
@@ -543,6 +558,8 @@ export async function updateProfileWidgets(data: {
         ? "pinterest-board"
         : w.type === "valorant-profile" || w.platform === "valorant"
         ? "valorant-profile"
+        : w.type === "steam-profile" || w.platform === "steam"
+        ? "steam-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -562,6 +579,15 @@ export async function updateProfileWidgets(data: {
         if (!/^\d{17,20}$/.test(targetId)) {
           throw new Error("Invalid Discord ID format");
         }
+      }
+    } else if (platform === "steam") {
+      targetId = String(w.targetId || "")
+        .trim()
+        .replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "")
+        .replace(/\/$/, "")
+        .slice(0, 100);
+      if (!targetId || !/^[a-zA-Z0-9_.-]{2,64}$/.test(targetId)) {
+        throw new Error("Invalid Steam vanity URL or ID format");
       }
     } else if (platform === "github") {
       if (type === "github-repo") {
@@ -649,6 +675,13 @@ export async function updateProfileWidgets(data: {
       valorantRankStyle: w.valorantRankStyle === "icon" ? "icon" : "name",
       showRR: w.showRR !== undefined ? Boolean(w.showRR) : true,
       showLevel: w.showLevel !== undefined ? Boolean(w.showLevel) : true,
+      steamShowLevel: w.steamShowLevel !== undefined ? Boolean(w.steamShowLevel) : true,
+      steamShowGames: w.steamShowGames !== undefined ? Boolean(w.steamShowGames) : true,
+      steamShowMemberSince: w.steamShowMemberSince !== undefined ? Boolean(w.steamShowMemberSince) : true,
+      steamShowAvatarFrame: w.steamShowAvatarFrame !== undefined ? Boolean(w.steamShowAvatarFrame) : true,
+      steamShowAnimatedAvatar: w.steamShowAnimatedAvatar !== undefined ? Boolean(w.steamShowAnimatedAvatar) : true,
+      steamBackground:
+        w.steamBackground === "none" || w.steamBackground === "small" ? w.steamBackground : "large",
     };
   });
 

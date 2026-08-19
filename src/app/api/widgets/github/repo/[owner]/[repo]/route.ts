@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 
 export interface GitHubRepoData {
   full_name: string;
@@ -30,31 +29,20 @@ export async function GET(
       return NextResponse.json({ error: "Invalid owner/repo format" }, { status: 400 });
     }
 
-    const cacheKey = `github:repo:${cleanOwner.toLowerCase()}:${cleanRepo.toLowerCase()}`;
-
-    try {
-      const cached = await redis.get(cacheKey);
-      if (cached) {
-        return NextResponse.json(JSON.parse(cached));
-      }
-    } catch (e) {
-      console.warn("[Redis Cache Miss/Error]", e);
-    }
-
     const token = process.env.GITHUB_TOKEN;
-    const headers: Record<string, string> = {
-      "User-Agent": "iuno-profile-widget/1.0",
-      Accept: "application/vnd.github.v3+json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
+    if (!token) {
+      return NextResponse.json({ error: "GitHub API token not configured" }, { status: 500 });
     }
 
     const res = await fetch(
       `https://api.github.com/repos/${encodeURIComponent(cleanOwner)}/${encodeURIComponent(cleanRepo)}`,
       {
-        headers,
-        next: { revalidate: 900 },
+        headers: {
+          "User-Agent": "iuno-profile-widget/1.0",
+          Accept: "application/vnd.github.v3+json",
+          Authorization: `Bearer ${token}`,
+        },
+        cache: "no-store",
       }
     );
 
@@ -81,12 +69,6 @@ export async function GET(
       description: data.description || null,
       html_url: data.html_url || `https://github.com/${cleanOwner}/${cleanRepo}`,
     };
-
-    try {
-      await redis.set(cacheKey, JSON.stringify(result), "EX", 900); // 15 mins TTL
-    } catch (e) {
-      console.warn("[Redis Cache Set Error]", e);
-    }
 
     return NextResponse.json(result);
   } catch (err) {

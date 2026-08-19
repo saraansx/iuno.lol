@@ -86,9 +86,7 @@ export async function GET(
   }
 
   try {
-    // 1. Check if user is a member of iuno Discord guild via REST API.
-    // Cached briefly — membership / avatar / clan tag rarely change, so repeat
-    // page views and concurrent viewers of the same profile share one lookup.
+    // 1. Check if user is a member of iuno Discord guild via REST API (10 min cache)
     const memberRes = await fetch(
       `https://discord.com/api/v10/guilds/${guildId}/members/${id}`,
       {
@@ -96,7 +94,7 @@ export async function GET(
           Authorization: `Bot ${botToken}`,
           "User-Agent": "iuno-presence-proxy/1.0",
         },
-        next: { revalidate: 60 },
+        next: { revalidate: 600 },
       }
     );
 

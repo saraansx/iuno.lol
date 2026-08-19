@@ -23,13 +23,15 @@ export async function POST(req: NextRequest) {
     }
 
     const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      return NextResponse.json({ ok: false, error: "GitHub API token not configured" }, { status: 500 });
+    }
+
     const headers: Record<string, string> = {
       "User-Agent": "iuno-profile-widget/1.0",
       Accept: "application/vnd.github.v3+json",
+      Authorization: `Bearer ${token}`,
     };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
 
     if (type === "github-repo" || type === "repo") {
       const cleanRepo = id.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "");

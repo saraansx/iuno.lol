@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 
 export interface GitHubUserData {
   login: string;
@@ -24,29 +23,18 @@ export async function GET(
       return NextResponse.json({ error: "Invalid GitHub username" }, { status: 400 });
     }
 
-    const cacheKey = `github:user:${cleanUsername}`;
-
-    try {
-      const cached = await redis.get(cacheKey);
-      if (cached) {
-        return NextResponse.json(JSON.parse(cached));
-      }
-    } catch (e) {
-      console.warn("[Redis Cache Miss/Error]", e);
-    }
-
     const token = process.env.GITHUB_TOKEN;
-    const headers: Record<string, string> = {
-      "User-Agent": "iuno-profile-widget/1.0",
-      Accept: "application/vnd.github.v3+json",
-    };
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
+    if (!token) {
+      return NextResponse.json({ error: "GitHub API token not configured" }, { status: 500 });
     }
 
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(cleanUsername)}`, {
-      headers,
-      next: { revalidate: 900 },
+      headers: {
+        "User-Agent": "iuno-profile-widget/1.0",
+        Accept: "application/vnd.github.v3+json",
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
     });
 
     if (!res.ok) {
@@ -67,12 +55,6 @@ export async function GET(
       public_repos: Number(data.public_repos || 0),
       html_url: data.html_url || `https://github.com/${data.login}`,
     };
-
-    try {
-      await redis.set(cacheKey, JSON.stringify(result), "EX", 900); // 15 mins TTL
-    } catch (e) {
-      console.warn("[Redis Cache Set Error]", e);
-    }
 
     return NextResponse.json(result);
   } catch (err) {

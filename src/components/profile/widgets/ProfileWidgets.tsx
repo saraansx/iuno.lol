@@ -8,6 +8,7 @@ import GitHubRepoWidget from "./GitHubRepoWidget";
 import PinterestProfileWidget from "./PinterestProfileWidget";
 import PinterestBoardWidget from "./PinterestBoardWidget";
 import ValorantWidget from "./ValorantWidget";
+import SteamWidget from "./SteamWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -30,6 +31,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "valorant-profile" || w.platform === "valorant") {
     return <ValorantWidget widget={w} />;
+  }
+  if (w.type === "steam-profile" || w.platform === "steam") {
+    return <SteamWidget widget={w} />;
   }
   return null;
 }

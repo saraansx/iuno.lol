@@ -72,10 +72,12 @@ export default function ServerCustomization({
         <ShowBannerSetting
           value={showBanner}
           onChange={onShowBannerChange}
+          disabled={showBackgroundOverlay}
         />
         <ShowBackgroundOverlaySetting
           value={showBackgroundOverlay}
           onChange={onShowBackgroundOverlayChange}
+          disabled={showBanner}
         />
         <ShowViewButtonSetting
           value={showViewButton}

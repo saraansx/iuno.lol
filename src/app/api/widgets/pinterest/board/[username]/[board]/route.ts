@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 
 export interface PinterestBoardData {
   username: string;
@@ -15,17 +14,6 @@ export interface PinterestBoardData {
 }
 
 export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard: string): Promise<PinterestBoardData | null> {
-  const cacheKey = `pinterest:board:v2:${cleanUsername}:${cleanBoard}`;
-
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached && cached.trim().startsWith("{")) {
-      return JSON.parse(cached);
-    }
-  } catch (e) {
-    console.warn("[Redis Cache Error]", e);
-  }
-
   let boardName = cleanBoard;
   let ownerName: string | null = null;
   let ownerUsername: string | null = cleanUsername;
@@ -50,7 +38,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
         "X-Pinterest-AppState": "active",
         "X-Pinterest-PWS-Handler": "www/[username]/[slug].js",
       },
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (res.ok) {
@@ -94,7 +82,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (rssRes.ok) {
@@ -125,7 +113,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
-        next: { revalidate: 900 },
+        cache: "no-store",
       });
 
       if (htmlRes.ok) {
@@ -156,7 +144,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
             "X-Pinterest-AppState": "active",
             "X-Pinterest-PWS-Handler": "www/[username].js",
           },
-          next: { revalidate: 900 },
+          cache: "no-store",
         }
       );
 
@@ -198,12 +186,6 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
     first_pin_image: firstPinImage || coverImage,
     url: `https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/${encodeURIComponent(cleanBoard)}/`,
   };
-
-  try {
-    await redis.set(cacheKey, JSON.stringify(result), "EX", 900);
-  } catch (e) {
-    console.warn("[Redis Set Error]", e);
-  }
 
   return result;
 }

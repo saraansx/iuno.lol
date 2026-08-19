@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant";
 
 export { getRankIconUrl, getAgentIconUrl, getMapSplashUrl };
@@ -64,16 +63,6 @@ const RANK_TIER_NAMES: Record<number, string> = {
 export async function fetchValorantPlayerData(name: string, tag: string): Promise<ValorantPlayerData | null> {
   const cleanName = name.trim();
   const cleanTag = tag.trim().replace(/^#/, "");
-  const cacheKey = `valorant:player:${cleanName.toLowerCase()}:${cleanTag.toLowerCase()}`;
-
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached && cached.trim().startsWith("{")) {
-      return JSON.parse(cached);
-    }
-  } catch (e) {
-    console.warn("[Redis Cache Error]", e);
-  }
 
   const encodedName = encodeURIComponent(cleanName);
   const encodedTag = encodeURIComponent(cleanTag);
@@ -105,7 +94,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   try {
     const accRes = await fetch(`https://api.henrikdev.xyz/valorant/v1/account/${encodedName}/${encodedTag}`, {
       headers,
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
     if (accRes.ok) {
       const accJson = await accRes.json();
@@ -129,7 +118,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   try {
     const mmrRes = await fetch(`https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodedName}/${encodedTag}`, {
       headers,
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (mmrRes.ok) {
@@ -159,7 +148,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   try {
     const matchesRes = await fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region}/${encodedName}/${encodedTag}?size=5`, {
       headers,
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (matchesRes.ok) {
@@ -197,9 +186,9 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
     console.warn("[HenrikDev Matches API Error]", e);
   }
 
-  // 4. If HenrikDev is completely unavailable or rate limited, construct graceful verified fallback
+  // 4. If account was never fetched and no MMR data found, profile does not exist
   if (!fetchedAccount && !currentTier) {
-    currentTierName = "Unrated";
+    return null;
   }
 
   const result: ValorantPlayerData = {
@@ -221,12 +210,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
       competitive: lastMatchComp || lastMatchAny || { agent: lastAgentName, map: lastMapName },
     },
   };
-
-  try {
-    await redis.set(cacheKey, JSON.stringify(result), "EX", 900);
-  } catch (e) {
-    console.warn("[Redis Set Error]", e);
-  }
 
   return result;
 }

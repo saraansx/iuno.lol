@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 
 export async function GET(
   _req: NextRequest,
@@ -13,56 +12,74 @@ export async function GET(
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
 
-    const cacheKey = `github:contributions:v2:${cleanUsername}`;
-
-    try {
-      const cached = await redis.get(cacheKey);
-      if (cached) {
-        return NextResponse.json(JSON.parse(cached));
-      }
-    } catch (e) {
-      console.warn("[Redis Cache Miss/Error]", e);
+    const token = process.env.GITHUB_TOKEN;
+    if (!token) {
+      return NextResponse.json({ error: "GitHub token not configured" }, { status: 500 });
     }
 
-    // Fetch public contributions calendar SVG/HTML from GitHub
-    const res = await fetch(`https://github-contributions-api.jogruber.de/v4/${encodeURIComponent(cleanUsername)}?y=last`, {
-      next: { revalidate: 3600 },
+    const query = `
+      query ($login: String!) {
+        user(login: $login) {
+          contributionsCollection {
+            contributionCalendar {
+              weeks {
+                contributionDays {
+                  date
+                  contributionCount
+                  contributionLevel
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    const res = await fetch("https://api.github.com/graphql", {
+      method: "POST",
+      headers: {
+        "User-Agent": "iuno-profile-widget/1.0",
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        query,
+        variables: { login: cleanUsername },
+      }),
+      cache: "no-store",
     });
 
-    let days: { date: string; count: number; level: number }[] = [];
+    if (!res.ok) {
+      return NextResponse.json({ error: "Failed to fetch GitHub contributions" }, { status: res.status });
+    }
 
-    if (res.ok) {
-      const data = await res.json();
-      if (data?.contributions && Array.isArray(data.contributions)) {
-        // Take full year of contribution data (~365-371 days, 52-53 weeks * 7 days)
-        days = data.contributions.map((d: { date: string; count: number; level: number }) => ({
-          date: d.date,
-          count: Number(d.count || 0),
-          level: Number(d.level || 0), // 0 to 4
-        }));
+    const json = await res.json();
+    const weeks =
+      json?.data?.user?.contributionsCollection?.contributionCalendar?.weeks || [];
+
+    const levelMap: Record<string, number> = {
+      NONE: 0,
+      FIRST_QUARTILE: 1,
+      SECOND_QUARTILE: 2,
+      THIRD_QUARTILE: 3,
+      FOURTH_QUARTILE: 4,
+    };
+
+    const days: { date: string; count: number; level: number }[] = [];
+
+    for (const week of weeks) {
+      for (const day of week.contributionDays || []) {
+        days.push({
+          date: day.date,
+          count: Number(day.contributionCount || 0),
+          level: levelMap[day.contributionLevel] ?? 0,
+        });
       }
-    }
-
-    // Fallback if third-party API unreachable: generate 365 empty slots
-    if (!days.length) {
-      days = Array.from({ length: 365 }, () => ({
-        date: "",
-        count: 0,
-        level: 0,
-      }));
-    }
-
-    try {
-      await redis.set(cacheKey, JSON.stringify({ contributions: days }), "EX", 3600); // 1 hr TTL
-    } catch (e) {
-      console.warn("[Redis Cache Set Error]", e);
     }
 
     return NextResponse.json({ contributions: days });
   } catch (err) {
     console.error("[GitHub Contributions Route Error]", err);
-    return NextResponse.json({
-      contributions: Array.from({ length: 365 }, () => ({ date: "", count: 0, level: 0 })),
-    });
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

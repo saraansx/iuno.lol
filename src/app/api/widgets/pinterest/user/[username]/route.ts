@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/lib/redis";
 
 export interface PinterestUserData {
   username: string;
@@ -13,17 +12,6 @@ export interface PinterestUserData {
 }
 
 export async function fetchPinterestUserData(cleanUsername: string): Promise<PinterestUserData | null> {
-  const cacheKey = `pinterest:user:${cleanUsername}`;
-
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached && cached.trim().startsWith("{")) {
-      return JSON.parse(cached);
-    }
-  } catch (e) {
-    console.warn("[Redis Cache Error]", e);
-  }
-
   let name: string | null = null;
   let avatarUrl: string | null = null;
   let pinCount: number | null = null;
@@ -47,7 +35,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
         "X-Pinterest-AppState": "active",
         "X-Pinterest-PWS-Handler": "www/[username].js",
       },
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (res.ok) {
@@ -85,7 +73,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
       },
-      next: { revalidate: 900 },
+      cache: "no-store",
     });
 
     if (rssRes.ok) {
@@ -115,7 +103,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         },
-        next: { revalidate: 900 },
+        cache: "no-store",
       });
 
       if (htmlRes.ok) {
@@ -149,12 +137,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
     first_pin_image: firstPinImage || avatarUrl,
     url: `https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/`,
   };
-
-  try {
-    await redis.set(cacheKey, JSON.stringify(result), "EX", 900);
-  } catch (e) {
-    console.warn("[Redis Set Error]", e);
-  }
 
   return result;
 }
