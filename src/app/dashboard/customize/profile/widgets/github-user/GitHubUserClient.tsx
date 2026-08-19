@@ -240,7 +240,7 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                   href={userData.html_url || `https://github.com/${encodeURIComponent(cleanUsername)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
                   {/* Top-Right Redirect Badge */}
                   {showViewButton && (
@@ -259,23 +259,23 @@ export default function GitHubUserClient({ user }: { user: FullUser | null }) {
                       <img
                         src={avatarUrl}
                         alt=""
-                        className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+                        className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
                       />
-                      <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+                      <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
                     </div>
                   )}
 
-                  {/* Real GitHub Contribution Heatmap Full Background */}
+                  {/* Real GitHub Contribution Heatmap Full Background (in front of background overlay) */}
                   {showContributionHeatmap && (
-                    <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden p-2.5 flex items-center justify-between">
-                      <div className="grid grid-rows-7 grid-flow-col gap-[2.5px] w-full h-full justify-between items-center opacity-95">
-                        {(contributions.length > 0 ? contributions : Array.from({ length: 365 }, () => ({ level: 0 }))).map((day, i) => {
+                    <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden p-3 flex items-center justify-end">
+                      <div className="grid grid-rows-7 grid-flow-col gap-[3.5px] h-full items-center opacity-95">
+                        {(contributions.length > 0 ? contributions.slice(-280) : Array.from({ length: 280 }, () => ({ level: 0 }))).map((day, i) => {
                           const level = day && typeof day === "object" && "level" in day ? Number(day.level) : 0;
                           const colorClass = LEVEL_COLORS[Math.min(4, Math.max(0, level))] || LEVEL_COLORS[0];
                           return (
                             <div
                               key={i}
-                              className={`w-full h-full min-w-[7px] min-h-[7px] max-w-[10px] max-h-[10px] aspect-square rounded-[2px] shrink-0 transition-colors ${colorClass}`}
+                              className={`w-[8.5px] h-[8.5px] rounded-[2px] shrink-0 transition-colors ${colorClass}`}
                             />
                           );
                         })}

@@ -13,7 +13,7 @@ export async function GET(
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
 
-    const cacheKey = `github:contributions:${cleanUsername}`;
+    const cacheKey = `github:contributions:v2:${cleanUsername}`;
 
     try {
       const cached = await redis.get(cacheKey);
@@ -34,8 +34,8 @@ export async function GET(
     if (res.ok) {
       const data = await res.json();
       if (data?.contributions && Array.isArray(data.contributions)) {
-        // Take last 70 days (~10 weeks) of contribution data
-        days = data.contributions.slice(-70).map((d: { date: string; count: number; level: number }) => ({
+        // Take full year of contribution data (~365-371 days, 52-53 weeks * 7 days)
+        days = data.contributions.map((d: { date: string; count: number; level: number }) => ({
           date: d.date,
           count: Number(d.count || 0),
           level: Number(d.level || 0), // 0 to 4
@@ -43,9 +43,9 @@ export async function GET(
       }
     }
 
-    // Fallback if third-party API unreachable: generate 70 empty slots
+    // Fallback if third-party API unreachable: generate 365 empty slots
     if (!days.length) {
-      days = Array.from({ length: 70 }, () => ({
+      days = Array.from({ length: 365 }, () => ({
         date: "",
         count: 0,
         level: 0,
@@ -62,7 +62,7 @@ export async function GET(
   } catch (err) {
     console.error("[GitHub Contributions Route Error]", err);
     return NextResponse.json({
-      contributions: Array.from({ length: 70 }, () => ({ date: "", count: 0, level: 0 })),
+      contributions: Array.from({ length: 365 }, () => ({ date: "", count: 0, level: 0 })),
     });
   }
 }

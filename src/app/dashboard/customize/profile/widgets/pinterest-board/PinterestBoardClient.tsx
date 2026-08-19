@@ -230,7 +230,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
+                  className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
                   {/* Top-Right Redirect Badge */}
                   {showViewButton && (
@@ -249,9 +249,9 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                       <img
                         src={bgImageUrl}
                         alt=""
-                        className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+                        className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
                       />
-                      <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+                      <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
                     </div>
                   )}
 
@@ -288,14 +288,33 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                         </span>
                       </div>
 
-                      {showPinCount && (
-                        <div className="flex items-center gap-1 text-[13px] text-white/60 font-normal">
+                      <div className="flex items-center gap-1.5 text-[13px] text-white/60 font-normal truncate">
+                        {showPinCount && (
+                          <>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className="text-white/90 font-medium">
+                                {Number(boardData.pin_count || 0).toLocaleString()}+
+                              </span>
+                              <span className="text-white/40">pins</span>
+                            </div>
+                            <span className="text-white/20 text-[10px]">•</span>
+                          </>
+                        )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-white/40">by</span>
+                          {boardData.owner_image && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={`/api/widgets/pinterest/image?url=${encodeURIComponent(boardData.owner_image)}`}
+                              alt=""
+                              className="w-[18px] h-[18px] rounded-full object-cover shrink-0 border border-white/10"
+                            />
+                          )}
                           <span className="text-white/90 font-medium">
-                            {Number(boardData.pin_count || 0).toLocaleString()}+
+                            {boardData.owner_name || boardData.owner_username || username}
                           </span>
-                          <span className="text-white/40">pins</span>
                         </div>
-                      )}
+                      </div>
                     </div>
                   </div>
                 </a>

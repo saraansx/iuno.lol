@@ -5,6 +5,9 @@ export interface PinterestBoardData {
   username: string;
   board_slug: string;
   name: string;
+  owner_name?: string | null;
+  owner_username?: string | null;
+  owner_image?: string | null;
   pin_count: number | null;
   cover_image: string | null;
   first_pin_image: string | null;
@@ -12,7 +15,7 @@ export interface PinterestBoardData {
 }
 
 export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard: string): Promise<PinterestBoardData | null> {
-  const cacheKey = `pinterest:board:${cleanUsername}:${cleanBoard}`;
+  const cacheKey = `pinterest:board:v2:${cleanUsername}:${cleanBoard}`;
 
   try {
     const cached = await redis.get(cacheKey);
@@ -24,6 +27,9 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
   }
 
   let boardName = cleanBoard;
+  let ownerName: string | null = null;
+  let ownerUsername: string | null = cleanUsername;
+  let ownerImage: string | null = null;
   let pinCount: number | null = null;
   let coverImage: string | null = null;
   let firstPinImage: string | null = null;
@@ -55,6 +61,13 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
           const boardData = json?.resource_response?.data;
           if (boardData && boardData.type === "board") {
             boardName = boardData.name || cleanBoard;
+            ownerName =
+              boardData.owner?.full_name ||
+              boardData.owner?.explicit_user?.full_name ||
+              boardData.owner?.name ||
+              null;
+            ownerUsername = boardData.owner?.username || cleanUsername;
+            ownerImage = boardData.owner?.image_medium_url || boardData.owner?.image_small_url || boardData.owner?.image_xlarge_url || null;
             pinCount = typeof boardData.pin_count === "number" ? boardData.pin_count : null;
             coverImage =
               boardData.image_cover_url ||
@@ -128,6 +141,47 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
     }
   }
 
+  if (!ownerName || !ownerImage) {
+    try {
+      const userRes = await fetch(
+        `https://www.pinterest.com/resource/UserResource/get/?data=${encodeURIComponent(
+          JSON.stringify({ options: { username: cleanUsername } })
+        )}`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "Accept": "application/json, text/javascript, */*, q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Pinterest-AppState": "active",
+            "X-Pinterest-PWS-Handler": "www/[username].js",
+          },
+          next: { revalidate: 900 },
+        }
+      );
+
+      if (userRes.ok) {
+        const uText = await userRes.text();
+        if (uText && uText.trim().startsWith("{")) {
+          const uJson = JSON.parse(uText);
+          const uData = uJson?.resource_response?.data;
+          if (uData) {
+            if (!ownerName && uData.full_name) ownerName = uData.full_name;
+            if (!ownerImage) {
+              ownerImage =
+                uData.image_medium_url ||
+                uData.image_small_url ||
+                uData.image_xlarge_url ||
+                null;
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("[Pinterest User Details Fetch Error]", e);
+    }
+  }
+
   if (!fetched && !boardName) {
     return null;
   }
@@ -136,6 +190,9 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
     username: cleanUsername,
     board_slug: cleanBoard,
     name: boardName,
+    owner_name: ownerName,
+    owner_username: ownerUsername,
+    owner_image: ownerImage,
     pin_count: pinCount !== null ? pinCount : 0,
     cover_image: coverImage || firstPinImage,
     first_pin_image: firstPinImage || coverImage,

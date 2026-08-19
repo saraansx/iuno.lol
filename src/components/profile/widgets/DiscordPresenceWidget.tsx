@@ -46,7 +46,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
   const showBackgroundOverlay = widget.showBackgroundOverlay !== undefined ? widget.showBackgroundOverlay : true;
   const showActivity = widget.showActivity !== undefined ? widget.showActivity : true;
   const showActivityImage = widget.showActivityImage !== undefined ? widget.showActivityImage : true;
-  const activityImageShape = widget.activityImageShape || "rounded";
   const imageShape = widget.imageShape || "circle";
   const showAvatarDecoration = widget.showAvatarDecoration !== undefined ? widget.showAvatarDecoration : true;
   const showGuildTag = widget.showGuildTag !== undefined ? widget.showGuildTag : true;
@@ -135,7 +134,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         href={`https://discord.com/users/${widget.targetId}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 box-border relative overflow-hidden cursor-pointer"
+        className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] flex items-center justify-between transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 box-border relative overflow-hidden cursor-pointer"
       >
         {/* Top-Right Redirect Badge */}
         {showViewButton && (
@@ -147,13 +146,13 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           </div>
         )}
 
-        {/* Right Half Blended Activity / Spotify / Avatar Background */}
+        {/* Background Layer: Spotify / Game Art OR User Avatar Overlay */}
         {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ? (
           <div
             className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
             style={{
-              maskImage: "linear-gradient(to right, transparent 35%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 80%, black 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 35%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.85) 80%, black 100%)",
+              maskImage: "linear-gradient(to right, transparent 20%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 80%, black 100%)",
+              WebkitMaskImage: "linear-gradient(to right, transparent 20%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 80%, black 100%)",
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -170,9 +169,9 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             <img
               src={avatarUrl}
               alt=""
-              className="w-full h-full object-cover opacity-35 filter blur-[14px] scale-125"
+              className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
             />
-            <div className="absolute inset-0 bg-[#101010]/60 backdrop-blur-[2px]" />
+            <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
           </div>
         ) : null}
 
@@ -302,13 +301,13 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                     )}
                   </div>
                 ) : discordData?.spotify ? (
-                  <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight shrink-0 whitespace-nowrap">
-                    <span className="text-white/85">
+                  <div className="flex flex-col min-w-0 leading-tight">
+                    <span className="text-[13px] font-normal text-white/90 truncate">
                       {discordData.spotify.song}
                     </span>
                     {discordData.spotify.artist && (
-                      <span className="text-[12px] text-white/50">
-                        • {discordData.spotify.artist}
+                      <span className="text-[11.5px] font-normal text-white/50 truncate">
+                        {discordData.spotify.artist}
                       </span>
                     )}
                   </div>
