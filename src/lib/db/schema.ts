@@ -160,6 +160,12 @@ export const userSettings = mysqlTable('user_settings', {
     showPrimaryLanguage?: boolean;
     showPinCount?: boolean;
     imageBackground?: boolean;
+    genshinShowAr?: boolean;
+    genshinShowWorldLevel?: boolean;
+    genshinShowAchievements?: boolean;
+    genshinShowRegion?: boolean;
+    genshinShowBackground?: boolean;
+    genshinShowBackgroundImage?: boolean;
   }>>().default([]),
 })
 

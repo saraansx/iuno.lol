@@ -5,9 +5,10 @@ import { useState, useRef, useEffect } from "react";
 interface SteamBackgroundSettingProps {
   value: "none" | "large" | "small";
   onChange: (val: "none" | "large" | "small") => void;
+  disabled?: boolean;
 }
 
-export default function SteamBackgroundSetting({ value, onChange }: SteamBackgroundSettingProps) {
+export default function SteamBackgroundSetting({ value, onChange, disabled = false }: SteamBackgroundSettingProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -20,6 +21,9 @@ export default function SteamBackgroundSetting({ value, onChange }: SteamBackgro
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // The menu can still be open when the setting becomes unavailable, so derive it closed.
+  const menuOpen = isOpen && !disabled;
 
   const options = [
     { key: "none", label: "None" },
@@ -35,21 +39,30 @@ export default function SteamBackgroundSetting({ value, onChange }: SteamBackgro
       : "Small (Mini profile)";
 
   return (
-    <div className="flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl">
+    <div
+      className={`flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl transition-opacity ${
+        disabled ? "opacity-40 pointer-events-none" : ""
+      }`}
+    >
       <div className="flex flex-col gap-0.5 pr-4">
         <span className="text-[13px] font-normal text-white/90 tracking-tight">
           Profile background
         </span>
         <p className="text-[11.5px] text-white/40">
-          Choose which Steam background asset to use as blurred backdrop.
+          {disabled
+            ? "Turn off Background image to use a Steam background asset."
+            : "Choose which Steam background asset to use as blurred backdrop."}
         </p>
       </div>
 
       <div className="relative" ref={dropdownRef}>
         <button
           type="button"
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-between gap-3 min-w-[160px] px-3.5 h-10 rounded-xl bg-[#161616] border border-white/5 hover:border-white/10 text-[13px] text-white transition-colors cursor-pointer focus:outline-none"
+          disabled={disabled}
+          onClick={() => setIsOpen(!menuOpen)}
+          className={`flex items-center justify-between gap-3 min-w-[160px] px-3.5 h-10 rounded-xl bg-[#161616] border border-white/5 hover:border-white/10 text-[13px] text-white transition-colors focus:outline-none ${
+            disabled ? "cursor-not-allowed" : "cursor-pointer"
+          }`}
         >
           <span>{currentLabel}</span>
           <svg
@@ -61,13 +74,13 @@ export default function SteamBackgroundSetting({ value, onChange }: SteamBackgro
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className={`text-white/40 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+            className={`text-white/40 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
           >
             <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
 
-        {isOpen && (
+        {menuOpen && (
           <div className="absolute top-full right-0 mt-1.5 w-52 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col">
             {options.map((opt) => (
               <button

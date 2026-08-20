@@ -61,6 +61,13 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.steamShowAvatarFrame === target.steamShowAvatarFrame &&
       item.steamShowAnimatedAvatar === target.steamShowAnimatedAvatar &&
       item.steamBackground === target.steamBackground &&
+      item.steamShowBackgroundImage === target.steamShowBackgroundImage &&
+      item.genshinShowAr === target.genshinShowAr &&
+      item.genshinShowWorldLevel === target.genshinShowWorldLevel &&
+      item.genshinShowAchievements === target.genshinShowAchievements &&
+      item.genshinShowRegion === target.genshinShowRegion &&
+      item.genshinShowBackground === target.genshinShowBackground &&
+      item.genshinShowBackgroundImage === target.genshinShowBackgroundImage &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

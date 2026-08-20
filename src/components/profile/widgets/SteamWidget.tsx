@@ -19,6 +19,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
   const showAvatarFrame = widget.steamShowAvatarFrame !== undefined ? widget.steamShowAvatarFrame : true;
   const showAnimatedAvatar = widget.steamShowAnimatedAvatar !== undefined ? widget.steamShowAnimatedAvatar : true;
   const background = widget.steamBackground || "large";
+  const showBackgroundImage = widget.steamShowBackgroundImage !== undefined ? widget.steamShowBackgroundImage : false;
   const showViewButton = widget.showViewButton !== undefined ? widget.showViewButton : true;
 
   if (loading || !steamData) {
@@ -67,6 +68,10 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
   const bgMp4Src = rawBgMp4 ? `/api/widgets/steam/image?url=${encodeURIComponent(rawBgMp4)}` : null;
 
   const frameSrc = steamData.avatarframe ? `/api/widgets/steam/image?url=${encodeURIComponent(steamData.avatarframe)}` : null;
+
+  // Blurred avatar backdrop — mutually exclusive with the Steam background assets.
+  const rawAvatarBg = showBackgroundImage ? steamData.avatarfull || steamData.avatar : null;
+  const avatarBgSrc = rawAvatarBg ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarBg)}` : null;
 
   const isOnline = steamData.personastate > 0;
   const isInGame = Boolean(steamData.gameextrainfo);
@@ -118,6 +123,19 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/25 backdrop-blur-[0.5px]" />
+        </div>
+      )}
+
+      {/* Background Image (blurred avatar) */}
+      {avatarBgSrc && (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={avatarBgSrc}
+            alt=""
+            className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
+          />
+          <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
         </div>
       )}
 

@@ -9,6 +9,7 @@ import PinterestProfileWidget from "./PinterestProfileWidget";
 import PinterestBoardWidget from "./PinterestBoardWidget";
 import ValorantWidget from "./ValorantWidget";
 import SteamWidget from "./SteamWidget";
+import GenshinWidget from "./GenshinWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -34,6 +35,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "steam-profile" || w.platform === "steam") {
     return <SteamWidget widget={w} />;
+  }
+  if (w.type === "genshin-profile" || w.platform === "genshin") {
+    return <GenshinWidget widget={w} />;
   }
   return null;
 }

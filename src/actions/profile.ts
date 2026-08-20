@@ -455,6 +455,13 @@ export async function updateProfileWidgets(data: {
     steamShowAvatarFrame?: boolean;
     steamShowAnimatedAvatar?: boolean;
     steamBackground?: "none" | "large" | "small";
+    steamShowBackgroundImage?: boolean;
+    genshinShowAr?: boolean;
+    genshinShowWorldLevel?: boolean;
+    genshinShowAchievements?: boolean;
+    genshinShowRegion?: boolean;
+    genshinShowBackground?: boolean;
+    genshinShowBackgroundImage?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -474,7 +481,7 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam, max 1 genshin
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
@@ -483,6 +490,7 @@ export async function updateProfileWidgets(data: {
   let pinterestBoardCount = 0;
   let valorantCount = 0;
   let steamCount = 0;
+  let genshinCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -499,6 +507,8 @@ export async function updateProfileWidgets(data: {
         ? "valorant-profile"
         : w.type === "steam-profile" || w.platform === "steam"
         ? "steam-profile"
+        : w.type === "genshin-profile" || w.platform === "genshin"
+        ? "genshin-profile"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -508,6 +518,7 @@ export async function updateProfileWidgets(data: {
     if (type === "pinterest-board") pinterestBoardCount++;
     if (type === "valorant-profile") valorantCount++;
     if (type === "steam-profile") steamCount++;
+    if (type === "genshin-profile") genshinCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -533,6 +544,9 @@ export async function updateProfileWidgets(data: {
   if (steamCount > 1) {
     throw new Error("You can only add 1 Steam Profile widget.");
   }
+  if (genshinCount > 1) {
+    throw new Error("You can only add 1 Genshin Impact widget.");
+  }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
     const platform =
@@ -544,6 +558,8 @@ export async function updateProfileWidgets(data: {
         ? "valorant"
         : w.platform === "steam"
         ? "steam"
+        : w.platform === "genshin"
+        ? "genshin"
         : "discord";
     const type =
       w.type === "server"
@@ -560,6 +576,8 @@ export async function updateProfileWidgets(data: {
         ? "valorant-profile"
         : w.type === "steam-profile" || w.platform === "steam"
         ? "steam-profile"
+        : w.type === "genshin-profile" || w.platform === "genshin"
+        ? "genshin-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -620,6 +638,11 @@ export async function updateProfileWidgets(data: {
       if (!/^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(targetId)) {
         throw new Error("Invalid Riot ID format (name#tag)");
       }
+    } else if (platform === "genshin") {
+      targetId = String(w.targetId || "").trim().slice(0, 20);
+      if (!/^[1-9][0-9]{8,9}$/.test(targetId)) {
+        throw new Error("Invalid Genshin Impact UID format (must be 9-10 digits)");
+      }
     }
 
     const imageShape: "circle" | "rounded" | "square" =
@@ -628,6 +651,23 @@ export async function updateProfileWidgets(data: {
       w.activityImageShape === "circle" || w.activityImageShape === "square"
         ? w.activityImageShape
         : "rounded";
+
+    // Steam and Genshin each expose two mutually exclusive backdrop sources.
+    // The blurred-avatar "background image" wins, so the artwork source is
+    // forced off whenever it is enabled — a crafted payload cannot set both.
+    const steamShowBackgroundImage = Boolean(w.steamShowBackgroundImage);
+    const steamBackground: "none" | "large" | "small" = steamShowBackgroundImage
+      ? "none"
+      : w.steamBackground === "none" || w.steamBackground === "small"
+      ? w.steamBackground
+      : "large";
+
+    const genshinShowBackgroundImage = Boolean(w.genshinShowBackgroundImage);
+    const genshinShowBackground = genshinShowBackgroundImage
+      ? false
+      : w.genshinShowBackground !== undefined
+      ? Boolean(w.genshinShowBackground)
+      : true;
 
     return {
       id: String(w.id || `widget_${Date.now()}`).slice(0, 50),
@@ -680,8 +720,14 @@ export async function updateProfileWidgets(data: {
       steamShowMemberSince: w.steamShowMemberSince !== undefined ? Boolean(w.steamShowMemberSince) : true,
       steamShowAvatarFrame: w.steamShowAvatarFrame !== undefined ? Boolean(w.steamShowAvatarFrame) : true,
       steamShowAnimatedAvatar: w.steamShowAnimatedAvatar !== undefined ? Boolean(w.steamShowAnimatedAvatar) : true,
-      steamBackground:
-        w.steamBackground === "none" || w.steamBackground === "small" ? w.steamBackground : "large",
+      steamBackground,
+      steamShowBackgroundImage,
+      genshinShowAr: w.genshinShowAr !== undefined ? Boolean(w.genshinShowAr) : true,
+      genshinShowWorldLevel: w.genshinShowWorldLevel !== undefined ? Boolean(w.genshinShowWorldLevel) : true,
+      genshinShowAchievements: w.genshinShowAchievements !== undefined ? Boolean(w.genshinShowAchievements) : true,
+      genshinShowRegion: w.genshinShowRegion !== undefined ? Boolean(w.genshinShowRegion) : true,
+      genshinShowBackground,
+      genshinShowBackgroundImage,
     };
   });
 

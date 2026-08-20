@@ -22,6 +22,8 @@ interface SteamCustomizationProps {
   onShowAnimatedAvatarChange: (val: boolean) => void;
   background: "none" | "large" | "small";
   onBackgroundChange: (val: "none" | "large" | "small") => void;
+  showBackgroundImage: boolean;
+  onShowBackgroundImageChange: (val: boolean) => void;
   showViewButton: boolean;
   onShowViewButtonChange: (val: boolean) => void;
 }
@@ -43,6 +45,8 @@ export default function SteamCustomization({
   onShowAnimatedAvatarChange,
   background,
   onBackgroundChange,
+  showBackgroundImage,
+  onShowBackgroundImageChange,
   showViewButton,
   onShowViewButtonChange,
 }: SteamCustomizationProps) {
@@ -105,7 +109,24 @@ export default function SteamCustomization({
         />
 
         {/* Profile Background */}
-        <SteamBackgroundSetting value={background} onChange={onBackgroundChange} />
+        <SteamBackgroundSetting
+          value={background}
+          onChange={onBackgroundChange}
+          disabled={showBackgroundImage}
+        />
+
+        {/* Background Image (blurred avatar) */}
+        <SteamToggleSetting
+          label="Background image"
+          description={
+            background !== "none"
+              ? "Set Profile background to None to use the avatar as background."
+              : "Display a subtle blurred avatar in the widget background."
+          }
+          checked={showBackgroundImage}
+          onChange={onShowBackgroundImageChange}
+          disabled={background !== "none"}
+        />
 
         {/* Show View Button */}
         <SteamToggleSetting

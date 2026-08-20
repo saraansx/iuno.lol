@@ -53,6 +53,13 @@ export interface WidgetItem {
   steamShowAvatarFrame?: boolean;
   steamShowAnimatedAvatar?: boolean;
   steamBackground?: 'none' | 'large' | 'small';
+  steamShowBackgroundImage?: boolean;
+  genshinShowAr?: boolean;
+  genshinShowWorldLevel?: boolean;
+  genshinShowAchievements?: boolean;
+  genshinShowRegion?: boolean;
+  genshinShowBackground?: boolean;
+  genshinShowBackgroundImage?: boolean;
 }
 
 interface WidgetsCustomizationProps {
@@ -131,6 +138,10 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/steam?id=${encodeURIComponent(widget.customId)}`
       );
+    } else if (widget.platform === "genshin") {
+      router.push(
+        `/dashboard/customize/profile/widgets/genshin?id=${encodeURIComponent(widget.customId)}`
+      );
     }
   };
 
@@ -187,6 +198,12 @@ export default function WidgetsCustomization({
     } else if (w.platform === "steam") {
       router.push(
         `/dashboard/customize/profile/widgets/steam?widgetId=${encodeURIComponent(
+          w.id
+        )}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "genshin") {
+      router.push(
+        `/dashboard/customize/profile/widgets/genshin?widgetId=${encodeURIComponent(
           w.id
         )}&id=${encodeURIComponent(w.targetId)}`
       );
@@ -279,6 +296,18 @@ export default function WidgetsCustomization({
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                           <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
                         </svg>
+                      ) : w.platform === "genshin" ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#609fda]">
+                          <path
+                            d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z"
+                            fill="currentColor"
+                          />
+                          <path
+                            d="M12 6L13.5 10.5L18 12L13.5 13.5L12 18L10.5 13.5L6 12L10.5 10.5L12 6Z"
+                            fill="#0c0c0c"
+                            opacity="0.35"
+                          />
+                        </svg>
                       ) : (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                           <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -304,7 +333,9 @@ export default function WidgetsCustomization({
                             ? "Pinterest Board"
                             : w.type === "valorant-profile" || w.platform === "valorant"
                             ? "Valorant Profile"
-                            : "Steam Profile"}
+                            : w.type === "steam-profile" || w.platform === "steam"
+                            ? "Steam Profile"
+                            : "Genshin Impact"}
                         </span>
                         {!w.enabled && (
                           <span className="px-2 py-0.5 rounded-[6px] bg-red-500/[0.08] border border-red-500/15 text-[11.5px] text-red-400 font-light tracking-normal leading-none">
@@ -437,6 +468,7 @@ export default function WidgetsCustomization({
         hasPinterestBoardWidget={widgets.some((w) => w.type === "pinterest-board" || w.type === "board")}
         hasValorantWidget={widgets.some((w) => w.type === "valorant-profile" || w.platform === "valorant")}
         hasSteamWidget={widgets.some((w) => w.type === "steam-profile" || w.platform === "steam")}
+        hasGenshinWidget={widgets.some((w) => w.type === "genshin-profile" || w.platform === "genshin")}
       />
     </>
   );

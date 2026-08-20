@@ -40,6 +40,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
   const initialShowAvatarFrame = existingWidget?.steamShowAvatarFrame !== undefined ? existingWidget.steamShowAvatarFrame : true;
   const initialShowAnimatedAvatar = existingWidget?.steamShowAnimatedAvatar !== undefined ? existingWidget.steamShowAnimatedAvatar : true;
   const initialBackground = (existingWidget?.steamBackground || "large") as "none" | "large" | "small";
+  const initialShowBackgroundImage = existingWidget?.steamShowBackgroundImage !== undefined ? existingWidget.steamShowBackgroundImage : false;
   const initialShowViewButton = existingWidget?.showViewButton !== undefined ? existingWidget.showViewButton : true;
 
   const [steamIdInput, setSteamIdInput] = useState(initialTargetId);
@@ -51,6 +52,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
   const [showAvatarFrame, setShowAvatarFrame] = useState<boolean>(initialShowAvatarFrame);
   const [showAnimatedAvatar, setShowAnimatedAvatar] = useState<boolean>(initialShowAnimatedAvatar);
   const [background, setBackground] = useState<"none" | "large" | "small">(initialBackground);
+  const [showBackgroundImage, setShowBackgroundImage] = useState<boolean>(initialShowBackgroundImage);
   const [showViewButton, setShowViewButton] = useState<boolean>(initialShowViewButton);
 
   const [, startTransition] = useTransition();
@@ -72,6 +74,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
     showAvatarFrame !== initialShowAvatarFrame ||
     showAnimatedAvatar !== initialShowAnimatedAvatar ||
     background !== initialBackground ||
+    showBackgroundImage !== initialShowBackgroundImage ||
     showViewButton !== initialShowViewButton;
 
   const handleSaveWidgetConfirm = () => {
@@ -94,6 +97,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
       steamShowAvatarFrame: showAvatarFrame,
       steamShowAnimatedAvatar: showAnimatedAvatar,
       steamBackground: background,
+      steamShowBackgroundImage: showBackgroundImage,
       showViewButton,
     };
 
@@ -117,6 +121,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
         steamShowAvatarFrame: showAvatarFrame,
         steamShowAnimatedAvatar: showAnimatedAvatar,
         steamBackground: background,
+        steamShowBackgroundImage: showBackgroundImage,
         showViewButton,
       };
       updated = [newWidget, ...existingList];
@@ -149,6 +154,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
       setShowAvatarFrame(initialShowAvatarFrame);
       setShowAnimatedAvatar(initialShowAnimatedAvatar);
       setBackground(initialBackground);
+      setShowBackgroundImage(initialShowBackgroundImage);
       setShowViewButton(initialShowViewButton);
     } else {
       router.push("/dashboard/customize/profile/widgets");
@@ -183,6 +189,10 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
   const bgMp4Src = rawBgMp4 ? `/api/widgets/steam/image?url=${encodeURIComponent(rawBgMp4)}` : null;
 
   const frameSrc = steamData?.avatarframe ? `/api/widgets/steam/image?url=${encodeURIComponent(steamData.avatarframe)}` : null;
+
+  // Blurred avatar backdrop — mutually exclusive with the Steam background assets.
+  const rawAvatarBg = showBackgroundImage ? steamData?.avatarfull || steamData?.avatar : null;
+  const avatarBgSrc = rawAvatarBg ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarBg)}` : null;
 
   const isOnline = Boolean(steamData && steamData.personastate > 0);
   const isInGame = Boolean(steamData?.gameextrainfo);
@@ -323,6 +333,19 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
+                  {/* Background Image (blurred avatar) */}
+                  {avatarBgSrc && (
+                    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={avatarBgSrc}
+                        alt=""
+                        className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
+                      />
+                      <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
                     {/* Avatar with Optional Frame */}
                     <div className="relative w-[60px] h-[60px] shrink-0 flex items-center justify-center">
@@ -426,6 +449,8 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
           onShowAnimatedAvatarChange={setShowAnimatedAvatar}
           background={background}
           onBackgroundChange={setBackground}
+          showBackgroundImage={showBackgroundImage}
+          onShowBackgroundImageChange={setShowBackgroundImage}
           showViewButton={showViewButton}
           onShowViewButtonChange={setShowViewButton}
         />
