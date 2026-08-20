@@ -35,11 +35,11 @@ const PLATFORMS = [
 ];
 
 const SPOTIFY_TYPES = [
-  { id: "spotify-track", name: "Spotify Track", placeholder: "Track link, URI, or ID (e.g. 4cOdK2wGLETKBW3PvgPWqT)" },
-  { id: "spotify-album", name: "Spotify Album", placeholder: "Album link, URI, or ID (e.g. 1A2GTWGtXBfuI0x08OHWyJ)" },
-  { id: "spotify-playlist", name: "Spotify Playlist", placeholder: "Playlist link, URI, or ID (e.g. 37i9dQZF1DXcBWIGoYBM5M)" },
-  { id: "spotify-artist", name: "Spotify Artist", placeholder: "Artist link, URI, or ID (e.g. 06HL4z0CvFAxyc27GXpf02)" },
-  { id: "spotify-user", name: "Spotify User", placeholder: "User link, URI, or ID (e.g. spotify)" },
+  { id: "spotify-track" as const, name: "Spotify Track", placeholder: "Track link, URI, or ID (e.g. 4cOdK2wGLETKBW3PvgPWqT)" },
+  { id: "spotify-album" as const, name: "Spotify Album", placeholder: "Album link, URI, or ID (e.g. 1A2GTWGtXBfuI0x08OHWyJ)" },
+  { id: "spotify-playlist" as const, name: "Spotify Playlist", placeholder: "Playlist link, URI, or ID (e.g. 37i9dQZF1DXcBWIGoYBM5M)" },
+  { id: "spotify-artist" as const, name: "Spotify Artist", placeholder: "Artist link, URI, or ID (e.g. 06HL4z0CvFAxyc27GXpf02)" },
+  { id: "spotify-user" as const, name: "Spotify User", placeholder: "User link, URI, or ID (e.g. spotify)" },
 ];
 
 export default function AddWidgetModal({
@@ -716,7 +716,7 @@ export default function AddWidgetModal({
                         key={typeOption.id}
                         type="button"
                         onClick={() => {
-                          setWidgetType(typeOption.id as any);
+                          setWidgetType(typeOption.id);
                           setIsSpotifyTypeDropdownOpen(false);
                         }}
                         className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${

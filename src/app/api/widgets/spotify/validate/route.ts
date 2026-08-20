@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { parseSpotifyIdentifier } from "@/lib/spotify";
+import { parseSpotifyIdentifier, type SpotifyItemType } from "@/lib/spotify";
 import { fetchSpotifyItem } from "../item/[type]/[id]/route";
 
 export async function POST(req: NextRequest) {
@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const data = await fetchSpotifyItem(targetType as any, targetId);
+    const data = await fetchSpotifyItem(targetType as SpotifyItemType, targetId);
     if (!data) {
       return NextResponse.json({
         ok: false,

@@ -195,9 +195,6 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
   const rawAvatarBg = showBackgroundImage ? steamData?.avatarfull || steamData?.avatar : null;
   const avatarBgSrc = rawAvatarBg ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarBg)}` : null;
 
-  const isOnline = Boolean(steamData && steamData.personastate > 0);
-  const isInGame = Boolean(steamData?.gameextrainfo);
-
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">

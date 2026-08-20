@@ -17,7 +17,6 @@ import {
   SpotifyListenersIcon,
   SpotifyTracksIcon,
   SpotifyCalendarIcon,
-  SpotifyLogoIcon,
 } from "@/components/profile/widgets/spotify/SpotifyIcons";
 import { toast } from "sonner";
 

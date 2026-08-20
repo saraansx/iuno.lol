@@ -73,9 +73,6 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
   const rawAvatarBg = showBackgroundImage ? steamData.avatarfull || steamData.avatar : null;
   const avatarBgSrc = rawAvatarBg ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarBg)}` : null;
 
-  const isOnline = steamData.personastate > 0;
-  const isInGame = Boolean(steamData.gameextrainfo);
-
   return (
     <a
       href={steamData.profileurl || `https://steamcommunity.com/id/${encodeURIComponent(cleanId)}/`}

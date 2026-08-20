@@ -1,5 +1,7 @@
+export type SpotifyItemType = "track" | "album" | "playlist" | "artist" | "user";
+
 export interface SpotifyItemData {
-  type: "track" | "album" | "playlist" | "artist" | "user";
+  type: SpotifyItemType;
   id: string;
   title: string;
   subtitle?: string | null;
@@ -35,7 +37,7 @@ export function parseSpotifyIdentifier(input: string): {
   const uriMatch = clean.match(/^spotify:(track|album|playlist|artist|user):([a-zA-Z0-9_.-]+)$/i);
   if (uriMatch) {
     return {
-      type: uriMatch[1].toLowerCase() as any,
+      type: uriMatch[1].toLowerCase() as SpotifyItemType,
       id: uriMatch[2],
     };
   }
@@ -44,7 +46,7 @@ export function parseSpotifyIdentifier(input: string): {
   const urlMatch = clean.match(/https?:\/\/(?:open|play)\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist|artist|user)\/([a-zA-Z0-9_.-]+)/i);
   if (urlMatch) {
     return {
-      type: urlMatch[1].toLowerCase() as any,
+      type: urlMatch[1].toLowerCase() as SpotifyItemType,
       id: urlMatch[2],
     };
   }

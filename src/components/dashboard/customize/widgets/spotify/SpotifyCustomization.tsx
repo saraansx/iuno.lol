@@ -59,7 +59,6 @@ export default function SpotifyCustomization({
   const isAlbum = type === "album";
   const isPlaylist = type === "playlist";
   const isArtist = type === "artist";
-  const isUser = type === "user";
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">

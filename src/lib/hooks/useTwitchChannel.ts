@@ -61,7 +61,7 @@ export function useTwitchChannel(
           setIsError(true);
           setError(data.error || "Channel not found");
         }
-      } catch (err) {
+      } catch {
         if (!isMounted) return;
         setChannel(null);
         setIsError(true);

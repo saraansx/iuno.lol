@@ -11,7 +11,6 @@ import {
   SpotifyListenersIcon,
   SpotifyTracksIcon,
   SpotifyCalendarIcon,
-  SpotifyLogoIcon,
 } from "./spotify/SpotifyIcons";
 
 export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
