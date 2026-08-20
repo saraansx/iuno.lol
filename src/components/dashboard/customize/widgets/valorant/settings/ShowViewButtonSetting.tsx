@@ -10,7 +10,7 @@ export default function ShowViewButtonSetting({ value, onChange }: ShowViewButto
     <div className="flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl">
       <div className="flex flex-col gap-0.5">
         <span className="text-[13px] font-normal text-white/90 tracking-tight">
-          Show View Button
+          Show redirect button
         </span>
         <span className="text-[12px] font-normal text-white/40">
           Display a button linking to the player profile on Tracker.gg.
