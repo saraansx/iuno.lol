@@ -166,6 +166,10 @@ export const userSettings = mysqlTable('user_settings', {
     genshinShowRegion?: boolean;
     genshinShowBackground?: boolean;
     genshinShowBackgroundImage?: boolean;
+    twitchShowLiveStatus?: boolean;
+    twitchShowFollowers?: boolean;
+    twitchShowPartnerBadge?: boolean;
+    twitchShowBackground?: boolean;
   }>>().default([]),
 })
 

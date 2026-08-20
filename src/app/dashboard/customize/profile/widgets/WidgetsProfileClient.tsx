@@ -68,6 +68,10 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.genshinShowRegion === target.genshinShowRegion &&
       item.genshinShowBackground === target.genshinShowBackground &&
       item.genshinShowBackgroundImage === target.genshinShowBackgroundImage &&
+      item.twitchShowLiveStatus === target.twitchShowLiveStatus &&
+      item.twitchShowFollowers === target.twitchShowFollowers &&
+      item.twitchShowPartnerBadge === target.twitchShowPartnerBadge &&
+      item.twitchShowBackground === target.twitchShowBackground &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

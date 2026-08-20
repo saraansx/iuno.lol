@@ -462,6 +462,10 @@ export async function updateProfileWidgets(data: {
     genshinShowRegion?: boolean;
     genshinShowBackground?: boolean;
     genshinShowBackgroundImage?: boolean;
+    twitchShowLiveStatus?: boolean;
+    twitchShowFollowers?: boolean;
+    twitchShowPartnerBadge?: boolean;
+    twitchShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -481,7 +485,7 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam, max 1 genshin
+  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam, max 1 genshin, max 1 twitch
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
@@ -491,6 +495,7 @@ export async function updateProfileWidgets(data: {
   let valorantCount = 0;
   let steamCount = 0;
   let genshinCount = 0;
+  let twitchCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -509,6 +514,8 @@ export async function updateProfileWidgets(data: {
         ? "steam-profile"
         : w.type === "genshin-profile" || w.platform === "genshin"
         ? "genshin-profile"
+        : w.type === "twitch-channel" || w.platform === "twitch"
+        ? "twitch-channel"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -519,6 +526,7 @@ export async function updateProfileWidgets(data: {
     if (type === "valorant-profile") valorantCount++;
     if (type === "steam-profile") steamCount++;
     if (type === "genshin-profile") genshinCount++;
+    if (type === "twitch-channel") twitchCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -547,6 +555,9 @@ export async function updateProfileWidgets(data: {
   if (genshinCount > 1) {
     throw new Error("You can only add 1 Genshin Impact widget.");
   }
+  if (twitchCount > 1) {
+    throw new Error("You can only add 1 Twitch Channel widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -563,6 +574,8 @@ export async function updateProfileWidgets(data: {
         ? "steam"
         : w.platform === "genshin"
         ? "genshin"
+        : w.platform === "twitch"
+        ? "twitch"
         : "discord";
     const type =
       w.type === "server"
@@ -581,6 +594,8 @@ export async function updateProfileWidgets(data: {
         ? "steam-profile"
         : w.type === "genshin-profile" || w.platform === "genshin"
         ? "genshin-profile"
+        : w.type === "twitch-channel" || w.platform === "twitch"
+        ? "twitch-channel"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -645,6 +660,11 @@ export async function updateProfileWidgets(data: {
       targetId = String(w.targetId || "").trim().slice(0, 20);
       if (!/^[1-9][0-9]{8,9}$/.test(targetId)) {
         throw new Error("Invalid Genshin Impact UID format (must be 9-10 digits)");
+      }
+    } else if (platform === "twitch") {
+      targetId = String(w.targetId || "").trim().toLowerCase().slice(0, 25);
+      if (!/^[a-zA-Z0-9_]{3,25}$/.test(targetId)) {
+        throw new Error("Invalid Twitch username format (3-25 alphanumeric/underscore)");
       }
     }
 
@@ -731,6 +751,10 @@ export async function updateProfileWidgets(data: {
       genshinShowRegion: w.genshinShowRegion !== undefined ? Boolean(w.genshinShowRegion) : true,
       genshinShowBackground,
       genshinShowBackgroundImage,
+      twitchShowLiveStatus: w.twitchShowLiveStatus !== undefined ? Boolean(w.twitchShowLiveStatus) : true,
+      twitchShowFollowers: w.twitchShowFollowers !== undefined ? Boolean(w.twitchShowFollowers) : true,
+      twitchShowPartnerBadge: w.twitchShowPartnerBadge !== undefined ? Boolean(w.twitchShowPartnerBadge) : true,
+      twitchShowBackground: w.twitchShowBackground !== undefined ? Boolean(w.twitchShowBackground) : true,
     };
   });
 
