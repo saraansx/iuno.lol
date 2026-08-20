@@ -10,7 +10,7 @@ export default function ShowViewButtonSetting({ value, onChange }: ShowViewButto
     <div className="flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl">
       <div className="flex flex-col gap-0.5 pr-4">
         <span className="text-[13px] font-normal text-white/90 tracking-tight">
-          Show View Profile Button
+          Show redirect button
         </span>
         <p className="text-[11.5px] text-white/40">
           Display a button to open your Discord user profile.
