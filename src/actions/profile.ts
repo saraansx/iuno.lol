@@ -466,6 +466,14 @@ export async function updateProfileWidgets(data: {
     twitchShowFollowers?: boolean;
     twitchShowPartnerBadge?: boolean;
     twitchShowBackground?: boolean;
+    spotifyShowArtist?: boolean;
+    spotifyShowAlbum?: boolean;
+    spotifyShowTrackCount?: boolean;
+    spotifyShowReleaseYear?: boolean;
+    spotifyShowOwner?: boolean;
+    spotifyShowMonthlyListeners?: boolean;
+    spotifyShowFollowers?: boolean;
+    spotifyShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -496,6 +504,7 @@ export async function updateProfileWidgets(data: {
   let steamCount = 0;
   let genshinCount = 0;
   let twitchCount = 0;
+  let spotifyCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -516,6 +525,8 @@ export async function updateProfileWidgets(data: {
         ? "genshin-profile"
         : w.type === "twitch-channel" || w.platform === "twitch"
         ? "twitch-channel"
+        : w.platform === "spotify" || w.type?.startsWith("spotify-")
+        ? "spotify"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -527,6 +538,7 @@ export async function updateProfileWidgets(data: {
     if (type === "steam-profile") steamCount++;
     if (type === "genshin-profile") genshinCount++;
     if (type === "twitch-channel") twitchCount++;
+    if (type === "spotify") spotifyCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -558,6 +570,9 @@ export async function updateProfileWidgets(data: {
   if (twitchCount > 1) {
     throw new Error("You can only add 1 Twitch Channel widget.");
   }
+  if (spotifyCount > 1) {
+    throw new Error("You can only add 1 Spotify widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -576,6 +591,8 @@ export async function updateProfileWidgets(data: {
         ? "genshin"
         : w.platform === "twitch"
         ? "twitch"
+        : w.platform === "spotify"
+        ? "spotify"
         : "discord";
     const type =
       w.type === "server"
@@ -596,6 +613,16 @@ export async function updateProfileWidgets(data: {
         ? "genshin-profile"
         : w.type === "twitch-channel" || w.platform === "twitch"
         ? "twitch-channel"
+        : w.type === "spotify-track"
+        ? "spotify-track"
+        : w.type === "spotify-album"
+        ? "spotify-album"
+        : w.type === "spotify-playlist"
+        ? "spotify-playlist"
+        : w.type === "spotify-artist"
+        ? "spotify-artist"
+        : w.type === "spotify-user"
+        ? "spotify-user"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -665,6 +692,11 @@ export async function updateProfileWidgets(data: {
       targetId = String(w.targetId || "").trim().toLowerCase().slice(0, 25);
       if (!/^[a-zA-Z0-9_]{3,25}$/.test(targetId)) {
         throw new Error("Invalid Twitch username format (3-25 alphanumeric/underscore)");
+      }
+    } else if (platform === "spotify") {
+      targetId = String(w.targetId || "").trim().slice(0, 100);
+      if (!targetId || (!/^[a-zA-Z0-9]{22}$/.test(targetId) && !/^[a-zA-Z0-9_.-]{1,64}$/.test(targetId))) {
+        throw new Error("Invalid Spotify ID format");
       }
     }
 
@@ -755,6 +787,14 @@ export async function updateProfileWidgets(data: {
       twitchShowFollowers: w.twitchShowFollowers !== undefined ? Boolean(w.twitchShowFollowers) : true,
       twitchShowPartnerBadge: w.twitchShowPartnerBadge !== undefined ? Boolean(w.twitchShowPartnerBadge) : true,
       twitchShowBackground: w.twitchShowBackground !== undefined ? Boolean(w.twitchShowBackground) : true,
+      spotifyShowArtist: w.spotifyShowArtist !== undefined ? Boolean(w.spotifyShowArtist) : true,
+      spotifyShowAlbum: w.spotifyShowAlbum !== undefined ? Boolean(w.spotifyShowAlbum) : true,
+      spotifyShowTrackCount: w.spotifyShowTrackCount !== undefined ? Boolean(w.spotifyShowTrackCount) : true,
+      spotifyShowReleaseYear: w.spotifyShowReleaseYear !== undefined ? Boolean(w.spotifyShowReleaseYear) : true,
+      spotifyShowOwner: w.spotifyShowOwner !== undefined ? Boolean(w.spotifyShowOwner) : true,
+      spotifyShowMonthlyListeners: w.spotifyShowMonthlyListeners !== undefined ? Boolean(w.spotifyShowMonthlyListeners) : true,
+      spotifyShowFollowers: w.spotifyShowFollowers !== undefined ? Boolean(w.spotifyShowFollowers) : true,
+      spotifyShowBackground: w.spotifyShowBackground !== undefined ? Boolean(w.spotifyShowBackground) : true,
     };
   });
 

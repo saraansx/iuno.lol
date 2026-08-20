@@ -78,7 +78,10 @@ export function useDiscordPresence(id: string, poll = true) {
       if (document.hidden) return; // Pause polling when tab is hidden to save CPU
 
       isFetching = true;
-      if (isInitial) setLoading(true);
+      if (isInitial) {
+        setData(null);
+        setLoading(true);
+      }
 
       try {
         const res = await fetch(`/api/widgets/discord/presence/${id}`, {

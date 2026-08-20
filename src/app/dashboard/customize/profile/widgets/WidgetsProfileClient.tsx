@@ -72,6 +72,14 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.twitchShowFollowers === target.twitchShowFollowers &&
       item.twitchShowPartnerBadge === target.twitchShowPartnerBadge &&
       item.twitchShowBackground === target.twitchShowBackground &&
+      item.spotifyShowArtist === target.spotifyShowArtist &&
+      item.spotifyShowAlbum === target.spotifyShowAlbum &&
+      item.spotifyShowTrackCount === target.spotifyShowTrackCount &&
+      item.spotifyShowReleaseYear === target.spotifyShowReleaseYear &&
+      item.spotifyShowOwner === target.spotifyShowOwner &&
+      item.spotifyShowMonthlyListeners === target.spotifyShowMonthlyListeners &&
+      item.spotifyShowFollowers === target.spotifyShowFollowers &&
+      item.spotifyShowBackground === target.spotifyShowBackground &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

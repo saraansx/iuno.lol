@@ -25,7 +25,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
     () =>
       widgetIdParam
         ? existingWidgets.find((w) => w.id === widgetIdParam)
-        : existingWidgets.find((w) => w.platform === "steam"),
+        : undefined,
     [existingWidgets, widgetIdParam]
   );
 
@@ -65,6 +65,7 @@ export default function SteamClient({ user }: { user: FullUser | null }) {
   const { data: steamData, loading: loadingPreview, isValidId } = useSteamUser(cleanSteamInput);
 
   const isChanged =
+    !isEditing ||
     cleanSteamInput !== initialTargetId ||
     placement !== initialPlacement ||
     imageShape !== initialImageShape ||

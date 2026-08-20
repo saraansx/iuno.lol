@@ -25,7 +25,7 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
     () =>
       widgetIdParam
         ? existingWidgets.find((w) => w.id === widgetIdParam)
-        : existingWidgets.find((w) => w.platform === "genshin"),
+        : undefined,
     [existingWidgets, widgetIdParam]
   );
 
@@ -59,6 +59,7 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
   const { data: genshinData, loading: loadingPreview, isValidUid } = useGenshinPlayer(cleanUid);
 
   const isChanged =
+    !isEditing ||
     cleanUid !== initialTargetId ||
     placement !== initialPlacement ||
     imageShape !== initialImageShape ||

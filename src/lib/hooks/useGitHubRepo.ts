@@ -26,6 +26,7 @@ export function useGitHubRepo(repoString: string) {
     const controller = new AbortController();
 
     const fetchRepo = async () => {
+      setData(null);
       setLoading(true);
       setError(null);
 

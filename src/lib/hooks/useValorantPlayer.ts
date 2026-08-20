@@ -24,6 +24,7 @@ export function useValorantPlayer(riotId: string) {
     const controller = new AbortController();
 
     const fetchPlayer = async () => {
+      setData(null);
       setLoading(true);
       setError(null);
 

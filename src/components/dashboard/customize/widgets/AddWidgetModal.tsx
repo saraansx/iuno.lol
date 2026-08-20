@@ -19,17 +19,27 @@ interface AddWidgetModalProps {
   hasSteamWidget?: boolean;
   hasGenshinWidget?: boolean;
   hasTwitchWidget?: boolean;
+  hasSpotifyWidget?: boolean;
 }
 
 const PLATFORMS = [
   { id: "none", name: "None" },
   { id: "discord", name: "Discord" },
+  { id: "spotify", name: "Spotify" },
   { id: "twitch", name: "Twitch" },
   { id: "github", name: "GitHub" },
   { id: "pinterest", name: "Pinterest" },
   { id: "valorant", name: "Valorant" },
   { id: "steam", name: "Steam" },
   { id: "genshin", name: "Genshin Impact" },
+];
+
+const SPOTIFY_TYPES = [
+  { id: "spotify-track", name: "Spotify Track", placeholder: "Track link, URI, or ID (e.g. 4cOdK2wGLETKBW3PvgPWqT)" },
+  { id: "spotify-album", name: "Spotify Album", placeholder: "Album link, URI, or ID (e.g. 1A2GTWGtXBfuI0x08OHWyJ)" },
+  { id: "spotify-playlist", name: "Spotify Playlist", placeholder: "Playlist link, URI, or ID (e.g. 37i9dQZF1DXcBWIGoYBM5M)" },
+  { id: "spotify-artist", name: "Spotify Artist", placeholder: "Artist link, URI, or ID (e.g. 06HL4z0CvFAxyc27GXpf02)" },
+  { id: "spotify-user", name: "Spotify User", placeholder: "User link, URI, or ID (e.g. spotify)" },
 ];
 
 export default function AddWidgetModal({
@@ -48,14 +58,33 @@ export default function AddWidgetModal({
   hasSteamWidget = false,
   hasGenshinWidget = false,
   hasTwitchWidget = false,
+  hasSpotifyWidget = false,
 }: AddWidgetModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
-  const [widgetType, setWidgetType] = useState<"presence" | "server" | "github-user" | "github-repo" | "pinterest-profile" | "pinterest-board" | "valorant-profile" | "steam-profile" | "genshin-profile" | "twitch-channel">("presence");
+  const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
+  const [widgetType, setWidgetType] = useState<
+    | "presence"
+    | "server"
+    | "github-user"
+    | "github-repo"
+    | "pinterest-profile"
+    | "pinterest-board"
+    | "valorant-profile"
+    | "steam-profile"
+    | "genshin-profile"
+    | "twitch-channel"
+    | "spotify-track"
+    | "spotify-album"
+    | "spotify-playlist"
+    | "spotify-artist"
+    | "spotify-user"
+  >("presence");
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
+  const [spotifyInput, setSpotifyInput] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
   const [githubRepo, setGithubRepo] = useState("");
   const [pinterestUsername, setPinterestUsername] = useState("");
@@ -67,11 +96,14 @@ export default function AddWidgetModal({
   const [validationError, setValidationError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       if (selectedPlatform === "discord") {
         setWidgetType(hasPresenceWidget && !hasServerWidget ? "server" : "presence");
+      } else if (selectedPlatform === "spotify") {
+        setWidgetType((prev) => (prev.startsWith("spotify-") ? prev : "spotify-track"));
       } else if (selectedPlatform === "twitch") {
         setWidgetType("twitch-channel");
       } else if (selectedPlatform === "github") {
@@ -87,11 +119,11 @@ export default function AddWidgetModal({
       }
       setValidationError(null);
     }
-  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasTwitchWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget, hasSteamWidget, hasGenshinWidget]);
+  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasSpotifyWidget, hasTwitchWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget, hasSteamWidget, hasGenshinWidget]);
 
   useEffect(() => {
     setValidationError(null);
-  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, twitchUsername, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId, steamId, genshinUid]);
+  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, spotifyInput, twitchUsername, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId, steamId, genshinUid]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -100,6 +132,9 @@ export default function AddWidgetModal({
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsPlatformDropdownOpen(false);
+      }
+      if (spotifyTypeDropdownRef.current && !spotifyTypeDropdownRef.current.contains(e.target as Node)) {
+        setIsSpotifyTypeDropdownOpen(false);
       }
     };
     if (isOpen) {
@@ -117,6 +152,7 @@ export default function AddWidgetModal({
   if (!isOpen) return null;
 
   const isDiscord = selectedPlatform === "discord";
+  const isSpotify = selectedPlatform === "spotify";
   const isTwitch = selectedPlatform === "twitch";
   const isGitHub = selectedPlatform === "github";
   const isPinterest = selectedPlatform === "pinterest";
@@ -136,6 +172,8 @@ export default function AddWidgetModal({
         ? linkedDiscordId || ""
         : customDiscordId.trim()
       : serverId.trim()
+    : isSpotify
+    ? spotifyInput.trim()
     : isTwitch
     ? twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, "")
     : isGitHub
@@ -164,6 +202,10 @@ export default function AddWidgetModal({
       : hasServerWidget
       ? false
       : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
+    : isSpotify
+    ? hasSpotifyWidget
+      ? false
+      : spotifyInput.trim().length >= 3
     : isTwitch
     ? hasTwitchWidget
       ? false
@@ -242,6 +284,40 @@ export default function AddWidgetModal({
         onClose();
       } catch {
         setValidationError("Failed to verify Discord ID. Try again.");
+      } finally {
+        setIsValidating(false);
+      }
+    } else if (isSpotify) {
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const cleanType = widgetType.replace("spotify-", "");
+        const res = await fetch("/api/widgets/spotify/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: cleanType, id: targetId }),
+        });
+        const result = await res.json();
+
+        if (!result.ok) {
+          setValidationError(result.error || "Spotify item not found");
+          setIsValidating(false);
+          return;
+        }
+
+        const resolvedType = result.resolvedType ? `spotify-${result.resolvedType}` : widgetType;
+        const resolvedId = result.resolvedId || targetId;
+
+        onAdd({
+          platform: selectedPlatform,
+          type: resolvedType,
+          useLinked: false,
+          customId: resolvedId,
+        });
+        onClose();
+      } catch {
+        setValidationError("Failed to verify Spotify item. Try again.");
       } finally {
         setIsValidating(false);
       }
@@ -475,6 +551,10 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2">
                     <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
                   </svg>
+                ) : selectedPlatform === "spotify" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                  </svg>
                 ) : selectedPlatform === "twitch" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
                     <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
@@ -547,6 +627,10 @@ export default function AddWidgetModal({
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#5865F2">
                             <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
                           </svg>
+                        ) : platform.id === "spotify" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                          </svg>
                         ) : platform.id === "twitch" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
                             <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
@@ -592,6 +676,89 @@ export default function AddWidgetModal({
             )}
           </div>
         </div>
+
+        {isSpotify && (
+          <>
+            {/* Spotify Item Type Dropdown */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="relative" ref={spotifyTypeDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsSpotifyTypeDropdownOpen(!isSpotifyTypeDropdownOpen)}
+                  className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                    </svg>
+                    <span>{SPOTIFY_TYPES.find((t) => t.id === widgetType)?.name || "Spotify Track"}</span>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`text-white/40 transition-transform duration-200 ${isSpotifyTypeDropdownOpen ? "rotate-180" : ""}`}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+
+                {isSpotifyTypeDropdownOpen && (
+                  <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
+                    {SPOTIFY_TYPES.map((typeOption) => (
+                      <button
+                        key={typeOption.id}
+                        type="button"
+                        onClick={() => {
+                          setWidgetType(typeOption.id as any);
+                          setIsSpotifyTypeDropdownOpen(false);
+                        }}
+                        className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${
+                          widgetType === typeOption.id
+                            ? "bg-white/10 text-white font-normal"
+                            : "text-white/50 hover:bg-white/5 hover:text-white"
+                        }`}
+                      >
+                        <span>{typeOption.name}</span>
+                        {widgetType === typeOption.id && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#1ED760]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Spotify Identifier Input */}
+            <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+              <label className="text-[12px] font-normal text-white/60">
+                {SPOTIFY_TYPES.find((t) => t.id === widgetType)?.name || "Spotify Item"} Link or ID
+              </label>
+              <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                <input
+                  type="text"
+                  value={spotifyInput}
+                  onChange={(e) => setSpotifyInput(e.target.value)}
+                  placeholder={
+                    SPOTIFY_TYPES.find((t) => t.id === widgetType)?.placeholder ||
+                    "Enter Spotify link, URI, or ID"
+                  }
+                  className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                />
+              </div>
+              <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                Paste the full Spotify share link (open.spotify.com/...), URI (spotify:track:...), or ID.
+              </p>
+            </div>
+          </>
+        )}
 
         {isDiscord && (
           <>

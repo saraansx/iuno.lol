@@ -19,6 +19,7 @@ export function useDiscordServer(inviteCode: string) {
 
     // Async data fetch without synchronous setState in effect body
     const fetchServer = async () => {
+      setData(null);
       setLoading(true);
       setError(null);
 

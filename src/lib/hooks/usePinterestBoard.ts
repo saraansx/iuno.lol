@@ -28,6 +28,7 @@ export function usePinterestBoard(input: string) {
     const controller = new AbortController();
 
     const fetchBoard = async () => {
+      setData(null);
       setLoading(true);
       setError(null);
 

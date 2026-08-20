@@ -38,6 +38,7 @@ export function useTwitchChannel(
     }
 
     let isMounted = true;
+    setChannel(null);
     setIsLoading(true);
     setIsError(false);
     setError(null);

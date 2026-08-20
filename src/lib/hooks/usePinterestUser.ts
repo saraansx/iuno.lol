@@ -22,6 +22,7 @@ export function usePinterestUser(username: string) {
     const controller = new AbortController();
 
     const fetchUser = async () => {
+      setData(null);
       setLoading(true);
       setError(null);
 

@@ -11,6 +11,7 @@ import ValorantWidget from "./ValorantWidget";
 import SteamWidget from "./SteamWidget";
 import GenshinWidget from "./GenshinWidget";
 import TwitchWidget from "./TwitchWidget";
+import SpotifyWidget from "./SpotifyWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -42,6 +43,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "twitch-channel" || w.platform === "twitch") {
     return <TwitchWidget widget={w} />;
+  }
+  if (w.platform === "spotify" || w.type?.startsWith("spotify-")) {
+    return <SpotifyWidget widget={w} />;
   }
   return null;
 }

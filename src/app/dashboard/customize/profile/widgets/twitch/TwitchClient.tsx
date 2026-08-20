@@ -27,7 +27,7 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
     () =>
       widgetIdParam
         ? existingWidgets.find((w) => w.id === widgetIdParam)
-        : existingWidgets.find((w) => w.platform === "twitch"),
+        : undefined,
     [existingWidgets, widgetIdParam]
   );
 
@@ -65,6 +65,7 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
   });
 
   const isChanged =
+    !isEditing ||
     cleanLogin !== initialTargetId ||
     placement !== initialPlacement ||
     imageShape !== initialImageShape ||

@@ -170,6 +170,14 @@ export const userSettings = mysqlTable('user_settings', {
     twitchShowFollowers?: boolean;
     twitchShowPartnerBadge?: boolean;
     twitchShowBackground?: boolean;
+    spotifyShowArtist?: boolean;
+    spotifyShowAlbum?: boolean;
+    spotifyShowTrackCount?: boolean;
+    spotifyShowReleaseYear?: boolean;
+    spotifyShowOwner?: boolean;
+    spotifyShowMonthlyListeners?: boolean;
+    spotifyShowFollowers?: boolean;
+    spotifyShowBackground?: boolean;
   }>>().default([]),
 })
 
