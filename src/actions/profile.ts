@@ -547,8 +547,11 @@ export async function updateProfileWidgets(data: {
   if (genshinCount > 1) {
     throw new Error("You can only add 1 Genshin Impact widget.");
   }
+  if ((data.widgets || []).length > 6) {
+    throw new Error("You can only add a maximum of 6 widgets.");
+  }
 
-  const sanitizedWidgets = (data.widgets || []).slice(0, 10).map((w) => {
+  const sanitizedWidgets = (data.widgets || []).slice(0, 6).map((w) => {
     const platform =
       w.platform === "github"
         ? "github"
