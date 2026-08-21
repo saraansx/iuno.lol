@@ -182,6 +182,12 @@ export const userSettings = mysqlTable('user_settings', {
     instagramShowFollowing?: boolean;
     instagramShowPosts?: boolean;
     instagramShowBackground?: boolean;
+    tiktokShowFollowers?: boolean;
+    tiktokShowFollowing?: boolean;
+    tiktokShowLikes?: boolean;
+    tiktokShowVideos?: boolean;
+    tiktokShowVerifiedBadge?: boolean;
+    tiktokShowBackground?: boolean;
   }>>().default([]),
 })
 

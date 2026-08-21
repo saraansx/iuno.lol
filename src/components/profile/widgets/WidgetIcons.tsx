@@ -587,3 +587,112 @@ export function PinterestLogoIcon({
     </svg>
   );
 }
+
+/* ==========================================================================
+   TIKTOK ICONS
+   ========================================================================== */
+
+export function TikTokLogoIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.27 1.76-.23 1.05.14 2.22.95 2.92.74.67 1.77.93 2.74.77.92-.12 1.74-.71 2.14-1.54.34-.69.46-1.48.45-2.25V0h.03c.8-.01 1.6-.01 2.4-.01z" />
+    </svg>
+  );
+}
+
+export function TikTokFollowersIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+    </svg>
+  );
+}
+
+export function TikTokFollowingIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+      <path d="M4 11h-2v2h2v2h2v-2h2v-2h-2v-2h-2v2z" />
+    </svg>
+  );
+}
+
+export function TikTokHeartIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  );
+}
+
+export function TikTokVideoIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+    </svg>
+  );
+}
+
+export function TikTokVerifiedIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return <VerifiedBadgeIcon fill="#20D5EC" size={size} className={className} {...props} />;
+}
+

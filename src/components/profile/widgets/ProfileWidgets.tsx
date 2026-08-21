@@ -13,6 +13,7 @@ import GenshinWidget from "./GenshinWidget";
 import TwitchWidget from "./TwitchWidget";
 import SpotifyWidget from "./SpotifyWidget";
 import InstagramWidget from "./InstagramWidget";
+import TikTokWidget from "./TikTokWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -50,6 +51,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "instagram-profile" || w.platform === "instagram") {
     return <InstagramWidget widget={w} />;
+  }
+  if (w.type === "tiktok-profile" || w.platform === "tiktok") {
+    return <TikTokWidget widget={w} />;
   }
   return null;
 }

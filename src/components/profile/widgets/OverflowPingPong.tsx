@@ -20,6 +20,7 @@ export default function OverflowPingPong({
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const [scrollShift, setScrollShift] = useState(0);
+  const depsKey = JSON.stringify(deps);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -53,8 +54,7 @@ export default function OverflowPingPong({
     }
 
     return () => ro.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps);
+  }, [depsKey]);
 
   const duration =
     pauseDuration * 2 + (scrollShift / speed) * 2 + pauseDuration * 2;

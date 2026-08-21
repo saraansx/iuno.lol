@@ -76,6 +76,12 @@ export interface WidgetItem {
   instagramShowFollowing?: boolean;
   instagramShowPosts?: boolean;
   instagramShowBackground?: boolean;
+  tiktokShowFollowers?: boolean;
+  tiktokShowFollowing?: boolean;
+  tiktokShowLikes?: boolean;
+  tiktokShowVideos?: boolean;
+  tiktokShowVerifiedBadge?: boolean;
+  tiktokShowBackground?: boolean;
 }
 
 interface WidgetsCustomizationProps {
@@ -97,11 +103,46 @@ export default function WidgetsCustomization({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [widgets, setWidgets] = useState<WidgetItem[]>(initialWidgets);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setWidgets(initialWidgets);
   }, [initialWidgets]);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === index) return;
+    setDragOverIdx(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === dropIndex) {
+      setDraggedIdx(null);
+      setDragOverIdx(null);
+      return;
+    }
+    const updated = [...widgets];
+    const [draggedItem] = updated.splice(draggedIdx, 1);
+    updated.splice(dropIndex, 0, draggedItem);
+
+    setWidgets(updated);
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+    onWidgetsChange?.(updated);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -169,6 +210,10 @@ export default function WidgetsCustomization({
     } else if (widget.platform === "instagram") {
       router.push(
         `/dashboard/customize/profile/widgets/instagram?id=${encodeURIComponent(widget.customId)}`
+      );
+    } else if (widget.platform === "tiktok") {
+      router.push(
+        `/dashboard/customize/profile/widgets/tiktok?id=${encodeURIComponent(widget.customId)}`
       );
     }
   };
@@ -305,15 +350,26 @@ export default function WidgetsCustomization({
           {/* Widget List or Empty State */}
           {count > 0 ? (
             <div className="flex flex-col gap-2.5">
-              {widgets.map((w) => (
+              {widgets.map((w, index) => (
                 <div
                   key={w.id}
-                  className="group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border border-white/5 rounded-2xl transition-all duration-150"
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
+                    draggedIdx === index
+                      ? "opacity-35 border-[#609fda]/40 scale-[0.99]"
+                      : dragOverIdx === index
+                      ? "border-[#609fda] bg-[#161616] shadow-lg shadow-[#609fda]/10"
+                      : "border-white/5"
+                  }`}
                 >
                   {/* Left info */}
                   <div className="flex items-center gap-3.5">
                     {/* Drag Handle */}
-                    <div className="cursor-grab text-white/20 hover:text-white/60 transition-colors">
+                    <div className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="9" cy="12" r="1" />
                         <circle cx="9" cy="5" r="1" />

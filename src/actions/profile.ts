@@ -478,6 +478,12 @@ export async function updateProfileWidgets(data: {
     instagramShowFollowing?: boolean;
     instagramShowPosts?: boolean;
     instagramShowBackground?: boolean;
+    tiktokShowFollowers?: boolean;
+    tiktokShowFollowing?: boolean;
+    tiktokShowLikes?: boolean;
+    tiktokShowVideos?: boolean;
+    tiktokShowVerifiedBadge?: boolean;
+    tiktokShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -510,6 +516,7 @@ export async function updateProfileWidgets(data: {
   let twitchCount = 0;
   let spotifyCount = 0;
   let instagramCount = 0;
+  let tiktokCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -534,6 +541,8 @@ export async function updateProfileWidgets(data: {
         ? "spotify"
         : w.type === "instagram-profile" || w.platform === "instagram"
         ? "instagram"
+        : w.type === "tiktok-profile" || w.platform === "tiktok"
+        ? "tiktok"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -547,6 +556,7 @@ export async function updateProfileWidgets(data: {
     if (type === "twitch-channel") twitchCount++;
     if (type === "spotify") spotifyCount++;
     if (type === "instagram") instagramCount++;
+    if (type === "tiktok") tiktokCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -584,6 +594,9 @@ export async function updateProfileWidgets(data: {
   if (instagramCount > 1) {
     throw new Error("You can only add 1 Instagram widget.");
   }
+  if (tiktokCount > 1) {
+    throw new Error("You can only add 1 TikTok widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -606,6 +619,8 @@ export async function updateProfileWidgets(data: {
         ? "spotify"
         : w.platform === "instagram"
         ? "instagram"
+        : w.platform === "tiktok"
+        ? "tiktok"
         : "discord";
     const type =
       w.type === "server"
@@ -638,6 +653,8 @@ export async function updateProfileWidgets(data: {
         ? "spotify-user"
         : w.type === "instagram-profile" || w.platform === "instagram"
         ? "instagram-profile"
+        : w.type === "tiktok-profile" || w.platform === "tiktok"
+        ? "tiktok-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -722,6 +739,16 @@ export async function updateProfileWidgets(data: {
         .slice(0, 30);
       if (!targetId || !/^[a-zA-Z0-9_.-]{1,30}$/.test(targetId)) {
         throw new Error("Invalid Instagram username format");
+      }
+    } else if (platform === "tiktok") {
+      targetId = String(w.targetId || "")
+        .trim()
+        .replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "")
+        .replace(/^@/, "")
+        .replace(/\/$/, "")
+        .slice(0, 50);
+      if (!targetId || !/^[a-zA-Z0-9_.-]{1,50}$/.test(targetId)) {
+        throw new Error("Invalid TikTok username format");
       }
     }
 
@@ -824,6 +851,12 @@ export async function updateProfileWidgets(data: {
       instagramShowFollowing: w.instagramShowFollowing !== undefined ? Boolean(w.instagramShowFollowing) : true,
       instagramShowPosts: w.instagramShowPosts !== undefined ? Boolean(w.instagramShowPosts) : true,
       instagramShowBackground: w.instagramShowBackground !== undefined ? Boolean(w.instagramShowBackground) : true,
+      tiktokShowFollowers: w.tiktokShowFollowers !== undefined ? Boolean(w.tiktokShowFollowers) : true,
+      tiktokShowFollowing: w.tiktokShowFollowing !== undefined ? Boolean(w.tiktokShowFollowing) : true,
+      tiktokShowLikes: w.tiktokShowLikes !== undefined ? Boolean(w.tiktokShowLikes) : true,
+      tiktokShowVideos: w.tiktokShowVideos !== undefined ? Boolean(w.tiktokShowVideos) : true,
+      tiktokShowVerifiedBadge: w.tiktokShowVerifiedBadge !== undefined ? Boolean(w.tiktokShowVerifiedBadge) : true,
+      tiktokShowBackground: w.tiktokShowBackground !== undefined ? Boolean(w.tiktokShowBackground) : true,
     };
   });
 

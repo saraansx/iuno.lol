@@ -21,12 +21,14 @@ interface AddWidgetModalProps {
   hasTwitchWidget?: boolean;
   hasSpotifyWidget?: boolean;
   hasInstagramWidget?: boolean;
+  hasTikTokWidget?: boolean;
 }
 
 const PLATFORMS = [
   { id: "none", name: "None" },
   { id: "discord", name: "Discord" },
   { id: "instagram", name: "Instagram" },
+  { id: "tiktok", name: "TikTok" },
   { id: "spotify", name: "Spotify" },
   { id: "twitch", name: "Twitch" },
   { id: "github", name: "GitHub" },
@@ -62,6 +64,7 @@ export default function AddWidgetModal({
   hasTwitchWidget = false,
   hasSpotifyWidget = false,
   hasInstagramWidget = false,
+  hasTikTokWidget = false,
 }: AddWidgetModalProps) {
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
@@ -83,11 +86,13 @@ export default function AddWidgetModal({
     | "spotify-artist"
     | "spotify-user"
     | "instagram-profile"
+    | "tiktok-profile"
   >("presence");
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [instagramUsername, setInstagramUsername] = useState("");
+  const [tiktokUsername, setTiktokUsername] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
   const [spotifyInput, setSpotifyInput] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
@@ -109,6 +114,8 @@ export default function AddWidgetModal({
         setWidgetType(hasPresenceWidget && !hasServerWidget ? "server" : "presence");
       } else if (selectedPlatform === "instagram") {
         setWidgetType("instagram-profile");
+      } else if (selectedPlatform === "tiktok") {
+        setWidgetType("tiktok-profile");
       } else if (selectedPlatform === "spotify") {
         setWidgetType((prev) => (prev.startsWith("spotify-") ? prev : "spotify-track"));
       } else if (selectedPlatform === "twitch") {
@@ -126,11 +133,11 @@ export default function AddWidgetModal({
       }
       setValidationError(null);
     }
-  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasInstagramWidget, hasSpotifyWidget, hasTwitchWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget, hasSteamWidget, hasGenshinWidget]);
+  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasInstagramWidget, hasTikTokWidget, hasSpotifyWidget, hasTwitchWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget, hasSteamWidget, hasGenshinWidget]);
 
   useEffect(() => {
     setValidationError(null);
-  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, instagramUsername, spotifyInput, twitchUsername, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId, steamId, genshinUid]);
+  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, instagramUsername, tiktokUsername, spotifyInput, twitchUsername, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId, steamId, genshinUid]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -160,6 +167,7 @@ export default function AddWidgetModal({
 
   const isDiscord = selectedPlatform === "discord";
   const isInstagram = selectedPlatform === "instagram";
+  const isTikTok = selectedPlatform === "tiktok";
   const isSpotify = selectedPlatform === "spotify";
   const isTwitch = selectedPlatform === "twitch";
   const isGitHub = selectedPlatform === "github";
@@ -182,6 +190,8 @@ export default function AddWidgetModal({
       : serverId.trim()
     : isInstagram
     ? instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, "")
+    : isTikTok
+    ? tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, "")
     : isSpotify
     ? spotifyInput.trim()
     : isTwitch
@@ -216,6 +226,10 @@ export default function AddWidgetModal({
     ? hasInstagramWidget
       ? false
       : /^[a-zA-Z0-9_.-]{1,30}$/.test(instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, ""))
+    : isTikTok
+    ? hasTikTokWidget
+      ? false
+      : /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
     : isSpotify
     ? hasSpotifyWidget
       ? false
@@ -328,6 +342,36 @@ export default function AddWidgetModal({
         onClose();
       } catch {
         setValidationError("Failed to verify Instagram profile. Try again.");
+      } finally {
+        setIsValidating(false);
+      }
+    } else if (isTikTok) {
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const res = await fetch("/api/widgets/tiktok/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: targetId }),
+        });
+        const result = await res.json();
+
+        if (!result.valid) {
+          setValidationError(result.error || "TikTok account not found");
+          setIsValidating(false);
+          return;
+        }
+
+        onAdd({
+          platform: selectedPlatform,
+          type: widgetType,
+          useLinked: false,
+          customId: targetId,
+        });
+        onClose();
+      } catch {
+        setValidationError("Failed to verify TikTok account. Try again.");
       } finally {
         setIsValidating(false);
       }
@@ -599,6 +643,10 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#E4405F" className="shrink-0">
                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
                   </svg>
+                ) : selectedPlatform === "tiktok" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
+                  </svg>
                 ) : selectedPlatform === "spotify" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
@@ -654,7 +702,7 @@ export default function AddWidgetModal({
             </button>
 
             {isPlatformDropdownOpen && (
-              <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
+              <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5 max-h-[308px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
                 {PLATFORMS.map((platform) => {
                   return (
                     <button
@@ -678,6 +726,10 @@ export default function AddWidgetModal({
                         ) : platform.id === "instagram" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#E4405F" className="shrink-0">
                             <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                          </svg>
+                        ) : platform.id === "tiktok" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
                           </svg>
                         ) : platform.id === "spotify" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
@@ -744,6 +796,25 @@ export default function AddWidgetModal({
             </div>
             <p className="text-[11px] text-white/30 leading-normal mt-0.5">
               Your Instagram username or profile URL (e.g. &apos;zuck&apos; or instagram.com/zuck).
+            </p>
+          </div>
+        )}
+
+        {isTikTok && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">TikTok Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={tiktokUsername}
+                onChange={(e) => setTiktokUsername(e.target.value)}
+                placeholder="e.g. charlidamelio"
+                maxLength={24}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your TikTok username or profile URL (e.g. &apos;charlidamelio&apos; or tiktok.com/@charlidamelio).
             </p>
           </div>
         )}
