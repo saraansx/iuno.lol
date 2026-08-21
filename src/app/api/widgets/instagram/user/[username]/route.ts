@@ -18,7 +18,7 @@ export async function fetchInstagramUserData(
 
   const cookie = process.env.INSTAGRAM_COOKIE;
 
-  // 1. Instagram Topsearch API with Session Cookie (if configured)
+  // 1. Instagram Topsearch API with Session Cookie
   let topsearchUser: any = null;
   if (cookie) {
     try {
@@ -93,128 +93,7 @@ export async function fetchInstagramUserData(
     };
   }
 
-  // 2. Direct Instagram Web Profile Info API Fallback
-  try {
-    const headers: Record<string, string> = {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      "X-IG-App-ID": "936619743392459",
-      "Accept": "*/*",
-      "Accept-Language": "en-US,en;q=0.9",
-    };
-    if (cookie) headers["Cookie"] = cookie;
-
-    const res = await fetch(
-      `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
-      {
-        headers,
-        next: { revalidate: 3600 },
-        signal: AbortSignal.timeout(6000),
-      }
-    );
-
-    if (res.ok) {
-      const json = await res.json();
-      const user = json?.data?.user;
-      if (user) {
-        return {
-          username: user.username || username,
-          fullName: user.full_name || username,
-          biography: user.biography || "",
-          profilePicUrl: user.profile_pic_url || "",
-          profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
-          isVerified: Boolean(user.is_verified),
-          isPrivate: Boolean(user.is_private),
-          postsCount: user.edge_owner_to_timeline_media?.count ?? 0,
-          followersCount: user.edge_followed_by?.count ?? 0,
-          followingCount: user.edge_follow?.count ?? 0,
-          externalUrl: user.external_url || null,
-        };
-      }
-    }
-  } catch (err) {
-    console.error("[Instagram Web Profile API Error]", err);
-  }
-
-  // 2. Direct OpenGraph scrape with facebookexternalhit
-  try {
-    const res = await fetch(`https://www.instagram.com/${encodeURIComponent(username)}/`, {
-      headers: {
-        "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(6000),
-    });
-
-    if (res.ok) {
-      const html = await res.text();
-
-      const ogDescMatch =
-        html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) ||
-        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i) ||
-        html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) ||
-        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i);
-
-      const ogTitleMatch =
-        html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
-        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
-
-      const ogImageMatch =
-        html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
-        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
-
-      let followersCount = 0;
-      let followingCount = 0;
-      let postsCount = 0;
-      let fullName = username;
-
-      if (ogDescMatch && ogDescMatch[1]) {
-        const statsMatch = ogDescMatch[1].match(
-          /([\d,.]+[KMkm]?)\s+Followers,\s*([\d,.]+[KMkm]?)\s+Following,\s*([\d,.]+[KMkm]?)\s+Posts/i
-        );
-        if (statsMatch) {
-          followersCount = parseStat(statsMatch[1]);
-          followingCount = parseStat(statsMatch[2]);
-          postsCount = parseStat(statsMatch[3]);
-        }
-      }
-
-      if (ogTitleMatch && ogTitleMatch[1]) {
-        const rawTitle = ogTitleMatch[1]
-          .replace(/&#064;/g, "@")
-          .replace(/&#x2022;/g, "•")
-          .replace(/&amp;/g, "&");
-        const nameMatch = rawTitle.match(/^(.*?)\s*\(@/);
-        if (nameMatch && nameMatch[1]) {
-          fullName = nameMatch[1].trim();
-        }
-      }
-
-      const profilePicUrl = ogImageMatch ? ogImageMatch[1].replace(/&amp;/g, "&") : "";
-
-      if (profilePicUrl || followersCount > 0) {
-        return {
-          username,
-          fullName,
-          biography: "",
-          profilePicUrl,
-          profilePicUrlHd: profilePicUrl,
-          isVerified: html.includes('"is_verified":true'),
-          isPrivate: html.includes('"is_private":true'),
-          postsCount,
-          followersCount,
-          followingCount,
-          externalUrl: null,
-        };
-      }
-    }
-  } catch (err) {
-    console.error("[Instagram Direct Scrape Error]", err);
-  }
-
-  // 2. Cloudflare Worker fallback
+  // 3. Cloudflare Worker fallback
   const proxyBase = (process.env.INSTAGRAM_PROXY_URL || "").replace(/\/$/, "");
   if (proxyBase) {
     try {
