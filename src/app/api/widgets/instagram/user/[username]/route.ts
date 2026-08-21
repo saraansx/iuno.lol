@@ -19,6 +19,7 @@ export async function fetchInstagramUserData(
   const cookie = process.env.INSTAGRAM_COOKIE;
 
   // 1. Instagram Topsearch API with Session Cookie (if configured)
+  let topsearchUser: any = null;
   if (cookie) {
     try {
       const res = await fetch(
@@ -39,29 +40,57 @@ export async function fetchInstagramUserData(
       if (res.ok) {
         const data = await res.json();
         const userList = (data.users || []) as Array<{ user: any }>;
-        const matched =
+        topsearchUser =
           userList.find((u) => u.user?.username?.toLowerCase() === username)?.user ||
           userList[0]?.user;
-
-        if (matched) {
-          return {
-            username: matched.username || username,
-            fullName: matched.full_name || username,
-            biography: "",
-            profilePicUrl: matched.profile_pic_url || "",
-            profilePicUrlHd: matched.profile_pic_url || "",
-            isVerified: Boolean(matched.is_verified),
-            isPrivate: Boolean(matched.is_private),
-            postsCount: 0,
-            followersCount: 0,
-            followingCount: 0,
-            externalUrl: null,
-          };
-        }
       }
     } catch (err) {
       console.error("[Instagram Topsearch API Error]", err);
     }
+  }
+
+  // 2. Fetch live stats (followers, following, posts)
+  let followersCount = 0;
+  let followingCount = 0;
+  let postsCount = 0;
+
+  try {
+    const jinaRes = await fetch(
+      `https://r.jina.ai/https://www.instagram.com/${encodeURIComponent(username)}/`,
+      {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(5000),
+      }
+    );
+
+    if (jinaRes.ok) {
+      const text = await jinaRes.text();
+      const followersMatch = text.match(/\[([\d,.]+[KMkm]?)\s+followers\]/i);
+      const followingMatch = text.match(/\[([\d,.]+[KMkm]?)\s+following\]/i);
+      const postsMatch = text.match(/\[([\d,.]+[KMkm]?)\s+posts?\]/i);
+
+      if (followersMatch) followersCount = parseStat(followersMatch[1]);
+      if (followingMatch) followingCount = parseStat(followingMatch[1]);
+      if (postsMatch) postsCount = parseStat(postsMatch[1]);
+    }
+  } catch (err) {
+    console.error("[Instagram Stats Scraper Error]", err);
+  }
+
+  if (topsearchUser) {
+    return {
+      username: topsearchUser.username || username,
+      fullName: topsearchUser.full_name || username,
+      biography: "",
+      profilePicUrl: topsearchUser.profile_pic_url || "",
+      profilePicUrlHd: topsearchUser.profile_pic_url || "",
+      isVerified: Boolean(topsearchUser.is_verified),
+      isPrivate: Boolean(topsearchUser.is_private),
+      postsCount,
+      followersCount,
+      followingCount,
+      externalUrl: null,
+    };
   }
 
   // 2. Direct Instagram Web Profile Info API Fallback
