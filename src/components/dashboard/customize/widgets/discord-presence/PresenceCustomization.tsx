@@ -5,7 +5,6 @@ import PlacementSetting from "./settings/PlacementSetting";
 import ShowBackgroundOverlaySetting from "./settings/ShowBackgroundOverlaySetting";
 import ShowActivitySetting from "./settings/ShowActivitySetting";
 import ShowActivityImageSetting from "./settings/ShowActivityImageSetting";
-import ActivityImageShapeSetting from "./settings/ActivityImageShapeSetting";
 import ShowAvatarDecorationSetting from "./settings/ShowAvatarDecorationSetting";
 import ShowGuildTagSetting from "./settings/ShowGuildTagSetting";
 import ShowBadgesSetting from "./settings/ShowBadgesSetting";
@@ -24,8 +23,8 @@ interface PresenceCustomizationProps {
   onShowActivityChange: (val: boolean) => void;
   showActivityImage: boolean;
   onShowActivityImageChange: (val: boolean) => void;
-  activityImageShape: "circle" | "rounded" | "square";
-  onActivityImageShapeChange: (shape: "circle" | "rounded" | "square") => void;
+  activityImageShape?: "circle" | "rounded" | "square";
+  onActivityImageShapeChange?: (shape: "circle" | "rounded" | "square") => void;
   showAvatarDecoration: boolean;
   onShowAvatarDecorationChange: (val: boolean) => void;
   showGuildTag: boolean;
@@ -97,11 +96,6 @@ export default function PresenceCustomization({
         <ShowActivityImageSetting
           value={showActivityImage}
           onChange={onShowActivityImageChange}
-        />
-        <ActivityImageShapeSetting
-          value={activityImageShape}
-          onChange={onActivityImageShapeChange}
-          disabled={!showActivity || !showActivityImage}
         />
         <ShowAvatarDecorationSetting
           value={showAvatarDecoration}

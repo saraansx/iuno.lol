@@ -144,30 +144,14 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           </div>
         )}
 
-        {/* Background Layer: Spotify / Game Art OR User Avatar Overlay */}
-        {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ? (
-          <div
-            className="absolute inset-0 z-0 overflow-hidden pointer-events-none"
-            style={{
-              maskImage: "linear-gradient(to right, transparent 20%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 80%, black 100%)",
-              WebkitMaskImage: "linear-gradient(to right, transparent 20%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.9) 80%, black 100%)",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={(discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ?? ""}
-              alt=""
-              className="absolute right-0 top-0 w-3/4 h-full object-cover opacity-90 scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#101010]/60 via-transparent to-[#101010]/30" />
-          </div>
-        ) : showBackgroundOverlay && avatarUrl ? (
+        {/* Background Layer: User Avatar Overlay */}
+        {showBackgroundOverlay && avatarUrl ? (
           <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={avatarUrl}
               alt=""
-              className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
+              className="w-full h-full object-cover opacity-35 filter blur-[12px] scale-125"
             />
             <div className="absolute inset-0 bg-[#101010]/50 backdrop-blur-[1px]" />
           </div>
@@ -367,6 +351,18 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
               </OverflowPingPong>
             </div>
           </div>
+
+          {/* Right-side Presence Thumbnail */}
+          {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) && (
+            <div className="relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 rounded-2xl shadow-sm flex items-center justify-center ml-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={(discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ?? ""}
+                alt=""
+                className="w-full h-full object-cover block"
+              />
+            </div>
+          )}
         </div>
       </a>
     </>
