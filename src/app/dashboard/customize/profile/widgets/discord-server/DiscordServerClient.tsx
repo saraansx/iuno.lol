@@ -208,7 +208,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                 <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
                   <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                       }`}
                     />
@@ -275,7 +275,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
                     {/* Server Icon */}
                     <div
-                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
+                      className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -287,7 +287,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                         src={iconUrl}
                         alt={guild.name}
                         fill
-                        sizes="60px"
+                        sizes="74px"
                         priority
                         className="object-cover"
                         unoptimized
@@ -297,24 +297,24 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                     {/* Server Info + Stats */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[15px] font-normal text-white tracking-tight truncate">
+                        <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
                           {guild.name}
                         </span>
                       </div>
 
                       {/* Online + Total Member Counts */}
                       {(showOnlineCount || showMemberCount) && (
-                        <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap">
+                        <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap">
                           {showOnlineCount && (
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span className="w-2 h-2 rounded-full bg-[#23a55a] shrink-0" />
-                              <span>{Number(serverData.approximate_presence_count || 0).toLocaleString()}</span>
+                              <span className="text-white/85">{Number(serverData.approximate_presence_count || 0).toLocaleString()}</span>
                             </div>
                           )}
                           {showMemberCount && (
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span className="w-2 h-2 rounded-full bg-[#80848e] shrink-0" />
-                              <span>{Number(serverData.approximate_member_count || 0).toLocaleString()}</span>
+                              <span className="text-white/85">{Number(serverData.approximate_member_count || 0).toLocaleString()}</span>
                             </div>
                           )}
                         </div>

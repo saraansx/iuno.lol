@@ -8,6 +8,12 @@ import { type WidgetItem } from "@/components/dashboard/customize/widgets/Widget
 import { updateProfileWidgets } from "@/actions/profile";
 import { useGitHubRepo } from "@/lib/hooks/useGitHubRepo";
 import GitHubRepoCustomization from "@/components/dashboard/customize/widgets/github-repo/GitHubRepoCustomization";
+import {
+  GitHubStarIcon,
+  GitHubForkIcon,
+  GitHubWatchersIcon,
+  GitHubIssuesIcon,
+} from "@/components/profile/widgets/WidgetIcons";
 import { toast } from "sonner";
 
 const LANGUAGE_COLORS: Record<string, string> = {
@@ -233,7 +239,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
                 <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
                   <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                       }`}
                     />
@@ -289,7 +295,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
                     {/* Owner Avatar */}
                     <div
-                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                      className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -314,65 +320,51 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
                     {/* Info + Counts */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                        <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
                           {repoData.full_name || cleanRepo}
                         </span>
                       </div>
 
                       {(showStars || showForks || showWatchers || showOpenIssues || (showPrimaryLanguage && repoData.language)) && (
-                        <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap">
+                        <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap">
                           {showPrimaryLanguage && repoData.language && (
                             <div className="flex items-center gap-1.5 shrink-0">
                               <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: langColor }} />
-                              <span className="text-white/80">{repoData.language}</span>
+                              <span className="text-white/85">{repoData.language}</span>
                             </div>
                           )}
 
                           {showStars && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-amber-400">
-                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                              </svg>
-                              <span className="text-white/90 font-medium">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <GitHubStarIcon size={14} className="text-amber-400 shrink-0" />
+                              <span className="text-white/85">
                                 {Number(repoData.stargazers_count || 0).toLocaleString()}
                               </span>
                             </div>
                           )}
 
                           {showForks && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                                <line x1="6" y1="3" x2="6" y2="15" />
-                                <circle cx="18" cy="6" r="3" />
-                                <circle cx="6" cy="18" r="3" />
-                                <path d="M18 9a9 9 0 0 1-9 9" />
-                              </svg>
-                              <span className="text-white/90 font-medium">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <GitHubForkIcon size={14} className="text-white/70 shrink-0" />
+                              <span className="text-white/85">
                                 {Number(repoData.forks_count || 0).toLocaleString()}
                               </span>
                             </div>
                           )}
 
                           {showWatchers && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
-                                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-                                <circle cx="12" cy="12" r="3" />
-                              </svg>
-                              <span className="text-white/90 font-medium">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <GitHubWatchersIcon size={14} className="text-white/70 shrink-0" />
+                              <span className="text-white/85">
                                 {Number(repoData.subscribers_count || 0).toLocaleString()}
                               </span>
                             </div>
                           )}
 
                           {showOpenIssues && (
-                            <div className="flex items-center gap-1 shrink-0">
-                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-400">
-                                <circle cx="12" cy="12" r="10" />
-                                <line x1="12" y1="8" x2="12" y2="12" />
-                                <line x1="12" y1="16" x2="12.01" y2="16" />
-                              </svg>
-                              <span className="text-white/90 font-medium">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <GitHubIssuesIcon size={14} className="text-red-400 shrink-0" />
+                              <span className="text-white/85">
                                 {Number(repoData.open_issues_count || 0).toLocaleString()}
                               </span>
                             </div>

@@ -12,6 +12,7 @@ import SteamWidget from "./SteamWidget";
 import GenshinWidget from "./GenshinWidget";
 import TwitchWidget from "./TwitchWidget";
 import SpotifyWidget from "./SpotifyWidget";
+import InstagramWidget from "./InstagramWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -46,6 +47,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.platform === "spotify" || w.type?.startsWith("spotify-")) {
     return <SpotifyWidget widget={w} />;
+  }
+  if (w.type === "instagram-profile" || w.platform === "instagram") {
+    return <InstagramWidget widget={w} />;
   }
   return null;
 }

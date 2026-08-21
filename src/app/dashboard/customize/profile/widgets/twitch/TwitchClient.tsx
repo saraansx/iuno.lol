@@ -221,7 +221,7 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                 <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
                   <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -291,7 +291,7 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                     {/* Avatar */}
                     <div className="relative shrink-0">
                       <div
-                        className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border ${
+                        className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border ${
                           isCurrentlyLive ? "border-[#eb0400]" : "border-white/10"
                         } shadow-sm flex items-center justify-center ${
                           imageShape === "square"

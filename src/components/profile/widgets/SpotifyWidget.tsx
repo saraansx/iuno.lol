@@ -5,13 +5,15 @@ import { type WidgetItem } from "@/components/dashboard/customize/widgets/Widget
 import { formatNumber } from "@/lib/spotify";
 import OverflowPingPong from "./OverflowPingPong";
 import {
+  SpotifyLogoIcon,
   SpotifyArtistIcon,
   SpotifyAlbumIcon,
   SpotifyFollowersIcon,
   SpotifyListenersIcon,
   SpotifyTracksIcon,
   SpotifyCalendarIcon,
-} from "./spotify/SpotifyIcons";
+  WidgetRedirectIcon,
+} from "./WidgetIcons";
 
 export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
   const rawType = widget.type || "spotify-track";
@@ -41,7 +43,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square"
                 ? "rounded-none"
                 : imageShape === "circle"
@@ -69,7 +71,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       const parts: React.ReactNode[] = [];
       if (showArtist && itemData.artistName) {
         parts.push(
-          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.artistName}</span>
           </span>
@@ -77,7 +79,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (showAlbum && itemData.albumName && itemData.albumName !== itemData.title) {
         parts.push(
-          <span key="album" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="album" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyAlbumIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.albumName}</span>
           </span>
@@ -85,24 +87,23 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Track"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Track"}</span>;
     }
 
     if (effectiveType === "album") {
       const parts: React.ReactNode[] = [];
       if (showArtist && itemData.artistName) {
         parts.push(
-          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.artistName}</span>
           </span>
@@ -110,7 +111,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (showReleaseYear && itemData.releaseYear) {
         parts.push(
-          <span key="year" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="year" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyCalendarIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.releaseYear}</span>
           </span>
@@ -118,7 +119,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (showTrackCount && itemData.trackCount) {
         parts.push(
-          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyTracksIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.trackCount} tracks</span>
           </span>
@@ -126,24 +127,23 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Album"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Album"}</span>;
     }
 
     if (effectiveType === "playlist") {
       const parts: React.ReactNode[] = [];
       if (showOwner && itemData.ownerName) {
         parts.push(
-          <span key="owner" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="owner" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>By {itemData.ownerName}</span>
           </span>
@@ -151,7 +151,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (showTrackCount && itemData.trackCount !== undefined && itemData.trackCount !== null) {
         parts.push(
-          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyTracksIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.trackCount} track{itemData.trackCount === 1 ? "" : "s"}</span>
           </span>
@@ -159,24 +159,23 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Playlist"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Playlist"}</span>;
     }
 
     if (effectiveType === "artist") {
       const parts: React.ReactNode[] = [];
       if (showFollowers && itemData.followersCount !== undefined && itemData.followersCount !== null && itemData.followersCount > 0) {
         parts.push(
-          <span key="followers" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="followers" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyFollowersIcon size={12} className="text-white/50 shrink-0" />
             <span>{formatNumber(itemData.followersCount)} followers</span>
           </span>
@@ -184,7 +183,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (showMonthlyListeners && itemData.monthlyListeners !== undefined && itemData.monthlyListeners !== null && itemData.monthlyListeners > 0) {
         parts.push(
-          <span key="listeners" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="listeners" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyListenersIcon size={12} className="text-white/50 shrink-0" />
             <span>{formatNumber(itemData.monthlyListeners)} monthly listeners</span>
           </span>
@@ -192,29 +191,28 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Artist"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Artist"}</span>;
     }
 
     if (effectiveType === "user") {
       return (
-        <span className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+        <span className="inline-flex items-center gap-1.5 shrink-0 text-white/85 text-[12.5px] font-normal leading-tight">
           <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
           <span>Spotify User</span>
         </span>
       );
     }
 
-    return <span className="text-white/50">{itemData.subtitle || "Spotify"}</span>;
+    return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify"}</span>;
   };
 
   return (
@@ -227,19 +225,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M7 17L17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
+          <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
@@ -260,7 +246,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
         {/* Artwork / Image */}
         <div className="relative shrink-0">
           <div
-            className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+            className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
               imageShape === "square"
                 ? "rounded-none"
                 : imageShape === "circle"
@@ -290,15 +276,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
             <OverflowPingPong deps={[itemData, itemData.title, effectiveType]}>
               <div className="flex items-center gap-1.5 shrink-0">
                 {/* Official Spotify Green Icon */}
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="#1ED760"
-                  className="shrink-0"
-                >
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
-                </svg>
+                <SpotifyLogoIcon size={14} className="w-3.5 h-3.5 shrink-0" />
 
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {itemData.title}

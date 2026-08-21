@@ -198,10 +198,10 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   </span>
                 </div>
               ) : loadingPreview && !boardData ? (
-                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] px-4 shadow-md flex flex-col justify-center gap-2.5`}>
-                  <div className="flex items-center gap-3 min-w-0 w-full">
+                <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+                  <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                       }`}
                     />
@@ -210,7 +210,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                       <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
                     </div>
                   </div>
-                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
                 </div>
               ) : !boardData ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
@@ -258,7 +257,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
                     {/* Cover / Pin Image */}
                     <div
-                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                      className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -283,22 +282,19 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                     {/* Info + Counts */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                        <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
                           {boardData.name}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-[13px] text-white/60 font-normal truncate">
+                      <div className="flex items-center gap-2 text-[12.5px] font-normal leading-tight text-white/60 truncate">
                         {showPinCount && (
-                          <>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <span className="text-white/90 font-medium">
-                                {Number(boardData.pin_count || 0).toLocaleString()}+
-                              </span>
-                              <span className="text-white/40">pins</span>
-                            </div>
-                            <span className="text-white/20 text-[10px]">•</span>
-                          </>
+                          <div className="flex items-center gap-1 shrink-0">
+                            <span className="text-white/85">
+                              {Number(boardData.pin_count || 0).toLocaleString()}+
+                            </span>
+                            <span className="text-white/40">pins</span>
+                          </div>
                         )}
                         <div className="flex items-center gap-1.5 shrink-0">
                           <span className="text-white/40">by</span>
@@ -307,10 +303,10 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                             <img
                               src={`/api/widgets/pinterest/image?url=${encodeURIComponent(boardData.owner_image)}`}
                               alt=""
-                              className="w-[18px] h-[18px] rounded-full object-cover shrink-0 border border-white/10"
+                              className="w-[15px] h-[15px] rounded-full object-cover shrink-0 border border-white/10"
                             />
                           )}
-                          <span className="text-white/90 font-medium">
+                          <span className="text-white/85">
                             {boardData.owner_name || boardData.owner_username || username}
                           </span>
                         </div>

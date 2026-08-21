@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getClientIp } from "@/lib/server/security/ip";
-import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-    }
-
-    const ip = getClientIp(req.headers);
-    const rateKey = ip ? `discord_lookup:ip:${ip}` : `discord_lookup:user:${sessionUserId}`;
-    const rate = await checkRateLimit(rateKey, 5, 60, 60);
-    if (!rate.ok) {
-      return NextResponse.json({ ok: false, error: "Too many attempts. Please wait 60 seconds." }, { status: 429 });
     }
 
     const { type, id } = await req.json();

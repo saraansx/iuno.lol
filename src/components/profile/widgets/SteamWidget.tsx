@@ -3,6 +3,7 @@
 import { useSteamUser } from "@/lib/hooks/useSteamUser";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import OverflowPingPong from "./OverflowPingPong";
+import { WidgetRedirectIcon } from "./WidgetIcons";
 
 export default function SteamWidget({ widget }: { widget: WidgetItem }) {
   const cleanId = (widget.targetId || "")
@@ -27,7 +28,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -83,10 +84,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17L17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
+          <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
@@ -138,7 +136,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
         {/* Avatar with Optional Frame */}
-        <div className="relative w-[60px] h-[60px] shrink-0 flex items-center justify-center">
+        <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
           <div
             className={`relative w-full h-full overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -171,40 +169,40 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Persona Name */}
           <OverflowPingPong deps={[steamData, steamData?.personaname]}>
-            <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
+            <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {steamData.personaname}
             </span>
           </OverflowPingPong>
 
           {/* Stats Row */}
           {steamData.is_private ? (
-            <div className="flex items-center gap-1.5 text-[12.5px] text-white/50">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-white/60">
+            <div className="flex items-center gap-1.5 text-[12.5px] font-normal leading-tight text-white/50">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="shrink-0 text-white/50">
                 <path fillRule="evenodd" clipRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3H6A3.75 3.75 0 002.25 13.5v6.75A3.75 3.75 0 006 24h12a3.75 3.75 0 003.75-3.75V13.5A3.75 3.75 0 0018 9.75h-.75v-3A5.25 5.25 0 0012 1.5zm3.25 8.25v-3a3.25 3.25 0 10-6.5 0v3h6.5zM12 14.25a1.5 1.5 0 00-.75 2.8v2.2a.75.75 0 001.5 0v-2.2a1.5 1.5 0 00-.75-2.8z" />
               </svg>
               <span>This profile is private</span>
             </div>
           ) : (showLevel || showGames || showMemberSince) && (
             <OverflowPingPong deps={[steamData, showLevel, showGames, showMemberSince]}>
-              <div className="flex items-center gap-2.5 text-[12.5px] text-white/60 font-normal whitespace-nowrap shrink-0">
+              <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
                 {/* Level */}
                 {showLevel && typeof steamData.level === "number" && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/60 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
                       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                     </svg>
                     <span className="text-white/40">Level</span>
-                    <span className="text-white/90 font-medium">{steamData.level}</span>
+                    <span className="text-white/85">{steamData.level}</span>
                   </div>
                 )}
 
                 {/* Games Count */}
                 {showGames && typeof steamData.game_count === "number" && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/60 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
                       <path fillRule="evenodd" clipRule="evenodd" d="M17.65 4.74C19.82 5.37 21.6 7.21 21.92 9.87l.95 7.82a3.75 3.75 0 01-3.66 4.2c-1.46 0-2.8-.75-3.56-1.99l-1.35-2.2c-.32-.52-.89-.85-1.5-.85H11.2c-.61 0-1.18.33-1.5.85l-1.35 2.2a4.17 4.17 0 01-3.56 1.99 3.75 3.75 0 01-3.66-4.2l.95-7.82c.32-2.66 2.1-4.5 4.27-5.13 1.84-.53 3.82-.04 5.65.61.64.23 1.36.23 2 0 1.83-.65 3.81-1.14 5.65-.61zM7 9a1 1 0 011 1v1h1a1 1 0 110 2H8v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h1v-1a1 1 0 011-1zm10 1a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5zm-2 2.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z" />
                     </svg>
-                    <span className="text-white/90 font-medium">{steamData.game_count.toLocaleString()}</span>
+                    <span className="text-white/85">{steamData.game_count.toLocaleString()}</span>
                     <span className="text-white/40">Games</span>
                   </div>
                 )}
@@ -212,11 +210,11 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
                 {/* Member Since */}
                 {showMemberSince && steamData.member_since && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/60 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
                       <path fillRule="evenodd" clipRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a3 3 0 00-3 3v13a3 3 0 003 3h16a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm15 7H3v10a1 1 0 001 1h16a1 1 0 001-1V9zm-14 3a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2zm5-4a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2zm5-4a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2z" />
                     </svg>
                     <span className="text-white/40">Since</span>
-                    <span className="text-white/90 font-medium">{steamData.member_since}</span>
+                    <span className="text-white/85">{steamData.member_since}</span>
                   </div>
                 )}
               </div>

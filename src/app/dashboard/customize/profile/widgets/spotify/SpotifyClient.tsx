@@ -208,7 +208,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       const parts: React.ReactNode[] = [];
       if (showArtist && itemData.artistName) {
         parts.push(
-          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.artistName}</span>
           </span>
@@ -216,7 +216,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (showAlbum && itemData.albumName && itemData.albumName !== itemData.title) {
         parts.push(
-          <span key="album" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="album" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyAlbumIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.albumName}</span>
           </span>
@@ -224,24 +224,23 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Track"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Track"}</span>;
     }
 
     if (effectiveType === "album") {
       const parts: React.ReactNode[] = [];
       if (showArtist && itemData.artistName) {
         parts.push(
-          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="artist" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.artistName}</span>
           </span>
@@ -249,7 +248,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (showReleaseYear && itemData.releaseYear) {
         parts.push(
-          <span key="year" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="year" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyCalendarIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.releaseYear}</span>
           </span>
@@ -257,7 +256,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (showTrackCount && itemData.trackCount) {
         parts.push(
-          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyTracksIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.trackCount} tracks</span>
           </span>
@@ -265,24 +264,23 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Album"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Album"}</span>;
     }
 
     if (effectiveType === "playlist") {
       const parts: React.ReactNode[] = [];
       if (showOwner && itemData.ownerName) {
         parts.push(
-          <span key="owner" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="owner" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
             <span>By {itemData.ownerName}</span>
           </span>
@@ -290,7 +288,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (showTrackCount && itemData.trackCount !== undefined && itemData.trackCount !== null) {
         parts.push(
-          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="tracks" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyTracksIcon size={12} className="text-white/50 shrink-0" />
             <span>{itemData.trackCount} track{itemData.trackCount === 1 ? "" : "s"}</span>
           </span>
@@ -298,24 +296,23 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Playlist"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Playlist"}</span>;
     }
 
     if (effectiveType === "artist") {
       const parts: React.ReactNode[] = [];
       if (showFollowers && itemData.followersCount !== undefined && itemData.followersCount !== null && itemData.followersCount > 0) {
         parts.push(
-          <span key="followers" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="followers" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyFollowersIcon size={12} className="text-white/50 shrink-0" />
             <span>{formatNumber(itemData.followersCount)} followers</span>
           </span>
@@ -323,7 +320,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (showMonthlyListeners && itemData.monthlyListeners !== undefined && itemData.monthlyListeners !== null && itemData.monthlyListeners > 0) {
         parts.push(
-          <span key="listeners" className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+          <span key="listeners" className="inline-flex items-center gap-1.5 shrink-0 text-white/85">
             <SpotifyListenersIcon size={12} className="text-white/50 shrink-0" />
             <span>{formatNumber(itemData.monthlyListeners)} monthly listeners</span>
           </span>
@@ -331,29 +328,28 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
       }
       if (parts.length > 0) {
         return (
-          <div className="flex items-center gap-2 whitespace-nowrap shrink-0">
+          <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
             {parts.map((p, idx) => (
-              <span key={idx} className="inline-flex items-center gap-2 shrink-0">
-                {idx > 0 && <span className="text-white/20">•</span>}
+              <span key={idx} className="inline-flex items-center shrink-0">
                 {p}
               </span>
             ))}
           </div>
         );
       }
-      return <span className="text-white/50">{itemData.subtitle || "Spotify Artist"}</span>;
+      return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify Artist"}</span>;
     }
 
     if (effectiveType === "user") {
       return (
-        <span className="inline-flex items-center gap-1.5 shrink-0 text-white/70">
+        <span className="inline-flex items-center gap-1.5 shrink-0 text-white/85 text-[12.5px] font-normal leading-tight">
           <SpotifyArtistIcon size={12} className="text-white/50 shrink-0" />
           <span>Spotify User</span>
         </span>
       );
     }
 
-    return <span className="text-white/50">{itemData.subtitle || "Spotify"}</span>;
+    return <span className="text-white/50 text-[12.5px] font-normal leading-tight">{itemData.subtitle || "Spotify"}</span>;
   };
 
   return (
@@ -419,7 +415,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
                 <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
                   <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -489,7 +485,7 @@ export default function SpotifyClient({ user }: { user: FullUser | null }) {
                     {/* Artwork / Avatar */}
                     <div className="relative shrink-0">
                       <div
-                        className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                        className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                           imageShape === "square"
                             ? "rounded-none"
                             : imageShape === "circle"

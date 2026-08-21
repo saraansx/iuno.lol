@@ -390,7 +390,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                 <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
                   <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "rounded"
@@ -469,7 +469,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       {/* Avatar + Status badge + Discord Avatar Decoration */}
                       <div className="relative shrink-0 flex items-center justify-center">
                         <div
-                          className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border border-white/10 shadow-md ${
+                          className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-md ${
                             imageShape === "square"
                               ? "rounded-none"
                               : imageShape === "rounded"
@@ -481,7 +481,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             src={avatarUrl}
                             alt="Discord avatar"
                             fill
-                            sizes="60px"
+                            sizes="74px"
                             priority
                             className="object-cover"
                             unoptimized
@@ -528,13 +528,13 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                       <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                         {/* Top Line: Global Name / Username + Guild/Clan Tag + Badges */}
                         <div className="flex items-center gap-1.5 min-w-0">
-                          <span className="text-[15px] font-normal text-white tracking-tight truncate">
+                          <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
                             {discordData?.user?.username || (loadingPreview ? "Loading..." : "Discord User")}
                           </span>
 
                           {/* Discord Guild / Clan Tag (e.g. ᶻz𐰁) */}
                           {showGuildTag && discordData?.user?.clan?.tag && (
-                            <span className="inline-flex items-center gap-1.5 bg-white/[0.08] border border-white/10 px-2 py-0.5 rounded-[6px] text-[12.5px] font-medium leading-none text-white/90 shrink-0 ml-1.5">
+                            <span className="inline-flex items-center gap-1.5 bg-white/[0.08] border border-white/10 px-2 py-0.5 rounded-[6px] text-[12px] font-medium leading-none text-white/90 shrink-0 ml-1.5">
                               {discordData.user.clan.badge && (
                                 <Image
                                   src={`https://cdn.discordapp.com/clan-badges/${discordData.user.clan.identity_guild_id}/${discordData.user.clan.badge}.png`}
@@ -583,10 +583,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         {/* Bottom Line: Activity / Spotify / Custom Status / Offline */}
                         {!showActivity ? (
                           fallbackText ? (
-                            <span className="text-[13px] font-normal text-white/40 truncate">{fallbackText}</span>
+                            <span className="text-[12.5px] font-normal leading-tight text-white/40 truncate">{fallbackText}</span>
                           ) : null
                         ) : discordData?.primary_activity ? (
-                          <div className="flex items-center gap-1.5 text-[13px] font-normal leading-tight truncate">
+                          <div className="flex items-center gap-1.5 text-[12.5px] font-normal leading-tight truncate">
                             {discordData.primary_activity.small_image_url ? (
                               <div className="relative w-3.5 h-3.5 shrink-0 rounded-[3px] overflow-hidden">
                                 <Image
@@ -625,7 +625,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                               <svg width="12" height="12" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                                 <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
                               </svg>
-                              <span className="text-[13px] font-normal text-white/90 truncate">
+                              <span className="text-[12.5px] font-normal text-white/90 truncate">
                                 {discordData.spotify.song}
                               </span>
                             </div>
@@ -636,7 +636,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                             )}
                           </div>
                         ) : discordData?.custom_status?.text ? (
-                          <div className="flex items-center gap-1.5 text-[13px] text-white/70 font-normal truncate">
+                          <div className="flex items-center gap-1.5 text-[12.5px] text-white/70 font-normal truncate">
                             {discordData.custom_status.emoji?.id ? (
                               <div className="relative w-4 h-4 shrink-0">
                                 <Image
@@ -649,12 +649,12 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                                 />
                               </div>
                             ) : discordData.custom_status.emoji?.name ? (
-                              <span className="text-[13px]">{discordData.custom_status.emoji.name}</span>
+                              <span className="text-[12.5px]">{discordData.custom_status.emoji.name}</span>
                             ) : null}
                             <span>{discordData.custom_status.text}</span>
                           </div>
                         ) : (
-                          <span className="text-[13px] font-normal text-white/40 truncate">
+                          <span className="text-[12.5px] font-normal text-white/40 truncate">
                             {discordData?.status === "offline"
                               ? showLastSeen
                                 ? formatLastSeen(discordData?.last_seen)

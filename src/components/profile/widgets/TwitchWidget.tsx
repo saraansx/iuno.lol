@@ -4,6 +4,11 @@ import { useTwitchChannel } from "@/lib/hooks/useTwitchChannel";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import { formatNumber } from "@/lib/twitch";
 import OverflowPingPong from "./OverflowPingPong";
+import {
+  TwitchLogoIcon,
+  TwitchPartnerBadgeIcon,
+  WidgetRedirectIcon,
+} from "./WidgetIcons";
 
 export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
   const cleanLogin = (widget.targetId || "").trim();
@@ -28,7 +33,7 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square"
                 ? "rounded-none"
                 : imageShape === "circle"
@@ -62,19 +67,7 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
       {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
-          <svg
-            width="11"
-            height="11"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M7 17L17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
+          <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
@@ -95,7 +88,7 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
         {/* Avatar */}
         <div className="relative shrink-0">
           <div
-            className={`relative w-[60px] h-[60px] overflow-hidden bg-[#181818] border ${
+            className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border ${
               isCurrentlyLive ? "border-[#eb0400]" : "border-white/10"
             } shadow-sm flex items-center justify-center ${
               imageShape === "square"
@@ -130,15 +123,7 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
             <OverflowPingPong deps={[channel, channel.displayName, isCurrentlyLive]}>
               <div className="flex items-center gap-1.5 shrink-0">
                 {/* Official Twitch Purple Logo */}
-                <svg
-                  width="13"
-                  height="13"
-                  viewBox="0 0 24 24"
-                  fill="#9146FF"
-                  className="shrink-0"
-                >
-                  <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
-                </svg>
+                <TwitchLogoIcon size={14} className="w-3.5 h-3.5 shrink-0" />
 
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {channel.displayName}
@@ -146,22 +131,7 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
 
                 {/* Verified Partner Badge */}
                 {showPartnerBadge && channel.isPartner && (
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="#9146FF"
-                    className="shrink-0"
-                  >
-                    <path d="M12 2L14.8 4.2L18.4 4.5L19.5 7.8L22.5 9.8L21.7 13.3L23 16.5L20 18.5L19 22L15.5 21.5L13 23.5L10.5 21.5L7 22L6 18.5L3 16.5L4.3 13.3L3.5 9.8L6.5 7.8L7.6 4.5L11.2 4.2L12 2Z" />
-                    <path
-                      d="M9.5 12L11 13.5L15 9.5"
-                      stroke="#FFFFFF"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <TwitchPartnerBadgeIcon size={14} className="w-3.5 h-3.5 shrink-0" />
                 )}
 
                 {/* Live Indicator Pill in Header if Live */}

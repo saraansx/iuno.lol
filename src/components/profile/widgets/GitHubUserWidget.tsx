@@ -4,6 +4,7 @@ import { useGitHubUser } from "@/lib/hooks/useGitHubUser";
 import { useGitHubContributions } from "@/lib/hooks/useGitHubContributions";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import OverflowPingPong from "./OverflowPingPong";
+import { WidgetRedirectIcon } from "./WidgetIcons";
 
 const LEVEL_COLORS = [
   "bg-[#161b22] border border-white/[0.06]", // level 0 (empty)
@@ -36,7 +37,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -59,10 +60,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
       {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17L17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
+          <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
@@ -101,7 +99,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
         {/* Avatar */}
         <div
-          className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
           }`}
         >
@@ -123,11 +121,11 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Title with ping-pong overflow scroll */}
           <OverflowPingPong deps={[userData, userData?.name, userData?.login]}>
-            <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
+            <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {userData.name || userData.login}
             </span>
             {userData.name && (
-              <span className="text-[12px] font-mono text-white/40 shrink-0 ml-1.5">
+              <span className="text-[11.5px] font-mono text-white/40 shrink-0 ml-1.5">
                 @{userData.login}
               </span>
             )}
@@ -136,10 +134,10 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
           {/* Counts Row */}
           {(showFollowers || showFollowing || showPublicRepos) && (
             <OverflowPingPong deps={[userData, showFollowers, showFollowing, showPublicRepos]}>
-              <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap shrink-0">
+              <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
                 {showFollowers && (
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-white/90 font-medium">
+                    <span className="text-white/85">
                       {Number(userData.followers || 0).toLocaleString()}
                     </span>
                     <span className="text-white/40">followers</span>
@@ -147,7 +145,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
                 )}
                 {showFollowing && (
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-white/90 font-medium">
+                    <span className="text-white/85">
                       {Number(userData.following || 0).toLocaleString()}
                     </span>
                     <span className="text-white/40">following</span>
@@ -155,7 +153,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
                 )}
                 {showPublicRepos && (
                   <div className="flex items-center gap-1 shrink-0">
-                    <span className="text-white/90 font-medium">
+                    <span className="text-white/85">
                       {Number(userData.public_repos || 0).toLocaleString()}
                     </span>
                     <span className="text-white/40">repos</span>

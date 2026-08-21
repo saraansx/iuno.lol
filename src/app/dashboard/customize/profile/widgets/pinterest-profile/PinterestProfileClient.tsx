@@ -194,10 +194,10 @@ export default function PinterestProfileClient({ user }: { user: FullUser | null
                   </span>
                 </div>
               ) : loadingPreview && !pinterestData ? (
-                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[20px] px-4 shadow-md flex flex-col justify-center gap-2.5`}>
-                  <div className="flex items-center gap-3 min-w-0 w-full">
+                <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
+                  <div className="flex items-center gap-3.5 min-w-0 w-full">
                     <div
-                      className={`w-[52px] h-[52px] shrink-0 bg-white/[0.05] ${
+                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
                       }`}
                     />
@@ -206,7 +206,6 @@ export default function PinterestProfileClient({ user }: { user: FullUser | null
                       <div className="h-3 w-16 bg-white/[0.03] rounded-md" />
                     </div>
                   </div>
-                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
                 </div>
               ) : !pinterestData ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
@@ -254,7 +253,7 @@ export default function PinterestProfileClient({ user }: { user: FullUser | null
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
                     {/* Avatar */}
                     <div
-                      className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+                      className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square"
                           ? "rounded-none"
                           : imageShape === "circle"
@@ -279,19 +278,19 @@ export default function PinterestProfileClient({ user }: { user: FullUser | null
                     {/* Info + Counts */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
-                        <span className="text-[15.5px] font-medium text-white tracking-tight truncate">
+                        <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
                           {pinterestData.name || pinterestData.username}
                         </span>
                         {pinterestData.name && (
-                          <span className="text-[12px] font-mono text-white/40 truncate">
+                          <span className="text-[11.5px] font-mono text-white/40 truncate">
                             @{pinterestData.username}
                           </span>
                         )}
                       </div>
 
                       {showPinCount && (
-                        <div className="flex items-center gap-1 text-[13px] text-white/60 font-normal">
-                          <span className="text-white/90 font-medium">
+                        <div className="flex items-center gap-1 text-[12.5px] font-normal leading-tight text-white/60">
+                          <span className="text-white/85">
                             {Number(pinterestData.pin_count || 0).toLocaleString()}+
                           </span>
                           <span className="text-white/40">pins</span>

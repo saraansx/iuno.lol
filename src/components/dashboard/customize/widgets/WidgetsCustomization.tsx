@@ -72,6 +72,10 @@ export interface WidgetItem {
   spotifyShowMonthlyListeners?: boolean;
   spotifyShowFollowers?: boolean;
   spotifyShowBackground?: boolean;
+  instagramShowFollowers?: boolean;
+  instagramShowFollowing?: boolean;
+  instagramShowPosts?: boolean;
+  instagramShowBackground?: boolean;
 }
 
 interface WidgetsCustomizationProps {
@@ -162,6 +166,10 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/spotify?type=${encodeURIComponent(widget.type)}&id=${encodeURIComponent(widget.customId)}`
       );
+    } else if (widget.platform === "instagram") {
+      router.push(
+        `/dashboard/customize/profile/widgets/instagram?id=${encodeURIComponent(widget.customId)}`
+      );
     }
   };
 
@@ -238,6 +246,12 @@ export default function WidgetsCustomization({
         `/dashboard/customize/profile/widgets/spotify?widgetId=${encodeURIComponent(
           w.id
         )}&type=${encodeURIComponent(w.type)}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "instagram") {
+      router.push(
+        `/dashboard/customize/profile/widgets/instagram?widgetId=${encodeURIComponent(
+          w.id
+        )}&id=${encodeURIComponent(w.targetId)}`
       );
     }
   };
@@ -336,6 +350,10 @@ export default function WidgetsCustomization({
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760">
                           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
                         </svg>
+                      ) : w.platform === "instagram" ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#E4405F">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                        </svg>
                       ) : w.platform === "genshin" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#609fda]">
                           <path
@@ -387,6 +405,8 @@ export default function WidgetsCustomization({
                             ? "Spotify Artist"
                             : w.type === "spotify-user"
                             ? "Spotify User"
+                            : w.type === "instagram-profile" || w.platform === "instagram"
+                            ? "Instagram Profile"
                             : "Genshin Impact"}
                         </span>
                         {!w.enabled && (
@@ -523,6 +543,7 @@ export default function WidgetsCustomization({
         hasGenshinWidget={widgets.some((w) => w.type === "genshin-profile" || w.platform === "genshin")}
         hasTwitchWidget={widgets.some((w) => w.type === "twitch-channel" || w.platform === "twitch")}
         hasSpotifyWidget={widgets.some((w) => w.platform === "spotify")}
+        hasInstagramWidget={widgets.some((w) => w.platform === "instagram")}
       />
     </>
   );

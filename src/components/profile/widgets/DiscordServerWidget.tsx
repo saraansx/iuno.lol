@@ -32,7 +32,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -90,7 +90,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
         {/* Guild Icon */}
         <div
-          className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
+          className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
           }`}
         >
@@ -98,7 +98,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             src={iconUrl}
             alt=""
             fill
-            sizes="60px"
+            sizes="74px"
             priority
             className="object-cover"
             unoptimized
@@ -109,7 +109,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Title with pingpong overflow scroll */}
           <OverflowPingPong deps={[serverData, guild?.name]}>
-            <span className="text-[15px] font-normal text-white tracking-tight shrink-0">
+            <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {guild?.name || (loading ? "Loading..." : "Discord Server")}
             </span>
           </OverflowPingPong>
@@ -117,17 +117,17 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
           {/* Counts */}
           {(showOnlineCount || showMemberCount) && (
             <OverflowPingPong deps={[serverData, showOnlineCount, showMemberCount]}>
-              <div className="flex items-center gap-2.5 text-[13px] text-white/60 font-normal whitespace-nowrap shrink-0">
+              <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
                 {showOnlineCount && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="w-2 h-2 rounded-full bg-[#23a55a] shrink-0" />
-                    <span>{Number(serverData?.approximate_presence_count || 0).toLocaleString()}</span>
+                    <span className="text-white/85">{Number(serverData?.approximate_presence_count || 0).toLocaleString()}</span>
                   </div>
                 )}
                 {showMemberCount && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="w-2 h-2 rounded-full bg-[#80848e] shrink-0" />
-                    <span>{Number(serverData?.approximate_member_count || 0).toLocaleString()}</span>
+                    <span className="text-white/85">{Number(serverData?.approximate_member_count || 0).toLocaleString()}</span>
                   </div>
                 )}
               </div>

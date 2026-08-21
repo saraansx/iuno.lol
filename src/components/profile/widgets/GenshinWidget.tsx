@@ -3,6 +3,7 @@
 import { useGenshinPlayer } from "@/lib/hooks/useGenshinPlayer";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import OverflowPingPong from "./OverflowPingPong";
+import { GenshinLogoIcon, WidgetRedirectIcon } from "./WidgetIcons";
 
 export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
   const cleanUid = (widget.targetId || "").trim();
@@ -22,7 +23,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
         <div className="flex items-center gap-3.5 min-w-0 w-full">
           <div
-            className={`w-[60px] h-[60px] shrink-0 bg-white/[0.05] ${
+            className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
               imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
             }`}
           />
@@ -57,10 +58,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M7 17L17 7" />
-            <path d="M7 7h10v10" />
-          </svg>
+          <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
@@ -93,7 +91,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
         {/* Avatar */}
         <div
-          className={`relative w-[60px] h-[60px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
+          className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
           }`}
         >
@@ -114,19 +112,8 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
             <OverflowPingPong deps={[genshinData, genshinData.nickname]}>
               <div className="flex items-center gap-1.5 shrink-0">
                 {/* Genshin Impact Primogem Logo */}
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className="text-[#609fda] shrink-0"
-                >
-                  <path
-                    d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z"
-                    fill="currentColor"
-                  />
-                </svg>
-                <span className="text-[15.5px] font-medium text-white tracking-tight shrink-0">
+                <GenshinLogoIcon size={14} className="w-3.5 h-3.5 text-[#609fda] shrink-0" />
+                <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {genshinData.nickname}
                 </span>
               </div>
@@ -142,12 +129,12 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
           {/* Stats Row */}
           {(showAr || showWorldLevel || showAchievements) && (
             <OverflowPingPong deps={[genshinData, showAr, showWorldLevel, showAchievements]}>
-              <div className="flex items-center gap-2.5 text-[12.5px] text-white/60 font-normal whitespace-nowrap shrink-0">
+              <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
                 {/* Adventure Rank */}
                 {showAr && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-white/40">AR</span>
-                    <span className="text-white/90 font-medium">{genshinData.level}</span>
+                    <span className="text-white/85">{genshinData.level}</span>
                   </div>
                 )}
 
@@ -155,17 +142,17 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
                 {showWorldLevel && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-white/40">WL</span>
-                    <span className="text-white/90 font-medium">{genshinData.world_level}</span>
+                    <span className="text-white/85">{genshinData.world_level}</span>
                   </div>
                 )}
 
                 {/* Achievements */}
                 {showAchievements && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/60 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
                       <path fillRule="evenodd" clipRule="evenodd" d="M5.166 2.25c-.414 0-.75.336-.75.75v1.5a3 3 0 00-3 3v1.5a4.5 4.5 0 004.14 4.484A6.745 6.745 0 009 16.592V18H7.5a.75.75 0 000 1.5h9a.75.75 0 000-1.5H15v-1.408a6.745 6.745 0 003.444-3.108A4.5 4.5 0 0022.584 9V7.5a3 3 0 00-3-3V3a.75.75 0 00-.75-.75h-13.668zM3.666 7.5a1.5 1.5 0 011.5-1.5v4.354a3.003 3.003 0 01-1.5-2.854V7.5zm16.668 0v-.5a1.5 1.5 0 00-1.5-1.5v4.354c.915-.224 1.5-1.026 1.5-1.854z" />
                     </svg>
-                    <span className="text-white/90 font-medium">{genshinData.achievements.toLocaleString()}</span>
+                    <span className="text-white/85">{genshinData.achievements.toLocaleString()}</span>
                   </div>
                 )}
               </div>

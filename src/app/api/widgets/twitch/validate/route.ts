@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getClientIp } from "@/lib/server/security/ip";
-import { checkRateLimit } from "@/lib/rate-limit";
 import { fetchTwitchChannelData } from "../channel/[login]/route";
 
 export async function POST(req: NextRequest) {
@@ -9,16 +7,6 @@ export async function POST(req: NextRequest) {
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-    }
-
-    const ip = getClientIp(req.headers);
-    const rateKey = ip ? `twitch_lookup:ip:${ip}` : `twitch_lookup:user:${sessionUserId}`;
-    const rate = await checkRateLimit(rateKey, 15, 60, 60);
-    if (!rate.ok) {
-      return NextResponse.json(
-        { ok: false, error: "Too many attempts. Please wait 60 seconds." },
-        { status: 429 }
-      );
     }
 
     const { username } = await req.json();

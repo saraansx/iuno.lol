@@ -474,6 +474,10 @@ export async function updateProfileWidgets(data: {
     spotifyShowMonthlyListeners?: boolean;
     spotifyShowFollowers?: boolean;
     spotifyShowBackground?: boolean;
+    instagramShowFollowers?: boolean;
+    instagramShowFollowing?: boolean;
+    instagramShowPosts?: boolean;
+    instagramShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -505,6 +509,7 @@ export async function updateProfileWidgets(data: {
   let genshinCount = 0;
   let twitchCount = 0;
   let spotifyCount = 0;
+  let instagramCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -527,6 +532,8 @@ export async function updateProfileWidgets(data: {
         ? "twitch-channel"
         : w.platform === "spotify" || w.type?.startsWith("spotify-")
         ? "spotify"
+        : w.type === "instagram-profile" || w.platform === "instagram"
+        ? "instagram"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -539,6 +546,7 @@ export async function updateProfileWidgets(data: {
     if (type === "genshin-profile") genshinCount++;
     if (type === "twitch-channel") twitchCount++;
     if (type === "spotify") spotifyCount++;
+    if (type === "instagram") instagramCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -573,6 +581,9 @@ export async function updateProfileWidgets(data: {
   if (spotifyCount > 1) {
     throw new Error("You can only add 1 Spotify widget.");
   }
+  if (instagramCount > 1) {
+    throw new Error("You can only add 1 Instagram widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -593,6 +604,8 @@ export async function updateProfileWidgets(data: {
         ? "twitch"
         : w.platform === "spotify"
         ? "spotify"
+        : w.platform === "instagram"
+        ? "instagram"
         : "discord";
     const type =
       w.type === "server"
@@ -623,6 +636,8 @@ export async function updateProfileWidgets(data: {
         ? "spotify-artist"
         : w.type === "spotify-user"
         ? "spotify-user"
+        : w.type === "instagram-profile" || w.platform === "instagram"
+        ? "instagram-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -697,6 +712,16 @@ export async function updateProfileWidgets(data: {
       targetId = String(w.targetId || "").trim().slice(0, 100);
       if (!targetId || (!/^[a-zA-Z0-9]{22}$/.test(targetId) && !/^[a-zA-Z0-9_.-]{1,64}$/.test(targetId))) {
         throw new Error("Invalid Spotify ID format");
+      }
+    } else if (platform === "instagram") {
+      targetId = String(w.targetId || "")
+        .trim()
+        .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
+        .replace(/^@/, "")
+        .replace(/\/$/, "")
+        .slice(0, 30);
+      if (!targetId || !/^[a-zA-Z0-9_.-]{1,30}$/.test(targetId)) {
+        throw new Error("Invalid Instagram username format");
       }
     }
 
@@ -795,6 +820,10 @@ export async function updateProfileWidgets(data: {
       spotifyShowMonthlyListeners: w.spotifyShowMonthlyListeners !== undefined ? Boolean(w.spotifyShowMonthlyListeners) : true,
       spotifyShowFollowers: w.spotifyShowFollowers !== undefined ? Boolean(w.spotifyShowFollowers) : true,
       spotifyShowBackground: w.spotifyShowBackground !== undefined ? Boolean(w.spotifyShowBackground) : true,
+      instagramShowFollowers: w.instagramShowFollowers !== undefined ? Boolean(w.instagramShowFollowers) : true,
+      instagramShowFollowing: w.instagramShowFollowing !== undefined ? Boolean(w.instagramShowFollowing) : true,
+      instagramShowPosts: w.instagramShowPosts !== undefined ? Boolean(w.instagramShowPosts) : true,
+      instagramShowBackground: w.instagramShowBackground !== undefined ? Boolean(w.instagramShowBackground) : true,
     };
   });
 
