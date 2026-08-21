@@ -1,14 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 
-const BROWSER_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
-  Accept: "*/*",
-  "Accept-Language": "en-US,en;q=0.9",
-  "X-IG-App-ID": "936619743392459",
-  "X-Requested-With": "XMLHttpRequest",
-};
+function parseStat(s: string): number {
+  const clean = s.replace(/,/g, "").trim().toUpperCase();
+  if (clean.endsWith("M")) return Math.round(parseFloat(clean) * 1_000_000);
+  if (clean.endsWith("K")) return Math.round(parseFloat(clean) * 1_000);
+  return parseInt(clean, 10) || 0;
+}
 
 export async function fetchInstagramUserData(
   rawUsername: string
@@ -18,39 +16,102 @@ export async function fetchInstagramUserData(
     return null;
   }
 
+  // 1. Direct OpenGraph scrape with facebookexternalhit
   try {
-    const instagramProxyUrl = (process.env.INSTAGRAM_PROXY_URL || "https://www.instagram.com").replace(/\/$/, "");
-    const targetUrl = `${instagramProxyUrl}/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
-
-    const res = await fetch(targetUrl, {
+    const res = await fetch(`https://www.instagram.com/${encodeURIComponent(username)}/`, {
       headers: {
-        ...BROWSER_HEADERS,
-        Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
+        "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
       },
       next: { revalidate: 3600 },
+      signal: AbortSignal.timeout(6000),
     });
 
     if (res.ok) {
-      const data = await res.json();
-      const user = data?.data?.user;
-      if (user && user.username) {
+      const html = await res.text();
+
+      const ogDescMatch =
+        html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i) ||
+        html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+name=["']description["']/i);
+
+      const ogTitleMatch =
+        html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i);
+
+      const ogImageMatch =
+        html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i) ||
+        html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+
+      let followersCount = 0;
+      let followingCount = 0;
+      let postsCount = 0;
+      let fullName = username;
+
+      if (ogDescMatch && ogDescMatch[1]) {
+        const statsMatch = ogDescMatch[1].match(
+          /([\d,.]+[KMkm]?)\s+Followers,\s*([\d,.]+[KMkm]?)\s+Following,\s*([\d,.]+[KMkm]?)\s+Posts/i
+        );
+        if (statsMatch) {
+          followersCount = parseStat(statsMatch[1]);
+          followingCount = parseStat(statsMatch[2]);
+          postsCount = parseStat(statsMatch[3]);
+        }
+      }
+
+      if (ogTitleMatch && ogTitleMatch[1]) {
+        const rawTitle = ogTitleMatch[1]
+          .replace(/&#064;/g, "@")
+          .replace(/&#x2022;/g, "•")
+          .replace(/&amp;/g, "&");
+        const nameMatch = rawTitle.match(/^(.*?)\s*\(@/);
+        if (nameMatch && nameMatch[1]) {
+          fullName = nameMatch[1].trim();
+        }
+      }
+
+      const profilePicUrl = ogImageMatch ? ogImageMatch[1].replace(/&amp;/g, "&") : "";
+
+      if (profilePicUrl || followersCount > 0) {
         return {
-          username: user.username,
-          fullName: user.full_name || user.username,
-          biography: user.biography || "",
-          profilePicUrl: user.profile_pic_url || "",
-          profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
-          isVerified: Boolean(user.is_verified),
-          isPrivate: Boolean(user.is_private),
-          postsCount: Number(user.edge_owner_to_timeline_media?.count || 0),
-          followersCount: Number(user.edge_followed_by?.count || 0),
-          followingCount: Number(user.edge_follow?.count || 0),
-          externalUrl: user.external_url || null,
+          username,
+          fullName,
+          biography: "",
+          profilePicUrl,
+          profilePicUrlHd: profilePicUrl,
+          isVerified: html.includes('"is_verified":true'),
+          isPrivate: html.includes('"is_private":true'),
+          postsCount,
+          followersCount,
+          followingCount,
+          externalUrl: null,
         };
       }
     }
   } catch (err) {
-    console.error("[Instagram Worker Proxy fetch failed]", err);
+    console.error("[Instagram Direct Scrape Error]", err);
+  }
+
+  // 2. Cloudflare Worker fallback
+  const proxyBase = (process.env.INSTAGRAM_PROXY_URL || "").replace(/\/$/, "");
+  if (proxyBase) {
+    try {
+      const res = await fetch(`${proxyBase}/${encodeURIComponent(username)}`, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(6000),
+      });
+
+      if (res.ok) {
+        const json = await res.json();
+        if (json.ok && json.data) {
+          return json.data as InstagramUserData;
+        }
+      }
+    } catch (err) {
+      console.error("[Instagram Worker Fetch Error]", err);
+    }
   }
 
   return null;
