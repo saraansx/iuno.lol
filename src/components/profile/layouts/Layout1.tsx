@@ -109,6 +109,7 @@ interface Layout1Props {
   selectedDecoration?: Decoration | null;
   decorationHue?: number;
   bannerImageUrl?: string | null;
+  bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
@@ -177,7 +178,20 @@ interface Layout1Props {
       anchor?: string;
     }[];
   } | null;
+  selectedEffect?: {
+    id: string;
+    name: string;
+    sku_id: string;
+    effects: {
+      src: string;
+      loop: boolean;
+      duration: number;
+      start: number;
+      z_index?: number;
+    }[];
+  } | null;
   frameHue?: number;
+  effectHue?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -290,7 +304,10 @@ const Layout1 = ({
   decorationHue = 0,
   selectedFrame,
   frameHue = 0,
+  selectedEffect,
+  effectHue = 0,
   bannerImageUrl,
+  bannerBlend = false,
   bannerBackgroundUrl,
   backgroundEffect,
   backgroundEffectIntensity = 50,
@@ -575,10 +592,10 @@ const Layout1 = ({
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
         {/* Wrapper — content + background are siblings */}
-        <div className="w-full max-w-[704px] flex flex-col items-center z-10">
-        <CardEffect effect={cardEffect} className="w-full max-w-[704px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[704px]">
-        <div className="w-full max-w-[704px] relative flex flex-col items-center overflow-visible z-10">
+        <div className="w-full max-w-[764px] flex flex-col items-center z-10">
+        <CardEffect effect={cardEffect} className="w-full max-w-[764px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
+        <div className="w-full max-w-[764px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {selectedFrame && (
             <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
@@ -636,6 +653,28 @@ const Layout1 = ({
             }}
           />
 
+          {/* Profile Effect Animation Layers */}
+          {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
+            <div
+              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
+              style={{
+                borderRadius: `${profileBorderRadius}px`,
+                filter: effectHue ? `hue-rotate(${effectHue}deg)` : undefined,
+              }}
+            >
+              {selectedEffect.effects.map((fx, idx) => (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  key={idx}
+                  src={fx.src}
+                  alt="Profile Effect"
+                  className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none"
+                  style={{ zIndex: fx.z_index ?? 30 }}
+                />
+              ))}
+            </div>
+          )}
+
           {/* Profile Frame Overlay (Front Layers) */}
           {selectedFrame && (
             <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
@@ -671,7 +710,9 @@ const Layout1 = ({
                 className="w-full h-[160px] overflow-hidden relative shrink-0"
                 style={{
                   borderTopLeftRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
-                  borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`
+                  borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
+                  maskImage: bannerBlend ? "linear-gradient(to bottom, black 0%, black 45%, rgba(0,0,0,0.6) 75%, transparent 100%)" : undefined,
+                  WebkitMaskImage: bannerBlend ? "linear-gradient(to bottom, black 0%, black 45%, rgba(0,0,0,0.6) 75%, transparent 100%)" : undefined,
                 }}
               >
                 {isVideoUrl(bannerImageUrl!) ? (
@@ -695,8 +736,8 @@ const Layout1 = ({
                     priority
                   />
                 )}
-                {/* Bottom fade */}
-                <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-black/60 to-transparent" />
+                {/* Bottom gradient shade */}
+                <div className={`absolute inset-x-0 bottom-0 pointer-events-none ${bannerBlend ? "h-full bg-gradient-to-t from-[#000000]/80 via-transparent to-transparent" : "h-8 bg-gradient-to-t from-black/60 to-transparent"}`} />
               </div>
             )}
 
@@ -1000,10 +1041,10 @@ const Layout1 = ({
       <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
       {/* Wrapper — content + background are siblings */}
-      <div className="w-full max-w-[704px] flex flex-col items-center z-10">
-      <CardEffect effect={cardEffect} className="w-full max-w-[704px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[704px]">
-        <div className="w-full max-w-[704px] relative flex flex-col items-center justify-center z-10">
+      <div className="w-full max-w-[764px] flex flex-col items-center z-10">
+      <CardEffect effect={cardEffect} className="w-full max-w-[764px]">
+        <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
+        <div className="w-full max-w-[764px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {selectedFrame && (
           <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
@@ -1023,6 +1064,27 @@ const Layout1 = ({
                   marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
                   filter: `hue-rotate(${frameHue}deg)`
                 }}
+              />
+            ))}
+          </div>
+        )}
+        {/* Profile Effect Animation Layers (Non-banner) */}
+        {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
+          <div
+            className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
+            style={{
+              borderRadius: `${profileBorderRadius}px`,
+              filter: effectHue ? `hue-rotate(${effectHue}deg)` : undefined,
+            }}
+          >
+            {selectedEffect.effects.map((fx, idx) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={idx}
+                src={fx.src}
+                alt="Profile Effect"
+                className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none"
+                style={{ zIndex: fx.z_index ?? 30 }}
               />
             ))}
           </div>

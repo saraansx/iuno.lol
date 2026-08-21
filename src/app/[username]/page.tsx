@@ -5,7 +5,9 @@ import { notFound } from 'next/navigation'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import frames from '@/Frames.json'
+import effects from '@/effects.json'
 import { Frame } from '@/components/dashboard/FramesPicker'
+import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 
 // This page reads no per-request state (no cookies/headers), so Next serves it
 // from the CDN as ISR and only regenerates on first view, after the 30-day
@@ -42,7 +44,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       avatarDecorationHue: userSettings.avatarDecorationHue,
       profileFrameUrl: userSettings.profileFrameUrl,
       profileFrameHue: userSettings.profileFrameHue,
+      profileEffectUrl: userSettings.profileEffectUrl,
+      profileEffectHue: userSettings.profileEffectHue,
       bannerImageUrl: userSettings.bannerImageUrl,
+      bannerBlend: userSettings.bannerBlend,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
       profileBgColor: userSettings.profileBgColor,
       profileBgOpacity: userSettings.profileBgOpacity,
@@ -136,6 +141,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const user = userList[0]
 
   const selectedFrame = user.profileFrameUrl ? (frames as Frame[]).find(f => f.sku_id === user.profileFrameUrl!.split("frame:")[1]) : null;
+  const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
   return (
     <div 
@@ -152,9 +158,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         avatarShape={(user.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
         selectedDecoration={user.avatarDecorationUrl ? { id: "custom", name: "Decoration", url: user.avatarDecorationUrl } : null}
         selectedFrame={selectedFrame}
+        selectedEffect={selectedEffect}
         decorationHue={user.avatarDecorationHue ?? 0}
         frameHue={user.profileFrameHue ?? 0}
+        effectHue={user.profileEffectHue ?? 0}
         bannerImageUrl={user.bannerImageUrl ?? undefined}
+        bannerBlend={user.bannerBlend ?? false}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}

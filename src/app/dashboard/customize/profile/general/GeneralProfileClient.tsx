@@ -12,9 +12,11 @@ import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import FramesPicker from "@/components/dashboard/FramesPicker";
+import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import decorations from "@/Deco.json";
 import frames from "@/Frames.json";
+import effects from "@/effects.json";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -34,7 +36,10 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialDecorationHue = user?.avatarDecorationHue ?? 0;
   const initialFrameUrl = user?.profileFrameUrl ?? null;
   const initialFrameHue = user?.profileFrameHue ?? 0;
+  const initialEffectUrl = user?.profileEffectUrl ?? null;
+  const initialEffectHue = user?.profileEffectHue ?? 0;
   const initialBannerImageUrl = user?.bannerImageUrl ?? "";
+  const initialBannerBlend = user?.bannerBlend ?? false;
   const initialBannerBackgroundUrl = user?.bannerBackgroundUrl ?? "";
   const displayName = overrides.displayName ?? initialDisplayName;
   const setDisplayName = (val: string) => updateOverrides({ displayName: val === initialDisplayName ? undefined : val });
@@ -51,12 +56,15 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const [avatarModalOpen, setAvatarModalOpen] = useState(false);
   const bannerImageUrl = overrides.bannerImageUrl ?? initialBannerImageUrl;
   const setBannerImageUrl = (val: string) => updateOverrides({ bannerImageUrl: val === initialBannerImageUrl ? undefined : val });
+  const bannerBlend = overrides.bannerBlend !== undefined ? Boolean(overrides.bannerBlend) : Boolean(initialBannerBlend);
+  const setBannerBlend = (val: boolean) => updateOverrides({ bannerBlend: val === initialBannerBlend ? undefined : val });
   const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
   const setBannerBackgroundUrl = (val: string) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
   const [framesPickerOpen, setFramesPickerOpen] = useState(false);
+  const [effectsPickerOpen, setEffectsPickerOpen] = useState(false);
 
   const avatarDecorationUrl = overrides.avatarDecorationUrl !== undefined ? overrides.avatarDecorationUrl : initialDecorationUrl;
   const selectedDecoration = avatarDecorationUrl
@@ -94,6 +102,24 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
     updateOverrides({ profileFrameHue: val === initialFrameHue ? undefined : val });
   };
 
+  const profileEffectUrl = overrides.profileEffectUrl !== undefined ? overrides.profileEffectUrl : initialEffectUrl;
+  const selectedEffect = profileEffectUrl
+    ? {
+        id: "custom",
+        name: (effects as { sku_id: string, name: string }[]).find(e => e.sku_id === profileEffectUrl.split("effect:")[1])?.name || "Custom Effect",
+        url: profileEffectUrl
+      } as Decoration
+    : null;
+  const setSelectedEffect = (val: Decoration | null) => {
+    const newUrl = val ? val.url : null;
+    const isSame = newUrl === initialEffectUrl;
+    updateOverrides({ profileEffectUrl: isSame ? undefined : newUrl });
+  };
+  const effectHue = overrides.profileEffectHue ?? initialEffectHue ?? 0;
+  const setEffectHue = (val: number) => {
+    updateOverrides({ profileEffectHue: val === initialEffectHue ? undefined : val });
+  };
+
 
 
   return (
@@ -110,13 +136,17 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           selectedDecoration={selectedDecoration}
           decorationHue={decorationHue}
           selectedFrame={selectedFrame}
+          selectedEffect={selectedEffect}
           bannerImageUrl={bannerImageUrl}
           setBannerImageUrl={setBannerImageUrl}
+          bannerBlend={bannerBlend}
+          setBannerBlend={setBannerBlend}
           bannerBackgroundUrl={bannerBackgroundUrl}
           setBannerBackgroundUrl={setBannerBackgroundUrl}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setFramesPickerOpen={setFramesPickerOpen}
+          setEffectsPickerOpen={setEffectsPickerOpen}
           setBannerImageModalOpen={setBannerImageModalOpen}
           setBannerBackgroundModalOpen={setBannerBackgroundModalOpen}
           isVideoUrl={isVideoUrl}
@@ -186,6 +216,17 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         onFrameHueChange={setFrameHue}
       />
 
+      <EffectsPicker
+        open={effectsPickerOpen}
+        avatarUrl={avatarUrl}
+        avatarShape={avatarShape}
+        selectedEffect={selectedEffect}
+        effectHue={effectHue}
+        onClose={() => setEffectsPickerOpen(false)}
+        onSelectEffect={setSelectedEffect}
+        onEffectHueChange={setEffectHue}
+      />
+
 
 
       <DashboardProfilePreview
@@ -199,6 +240,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           avatarUrl,
           avatarShape,
           bannerImageUrl,
+          bannerBlend,
           bannerBackgroundUrl,
         }}
       />

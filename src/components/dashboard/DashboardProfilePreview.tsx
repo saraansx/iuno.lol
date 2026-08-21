@@ -5,7 +5,9 @@ import ProfilePreview from "@/components/dashboard/ProfilePreview";
 import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import type { Frame } from "@/components/dashboard/FramesPicker";
+import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import frames from "@/Frames.json";
+import effects from "@/effects.json";
 
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
@@ -40,9 +42,21 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
         }
         return null;
       })()}
+      selectedEffect={(() => {
+        if (deferredOverrides.profileEffectUrl !== undefined) {
+          if (!deferredOverrides.profileEffectUrl) return null;
+          return (effects as ProfileEffect[]).find(e => e.sku_id === deferredOverrides.profileEffectUrl!.split("effect:")[1]) || null;
+        }
+        if (user?.profileEffectUrl) {
+          return (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) || null;
+        }
+        return null;
+      })()}
       decorationHue={deferredOverrides.avatarDecorationHue ?? user?.avatarDecorationHue ?? 0}
       frameHue={deferredOverrides.profileFrameHue ?? user?.profileFrameHue ?? 0}
+      effectHue={deferredOverrides.profileEffectHue ?? user?.profileEffectHue ?? 0}
       bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}
+      bannerBlend={deferredOverrides.bannerBlend ?? user?.bannerBlend ?? false}
       bannerBackgroundUrl={deferredOverrides.bannerBackgroundUrl ?? user?.bannerBackgroundUrl ?? undefined}
       backgroundEffect={deferredOverrides.backgroundEffect ?? user?.backgroundEffect ?? "none"}
       backgroundEffectIntensity={deferredOverrides.backgroundEffectIntensity ?? user?.backgroundEffectIntensity ?? 50}

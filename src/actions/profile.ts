@@ -63,7 +63,10 @@ export async function updateGeneralProfile(data: {
   avatarDecorationHue?: number;
   profileFrameUrl?: string | null;
   profileFrameHue?: number;
+  profileEffectUrl?: string | null;
+  profileEffectHue?: number;
   bannerImageUrl?: string | null;
+  bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
 }) {
   const userId = await getSessionUserId();
@@ -82,6 +85,9 @@ export async function updateGeneralProfile(data: {
   const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.avatarDecorationUrl];
   if (data.profileFrameUrl && !data.profileFrameUrl.startsWith("frame:")) {
     urlFields.push(data.profileFrameUrl);
+  }
+  if (data.profileEffectUrl && !data.profileEffectUrl.startsWith("effect:")) {
+    urlFields.push(data.profileEffectUrl);
   }
   if (urlFields.some(url => !isValidMediaUrl(url))) {
     throw new Error("Invalid media URL.");
@@ -118,7 +124,17 @@ export async function updateGeneralProfile(data: {
   }
   if (data.profileFrameHue !== undefined) setData.profileFrameHue = data.profileFrameHue;
 
+  if (data.profileEffectUrl !== undefined) {
+    if (data.profileEffectUrl === "" || data.profileEffectUrl === null) {
+      setData.profileEffectUrl = null;
+    } else {
+      setData.profileEffectUrl = data.profileEffectUrl;
+    }
+  }
+  if (data.profileEffectHue !== undefined) setData.profileEffectHue = data.profileEffectHue;
+
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
+  if (data.bannerBlend !== undefined) setData.bannerBlend = data.bannerBlend;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
 
   const promises = [];
