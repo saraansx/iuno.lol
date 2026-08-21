@@ -16,18 +16,69 @@ export async function fetchInstagramUserData(
     return null;
   }
 
-  // 1. Direct Instagram Web Profile Info API
+  const cookie = process.env.INSTAGRAM_COOKIE;
+
+  // 1. Instagram Topsearch API with Session Cookie (if configured)
+  if (cookie) {
+    try {
+      const res = await fetch(
+        `https://www.instagram.com/web/search/topsearch/?context=user&count=1&query=${encodeURIComponent(username)}`,
+        {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Cookie": cookie,
+            "X-IG-App-ID": "936619743392459",
+            "Referer": `https://www.instagram.com/${encodeURIComponent(username)}/`,
+          },
+          next: { revalidate: 3600 },
+          signal: AbortSignal.timeout(6000),
+        }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        const userList = (data.users || []) as Array<{ user: any }>;
+        const matched =
+          userList.find((u) => u.user?.username?.toLowerCase() === username)?.user ||
+          userList[0]?.user;
+
+        if (matched) {
+          return {
+            username: matched.username || username,
+            fullName: matched.full_name || username,
+            biography: "",
+            profilePicUrl: matched.profile_pic_url || "",
+            profilePicUrlHd: matched.profile_pic_url || "",
+            isVerified: Boolean(matched.is_verified),
+            isPrivate: Boolean(matched.is_private),
+            postsCount: 0,
+            followersCount: 0,
+            followingCount: 0,
+            externalUrl: null,
+          };
+        }
+      }
+    } catch (err) {
+      console.error("[Instagram Topsearch API Error]", err);
+    }
+  }
+
+  // 2. Direct Instagram Web Profile Info API Fallback
   try {
+    const headers: Record<string, string> = {
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      "X-IG-App-ID": "936619743392459",
+      "Accept": "*/*",
+      "Accept-Language": "en-US,en;q=0.9",
+    };
+    if (cookie) headers["Cookie"] = cookie;
+
     const res = await fetch(
       `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
       {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-          "X-IG-App-ID": "936619743392459",
-          "Accept": "*/*",
-          "Accept-Language": "en-US,en;q=0.9",
-        },
+        headers,
         next: { revalidate: 3600 },
         signal: AbortSignal.timeout(6000),
       }
