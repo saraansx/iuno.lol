@@ -31,7 +31,55 @@ export async function fetchInstagramUserData(
     return null;
   }
 
-  // Method 1: Public Embed HTML scrape (Instagram allows unauthenticated server-side requests to embeds)
+  // Method 1: Authenticated Session GraphQL / Web Profile API (Primary)
+  try {
+    const instagramCookie = process.env.INSTAGRAM_COOKIE || process.env.INSTAGRAM_SESSION_COOKIE || "";
+    const instagramProxyUrl = process.env.INSTAGRAM_PROXY_URL || "";
+
+    const fetchHeaders: Record<string, string> = {
+      ...BROWSER_HEADERS,
+      "X-IG-App-ID": "936619743392459",
+      "X-Requested-With": "XMLHttpRequest",
+      Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
+    };
+
+    if (instagramCookie) {
+      fetchHeaders["Cookie"] = instagramCookie;
+    }
+
+    const targetUrl = instagramProxyUrl
+      ? `${instagramProxyUrl.replace(/\/$/, "")}/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`
+      : `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
+
+    const res = await fetch(targetUrl, {
+      headers: fetchHeaders,
+      next: { revalidate: 3600 },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const user = data?.data?.user;
+      if (user && user.username) {
+        return {
+          username: user.username,
+          fullName: user.full_name || user.username,
+          biography: user.biography || "",
+          profilePicUrl: user.profile_pic_url || "",
+          profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
+          isVerified: Boolean(user.is_verified),
+          isPrivate: Boolean(user.is_private),
+          postsCount: Number(user.edge_owner_to_timeline_media?.count || 0),
+          followersCount: Number(user.edge_followed_by?.count || 0),
+          followingCount: Number(user.edge_follow?.count || 0),
+          externalUrl: user.external_url || null,
+        };
+      }
+    }
+  } catch (err) {
+    console.warn("[Instagram API v1 fetch failed]", err);
+  }
+
+  // Method 2: Public Embed HTML scrape fallback
   try {
     const embedUrl = `https://www.instagram.com/${encodeURIComponent(username)}/embed/captioned/`;
     const res = await fetch(embedUrl, {
@@ -42,13 +90,14 @@ export async function fetchInstagramUserData(
     if (res.ok) {
       const html = await res.text();
 
-      // Extract avatar, handle, display name
-      const avatarMatch = html.match(/class=["']Avatar["'][^>]*src=["']([^"']+)["']/i) ||
-                          html.match(/src=["'](https:\/\/[^"']*cdninstagram\.com\/[^"']+)["']/i) ||
-                          html.match(/src=["'](https:\/\/[^"']*fbcdn\.net\/[^"']+)["']/i);
+      const avatarMatch =
+        html.match(/class=["']Avatar["'][^>]*src=["']([^"']+)["']/i) ||
+        html.match(/src=["'](https:\/\/[^"']*cdninstagram\.com\/[^"']+)["']/i) ||
+        html.match(/src=["'](https:\/\/[^"']*fbcdn\.net\/[^"']+)["']/i);
 
-      const usernameMatch = html.match(/class=["']UsernameText["'][^>]*>([^<]+)<\/span>/i) ||
-                            html.match(/class=["']Username["'][^>]*>([^<]+)<\/a>/i);
+      const usernameMatch =
+        html.match(/class=["']UsernameText["'][^>]*>([^<]+)<\/span>/i) ||
+        html.match(/class=["']Username["'][^>]*>([^<]+)<\/a>/i);
 
       const isVerified = html.includes("coreSpriteVerifiedBadgeSmall") || html.includes("Verified");
 
@@ -73,45 +122,7 @@ export async function fetchInstagramUserData(
     console.warn("[Instagram embed scrape failed]", err);
   }
 
-  // Method 2: Google Search OG snippet mirror (100% free, no API key, bypasses IP bans)
-  try {
-    const googleSearchUrl = `https://html.duckduckgo.com/html/?q=site:instagram.com/${encodeURIComponent(username)}`;
-    const res = await fetch(googleSearchUrl, {
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "text/html",
-      },
-      next: { revalidate: 3600 },
-    });
-
-    if (res.ok) {
-      const html = await res.text();
-      const match = html.match(/([\d,.]+[KMkm]?)\s+Followers,\s*([\d,.]+[KMkm]?)\s+Following,\s*([\d,.]+[KMkm]?)\s+Posts/i);
-      if (match) {
-        const followersCount = parseStat(match[1]);
-        const followingCount = parseStat(match[2]);
-        const postsCount = parseStat(match[3]);
-
-        return {
-          username,
-          fullName: username,
-          biography: "",
-          profilePicUrl: "",
-          profilePicUrlHd: "",
-          isVerified: false,
-          isPrivate: false,
-          postsCount,
-          followersCount,
-          followingCount,
-          externalUrl: null,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn("[Instagram DuckDuckGo mirror failed]", err);
-  }
-
-  // Method 3: Direct OpenGraph crawl
+  // Method 3: Direct OpenGraph crawl fallback
   try {
     const pageUrl = `https://www.instagram.com/${encodeURIComponent(username)}/`;
     const res = await fetch(pageUrl, {
@@ -185,45 +196,6 @@ export async function fetchInstagramUserData(
     }
   } catch (err) {
     console.warn("[Instagram crawler OG scrape failed]", err);
-  }
-
-  // Method 4: Instagram Web Profile JSON endpoint with App ID
-  try {
-    const webInfoUrl = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(
-      username
-    )}`;
-
-    const res = await fetch(webInfoUrl, {
-      headers: {
-        ...BROWSER_HEADERS,
-        "X-IG-App-ID": "936619743392459",
-        "X-Requested-With": "XMLHttpRequest",
-        Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
-      },
-      next: { revalidate: 3600 },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const user = data?.data?.user;
-      if (user && user.username) {
-        return {
-          username: user.username,
-          fullName: user.full_name || user.username,
-          biography: user.biography || "",
-          profilePicUrl: user.profile_pic_url || "",
-          profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
-          isVerified: Boolean(user.is_verified),
-          isPrivate: Boolean(user.is_private),
-          postsCount: Number(user.edge_owner_to_timeline_media?.count || 0),
-          followersCount: Number(user.edge_followed_by?.count || 0),
-          followingCount: Number(user.edge_follow?.count || 0),
-          externalUrl: user.external_url || null,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn("[Instagram API v1 fetch failed]", err);
   }
 
   return null;
