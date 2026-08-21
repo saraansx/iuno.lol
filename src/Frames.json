@@ -1,5 +1,158 @@
 [
   {
+    "id": "symbiote",
+    "name": "Symbiote",
+    "sku_id": "1536493354450288680",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1536493443591708682",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536493354450288680/1536493443591708682/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1536493448750825562",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536493354450288680/1536493448750825562/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1536493453150658600",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536493354450288680/1536493453150658600/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1536493458490003548",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536493354450288680/1536493458490003548/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "totality",
+    "name": "Totality",
+    "sku_id": "1531413285243719880",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1533986938368036915",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413285243719880/1533986938368036915/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1533986943057137715",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413285243719880/1533986943057137715/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1533986948220321862",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413285243719880/1533986948220321862/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "lord_of_the_dead_red",
+    "name": "Lord of the Dead (Red)",
+    "sku_id": "1533925887098224730",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 148,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1534992785206411324",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925887098224730/1534992785206411324/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1534992798002974751",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925887098224730/1534992798002974751/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1534992807885017249",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925887098224730/1534992807885017249/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "bunny_bliss",
+    "name": "Bunny Bliss",
+    "sku_id": "1524191647854891039",
+    "inner_width": 1200,
+    "overflow_top": 126,
+    "overflow_bottom": 116,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1524192390502551724",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191647854891039/1524192390502551724/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524192394801713222",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191647854891039/1524192394801713222/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dark_roses_black",
+    "name": "Dark Roses (Black)",
+    "sku_id": "1511834130294247555",
+    "inner_width": 1200,
+    "overflow_top": 211,
+    "overflow_bottom": 186,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1515086606665646213",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834130294247555/1515086606665646213/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1515086611896078477",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834130294247555/1515086611896078477/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
     "id": "meow_meow_cat_white",
     "name": "Meow Meow Cat (White)",
     "sku_id": "1491907428344795276",
@@ -34,1324 +187,6 @@
         "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491907428344795276/1522378698207264809/static",
         "type": "staple",
         "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dark_roses_black",
-    "name": "Dark Roses (Black)",
-    "sku_id": "1511834130294247555",
-    "inner_width": 1200,
-    "overflow_top": 211,
-    "overflow_bottom": 186,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1515086606665646213",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834130294247555/1515086606665646213/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1515086611896078477",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834130294247555/1515086611896078477/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "mariposa_white",
-    "name": "Mariposa (White)",
-    "sku_id": "1517303399799062668",
-    "inner_width": 1200,
-    "overflow_top": 298,
-    "overflow_bottom": 107,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1524824219844739122",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824219844739122/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524824224559268011",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824224559268011/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1524824229810278460",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824229810278460/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "meow_meow_cat_black",
-    "name": "Meow Meow Cat (Black)",
-    "sku_id": "1522378878083924051",
-    "inner_width": 1200,
-    "overflow_top": 301,
-    "overflow_bottom": 147,
-    "overflow_horizontal": 54,
-    "layers": [
-      {
-        "id": "1524824357199675523",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824357199675523/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524824361503166484",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824361503166484/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1524824365282099231",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824365282099231/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1524824369212424203",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824369212424203/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dark_roses_white",
-    "name": "Dark Roses (White)",
-    "sku_id": "1511834131242287195",
-    "inner_width": 1200,
-    "overflow_top": 211,
-    "overflow_bottom": 186,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1515086653209841684",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834131242287195/1515086653209841684/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1515086657794081029",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834131242287195/1515086657794081029/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "mariposa_pink",
-    "name": "Mariposa (Pink)",
-    "sku_id": "1511908350324113478",
-    "inner_width": 1200,
-    "overflow_top": 298,
-    "overflow_bottom": 107,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1524824070691229817",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824070691229817/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524824076630364290",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824076630364290/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1524824082325966848",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824082325966848/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "sakura_spring",
-    "name": "Sakura Spring",
-    "sku_id": "1491908830844424302",
-    "inner_width": 1200,
-    "overflow_top": 274,
-    "overflow_bottom": 209,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1511895595718148197",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895595718148197/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1511895599232843937",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895599232843937/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1511895603041407016",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895603041407016/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1511895606392651979",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895606392651979/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "neon_chaos_purple",
-    "name": "Neon Chaos (Purple)",
-    "sku_id": "1511869969921609874",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514424192471404596",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424192471404596/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1514424195486842940",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424195486842940/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514424199001669695",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424199001669695/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1514424202038345828",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424202038345828/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "dark_roses_nightshade",
-    "name": "Dark Roses (Nightshade)",
-    "sku_id": "1491910305603911881",
-    "inner_width": 1200,
-    "overflow_top": 211,
-    "overflow_bottom": 186,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1515086535480049714",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910305603911881/1515086535480049714/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1515086540794237099",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910305603911881/1515086540794237099/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "crystals_amethyst",
-    "name": "Crystals (Amethyst)",
-    "sku_id": "1484726324580061191",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514422966870347837",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324580061191/1514422966870347837/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514422970251083806",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324580061191/1514422970251083806/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "pond_pals",
-    "name": "Pond Pals",
-    "sku_id": "1491911825837785238",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514422210209644636",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422210209644636/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514422213829464105",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422213829464105/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1514422217692283042",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422217692283042/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1514422221584470208",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422221584470208/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "meow_meow_cat_orange",
-    "name": "Meow Meow Cat (Orange)",
-    "sku_id": "1522380815538065549",
-    "inner_width": 1200,
-    "overflow_top": 301,
-    "overflow_bottom": 147,
-    "overflow_horizontal": 54,
-    "layers": [
-      {
-        "id": "1522381608047345756",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381608047345756/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1522381611776348200",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381611776348200/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1522381615484108914",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381615484108914/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1522381620278067314",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381620278067314/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "mariposa_blue",
-    "name": "Mariposa (Blue)",
-    "sku_id": "1517301132211388507",
-    "inner_width": 1200,
-    "overflow_top": 298,
-    "overflow_bottom": 107,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1524824143315599390",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824143315599390/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524824154560397552",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824154560397552/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1524824160310792243",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824160310792243/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "meow_meow_cat_gray",
-    "name": "Meow Meow Cat (Gray)",
-    "sku_id": "1522381656684761098",
-    "inner_width": 1200,
-    "overflow_top": 301,
-    "overflow_bottom": 147,
-    "overflow_horizontal": 54,
-    "layers": [
-      {
-        "id": "1522381902995132536",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381902995132536/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1522381906627268640",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381906627268640/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1522381910544879691",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381910544879691/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1522381916764897321",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381916764897321/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "vengeance_orange",
-    "name": "Vengeance (Orange)",
-    "sku_id": "1507152063078072454",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514421770197663875",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421770197663875/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421773637259365",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421773637259365/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421776967405728",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421776967405728/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "starlight_kingdom",
-    "name": "Starlight Kingdom",
-    "sku_id": "1493974583311859733",
-    "inner_width": 1200,
-    "overflow_top": 156,
-    "overflow_bottom": 63,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1511864755675992145",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864755675992145/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1511864761183244478",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864761183244478/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1511864765062975640",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864765062975640/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1511864769370394735",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864769370394735/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dark_roses_blue",
-    "name": "Dark Roses (Blue)",
-    "sku_id": "1515124557290410204",
-    "inner_width": 1200,
-    "overflow_top": 211,
-    "overflow_bottom": 186,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1515124885113012234",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1515124557290410204/1515124885113012234/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1515124888313266236",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1515124557290410204/1515124888313266236/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "crystals_aquamarine",
-    "name": "Crystals (Aquamarine)",
-    "sku_id": "1509183143905857589",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514423210181918872",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183143905857589/1514423210181918872/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514423213403279380",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183143905857589/1514423213403279380/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "retro_futurism",
-    "name": "Retro Futurism",
-    "sku_id": "1489398661619384321",
-    "inner_width": 1200,
-    "overflow_top": 271,
-    "overflow_bottom": 182,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1511863801518227588",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863801518227588/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1511863804592521317",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863804592521317/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1511863813127929897",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863813127929897/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "vengeance_pink",
-    "name": "Vengeance (Pink)",
-    "sku_id": "1484726324592640056",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514421380328722451",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421380328722451/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421385064087734",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421385064087734/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421389044482159",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421389044482159/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "crystals_carnelian",
-    "name": "Crystals (Carnelian)",
-    "sku_id": "1509183145751220377",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514423553527779490",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183145751220377/1514423553527779490/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514423556451205140",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183145751220377/1514423556451205140/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "neon_chaos_blue",
-    "name": "Neon Chaos (Blue)",
-    "sku_id": "1511871218633146408",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514424370377003119",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424370377003119/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1514424379709198548",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424379709198548/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514424383790387230",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424383790387230/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1514424387443359915",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424387443359915/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "vengeance_blue",
-    "name": "Vengeance (Blue)",
-    "sku_id": "1507152062134358176",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514421630108041226",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421630108041226/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421634222526506",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421634222526506/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514421637540352071",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421637540352071/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "neon_chaos_green",
-    "name": "Neon Chaos (Green)",
-    "sku_id": "1491910929141727413",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514424112079048794",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424112079048794/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1514424115258200205",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424115258200205/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514424118911566014",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424118911566014/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1514424121641930803",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424121641930803/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "dimensional_divide",
-    "name": "Dimensional Divide",
-    "sku_id": "1489399523238477855",
-    "inner_width": 1200,
-    "overflow_top": 288,
-    "overflow_bottom": 145,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1517237005921157280",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237005921157280/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1517237009217753168",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237009217753168/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1517237013818900621",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237013818900621/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dragon_ruby",
-    "name": "Dragon (Ruby)",
-    "sku_id": "1519072056560455851",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1519072278669692938",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072278669692938/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1519072284084797571",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072284084797571/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1519072288887148705",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072288887148705/static",
-        "type": "rail",
-        "order": "back",
-        "anchor": "center"
-      },
-      {
-        "id": "1519072295086330008",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072295086330008/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1519072302766100520",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072302766100520/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "kawaii_cat",
-    "name": "Kawaii Cat",
-    "sku_id": "1489396533643448380",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 135,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1511832450052133044",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832450052133044/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1511832453369827559",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832453369827559/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1511832456381071471",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832456381071471/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dragon_sapphire",
-    "name": "Dragon (Sapphire)",
-    "sku_id": "1519072339185369239",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1519072528654401563",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072528654401563/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1519072534073708775",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072534073708775/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1519072545016512703",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072545016512703/static",
-        "type": "rail",
-        "order": "back",
-        "anchor": "center"
-      },
-      {
-        "id": "1519072552004096192",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072552004096192/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1519072557339246703",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072557339246703/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "crystals_peridot",
-    "name": "Crystals (Peridot)",
-    "sku_id": "1509183144786657413",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514423455905349705",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183144786657413/1514423455905349705/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514423458833109165",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183144786657413/1514423458833109165/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "dragon_jade",
-    "name": "Dragon (Jade)",
-    "sku_id": "1506402031986802930",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 178,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1519088935509295224",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088935509295224/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1519088941628919828",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088941628919828/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1519088946922131637",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088946922131637/static",
-        "type": "rail",
-        "order": "back",
-        "anchor": "center"
-      },
-      {
-        "id": "1519088951892250755",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088951892250755/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1519088957789311066",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088957789311066/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "dragon_rose",
-    "name": "Dragon (Rose)",
-    "sku_id": "1519071720672329779",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 178,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1519071938754904185",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071938754904185/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1519071945079914577",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071945079914577/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1519071949551177809",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071949551177809/static",
-        "type": "rail",
-        "order": "back",
-        "anchor": "center"
-      },
-      {
-        "id": "1519071954408046633",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071954408046633/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1519071961353949394",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071961353949394/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "tiger_guardian",
-    "name": "Tiger Guardian",
-    "sku_id": "1484726324592640058",
-    "inner_width": 1200,
-    "overflow_top": 297,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1514422015787012136",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422015787012136/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1514422019163291710",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422019163291710/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1514422022787043438",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422022787043438/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1514422025803010048",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422025803010048/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "tropical_symphony",
-    "name": "Tropical Symphony",
-    "sku_id": "1527812336750952489",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1527812760669388840",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812760669388840/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1527812764574421124",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812764574421124/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1527812769129304214",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812769129304214/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1527812773143122030",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812773143122030/static",
-        "type": "rail",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1527812777664708718",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812777664708718/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "ribbit",
-    "name": "Ribbit",
-    "sku_id": "1526704581168468161",
-    "inner_width": 1200,
-    "overflow_top": 280,
-    "overflow_bottom": 202,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1526704820344455319",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526704581168468161/1526704820344455319/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1526704827751596202",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526704581168468161/1526704827751596202/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "berry_bunny",
-    "name": "Berry Bunny",
-    "sku_id": "1526697977513509007",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 140,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1526698280728133723",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698280728133723/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1526698286248099932",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698286248099932/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      },
-      {
-        "id": "1526698290215784569",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698290215784569/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      },
-      {
-        "id": "1526698294841970698",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698294841970698/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "prism_edge_pink",
-    "name": "Prism Edge (Pink)",
-    "sku_id": "1524512601827180624",
-    "inner_width": 1200,
-    "overflow_top": 127,
-    "overflow_bottom": 123,
-    "overflow_horizontal": 38,
-    "layers": [
-      {
-        "id": "1524557375024009436",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557375024009436/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1524557380090593321",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557380090593321/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524557384922697981",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557384922697981/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "prism_edge_blue",
-    "name": "Prism Edge (Blue)",
-    "sku_id": "1524512219298267187",
-    "inner_width": 1200,
-    "overflow_top": 127,
-    "overflow_bottom": 123,
-    "overflow_horizontal": 38,
-    "layers": [
-      {
-        "id": "1524512576686526606",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512576686526606/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1524512580935352410",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512580935352410/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1524512586375237712",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512586375237712/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "bottom"
-      }
-    ]
-  },
-  {
-    "id": "lofi_skyline",
-    "name": "Lofi Skyline",
-    "sku_id": "1524193825130811604",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 0,
-    "layers": [
-      {
-        "id": "1524193966818459790",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193825130811604/1524193966818459790/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "fantasy_galaxy_white",
-    "name": "Fantasy Galaxy (White)",
-    "sku_id": "1524193380492509345",
-    "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 0,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1526660354694844456",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660354694844456/static",
-        "type": "rail",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1526660358712852691",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660358712852691/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1526660363071000666",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660363071000666/static",
-        "type": "staple",
-        "order": "back",
-        "anchor": "top"
-      }
-    ]
-  },
-  {
-    "id": "precious_metal",
-    "name": "Precious Metal",
-    "sku_id": "1524191448898080929",
-    "inner_width": 1200,
-    "overflow_top": 216,
-    "overflow_bottom": 103,
-    "overflow_horizontal": 56,
-    "layers": [
-      {
-        "id": "1526660575952764958",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660575952764958/static",
-        "type": "border",
-        "order": "front",
-        "anchor": "center"
-      },
-      {
-        "id": "1526660580260188300",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660580260188300/static",
-        "type": "staple",
-        "order": "front",
-        "anchor": "top"
-      },
-      {
-        "id": "1526660586237067364",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660586237067364/static",
-        "type": "staple",
-        "order": "front",
         "anchor": "bottom"
       }
     ]
@@ -1396,41 +231,98 @@
     ]
   },
   {
-    "id": "encore",
-    "name": "Encore",
-    "sku_id": "1527085511544410274",
+    "id": "mariposa_white",
+    "name": "Mariposa (White)",
+    "sku_id": "1517303399799062668",
     "inner_width": 1200,
-    "overflow_top": 304,
-    "overflow_bottom": 212,
+    "overflow_top": 298,
+    "overflow_bottom": 107,
     "overflow_horizontal": 56,
     "layers": [
       {
-        "id": "1527085678985220128",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085678985220128/static",
+        "id": "1524824219844739122",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824219844739122/static",
         "type": "staple",
         "order": "front",
         "anchor": "top"
       },
       {
-        "id": "1527085684559708260",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085684559708260/static",
+        "id": "1524824224559268011",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824224559268011/static",
         "type": "staple",
         "order": "front",
         "anchor": "bottom"
       },
       {
-        "id": "1527085689269911692",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085689269911692/static",
+        "id": "1524824229810278460",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517303399799062668/1524824229810278460/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "lord_of_the_dead_blue",
+    "name": "Lord of the Dead (Blue)",
+    "sku_id": "1533925498961264871",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 148,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1533925847021518939",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925498961264871/1533925847021518939/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1533925851752825032",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925498961264871/1533925851752825032/static",
         "type": "staple",
         "order": "back",
         "anchor": "top"
       },
       {
-        "id": "1527085693535391774",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085693535391774/static",
+        "id": "1533925855338827867",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1533925498961264871/1533925855338827867/static",
         "type": "staple",
         "order": "back",
         "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "fantasy_galaxy_white",
+    "name": "Fantasy Galaxy (White)",
+    "sku_id": "1524193380492509345",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1526660354694844456",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660354694844456/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1526660358712852691",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660358712852691/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1526660363071000666",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193380492509345/1526660363071000666/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
       }
     ]
   },
@@ -1506,6 +398,148 @@
     ]
   },
   {
+    "id": "meow_meow_cat_black",
+    "name": "Meow Meow Cat (Black)",
+    "sku_id": "1522378878083924051",
+    "inner_width": 1200,
+    "overflow_top": 301,
+    "overflow_bottom": 147,
+    "overflow_horizontal": 54,
+    "layers": [
+      {
+        "id": "1524824357199675523",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824357199675523/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524824361503166484",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824361503166484/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1524824365282099231",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824365282099231/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1524824369212424203",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522378878083924051/1524824369212424203/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "berry_bunny",
+    "name": "Berry Bunny",
+    "sku_id": "1526697977513509007",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 140,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1526698280728133723",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698280728133723/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1526698286248099932",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698286248099932/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1526698290215784569",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698290215784569/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1526698294841970698",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526697977513509007/1526698294841970698/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "spider_man",
+    "name": "Spider-Man",
+    "sku_id": "1536491679949922304",
+    "inner_width": 1200,
+    "overflow_top": 285,
+    "overflow_bottom": 190,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1536492376778870896",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536491679949922304/1536492376778870896/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1536492380520452238",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536491679949922304/1536492380520452238/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1536492384177618954",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536491679949922304/1536492384177618954/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1536492387927466055",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536491679949922304/1536492387927466055/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dark_roses_white",
+    "name": "Dark Roses (White)",
+    "sku_id": "1511834131242287195",
+    "inner_width": 1200,
+    "overflow_top": 211,
+    "overflow_bottom": 186,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1515086653209841684",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834131242287195/1515086653209841684/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1515086657794081029",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511834131242287195/1515086657794081029/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
     "id": "fantasy_galaxy_pink",
     "name": "Fantasy Galaxy (Pink)",
     "sku_id": "1524192423260061706",
@@ -1538,26 +572,1269 @@
     ]
   },
   {
-    "id": "bunny_bliss",
-    "name": "Bunny Bliss",
-    "sku_id": "1524191647854891039",
+    "id": "sakura_spring",
+    "name": "Sakura Spring",
+    "sku_id": "1491908830844424302",
     "inner_width": 1200,
-    "overflow_top": 126,
-    "overflow_bottom": 116,
+    "overflow_top": 274,
+    "overflow_bottom": 209,
     "overflow_horizontal": 56,
     "layers": [
       {
-        "id": "1524192390502551724",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191647854891039/1524192390502551724/static",
+        "id": "1511895595718148197",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895595718148197/static",
         "type": "staple",
         "order": "front",
         "anchor": "top"
       },
       {
-        "id": "1524192394801713222",
-        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191647854891039/1524192394801713222/static",
+        "id": "1511895599232843937",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895599232843937/static",
         "type": "staple",
         "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1511895603041407016",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895603041407016/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1511895606392651979",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491908830844424302/1511895606392651979/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "lofi_skyline",
+    "name": "Lofi Skyline",
+    "sku_id": "1524193825130811604",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 0,
+    "layers": [
+      {
+        "id": "1524193966818459790",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524193825130811604/1524193966818459790/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "dark_roses_nightshade",
+    "name": "Dark Roses (Nightshade)",
+    "sku_id": "1491910305603911881",
+    "inner_width": 1200,
+    "overflow_top": 211,
+    "overflow_bottom": 186,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1515086535480049714",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910305603911881/1515086535480049714/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1515086540794237099",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910305603911881/1515086540794237099/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "solar_crown",
+    "name": "Solar Crown",
+    "sku_id": "1531413463623139328",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1532536721248616610",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413463623139328/1532536721248616610/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1532536724981547221",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413463623139328/1532536724981547221/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1532536729821511811",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1531413463623139328/1532536729821511811/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "mariposa_pink",
+    "name": "Mariposa (Pink)",
+    "sku_id": "1511908350324113478",
+    "inner_width": 1200,
+    "overflow_top": 298,
+    "overflow_bottom": 107,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1524824070691229817",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824070691229817/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524824076630364290",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824076630364290/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1524824082325966848",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511908350324113478/1524824082325966848/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "neon_chaos_purple",
+    "name": "Neon Chaos (Purple)",
+    "sku_id": "1511869969921609874",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514424192471404596",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424192471404596/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1514424195486842940",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424195486842940/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514424199001669695",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424199001669695/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1514424202038345828",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511869969921609874/1514424202038345828/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "spider_man_s_web",
+    "name": "Spider-Man's Web",
+    "sku_id": "1536492428268281996",
+    "inner_width": 1200,
+    "overflow_top": 160,
+    "overflow_bottom": 190,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1536492935170760895",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492428268281996/1536492935170760895/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1536492940480872449",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492428268281996/1536492940480872449/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1536492944750542958",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492428268281996/1536492944750542958/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1536492948894515230",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492428268281996/1536492948894515230/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "prism_edge_pink",
+    "name": "Prism Edge (Pink)",
+    "sku_id": "1524512601827180624",
+    "inner_width": 1200,
+    "overflow_top": 127,
+    "overflow_bottom": 123,
+    "overflow_horizontal": 38,
+    "layers": [
+      {
+        "id": "1524557375024009436",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557375024009436/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1524557380090593321",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557380090593321/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524557384922697981",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512601827180624/1524557384922697981/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "vengeance_orange",
+    "name": "Vengeance (Orange)",
+    "sku_id": "1507152063078072454",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514421770197663875",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421770197663875/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421773637259365",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421773637259365/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421776967405728",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152063078072454/1514421776967405728/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "vengeance_pink",
+    "name": "Vengeance (Pink)",
+    "sku_id": "1484726324592640056",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514421380328722451",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421380328722451/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421385064087734",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421385064087734/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421389044482159",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640056/1514421389044482159/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "prism_edge_blue",
+    "name": "Prism Edge (Blue)",
+    "sku_id": "1524512219298267187",
+    "inner_width": 1200,
+    "overflow_top": 127,
+    "overflow_bottom": 123,
+    "overflow_horizontal": 38,
+    "layers": [
+      {
+        "id": "1524512576686526606",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512576686526606/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1524512580935352410",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512580935352410/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524512586375237712",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524512219298267187/1524512586375237712/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "meow_meow_cat_orange",
+    "name": "Meow Meow Cat (Orange)",
+    "sku_id": "1522380815538065549",
+    "inner_width": 1200,
+    "overflow_top": 301,
+    "overflow_bottom": 147,
+    "overflow_horizontal": 54,
+    "layers": [
+      {
+        "id": "1522381608047345756",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381608047345756/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1522381611776348200",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381611776348200/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1522381615484108914",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381615484108914/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1522381620278067314",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522380815538065549/1522381620278067314/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "pond_pals",
+    "name": "Pond Pals",
+    "sku_id": "1491911825837785238",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514422210209644636",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422210209644636/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514422213829464105",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422213829464105/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1514422217692283042",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422217692283042/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1514422221584470208",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491911825837785238/1514422221584470208/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "crystals_amethyst",
+    "name": "Crystals (Amethyst)",
+    "sku_id": "1484726324580061191",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514422966870347837",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324580061191/1514422966870347837/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514422970251083806",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324580061191/1514422970251083806/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "retro_futurism",
+    "name": "Retro Futurism",
+    "sku_id": "1489398661619384321",
+    "inner_width": 1200,
+    "overflow_top": 271,
+    "overflow_bottom": 182,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1511863801518227588",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863801518227588/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1511863804592521317",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863804592521317/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1511863813127929897",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489398661619384321/1511863813127929897/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dark_roses_blue",
+    "name": "Dark Roses (Blue)",
+    "sku_id": "1515124557290410204",
+    "inner_width": 1200,
+    "overflow_top": 211,
+    "overflow_bottom": 186,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1515124885113012234",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1515124557290410204/1515124885113012234/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1515124888313266236",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1515124557290410204/1515124888313266236/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "meow_meow_cat_gray",
+    "name": "Meow Meow Cat (Gray)",
+    "sku_id": "1522381656684761098",
+    "inner_width": 1200,
+    "overflow_top": 301,
+    "overflow_bottom": 147,
+    "overflow_horizontal": 54,
+    "layers": [
+      {
+        "id": "1522381902995132536",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381902995132536/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1522381906627268640",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381906627268640/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1522381910544879691",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381910544879691/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1522381916764897321",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1522381656684761098/1522381916764897321/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "ribbit",
+    "name": "Ribbit",
+    "sku_id": "1526704581168468161",
+    "inner_width": 1200,
+    "overflow_top": 280,
+    "overflow_bottom": 202,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1526704820344455319",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526704581168468161/1526704820344455319/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1526704827751596202",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1526704581168468161/1526704827751596202/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "mariposa_blue",
+    "name": "Mariposa (Blue)",
+    "sku_id": "1517301132211388507",
+    "inner_width": 1200,
+    "overflow_top": 298,
+    "overflow_bottom": 107,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1524824143315599390",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824143315599390/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1524824154560397552",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824154560397552/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1524824160310792243",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1517301132211388507/1524824160310792243/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "neon_chaos_green",
+    "name": "Neon Chaos (Green)",
+    "sku_id": "1491910929141727413",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514424112079048794",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424112079048794/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1514424115258200205",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424115258200205/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514424118911566014",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424118911566014/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1514424121641930803",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1491910929141727413/1514424121641930803/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "venom",
+    "name": "Venom",
+    "sku_id": "1536492991093678183",
+    "inner_width": 1200,
+    "overflow_top": 295,
+    "overflow_bottom": 161,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1536493305460686919",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492991093678183/1536493305460686919/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1536493309436895253",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492991093678183/1536493309436895253/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1536493313946026135",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1536492991093678183/1536493313946026135/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "tropical_symphony",
+    "name": "Tropical Symphony",
+    "sku_id": "1527812336750952489",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1527812760669388840",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812760669388840/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1527812764574421124",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812764574421124/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1527812769129304214",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812769129304214/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1527812773143122030",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812773143122030/static",
+        "type": "rail",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1527812777664708718",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527812336750952489/1527812777664708718/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "crystals_aquamarine",
+    "name": "Crystals (Aquamarine)",
+    "sku_id": "1509183143905857589",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514423210181918872",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183143905857589/1514423210181918872/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514423213403279380",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183143905857589/1514423213403279380/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "starlight_kingdom",
+    "name": "Starlight Kingdom",
+    "sku_id": "1493974583311859733",
+    "inner_width": 1200,
+    "overflow_top": 156,
+    "overflow_bottom": 63,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1511864755675992145",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864755675992145/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1511864761183244478",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864761183244478/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1511864765062975640",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864765062975640/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1511864769370394735",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1493974583311859733/1511864769370394735/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "neon_chaos_blue",
+    "name": "Neon Chaos (Blue)",
+    "sku_id": "1511871218633146408",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514424370377003119",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424370377003119/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1514424379709198548",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424379709198548/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514424383790387230",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424383790387230/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1514424387443359915",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1511871218633146408/1514424387443359915/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "crystals_carnelian",
+    "name": "Crystals (Carnelian)",
+    "sku_id": "1509183145751220377",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514423553527779490",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183145751220377/1514423553527779490/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514423556451205140",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183145751220377/1514423556451205140/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "vengeance_blue",
+    "name": "Vengeance (Blue)",
+    "sku_id": "1507152062134358176",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514421630108041226",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421630108041226/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421634222526506",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421634222526506/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514421637540352071",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1507152062134358176/1514421637540352071/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "precious_metal",
+    "name": "Precious Metal",
+    "sku_id": "1524191448898080929",
+    "inner_width": 1200,
+    "overflow_top": 216,
+    "overflow_bottom": 103,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1526660575952764958",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660575952764958/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1526660580260188300",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660580260188300/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1526660586237067364",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1524191448898080929/1526660586237067364/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "crystals_peridot",
+    "name": "Crystals (Peridot)",
+    "sku_id": "1509183144786657413",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 0,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514423455905349705",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183144786657413/1514423455905349705/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514423458833109165",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1509183144786657413/1514423458833109165/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      }
+    ]
+  },
+  {
+    "id": "dragon_ruby",
+    "name": "Dragon (Ruby)",
+    "sku_id": "1519072056560455851",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1519072278669692938",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072278669692938/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1519072284084797571",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072284084797571/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1519072288887148705",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072288887148705/static",
+        "type": "rail",
+        "order": "back",
+        "anchor": "center"
+      },
+      {
+        "id": "1519072295086330008",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072295086330008/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1519072302766100520",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072056560455851/1519072302766100520/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dimensional_divide",
+    "name": "Dimensional Divide",
+    "sku_id": "1489399523238477855",
+    "inner_width": 1200,
+    "overflow_top": 288,
+    "overflow_bottom": 145,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1517237005921157280",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237005921157280/static",
+        "type": "rail",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1517237009217753168",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237009217753168/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1517237013818900621",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489399523238477855/1517237013818900621/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "kawaii_cat",
+    "name": "Kawaii Cat",
+    "sku_id": "1489396533643448380",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 135,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1511832450052133044",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832450052133044/static",
+        "type": "border",
+        "order": "front",
+        "anchor": "center"
+      },
+      {
+        "id": "1511832453369827559",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832453369827559/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1511832456381071471",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1489396533643448380/1511832456381071471/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dragon_jade",
+    "name": "Dragon (Jade)",
+    "sku_id": "1506402031986802930",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 178,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1519088935509295224",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088935509295224/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1519088941628919828",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088941628919828/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1519088946922131637",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088946922131637/static",
+        "type": "rail",
+        "order": "back",
+        "anchor": "center"
+      },
+      {
+        "id": "1519088951892250755",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088951892250755/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1519088957789311066",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1506402031986802930/1519088957789311066/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dragon_sapphire",
+    "name": "Dragon (Sapphire)",
+    "sku_id": "1519072339185369239",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1519072528654401563",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072528654401563/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1519072534073708775",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072534073708775/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1519072545016512703",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072545016512703/static",
+        "type": "rail",
+        "order": "back",
+        "anchor": "center"
+      },
+      {
+        "id": "1519072552004096192",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072552004096192/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1519072557339246703",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519072339185369239/1519072557339246703/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "dragon_rose",
+    "name": "Dragon (Rose)",
+    "sku_id": "1519071720672329779",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 178,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1519071938754904185",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071938754904185/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1519071945079914577",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071945079914577/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1519071949551177809",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071949551177809/static",
+        "type": "rail",
+        "order": "back",
+        "anchor": "center"
+      },
+      {
+        "id": "1519071954408046633",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071954408046633/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1519071961353949394",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1519071720672329779/1519071961353949394/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "encore",
+    "name": "Encore",
+    "sku_id": "1527085511544410274",
+    "inner_width": 1200,
+    "overflow_top": 304,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1527085678985220128",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085678985220128/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1527085684559708260",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085684559708260/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1527085689269911692",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085689269911692/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1527085693535391774",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1527085511544410274/1527085693535391774/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "bottom"
+      }
+    ]
+  },
+  {
+    "id": "tiger_guardian",
+    "name": "Tiger Guardian",
+    "sku_id": "1484726324592640058",
+    "inner_width": 1200,
+    "overflow_top": 297,
+    "overflow_bottom": 212,
+    "overflow_horizontal": 56,
+    "layers": [
+      {
+        "id": "1514422015787012136",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422015787012136/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "top"
+      },
+      {
+        "id": "1514422019163291710",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422019163291710/static",
+        "type": "staple",
+        "order": "front",
+        "anchor": "bottom"
+      },
+      {
+        "id": "1514422022787043438",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422022787043438/static",
+        "type": "staple",
+        "order": "back",
+        "anchor": "top"
+      },
+      {
+        "id": "1514422025803010048",
+        "url": "https://cdn.discordapp.com/media/v1/collectibles-shop/1484726324592640058/1514422025803010048/static",
+        "type": "staple",
+        "order": "back",
         "anchor": "bottom"
       }
     ]
