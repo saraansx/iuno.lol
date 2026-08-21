@@ -16,7 +16,47 @@ export async function fetchInstagramUserData(
     return null;
   }
 
-  // 1. Direct OpenGraph scrape with facebookexternalhit
+  // 1. Direct Instagram Web Profile Info API
+  try {
+    const res = await fetch(
+      `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          "X-IG-App-ID": "936619743392459",
+          "Accept": "*/*",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(6000),
+      }
+    );
+
+    if (res.ok) {
+      const json = await res.json();
+      const user = json?.data?.user;
+      if (user) {
+        return {
+          username: user.username || username,
+          fullName: user.full_name || username,
+          biography: user.biography || "",
+          profilePicUrl: user.profile_pic_url || "",
+          profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
+          isVerified: Boolean(user.is_verified),
+          isPrivate: Boolean(user.is_private),
+          postsCount: user.edge_owner_to_timeline_media?.count ?? 0,
+          followersCount: user.edge_followed_by?.count ?? 0,
+          followingCount: user.edge_follow?.count ?? 0,
+          externalUrl: user.external_url || null,
+        };
+      }
+    }
+  } catch (err) {
+    console.error("[Instagram Web Profile API Error]", err);
+  }
+
+  // 2. Direct OpenGraph scrape with facebookexternalhit
   try {
     const res = await fetch(`https://www.instagram.com/${encodeURIComponent(username)}/`, {
       headers: {
