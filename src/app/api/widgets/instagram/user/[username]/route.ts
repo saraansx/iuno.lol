@@ -244,13 +244,19 @@ export async function GET(
       );
     }
 
-    const data = await fetchInstagramUserData(cleanUsername);
-    if (!data) {
-      return NextResponse.json(
-        { error: "Instagram profile not found" },
-        { status: 404 }
-      );
-    }
+    const data = (await fetchInstagramUserData(cleanUsername)) || {
+      username: cleanUsername,
+      fullName: cleanUsername,
+      biography: "",
+      profilePicUrl: "",
+      profilePicUrlHd: "",
+      isVerified: false,
+      isPrivate: false,
+      postsCount: 0,
+      followersCount: 0,
+      followingCount: 0,
+      externalUrl: null,
+    };
 
     return NextResponse.json({
       ok: true,
