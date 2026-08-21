@@ -1,27 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 
-const CRAWLER_HEADERS = {
-  "User-Agent":
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
-  Accept:
-    "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-  "Accept-Language": "en-US,en;q=0.9",
-};
-
 const BROWSER_HEADERS = {
   "User-Agent":
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
   Accept: "*/*",
   "Accept-Language": "en-US,en;q=0.9",
+  "X-IG-App-ID": "936619743392459",
+  "X-Requested-With": "XMLHttpRequest",
 };
-
-function parseStat(s: string): number {
-  const clean = s.replace(/,/g, "").trim().toUpperCase();
-  if (clean.endsWith("M")) return Math.round(parseFloat(clean) * 1_000_000);
-  if (clean.endsWith("K")) return Math.round(parseFloat(clean) * 1_000);
-  return parseInt(clean, 10) || 0;
-}
 
 export async function fetchInstagramUserData(
   rawUsername: string
@@ -31,28 +18,15 @@ export async function fetchInstagramUserData(
     return null;
   }
 
-  // Method 1: Authenticated Session GraphQL / Web Profile API (Primary)
   try {
-    const instagramCookie = process.env.INSTAGRAM_COOKIE || process.env.INSTAGRAM_SESSION_COOKIE || "";
-    const instagramProxyUrl = process.env.INSTAGRAM_PROXY_URL || "";
-
-    const fetchHeaders: Record<string, string> = {
-      ...BROWSER_HEADERS,
-      "X-IG-App-ID": "936619743392459",
-      "X-Requested-With": "XMLHttpRequest",
-      Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
-    };
-
-    if (instagramCookie) {
-      fetchHeaders["Cookie"] = instagramCookie;
-    }
-
-    const targetUrl = instagramProxyUrl
-      ? `${instagramProxyUrl.replace(/\/$/, "")}/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`
-      : `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
+    const instagramProxyUrl = (process.env.INSTAGRAM_PROXY_URL || "https://www.instagram.com").replace(/\/$/, "");
+    const targetUrl = `${instagramProxyUrl}/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`;
 
     const res = await fetch(targetUrl, {
-      headers: fetchHeaders,
+      headers: {
+        ...BROWSER_HEADERS,
+        Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
+      },
       next: { revalidate: 3600 },
     });
 
@@ -76,126 +50,7 @@ export async function fetchInstagramUserData(
       }
     }
   } catch (err) {
-    console.warn("[Instagram API v1 fetch failed]", err);
-  }
-
-  // Method 2: Public Embed HTML scrape fallback
-  try {
-    const embedUrl = `https://www.instagram.com/${encodeURIComponent(username)}/embed/captioned/`;
-    const res = await fetch(embedUrl, {
-      headers: CRAWLER_HEADERS,
-      next: { revalidate: 3600 },
-    });
-
-    if (res.ok) {
-      const html = await res.text();
-
-      const avatarMatch =
-        html.match(/class=["']Avatar["'][^>]*src=["']([^"']+)["']/i) ||
-        html.match(/src=["'](https:\/\/[^"']*cdninstagram\.com\/[^"']+)["']/i) ||
-        html.match(/src=["'](https:\/\/[^"']*fbcdn\.net\/[^"']+)["']/i);
-
-      const usernameMatch =
-        html.match(/class=["']UsernameText["'][^>]*>([^<]+)<\/span>/i) ||
-        html.match(/class=["']Username["'][^>]*>([^<]+)<\/a>/i);
-
-      const isVerified = html.includes("coreSpriteVerifiedBadgeSmall") || html.includes("Verified");
-
-      if (avatarMatch && avatarMatch[1]) {
-        const profilePicUrl = avatarMatch[1].replace(/&amp;/g, "&");
-        return {
-          username,
-          fullName: usernameMatch?.[1]?.trim() || username,
-          biography: "",
-          profilePicUrl,
-          profilePicUrlHd: profilePicUrl,
-          isVerified,
-          isPrivate: false,
-          postsCount: 0,
-          followersCount: 0,
-          followingCount: 0,
-          externalUrl: null,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn("[Instagram embed scrape failed]", err);
-  }
-
-  // Method 3: Direct OpenGraph crawl fallback
-  try {
-    const pageUrl = `https://www.instagram.com/${encodeURIComponent(username)}/`;
-    const res = await fetch(pageUrl, {
-      headers: CRAWLER_HEADERS,
-      next: { revalidate: 3600 },
-    });
-
-    if (res.ok) {
-      const html = await res.text();
-
-      const ogDescMatch =
-        html.match(/<meta\s+[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
-        html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:description["']/i) ||
-        html.match(/<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i) ||
-        html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
-
-      const ogTitleMatch =
-        html.match(/<meta\s+[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i) ||
-        html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:title["']/i);
-
-      const ogImageMatch =
-        html.match(/<meta\s+[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i) ||
-        html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:image["']/i);
-
-      let followersCount = 0;
-      let followingCount = 0;
-      let postsCount = 0;
-      let fullName = username;
-
-      if (ogDescMatch && ogDescMatch[1]) {
-        const desc = ogDescMatch[1];
-        const statsMatch = desc.match(
-          /([\d,.]+[KMkm]?)\s+Followers,\s*([\d,.]+[KMkm]?)\s+Following,\s*([\d,.]+[KMkm]?)\s+Posts/i
-        );
-
-        if (statsMatch) {
-          followersCount = parseStat(statsMatch[1]);
-          followingCount = parseStat(statsMatch[2]);
-          postsCount = parseStat(statsMatch[3]);
-        }
-      }
-
-      if (ogTitleMatch && ogTitleMatch[1]) {
-        const rawTitle = ogTitleMatch[1]
-          .replace(/&#064;/g, "@")
-          .replace(/&#x2022;/g, "•")
-          .replace(/&amp;/g, "&");
-        const nameMatch = rawTitle.match(/^(.*?)\s*\(@/);
-        if (nameMatch && nameMatch[1]) {
-          fullName = nameMatch[1].trim();
-        }
-      }
-
-      const profilePicUrl = ogImageMatch ? ogImageMatch[1].replace(/&amp;/g, "&") : "";
-
-      if (profilePicUrl || followersCount > 0 || (ogTitleMatch && !html.includes("Page Not Found"))) {
-        return {
-          username,
-          fullName: fullName || username,
-          biography: "",
-          profilePicUrl,
-          profilePicUrlHd: profilePicUrl,
-          isVerified: html.includes('"is_verified":true'),
-          isPrivate: html.includes('"is_private":true'),
-          postsCount,
-          followersCount,
-          followingCount,
-          externalUrl: null,
-        };
-      }
-    }
-  } catch (err) {
-    console.warn("[Instagram crawler OG scrape failed]", err);
+    console.error("[Instagram Worker Proxy fetch failed]", err);
   }
 
   return null;
