@@ -50,8 +50,6 @@ export default function PresenceCustomization({
   onShowActivityChange,
   showActivityImage,
   onShowActivityImageChange,
-  activityImageShape,
-  onActivityImageShapeChange,
   showAvatarDecoration,
   onShowAvatarDecorationChange,
   showGuildTag,

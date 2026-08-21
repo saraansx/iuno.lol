@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { GenshinLogoIcon } from "@/components/profile/widgets/WidgetIcons";
+import { parseSpotifyIdentifier } from "@/lib/spotify";
 
 interface AddWidgetModalProps {
   isOpen: boolean;
@@ -70,26 +71,6 @@ export default function AddWidgetModal({
   const [selectedPlatform, setSelectedPlatform] = useState("discord");
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
   const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
-  const [widgetType, setWidgetType] = useState<
-    | "presence"
-    | "server"
-    | "github-user"
-    | "github-repo"
-    | "pinterest-profile"
-    | "pinterest-board"
-    | "valorant-profile"
-    | "steam-profile"
-    | "genshin-profile"
-    | "twitch-channel"
-    | "spotify-track"
-    | "spotify-album"
-    | "spotify-playlist"
-    | "spotify-artist"
-    | "spotify-user"
-    | "instagram-profile"
-    | "tiktok-profile"
-  >("presence");
-  const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [instagramUsername, setInstagramUsername] = useState("");
@@ -103,42 +84,43 @@ export default function AddWidgetModal({
   const [valorantId, setValorantId] = useState("");
   const [steamId, setSteamId] = useState("");
   const [genshinUid, setGenshinUid] = useState("");
-  const [isValidating, setIsValidating] = useState(false);
-  const [validationError, setValidationError] = useState<string | null>(null);
+  const [customWidgetType, setCustomWidgetType] = useState<string | null>(null);
+  const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const modalRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      if (selectedPlatform === "discord") {
-        setWidgetType(hasPresenceWidget && !hasServerWidget ? "server" : "presence");
-      } else if (selectedPlatform === "instagram") {
-        setWidgetType("instagram-profile");
-      } else if (selectedPlatform === "tiktok") {
-        setWidgetType("tiktok-profile");
-      } else if (selectedPlatform === "spotify") {
-        setWidgetType((prev) => (prev.startsWith("spotify-") ? prev : "spotify-track"));
-      } else if (selectedPlatform === "twitch") {
-        setWidgetType("twitch-channel");
-      } else if (selectedPlatform === "github") {
-        setWidgetType(hasGitHubUserWidget && !hasGitHubRepoWidget ? "github-repo" : "github-user");
-      } else if (selectedPlatform === "pinterest") {
-        setWidgetType(hasPinterestProfileWidget && !hasPinterestBoardWidget ? "pinterest-board" : "pinterest-profile");
-      } else if (selectedPlatform === "valorant") {
-        setWidgetType("valorant-profile");
-      } else if (selectedPlatform === "steam") {
-        setWidgetType("steam-profile");
-      } else if (selectedPlatform === "genshin") {
-        setWidgetType("genshin-profile");
-      }
-      setValidationError(null);
-    }
-  }, [isOpen, selectedPlatform, hasPresenceWidget, hasServerWidget, hasInstagramWidget, hasTikTokWidget, hasSpotifyWidget, hasTwitchWidget, hasGitHubUserWidget, hasGitHubRepoWidget, hasPinterestProfileWidget, hasPinterestBoardWidget, hasValorantWidget, hasSteamWidget, hasGenshinWidget]);
+  const defaultWidgetType =
+    selectedPlatform === "discord"
+      ? hasPresenceWidget && !hasServerWidget
+        ? "server"
+        : "presence"
+      : selectedPlatform === "instagram"
+      ? "instagram-profile"
+      : selectedPlatform === "tiktok"
+      ? "tiktok-profile"
+      : selectedPlatform === "spotify"
+      ? "spotify-track"
+      : selectedPlatform === "twitch"
+      ? "twitch-channel"
+      : selectedPlatform === "github"
+      ? hasGitHubUserWidget && !hasGitHubRepoWidget
+        ? "github-repo"
+        : "github-user"
+      : selectedPlatform === "pinterest"
+      ? hasPinterestProfileWidget && !hasPinterestBoardWidget
+        ? "pinterest-board"
+        : "pinterest-profile"
+      : selectedPlatform === "valorant"
+      ? "valorant-profile"
+      : selectedPlatform === "steam"
+      ? "steam-profile"
+      : selectedPlatform === "genshin"
+      ? "genshin-profile"
+      : "presence";
 
-  useEffect(() => {
-    setValidationError(null);
-  }, [selectedPlatform, widgetType, useLinkedAccount, customDiscordId, serverId, instagramUsername, tiktokUsername, spotifyInput, twitchUsername, githubUsername, githubRepo, pinterestUsername, pinterestBoard, valorantId, steamId, genshinUid]);
+  const widgetType = customWidgetType || defaultWidgetType;
+  const setWidgetType = (t: string) => setCustomWidgetType(t);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -273,7 +255,7 @@ export default function AddWidgetModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormatValid || isValidating) return;
+    if (!isFormatValid) return;
 
     if (isDiscord) {
       if (isPresence && useLinkedAccount && linkedDiscordId) {
@@ -287,309 +269,89 @@ export default function AddWidgetModal({
         return;
       }
 
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/discord/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: widgetType, id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Invalid Discord ID or widget unavailable");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Discord ID. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isInstagram) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/instagram/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Instagram user not found");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Instagram profile. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isTikTok) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/tiktok/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.valid) {
-          setValidationError(result.error || "TikTok account not found");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify TikTok account. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isSpotify) {
-      setIsValidating(true);
-      setValidationError(null);
+      const parsed = parseSpotifyIdentifier(targetId);
+      const resolvedId = parsed.id || targetId;
+      const resolvedType = parsed.type ? `spotify-${parsed.type}` : widgetType;
 
-      try {
-        const cleanType = widgetType.replace("spotify-", "");
-        const res = await fetch("/api/widgets/spotify/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: cleanType, id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Spotify item not found");
-          setIsValidating(false);
-          return;
-        }
-
-        const resolvedType = result.resolvedType ? `spotify-${result.resolvedType}` : widgetType;
-        const resolvedId = result.resolvedId || targetId;
-
-        onAdd({
-          platform: selectedPlatform,
-          type: resolvedType,
-          useLinked: false,
-          customId: resolvedId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Spotify item. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: resolvedType,
+        useLinked: false,
+        customId: resolvedId,
+      });
+      onClose();
     } else if (isTwitch) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/twitch/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Twitch channel not found");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Twitch channel. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isGitHub) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/github/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: widgetType, id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Invalid GitHub identifier");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify GitHub account/repo. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isPinterest) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/pinterest/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ type: widgetType, id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Invalid Pinterest account/board");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Pinterest account/board. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isValorant) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/valorant/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Invalid Riot ID or player not found");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Riot ID. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isSteam) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/steam/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Steam user not found or profile is private");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Steam profile. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     } else if (isGenshin) {
-      setIsValidating(true);
-      setValidationError(null);
-
-      try {
-        const res = await fetch("/api/widgets/genshin/validate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ uid: targetId }),
-        });
-        const result = await res.json();
-
-        if (!result.ok) {
-          setValidationError(result.error || "Genshin player profile not found on Enka.Network");
-          setIsValidating(false);
-          return;
-        }
-
-        onAdd({
-          platform: selectedPlatform,
-          type: widgetType,
-          useLinked: false,
-          customId: targetId,
-        });
-        onClose();
-      } catch {
-        setValidationError("Failed to verify Genshin Impact UID. Try again.");
-      } finally {
-        setIsValidating(false);
-      }
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     }
   };
 
@@ -1247,13 +1009,6 @@ export default function AddWidgetModal({
           </div>
         )}
 
-        {/* Validation Error */}
-        {validationError && (
-          <div className="px-3.5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-[12.5px] text-red-400 font-normal animate-in fade-in duration-150">
-            {validationError}
-          </div>
-        )}
-
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
           <button
@@ -1265,25 +1020,15 @@ export default function AddWidgetModal({
           </button>
           <button
             type="button"
-            disabled={!isFormatValid || isValidating}
+            disabled={!isFormatValid}
             onClick={handleSubmit}
             className={`px-5 py-2 rounded-xl text-[13px] font-normal transition-all cursor-pointer flex items-center justify-center gap-2 min-w-[95px] ${
-              isFormatValid && !isValidating
+              isFormatValid
                 ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 border border-[#609fda]/30 text-white"
                 : "bg-white/5 border border-white/5 text-white/20 cursor-not-allowed"
             }`}
           >
-            {isValidating ? (
-              <>
-                <svg className="animate-spin h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span>Checking...</span>
-              </>
-            ) : (
-              "Add Widget"
-            )}
+            Add Widget
           </button>
         </div>
       </div>
