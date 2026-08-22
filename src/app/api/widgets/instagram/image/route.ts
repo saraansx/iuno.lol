@@ -17,13 +17,17 @@ export async function GET(req: NextRequest) {
     }
 
     const hostname = parsedUrl.hostname.toLowerCase();
+    const igProxyHost = process.env.INSTAGRAM_PROXY_URL
+      ? new URL(process.env.INSTAGRAM_PROXY_URL).hostname.toLowerCase()
+      : null;
     const isAllowedHost =
       hostname === "instagram.com" ||
       hostname.endsWith(".instagram.com") ||
       hostname === "cdninstagram.com" ||
       hostname.endsWith(".cdninstagram.com") ||
       hostname === "fbcdn.net" ||
-      hostname.endsWith(".fbcdn.net");
+      hostname.endsWith(".fbcdn.net") ||
+      (igProxyHost !== null && hostname === igProxyHost);
 
     if (!isAllowedHost) {
       return new NextResponse(null, { status: 403 });
