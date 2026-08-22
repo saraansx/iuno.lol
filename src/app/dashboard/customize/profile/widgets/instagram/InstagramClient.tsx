@@ -154,9 +154,7 @@ export default function InstagramClient({ user }: { user: FullUser | null }) {
     }
   };
 
-  const avatarSrc = instagramUser?.profilePicUrl
-    ? `/api/widgets/instagram/image?url=${encodeURIComponent(instagramUser.profilePicUrl)}`
-    : null;
+  const avatarSrc = instagramUser?.profilePicUrl || null;
 
   const bgSrc = showBackground ? avatarSrc : null;
 
