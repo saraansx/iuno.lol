@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 export interface GitHubUserData {
   login: string;
@@ -21,6 +22,12 @@ export async function GET(
 
     if (!cleanUsername || !/^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){0,38}$/.test(cleanUsername)) {
       return NextResponse.json({ error: "Invalid GitHub username" }, { status: 400 });
+    }
+
+    const cacheKey = widgetCacheKey("github", "user", cleanUsername);
+    const cached = await readWidgetCache<GitHubUserData>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -55,6 +62,8 @@ export async function GET(
       public_repos: Number(data.public_repos || 0),
       html_url: data.html_url || `https://github.com/${data.login}`,
     };
+
+    await writeWidgetCache(cacheKey, result);
 
     return NextResponse.json(result);
   } catch (err) {

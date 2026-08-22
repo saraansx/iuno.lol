@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import AddWidgetModal from "./AddWidgetModal";
 import { GenshinLogoIcon } from "@/components/profile/widgets/WidgetIcons";
+import { getCanonicalWidgetType, areAllPlatformsFull } from "@/lib/widget-types";
 
 export interface WidgetItem {
   id: string;
@@ -111,6 +112,10 @@ export default function WidgetsCustomization({
   useEffect(() => {
     setWidgets(initialWidgets);
   }, [initialWidgets]);
+
+  // Canonical types already in use — each type is limited to one widget.
+  const usedTypes = widgets.map((w) => getCanonicalWidgetType(w));
+  const isEveryPlatformFull = areAllPlatformsFull(usedTypes);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIdx(index);
@@ -317,6 +322,7 @@ export default function WidgetsCustomization({
   };
 
   const count = widgets.length;
+  const isAddDisabled = count >= maxWidgets || isEveryPlatformFull;
 
   return (
     <>
@@ -335,15 +341,26 @@ export default function WidgetsCustomization({
 
             <button
               type="button"
-              disabled={count >= maxWidgets}
+              disabled={isAddDisabled}
+              title={
+                isEveryPlatformFull && count < maxWidgets
+                  ? "You've added every available widget"
+                  : undefined
+              }
               onClick={() => setIsModalOpen(true)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 cursor-pointer active:scale-95 ${
-                count >= maxWidgets
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
+                isAddDisabled
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#609fda]/15 hover:bg-[#609fda]/25 border border-[#609fda]/20 text-white"
+                  : "bg-[#609fda]/15 hover:bg-[#609fda]/25 border border-[#609fda]/20 text-white cursor-pointer active:scale-95"
               }`}
             >
-              <span className="text-[13px] leading-none font-normal text-[#609fda]">+</span>
+              <span
+                className={`text-[13px] leading-none font-normal ${
+                  isAddDisabled ? "text-white/30" : "text-[#609fda]"
+                }`}
+              >
+                +
+              </span>
               <span>Add widget</span>
             </button>
           </div>
@@ -579,18 +596,7 @@ export default function WidgetsCustomization({
         onAdd={handleAddWidget}
         linkedDiscordId={linkedDiscordId}
         linkedDiscordUsername={linkedDiscordUsername}
-        hasPresenceWidget={widgets.some((w) => w.type === "presence")}
-        hasServerWidget={widgets.some((w) => w.type === "server")}
-        hasGitHubUserWidget={widgets.some((w) => w.type === "github-user" || w.type === "user")}
-        hasGitHubRepoWidget={widgets.some((w) => w.type === "github-repo" || w.type === "repo")}
-        hasPinterestProfileWidget={widgets.some((w) => w.type === "pinterest-profile" || w.type === "profile")}
-        hasPinterestBoardWidget={widgets.some((w) => w.type === "pinterest-board" || w.type === "board")}
-        hasValorantWidget={widgets.some((w) => w.type === "valorant-profile" || w.platform === "valorant")}
-        hasSteamWidget={widgets.some((w) => w.type === "steam-profile" || w.platform === "steam")}
-        hasGenshinWidget={widgets.some((w) => w.type === "genshin-profile" || w.platform === "genshin")}
-        hasTwitchWidget={widgets.some((w) => w.type === "twitch-channel" || w.platform === "twitch")}
-        hasSpotifyWidget={widgets.some((w) => w.platform === "spotify")}
-        hasInstagramWidget={widgets.some((w) => w.platform === "instagram")}
+        usedTypes={usedTypes}
       />
     </>
   );

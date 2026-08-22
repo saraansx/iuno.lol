@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+
+interface ContributionsPayload {
+  contributions: { date: string; count: number; level: number }[];
+}
 
 export async function GET(
   _req: NextRequest,
@@ -10,6 +15,12 @@ export async function GET(
 
     if (!cleanUsername || !/^[a-z0-9](?:[a-z0-9]|-(?=[a-z0-9])){0,38}$/.test(cleanUsername)) {
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });
+    }
+
+    const cacheKey = widgetCacheKey("github", "contributions", cleanUsername);
+    const cached = await readWidgetCache<ContributionsPayload>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -77,7 +88,10 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({ contributions: days });
+    const payload: ContributionsPayload = { contributions: days };
+    await writeWidgetCache(cacheKey, payload);
+
+    return NextResponse.json(payload);
   } catch (err) {
     console.error("[GitHub Contributions Route Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

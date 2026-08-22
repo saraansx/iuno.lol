@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
-// Cache invite data in memory / Next.js ISR window
+// Responses are never statically cached by Next.js; freshness is controlled by the
+// Redis cache below (1 hour), so member counts can lag by up to that window.
 export const dynamic = "force-dynamic";
 
 export interface DiscordServerData {
@@ -36,6 +38,12 @@ export async function GET(
     return NextResponse.json({ ok: false, error: "Invite code is required" }, { status: 400 });
   }
 
+  const cacheKey = widgetCacheKey("discord", "invite", cleanCode);
+  const cached = await readWidgetCache<DiscordServerData>(cacheKey);
+  if (cached) {
+    return NextResponse.json(cached);
+  }
+
   try {
     const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true&with_expiration=true`, {
       headers: {
@@ -54,13 +62,17 @@ export async function GET(
 
     const data = await res.json();
 
-    return NextResponse.json<DiscordServerData>({
+    const result: DiscordServerData = {
       code: data.code || cleanCode,
       guild: data.guild || null,
       approximate_member_count: data.approximate_member_count || 0,
       approximate_presence_count: data.approximate_presence_count || 0,
       inviter: data.inviter || null,
-    });
+    };
+
+    await writeWidgetCache(cacheKey, result);
+
+    return NextResponse.json<DiscordServerData>(result);
   } catch (err) {
     console.error("[Discord Invite API Error]", err);
     return NextResponse.json({ ok: false, error: "Internal Server Error" }, { status: 500 });

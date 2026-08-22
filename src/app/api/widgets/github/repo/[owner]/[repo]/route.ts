@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 export interface GitHubRepoData {
   full_name: string;
@@ -27,6 +28,12 @@ export async function GET(
 
     if (!cleanOwner || !cleanRepo) {
       return NextResponse.json({ error: "Invalid owner/repo format" }, { status: 400 });
+    }
+
+    const cacheKey = widgetCacheKey("github", "repo", cleanOwner, cleanRepo);
+    const cached = await readWidgetCache<GitHubRepoData>(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -69,6 +76,8 @@ export async function GET(
       description: data.description || null,
       html_url: data.html_url || `https://github.com/${cleanOwner}/${cleanRepo}`,
     };
+
+    await writeWidgetCache(cacheKey, result);
 
     return NextResponse.json(result);
   } catch (err) {

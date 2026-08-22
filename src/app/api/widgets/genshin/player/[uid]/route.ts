@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type GenshinPlayerData, getGenshinRegion, buildEnkaUiUrl } from "@/lib/genshin";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 /**
  * Enka.Network exposes the numeric game IDs (avatarId, nameCardId) in the live
@@ -46,7 +47,9 @@ async function fetchStoreJson<T>(name: string): Promise<T | null> {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/json",
       },
-      next: { revalidate: 60 * 60 * 12 },
+      // Freshness is owned by the Redis cache in GET; caching here too would stack
+      // both windows and double the worst-case staleness.
+      cache: "no-store",
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -189,7 +192,10 @@ export async function GET(
       return NextResponse.json({ error: "Invalid Genshin Impact UID" }, { status: 400 });
     }
 
-    const data = await fetchGenshinPlayerData(cleanUid);
+    const data = await withWidgetCache(
+      widgetCacheKey("genshin", "player", cleanUid),
+      () => fetchGenshinPlayerData(cleanUid)
+    );
     if (!data) {
       return NextResponse.json({ error: "Genshin player profile not found" }, { status: 404 });
     }

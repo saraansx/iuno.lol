@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { GenshinLogoIcon } from "@/components/profile/widgets/WidgetIcons";
 import { parseSpotifyIdentifier } from "@/lib/spotify";
+import { PLATFORM_WIDGET_TYPES, isPlatformFull } from "@/lib/widget-types";
 
 interface AddWidgetModalProps {
   isOpen: boolean;
@@ -11,19 +12,8 @@ interface AddWidgetModalProps {
   onAdd: (widget: { platform: string; type: string; useLinked: boolean; customId: string }) => void;
   linkedDiscordId?: string | null;
   linkedDiscordUsername?: string | null;
-  hasPresenceWidget?: boolean;
-  hasServerWidget?: boolean;
-  hasGitHubUserWidget?: boolean;
-  hasGitHubRepoWidget?: boolean;
-  hasPinterestProfileWidget?: boolean;
-  hasPinterestBoardWidget?: boolean;
-  hasValorantWidget?: boolean;
-  hasSteamWidget?: boolean;
-  hasGenshinWidget?: boolean;
-  hasTwitchWidget?: boolean;
-  hasSpotifyWidget?: boolean;
-  hasInstagramWidget?: boolean;
-  hasTikTokWidget?: boolean;
+  /** Canonical widget types already present on the profile. Each is limited to one. */
+  usedTypes?: string[];
 }
 
 const PLATFORMS = [
@@ -54,21 +44,18 @@ export default function AddWidgetModal({
   onAdd,
   linkedDiscordId,
   linkedDiscordUsername,
-  hasPresenceWidget = false,
-  hasServerWidget = false,
-  hasGitHubUserWidget = false,
-  hasGitHubRepoWidget = false,
-  hasPinterestProfileWidget = false,
-  hasPinterestBoardWidget = false,
-  hasValorantWidget = false,
-  hasSteamWidget = false,
-  hasGenshinWidget = false,
-  hasTwitchWidget = false,
-  hasSpotifyWidget = false,
-  hasInstagramWidget = false,
-  hasTikTokWidget = false,
+  usedTypes = [],
 }: AddWidgetModalProps) {
-  const [selectedPlatform, setSelectedPlatform] = useState("discord");
+  const isTypeUsed = (type: string) => usedTypes.includes(type);
+
+  const hasPresenceWidget = isTypeUsed("presence");
+  const hasServerWidget = isTypeUsed("server");
+  const hasGitHubUserWidget = isTypeUsed("github-user");
+  const hasGitHubRepoWidget = isTypeUsed("github-repo");
+  const hasPinterestProfileWidget = isTypeUsed("pinterest-profile");
+  const hasPinterestBoardWidget = isTypeUsed("pinterest-board");
+
+  const [platformChoice, setPlatformChoice] = useState<string | null>(null);
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
   const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
   const [customDiscordId, setCustomDiscordId] = useState("");
@@ -90,36 +77,41 @@ export default function AddWidgetModal({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
-  const defaultWidgetType =
-    selectedPlatform === "discord"
-      ? hasPresenceWidget && !hasServerWidget
-        ? "server"
-        : "presence"
-      : selectedPlatform === "instagram"
-      ? "instagram-profile"
-      : selectedPlatform === "tiktok"
-      ? "tiktok-profile"
-      : selectedPlatform === "spotify"
-      ? "spotify-track"
-      : selectedPlatform === "twitch"
-      ? "twitch-channel"
-      : selectedPlatform === "github"
-      ? hasGitHubUserWidget && !hasGitHubRepoWidget
-        ? "github-repo"
-        : "github-user"
-      : selectedPlatform === "pinterest"
-      ? hasPinterestProfileWidget && !hasPinterestBoardWidget
-        ? "pinterest-board"
-        : "pinterest-profile"
-      : selectedPlatform === "valorant"
-      ? "valorant-profile"
-      : selectedPlatform === "steam"
-      ? "steam-profile"
-      : selectedPlatform === "genshin"
-      ? "genshin-profile"
-      : "presence";
+  // First platform that still has a free type, used as the fallback so the modal
+  // never opens on (or stays stuck on) a fully-used platform.
+  const firstOpenPlatform =
+    PLATFORMS.find(
+      (p) => PLATFORM_WIDGET_TYPES[p.id] && !isPlatformFull(p.id, usedTypes)
+    )?.id || "discord";
 
-  const widgetType = customWidgetType || defaultWidgetType;
+  const selectedPlatform =
+    platformChoice && !isPlatformFull(platformChoice, usedTypes)
+      ? platformChoice
+      : firstOpenPlatform;
+
+  const setSelectedPlatform = (platform: string) => {
+    setPlatformChoice(platform);
+    // Drop any sub-type picked for the previous platform.
+    setCustomWidgetType(null);
+  };
+
+  const platformTypes = PLATFORM_WIDGET_TYPES[selectedPlatform] || [];
+
+  // Default to the first type this platform still has available, so a platform
+  // with one type taken (e.g. Discord presence) lands on the free one (server).
+  const defaultWidgetType =
+    platformTypes.find((type) => !isTypeUsed(type)) || platformTypes[0] || "presence";
+
+  // Ignore a manually picked type that doesn't belong to the current platform or
+  // is already taken — otherwise switching platforms leaves a stale sub-type
+  // selected and no input section renders.
+  const widgetType =
+    customWidgetType &&
+    platformTypes.includes(customWidgetType) &&
+    !isTypeUsed(customWidgetType)
+      ? customWidgetType
+      : defaultWidgetType;
+
   const setWidgetType = (t: string) => setCustomWidgetType(t);
 
   useEffect(() => {
@@ -195,63 +187,50 @@ export default function AddWidgetModal({
     ? genshinUid.trim()
     : "";
 
-  const isFormatValid = isDiscord
-    ? isPresence
-      ? hasPresenceWidget
-        ? false
-        : useLinkedAccount
-        ? Boolean(linkedDiscordId)
-        : /^\d{17,20}$/.test(customDiscordId.trim())
-      : hasServerWidget
-      ? false
-      : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
-    : isInstagram
-    ? hasInstagramWidget
-      ? false
-      : /^[a-zA-Z0-9_.-]{1,30}$/.test(instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, ""))
-    : isTikTok
-    ? hasTikTokWidget
-      ? false
-      : /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
-    : isSpotify
-    ? hasSpotifyWidget
-      ? false
-      : spotifyInput.trim().length >= 3
-    : isTwitch
-    ? hasTwitchWidget
-      ? false
-      : /^[a-zA-Z0-9_]{3,25}$/.test(twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, ""))
-    : isGitHub
-    ? isGitHubUser
-      ? hasGitHubUserWidget
-        ? false
-        : /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(githubUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, ""))
-      : hasGitHubRepoWidget
-      ? false
-      : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/").length === 2 &&
-        Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[0]) &&
-        Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[1])
-    : isPinterest
-    ? isPinterestProfile
-      ? hasPinterestProfileWidget
-        ? false
-        : /^[a-zA-Z0-9_]{1,30}$/.test(pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, ""))
-      : hasPinterestBoardWidget
-      ? false
-      : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
-    : isValorant
-    ? hasValorantWidget
-      ? false
-      : /^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(valorantId.trim())
-    : isSteam
-    ? hasSteamWidget
-      ? false
-      : steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "").length >= 2
-    : isGenshin
-    ? hasGenshinWidget
-      ? false
-      : /^[1-9][0-9]{8,9}$/.test(genshinUid.trim())
-    : false;
+  // For Spotify the pasted link/URI can resolve to a different sub-type than the
+  // dropdown selection, so the limit has to be checked against the resolved type.
+  const resolvedSpotifyType = isSpotify
+    ? (() => {
+        const parsed = parseSpotifyIdentifier(spotifyInput.trim());
+        return parsed.type ? `spotify-${parsed.type}` : widgetType;
+      })()
+    : widgetType;
+
+  const isTargetTypeAvailable = !isTypeUsed(resolvedSpotifyType);
+
+  const isFormatValid =
+    isTargetTypeAvailable &&
+    (isDiscord
+      ? isPresence
+        ? useLinkedAccount
+          ? Boolean(linkedDiscordId)
+          : /^\d{17,20}$/.test(customDiscordId.trim())
+        : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
+      : isInstagram
+      ? /^[a-zA-Z0-9_.-]{1,30}$/.test(instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, ""))
+      : isTikTok
+      ? /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
+      : isSpotify
+      ? spotifyInput.trim().length >= 3
+      : isTwitch
+      ? /^[a-zA-Z0-9_]{3,25}$/.test(twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, ""))
+      : isGitHub
+      ? isGitHubUser
+        ? /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(githubUsername.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, ""))
+        : githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/").length === 2 &&
+          Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[0]) &&
+          Boolean(githubRepo.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "").split("/")[1])
+      : isPinterest
+      ? isPinterestProfile
+        ? /^[a-zA-Z0-9_]{1,30}$/.test(pinterestUsername.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, ""))
+        : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
+      : isValorant
+      ? /^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(valorantId.trim())
+      : isSteam
+      ? steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "").length >= 2
+      : isGenshin
+      ? /^[1-9][0-9]{8,9}$/.test(genshinUid.trim())
+      : false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -457,18 +436,26 @@ export default function AddWidgetModal({
             {isPlatformDropdownOpen && (
               <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5 max-h-[308px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
                 {PLATFORMS.map((platform) => {
+                  const isFull =
+                    Boolean(PLATFORM_WIDGET_TYPES[platform.id]) &&
+                    isPlatformFull(platform.id, usedTypes);
+
                   return (
                     <button
                       key={platform.id}
                       type="button"
+                      disabled={isFull}
                       onClick={() => {
+                        if (isFull) return;
                         setSelectedPlatform(platform.id);
                         setIsPlatformDropdownOpen(false);
                       }}
-                      className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${
-                        selectedPlatform === platform.id
-                          ? "bg-white/10 text-white font-normal"
-                          : "text-white/50 hover:bg-white/5 hover:text-white"
+                      className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                        isFull
+                          ? "opacity-30 cursor-not-allowed text-white/30"
+                          : selectedPlatform === platform.id
+                          ? "bg-white/10 text-white font-normal cursor-pointer"
+                          : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
@@ -513,9 +500,11 @@ export default function AddWidgetModal({
                         ) : null}
                         <span>{platform.name}</span>
                       </div>
-                      {selectedPlatform === platform.id && (
+                      {isFull ? (
+                        <span className="text-[11px] text-white/30">Added</span>
+                      ) : selectedPlatform === platform.id ? (
                         <span className="w-1.5 h-1.5 rounded-full bg-[#609fda]" />
-                      )}
+                      ) : null}
                     </button>
                   );
                 })}
@@ -596,26 +585,36 @@ export default function AddWidgetModal({
 
                 {isSpotifyTypeDropdownOpen && (
                   <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
-                    {SPOTIFY_TYPES.map((typeOption) => (
-                      <button
-                        key={typeOption.id}
-                        type="button"
-                        onClick={() => {
-                          setWidgetType(typeOption.id);
-                          setIsSpotifyTypeDropdownOpen(false);
-                        }}
-                        className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors cursor-pointer ${
-                          widgetType === typeOption.id
-                            ? "bg-white/10 text-white font-normal"
-                            : "text-white/50 hover:bg-white/5 hover:text-white"
-                        }`}
-                      >
-                        <span>{typeOption.name}</span>
-                        {widgetType === typeOption.id && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#1ED760]" />
-                        )}
-                      </button>
-                    ))}
+                    {SPOTIFY_TYPES.map((typeOption) => {
+                      const isUsed = isTypeUsed(typeOption.id);
+
+                      return (
+                        <button
+                          key={typeOption.id}
+                          type="button"
+                          disabled={isUsed}
+                          onClick={() => {
+                            if (isUsed) return;
+                            setWidgetType(typeOption.id);
+                            setIsSpotifyTypeDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                            isUsed
+                              ? "opacity-30 cursor-not-allowed text-white/30"
+                              : widgetType === typeOption.id
+                              ? "bg-white/10 text-white font-normal cursor-pointer"
+                              : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
+                          }`}
+                        >
+                          <span>{typeOption.name}</span>
+                          {isUsed ? (
+                            <span className="text-[11px] text-white/30">Added</span>
+                          ) : widgetType === typeOption.id ? (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#1ED760]" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>

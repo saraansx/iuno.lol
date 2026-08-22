@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 
-const CACHE_TTL_SECONDS = 900;
+const CACHE_TTL_SECONDS = 3600;
 const FETCH_BUDGET_MS = 22000;
 const UA_WEB =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
@@ -46,6 +46,52 @@ function sleep(ms: number) {
 function getCsrfToken(cookie: string): string {
   const match = cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
   return match ? decodeURIComponent(match[1]) : "";
+}
+
+/**
+ * Set once the configured INSTAGRAM_COOKIE is rejected as suspended/checkpointed,
+ * so later requests skip the cookie instead of re-triggering the block. Resets on
+ * server restart, which is when a replacement cookie would be picked up anyway.
+ */
+let cookieIsBlocked = false;
+
+/**
+ * Reads a response as JSON, tolerating Instagram's anti-bot behaviour of replying
+ * with an HTML challenge page (or an empty body) under a 200 status.
+ */
+async function readJsonSafely<T>(res: Response, label: string): Promise<T | null> {
+  const text = await res.text();
+  const trimmed = text.trimStart();
+
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith("<")) {
+    console.error(
+      `[Instagram ${label}] Received an HTML challenge page instead of JSON (status ${res.status}).`
+    );
+    return null;
+  }
+
+  let json: (T & { message?: string; checkpoint_url?: string }) | null = null;
+  try {
+    json = JSON.parse(text) as T & { message?: string; checkpoint_url?: string };
+  } catch {
+    console.error(`[Instagram ${label}] Response was not valid JSON.`);
+    return null;
+  }
+
+  if (json?.message === "checkpoint_required" || json?.checkpoint_url) {
+    if (!cookieIsBlocked) {
+      cookieIsBlocked = true;
+      console.error(
+        "[Instagram Auth] INSTAGRAM_COOKIE is suspended or checkpointed. " +
+          "Falling back to anonymous requests — replace the cookie to restore authenticated access."
+      );
+    }
+    return null;
+  }
+
+  return json;
 }
 
 async function fetchWithRetry(
@@ -114,44 +160,47 @@ async function fetchViaWebProfileInfo(
   cookie: string,
   deadline: number
 ): Promise<InstagramUserData | null> {
+  const headers: Record<string, string> = {
+    "User-Agent": UA_WEB,
+    "X-IG-App-ID": IG_APP_ID,
+    Accept: "*/*",
+    Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
+  };
+  if (cookie) {
+    headers.Cookie = cookie;
+    headers["X-CSRFToken"] = getCsrfToken(cookie);
+  }
+
   const res = await fetchWithRetry(
     `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`,
-    {
-      "User-Agent": UA_WEB,
-      "X-IG-App-ID": IG_APP_ID,
-      "X-CSRFToken": getCsrfToken(cookie),
-      Cookie: cookie,
-      Accept: "*/*",
-      Referer: `https://www.instagram.com/${encodeURIComponent(username)}/`,
-    },
+    headers,
     8000,
     [1500, 3000],
     deadline
   );
 
-  if (!res || !res.ok) return null;
+  if (!res) return null;
 
-  try {
-    const json = (await res.json()) as { data?: { user?: WebProfileInfoUser } };
-    const user = json?.data?.user;
-    if (!user?.username) return null;
-    return {
-      username: user.username,
-      fullName: user.full_name || user.username,
-      biography: user.biography ?? "",
-      profilePicUrl: user.profile_pic_url || "",
-      profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
-      isVerified: Boolean(user.is_verified),
-      isPrivate: Boolean(user.is_private),
-      postsCount: user.edge_owner_to_timeline_media?.count ?? 0,
-      followersCount: user.edge_followed_by?.count ?? 0,
-      followingCount: user.edge_follow?.count ?? 0,
-      externalUrl: user.external_url || null,
-    };
-  } catch (err) {
-    console.error("[Instagram Web Profile Info Parse Error]", err);
-    return null;
-  }
+  const json = await readJsonSafely<{ data?: { user?: WebProfileInfoUser } }>(
+    res,
+    "Web Profile Info"
+  );
+  const user = json?.data?.user;
+  if (!user?.username) return null;
+
+  return {
+    username: user.username,
+    fullName: user.full_name || user.username,
+    biography: user.biography ?? "",
+    profilePicUrl: user.profile_pic_url || "",
+    profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
+    isVerified: Boolean(user.is_verified),
+    isPrivate: Boolean(user.is_private),
+    postsCount: user.edge_owner_to_timeline_media?.count ?? 0,
+    followersCount: user.edge_followed_by?.count ?? 0,
+    followingCount: user.edge_follow?.count ?? 0,
+    externalUrl: user.external_url || null,
+  };
 }
 
 async function fetchViaTopsearchAndInfo(
@@ -176,18 +225,14 @@ async function fetchViaTopsearchAndInfo(
     deadline
   );
 
-  if (res && res.ok) {
-    try {
-      const data = (await res.json()) as { users?: TopsearchItem[] };
-      const exact = (data.users || []).find(
-        (u) => u.user?.username?.toLowerCase() === username
-      );
-      topsearchUser = exact?.user || null;
-      if (topsearchUser) {
-        pkId = topsearchUser.pk || topsearchUser.id || topsearchUser.pk_id || null;
-      }
-    } catch (err) {
-      console.error("[Instagram Topsearch Parse Error]", err);
+  if (res) {
+    const data = await readJsonSafely<{ users?: TopsearchItem[] }>(res, "Topsearch");
+    const exact = (data?.users || []).find(
+      (u) => u.user?.username?.toLowerCase() === username
+    );
+    topsearchUser = exact?.user || null;
+    if (topsearchUser) {
+      pkId = topsearchUser.pk || topsearchUser.id || topsearchUser.pk_id || null;
     }
   }
 
@@ -213,19 +258,23 @@ async function fetchViaTopsearchAndInfo(
     deadline
   );
 
-  if (infoRes && infoRes.ok) {
-    try {
-      const infoData = await infoRes.json();
-      if (infoData?.user) {
-        followersCount = infoData.user.follower_count ?? 0;
-        followingCount = infoData.user.following_count ?? 0;
-        postsCount = infoData.user.media_count ?? 0;
-        biography = infoData.user.biography ?? "";
-        user = { ...user, ...infoData.user };
-        statsVerified = true;
-      }
-    } catch (err) {
-      console.error("[Instagram User Info Parse Error]", err);
+  if (infoRes) {
+    const infoData = await readJsonSafely<{
+      user?: TopsearchUserObj & {
+        follower_count?: number;
+        following_count?: number;
+        media_count?: number;
+        biography?: string;
+      };
+    }>(infoRes, "User Info");
+
+    if (infoData?.user) {
+      followersCount = infoData.user.follower_count ?? 0;
+      followingCount = infoData.user.following_count ?? 0;
+      postsCount = infoData.user.media_count ?? 0;
+      biography = infoData.user.biography ?? "";
+      user = { ...user, ...infoData.user };
+      statsVerified = true;
     }
   }
 
@@ -283,15 +332,24 @@ export async function fetchInstagramUserData(
 
   const deadline = Date.now() + FETCH_BUDGET_MS;
   const cookie = process.env.INSTAGRAM_COOKIE;
+  const useCookie = Boolean(cookie) && !cookieIsBlocked;
 
   let data: InstagramUserData | null = null;
-  if (cookie) {
+
+  if (useCookie && cookie) {
     data = await fetchViaWebProfileInfo(username, cookie, deadline);
-    if (!data) {
+    if (!data && !cookieIsBlocked) {
       await sleep(1000 + Math.floor(Math.random() * 500));
       data = await fetchViaTopsearchAndInfo(username, cookie, deadline);
     }
   }
+
+  // Anonymous request: works for public profiles and is the only path left when the
+  // configured cookie is suspended/checkpointed.
+  if (!data) {
+    data = await fetchViaWebProfileInfo(username, "", deadline);
+  }
+
   if (!data) {
     data = await fetchViaWorkerProxy(username);
   }

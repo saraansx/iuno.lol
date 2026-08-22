@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type TikTokUserData, cleanTikTokUsername } from "@/lib/tiktok";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 const CRAWLER_HEADERS = {
   "User-Agent":
@@ -29,7 +30,9 @@ export async function fetchTikTokUserData(
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
       headers: BROWSER_HEADERS,
-      next: { revalidate: 3600 },
+      // Freshness is owned by the Redis cache in GET; caching here too would stack
+      // both windows and double the worst-case staleness.
+      cache: "no-store",
     });
 
     if (res.ok) {
@@ -168,7 +171,8 @@ export async function fetchTikTokUserData(
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
       headers: CRAWLER_HEADERS,
-      next: { revalidate: 3600 },
+      // Freshness is owned by the Redis cache in GET (see note above).
+      cache: "no-store",
     });
 
     if (res.ok) {
@@ -245,7 +249,10 @@ export async function GET(
       );
     }
 
-    const data = await fetchTikTokUserData(cleanUsername);
+    const data = await withWidgetCache(
+      widgetCacheKey("tiktok", "user", cleanUsername),
+      () => fetchTikTokUserData(cleanUsername)
+    );
     if (!data) {
       return NextResponse.json(
         { error: "TikTok profile not found" },

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 export interface SteamUserData {
   steamid: string;
@@ -409,7 +410,10 @@ export async function GET(
       return NextResponse.json({ error: "Steam ID or vanity name required" }, { status: 400 });
     }
 
-    const data = await fetchSteamUserData(cleanId);
+    const data = await withWidgetCache(
+      widgetCacheKey("steam", "user", cleanId),
+      () => fetchSteamUserData(cleanId)
+    );
     if (!data) {
       return NextResponse.json({ error: "Steam profile not found" }, { status: 404 });
     }

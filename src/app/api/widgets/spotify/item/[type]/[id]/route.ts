@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type SpotifyItemData } from "@/lib/spotify";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
@@ -148,7 +149,9 @@ export async function fetchSpotifyItem(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      next: { revalidate: 3600 },
+      // Freshness is owned by the Redis cache in GET; caching here too would stack
+      // both windows and double the worst-case staleness.
+      cache: "no-store",
     });
 
     if (!res.ok && type !== "user") {
@@ -209,7 +212,8 @@ export async function fetchSpotifyItem(
         try {
           const embedRes = await fetch(`https://open.spotify.com/embed/playlist/${encodeURIComponent(data.id)}`, {
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-            next: { revalidate: 3600 },
+            // Freshness is owned by the Redis cache in GET (see note above).
+            cache: "no-store",
           });
           if (embedRes.ok) {
             const html = await embedRes.text();
@@ -249,7 +253,8 @@ export async function fetchSpotifyItem(
       try {
         const artistPageRes = await fetch(`https://open.spotify.com/artist/${encodeURIComponent(data.id)}`, {
           headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-          next: { revalidate: 3600 },
+          // Freshness is owned by the Redis cache in GET (see note above).
+          cache: "no-store",
         });
         if (artistPageRes.ok) {
           const html = await artistPageRes.text();
@@ -308,7 +313,8 @@ export async function fetchSpotifyItem(
         try {
           const userPageRes = await fetch(`https://open.spotify.com/user/${encodeURIComponent(id)}`, {
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-            next: { revalidate: 3600 },
+            // Freshness is owned by the Redis cache in GET (see note above).
+            cache: "no-store",
           });
           if (userPageRes.ok) {
             const html = await userPageRes.text();
@@ -379,7 +385,15 @@ export async function GET(
       );
     }
 
-    const data = await fetchSpotifyItem(cleanType as "track" | "album" | "playlist" | "artist" | "user", cleanId);
+    // Keyed on type + id so each Spotify sub-type caches independently.
+    const data = await withWidgetCache(
+      widgetCacheKey("spotify", cleanType, cleanId),
+      () =>
+        fetchSpotifyItem(
+          cleanType as "track" | "album" | "playlist" | "artist" | "user",
+          cleanId
+        )
+    );
     if (!data) {
       return NextResponse.json(
         { ok: false, error: `Spotify ${cleanType} not found` },

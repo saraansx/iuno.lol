@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 export interface PinterestBoardData {
   username: string;
@@ -203,7 +204,10 @@ export async function GET(
       return NextResponse.json({ error: "Invalid username or board" }, { status: 400 });
     }
 
-    const result = await fetchPinterestBoardData(cleanUsername, cleanBoard);
+    const result = await withWidgetCache(
+      widgetCacheKey("pinterest", "board", cleanUsername, cleanBoard),
+      () => fetchPinterestBoardData(cleanUsername, cleanBoard)
+    );
     if (!result) {
       return NextResponse.json({ error: "Pinterest board not found" }, { status: 404 });
     }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 export { getRankIconUrl, getAgentIconUrl, getMapSplashUrl };
 
@@ -227,7 +228,10 @@ export async function GET(
       return NextResponse.json({ error: "Invalid Riot ID" }, { status: 400 });
     }
 
-    const data = await fetchValorantPlayerData(cleanName, cleanTag);
+    const data = await withWidgetCache(
+      widgetCacheKey("valorant", "player", cleanName, cleanTag),
+      () => fetchValorantPlayerData(cleanName, cleanTag)
+    );
     if (!data) {
       return NextResponse.json({ error: "Valorant player not found" }, { status: 404 });
     }
