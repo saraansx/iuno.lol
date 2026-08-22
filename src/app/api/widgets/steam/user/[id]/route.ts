@@ -6,7 +6,6 @@ export interface SteamUserData {
   personaname: string;
   profileurl: string;
   avatar: string;
-  avatarmedium: string;
   avatarfull: string;
   avatarframe?: string | null;
   animated_avatar?: string | null;
@@ -375,7 +374,6 @@ export async function fetchSteamUserData(cleanInput: string): Promise<SteamUserD
     personaname: personaname || normalized,
     profileurl: profileurl || `https://steamcommunity.com/id/${normalized}/`,
     avatar,
-    avatarmedium: avatar,
     avatarfull: avatar,
     avatarframe: avatarframe || null,
     animated_avatar: animatedAvatar || null,

@@ -192,8 +192,9 @@ async function fetchViaWebProfileInfo(
     username: user.username,
     fullName: user.full_name || user.username,
     biography: user.biography ?? "",
-    profilePicUrl: user.profile_pic_url || "",
-    profilePicUrlHd: user.profile_pic_url_hd || user.profile_pic_url || "",
+    // profilePicUrlHd is intentionally omitted: no widget reads it, and Instagram's
+    // CDN URLs are ~570B each, so caching a second copy nearly doubled the payload.
+    profilePicUrl: user.profile_pic_url_hd || user.profile_pic_url || "",
     isVerified: Boolean(user.is_verified),
     isPrivate: Boolean(user.is_private),
     postsCount: user.edge_owner_to_timeline_media?.count ?? 0,
@@ -286,8 +287,8 @@ async function fetchViaTopsearchAndInfo(
     username: user.username || username,
     fullName: user.full_name || username,
     biography,
+    // profilePicUrlHd omitted — see note in fetchViaWebProfileInfo.
     profilePicUrl: user.profile_pic_url || "",
-    profilePicUrlHd: user.profile_pic_url || "",
     isVerified: Boolean(user.is_verified),
     isPrivate: Boolean(user.is_private),
     postsCount,

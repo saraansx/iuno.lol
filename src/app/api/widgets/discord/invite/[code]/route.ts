@@ -14,7 +14,6 @@ export interface DiscordServerData {
     banner: string | null;
     splash: string | null;
     description: string | null;
-    features: string[];
     verification_level: number;
     vanity_url_code: string | null;
   } | null;
@@ -62,9 +61,24 @@ export async function GET(
 
     const data = await res.json();
 
+    // Map guild fields explicitly instead of storing Discord's raw object — that
+    // passthrough cached ~650B of unused `features` plus undeclared nsfw/premium fields.
+    const guild = data.guild
+      ? {
+          id: data.guild.id,
+          name: data.guild.name,
+          icon: data.guild.icon ?? null,
+          banner: data.guild.banner ?? null,
+          splash: data.guild.splash ?? null,
+          description: data.guild.description ?? null,
+          verification_level: Number(data.guild.verification_level ?? 0),
+          vanity_url_code: data.guild.vanity_url_code ?? null,
+        }
+      : null;
+
     const result: DiscordServerData = {
       code: data.code || cleanCode,
-      guild: data.guild || null,
+      guild,
       approximate_member_count: data.approximate_member_count || 0,
       approximate_presence_count: data.approximate_presence_count || 0,
       inviter: data.inviter || null,
