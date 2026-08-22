@@ -13,9 +13,9 @@ interface UseInstagramUserReturn {
 
 export function useInstagramUser(
   username: string | undefined | null,
-  options: { enabled?: boolean; refetchInterval?: number } = {}
+  options: { enabled?: boolean; refetchInterval?: number; debounceMs?: number } = {}
 ): UseInstagramUserReturn {
-  const { enabled = true, refetchInterval } = options;
+  const { enabled = true, refetchInterval, debounceMs = 600 } = options;
   const [user, setUser] = useState<InstagramUserData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(Boolean(username && enabled));
   const [isError, setIsError] = useState<boolean>(false);
@@ -24,8 +24,19 @@ export function useInstagramUser(
 
   const cleanUsername = cleanInstagramUsername(username || "").toLowerCase();
 
+  const [debouncedUsername, setDebouncedUsername] = useState(cleanUsername);
+
   useEffect(() => {
-    if (!cleanUsername || !enabled) {
+    if (!cleanUsername) {
+      setDebouncedUsername("");
+      return;
+    }
+    const timer = setTimeout(() => setDebouncedUsername(cleanUsername), debounceMs);
+    return () => clearTimeout(timer);
+  }, [cleanUsername, debounceMs]);
+
+  useEffect(() => {
+    if (!debouncedUsername || !enabled) {
       setUser(null);
       setIsLoading(false);
       setIsError(false);
@@ -42,7 +53,7 @@ export function useInstagramUser(
     async function fetchData() {
       try {
         const res = await fetch(
-          `/api/widgets/instagram/user/${encodeURIComponent(cleanUsername)}`
+          `/api/widgets/instagram/user/${encodeURIComponent(debouncedUsername)}`
         );
         const data = await res.json();
 
@@ -80,7 +91,7 @@ export function useInstagramUser(
       isMounted = false;
       if (timer) clearInterval(timer);
     };
-  }, [cleanUsername, enabled, trigger, refetchInterval]);
+  }, [debouncedUsername, enabled, trigger, refetchInterval]);
 
   return {
     user,
