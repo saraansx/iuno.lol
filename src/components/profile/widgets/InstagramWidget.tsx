@@ -15,9 +15,7 @@ import OverflowPingPong from "./OverflowPingPong";
 
 export default function InstagramWidget({ widget }: { widget: WidgetItem }) {
   const cleanUsername = cleanInstagramUsername(widget.targetId || "").toLowerCase();
-  const { user, isLoading } = useInstagramUser(cleanUsername, {
-    refetchInterval: 60000,
-  });
+  const { user, isLoading } = useInstagramUser(cleanUsername);
 
   const imageShape = widget.imageShape || "rounded";
   const showFollowers =
@@ -53,9 +51,7 @@ export default function InstagramWidget({ widget }: { widget: WidgetItem }) {
     );
   }
 
-  const avatarSrc = user.profilePicUrl
-    ? `/api/widgets/instagram/image?url=${encodeURIComponent(user.profilePicUrl)}`
-    : null;
+  const avatarSrc = user.profilePicUrl || null;
 
   const bgSrc = showBackground ? avatarSrc : null;
 
