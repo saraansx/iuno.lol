@@ -7,12 +7,14 @@ import { discordOAuthRateLimit } from '@/lib/rate-limit'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
+import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
 // ── Exchange code for access token ─────────────────────────────────────────
 async function exchangeCode(code: string): Promise<string> {
   const res = await fetch(`${DISCORD_API}/oauth2/token`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
@@ -36,6 +38,7 @@ async function exchangeCode(code: string): Promise<string> {
 // ── Fetch Discord user info ────────────────────────────────────────────────
 async function fetchDiscordUser(accessToken: string) {
   const res = await fetch(`${DISCORD_API}/users/@me`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     headers: { Authorization: `Bearer ${accessToken}` },
   })
 
@@ -56,6 +59,7 @@ async function addUserToGuild(discordUserId: string, accessToken: string) {
   const botToken = process.env.DISCORD_BOT_TOKEN!
 
   const res = await fetch(`${DISCORD_API}/guilds/${guildId}/members/${discordUserId}`, {
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     method: 'PUT',
     headers: {
       Authorization:  `Bot ${botToken}`,

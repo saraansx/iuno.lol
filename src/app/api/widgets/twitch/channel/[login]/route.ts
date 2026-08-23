@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type TwitchChannelData } from "@/lib/twitch";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const TWITCH_GQL_URL = "https://gql.twitch.tv/gql";
 const TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
@@ -60,6 +61,7 @@ export async function fetchTwitchChannelData(
 
   try {
     const res = await fetch(TWITCH_GQL_URL, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       method: "POST",
       headers: {
         "Client-Id": TWITCH_CLIENT_ID,

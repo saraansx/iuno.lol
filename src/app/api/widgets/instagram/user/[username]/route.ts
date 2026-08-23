@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-const CACHE_TTL_SECONDS = 3600;
-const FETCH_TIMEOUT_MS = 8000;
+const CACHE_TTL_SECONDS = 86400; // 24 hours
 
 async function readCache(username: string): Promise<InstagramUserData | null> {
   try {

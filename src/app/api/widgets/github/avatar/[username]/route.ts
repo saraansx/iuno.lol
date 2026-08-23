@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export async function GET(
   _req: NextRequest,
@@ -17,13 +18,17 @@ export async function GET(
         "User-Agent": "Mozilla/5.0 (compatible; iuno-avatar-proxy/1.0)",
       },
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
     if (!res.ok) {
       return new NextResponse(null, { status: res.status });
     }
 
-    const buffer = await res.arrayBuffer();
+    const buffer = await readImageWithLimit(res);
+    if (!buffer) {
+      return new NextResponse(null, { status: 413 });
+    }
     const contentType = res.headers.get("content-type") || "image/png";
 
     return new NextResponse(buffer, {

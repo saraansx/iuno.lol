@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export async function GET(req: NextRequest) {
   try {
@@ -40,6 +41,7 @@ export async function GET(req: NextRequest) {
         Referer: "https://www.instagram.com/",
       },
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -47,7 +49,10 @@ export async function GET(req: NextRequest) {
     }
 
     const contentType = res.headers.get("content-type") || "image/jpeg";
-    const buffer = await res.arrayBuffer();
+    const buffer = await readImageWithLimit(res);
+    if (!buffer) {
+      return new NextResponse(null, { status: 413 });
+    }
 
     return new NextResponse(buffer, {
       headers: {

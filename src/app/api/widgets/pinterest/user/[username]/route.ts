@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface PinterestUserData {
   username: string;
@@ -28,6 +29,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
 
   try {
     const res = await fetch(resourceUrl, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -70,6 +72,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
   // 2. Fetch User RSS feed for latest pin image
   try {
     const rssRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/feed.rss`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -100,6 +103,7 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
   if (!fetched) {
     try {
       const htmlRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

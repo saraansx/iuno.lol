@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type SpotifyItemData } from "@/lib/spotify";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
@@ -105,6 +106,7 @@ async function getSpotifyAccessToken(): Promise<string | null> {
   try {
     const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
     const res = await fetch("https://accounts.spotify.com/api/token", {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       method: "POST",
       headers: {
         Authorization: `Basic ${authHeader}`,
@@ -146,6 +148,7 @@ export async function fetchSpotifyItem(
     const endpointType = type === "user" ? "users" : `${type}s`;
     const endpoint = `https://api.spotify.com/v1/${endpointType}/${encodeURIComponent(id)}`;
     const res = await fetch(endpoint, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -211,6 +214,7 @@ export async function fetchSpotifyItem(
       if (trackCount === 0) {
         try {
           const embedRes = await fetch(`https://open.spotify.com/embed/playlist/${encodeURIComponent(data.id)}`, {
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
             // Freshness is owned by the Redis cache in GET (see note above).
             cache: "no-store",
@@ -252,6 +256,7 @@ export async function fetchSpotifyItem(
       // Spotify API client credentials flow omits followers and listeners on /v1/artists/{id}
       try {
         const artistPageRes = await fetch(`https://open.spotify.com/artist/${encodeURIComponent(data.id)}`, {
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
           // Freshness is owned by the Redis cache in GET (see note above).
           cache: "no-store",
@@ -312,6 +317,7 @@ export async function fetchSpotifyItem(
         // Spotify Web API client credentials flow returns 404/403 for /v1/users/{id}
         try {
           const userPageRes = await fetch(`https://open.spotify.com/user/${encodeURIComponent(id)}`, {
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
             // Freshness is owned by the Redis cache in GET (see note above).
             cache: "no-store",

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export { getRankIconUrl, getAgentIconUrl, getMapSplashUrl };
 
@@ -94,6 +95,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   // 1. Fetch Account Details (v1/account)
   try {
     const accRes = await fetch(`https://api.henrikdev.xyz/valorant/v1/account/${encodedName}/${encodedTag}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers,
       cache: "no-store",
     });
@@ -118,6 +120,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   // 2. Fetch MMR Data (v2/mmr or v1/mmr)
   try {
     const mmrRes = await fetch(`https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodedName}/${encodedTag}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers,
       cache: "no-store",
     });
@@ -148,6 +151,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   // 3. Fetch Matches for Last Played Agent & Map (v3/matches)
   try {
     const matchesRes = await fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region}/${encodedName}/${encodedTag}?size=5`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers,
       cache: "no-store",
     });

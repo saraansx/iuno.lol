@@ -1,3 +1,5 @@
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+
 interface TurnstileVerifyResponse {
   success: boolean;
   "error-codes": string[];
@@ -23,6 +25,7 @@ export async function verifyTurnstileToken(token: string, ip?: string): Promise<
     }
 
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       method: "POST",
       body: formData,
     });

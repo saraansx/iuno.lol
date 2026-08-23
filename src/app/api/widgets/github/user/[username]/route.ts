@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface GitHubUserData {
   login: string;
@@ -36,6 +37,7 @@ export async function GET(
     }
 
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(cleanUsername)}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/vnd.github.v3+json",

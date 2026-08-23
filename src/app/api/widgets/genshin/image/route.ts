@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,6 +34,7 @@ export async function GET(req: NextRequest) {
         Referer: "https://enka.network/",
       },
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
     if (!res.ok) {
@@ -40,7 +42,10 @@ export async function GET(req: NextRequest) {
     }
 
     const contentType = res.headers.get("content-type") || "image/png";
-    const buffer = await res.arrayBuffer();
+    const buffer = await readImageWithLimit(res);
+    if (!buffer) {
+      return new NextResponse(null, { status: 413 });
+    }
 
     return new NextResponse(buffer, {
       headers: {

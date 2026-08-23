@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const ALLOWED_HOSTS = [
   "tiktokcdn.com",
@@ -47,6 +48,7 @@ export async function GET(req: NextRequest) {
         Referer: "https://www.tiktok.com/",
         Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
       },
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
     if (!upstream.ok) {
@@ -57,7 +59,10 @@ export async function GET(req: NextRequest) {
     }
 
     const contentType = upstream.headers.get("content-type") || "image/jpeg";
-    const body = await upstream.arrayBuffer();
+    const body = await readImageWithLimit(upstream);
+    if (!body) {
+      return NextResponse.json({ error: "Image too large" }, { status: 413 });
+    }
 
     return new NextResponse(body, {
       status: 200,

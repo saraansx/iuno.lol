@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
 
       // Validate invite code via Discord API
       const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: { "User-Agent": "iuno-presence-proxy/1.0" },
         cache: "no-store",
       });
@@ -54,6 +56,7 @@ export async function POST(req: NextRequest) {
     const botToken = process.env.DISCORD_BOT_TOKEN;
     if (botToken) {
       const res = await fetch(`https://discord.com/api/v10/users/${id}`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: {
           Authorization: `Bot ${botToken}`,
           "User-Agent": "iuno-profile-widget/1.0",

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,6 +34,7 @@ export async function POST(req: NextRequest) {
 
       const [owner, repo] = parts;
       const res = await fetch(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers,
         cache: "no-store",
       });
@@ -71,6 +73,7 @@ export async function POST(req: NextRequest) {
     }
 
     const res = await fetch(`https://api.github.com/users/${encodeURIComponent(cleanUsername)}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers,
       cache: "no-store",
     });

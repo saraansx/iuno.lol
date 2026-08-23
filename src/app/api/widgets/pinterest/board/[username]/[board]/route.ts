@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface PinterestBoardData {
   username: string;
@@ -31,6 +32,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
 
   try {
     const res = await fetch(resourceUrl, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -79,6 +81,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
   // 2. Fetch Board RSS feed for pin images
   try {
     const rssRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/${encodeURIComponent(cleanBoard)}.rss`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -110,6 +113,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
   if (!fetched) {
     try {
       const htmlRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/${encodeURIComponent(cleanBoard)}/`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: {
           "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -137,6 +141,7 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
           JSON.stringify({ options: { username: cleanUsername } })
         )}`,
         {
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           headers: {
             "User-Agent":
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",

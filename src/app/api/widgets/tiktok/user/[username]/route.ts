@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type TikTokUserData, cleanTikTokUsername } from "@/lib/tiktok";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const CRAWLER_HEADERS = {
   "User-Agent":
@@ -29,6 +30,7 @@ export async function fetchTikTokUserData(
   try {
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: BROWSER_HEADERS,
       // Freshness is owned by the Redis cache in GET; caching here too would stack
       // both windows and double the worst-case staleness.
@@ -170,6 +172,7 @@ export async function fetchTikTokUserData(
   try {
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: CRAWLER_HEADERS,
       // Freshness is owned by the Redis cache in GET (see note above).
       cache: "no-store",

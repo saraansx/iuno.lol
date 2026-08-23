@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 // Responses are never statically cached by Next.js; freshness is controlled by the
 // Redis cache below (1 hour), so member counts can lag by up to that window.
@@ -45,6 +46,7 @@ export async function GET(
 
   try {
     const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true&with_expiration=true`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent": "iuno-presence-proxy/1.0",
       },

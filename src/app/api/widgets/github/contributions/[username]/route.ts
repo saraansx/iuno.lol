@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 interface ContributionsPayload {
   contributions: { date: string; count: number; level: number }[];
@@ -47,6 +48,7 @@ export async function GET(
     `;
 
     const res = await fetch("https://api.github.com/graphql", {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       method: "POST",
       headers: {
         "User-Agent": "iuno-profile-widget/1.0",

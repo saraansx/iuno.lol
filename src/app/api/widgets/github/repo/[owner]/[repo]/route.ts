@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface GitHubRepoData {
   full_name: string;
@@ -50,6 +51,7 @@ export async function GET(
           Authorization: `Bearer ${token}`,
         },
         cache: "no-store",
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       }
     );
 

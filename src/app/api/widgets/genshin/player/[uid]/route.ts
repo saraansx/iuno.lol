@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type GenshinPlayerData, getGenshinRegion, buildEnkaUiUrl } from "@/lib/genshin";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 /**
  * Enka.Network exposes the numeric game IDs (avatarId, nameCardId) in the live
@@ -43,6 +44,7 @@ let inflight: Promise<EnkaMaps | null> | null = null;
 async function fetchStoreJson<T>(name: string): Promise<T | null> {
   try {
     const res = await fetch(`${ENKA_STORE_BASE}/${name}.json`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/json",
@@ -126,6 +128,7 @@ export async function fetchGenshinPlayerData(
 
   try {
     const res = await fetch(`https://enka.network/api/uid/${cleanUid}?info`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/json",
