@@ -32,7 +32,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl font-poppins">
         <div className="bg-white/2 backdrop-blur-xl border border-white/8 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image src="/logo.png" alt="Iuno Logo" width={32} height={32} className="object-contain" priority />
+            <Image src="/logo.png" alt="Iuno Logo" width={28} height={28} className="object-contain" priority />
             <span className="font-light text-white tracking-tight text-lg uppercase">Iuno<span className="text-[#609fda] lowercase">.lol</span></span>
           </Link>
 
