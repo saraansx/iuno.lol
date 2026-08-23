@@ -26,7 +26,6 @@ const PLATFORMS = [
   { id: "github", name: "GitHub" },
   { id: "pinterest", name: "Pinterest" },
   { id: "valorant", name: "Valorant" },
-  { id: "steam", name: "Steam" },
   { id: "genshin", name: "Genshin Impact" },
 ];
 
@@ -69,7 +68,6 @@ export default function AddWidgetModal({
   const [pinterestUsername, setPinterestUsername] = useState("");
   const [pinterestBoard, setPinterestBoard] = useState("");
   const [valorantId, setValorantId] = useState("");
-  const [steamId, setSteamId] = useState("");
   const [genshinUid, setGenshinUid] = useState("");
   const [customWidgetType, setCustomWidgetType] = useState<string | null>(null);
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
@@ -148,7 +146,6 @@ export default function AddWidgetModal({
   const isGitHub = selectedPlatform === "github";
   const isPinterest = selectedPlatform === "pinterest";
   const isValorant = selectedPlatform === "valorant";
-  const isSteam = selectedPlatform === "steam";
   const isGenshin = selectedPlatform === "genshin";
   const isPresence = widgetType === "presence";
   const isServer = widgetType === "server";
@@ -181,8 +178,6 @@ export default function AddWidgetModal({
       : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "")
     : isValorant
     ? valorantId.trim()
-    : isSteam
-    ? steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "")
     : isGenshin
     ? genshinUid.trim()
     : "";
@@ -226,8 +221,6 @@ export default function AddWidgetModal({
         : pinterestBoard.trim().replace(/^https?:\/\/(www\.)?pinterest\.com\//i, "").replace(/\/$/, "").split("/").filter(Boolean).length >= 2
       : isValorant
       ? /^.{3,16}#[a-zA-Z0-9]{3,5}$/.test(valorantId.trim())
-      : isSteam
-      ? steamId.trim().replace(/^https?:\/\/(www\.)?steamcommunity\.com\/(id|profiles)\//i, "").replace(/\/$/, "").length >= 2
       : isGenshin
       ? /^[1-9][0-9]{8,9}$/.test(genshinUid.trim())
       : false);
@@ -308,14 +301,6 @@ export default function AddWidgetModal({
       });
       onClose();
     } else if (isValorant) {
-      onAdd({
-        platform: selectedPlatform,
-        type: widgetType,
-        useLinked: false,
-        customId: targetId,
-      });
-      onClose();
-    } else if (isSteam) {
       onAdd({
         platform: selectedPlatform,
         type: widgetType,
@@ -409,10 +394,6 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 100 100" fill="#FF4655">
                     <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
                   </svg>
-                ) : selectedPlatform === "steam" ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
-                    <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
-                  </svg>
                 ) : selectedPlatform === "genshin" ? (
                   <GenshinLogoIcon size={18} className="w-[18px] h-[18px] text-[#609fda] shrink-0" />
                 ) : null}
@@ -490,10 +471,6 @@ export default function AddWidgetModal({
                         ) : platform.id === "valorant" ? (
                           <svg width="16" height="16" viewBox="0 0 100 100" fill="#FF4655">
                             <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
-                          </svg>
-                        ) : platform.id === "steam" ? (
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
-                            <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
                           </svg>
                         ) : platform.id === "genshin" ? (
                           <GenshinLogoIcon size={16} className="w-4 h-4 text-[#609fda] shrink-0" />
@@ -966,25 +943,6 @@ export default function AddWidgetModal({
             </div>
             <p className="text-[11px] text-white/30 leading-normal mt-0.5">
               Your Riot ID in &apos;name#tag&apos; format (e.g. &apos;tenz#sen&apos;). Find it on your Riot account page.
-            </p>
-          </div>
-        )}
-
-        {isSteam && (
-          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
-            <label className="text-[12px] font-normal text-white/60">Steam ID or Vanity URL</label>
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
-              <input
-                type="text"
-                value={steamId}
-                onChange={(e) => setSteamId(e.target.value)}
-                placeholder="e.g. gabelogannewell or 76561197960287930"
-                maxLength={100}
-                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
-              />
-            </div>
-            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
-              Custom URL name, SteamID64, or full Steam profile link. Profile must be public.
             </p>
           </div>
         )}

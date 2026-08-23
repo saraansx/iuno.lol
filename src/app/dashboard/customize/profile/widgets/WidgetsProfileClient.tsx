@@ -55,13 +55,6 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.valorantRankStyle === target.valorantRankStyle &&
       item.showRR === target.showRR &&
       item.showLevel === target.showLevel &&
-      item.steamShowLevel === target.steamShowLevel &&
-      item.steamShowGames === target.steamShowGames &&
-      item.steamShowMemberSince === target.steamShowMemberSince &&
-      item.steamShowAvatarFrame === target.steamShowAvatarFrame &&
-      item.steamShowAnimatedAvatar === target.steamShowAnimatedAvatar &&
-      item.steamBackground === target.steamBackground &&
-      item.steamShowBackgroundImage === target.steamShowBackgroundImage &&
       item.genshinShowAr === target.genshinShowAr &&
       item.genshinShowWorldLevel === target.genshinShowWorldLevel &&
       item.genshinShowAchievements === target.genshinShowAchievements &&

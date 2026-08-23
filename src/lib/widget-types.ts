@@ -20,7 +20,6 @@ export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
   github: ["github-user", "github-repo"],
   pinterest: ["pinterest-profile", "pinterest-board"],
   valorant: ["valorant-profile"],
-  steam: ["steam-profile"],
   genshin: ["genshin-profile"],
 };
 

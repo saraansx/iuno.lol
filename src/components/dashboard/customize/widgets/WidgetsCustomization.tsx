@@ -49,13 +49,6 @@ export interface WidgetItem {
   valorantRankStyle?: 'name' | 'icon';
   showRR?: boolean;
   showLevel?: boolean;
-  steamShowLevel?: boolean;
-  steamShowGames?: boolean;
-  steamShowMemberSince?: boolean;
-  steamShowAvatarFrame?: boolean;
-  steamShowAnimatedAvatar?: boolean;
-  steamBackground?: 'none' | 'large' | 'small';
-  steamShowBackgroundImage?: boolean;
   genshinShowAr?: boolean;
   genshinShowWorldLevel?: boolean;
   genshinShowAchievements?: boolean;
@@ -197,10 +190,6 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/valorant?id=${encodeURIComponent(widget.customId)}`
       );
-    } else if (widget.platform === "steam") {
-      router.push(
-        `/dashboard/customize/profile/widgets/steam?id=${encodeURIComponent(widget.customId)}`
-      );
     } else if (widget.platform === "genshin") {
       router.push(
         `/dashboard/customize/profile/widgets/genshin?id=${encodeURIComponent(widget.customId)}`
@@ -271,12 +260,6 @@ export default function WidgetsCustomization({
     } else if (w.platform === "valorant") {
       router.push(
         `/dashboard/customize/profile/widgets/valorant?widgetId=${encodeURIComponent(
-          w.id
-        )}&id=${encodeURIComponent(w.targetId)}`
-      );
-    } else if (w.platform === "steam") {
-      router.push(
-        `/dashboard/customize/profile/widgets/steam?widgetId=${encodeURIComponent(
           w.id
         )}&id=${encodeURIComponent(w.targetId)}`
       );
@@ -412,10 +395,6 @@ export default function WidgetsCustomization({
                         <svg width="18" height="18" viewBox="0 0 100 100" fill="#FF4655">
                           <path d="M9.9 14.5L5.7 20.4v40.3l37.2 38.6h11.1L9.9 14.5zm84.4 0L57.1 66.8h17.2L94.3 35V14.5z" />
                         </svg>
-                      ) : w.platform === "steam" ? (
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
-                          <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
-                        </svg>
                       ) : w.platform === "twitch" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#9146FF">
                           <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
@@ -455,8 +434,6 @@ export default function WidgetsCustomization({
                             ? "Pinterest Board"
                             : w.type === "valorant-profile" || w.platform === "valorant"
                             ? "Valorant Profile"
-                            : w.type === "steam-profile" || w.platform === "steam"
-                            ? "Steam Profile"
                             : w.type === "twitch-channel" || w.platform === "twitch"
                             ? "Twitch Channel"
                             : w.type === "spotify-track"
