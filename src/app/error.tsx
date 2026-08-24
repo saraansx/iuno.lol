@@ -21,7 +21,7 @@ export default function Error({
   return (
     <div className="min-h-screen bg-transparent flex items-center justify-center px-4 font-poppins">
       <main className="flex flex-col items-center justify-center text-center max-w-md mx-auto w-full space-y-5 p-12 rounded-3xl bg-white/[0.02] backdrop-blur-[16px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]">
-        <Image src="/logo.png" alt="Iuno" width={40} height={40} className="object-contain" priority />
+        <Image src="/logo.png" alt="Iuno" width={209} height={221} className="w-10 h-auto object-contain" priority />
 
         <h1 className="text-white text-xl font-normal tracking-tight">
           Something went wrong

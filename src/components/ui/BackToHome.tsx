@@ -14,9 +14,9 @@ export default function BackToHome() {
       <Image
         src="/logo.png"
         alt="Iuno Logo"
-        width={26}
-        height={26}
-        className="object-contain group-hover:scale-105 transition-transform duration-200"
+        width={209}
+        height={221}
+        className="w-[26px] h-auto object-contain group-hover:scale-105 transition-transform duration-200"
         priority
       />
       <span className="font-light text-white tracking-tight text-base uppercase">

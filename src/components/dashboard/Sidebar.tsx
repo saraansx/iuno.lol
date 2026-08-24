@@ -59,7 +59,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
             href="/" 
             className={`absolute flex items-center hover:opacity-80 transition-all duration-300 whitespace-nowrap overflow-hidden ${open ? 'left-6 opacity-100' : 'left-6 opacity-0 pointer-events-none'}`}
           >
-            <Image src="/logo.png" alt="Iuno Logo" width={24} height={24} className="object-contain shrink-0" priority />
+            <Image src="/logo.png" alt="Iuno Logo" width={209} height={221} className="w-6 h-auto object-contain shrink-0" priority />
             <span className="font-normal text-white tracking-tight text-base uppercase whitespace-nowrap ml-1 overflow-hidden">
               Iuno<span className="text-[#609fda] lowercase">.lol</span>
             </span>

@@ -81,7 +81,7 @@ export default function SwapForm({
     <div className="w-full max-w-100 bg-white/2 backdrop-blur-[32px] border border-white/8 rounded-4xl p-6 md:p-7 flex flex-col items-center relative z-10 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)] overflow-hidden">
       {showChrome && (
         <Link href="/" className="mb-4 flex justify-center hover:opacity-80 transition-opacity">
-          <Image src="/logo.png" alt="Iuno Logo" width={48} height={48} className="object-contain" priority />
+          <Image src="/logo.png" alt="Iuno Logo" width={209} height={221} className="w-12 h-auto object-contain" priority />
         </Link>
       )}
 
