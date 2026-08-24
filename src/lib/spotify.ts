@@ -13,11 +13,8 @@ export interface SpotifyItemData {
   trackCount?: number | null;
   releaseYear?: string | null;
   ownerName?: string | null;
-  genres?: string[] | null;
   followersCount?: number | null;
   monthlyListeners?: number | null;
-  durationMs?: number | null;
-  previewUrl?: string | null;
 }
 
 export function parseSpotifyIdentifier(input: string): {

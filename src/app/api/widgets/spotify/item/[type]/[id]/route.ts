@@ -26,8 +26,6 @@ interface SpotifyTrackResponse {
     images?: SpotifyImage[];
     release_date?: string;
   };
-  duration_ms?: number;
-  preview_url?: string | null;
   external_urls?: {
     spotify?: string;
   };
@@ -68,7 +66,6 @@ interface SpotifyArtistResponse {
   id: string;
   name: string;
   images?: SpotifyImage[];
-  genres?: string[];
   followers?: {
     total?: number;
   };
@@ -178,8 +175,6 @@ export async function fetchSpotifyItem(
         artistName: artists,
         albumName: album,
         releaseYear,
-        durationMs: data.duration_ms || null,
-        previewUrl: data.preview_url || null,
       };
     }
 

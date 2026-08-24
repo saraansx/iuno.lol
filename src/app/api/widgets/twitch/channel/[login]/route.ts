@@ -12,7 +12,6 @@ interface GqlUserResponse {
       login?: string;
       displayName?: string;
       profileImageURL?: string;
-      bannerImageURL?: string | null;
       isPartner?: boolean;
       followers?: { totalCount?: number } | null;
       stream?: {
@@ -41,7 +40,6 @@ export async function fetchTwitchChannelData(
         login
         displayName
         profileImageURL(width: 300)
-        bannerImageURL
         isPartner
         followers {
           totalCount
@@ -94,7 +92,6 @@ export async function fetchTwitchChannelData(
       profileImageUrl:
         user.profileImageURL ||
         "https://static-cdn.jtvnw.net/user-default-pictures-uv/75305d54-c7ba-49d2-a43e-aa0174fb407a-profile_image-300x300.png",
-      bannerImageUrl: user.bannerImageURL || null,
       isPartner: Boolean(user.isPartner),
       followersCount: Number(user.followers?.totalCount || 0),
       isLive,

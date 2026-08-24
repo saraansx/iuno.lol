@@ -121,7 +121,7 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
         {/* Repo Info & Stats */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
           {/* Repo Name with ping-pong overflow scroll */}
-          <OverflowPingPong deps={[repoData, repoData?.name, repoData?.full_name]}>
+          <OverflowPingPong deps={[repoData, repoData?.full_name]}>
             <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {repoData.full_name || cleanRepo}
             </span>

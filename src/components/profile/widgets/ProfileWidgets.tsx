@@ -13,6 +13,7 @@ import TwitchWidget from "./TwitchWidget";
 import SpotifyWidget from "./SpotifyWidget";
 import InstagramWidget from "./InstagramWidget";
 import TikTokWidget from "./TikTokWidget";
+import YouTubeWidget from "./YouTubeWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -50,6 +51,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "tiktok-profile" || w.platform === "tiktok") {
     return <TikTokWidget widget={w} />;
+  }
+  if (w.type === "youtube-profile" || w.platform === "youtube") {
+    return <YouTubeWidget widget={w} />;
   }
   return null;
 }

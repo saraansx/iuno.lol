@@ -18,6 +18,67 @@ const BROWSER_HEADERS = {
   "Accept-Language": "en-US,en;q=0.9",
 };
 
+/** Parses a compact stat like "1.2M", "159M", "12.3B"/"12.3G", or a plain integer. */
+function parseCompactStat(s: string): number {
+  const clean = s.replace(/,/g, "").trim().toUpperCase();
+  if (clean.endsWith("B") || clean.endsWith("G")) return Math.round(parseFloat(clean) * 1_000_000_000);
+  if (clean.endsWith("M")) return Math.round(parseFloat(clean) * 1_000_000);
+  if (clean.endsWith("K")) return Math.round(parseFloat(clean) * 1_000);
+  return parseInt(clean, 10) || 0;
+}
+
+/** Pulls the "… Likes" value out of the page's OpenGraph/meta description. */
+function extractLikesFromHtml(html: string): number {
+  const ogDescMatch =
+    html.match(/<meta\s+[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
+    html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:description["']/i) ||
+    html.match(/<meta\s+[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i) ||
+    html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
+  if (!ogDescMatch || !ogDescMatch[1]) return 0;
+  const likesMatch = ogDescMatch[1].match(/([\d,.]+[KMkmBbgG]?)\s+Likes/i);
+  return likesMatch ? parseCompactStat(likesMatch[1]) : 0;
+}
+
+/**
+ * Fetches the profile page with a crawler User-Agent, which is the only variant
+ * where TikTok puts the "… Followers, … Following, … Likes" summary into the
+ * OpenGraph description. Used to recover an untruncated likes count.
+ */
+async function fetchLikesFromCrawler(username: string): Promise<number> {
+  try {
+    const res = await fetch(`https://www.tiktok.com/@${encodeURIComponent(username)}`, {
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+      headers: CRAWLER_HEADERS,
+      cache: "no-store",
+    });
+    if (!res.ok) return 0;
+    return extractLikesFromHtml(await res.text());
+  } catch {
+    return 0;
+  }
+}
+
+/**
+ * TikTok stores total likes ("heart") in a signed 32-bit int, so accounts with
+ * more than ~2.1B likes overflow to a negative number in the JSON state — and
+ * we can't tell how many times it wrapped, so adding 2^32 back is unreliable.
+ * The OpenGraph description ("… Likes") is a human-formatted, untruncated value,
+ * so when the JSON count is non-positive we fall back to it: first on the page
+ * we already have, then via a dedicated crawler-UA fetch (the browser-UA page
+ * only exposes the bio in its description, not the stats).
+ */
+async function resolveHeartCount(
+  rawJsonValue: unknown,
+  html: string,
+  username: string
+): Promise<number> {
+  const jsonValue = Number(rawJsonValue || 0);
+  if (jsonValue > 0) return jsonValue;
+  const samePage = extractLikesFromHtml(html);
+  if (samePage > 0) return samePage;
+  return fetchLikesFromCrawler(username);
+}
+
 export async function fetchTikTokUserData(
   rawUsername: string
 ): Promise<TikTokUserData | null> {
@@ -52,18 +113,25 @@ export async function fetchTikTokUserData(
           const userDetail = defaultScope?.["webapp.user-detail"];
           const userInfo = userDetail?.userInfo?.user;
           const stats = userDetail?.userInfo?.stats;
+          // statsV2 holds the same counts as strings — TikTok added it precisely
+          // because `stats` uses signed 32-bit ints that overflow (go negative)
+          // for accounts past ~2.1B likes. Prefer it whenever present.
+          const statsV2 = userDetail?.userInfo?.statsV2;
 
           if (userInfo) {
             return {
               username: userInfo.uniqueId || username,
               nickname: userInfo.nickname || userInfo.uniqueId || username,
               avatarUrl: userInfo.avatarLarger || userInfo.avatarMedium || userInfo.avatarThumb || "",
-              bio: userInfo.signature || "",
               isVerified: Boolean(userInfo.verified),
-              followerCount: Number(stats?.followerCount || 0),
-              followingCount: Number(stats?.followingCount || 0),
-              heartCount: Number(stats?.heartCount || stats?.heart || 0),
-              videoCount: Number(stats?.videoCount || 0),
+              followerCount: Number(statsV2?.followerCount || stats?.followerCount || 0),
+              followingCount: Number(statsV2?.followingCount || stats?.followingCount || 0),
+              heartCount: await resolveHeartCount(
+                statsV2?.heartCount || stats?.heartCount || stats?.heart,
+                html,
+                username
+              ),
+              videoCount: Number(statsV2?.videoCount || stats?.videoCount || 0),
             };
           }
         } catch (e) {
@@ -81,20 +149,25 @@ export async function fetchTikTokUserData(
           const json = JSON.parse(sigiMatch[1]);
           const usersMap = (json?.UserModule?.users || {}) as Record<string, Record<string, unknown>>;
           const statsMap = (json?.UserModule?.stats || {}) as Record<string, Record<string, unknown>>;
+          const statsV2Map = (json?.UserModule?.statsV2 || {}) as Record<string, Record<string, unknown>>;
           const userModule = usersMap[username] || Object.values(usersMap)[0];
           const statsModule = statsMap[username] || Object.values(statsMap)[0];
+          const statsV2Module = statsV2Map[username] || Object.values(statsV2Map)[0];
 
           if (userModule) {
             return {
               username: String(userModule.uniqueId || username),
               nickname: String(userModule.nickname || userModule.uniqueId || username),
               avatarUrl: String(userModule.avatarLarger || userModule.avatarMedium || userModule.avatarThumb || ""),
-              bio: String(userModule.signature || ""),
               isVerified: Boolean(userModule.verified),
-              followerCount: Number(statsModule?.followerCount || 0),
-              followingCount: Number(statsModule?.followingCount || 0),
-              heartCount: Number(statsModule?.heartCount || statsModule?.heart || 0),
-              videoCount: Number(statsModule?.videoCount || 0),
+              followerCount: Number(statsV2Module?.followerCount || statsModule?.followerCount || 0),
+              followingCount: Number(statsV2Module?.followingCount || statsModule?.followingCount || 0),
+              heartCount: await resolveHeartCount(
+                statsV2Module?.heartCount || statsModule?.heartCount || statsModule?.heart,
+                html,
+                username
+              ),
+              videoCount: Number(statsV2Module?.videoCount || statsModule?.videoCount || 0),
             };
           }
         } catch (e) {
@@ -136,16 +209,9 @@ export async function fetchTikTokUserData(
           );
 
           if (statsMatch) {
-            const parseStat = (s: string) => {
-              const clean = s.replace(/,/g, "").trim().toUpperCase();
-              if (clean.endsWith("B") || clean.endsWith("G")) return Math.round(parseFloat(clean) * 1_000_000_000);
-              if (clean.endsWith("M")) return Math.round(parseFloat(clean) * 1_000_000);
-              if (clean.endsWith("K")) return Math.round(parseFloat(clean) * 1_000);
-              return parseInt(clean, 10) || 0;
-            };
-            followerCount = parseStat(statsMatch[1]);
-            followingCount = parseStat(statsMatch[2]);
-            heartCount = parseStat(statsMatch[3]);
+            followerCount = parseCompactStat(statsMatch[1]);
+            followingCount = parseCompactStat(statsMatch[2]);
+            heartCount = parseCompactStat(statsMatch[3]);
           }
         }
 
@@ -155,7 +221,6 @@ export async function fetchTikTokUserData(
           username,
           nickname: nickname || username,
           avatarUrl,
-          bio: "",
           isVerified: html.includes('"verified":true') || html.includes('data-e2e="user-verified"'),
           followerCount,
           followingCount,
@@ -204,16 +269,9 @@ export async function fetchTikTokUserData(
             /([\d,.]+[KMkmBbgG]?)\s+Followers[,\s]+([\d,.]+[KMkmBbgG]?)\s+Following[,\s]+([\d,.]+[KMkmBbgG]?)\s+Likes/i
           );
           if (statsMatch) {
-            const parseStat = (s: string) => {
-              const clean = s.replace(/,/g, "").trim().toUpperCase();
-              if (clean.endsWith("B") || clean.endsWith("G")) return Math.round(parseFloat(clean) * 1_000_000_000);
-              if (clean.endsWith("M")) return Math.round(parseFloat(clean) * 1_000_000);
-              if (clean.endsWith("K")) return Math.round(parseFloat(clean) * 1_000);
-              return parseInt(clean, 10) || 0;
-            };
-            followerCount = parseStat(statsMatch[1]);
-            followingCount = parseStat(statsMatch[2]);
-            heartCount = parseStat(statsMatch[3]);
+            followerCount = parseCompactStat(statsMatch[1]);
+            followingCount = parseCompactStat(statsMatch[2]);
+            heartCount = parseCompactStat(statsMatch[3]);
           }
         }
 
@@ -221,7 +279,6 @@ export async function fetchTikTokUserData(
           username,
           nickname: nickname || username,
           avatarUrl: ogImageMatch ? ogImageMatch[1].replace(/&amp;/g, "&") : "",
-          bio: "",
           isVerified: false,
           followerCount,
           followingCount,

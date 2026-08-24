@@ -11,15 +11,12 @@ interface PresenceResponse {
   user: {
     id: string;
     username: string;
-    global_name?: string | null;
     avatar?: string | null;
     avatar_decoration_data?: {
       asset: string;
-      sku_id?: string;
     } | null;
     clan?: {
       identity_guild_id?: string;
-      identity_enabled?: boolean;
       tag?: string;
       badge?: string;
     } | null;
@@ -42,25 +39,15 @@ interface PresenceResponse {
   spotify?: {
     song: string;
     artist: string;
-    album?: string | null;
     album_art_url?: string | null;
   } | null;
   primary_activity?: {
     name: string;
-    type: number;
     state?: string | null;
     details?: string | null;
     large_image_url?: string | null;
-    large_text?: string | null;
     small_image_url?: string | null;
-    small_text?: string | null;
   } | null;
-  activities?: Array<{
-    name: string;
-    type: number;
-    state?: string;
-    details?: string;
-  }>;
 }
 
 // 48 hours TTL in Redis (seconds)
@@ -125,7 +112,6 @@ export async function GET(
       custom_status?: PresenceResponse["custom_status"];
       spotify?: PresenceResponse["spotify"];
       primary_activity?: PresenceResponse["primary_activity"];
-      activities?: PresenceResponse["activities"];
     } | null = null;
 
     if (botUrl) {
@@ -249,13 +235,13 @@ export async function GET(
       user: {
         id: discordUser.id,
         username: discordUser.username,
-        global_name: discordUser.global_name || memberData.nick || null,
         avatar: discordUser.avatar || null,
-        avatar_decoration_data: discordUser.avatar_decoration_data || null,
+        avatar_decoration_data: discordUser.avatar_decoration_data
+          ? { asset: discordUser.avatar_decoration_data.asset }
+          : null,
         clan: clan
           ? {
               identity_guild_id: clan.identity_guild_id || clan.id || undefined,
-              identity_enabled: clan.identity_enabled,
               tag: clan.tag,
               badge: clan.badge,
             }
@@ -265,9 +251,22 @@ export async function GET(
       status: presenceData?.status || "offline",
       last_seen: presenceData?.last_seen || null,
       custom_status: presenceData?.custom_status || null,
-      spotify: presenceData?.spotify || null,
-      primary_activity: presenceData?.primary_activity || null,
-      activities: presenceData?.activities || [],
+      spotify: presenceData?.spotify
+        ? {
+            song: presenceData.spotify.song,
+            artist: presenceData.spotify.artist,
+            album_art_url: presenceData.spotify.album_art_url ?? null,
+          }
+        : null,
+      primary_activity: presenceData?.primary_activity
+        ? {
+            name: presenceData.primary_activity.name,
+            state: presenceData.primary_activity.state ?? null,
+            details: presenceData.primary_activity.details ?? null,
+            large_image_url: presenceData.primary_activity.large_image_url ?? null,
+            small_image_url: presenceData.primary_activity.small_image_url ?? null,
+          }
+        : null,
     });
   } catch (err) {
     console.error("[Discord Presence API Error]", err);

@@ -3,7 +3,7 @@ import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 interface ContributionsPayload {
-  contributions: { date: string; count: number; level: number }[];
+  contributions: { level: number }[];
 }
 
 export async function GET(
@@ -78,13 +78,11 @@ export async function GET(
       FOURTH_QUARTILE: 4,
     };
 
-    const days: { date: string; count: number; level: number }[] = [];
+    const days: { level: number }[] = [];
 
     for (const week of weeks) {
       for (const day of week.contributionDays || []) {
         days.push({
-          date: day.date,
-          count: Number(day.contributionCount || 0),
           level: levelMap[day.contributionLevel] ?? 0,
         });
       }

@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
+import { cleanYouTubeInput } from "@/lib/youtube";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -493,6 +494,16 @@ export async function updateProfileWidgets(data: {
     tiktokShowVideos?: boolean;
     tiktokShowVerifiedBadge?: boolean;
     tiktokShowBackground?: boolean;
+    youtubeMode?: "channel" | "latest-video";
+    youtubeImageSource?: "channel-avatar" | "video-thumbnail";
+    youtubeShowSubscribers?: boolean;
+    youtubeShowVideoCount?: boolean;
+    youtubeShowTotalViews?: boolean;
+    youtubeShowVideoViews?: boolean;
+    youtubeShowVideoLikes?: boolean;
+    youtubeShowUploadDate?: boolean;
+    youtubeShowBackground?: boolean;
+    youtubeShowBanner?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -525,6 +536,7 @@ export async function updateProfileWidgets(data: {
   let spotifyCount = 0;
   let instagramCount = 0;
   let tiktokCount = 0;
+  let youtubeCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -549,6 +561,8 @@ export async function updateProfileWidgets(data: {
         ? "instagram"
         : w.type === "tiktok-profile" || w.platform === "tiktok"
         ? "tiktok"
+        : w.type === "youtube-profile" || w.platform === "youtube"
+        ? "youtube"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -562,6 +576,7 @@ export async function updateProfileWidgets(data: {
     if (type === "spotify") spotifyCount++;
     if (type === "instagram") instagramCount++;
     if (type === "tiktok") tiktokCount++;
+    if (type === "youtube") youtubeCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -599,6 +614,9 @@ export async function updateProfileWidgets(data: {
   if (tiktokCount > 1) {
     throw new Error("You can only add 1 TikTok widget.");
   }
+  if (youtubeCount > 1) {
+    throw new Error("You can only add 1 YouTube widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -621,6 +639,8 @@ export async function updateProfileWidgets(data: {
         ? "instagram"
         : w.platform === "tiktok"
         ? "tiktok"
+        : w.platform === "youtube"
+        ? "youtube"
         : "discord";
     const type =
       w.type === "server"
@@ -653,6 +673,8 @@ export async function updateProfileWidgets(data: {
         ? "instagram-profile"
         : w.type === "tiktok-profile" || w.platform === "tiktok"
         ? "tiktok-profile"
+        : w.type === "youtube-profile" || w.platform === "youtube"
+        ? "youtube-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -738,6 +760,11 @@ export async function updateProfileWidgets(data: {
         .slice(0, 50);
       if (!targetId || !/^[a-zA-Z0-9_.-]{1,50}$/.test(targetId)) {
         throw new Error("Invalid TikTok username format");
+      }
+    } else if (platform === "youtube") {
+      targetId = cleanYouTubeInput(String(w.targetId || "")).slice(0, 30);
+      if (!targetId || !/^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(targetId)) {
+        throw new Error("Invalid YouTube channel format");
       }
     }
 
@@ -832,6 +859,18 @@ export async function updateProfileWidgets(data: {
       tiktokShowVideos: w.tiktokShowVideos !== undefined ? Boolean(w.tiktokShowVideos) : true,
       tiktokShowVerifiedBadge: w.tiktokShowVerifiedBadge !== undefined ? Boolean(w.tiktokShowVerifiedBadge) : true,
       tiktokShowBackground: w.tiktokShowBackground !== undefined ? Boolean(w.tiktokShowBackground) : true,
+      youtubeMode: (w.youtubeMode === "latest-video" ? "latest-video" : "channel") as "channel" | "latest-video",
+      youtubeImageSource: (w.youtubeImageSource === "video-thumbnail" ? "video-thumbnail" : "channel-avatar") as "channel-avatar" | "video-thumbnail",
+      youtubeShowSubscribers: w.youtubeShowSubscribers !== undefined ? Boolean(w.youtubeShowSubscribers) : true,
+      youtubeShowVideoCount: w.youtubeShowVideoCount !== undefined ? Boolean(w.youtubeShowVideoCount) : true,
+      youtubeShowTotalViews: w.youtubeShowTotalViews !== undefined ? Boolean(w.youtubeShowTotalViews) : true,
+      youtubeShowVideoViews: w.youtubeShowVideoViews !== undefined ? Boolean(w.youtubeShowVideoViews) : true,
+      youtubeShowVideoLikes: w.youtubeShowVideoLikes !== undefined ? Boolean(w.youtubeShowVideoLikes) : true,
+      youtubeShowUploadDate: w.youtubeShowUploadDate !== undefined ? Boolean(w.youtubeShowUploadDate) : true,
+      youtubeShowBackground: w.youtubeShowBackground !== undefined ? Boolean(w.youtubeShowBackground) : false,
+      // The banner and the blurred background image are mutually exclusive
+      // backdrops; the banner wins if a record somehow arrives with both set.
+      youtubeShowBanner: w.youtubeShowBanner !== undefined ? Boolean(w.youtubeShowBanner) : false,
     };
   });
 

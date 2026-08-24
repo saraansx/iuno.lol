@@ -7,11 +7,9 @@ export interface DiscordPresenceData {
   user: {
     id: string;
     username: string;
-    global_name?: string | null;
     avatar?: string | null;
     avatar_decoration_data?: {
       asset: string;
-      sku_id?: string;
     } | null;
     clan?: {
       tag?: string;
@@ -37,18 +35,14 @@ export interface DiscordPresenceData {
   spotify?: {
     song: string;
     artist: string;
-    album?: string | null;
     album_art_url?: string | null;
   } | null;
   primary_activity?: {
     name: string;
-    type: number;
     state?: string | null;
     details?: string | null;
     large_image_url?: string | null;
-    large_text?: string | null;
     small_image_url?: string | null;
-    small_text?: string | null;
   } | null;
 }
 

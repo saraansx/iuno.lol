@@ -6,7 +6,6 @@ export interface GitHubUserData {
   login: string;
   name: string | null;
   avatar_url: string;
-  bio: string | null;
   followers: number;
   following: number;
   public_repos: number;
@@ -58,7 +57,6 @@ export async function GET(
       login: data.login,
       name: data.name || null,
       avatar_url: data.avatar_url,
-      bio: data.bio || null,
       followers: Number(data.followers || 0),
       following: Number(data.following || 0),
       public_repos: Number(data.public_repos || 0),

@@ -4,9 +4,7 @@ import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface GitHubRepoData {
   full_name: string;
-  name: string;
   owner: {
-    login: string;
     avatar_url: string;
   };
   stargazers_count: number;
@@ -14,7 +12,6 @@ export interface GitHubRepoData {
   subscribers_count: number;
   open_issues_count: number;
   language: string | null;
-  description: string | null;
   html_url: string;
 }
 
@@ -65,9 +62,7 @@ export async function GET(
     const data = await res.json();
     const result: GitHubRepoData = {
       full_name: data.full_name,
-      name: data.name,
       owner: {
-        login: data.owner?.login || cleanOwner,
         avatar_url: data.owner?.avatar_url || `https://github.com/${cleanOwner}.png`,
       },
       stargazers_count: Number(data.stargazers_count || 0),
@@ -75,7 +70,6 @@ export async function GET(
       subscribers_count: Number(data.subscribers_count || 0),
       open_issues_count: Number(data.open_issues_count || 0),
       language: data.language || null,
-      description: data.description || null,
       html_url: data.html_url || `https://github.com/${cleanOwner}/${cleanRepo}`,
     };
 

@@ -14,17 +14,9 @@ export interface DiscordServerData {
     icon: string | null;
     banner: string | null;
     splash: string | null;
-    description: string | null;
-    verification_level: number;
-    vanity_url_code: string | null;
   } | null;
   approximate_member_count: number;
   approximate_presence_count: number;
-  inviter?: {
-    id: string;
-    username: string;
-    avatar: string | null;
-  } | null;
 }
 
 export async function GET(
@@ -72,9 +64,6 @@ export async function GET(
           icon: data.guild.icon ?? null,
           banner: data.guild.banner ?? null,
           splash: data.guild.splash ?? null,
-          description: data.guild.description ?? null,
-          verification_level: Number(data.guild.verification_level ?? 0),
-          vanity_url_code: data.guild.vanity_url_code ?? null,
         }
       : null;
 
@@ -83,7 +72,6 @@ export async function GET(
       guild,
       approximate_member_count: data.approximate_member_count || 0,
       approximate_presence_count: data.approximate_presence_count || 0,
-      inviter: data.inviter || null,
     };
 
     await writeWidgetCache(cacheKey, result);

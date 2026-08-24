@@ -73,6 +73,26 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.spotifyShowMonthlyListeners === target.spotifyShowMonthlyListeners &&
       item.spotifyShowFollowers === target.spotifyShowFollowers &&
       item.spotifyShowBackground === target.spotifyShowBackground &&
+      item.instagramShowFollowers === target.instagramShowFollowers &&
+      item.instagramShowFollowing === target.instagramShowFollowing &&
+      item.instagramShowPosts === target.instagramShowPosts &&
+      item.instagramShowBackground === target.instagramShowBackground &&
+      item.tiktokShowFollowers === target.tiktokShowFollowers &&
+      item.tiktokShowFollowing === target.tiktokShowFollowing &&
+      item.tiktokShowLikes === target.tiktokShowLikes &&
+      item.tiktokShowVideos === target.tiktokShowVideos &&
+      item.tiktokShowVerifiedBadge === target.tiktokShowVerifiedBadge &&
+      item.tiktokShowBackground === target.tiktokShowBackground &&
+      item.youtubeMode === target.youtubeMode &&
+      item.youtubeImageSource === target.youtubeImageSource &&
+      item.youtubeShowSubscribers === target.youtubeShowSubscribers &&
+      item.youtubeShowVideoCount === target.youtubeShowVideoCount &&
+      item.youtubeShowTotalViews === target.youtubeShowTotalViews &&
+      item.youtubeShowVideoViews === target.youtubeShowVideoViews &&
+      item.youtubeShowVideoLikes === target.youtubeShowVideoLikes &&
+      item.youtubeShowUploadDate === target.youtubeShowUploadDate &&
+      item.youtubeShowBackground === target.youtubeShowBackground &&
+      item.youtubeShowBanner === target.youtubeShowBanner &&
       JSON.stringify(item.badgeOrder || []) === JSON.stringify(target.badgeOrder || []) &&
       JSON.stringify(item.hiddenBadges || []) === JSON.stringify(target.hiddenBadges || [])
     );

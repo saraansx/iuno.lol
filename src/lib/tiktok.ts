@@ -2,7 +2,6 @@ export interface TikTokUserData {
   username: string;
   nickname: string;
   avatarUrl: string;
-  bio: string;
   isVerified: boolean;
   followerCount: number;
   followingCount: number;

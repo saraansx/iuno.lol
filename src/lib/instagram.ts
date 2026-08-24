@@ -1,15 +1,11 @@
 export interface InstagramUserData {
   username: string;
   fullName: string;
-  biography: string;
   profilePicUrl: string;
-  profilePicUrlHd?: string;
   isVerified: boolean;
-  isPrivate: boolean;
   postsCount: number;
   followersCount: number;
   followingCount: number;
-  externalUrl?: string | null;
 }
 
 export function cleanInstagramUsername(input: string): string {

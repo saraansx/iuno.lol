@@ -7,8 +7,6 @@ export interface PinterestUserData {
   name: string | null;
   avatar_url: string | null;
   pin_count: number | null;
-  board_count: number | null;
-  follower_count: number | null;
   first_pin_image: string | null;
   url: string;
 }
@@ -17,8 +15,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
   let name: string | null = null;
   let avatarUrl: string | null = null;
   let pinCount: number | null = null;
-  let boardCount: number | null = null;
-  let followerCount: number | null = null;
   let firstPinImage: string | null = null;
   let fetched = false;
 
@@ -56,8 +52,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
               userData.image_small_url ||
               null;
             pinCount = typeof userData.pin_count === "number" ? userData.pin_count : null;
-            boardCount = typeof userData.board_count === "number" ? userData.board_count : null;
-            followerCount = typeof userData.follower_count === "number" ? userData.follower_count : null;
             fetched = true;
           }
         } catch {
@@ -137,8 +131,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
     name: name || cleanUsername,
     avatar_url: avatarUrl,
     pin_count: pinCount !== null ? pinCount : 0,
-    board_count: boardCount,
-    follower_count: followerCount,
     first_pin_image: firstPinImage || avatarUrl,
     url: `https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/`,
   };

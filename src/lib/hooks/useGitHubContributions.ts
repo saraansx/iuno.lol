@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 
 export interface ContributionDay {
-  date: string;
-  count: number;
   level: number; // 0, 1, 2, 3, 4
 }
 

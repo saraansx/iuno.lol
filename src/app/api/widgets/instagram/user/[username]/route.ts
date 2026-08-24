@@ -38,10 +38,20 @@ async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData 
 
   const json = await res.json();
   if (json.ok && json.data?.username) {
-    // Replace the ~600-char CDN URL with the worker's short redirect URL
-    // so the Redis cache entry stays small.
-    json.data.profilePicUrl = `${proxyBase}/i/${encodeURIComponent(json.data.username)}`;
-    return json.data as InstagramUserData;
+    const d = json.data;
+    // Build a trimmed object holding only the fields the widget renders — the
+    // worker also returns biography, an HD avatar, isPrivate and an external
+    // URL we never use. Also replace the ~600-char CDN URL with the worker's
+    // short redirect URL so the Redis cache entry stays small.
+    return {
+      username: d.username,
+      fullName: d.fullName ?? d.username,
+      profilePicUrl: `${proxyBase}/i/${encodeURIComponent(d.username)}`,
+      isVerified: Boolean(d.isVerified),
+      postsCount: Number(d.postsCount || 0),
+      followersCount: Number(d.followersCount || 0),
+      followingCount: Number(d.followingCount || 0),
+    };
   }
   return null;
 }

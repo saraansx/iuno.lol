@@ -3,10 +3,7 @@ export interface GenshinPlayerData {
   nickname: string;
   level: number; // Adventure Rank (AR)
   world_level: number;
-  signature?: string | null;
   achievements: number;
-  abyss_floor?: number | null;
-  abyss_chamber?: number | null;
   region: string; // "NA" | "EU" | "ASIA" | "SAR" | "CN"
   avatar_url: string;
   namecard_url?: string | null;

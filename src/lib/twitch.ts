@@ -3,7 +3,6 @@ export interface TwitchChannelData {
   login: string;
   displayName: string;
   profileImageUrl: string;
-  bannerImageUrl: string | null;
   isPartner: boolean;
   followersCount: number;
   isLive: boolean;

@@ -9,6 +9,7 @@ export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
   discord: ["presence", "server"],
   instagram: ["instagram-profile"],
   tiktok: ["tiktok-profile"],
+  youtube: ["youtube-profile"],
   spotify: [
     "spotify-track",
     "spotify-album",

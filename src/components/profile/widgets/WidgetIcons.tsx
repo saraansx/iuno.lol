@@ -679,3 +679,127 @@ export function TikTokVerifiedIcon({
   return <VerifiedBadgeIcon fill="#20D5EC" size={size} className={className} {...props} />;
 }
 
+/* ==========================================================================
+   YOUTUBE ICONS
+   ========================================================================== */
+
+/** YouTube play-button glyph (uses currentColor so it can be tinted red). */
+export function YouTubeLogoIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+    </svg>
+  );
+}
+
+/** Subscribers (people) */
+export function YouTubeSubscribersIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+    </svg>
+  );
+}
+
+/** Views (eye) — used for both total views and per-video views */
+export function YouTubeViewsIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+    </svg>
+  );
+}
+
+/** Video count (video camera) */
+export function YouTubeVideoIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+    </svg>
+  );
+}
+
+/** Video likes (thumbs up) */
+export function YouTubeLikesIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z" />
+    </svg>
+  );
+}
+
+/** Upload date (calendar) */
+export function YouTubeCalendarIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
+    </svg>
+  );
+}
+

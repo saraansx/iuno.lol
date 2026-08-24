@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { GenshinLogoIcon } from "@/components/profile/widgets/WidgetIcons";
 import { parseSpotifyIdentifier } from "@/lib/spotify";
+import { cleanYouTubeInput } from "@/lib/youtube";
 import { PLATFORM_WIDGET_TYPES, isPlatformFull } from "@/lib/widget-types";
 
 interface AddWidgetModalProps {
@@ -21,6 +22,7 @@ const PLATFORMS = [
   { id: "discord", name: "Discord" },
   { id: "instagram", name: "Instagram" },
   { id: "tiktok", name: "TikTok" },
+  { id: "youtube", name: "YouTube" },
   { id: "spotify", name: "Spotify" },
   { id: "twitch", name: "Twitch" },
   { id: "github", name: "GitHub" },
@@ -61,6 +63,7 @@ export default function AddWidgetModal({
   const [serverId, setServerId] = useState("");
   const [instagramUsername, setInstagramUsername] = useState("");
   const [tiktokUsername, setTiktokUsername] = useState("");
+  const [youtubeInput, setYoutubeInput] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
   const [spotifyInput, setSpotifyInput] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
@@ -141,6 +144,7 @@ export default function AddWidgetModal({
   const isDiscord = selectedPlatform === "discord";
   const isInstagram = selectedPlatform === "instagram";
   const isTikTok = selectedPlatform === "tiktok";
+  const isYouTube = selectedPlatform === "youtube";
   const isSpotify = selectedPlatform === "spotify";
   const isTwitch = selectedPlatform === "twitch";
   const isGitHub = selectedPlatform === "github";
@@ -164,6 +168,8 @@ export default function AddWidgetModal({
     ? instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, "")
     : isTikTok
     ? tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, "")
+    : isYouTube
+    ? cleanYouTubeInput(youtubeInput)
     : isSpotify
     ? spotifyInput.trim()
     : isTwitch
@@ -205,6 +211,8 @@ export default function AddWidgetModal({
       ? /^[a-zA-Z0-9_.-]{1,30}$/.test(instagramUsername.trim().replace(/^https?:\/\/(www\.)?instagram\.com\//i, "").replace(/^@/, "").replace(/\/$/, ""))
       : isTikTok
       ? /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
+      : isYouTube
+      ? /^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(cleanYouTubeInput(youtubeInput))
       : isSpotify
       ? spotifyInput.trim().length >= 3
       : isTwitch
@@ -257,6 +265,14 @@ export default function AddWidgetModal({
       });
       onClose();
     } else if (isTikTok) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isYouTube) {
       onAdd({
         platform: selectedPlatform,
         type: widgetType,
@@ -374,6 +390,10 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
                     <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
                   </svg>
+                ) : selectedPlatform === "youtube" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
                 ) : selectedPlatform === "spotify" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
@@ -452,6 +472,10 @@ export default function AddWidgetModal({
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
                             <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
                           </svg>
+                        ) : platform.id === "youtube" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                          </svg>
                         ) : platform.id === "spotify" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
@@ -524,6 +548,25 @@ export default function AddWidgetModal({
             </div>
             <p className="text-[11px] text-white/30 leading-normal mt-0.5">
               Your TikTok username or profile URL (e.g. &apos;charlidamelio&apos; or tiktok.com/@charlidamelio).
+            </p>
+          </div>
+        )}
+
+        {isYouTube && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">YouTube Channel</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={youtubeInput}
+                onChange={(e) => setYoutubeInput(e.target.value)}
+                placeholder="e.g. @MrBeast"
+                maxLength={100}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your channel handle, ID, or URL (e.g. &apos;@MrBeast&apos; or youtube.com/@MrBeast).
             </p>
           </div>
         )}
