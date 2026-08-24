@@ -2,24 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { type ValorantPlayerData } from "@/app/api/widgets/valorant/player/[name]/[tag]/route";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function useValorantPlayer(riotId: string) {
   const cleanInput = (riotId || "").trim();
   const parts = cleanInput.split("#");
   const isValidRiotId = parts.length === 2 && parts[0].length >= 3 && parts[1].length >= 3;
 
+  // Debounced as one "name#tag" string, so a half-typed Riot ID never fires a
+  // request. An incomplete value debounces to "" at once, clearing the preview.
+  const { value: fetchRiotId, isPending } = useDebouncedValue(isValidRiotId ? cleanInput : "");
+
   const [data, setData] = useState<ValorantPlayerData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidRiotId);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidRiotId) {
+    if (!fetchRiotId) {
       setData(null);
       setLoading(false);
       return;
     }
 
-    const [name, tag] = cleanInput.split("#");
+    const [name, tag] = fetchRiotId.split("#");
     let isMounted = true;
     const controller = new AbortController();
 
@@ -54,12 +59,16 @@ export function useValorantPlayer(riotId: string) {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanInput, isValidRiotId]);
+  }, [fetchRiotId]);
+
+  // While the typed Riot ID is ahead of the fetched one, report the loading
+  // state instead of the player the hook still holds.
+  const isReady = isValidRiotId && !isPending;
 
   return {
-    data: isValidRiotId ? data : null,
-    loading: isValidRiotId ? loading : false,
-    error: isValidRiotId ? error : null,
+    data: isReady ? data : null,
+    loading: isValidRiotId && (isPending || loading),
+    error: isReady ? error : null,
     isValidRiotId,
     cleanInput,
   };

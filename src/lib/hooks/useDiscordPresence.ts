@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDebouncedValue } from "./useDebouncedValue";
 
 export interface DiscordPresenceData {
   in_server: boolean;
@@ -57,8 +58,12 @@ export function useDiscordPresence(id: string, poll = true) {
 
   const isValidId = /^\d{17,20}$/.test(id);
 
+  // Wait for typing to settle before opening a poll loop on a new ID. A partial
+  // snowflake debounces to "" at once, so the preview clears immediately.
+  const { value: fetchId, isPending } = useDebouncedValue(isValidId ? id : "");
+
   useEffect(() => {
-    if (!isValidId) {
+    if (!fetchId) {
       setData(null);
       setLoading(false);
       return;
@@ -67,18 +72,24 @@ export function useDiscordPresence(id: string, poll = true) {
     let isMounted = true;
     let isFetching = false;
 
-    const fetchPresence = async (isInitial = false) => {
+    // Drop the previous user's presence here rather than inside the fetch: the
+    // fetch bails out while the tab is hidden, and the old presence must never
+    // stay on screen under a different ID.
+    setData(null);
+    setLoading(true);
+
+    const fetchPresence = async () => {
       if (isFetching || !isMounted) return;
-      if (document.hidden) return; // Pause polling when tab is hidden to save CPU
+      // Polling pauses while the tab is hidden to save CPU. The loading flag is
+      // deliberately left set: the visibility listener below runs the fetch on
+      // return, and resolving it here would leave no presence and no pending
+      // request, which consumers read as a failed load rather than a wait.
+      if (document.hidden) return;
 
       isFetching = true;
-      if (isInitial) {
-        setData(null);
-        setLoading(true);
-      }
 
       try {
-        const res = await fetch(`/api/widgets/discord/presence/${id}`, {
+        const res = await fetch(`/api/widgets/discord/presence/${fetchId}`, {
           cache: "no-store",
         });
 
@@ -95,37 +106,40 @@ export function useDiscordPresence(id: string, poll = true) {
         // Fetch error ignored
       } finally {
         isFetching = false;
-        if (isInitial && isMounted) setLoading(false);
+        // Resolved on whichever attempt lands first, not only the initial one:
+        // when the widget mounts hidden, that is the visibility-triggered fetch.
+        // Already being false makes this a no-op, so polls cost no re-render.
+        if (isMounted) setLoading(false);
       }
     };
 
-    fetchPresence(true);
-
-    if (!poll) {
-      return () => {
-        isMounted = false;
-      };
-    }
-
-    // Realtime polling: 5 seconds interval
-    const interval = setInterval(() => {
-      fetchPresence(false);
-    }, 5000);
+    fetchPresence();
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        fetchPresence(false);
+        fetchPresence();
       }
     };
 
+    // Attached even with polling off: a widget that mounted in a hidden tab has
+    // not fetched at all, and this is what gives it its first chance to.
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Realtime polling: 5 seconds interval
+    const interval = poll ? setInterval(fetchPresence, 5000) : undefined;
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      if (interval) clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [id, isValidId, poll]);
+  }, [fetchId, poll]);
 
-  return { data, loading, isValidId };
+  // While the typed ID is ahead of the fetched one, report the loading state
+  // instead of the presence the hook still holds.
+  return {
+    data: isPending ? null : data,
+    loading: isPending || loading,
+    isValidId,
+  };
 }

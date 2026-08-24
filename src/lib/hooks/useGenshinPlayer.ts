@@ -2,17 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { type GenshinPlayerData } from "@/lib/genshin";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function useGenshinPlayer(uid: string) {
   const cleanUid = (uid || "").trim();
   const isValidUid = /^[1-9][0-9]{8,9}$/.test(cleanUid);
+
+  // Wait for typing to settle before hitting the upstream Enka API. A UID that
+  // is not yet complete debounces to "" at once, clearing the preview.
+  const { value: fetchUid, isPending } = useDebouncedValue(isValidUid ? cleanUid : "");
 
   const [data, setData] = useState<GenshinPlayerData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidUid);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidUid) {
+    if (!fetchUid) {
       setData(null);
       setLoading(false);
       return;
@@ -28,7 +33,7 @@ export function useGenshinPlayer(uid: string) {
 
       try {
         const res = await fetch(
-          `/api/widgets/genshin/player/${encodeURIComponent(cleanUid)}`,
+          `/api/widgets/genshin/player/${encodeURIComponent(fetchUid)}`,
           {
             signal: controller.signal,
           }
@@ -54,12 +59,16 @@ export function useGenshinPlayer(uid: string) {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanUid, isValidUid]);
+  }, [fetchUid]);
+
+  // While the typed UID is ahead of the fetched one, report the loading state
+  // instead of the player the hook still holds.
+  const isReady = isValidUid && !isPending;
 
   return {
-    data: isValidUid ? data : null,
-    loading: isValidUid ? loading : false,
-    error: isValidUid ? error : null,
+    data: isReady ? data : null,
+    loading: isValidUid && (isPending || loading),
+    error: isReady ? error : null,
     isValidUid,
     cleanUid,
   };

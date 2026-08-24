@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type GitHubRepoData } from "@/app/api/widgets/github/repo/[owner]/[repo]/route";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function useGitHubRepo(repoString: string) {
   const cleanRepo = (repoString || "")
@@ -11,12 +12,16 @@ export function useGitHubRepo(repoString: string) {
   const parts = cleanRepo.split("/");
   const isValidRepo = parts.length === 2 && Boolean(parts[0]) && Boolean(parts[1]);
 
+  // Debounced as one "owner/repo" string, so a half-typed pair never fires a
+  // request. An incomplete value debounces to "" at once, clearing the preview.
+  const { value: fetchRepo, isPending } = useDebouncedValue(isValidRepo ? cleanRepo : "");
+
   const [data, setData] = useState<GitHubRepoData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidRepo);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidRepo) {
+    if (!fetchRepo) {
       setData(null);
       setLoading(false);
       return;
@@ -25,13 +30,13 @@ export function useGitHubRepo(repoString: string) {
     let isMounted = true;
     const controller = new AbortController();
 
-    const fetchRepo = async () => {
+    const fetchRepoData = async () => {
       setData(null);
       setLoading(true);
       setError(null);
 
       try {
-        const [owner, repo] = cleanRepo.split("/");
+        const [owner, repo] = fetchRepo.split("/");
         const res = await fetch(
           `/api/widgets/github/repo/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
           {
@@ -53,18 +58,22 @@ export function useGitHubRepo(repoString: string) {
       }
     };
 
-    fetchRepo();
+    fetchRepoData();
 
     return () => {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanRepo, isValidRepo]);
+  }, [fetchRepo]);
+
+  // While the typed repo is ahead of the fetched one, report the loading state
+  // instead of the repository the hook still holds.
+  const isReady = isValidRepo && !isPending;
 
   return {
-    data: isValidRepo ? data : null,
-    loading: isValidRepo ? loading : false,
-    error: isValidRepo ? error : null,
+    data: isReady ? data : null,
+    loading: isValidRepo && (isPending || loading),
+    error: isReady ? error : null,
     isValidRepo,
     cleanRepo,
   };

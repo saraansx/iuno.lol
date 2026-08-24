@@ -34,7 +34,13 @@ async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData 
     cache: "no-store",
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
-  if (!res.ok) return null;
+  // Say which side gave up. A missing profile, a rate-limited worker, and a
+  // worker that Instagram itself refused all end as the same silent 404 here,
+  // and only the log can tell them apart.
+  if (!res.ok) {
+    console.warn(`[Instagram] proxy answered ${res.status} for "${username}"`);
+    return null;
+  }
 
   const json = await res.json();
   if (json.ok && json.data?.username) {
@@ -53,6 +59,11 @@ async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData 
       followingCount: Number(d.followingCount || 0),
     };
   }
+
+  console.warn(
+    `[Instagram] proxy returned no profile for "${username}"`,
+    json?.error || ""
+  );
   return null;
 }
 

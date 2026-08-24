@@ -11,6 +11,7 @@ import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import PresenceCustomization from "@/components/dashboard/customize/widgets/discord-presence/PresenceCustomization";
 import BadgesOrderCustomization from "@/components/dashboard/customize/widgets/discord-presence/BadgesOrderCustomization";
 import { toast } from "sonner";
+import WidgetSkeleton from "@/components/profile/widgets/WidgetSkeleton";
 
 function formatLastSeen(timestamp?: number | null, referenceNow: number = Date.now()) {
   if (!timestamp) return "last seen recently";
@@ -386,24 +387,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                   </span>
                 </div>
               ) : loadingPreview && !discordData ? (
-                /* Static dark glass skeleton loader matching widget shape */
-                <div className="w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] shadow-md flex items-center justify-between box-border">
-                  <div className="flex items-center gap-3.5 min-w-0 w-full">
-                    <div
-                      className={`w-[74px] h-[74px] shrink-0 bg-white/[0.05] ${
-                        imageShape === "square"
-                          ? "rounded-none"
-                          : imageShape === "rounded"
-                          ? "rounded-2xl"
-                          : "rounded-full"
-                      }`}
-                    />
-                    <div className="flex flex-col gap-2 min-w-0 flex-1">
-                      <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
-                      <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
-                    </div>
-                  </div>
-                </div>
+                <WidgetSkeleton imageShape={imageShape} />
               ) : discordData?.in_server === false ? (
                 /* User NOT in the iuno Discord Server (Matches Haunt.gg UI) */
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">

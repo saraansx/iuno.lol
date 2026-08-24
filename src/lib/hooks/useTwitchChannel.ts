@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { TwitchChannelData } from "@/lib/twitch";
+import { useDebouncedValue } from "./useDebouncedValue";
 
 interface UseTwitchChannelReturn {
   channel: TwitchChannelData | null;
@@ -28,8 +29,11 @@ export function useTwitchChannel(
     .replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "")
     .replace(/\/$/, "");
 
+  // Wait for typing to settle before hitting the Twitch GQL endpoint.
+  const { value: fetchLogin, isPending } = useDebouncedValue(cleanLogin);
+
   useEffect(() => {
-    if (!cleanLogin || !enabled) {
+    if (!fetchLogin || !enabled) {
       setChannel(null);
       setIsLoading(false);
       setIsError(false);
@@ -46,7 +50,7 @@ export function useTwitchChannel(
     async function fetchData() {
       try {
         const res = await fetch(
-          `/api/widgets/twitch/channel/${encodeURIComponent(cleanLogin)}`
+          `/api/widgets/twitch/channel/${encodeURIComponent(fetchLogin)}`
         );
         const data = await res.json();
 
@@ -84,13 +88,15 @@ export function useTwitchChannel(
       isMounted = false;
       if (timer) clearInterval(timer);
     };
-  }, [cleanLogin, enabled, trigger, refetchInterval]);
+  }, [fetchLogin, enabled, trigger, refetchInterval]);
 
+  // While the typed login is ahead of the fetched one, report the loading state
+  // instead of the channel the hook still holds.
   return {
-    channel,
-    isLoading,
-    isError,
-    error,
+    channel: isPending ? null : channel,
+    isLoading: isPending || isLoading,
+    isError: isPending ? false : isError,
+    error: isPending ? null : error,
     refetch: () => setTrigger((prev) => prev + 1),
   };
 }

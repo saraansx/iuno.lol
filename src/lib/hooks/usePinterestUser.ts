@@ -2,17 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { type PinterestUserData } from "@/app/api/widgets/pinterest/user/[username]/route";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function usePinterestUser(username: string) {
   const cleanUsername = (username || "").trim().toLowerCase();
   const isValidUsername = /^[a-zA-Z0-9_]{1,30}$/.test(cleanUsername);
+
+  // Wait for typing to settle before hitting the upstream Pinterest scrape. An
+  // invalid username debounces to "" at once, so the preview clears immediately.
+  const { value: fetchUsername, isPending } = useDebouncedValue(
+    isValidUsername ? cleanUsername : ""
+  );
 
   const [data, setData] = useState<PinterestUserData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidUsername);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidUsername) {
+    if (!fetchUsername) {
       setData(null);
       setLoading(false);
       return;
@@ -27,7 +34,7 @@ export function usePinterestUser(username: string) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/widgets/pinterest/user/${encodeURIComponent(cleanUsername)}`, {
+        const res = await fetch(`/api/widgets/pinterest/user/${encodeURIComponent(fetchUsername)}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Failed to load Pinterest user");
@@ -51,12 +58,16 @@ export function usePinterestUser(username: string) {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanUsername, isValidUsername]);
+  }, [fetchUsername]);
+
+  // While the typed username is ahead of the fetched one, report the loading
+  // state instead of the account the hook still holds.
+  const isReady = isValidUsername && !isPending;
 
   return {
-    data: isValidUsername ? data : null,
-    loading: isValidUsername ? loading : false,
-    error: isValidUsername ? error : null,
+    data: isReady ? data : null,
+    loading: isValidUsername && (isPending || loading),
+    error: isReady ? error : null,
     isValidUsername,
     cleanUsername,
   };

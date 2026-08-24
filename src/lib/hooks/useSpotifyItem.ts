@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import type { SpotifyItemData } from "@/lib/spotify";
+import { useDebouncedValue } from "./useDebouncedValue";
 
 interface UseSpotifyItemReturn {
   data: SpotifyItemData | null;
@@ -26,14 +27,27 @@ export function useSpotifyItem(
   const cleanType = (type || "").toLowerCase().replace("spotify-", "");
   const cleanId = (id || "").trim();
 
+  // Both parts are derived from the same pasted URL, so they change together as
+  // it is typed. Debouncing them as one key means a half-updated pair never
+  // fires a request. An incomplete value debounces to "" at once.
+  const { value: fetchKey, isPending } = useDebouncedValue(
+    cleanType && cleanId ? `${cleanType}/${cleanId}` : ""
+  );
+
   useEffect(() => {
-    if (!cleanType || !cleanId || !enabled) {
+    if (!fetchKey || !enabled) {
       setData(null);
       setIsLoading(false);
       setIsError(false);
       setError(null);
       return;
     }
+
+    // `cleanType` never contains a slash, so the first one splits the key. Any
+    // slash in the id half is preserved rather than truncating it.
+    const separator = fetchKey.indexOf("/");
+    const fetchType = fetchKey.slice(0, separator);
+    const fetchId = fetchKey.slice(separator + 1);
 
     let isMounted = true;
     setData(null);
@@ -44,7 +58,7 @@ export function useSpotifyItem(
     async function fetchData() {
       try {
         const res = await fetch(
-          `/api/widgets/spotify/item/${encodeURIComponent(cleanType)}/${encodeURIComponent(cleanId)}`
+          `/api/widgets/spotify/item/${encodeURIComponent(fetchType)}/${encodeURIComponent(fetchId)}`
         );
         const json = await res.json();
 
@@ -76,13 +90,15 @@ export function useSpotifyItem(
     return () => {
       isMounted = false;
     };
-  }, [cleanType, cleanId, enabled, trigger]);
+  }, [fetchKey, enabled, trigger]);
 
+  // While the pasted link is ahead of the fetched one, report the loading state
+  // instead of the item the hook still holds.
   return {
-    data,
-    isLoading,
-    isError,
-    error,
+    data: isPending ? null : data,
+    isLoading: isPending || isLoading,
+    isError: isPending ? false : isError,
+    error: isPending ? null : error,
     refetch: () => setTrigger((prev) => prev + 1),
   };
 }

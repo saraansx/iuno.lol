@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type GitHubUserData } from "@/app/api/widgets/github/user/[username]/route";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function useGitHubUser(username: string) {
   const cleanUsername = (username || "")
@@ -10,12 +11,16 @@ export function useGitHubUser(username: string) {
     .replace(/\/$/, "");
   const isValidUser = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(cleanUsername);
 
+  // Wait for typing to settle before spending a GitHub API call. An invalid
+  // username debounces to "" at once, so the preview clears immediately.
+  const { value: fetchUsername, isPending } = useDebouncedValue(isValidUser ? cleanUsername : "");
+
   const [data, setData] = useState<GitHubUserData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidUser);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidUser) {
+    if (!fetchUsername) {
       setData(null);
       setLoading(false);
       return;
@@ -30,7 +35,7 @@ export function useGitHubUser(username: string) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/widgets/github/user/${encodeURIComponent(cleanUsername)}`, {
+        const res = await fetch(`/api/widgets/github/user/${encodeURIComponent(fetchUsername)}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Failed to load GitHub user");
@@ -54,12 +59,16 @@ export function useGitHubUser(username: string) {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanUsername, isValidUser]);
+  }, [fetchUsername]);
+
+  // While the typed username is ahead of the fetched one, report the loading
+  // state instead of the account the hook still holds.
+  const isReady = isValidUser && !isPending;
 
   return {
-    data: isValidUser ? data : null,
-    loading: isValidUser ? loading : false,
-    error: isValidUser ? error : null,
+    data: isReady ? data : null,
+    loading: isValidUser && (isPending || loading),
+    error: isReady ? error : null,
     isValidUser,
     cleanUsername,
   };

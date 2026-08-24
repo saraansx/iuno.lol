@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type PinterestBoardData } from "@/app/api/widgets/pinterest/board/[username]/[board]/route";
+import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
 
 export function usePinterestBoard(input: string) {
   const cleanInput = (input || "")
@@ -12,22 +13,26 @@ export function usePinterestBoard(input: string) {
   const parts = cleanInput.split("/").filter(Boolean);
   const isValidBoard = parts.length >= 2 && Boolean(parts[0]) && Boolean(parts[1]);
 
+  // Debounced as one "user/board" string, so a half-typed pair never fires a
+  // request. An incomplete value debounces to "" at once, clearing the preview.
+  const { value: fetchBoard, isPending } = useDebouncedValue(isValidBoard ? cleanInput : "");
+
   const [data, setData] = useState<PinterestBoardData | null>(null);
   const [loading, setLoading] = useState<boolean>(isValidBoard);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    if (!isValidBoard) {
+    if (!fetchBoard) {
       setData(null);
       setLoading(false);
       return;
     }
 
-    const [user, board] = cleanInput.split("/").filter(Boolean);
+    const [user, board] = fetchBoard.split("/").filter(Boolean);
     let isMounted = true;
     const controller = new AbortController();
 
-    const fetchBoard = async () => {
+    const fetchBoardData = async () => {
       setData(null);
       setLoading(true);
       setError(null);
@@ -54,18 +59,22 @@ export function usePinterestBoard(input: string) {
       }
     };
 
-    fetchBoard();
+    fetchBoardData();
 
     return () => {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanInput, isValidBoard]);
+  }, [fetchBoard]);
+
+  // While the typed board is ahead of the fetched one, report the loading state
+  // instead of the board the hook still holds.
+  const isReady = isValidBoard && !isPending;
 
   return {
-    data: isValidBoard ? data : null,
-    loading: isValidBoard ? loading : false,
-    error: isValidBoard ? error : null,
+    data: isReady ? data : null,
+    loading: isValidBoard && (isPending || loading),
+    error: isReady ? error : null,
     isValidBoard,
     cleanInput,
   };

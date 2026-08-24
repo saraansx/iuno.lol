@@ -10,6 +10,7 @@ import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant
 import SaveBar from "@/components/dashboard/SaveBar";
 import ValorantCustomization from "@/components/dashboard/customize/widgets/valorant/ValorantCustomization";
 import { toast } from "sonner";
+import WidgetSkeleton from "@/components/profile/widgets/WidgetSkeleton";
 
 export default function ValorantClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
@@ -273,16 +274,7 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                   </span>
                 </div>
               ) : loadingPreview && !valorantData ? (
-                <div className={`w-full ${showViewButton ? "py-3.5" : "h-[98px]"} bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[26px] px-4.5 shadow-md flex flex-col justify-center gap-2.5 box-border`}>
-                  <div className="flex items-center gap-3 min-w-0 w-full">
-                    <div className="w-[74px] h-[74px] shrink-0 bg-white/[0.05] rounded-2xl" />
-                    <div className="flex flex-col gap-2 min-w-0 flex-1">
-                      <div className="h-4 w-28 bg-white/[0.06] rounded-md" />
-                      <div className="h-3 w-20 bg-white/[0.03] rounded-md" />
-                    </div>
-                  </div>
-                  {showViewButton && <div className="w-full h-8 bg-white/[0.05] rounded-xl shrink-0" />}
-                </div>
+                <WidgetSkeleton />
               ) : !valorantData ? (
                 <div className="flex items-center gap-3.5 py-2 transition-all duration-200">
                   <div className="w-14 h-14 rounded-full bg-white/[0.04] border border-white/5 shrink-0" />
