@@ -162,7 +162,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           </div>
         ) : null}
 
-        <div className="flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
+        <div className="@container flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
           <div className="flex items-center gap-3.5 min-w-0 flex-1">
             {/* Avatar */}
             <div className="relative shrink-0 flex items-center justify-center">
@@ -357,7 +357,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           {/* Right-side Presence Thumbnail */}
           {showActivity && showActivityImage && activityThumbnailUrl && activityThumbnailUrl !== failedThumbnailUrl && (
             <div
-              className={`relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ml-2 ${
+              className={`relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ml-2 @max-[280px]:hidden ${
                 activityImageShape === "square"
                   ? "rounded-none"
                   : activityImageShape === "circle"
