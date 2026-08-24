@@ -8,6 +8,7 @@ import { type FullUser } from "@/lib/features/users/db";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import { updateProfileWidgets } from "@/actions/profile";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
+import { discordActivityImageUrl } from "@/lib/discord-activity-image";
 import PresenceCustomization from "@/components/dashboard/customize/widgets/discord-presence/PresenceCustomization";
 import BadgesOrderCustomization from "@/components/dashboard/customize/widgets/discord-presence/BadgesOrderCustomization";
 import { toast } from "sonner";
@@ -67,6 +68,10 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
   const [showViewButton, setShowViewButton] = useState<boolean>(initialShowViewButton);
 
   const [hoveredBadge, setHoveredBadge] = useState<{ name: string; x: number; y: number } | null>(null);
+  // The asset URL that failed to load, not a flag: a new song or activity brings
+  // a different URL, which un-hides the image without needing a reset.
+  const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
+  const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
 
   const effectiveId = useLinked ? (user?.discordId || "") : discordId;
 
@@ -189,6 +194,15 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
         discordData.user.avatar.startsWith("a_") ? "gif" : "png"
       }?size=128`
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(effectiveId && /^\d+$/.test(effectiveId) ? effectiveId : "0") % BigInt(5))}.png`;
+
+  // Activity artwork can live on any host, so it goes through the resolver that
+  // keeps it inside the CSP's `img-src`.
+  const activityIconUrl = discordActivityImageUrl(
+    discordData?.primary_activity?.small_image_url || discordData?.primary_activity?.large_image_url
+  );
+  const activityThumbnailUrl = discordActivityImageUrl(
+    discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url
+  );
 
   function getCleanBadgeName(badge: { id: string; description?: string }): string {
     const desc = badge.description?.trim();
@@ -457,7 +471,13 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                         </div>
 
                         {/* Status Indicator Icon */}
-                        <div className="absolute -bottom-0.5 -right-0.5 z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
+                        {/* A circle's edge curves inward at the corner, so seat the
+                            dot on the edge (~4:30) instead of the bounding-box corner. */}
+                        <div
+                          className={`absolute z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center ${
+                            imageShape === "circle" ? "bottom-0.5 right-0.5" : "-bottom-0.5 -right-0.5"
+                          }`}
+                        >
                           {discordData?.status === "dnd" ? (
                             <span className="w-3 h-3 rounded-full bg-[#f23f43] flex items-center justify-center">
                               <span className="w-1.5 h-0.5 bg-[#101010] rounded-full" />
@@ -475,14 +495,15 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                           )}
                         </div>
 
-                        {/* Discord Avatar Decoration preset */}
+                        {/* Discord Avatar Decoration preset — 1.2x the avatar,
+                            offset -10% each side, matching Discord's own rendering. */}
                         {showAvatarDecoration && decorationUrl && (
-                          <div className="pointer-events-none absolute -inset-2.5 z-10 flex items-center justify-center">
+                          <div className="pointer-events-none absolute -inset-[10%] z-10">
                             <Image
                               src={decorationUrl}
                               alt="Avatar decoration"
-                              width={74}
-                              height={74}
+                              fill
+                              sizes="90px"
                               priority
                               loading="eager"
                               className="object-contain"
@@ -571,26 +592,16 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                           </div>
                         ) : discordData?.primary_activity ? (
                           <div className="flex items-center gap-1.5 text-[12.5px] font-normal leading-tight truncate">
-                            {discordData.primary_activity.small_image_url ? (
+                            {activityIconUrl && activityIconUrl !== failedIconUrl ? (
                               <div className="relative w-3.5 h-3.5 shrink-0 rounded-[3px] overflow-hidden">
                                 <Image
-                                  src={discordData.primary_activity.small_image_url}
+                                  src={activityIconUrl}
                                   alt=""
                                   fill
                                   sizes="14px"
                                   className="object-contain"
                                   unoptimized
-                                />
-                              </div>
-                            ) : discordData.primary_activity.large_image_url ? (
-                              <div className="relative w-3.5 h-3.5 shrink-0 rounded-[3px] overflow-hidden">
-                                <Image
-                                  src={discordData.primary_activity.large_image_url}
-                                  alt=""
-                                  fill
-                                  sizes="14px"
-                                  className="object-contain"
-                                  unoptimized
+                                  onError={() => setFailedIconUrl(activityIconUrl)}
                                 />
                               </div>
                             ) : null}
@@ -634,13 +645,22 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
                     </div>
 
                     {/* Right-side Presence Thumbnail */}
-                    {showActivity && showActivityImage && (discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) && (
-                      <div className="relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 rounded-2xl shadow-sm flex items-center justify-center ml-2">
+                    {showActivity && showActivityImage && activityThumbnailUrl && activityThumbnailUrl !== failedThumbnailUrl && (
+                      <div
+                        className={`relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ml-2 ${
+                          activityImageShape === "square"
+                            ? "rounded-none"
+                            : activityImageShape === "circle"
+                            ? "rounded-full"
+                            : "rounded-2xl"
+                        }`}
+                      >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
-                          src={(discordData?.spotify?.album_art_url || discordData?.primary_activity?.large_image_url) ?? ""}
+                          src={activityThumbnailUrl}
                           alt=""
                           className="w-full h-full object-cover block"
+                          onError={() => setFailedThumbnailUrl(activityThumbnailUrl)}
                         />
                       </div>
                     )}
