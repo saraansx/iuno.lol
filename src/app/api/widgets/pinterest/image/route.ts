@@ -35,7 +35,6 @@ export async function GET(req: NextRequest) {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Referer: "https://www.pinterest.com/",
       },
-      next: { revalidate: 86400 },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 

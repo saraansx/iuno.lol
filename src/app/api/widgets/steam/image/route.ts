@@ -66,7 +66,6 @@ export async function GET(req: NextRequest) {
     const res = await fetch(parsedUrl.href, {
       headers: fetchHeaders,
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      next: { revalidate: 86400 },
     });
 
     if (!res.ok && res.status !== 206) {

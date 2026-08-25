@@ -3,7 +3,7 @@ import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-const CACHE_TTL_SECONDS = 86400; // 24 hours
+const CACHE_TTL_SECONDS = 12 * 60 * 60; // 12 hours
 
 async function readCache(username: string): Promise<InstagramUserData | null> {
   try {

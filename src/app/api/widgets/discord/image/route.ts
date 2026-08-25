@@ -172,8 +172,9 @@ export async function GET(req: NextRequest) {
     return new NextResponse(null, { status: 400 });
   }
 
-  // 120 images a minute per IP. A profile view needs at most two, and the
-  // response is cached for a day, so this only ever bites scripted abuse.
+  // 120 images a minute per IP. A profile view needs at most two, and repeat
+  // views are absorbed by the edge and browser caches, so this only ever bites
+  // scripted abuse.
   const ip = getClientIp(req.headers);
   if (ip) {
     try {
@@ -216,7 +217,7 @@ export async function GET(req: NextRequest) {
         "Content-Type": contentType,
         "Content-Disposition": "inline",
         "X-Content-Type-Options": "nosniff",
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },
     });
   } catch (err) {

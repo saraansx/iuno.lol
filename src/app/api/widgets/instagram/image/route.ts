@@ -40,7 +40,6 @@ export async function GET(req: NextRequest) {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         Referer: "https://www.instagram.com/",
       },
-      next: { revalidate: 86400 },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
@@ -57,7 +56,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": contentType,
-        "Cache-Control": "public, max-age=86400, stale-while-revalidate=604800",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
       },
     });
   } catch (err) {

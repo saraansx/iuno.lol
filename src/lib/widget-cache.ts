@@ -1,7 +1,7 @@
 import { redis } from "@/lib/redis";
 
 /** Every widget data cache shares this window. */
-export const WIDGET_CACHE_TTL_SECONDS = 3600;
+export const WIDGET_CACHE_TTL_SECONDS = 12 * 60 * 60;
 
 /**
  * Builds a Redis key for a widget's cached payload.

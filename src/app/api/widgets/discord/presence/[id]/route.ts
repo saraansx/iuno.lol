@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 // NOTE: do not add `export const dynamic = "force-dynamic"` here. It rewrites every
 // fetch in this route to `no-store`, which defeats the revalidate windows below and
@@ -50,8 +51,31 @@ interface PresenceResponse {
   } | null;
 }
 
-// 48 hours TTL in Redis (seconds)
-const BADGES_CACHE_TTL_SEC = 48 * 60 * 60;
+/** Clan / primary-guild tag, shaped the same wherever Discord returns it. */
+interface DiscordClan {
+  id?: string;
+  identity_guild_id?: string;
+  tag?: string;
+  badge?: string;
+}
+
+/** The subset of Discord's guild-member payload this route reads. */
+interface DiscordMemberData {
+  user?: DiscordUserFields;
+  clan?: DiscordClan | null;
+}
+
+interface DiscordUserFields {
+  id: string;
+  username: string;
+  avatar?: string | null;
+  avatar_decoration_data?: { asset: string } | null;
+  clan?: DiscordClan | null;
+  primary_guild?: DiscordClan | null;
+}
+
+// 12 hours TTL in Redis (seconds)
+const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
 export async function GET(
   _req: NextRequest,
@@ -73,20 +97,32 @@ export async function GET(
   }
 
   try {
-    // 1. Check if user is a member of iuno Discord guild via REST API (live, no stale 404 cache)
-    const memberRes = await fetch(
-      `https://discord.com/api/v10/guilds/${guildId}/members/${id}`,
-      {
-        headers: {
-          Authorization: `Bot ${botToken}`,
-          "User-Agent": "iuno-presence-proxy/1.0",
-        },
-        cache: "no-store",
+    // 1. Guild membership + profile fields (username, avatar, clan). These change
+    // rarely, but the widget polls every 5s, so the lookup is cached in Redis to
+    // keep Discord's REST API off the per-poll path. Only a successful lookup is
+    // cached: `withWidgetCache` skips null, so a 404 (not in the server) or an API
+    // error is never stored — a user who joins still shows up on the next poll
+    // rather than waiting out a stale negative entry.
+    const memberData = await withWidgetCache<DiscordMemberData>(
+      widgetCacheKey("discord", "member", id),
+      async () => {
+        const res = await fetch(
+          `https://discord.com/api/v10/guilds/${guildId}/members/${id}`,
+          {
+            headers: {
+              Authorization: `Bot ${botToken}`,
+              "User-Agent": "iuno-presence-proxy/1.0",
+            },
+            cache: "no-store",
+          }
+        );
+        if (!res.ok) return null;
+        return res.json();
       }
     );
 
-    if (memberRes.status === 404) {
-      // User is not in the Discord server
+    if (!memberData) {
+      // Not in the Discord server, or the lookup failed.
       return NextResponse.json<PresenceResponse>({
         in_server: false,
         user: null,
@@ -94,16 +130,8 @@ export async function GET(
       });
     }
 
-    if (!memberRes.ok) {
-      return NextResponse.json<PresenceResponse>({
-        in_server: false,
-        user: null,
-        status: "offline",
-      });
-    }
-
-    const memberData = await memberRes.json();
-    const discordUser = memberData.user || memberData;
+    const discordUser = (memberData.user ||
+      (memberData as unknown as DiscordUserFields)) as DiscordUserFields;
 
     // 2. Fetch live presence from the hosted Bot gateway worker (Zero DB / Zero Redis)
     let presenceData: {

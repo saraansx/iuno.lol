@@ -17,7 +17,6 @@ export async function GET(
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; iuno-avatar-proxy/1.0)",
       },
-      next: { revalidate: 86400 },
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
     });
 
