@@ -54,10 +54,10 @@ export default function SteamCustomization({
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
       <div>
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
-          Display options
+          Steam Settings
         </h2>
         <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
-          Customize the appearance and displayed Steam information.
+          Customize how your Steam widget appears on your page.
         </p>
       </div>
 

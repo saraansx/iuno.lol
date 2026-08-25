@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
+/**
+ * Only the fields the widget actually renders.
+ *
+ * Every one of these is stored in Redis under a per-profile key, so anything the
+ * UI never reads is pure cache weight — the Web API also returns persona state,
+ * the current game and lifetime playtime, and none of them are kept.
+ */
 export interface SteamUserData {
-  steamid: string;
   personaname: string;
   profileurl: string;
-  avatar: string;
   avatarfull: string;
   avatarframe?: string | null;
   animated_avatar?: string | null;
@@ -15,17 +21,122 @@ export interface SteamUserData {
   mini_profile_background?: string | null;
   mini_profile_background_webm?: string | null;
   mini_profile_background_mp4?: string | null;
-  personastate: number; // 0 - Offline, 1 - Online, 2 - Busy, 3 - Away, 4 - Snooze, 5 - looking to trade, 6 - looking to play
-  gameextrainfo?: string | null;
   level?: number | null;
   game_count?: number | null;
-  total_playtime_hours?: number | null;
   member_since?: string | null;
-  custom_status?: string | null;
   is_private?: boolean;
+  /** Present only when the profile is public but its game library is hidden. */
+  library_private?: boolean;
 }
 
-export async function fetchSteamUserData(cleanInput: string): Promise<SteamUserData | null> {
+const API_BASE = "https://api.steampowered.com";
+
+/** Public-profile visibility state. Anything else hides level, games and items. */
+const VISIBILITY_PUBLIC = 3;
+
+interface PlayerSummary {
+  steamid: string;
+  personaname?: string;
+  profileurl?: string;
+  avatar?: string;
+  avatarfull?: string;
+  communityvisibilitystate?: number;
+  timecreated?: number;
+}
+
+interface EquippedItem {
+  image_small?: string;
+  image_large?: string;
+  movie_webm?: string;
+  movie_mp4?: string;
+}
+
+/**
+ * Calls one Web API endpoint and returns its parsed `response` object.
+ *
+ * Every call is best-effort: a private profile, a revoked key or a Steam outage
+ * all resolve to `null` so one missing extra (level, games, equipped items)
+ * never costs the whole widget its core profile data.
+ */
+async function callSteamApi<T>(
+  path: string,
+  params: Record<string, string>,
+  key: string
+): Promise<T | null> {
+  const url = new URL(`${API_BASE}/${path}`);
+  url.searchParams.set("key", key);
+  for (const [k, v] of Object.entries(params)) {
+    url.searchParams.set(k, v);
+  }
+
+  try {
+    const res = await fetch(url, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      // Say which endpoint gave up — a bad key (403) and a private profile
+      // (200-with-nothing) are otherwise indistinguishable in the logs.
+      console.warn(`[Steam] ${path} answered ${res.status}`);
+      return null;
+    }
+    const json = await res.json();
+    return (json?.response ?? null) as T | null;
+  } catch (err) {
+    console.warn(`[Steam] ${path} fetch failed`, err);
+    return null;
+  }
+}
+
+/**
+ * Equipped-item asset reference, or null when nothing is equipped.
+ *
+ * The Web API already hands these back as paths relative to the community image
+ * CDN, and they are kept that way: every consumer routes the value through
+ * `/api/widgets/steam/image`, which re-attaches the CDN base. Storing the
+ * absolute form would repeat a 64-character prefix on all seven item fields —
+ * roughly a third of the cached payload — for no gain.
+ */
+function itemPath(path: string | undefined): string | null {
+  return path || null;
+}
+
+/**
+ * Path to an item's *moving* artwork.
+ *
+ * Steam stores the animated asset in `image_small` and a flattened still in
+ * `image_large`, so reading the large slot silently drops the animation: an
+ * animated avatar's small slot is the .gif and its large slot a .jpg, and an
+ * animated frame's small slot is a 90-frame APNG against a one-frame PNG. Still
+ * JPEGs are skipped outright, and `image_large` remains the fallback for items
+ * that only ever ship one variant.
+ */
+function animatedItemUrl(item: EquippedItem | undefined): string | null {
+  const animated = [item?.image_small, item?.image_large].find(
+    (path) => path && !/\.jpe?g(\?|$)/i.test(path)
+  );
+  return itemPath(animated ?? item?.image_large);
+}
+
+/** Turns a vanity name into a SteamID64. 17-digit input is already one. */
+async function resolveSteamId(
+  normalized: string,
+  key: string
+): Promise<string | null> {
+  if (/^\d{17}$/.test(normalized)) return normalized;
+
+  const res = await callSteamApi<{ success: number; steamid?: string }>(
+    "ISteamUser/ResolveVanityURL/v1/",
+    { vanityurl: normalized },
+    key
+  );
+
+  return res?.success === 1 && res.steamid ? res.steamid : null;
+}
+
+export async function fetchSteamUserData(
+  cleanInput: string
+): Promise<SteamUserData | null> {
   const normalized = cleanInput
     .trim()
     .toLowerCase()
@@ -34,366 +145,85 @@ export async function fetchSteamUserData(cleanInput: string): Promise<SteamUserD
 
   if (!normalized) return null;
 
-  let steamid = /^\d{17}$/.test(normalized) ? normalized : "";
-  let personaname = normalized;
-  const profileurl = `https://steamcommunity.com/${steamid ? `profiles/${steamid}` : `id/${normalized}`}/`;
-  let avatar = "";
-  let avatarframe: string | null = null;
-  let animatedAvatar: string | null = null;
-  let profileBackground: string | null = null;
-  let profileBackgroundWebm: string | null = null;
-  let profileBackgroundMp4: string | null = null;
-  let miniProfileBackground: string | null = null;
-  let miniProfileBackgroundWebm: string | null = null;
-  let miniProfileBackgroundMp4: string | null = null;
-  let personastate = 0;
-  let gameextrainfo: string | null = null;
-  let level: number | null = null;
-  let gameCount: number | null = null;
-  let totalPlaytimeHours: number | null = null;
-  let memberSince: string | null = null;
-  let customStatus: string | null = null;
-  let isPrivate = false;
-  let fetched = false;
-
-  const isNumeric = /^\d{17}$/.test(normalized);
-  const targetUrl = isNumeric
-    ? `https://steamcommunity.com/profiles/${normalized}/`
-    : `https://steamcommunity.com/id/${normalized}/`;
-
-  // 1. Fetch public profile HTML page
-  try {
-    const res = await fetch(targetUrl, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Cookie": "Steam_Language=english; timezoneOffset=0,0",
-      },
-      cache: "no-store",
-    });
-
-    if (res.ok) {
-      const html = await res.text();
-
-      // Check if profile exists
-      if (!html.includes("The specified profile could not be found") && !html.includes("error_ctn")) {
-        fetched = true;
-
-        // Private profile check
-        if (
-          html.includes("This profile is private") ||
-          html.includes("profile_private_info") ||
-          html.includes("profile_private")
-        ) {
-          isPrivate = true;
-        }
-
-        // SteamID64 extract
-        const steamIdMatch =
-          html.match(/"steamid"\s*:\s*"(\d{17})"/i) ||
-          html.match(/g_rgProfileData\s*=\s*\{.*?"steamid"\s*:\s*"(\d{17})"/i) ||
-          html.match(/steamcommunity\.com\/profiles\/(\d{17})/i);
-        if (steamIdMatch && steamIdMatch[1]) {
-          steamid = steamIdMatch[1];
-        }
-
-        // Persona name
-        const nameMatch =
-          html.match(/<span class="actual_persona_name">([^<]+)<\/span>/i) ||
-          html.match(/<span class="persona_name[^"]*">([^<]+)<\/span>/i) ||
-          html.match(/<title>Steam Community\s*::\s*([^<]+)<\/title>/i);
-        if (nameMatch && nameMatch[1]) {
-          personaname = nameMatch[1].trim();
-        }
-
-        // Status State
-        if (html.includes("profile_in_game")) {
-          personastate = 1;
-          const gameMatch =
-            html.match(/<div class="profile_in_game_name">([^<]+)<\/div>/i) ||
-            html.match(/<div class="profile_in_game_header">In-Game<\/div>\s*<div class="profile_in_game_name">([^<]+)<\/div>/i);
-          if (gameMatch && gameMatch[1]) {
-            gameextrainfo = gameMatch[1].trim();
-          }
-        } else if (html.includes("online")) {
-          personastate = 1;
-        } else if (html.includes("offline")) {
-          personastate = 0;
-        }
-
-        // Avatar Frame
-        const frameMatch =
-          html.match(/<div class="profile_avatar_frame">[\s\S]*?<img[^>]*src="([^"]+)"/i) ||
-          html.match(/<div class="profile_avatar_frame">[\s\S]*?<source[^>]*srcset="([^"\s]+)/i) ||
-          html.match(/<img class="avatar_frame"[^>]*src="([^"]+)"/i);
-        if (frameMatch && frameMatch[1]) {
-          avatarframe = frameMatch[1];
-        }
-
-        // Header Avatar & Animated Avatar (exclude frame images)
-        const headerAvatarMatch = html.match(/<div class="playerAvatar profile_header_size[^>]*>([\s\S]*?)<\/div>\s*<\/div>/i);
-        if (headerAvatarMatch) {
-          const rawHeader = headerAvatarMatch[1];
-          const withoutFrame = rawHeader.replace(/<div class="profile_avatar_frame">[\s\S]*?<\/div>/gi, "");
-
-          // Animated Avatar (GIF/video/srcset inside picture or img)
-          const animatedMatch =
-            withoutFrame.match(/<img[^>]*srcset="([^"\s]+)/i) ||
-            withoutFrame.match(/<img[^>]*src="([^"]+\.gif[^"]*)"/i) ||
-            withoutFrame.match(/<source[^>]*srcset="([^"\s]+)/i);
-          if (animatedMatch && animatedMatch[1]) {
-            animatedAvatar = animatedMatch[1];
-          }
-
-          // Static Avatar (fallback if animated not active or static img tag)
-          const staticMatch =
-            withoutFrame.match(/<source media="\(prefers-reduced-motion: reduce\)" srcset="([^"\s]+)"/i) ||
-            withoutFrame.match(/<img[^>]*src="([^"]+)"/i);
-          if (staticMatch && staticMatch[1]) {
-            avatar = staticMatch[1];
-          } else if (animatedAvatar) {
-            avatar = animatedAvatar;
-          }
-        }
-
-        // Clean static avatar if animated GIF matched as static avatar
-        const metaImg = html.match(/<link rel="image_src" href="([^"]+)"/i);
-        const metaAvatar = metaImg && metaImg[1] ? metaImg[1] : null;
-
-        if (metaAvatar) {
-          if (!avatar || avatar.endsWith(".gif") || avatar.includes("/community_assets/")) {
-            avatar = metaAvatar;
-          }
-        }
-
-        // Fallback for avatar if not found in header size box
-        if (!avatar) {
-          const avatarMatch =
-            html.match(/<div class="playerAvatarAutoSizeInner">[\s\S]*?<img src="([^"]+)"/i) ||
-            html.match(/<div class="playerAvatar[^"]*">[\s\S]*?<img src="([^"]+)"/i) ||
-            html.match(/<img class="full_avatar"[^>]*src="([^"]+)"/i);
-          if (avatarMatch && avatarMatch[1]) {
-            avatar = avatarMatch[1];
-          }
-        }
-
-        // Level
-        const levelMatch =
-          html.match(/<span class="friendPlayerLevelNum">(\d+)<\/span>/i) ||
-          html.match(/<div class="persona_level[^"]*">[\s\S]*?<span class="friendPlayerLevelNum">(\d+)<\/span>/i) ||
-          html.match(/class="persona_level"[^>]*>[\s\S]*?(\d+)[\s\S]*?<\/div>/i);
-        if (levelMatch && levelMatch[1]) {
-          level = parseInt(levelMatch[1], 10);
-        }
-
-        // Game Count (Showcase vs Sidebar games count)
-        const showcaseGamesMatch = html.match(/<div class="showcase_stats_count">([\d,]+)<\/div>\s*<div class="showcase_stats_label">Games Owned<\/div>/i);
-        const gamesMatch =
-          html.match(/<span class="count_link_label">Games<\/span>\s*<span class="profile_count_link_total">\s*([\d,]+)\s*<\/span>/i) ||
-          html.match(/href="[^"]*\/games\/\?tab=all"[^>]*>[\s\S]*?<span class="profile_count_link_total">\s*([\d,]+)\s*<\/span>/i) ||
-          html.match(/Games\s*<span class="profile_count_link_total">\s*([\d,]+)\s*<\/span>/i) ||
-          html.match(/class="count_link_label"[^>]*>Games[\s\S]*?<span class="profile_count_link_total">\s*([\d,]+)\s*<\/span>/i);
-
-        if (showcaseGamesMatch && showcaseGamesMatch[1]) {
-          gameCount = parseInt(showcaseGamesMatch[1].replace(/,/g, ""), 10);
-        } else if (gamesMatch && gamesMatch[1]) {
-          gameCount = parseInt(gamesMatch[1].replace(/,/g, ""), 10);
-        }
-
-        // Member Since
-        const memberMatch =
-          html.match(/Member since\s*([^<\n]+)/i) ||
-          html.match(/<div class="header_real_name ellipsis">[\s\S]*?Member since\s*([^<]+)/i) ||
-          html.match(/Member since:\s*([^<\n]+)/i);
-        if (memberMatch && memberMatch[1]) {
-          const rawMember = memberMatch[1].trim().replace(/\.$/, "");
-          const yearMatch = rawMember.match(/\b(20\d\d|19\d\d)\b/);
-          memberSince = yearMatch ? yearMatch[1] : rawMember;
-        }
-
-        // Custom status / Summary
-        const summaryMatch = html.match(/<div class="profile_summary">([\s\S]*?)<\/div>/i);
-        if (summaryMatch && summaryMatch[1]) {
-          customStatus = summaryMatch[1].replace(/<[^>]+>/g, "").trim().slice(0, 100);
-        }
-
-        // Profile Background Image
-        const bgMatch =
-          html.match(/has_profile_background[\s\S]*?background-image:\s*url\(\s*['"]?([^'")]+)['"]?\s*\)/i) ||
-          html.match(/class="profile_background_image_content[^"]*"[\s\S]*?background-image:\s*url\(\s*['"]?([^'")]+)['"]?\s*\)/i) ||
-          html.match(/background-image:\s*url\(\s*['"]?(https:\/\/[^'")]+steamstatic\.com\/steamcommunity\/public\/images\/items\/[^'")]+)['"]?\s*\)/i);
-        if (bgMatch && bgMatch[1]) {
-          profileBackground = bgMatch[1];
-        }
-
-        // Full Page Profile Background / Movie / Video Poster
-        const videoFilm =
-          html.match(/<div class="profile_animated_background">([\s\S]*?)<\/video>/i) ||
-          html.match(/<video[^>]*class="profile_background_film"[^>]*>([\s\S]*?)<\/video>/i);
-
-        if (videoFilm) {
-          const rawVid = videoFilm[1] || videoFilm[0];
-          const posterMatch = rawVid.match(/poster="([^"]+)"/i);
-          if (posterMatch && posterMatch[1]) profileBackground = posterMatch[1];
-
-          const webmMatch = rawVid.match(/<source[^>]*src="([^"]+\.webm[^"]*)"/i);
-          if (webmMatch && webmMatch[1]) profileBackgroundWebm = webmMatch[1];
-
-          const mp4Match = rawVid.match(/<source[^>]*src="([^"]+\.mp4[^"]*)"/i);
-          if (mp4Match && mp4Match[1]) profileBackgroundMp4 = mp4Match[1];
-        }
-
-        if (!profileBackground) {
-          const videoPoster =
-            html.match(/<div class="profile_animated_background">[\s\S]*?poster="([^"]+)"/i) ||
-            html.match(/<video[^>]*class="profile_background_film"[^>]*poster="([^"]+)"/i) ||
-            html.match(/<video[^>]*poster="([^"]+)"/i);
-          if (videoPoster && videoPoster[1]) {
-            profileBackground = videoPoster[1];
-          }
-        }
-
-        // 2. Fetch miniprofile for distinct mini_profile_background
-        const miniprofileMatch = html.match(/data-miniprofile="(\d+)"/i);
-        if (miniprofileMatch && miniprofileMatch[1]) {
-          try {
-            const miniRes = await fetch(`https://steamcommunity.com/miniprofile/${miniprofileMatch[1]}`, {
-              headers: {
-                "User-Agent":
-                  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-              },
-              cache: "no-store",
-            });
-            if (miniRes.ok) {
-              const miniHtml = await miniRes.text();
-              const miniBgMatch =
-                miniHtml.match(/background-image:\s*url\(\s*['"]?([^'")]+)['"]?\s*\)/i) ||
-                miniHtml.match(/<div class="miniprofile_background">[\s\S]*?<img[^>]*src="([^"]+)"/i);
-              if (miniBgMatch && miniBgMatch[1]) {
-                miniProfileBackground = miniBgMatch[1];
-              }
-
-              const miniWebmMatch = miniHtml.match(/<video[^>]*class="miniprofile_nameplate"[^>]*>[\s\S]*?<source[^>]*src="([^"]+\.webm[^"]*)"/i);
-              if (miniWebmMatch && miniWebmMatch[1]) miniProfileBackgroundWebm = miniWebmMatch[1];
-
-              const miniMp4Match = miniHtml.match(/<video[^>]*class="miniprofile_nameplate"[^>]*>[\s\S]*?<source[^>]*src="([^"]+\.mp4[^"]*)"/i);
-              if (miniMp4Match && miniMp4Match[1]) miniProfileBackgroundMp4 = miniMp4Match[1];
-
-              if (!miniProfileBackground && (miniProfileBackgroundWebm || miniProfileBackgroundMp4)) {
-                miniProfileBackground = profileBackground;
-              }
-            }
-          } catch (e) {
-            console.warn("[Steam Miniprofile Fetch Error]", e);
-          }
-        }
-      }
-    }
-  } catch (e) {
-    console.warn("[Steam HTML Scrape Error]", e);
-  }
-
-  // 2. Fetch public XML endpoint for additional fields fallback
-  if (!fetched || !avatar || !personaname) {
-    try {
-      const xmlUrl = isNumeric
-        ? `https://steamcommunity.com/profiles/${normalized}?xml=1`
-        : `https://steamcommunity.com/id/${normalized}?xml=1`;
-
-      const res = await fetch(xmlUrl, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        },
-        cache: "no-store",
-      });
-
-      if (res.ok) {
-        const xml = await res.text();
-        if (xml.includes("<profile>")) {
-          fetched = true;
-
-          const extract = (tag: string) => {
-            const m = xml.match(new RegExp(`<${tag}><!\\[CDATA\\[(.*?)\\]\\]><\\/${tag}>`, "i")) ||
-                      xml.match(new RegExp(`<${tag}>(.*?)<\\/${tag}>`, "i"));
-            return m ? m[1].trim() : null;
-          };
-
-          const sId = extract("steamID64");
-          if (sId) steamid = sId;
-
-          const pName = extract("steamID");
-          if (pName && (!personaname || personaname === normalized)) personaname = pName;
-
-          const av = extract("avatarFull") || extract("avatarMedium") || extract("avatarIcon");
-          if (av && !avatar) avatar = av;
-
-          const state = extract("onlineState");
-          if (state === "in-game") {
-            personastate = 1;
-            const gName = extract("gameName");
-            if (gName) gameextrainfo = gName;
-          } else if (state === "online") {
-            personastate = 1;
-          } else if (state === "offline") {
-            personastate = 0;
-          }
-
-          const member = extract("memberSince");
-          if (member && !memberSince) {
-            const y = member.match(/\b(20\d\d|19\d\d)\b/);
-            memberSince = y ? y[1] : member;
-          }
-
-          const hours = extract("hoursPlayed2Wk");
-          if (hours) {
-            totalPlaytimeHours = parseFloat(hours);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn("[Steam XML Scrape Error]", e);
-    }
-  }
-
-  // Fallback default avatar if none found
-  if (!avatar) {
-    avatar = "https://avatars.steamstatic.com/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg";
-  }
-
-  // Mini profile background fallback to profileBackground
-  miniProfileBackground = profileBackground;
-
-  if (!fetched && !steamid && !personaname) {
+  const key = process.env.STEAM_API_KEY || "";
+  if (!key) {
+    console.error("[Steam] STEAM_API_KEY is not configured");
     return null;
   }
 
-  const result: SteamUserData = {
-    steamid: steamid || normalized,
-    personaname: personaname || normalized,
-    profileurl: profileurl || `https://steamcommunity.com/id/${normalized}/`,
-    avatar,
-    avatarfull: avatar,
-    avatarframe: avatarframe || null,
-    animated_avatar: animatedAvatar || null,
-    profile_background: profileBackground || null,
-    profile_background_webm: profileBackgroundWebm || null,
-    profile_background_mp4: profileBackgroundMp4 || null,
-    mini_profile_background: miniProfileBackground || null,
-    mini_profile_background_webm: miniProfileBackgroundWebm || null,
-    mini_profile_background_mp4: miniProfileBackgroundMp4 || null,
-    personastate,
-    gameextrainfo,
-    level,
-    game_count: gameCount,
-    total_playtime_hours: totalPlaytimeHours,
-    member_since: memberSince,
-    custom_status: customStatus,
-    is_private: isPrivate,
-  };
+  const steamid = await resolveSteamId(normalized, key);
+  if (!steamid) return null;
 
-  return result;
+  const summaries = await callSteamApi<{ players?: PlayerSummary[] }>(
+    "ISteamUser/GetPlayerSummaries/v2/",
+    { steamids: steamid },
+    key
+  );
+  const player = summaries?.players?.[0];
+  if (!player) return null;
+
+  const isPrivate = player.communityvisibilitystate !== VISIBILITY_PUBLIC;
+
+  // Level, library and equipped items are only readable on public profiles, so
+  // skip the three extra round trips entirely when the profile is private.
+  const [levelRes, gamesRes, itemsRes] = isPrivate
+    ? [null, null, null]
+    : await Promise.all([
+        callSteamApi<{ player_level?: number }>(
+          "IPlayerService/GetSteamLevel/v1/",
+          { steamid },
+          key
+        ),
+        callSteamApi<{ game_count?: number }>(
+          "IPlayerService/GetOwnedGames/v1/",
+          { steamid, include_played_free_games: "1" },
+          key
+        ),
+        callSteamApi<{
+          avatar_frame?: EquippedItem;
+          animated_avatar?: EquippedItem;
+          profile_background?: EquippedItem;
+          mini_profile_background?: EquippedItem;
+        }>("IPlayerService/GetProfileItemsEquipped/v1/", { steamid }, key),
+      ]);
+
+  /**
+   * "Game details" is its own privacy setting, independent of profile
+   * visibility: a fully public profile can still hide its library, and Steam
+   * signals that by answering 200 with an empty `response` object.
+   *
+   * A dropped call — revoked key, outage, timeout — resolves to `null` instead,
+   * so the two are told apart here and an outage never renders as a privacy
+   * claim. Only the hidden-library case is sent to the client.
+   */
+  const libraryPrivate =
+    !isPrivate && gamesRes !== null && gamesRes.game_count === undefined;
+
+  return {
+    personaname: player.personaname || normalized,
+    profileurl: player.profileurl || `https://steamcommunity.com/profiles/${steamid}/`,
+    // Only the 184px variant is kept — `avatar` is the same image at 32px, and
+    // every render path already scales the full one down.
+    avatarfull: player.avatarfull || player.avatar || "",
+    avatarframe: animatedItemUrl(itemsRes?.avatar_frame),
+    animated_avatar: animatedItemUrl(itemsRes?.animated_avatar),
+    profile_background: itemPath(itemsRes?.profile_background?.image_large),
+    profile_background_webm: itemPath(itemsRes?.profile_background?.movie_webm),
+    profile_background_mp4: itemPath(itemsRes?.profile_background?.movie_mp4),
+    mini_profile_background: itemPath(itemsRes?.mini_profile_background?.image_large),
+    mini_profile_background_webm: itemPath(itemsRes?.mini_profile_background?.movie_webm),
+    mini_profile_background_mp4: itemPath(itemsRes?.mini_profile_background?.movie_mp4),
+    level: levelRes?.player_level ?? null,
+    game_count: gamesRes?.game_count ?? null,
+    // Rendered as "Since 2003", so only the year is ever needed.
+    member_since: player.timecreated
+      ? String(new Date(player.timecreated * 1000).getUTCFullYear())
+      : null,
+    is_private: isPrivate,
+    // Omitted entirely when false — keeps the common payload byte-for-byte the
+    // same size as before.
+    ...(libraryPrivate ? { library_private: true } : {}),
+  };
 }
 
 export async function GET(

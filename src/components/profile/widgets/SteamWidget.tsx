@@ -1,6 +1,7 @@
 "use client";
 
 import { useSteamUser } from "@/lib/hooks/useSteamUser";
+import { steamAssetUrl } from "@/lib/steam-asset-url";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import OverflowPingPong from "./OverflowPingPong";
 import { WidgetRedirectIcon } from "./WidgetIcons";
@@ -41,8 +42,8 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
     );
   }
 
-  const rawAvatarSrc = (showAnimatedAvatar && steamData.animated_avatar) || steamData.avatarfull || steamData.avatar;
-  const avatarSrc = rawAvatarSrc ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarSrc)}` : null;
+  const rawAvatarSrc = (showAnimatedAvatar && steamData.animated_avatar) || steamData.avatarfull;
+  const avatarSrc = rawAvatarSrc ? steamAssetUrl(rawAvatarSrc) : null;
 
   const rawBgSrc =
     background === "large"
@@ -50,7 +51,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       : background === "small"
       ? steamData.mini_profile_background || steamData.profile_background || steamData.avatarfull
       : null;
-  const bgImageSrc = rawBgSrc ? `/api/widgets/steam/image?url=${encodeURIComponent(rawBgSrc)}` : null;
+  const bgImageSrc = rawBgSrc ? steamAssetUrl(rawBgSrc) : null;
 
   const rawBgWebm =
     background === "large"
@@ -58,7 +59,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       : background === "small"
       ? steamData.mini_profile_background_webm || steamData.profile_background_webm
       : null;
-  const bgWebmSrc = rawBgWebm ? `/api/widgets/steam/image?url=${encodeURIComponent(rawBgWebm)}` : null;
+  const bgWebmSrc = rawBgWebm ? steamAssetUrl(rawBgWebm) : null;
 
   const rawBgMp4 =
     background === "large"
@@ -66,13 +67,13 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       : background === "small"
       ? steamData.mini_profile_background_mp4 || steamData.profile_background_mp4
       : null;
-  const bgMp4Src = rawBgMp4 ? `/api/widgets/steam/image?url=${encodeURIComponent(rawBgMp4)}` : null;
+  const bgMp4Src = rawBgMp4 ? steamAssetUrl(rawBgMp4) : null;
 
-  const frameSrc = steamData.avatarframe ? `/api/widgets/steam/image?url=${encodeURIComponent(steamData.avatarframe)}` : null;
+  const frameSrc = steamData.avatarframe ? steamAssetUrl(steamData.avatarframe) : null;
 
   // Blurred avatar backdrop — mutually exclusive with the Steam background assets.
-  const rawAvatarBg = showBackgroundImage ? steamData.avatarfull || steamData.avatar : null;
-  const avatarBgSrc = rawAvatarBg ? `/api/widgets/steam/image?url=${encodeURIComponent(rawAvatarBg)}` : null;
+  const rawAvatarBg = showBackgroundImage ? steamData.avatarfull : null;
+  const avatarBgSrc = rawAvatarBg ? steamAssetUrl(rawAvatarBg) : null;
 
   return (
     <a
@@ -196,8 +197,8 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
                   </div>
                 )}
 
-                {/* Games Count */}
-                {showGames && typeof steamData.game_count === "number" && (
+                {/* Games Count — or a lock when the library alone is hidden */}
+                {showGames && (typeof steamData.game_count === "number" ? (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
                       <path fillRule="evenodd" clipRule="evenodd" d="M17.65 4.74C19.82 5.37 21.6 7.21 21.92 9.87l.95 7.82a3.75 3.75 0 01-3.66 4.2c-1.46 0-2.8-.75-3.56-1.99l-1.35-2.2c-.32-.52-.89-.85-1.5-.85H11.2c-.61 0-1.18.33-1.5.85l-1.35 2.2a4.17 4.17 0 01-3.56 1.99 3.75 3.75 0 01-3.66-4.2l.95-7.82c.32-2.66 2.1-4.5 4.27-5.13 1.84-.53 3.82-.04 5.65.61.64.23 1.36.23 2 0 1.83-.65 3.81-1.14 5.65-.61zM7 9a1 1 0 011 1v1h1a1 1 0 110 2H8v1a1 1 0 11-2 0v-1H5a1 1 0 110-2h1v-1a1 1 0 011-1zm10 1a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5zm-2 2.5a1.25 1.25 0 100 2.5 1.25 1.25 0 000-2.5z" />
@@ -205,7 +206,14 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
                     <span className="text-white/85">{steamData.game_count.toLocaleString()}</span>
                     <span className="text-white/40">Games</span>
                   </div>
-                )}
+                ) : steamData.library_private ? (
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3H6A3.75 3.75 0 002.25 13.5v6.75A3.75 3.75 0 006 24h12a3.75 3.75 0 003.75-3.75V13.5A3.75 3.75 0 0018 9.75h-.75v-3A5.25 5.25 0 0012 1.5zm3.25 8.25v-3a3.25 3.25 0 10-6.5 0v3h6.5zM12 14.25a1.5 1.5 0 00-.75 2.8v2.2a.75.75 0 001.5 0v-2.2a1.5 1.5 0 00-.75-2.8z" />
+                    </svg>
+                    <span className="text-white/40">Library private</span>
+                  </div>
+                ) : null)}
 
                 {/* Member Since */}
                 {showMemberSince && steamData.member_since && (

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { type SteamUserData } from "@/app/api/widgets/steam/user/[id]/route";
+import { useDebouncedValue } from "./useDebouncedValue";
 
 export function useSteamUser(input: string) {
   const cleanInput = (input || "")
@@ -16,8 +17,11 @@ export function useSteamUser(input: string) {
   const [loading, setLoading] = useState<boolean>(isValidId);
   const [error, setError] = useState<Error | null>(null);
 
+  // Each lookup scrapes steamcommunity.com, so wait for typing to settle.
+  const { value: fetchInput, isPending } = useDebouncedValue(cleanInput);
+
   useEffect(() => {
-    if (!isValidId) {
+    if (!fetchInput) {
       setData(null);
       setLoading(false);
       return;
@@ -33,7 +37,7 @@ export function useSteamUser(input: string) {
 
       try {
         const res = await fetch(
-          `/api/widgets/steam/user/${encodeURIComponent(cleanInput)}`,
+          `/api/widgets/steam/user/${encodeURIComponent(fetchInput)}`,
           {
             signal: controller.signal,
           }
@@ -59,12 +63,12 @@ export function useSteamUser(input: string) {
       isMounted = false;
       controller.abort();
     };
-  }, [cleanInput, isValidId]);
+  }, [fetchInput]);
 
   return {
-    data: isValidId ? data : null,
-    loading: isValidId ? loading : false,
-    error: isValidId ? error : null,
+    data: isValidId && !isPending ? data : null,
+    loading: isValidId ? isPending || loading : false,
+    error: isValidId && !isPending ? error : null,
     isValidId,
     cleanInput,
   };

@@ -1,4 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+
+/**
+ * Steam serves avatars, frames and profile backgrounds from a handful of CDN
+ * hosts, and the animated variants are .webm/.mp4 rather than images — hence the
+ * Range passthrough below, which lets the browser seek instead of buffering the
+ * whole clip.
+ */
+const ALLOWED_HOSTS = [
+  "steamstatic.com",
+  "steamcommunity.com",
+  "steampowered.com",
+  "akamaihd.net",
+];
+
+/**
+ * Base for the CDN-relative item paths the Steam user route caches (frames,
+ * animated avatars, profile backgrounds). Resolution happens *before* the host
+ * whitelist below, so a crafted `//evil.com/x` still resolves to a foreign host
+ * and is rejected there rather than fetched.
+ */
+const ITEM_CDN = "https://cdn.fastly.steamstatic.com/steamcommunity/public/images/";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,19 +33,21 @@ export async function GET(req: NextRequest) {
 
     let parsedUrl: URL;
     try {
-      parsedUrl = new URL(imageUrl);
+      parsedUrl = new URL(imageUrl, ITEM_CDN);
     } catch {
       return new NextResponse(null, { status: 400 });
     }
 
+    if (parsedUrl.protocol !== "https:" && parsedUrl.protocol !== "http:") {
+      return new NextResponse(null, { status: 400 });
+    }
+
+    // Suffix match on a dot boundary — a bare `includes` would also accept
+    // hosts like `steamstatic.com.example.net`.
     const hostname = parsedUrl.hostname.toLowerCase();
-    const isAllowedHost =
-      hostname.endsWith(".steamstatic.com") ||
-      hostname.endsWith(".steamcommunity.com") ||
-      hostname.endsWith(".akamai.steamstatic.com") ||
-      hostname === "steamstatic.com" ||
-      hostname === "steamcommunity.com" ||
-      hostname.includes("steamstatic");
+    const isAllowedHost = ALLOWED_HOSTS.some(
+      (h) => hostname === h || hostname.endsWith(`.${h}`)
+    );
 
     if (!isAllowedHost) {
       return new NextResponse(null, { status: 403 });
@@ -39,8 +63,9 @@ export async function GET(req: NextRequest) {
       fetchHeaders["Range"] = rangeHeader;
     }
 
-    const res = await fetch(imageUrl, {
+    const res = await fetch(parsedUrl.href, {
       headers: fetchHeaders,
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       next: { revalidate: 86400 },
     });
 
@@ -48,10 +73,14 @@ export async function GET(req: NextRequest) {
       return new NextResponse(null, { status: res.status });
     }
 
-    const buffer = await res.arrayBuffer();
+    const buffer = await readImageWithLimit(res);
+    if (!buffer) {
+      return new NextResponse(null, { status: 413 });
+    }
+
     let contentType = res.headers.get("content-type") || "image/png";
-    if (imageUrl.endsWith(".webm")) contentType = "video/webm";
-    if (imageUrl.endsWith(".mp4")) contentType = "video/mp4";
+    if (parsedUrl.pathname.endsWith(".webm")) contentType = "video/webm";
+    if (parsedUrl.pathname.endsWith(".mp4")) contentType = "video/mp4";
 
     const responseHeaders: Record<string, string> = {
       "Content-Type": contentType,

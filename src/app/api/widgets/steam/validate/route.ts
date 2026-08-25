@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionUserId } from "@/lib/auth/session";
 import { fetchSteamUserData } from "../user/[id]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const sessionUserId = await getSessionUserId();
+    if (!sessionUserId) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const { id } = body;
     const cleanId = (id || "")
