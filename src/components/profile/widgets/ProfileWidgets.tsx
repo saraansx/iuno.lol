@@ -15,6 +15,8 @@ import SpotifyWidget from "./SpotifyWidget";
 import InstagramWidget from "./InstagramWidget";
 import TikTokWidget from "./TikTokWidget";
 import YouTubeWidget from "./YouTubeWidget";
+import TelegramWidget from "./TelegramWidget";
+import RobloxWidget from "./RobloxWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -58,6 +60,12 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "youtube-profile" || w.platform === "youtube") {
     return <YouTubeWidget widget={w} />;
+  }
+  if (w.type === "telegram-profile" || w.platform === "telegram") {
+    return <TelegramWidget widget={w} />;
+  }
+  if (w.type === "roblox-profile" || w.platform === "roblox") {
+    return <RobloxWidget widget={w} />;
   }
   return null;
 }

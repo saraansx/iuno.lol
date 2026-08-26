@@ -201,6 +201,12 @@ export const userSettings = mysqlTable('user_settings', {
     youtubeShowUploadDate?: boolean;
     youtubeShowBackground?: boolean;
     youtubeShowBanner?: boolean;
+    telegramShowBio?: boolean;
+    telegramShowBackground?: boolean;
+    robloxShowFollowers?: boolean;
+    robloxShowFriends?: boolean;
+    robloxShowVerifiedBadge?: boolean;
+    robloxShowBackground?: boolean;
   }>>().default([]),
 })
 

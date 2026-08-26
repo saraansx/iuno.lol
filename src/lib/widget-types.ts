@@ -23,6 +23,8 @@ export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
   valorant: ["valorant-profile"],
   steam: ["steam-profile"],
   genshin: ["genshin-profile"],
+  telegram: ["telegram-profile"],
+  roblox: ["roblox-profile"],
 };
 
 /**

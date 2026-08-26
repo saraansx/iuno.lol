@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import AddWidgetModal from "./AddWidgetModal";
-import { GenshinLogoIcon, TikTokLogoIcon } from "@/components/profile/widgets/WidgetIcons";
+import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon, TikTokLogoIcon } from "@/components/profile/widgets/WidgetIcons";
 import { getCanonicalWidgetType, areAllPlatformsFull } from "@/lib/widget-types";
 
 export interface WidgetItem {
@@ -94,6 +94,12 @@ export interface WidgetItem {
   youtubeShowUploadDate?: boolean;
   youtubeShowBackground?: boolean;
   youtubeShowBanner?: boolean;
+  telegramShowBio?: boolean;
+  telegramShowBackground?: boolean;
+  robloxShowFollowers?: boolean;
+  robloxShowFriends?: boolean;
+  robloxShowVerifiedBadge?: boolean;
+  robloxShowBackground?: boolean;
 }
 
 interface WidgetsCustomizationProps {
@@ -219,6 +225,14 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/twitch?id=${encodeURIComponent(widget.customId)}`
       );
+    } else if (widget.platform === "telegram") {
+      router.push(
+        `/dashboard/customize/profile/widgets/telegram?id=${encodeURIComponent(widget.customId)}`
+      );
+    } else if (widget.platform === "roblox") {
+      router.push(
+        `/dashboard/customize/profile/widgets/roblox?id=${encodeURIComponent(widget.customId)}`
+      );
     } else if (widget.platform === "spotify") {
       router.push(
         `/dashboard/customize/profile/widgets/spotify?type=${encodeURIComponent(widget.type)}&id=${encodeURIComponent(widget.customId)}`
@@ -303,6 +317,18 @@ export default function WidgetsCustomization({
     } else if (w.platform === "twitch") {
       router.push(
         `/dashboard/customize/profile/widgets/twitch?widgetId=${encodeURIComponent(
+          w.id
+        )}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "telegram") {
+      router.push(
+        `/dashboard/customize/profile/widgets/telegram?widgetId=${encodeURIComponent(
+          w.id
+        )}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "roblox") {
+      router.push(
+        `/dashboard/customize/profile/widgets/roblox?widgetId=${encodeURIComponent(
           w.id
         )}&id=${encodeURIComponent(w.targetId)}`
       );
@@ -446,6 +472,10 @@ export default function WidgetsCustomization({
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#9146FF">
                           <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
                         </svg>
+                      ) : w.platform === "telegram" ? (
+                        <TelegramLogoIcon size={18} className="w-[18px] h-[18px]" />
+                      ) : w.platform === "roblox" ? (
+                        <RobloxLogoIcon size={18} className="w-[18px] h-[18px]" />
                       ) : w.platform === "spotify" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760">
                           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
@@ -491,6 +521,10 @@ export default function WidgetsCustomization({
                             ? "Steam Profile"
                             : w.type === "twitch-channel" || w.platform === "twitch"
                             ? "Twitch Channel"
+                            : w.type === "telegram-profile" || w.platform === "telegram"
+                            ? "Telegram User"
+                            : w.type === "roblox-profile" || w.platform === "roblox"
+                            ? "Roblox Player"
                             : w.type === "spotify-track"
                             ? "Spotify Track"
                             : w.type === "spotify-album"

@@ -8,6 +8,8 @@ import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 import { cleanYouTubeInput } from "@/lib/youtube";
+import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
+import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -511,6 +513,12 @@ export async function updateProfileWidgets(data: {
     youtubeShowUploadDate?: boolean;
     youtubeShowBackground?: boolean;
     youtubeShowBanner?: boolean;
+    telegramShowBio?: boolean;
+    telegramShowBackground?: boolean;
+    robloxShowFollowers?: boolean;
+    robloxShowFriends?: boolean;
+    robloxShowVerifiedBadge?: boolean;
+    robloxShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -545,6 +553,8 @@ export async function updateProfileWidgets(data: {
   let instagramCount = 0;
   let tiktokCount = 0;
   let youtubeCount = 0;
+  let telegramCount = 0;
+  let robloxCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -573,6 +583,10 @@ export async function updateProfileWidgets(data: {
         ? "tiktok"
         : w.type === "youtube-profile" || w.platform === "youtube"
         ? "youtube"
+        : w.type === "telegram-profile" || w.platform === "telegram"
+        ? "telegram"
+        : w.type === "roblox-profile" || w.platform === "roblox"
+        ? "roblox"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -588,6 +602,8 @@ export async function updateProfileWidgets(data: {
     if (type === "instagram") instagramCount++;
     if (type === "tiktok") tiktokCount++;
     if (type === "youtube") youtubeCount++;
+    if (type === "telegram") telegramCount++;
+    if (type === "roblox") robloxCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -631,6 +647,12 @@ export async function updateProfileWidgets(data: {
   if (youtubeCount > 1) {
     throw new Error("You can only add 1 YouTube widget.");
   }
+  if (telegramCount > 1) {
+    throw new Error("You can only add 1 Telegram widget.");
+  }
+  if (robloxCount > 1) {
+    throw new Error("You can only add 1 Roblox widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -657,6 +679,10 @@ export async function updateProfileWidgets(data: {
         ? "tiktok"
         : w.platform === "youtube"
         ? "youtube"
+        : w.platform === "telegram"
+        ? "telegram"
+        : w.platform === "roblox"
+        ? "roblox"
         : "discord";
     const type =
       w.type === "server"
@@ -693,6 +719,10 @@ export async function updateProfileWidgets(data: {
         ? "tiktok-profile"
         : w.type === "youtube-profile" || w.platform === "youtube"
         ? "youtube-profile"
+        : w.type === "telegram-profile" || w.platform === "telegram"
+        ? "telegram-profile"
+        : w.type === "roblox-profile" || w.platform === "roblox"
+        ? "roblox-profile"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -792,6 +822,20 @@ export async function updateProfileWidgets(data: {
       targetId = cleanYouTubeInput(String(w.targetId || "")).slice(0, 30);
       if (!targetId || !/^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(targetId)) {
         throw new Error("Invalid YouTube channel format");
+      }
+    } else if (platform === "telegram") {
+      targetId = cleanTelegramUsername(String(w.targetId || "")).slice(0, 32);
+      if (!isValidTelegramUsername(targetId)) {
+        throw new Error(
+          "Invalid Telegram username format (5-32 characters, letters/numbers/underscore, must start with a letter)"
+        );
+      }
+    } else if (platform === "roblox") {
+      targetId = cleanRobloxInput(String(w.targetId || "")).slice(0, 20);
+      if (!isValidRobloxInput(targetId)) {
+        throw new Error(
+          "Invalid Roblox user ID or username (3-20 letters, numbers and underscores)"
+        );
       }
     }
 
@@ -912,6 +956,12 @@ export async function updateProfileWidgets(data: {
       // The banner and the blurred background image are mutually exclusive
       // backdrops; the banner wins if a record somehow arrives with both set.
       youtubeShowBanner: w.youtubeShowBanner !== undefined ? Boolean(w.youtubeShowBanner) : false,
+      telegramShowBio: w.telegramShowBio !== undefined ? Boolean(w.telegramShowBio) : true,
+      telegramShowBackground: w.telegramShowBackground !== undefined ? Boolean(w.telegramShowBackground) : false,
+      robloxShowFollowers: w.robloxShowFollowers !== undefined ? Boolean(w.robloxShowFollowers) : true,
+      robloxShowFriends: w.robloxShowFriends !== undefined ? Boolean(w.robloxShowFriends) : true,
+      robloxShowVerifiedBadge: w.robloxShowVerifiedBadge !== undefined ? Boolean(w.robloxShowVerifiedBadge) : true,
+      robloxShowBackground: w.robloxShowBackground !== undefined ? Boolean(w.robloxShowBackground) : false,
     };
   });
 

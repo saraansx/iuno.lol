@@ -826,3 +826,120 @@ export function YouTubeCalendarIcon({
   );
 }
 
+/* ==========================================================================
+   TELEGRAM
+   ========================================================================== */
+
+/** Telegram paper-plane mark, in the brand blue. */
+export function TelegramLogoIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="#2AABEE"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 24c6.627 0 12-5.373 12-12S18.627 0 12 0 0 5.373 0 12s5.373 12 12 12zm5.568-17.75c.203-.03.41.01.577.132.146.135.223.328.21.526-.02.24-.06.478-.12.712-.44 2.09-.9 4.176-1.362 6.262-.114.516-.24 1.03-.404 1.532-.07.234-.196.448-.366.622-.222.196-.55.22-.8.06-.29-.166-.56-.364-.83-.56-.79-.577-1.58-1.155-2.363-1.74-.13-.09-.24-.2-.33-.33-.11-.19-.07-.44.09-.59.5-.5 1.02-.98 1.53-1.47.42-.4.85-.79 1.26-1.2.07-.08.13-.19.06-.29-.08-.1-.22-.07-.32-.02-.28.16-.55.34-.82.52-1.28.84-2.56 1.68-3.85 2.5-.32.22-.7.31-1.08.25-.5-.11-.99-.26-1.47-.44-.27-.1-.55-.2-.78-.38-.16-.12-.2-.36-.08-.52.09-.13.23-.21.37-.27.53-.22 1.07-.42 1.61-.62 2.74-1.02 5.48-2.04 8.22-3.05.36-.14.73-.26 1.11-.34.05-.01.1-.02.15-.02z" />
+    </svg>
+  );
+}
+
+/** Bio line marker for the Telegram card. */
+export function TelegramBioIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M4 4h16a2 2 0 012 2v12a2 2 0 01-2 2H4a2 2 0 01-2-2V6a2 2 0 012-2zm2 4a1 1 0 000 2h12a1 1 0 000-2H6zm0 4a1 1 0 000 2h12a1 1 0 000-2H6zm0 4a1 1 0 000 2h7a1 1 0 000-2H6z" />
+    </svg>
+  );
+}
+
+/* ==========================================================================
+   ROBLOX
+   ========================================================================== */
+
+/** Roblox tilted-square mark. */
+export function RobloxLogoIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 text-white ${className}`}
+      {...props}
+    >
+      <path d="M18.926 23.998 0 18.892 5.075.002 24 5.108ZM15.348 10.29l-5.13-1.4-1.4 5.129 5.13 1.4z" />
+    </svg>
+  );
+}
+
+/** Roblox verified checkmark, in the platform's blue. */
+export function RobloxVerifiedBadgeIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return <VerifiedBadgeIcon fill="#0066FF" size={size} className={className} {...props} />;
+}
+
+/** Followers marker for the Roblox card. */
+export function RobloxFollowersIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 12a5 5 0 100-10 5 5 0 000 10zm0 2c-4.418 0-8 2.239-8 5v1a1 1 0 001 1h14a1 1 0 001-1v-1c0-2.761-3.582-5-8-5z" />
+    </svg>
+  );
+}
+
+/** Friends marker for the Roblox card. */
+export function RobloxFriendsIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M9 11a4 4 0 100-8 4 4 0 000 8zm7.5 0a3 3 0 100-6 3 3 0 000 6zM9 13c-3.866 0-7 1.79-7 4v1a1 1 0 001 1h12a1 1 0 001-1v-1c0-2.21-3.134-4-7-4zm7.5 0c-.86 0-1.673.1-2.406.28C15.28 14.185 16 15.49 16 17v1a2.99 2.99 0 01-.17 1H21a1 1 0 001-1v-.75C22 14.679 19.538 13 16.5 13z" />
+    </svg>
+  );
+}
+
