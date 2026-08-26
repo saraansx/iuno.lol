@@ -65,8 +65,6 @@ export async function updateGeneralProfile(data: {
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   avatarDecorationUrl?: string | null;
   avatarDecorationHue?: number;
-  profileFrameUrl?: string | null;
-  profileFrameHue?: number;
   profileEffectUrl?: string | null;
   profileEffectHue?: number;
   bannerImageUrl?: string | null;
@@ -87,9 +85,6 @@ export async function updateGeneralProfile(data: {
 
   // Validate that all image URLs point to our own S3 bucket
   const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.avatarDecorationUrl];
-  if (data.profileFrameUrl && !data.profileFrameUrl.startsWith("frame:")) {
-    urlFields.push(data.profileFrameUrl);
-  }
   if (data.profileEffectUrl && !data.profileEffectUrl.startsWith("effect:")) {
     urlFields.push(data.profileEffectUrl);
   }
@@ -119,14 +114,6 @@ export async function updateGeneralProfile(data: {
   if (data.avatarDecorationUrl !== undefined) setData.avatarDecorationUrl = data.avatarDecorationUrl;
   if (data.avatarDecorationHue !== undefined) setData.avatarDecorationHue = data.avatarDecorationHue;
   
-  if (data.profileFrameUrl !== undefined) {
-    if (data.profileFrameUrl === "" || data.profileFrameUrl === null) {
-      setData.profileFrameUrl = null;
-    } else {
-      setData.profileFrameUrl = data.profileFrameUrl;
-    }
-  }
-  if (data.profileFrameHue !== undefined) setData.profileFrameHue = data.profileFrameHue;
 
   if (data.profileEffectUrl !== undefined) {
     if (data.profileEffectUrl === "" || data.profileEffectUrl === null) {
@@ -676,8 +663,8 @@ export async function updateProfileWidgets(data: {
   if (weatherCount > 1) {
     throw new Error("You can only add 1 Weather widget.");
   }
-  if ((data.widgets || []).length > 6) {
-    throw new Error("You can only add a maximum of 6 widgets.");
+  if ((data.widgets || []).length > 4) {
+    throw new Error("You can only add a maximum of 4 widgets.");
   }
 
   const sanitizedWidgets = (data.widgets || []).slice(0, 6).map((w) => {

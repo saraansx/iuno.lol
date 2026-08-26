@@ -10,7 +10,6 @@ interface AssetsSectionProps {
   setAvatarShape: (shape: "square" | "soft" | "rounded" | "circle") => void;
   selectedDecoration: Decoration | null;
   decorationHue: number;
-  selectedFrame: Decoration | null;
   selectedEffect?: Decoration | null;
   bannerImageUrl: string;
   setBannerImageUrl: (url: string) => void;
@@ -20,7 +19,6 @@ interface AssetsSectionProps {
   setBannerBackgroundUrl: (url: string) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
-  setFramesPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
   setBannerImageModalOpen: (open: boolean) => void;
   setBannerBackgroundModalOpen: (open: boolean) => void;
@@ -34,7 +32,6 @@ export default function AssetsSection({
   setAvatarShape,
   selectedDecoration,
   decorationHue,
-  selectedFrame,
   selectedEffect,
   bannerImageUrl,
   setBannerImageUrl,
@@ -44,7 +41,6 @@ export default function AssetsSection({
   setBannerBackgroundUrl,
   setAvatarModalOpen,
   setDecorationPickerOpen,
-  setFramesPickerOpen,
   setEffectsPickerOpen,
   setBannerImageModalOpen,
   setBannerBackgroundModalOpen,
@@ -95,7 +91,7 @@ export default function AssetsSection({
                   </svg>
                 )}
               </div>
-              {selectedDecoration && !selectedDecoration.url.startsWith("frame:") && (
+              {selectedDecoration && (
                 <div className="pointer-events-none absolute -inset-2 z-10">
                   <Image
                     src={selectedDecoration.url}
@@ -129,7 +125,7 @@ export default function AssetsSection({
                   </button>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-2 w-full">
+              <div className="grid grid-cols-2 gap-2 w-full">
                 <button
                   onClick={() => setDecorationPickerOpen(true)}
                   className="bg-[#161616] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] text-white/90 py-2.5 px-3 rounded-xl transition-all flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
@@ -140,18 +136,6 @@ export default function AssetsSection({
                   </div>
                   <span className="text-white/35 text-[11px] font-normal truncate w-full text-left">
                     {selectedDecoration ? selectedDecoration.name : "None"}
-                  </span>
-                </button>
-                <button
-                  onClick={() => setFramesPickerOpen(true)}
-                  className="bg-[#161616] border border-white/5 hover:border-white/10 hover:bg-white/[0.04] text-white/90 py-2.5 px-3 rounded-xl transition-all flex flex-col gap-1 items-start cursor-pointer min-w-0 overflow-hidden"
-                >
-                  <div className="flex items-center gap-1.5 text-white/90 w-full">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#7284f6] shrink-0"><line x1="22" x2="2" y1="6" y2="6"/><line x1="22" x2="2" y1="18" y2="18"/><line x1="6" x2="6" y1="2" y2="22"/><line x1="18" x2="18" y1="2" y2="22"/></svg>
-                    <span className="text-[12.5px] font-normal truncate">Frame</span>
-                  </div>
-                  <span className="text-white/35 text-[11px] font-normal truncate w-full text-left">
-                    {selectedFrame ? selectedFrame.name : "None"}
                   </span>
                 </button>
                 {setEffectsPickerOpen && (

@@ -172,18 +172,6 @@ interface Layout1Props {
   widgetBorderOpacity?: number;
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
-  selectedFrame?: {
-    inner_width?: number;
-    overflow_horizontal?: number;
-    overflow_top?: number;
-    overflow_bottom?: number;
-    layers: {
-      id: string;
-      url: string;
-      order: string;
-      anchor?: string;
-    }[];
-  } | null;
   selectedEffect?: {
     id: string;
     name: string;
@@ -196,7 +184,6 @@ interface Layout1Props {
       z_index?: number;
     }[];
   } | null;
-  frameHue?: number;
   effectHue?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
@@ -308,8 +295,6 @@ const Layout1 = ({
   avatarShape = "rounded",
   selectedDecoration,
   decorationHue = 0,
-  selectedFrame,
-  frameHue = 0,
   selectedEffect,
   effectHue = 0,
   bannerImageUrl,
@@ -609,28 +594,6 @@ const Layout1 = ({
         <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
         <div className="w-full max-w-[764px] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
-          {selectedFrame && (
-            <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
-              {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  key={layer.id}
-                  src={layer.url}
-                  alt="Profile Frame Layer"
-                  className="absolute max-w-none"
-                  style={{
-                    width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                    left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                    top: layer.anchor === "top" ? 0 : undefined,
-                    bottom: layer.anchor === "bottom" ? 0 : undefined,
-                    marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                    marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                    filter: `hue-rotate(${frameHue}deg)`
-                  }}
-                />
-              ))}
-            </div>
-          )}
           {/* Border Effect Overlay */}
           <BorderEffect
             effect={borderEffect}
@@ -688,28 +651,6 @@ const Layout1 = ({
           )}
 
           {/* Profile Frame Overlay (Front Layers) */}
-          {selectedFrame && (
-            <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
-              {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  key={layer.id}
-                  src={layer.url}
-                  alt="Profile Frame Layer"
-                  className="absolute max-w-none"
-                  style={{
-                    width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                    left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                    top: layer.anchor === "top" ? 0 : undefined,
-                    bottom: layer.anchor === "bottom" ? 0 : undefined,
-                    marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                    marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                    filter: `hue-rotate(${frameHue}deg)`
-                  }}
-                />
-              ))}
-            </div>
-          )}
 
           {/* Content — always full opacity, positioned independently */}
           <div
@@ -1058,28 +999,6 @@ const Layout1 = ({
         <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
         <div className="w-full max-w-[764px] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
-        {selectedFrame && (
-          <div className="absolute inset-0 pointer-events-none z-0" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
-            {selectedFrame.layers.filter((l: { order: string }) => l.order === 'back').map((layer: { id: string, url: string, anchor?: string }) => (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                key={layer.id}
-                src={layer.url}
-                alt="Profile Frame Layer"
-                className="absolute max-w-none"
-                style={{
-                  width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                  left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                  top: layer.anchor === "top" ? 0 : undefined,
-                  bottom: layer.anchor === "bottom" ? 0 : undefined,
-                  marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                  marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                  filter: `hue-rotate(${frameHue}deg)`
-                }}
-              />
-            ))}
-          </div>
-        )}
         {/* Profile Effect Animation Layers (Non-banner) */}
         {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
           <div
@@ -1135,28 +1054,6 @@ const Layout1 = ({
         />
 
         {/* Profile Frame Overlay (Front Layers) */}
-        {selectedFrame && (
-          <div className="absolute inset-0 pointer-events-none z-[60]" style={{ filter: `hue-rotate(${frameHue}deg)` }}>
-            {selectedFrame.layers.filter((l: { order: string }) => l.order === 'front').map((layer: { id: string, url: string, anchor?: string }) => (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                key={layer.id}
-                src={layer.url}
-                alt="Profile Frame Layer"
-                className="absolute max-w-none"
-                style={{
-                  width: `${(((selectedFrame.inner_width || 1200) + (selectedFrame.overflow_horizontal || 0) * 2) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                  left: `${-((selectedFrame.overflow_horizontal || 0) / (selectedFrame.inner_width || 1200)) * 100}%`,
-                  top: layer.anchor === "top" ? 0 : undefined,
-                  bottom: layer.anchor === "bottom" ? 0 : undefined,
-                  marginTop: layer.anchor === "top" ? `${-((selectedFrame.overflow_top || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                  marginBottom: layer.anchor === "bottom" ? `${-((selectedFrame.overflow_bottom || 0) / (selectedFrame.inner_width || 1200)) * 100}%` : undefined,
-                  filter: `hue-rotate(${frameHue}deg)`
-                }}
-              />
-            ))}
-          </div>
-        )}
 
         {/* Content — always full opacity, positioned independently */}
         <div

@@ -47,8 +47,6 @@ export const userSettings = mysqlTable('user_settings', {
   avatarUrl: varchar('avatar_url', { length: 500 }),
   avatarDecorationUrl: varchar('avatar_decoration_url', { length: 500 }),
   avatarDecorationHue: int('avatar_decoration_hue').default(0),
-  profileFrameUrl: varchar('profile_frame_url', { length: 500 }),
-  profileFrameHue: int('profile_frame_hue').default(0),
   profileEffectUrl: varchar('profile_effect_url', { length: 500 }),
   profileEffectHue: int('profile_effect_hue').default(0),
   avatarShape: mysqlEnum('avatar_shape', ['square', 'soft', 'rounded', 'circle']).default('rounded'),

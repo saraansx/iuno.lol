@@ -117,7 +117,7 @@ interface WidgetsCustomizationProps {
 
 export default function WidgetsCustomization({
   initialWidgets = [],
-  maxWidgets = 6,
+  maxWidgets = 4,
   linkedDiscordId,
   linkedDiscordUsername,
   onWidgetsChange,

@@ -11,11 +11,9 @@ import GeneralInfoSection from "@/components/dashboard/customize/general/General
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
 import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
-import FramesPicker from "@/components/dashboard/FramesPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import decorations from "@/Deco.json";
-import frames from "@/Frames.json";
 import effects from "@/effects.json";
 
 import { type FullUser } from "@/lib/features/users/db";
@@ -34,8 +32,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialAvatarShape = (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded";
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
   const initialDecorationHue = user?.avatarDecorationHue ?? 0;
-  const initialFrameUrl = user?.profileFrameUrl ?? null;
-  const initialFrameHue = user?.profileFrameHue ?? 0;
   const initialEffectUrl = user?.profileEffectUrl ?? null;
   const initialEffectHue = user?.profileEffectHue ?? 0;
   const initialBannerImageUrl = user?.bannerImageUrl ?? "";
@@ -63,7 +59,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
-  const [framesPickerOpen, setFramesPickerOpen] = useState(false);
   const [effectsPickerOpen, setEffectsPickerOpen] = useState(false);
 
   const avatarDecorationUrl = overrides.avatarDecorationUrl !== undefined ? overrides.avatarDecorationUrl : initialDecorationUrl;
@@ -84,23 +79,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
     updateOverrides({ avatarDecorationHue: val === initialDecorationHue ? undefined : val });
   };
 
-  const profileFrameUrl = overrides.profileFrameUrl !== undefined ? overrides.profileFrameUrl : initialFrameUrl;
-  const selectedFrame = profileFrameUrl
-    ? {
-        id: "custom",
-        name: (frames as { sku_id: string, name: string }[]).find(f => f.sku_id === profileFrameUrl.split("frame:")[1])?.name || "Custom Frame",
-        url: profileFrameUrl
-      } as Decoration
-    : null;
-  const setSelectedFrame = (val: Decoration | null) => {
-    const newUrl = val ? val.url : null;
-    const isSame = newUrl === initialFrameUrl;
-    updateOverrides({ profileFrameUrl: isSame ? undefined : newUrl });
-  };
-  const frameHue = overrides.profileFrameHue ?? initialFrameHue ?? 0;
-  const setFrameHue = (val: number) => {
-    updateOverrides({ profileFrameHue: val === initialFrameHue ? undefined : val });
-  };
 
   const profileEffectUrl = overrides.profileEffectUrl !== undefined ? overrides.profileEffectUrl : initialEffectUrl;
   const selectedEffect = profileEffectUrl
@@ -135,7 +113,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setAvatarShape={setAvatarShape}
           selectedDecoration={selectedDecoration}
           decorationHue={decorationHue}
-          selectedFrame={selectedFrame}
           selectedEffect={selectedEffect}
           bannerImageUrl={bannerImageUrl}
           setBannerImageUrl={setBannerImageUrl}
@@ -145,7 +122,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setBannerBackgroundUrl={setBannerBackgroundUrl}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
-          setFramesPickerOpen={setFramesPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
           setBannerImageModalOpen={setBannerImageModalOpen}
           setBannerBackgroundModalOpen={setBannerBackgroundModalOpen}
@@ -205,16 +181,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         onDecorationHueChange={setDecorationHue}
       />
 
-      <FramesPicker
-        open={framesPickerOpen}
-        avatarUrl={avatarUrl}
-        avatarShape={avatarShape}
-        selectedFrame={selectedFrame}
-        frameHue={frameHue}
-        onClose={() => setFramesPickerOpen(false)}
-        onSelectFrame={setSelectedFrame}
-        onFrameHueChange={setFrameHue}
-      />
 
       <EffectsPicker
         open={effectsPickerOpen}
