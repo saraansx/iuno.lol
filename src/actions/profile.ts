@@ -104,8 +104,8 @@ export async function updateGeneralProfile(data: {
   if (data.occupation !== undefined) setData.occupation = data.occupation.slice(0, 50);
   if (data.bio !== undefined) {
     let bioVal = data.bio;
-    if (bioVal.split('\n').length > 10) {
-      bioVal = bioVal.split('\n').slice(0, 10).join('\n');
+    if (bioVal.split('\n').length > 5) {
+      bioVal = bioVal.split('\n').slice(0, 5).join('\n');
     }
     setData.bio = bioVal.slice(0, 200);
   }

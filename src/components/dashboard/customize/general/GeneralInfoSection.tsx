@@ -133,8 +133,8 @@ export default function GeneralInfoSection({
             <label className="text-[12.5px] font-medium text-white/90">Description</label>
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-white/30">{bio.length}/200</span>
-              <span className={`text-[11px] ${bio.split('\n').length >= 10 ? 'text-red-400' : 'text-white/30'}`}>
-                {bio.split('\n').length}/10 lines
+              <span className={`text-[11px] ${bio.split('\n').length >= 5 ? 'text-red-400' : 'text-white/30'}`}>
+                {bio.split('\n').length}/5 lines
               </span>
             </div>
           </div>
@@ -194,8 +194,8 @@ export default function GeneralInfoSection({
             value={bio}
             onChange={(e) => {
               let val = e.target.value;
-              if (val.split('\n').length > 10) {
-                val = val.split('\n').slice(0, 10).join('\n');
+              if (val.split('\n').length > 5) {
+                val = val.split('\n').slice(0, 5).join('\n');
               }
               setBio(val.slice(0, 200));
             }}
