@@ -943,3 +943,178 @@ export function RobloxFriendsIcon({
   );
 }
 
+/* ==========================================================================
+   WEATHER
+   ========================================================================== */
+
+/** Thermometer marker for the temperature stat. */
+export function WeatherTemperatureIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 2a3 3 0 00-3 3v8.35a5 5 0 106 0V5a3 3 0 00-3-3zm0 2a1 1 0 011 1v9.4l.5.3a3 3 0 11-3 0l.5-.3V5a1 1 0 011-1z" />
+    </svg>
+  );
+}
+
+/** Cloud marker for the condition stat. */
+export function WeatherConditionMarkerIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M6.5 19a4.5 4.5 0 01-.42-8.98A6 6 0 0117.7 9.2 4.5 4.5 0 0117.5 19h-11z" />
+    </svg>
+  );
+}
+
+/**
+ * The card's main condition illustration.
+ *
+ * One component rather than eight exports: the card picks an icon purely from
+ * the resolved `WeatherIconKind` plus whether it is day, and keeping the mapping
+ * here means the card never has to branch on condition itself. Colours are baked
+ * in rather than inherited — a sun that renders in the text colour reads as a
+ * grey blob, and the illustration is the one place in the card that is meant to
+ * carry colour.
+ */
+export function WeatherConditionIcon({
+  kind = "cloudy",
+  isDay = true,
+  size = 56,
+  className = "",
+  ...props
+}: WidgetIconProps & {
+  kind?:
+    | "clear"
+    | "partly-cloudy"
+    | "cloudy"
+    | "fog"
+    | "drizzle"
+    | "rain"
+    | "snow"
+    | "thunderstorm";
+  isDay?: boolean;
+}) {
+  const cloud = "#c9d4e0";
+  const cloudDark = "#9fb0c4";
+  const sun = "#ffc531";
+  const moon = "#e8eef7";
+  const rain = "#4c9ff0";
+  const snow = "#e4f1ff";
+  const bolt = "#ffc531";
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      {/* Sun or moon, shown for clear and partly-cloudy skies. */}
+      {(kind === "clear" || kind === "partly-cloudy") &&
+        (isDay ? (
+          <g>
+            <circle
+              cx={kind === "clear" ? 32 : 24}
+              cy={kind === "clear" ? 32 : 24}
+              r={kind === "clear" ? 13 : 10}
+              fill={sun}
+            />
+            {kind === "clear" &&
+              [0, 45, 90, 135, 180, 225, 270, 315].map((deg) => (
+                <rect
+                  key={deg}
+                  x="30.5"
+                  y="3"
+                  width="3"
+                  height="8"
+                  rx="1.5"
+                  fill={sun}
+                  transform={`rotate(${deg} 32 32)`}
+                />
+              ))}
+          </g>
+        ) : (
+          <path
+            d={
+              kind === "clear"
+                ? "M40 32a14 14 0 01-19.8 12.7A16 16 0 0032 16a16 16 0 00-11.8 5.2A14 14 0 0140 32z"
+                : "M32 24a10 10 0 01-14.1 9.1A11.4 11.4 0 0024 12a11.4 11.4 0 00-8.4 3.7A10 10 0 0132 24z"
+            }
+            fill={moon}
+          />
+        ))}
+
+      {/* Cloud body — present for everything except a fully clear sky. */}
+      {kind !== "clear" && (
+        <path
+          d="M20 46a10 10 0 01-1-19.9A13.5 13.5 0 0145 30.5h.5a8 8 0 010 15.5H20z"
+          fill={kind === "fog" ? cloudDark : cloud}
+        />
+      )}
+
+      {/* Fog bars sit under the cloud instead of precipitation. */}
+      {kind === "fog" &&
+        [52, 58].map((y, i) => (
+          <rect
+            key={y}
+            x={i === 0 ? 14 : 20}
+            y={y}
+            width={i === 0 ? 36 : 26}
+            height="3"
+            rx="1.5"
+            fill={cloudDark}
+          />
+        ))}
+
+      {/* Drizzle and rain: short slanted streaks, denser for rain. */}
+      {(kind === "drizzle" || kind === "rain") &&
+        (kind === "rain" ? [22, 32, 42] : [26, 38]).map((x) => (
+          <rect
+            key={x}
+            x={x}
+            y="50"
+            width="3"
+            height={kind === "rain" ? 11 : 8}
+            rx="1.5"
+            fill={rain}
+            transform={`rotate(14 ${x} 50)`}
+          />
+        ))}
+
+      {/* Snow: flakes rather than streaks. */}
+      {kind === "snow" &&
+        [22, 32, 42].map((x, i) => (
+          <circle key={x} cx={x} cy={i === 1 ? 58 : 54} r="2.6" fill={snow} />
+        ))}
+
+      {/* Thunderstorm: a single bolt, no rain, so it stays legible at 56px. */}
+      {kind === "thunderstorm" && (
+        <path d="M34 48l-10 9h7l-3 8 11-11h-7l4-6z" fill={bolt} />
+      )}
+    </svg>
+  );
+}
+

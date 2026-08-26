@@ -25,6 +25,7 @@ export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
   genshin: ["genshin-profile"],
   telegram: ["telegram-profile"],
   roblox: ["roblox-profile"],
+  weather: ["weather-current"],
 };
 
 /**

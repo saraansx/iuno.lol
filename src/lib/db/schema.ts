@@ -207,6 +207,11 @@ export const userSettings = mysqlTable('user_settings', {
     robloxShowFriends?: boolean;
     robloxShowVerifiedBadge?: boolean;
     robloxShowBackground?: boolean;
+    weatherUnit?: 'celsius' | 'fahrenheit' | 'both';
+    weatherShowCondition?: boolean;
+    weatherShowFeelsLike?: boolean;
+    weatherShowLocation?: boolean;
+    weatherShowBackground?: boolean;
   }>>().default([]),
 })
 

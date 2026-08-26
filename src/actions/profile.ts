@@ -10,6 +10,7 @@ import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
+import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -519,6 +520,11 @@ export async function updateProfileWidgets(data: {
     robloxShowFriends?: boolean;
     robloxShowVerifiedBadge?: boolean;
     robloxShowBackground?: boolean;
+    weatherUnit?: 'celsius' | 'fahrenheit' | 'both';
+    weatherShowCondition?: boolean;
+    weatherShowFeelsLike?: boolean;
+    weatherShowLocation?: boolean;
+    weatherShowBackground?: boolean;
   }>;
 }) {
   const userId = await getSessionUserId();
@@ -555,6 +561,7 @@ export async function updateProfileWidgets(data: {
   let youtubeCount = 0;
   let telegramCount = 0;
   let robloxCount = 0;
+  let weatherCount = 0;
   for (const w of data.widgets || []) {
     const type =
       w.type === "server"
@@ -587,6 +594,8 @@ export async function updateProfileWidgets(data: {
         ? "telegram"
         : w.type === "roblox-profile" || w.platform === "roblox"
         ? "roblox"
+        : w.type === "weather-current" || w.platform === "weather"
+        ? "weather"
         : "presence";
     if (type === "presence") presenceCount++;
     if (type === "server") serverCount++;
@@ -604,6 +613,7 @@ export async function updateProfileWidgets(data: {
     if (type === "youtube") youtubeCount++;
     if (type === "telegram") telegramCount++;
     if (type === "roblox") robloxCount++;
+    if (type === "weather") weatherCount++;
   }
   if (presenceCount > 1) {
     throw new Error("You can only add 1 Discord Presence widget.");
@@ -653,6 +663,9 @@ export async function updateProfileWidgets(data: {
   if (robloxCount > 1) {
     throw new Error("You can only add 1 Roblox widget.");
   }
+  if (weatherCount > 1) {
+    throw new Error("You can only add 1 Weather widget.");
+  }
   if ((data.widgets || []).length > 6) {
     throw new Error("You can only add a maximum of 6 widgets.");
   }
@@ -683,6 +696,8 @@ export async function updateProfileWidgets(data: {
         ? "telegram"
         : w.platform === "roblox"
         ? "roblox"
+        : w.platform === "weather"
+        ? "weather"
         : "discord";
     const type =
       w.type === "server"
@@ -723,6 +738,8 @@ export async function updateProfileWidgets(data: {
         ? "telegram-profile"
         : w.type === "roblox-profile" || w.platform === "roblox"
         ? "roblox-profile"
+        : w.type === "weather-current" || w.platform === "weather"
+        ? "weather-current"
         : "presence";
     let targetId = "";
     let useLinked = false;
@@ -835,6 +852,13 @@ export async function updateProfileWidgets(data: {
       if (!isValidRobloxInput(targetId)) {
         throw new Error(
           "Invalid Roblox user ID or username (3-20 letters, numbers and underscores)"
+        );
+      }
+    } else if (platform === "weather") {
+      targetId = cleanWeatherLocation(String(w.targetId || "")).slice(0, 80);
+      if (!isValidWeatherLocation(targetId)) {
+        throw new Error(
+          "Invalid location (a city name, optionally with state and country, or 'lat,lon' coordinates)"
         );
       }
     }
@@ -962,6 +986,15 @@ export async function updateProfileWidgets(data: {
       robloxShowFriends: w.robloxShowFriends !== undefined ? Boolean(w.robloxShowFriends) : true,
       robloxShowVerifiedBadge: w.robloxShowVerifiedBadge !== undefined ? Boolean(w.robloxShowVerifiedBadge) : true,
       robloxShowBackground: w.robloxShowBackground !== undefined ? Boolean(w.robloxShowBackground) : false,
+      weatherUnit: (["celsius", "fahrenheit", "both"] as const).includes(
+        w.weatherUnit as "celsius" | "fahrenheit" | "both"
+      )
+        ? (w.weatherUnit as "celsius" | "fahrenheit" | "both")
+        : "celsius",
+      weatherShowCondition: w.weatherShowCondition !== undefined ? Boolean(w.weatherShowCondition) : true,
+      weatherShowFeelsLike: w.weatherShowFeelsLike !== undefined ? Boolean(w.weatherShowFeelsLike) : false,
+      weatherShowLocation: w.weatherShowLocation !== undefined ? Boolean(w.weatherShowLocation) : true,
+      weatherShowBackground: w.weatherShowBackground !== undefined ? Boolean(w.weatherShowBackground) : false,
     };
   });
 

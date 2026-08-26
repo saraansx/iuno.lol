@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon } from "@/components/profile/widgets/WidgetIcons";
+import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
 import { parseSpotifyIdentifier } from "@/lib/spotify";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
+import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { PLATFORM_WIDGET_TYPES, isPlatformFull } from "@/lib/widget-types";
 
 interface AddWidgetModalProps {
@@ -34,6 +35,7 @@ const PLATFORMS = [
   { id: "genshin", name: "Genshin Impact" },
   { id: "telegram", name: "Telegram" },
   { id: "roblox", name: "Roblox" },
+  { id: "weather", name: "Weather" },
 ];
 
 const SPOTIFY_TYPES = [
@@ -80,6 +82,7 @@ export default function AddWidgetModal({
   const [genshinUid, setGenshinUid] = useState("");
   const [telegramUsername, setTelegramUsername] = useState("");
   const [robloxInput, setRobloxInput] = useState("");
+  const [weatherLocation, setWeatherLocation] = useState("");
   const [customWidgetType, setCustomWidgetType] = useState<string | null>(null);
   const [useLinkedAccount, setUseLinkedAccount] = useState(Boolean(linkedDiscordId));
   const modalRef = useRef<HTMLDivElement>(null);
@@ -162,6 +165,7 @@ export default function AddWidgetModal({
   const isGenshin = selectedPlatform === "genshin";
   const isTelegram = selectedPlatform === "telegram";
   const isRoblox = selectedPlatform === "roblox";
+  const isWeather = selectedPlatform === "weather";
   const isPresence = widgetType === "presence";
   const isServer = widgetType === "server";
   const isGitHubUser = widgetType === "github-user";
@@ -203,6 +207,8 @@ export default function AddWidgetModal({
     ? cleanTelegramUsername(telegramUsername)
     : isRoblox
     ? cleanRobloxInput(robloxInput)
+    : isWeather
+    ? cleanWeatherLocation(weatherLocation)
     : "";
 
   // For Spotify the pasted link/URI can resolve to a different sub-type than the
@@ -254,6 +260,8 @@ export default function AddWidgetModal({
       ? isValidTelegramUsername(cleanTelegramUsername(telegramUsername))
       : isRoblox
       ? isValidRobloxInput(cleanRobloxInput(robloxInput))
+      : isWeather
+      ? isValidWeatherLocation(cleanWeatherLocation(weatherLocation))
       : false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -379,6 +387,14 @@ export default function AddWidgetModal({
         customId: targetId,
       });
       onClose();
+    } else if (isWeather) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
     }
   };
 
@@ -453,6 +469,12 @@ export default function AddWidgetModal({
                   <TelegramLogoIcon size={18} className="w-[18px] h-[18px]" />
                 ) : selectedPlatform === "roblox" ? (
                   <RobloxLogoIcon size={18} className="w-[18px] h-[18px]" />
+                ) : selectedPlatform === "weather" ? (
+                  <WeatherConditionIcon
+                    kind="partly-cloudy"
+                    size={18}
+                    className="w-[18px] h-[18px]"
+                  />
                 ) : selectedPlatform === "github" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                     <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -543,6 +565,12 @@ export default function AddWidgetModal({
                           <TelegramLogoIcon size={16} className="w-4 h-4" />
                         ) : platform.id === "roblox" ? (
                           <RobloxLogoIcon size={16} className="w-4 h-4" />
+                        ) : platform.id === "weather" ? (
+                          <WeatherConditionIcon
+                            kind="partly-cloudy"
+                            size={16}
+                            className="w-4 h-4"
+                          />
                         ) : platform.id === "github" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white">
                             <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -1127,6 +1155,26 @@ export default function AddWidgetModal({
             <p className="text-[11px] text-white/30 leading-normal mt-0.5">
               A Roblox profile link, the numeric User ID, or a username (e.g.
               &apos;builderman&apos;).
+            </p>
+          </div>
+        )}
+
+        {isWeather && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Location</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={weatherLocation}
+                onChange={(e) => setWeatherLocation(e.target.value)}
+                placeholder="e.g. Vienna, Austria"
+                maxLength={80}
+                className="w-full bg-transparent text-[13px] text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              A city name, optionally with state and country, or &apos;lat,lon&apos;
+              coordinates.
             </p>
           </div>
         )}

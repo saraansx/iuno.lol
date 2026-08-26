@@ -17,6 +17,7 @@ import TikTokWidget from "./TikTokWidget";
 import YouTubeWidget from "./YouTubeWidget";
 import TelegramWidget from "./TelegramWidget";
 import RobloxWidget from "./RobloxWidget";
+import WeatherWidget from "./WeatherWidget";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -66,6 +67,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "roblox-profile" || w.platform === "roblox") {
     return <RobloxWidget widget={w} />;
+  }
+  if (w.type === "weather-current" || w.platform === "weather") {
+    return <WeatherWidget widget={w} />;
   }
   return null;
 }
