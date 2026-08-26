@@ -89,6 +89,12 @@ interface ProfilePreviewProps {
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
   highlightColor?: string;
+  widgetPrimaryTextColor?: string;
+  widgetSecondaryTextColor?: string;
+  widgetBorderColor?: string;
+  widgetBorderOpacity?: number;
+  widgetBorderWidth?: number;
+  widgetBorderRadius?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -109,7 +115,7 @@ interface ProfilePreviewProps {
   widgets?: import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[];
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedFrame, selectedEffect, decorationHue, frameHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, highlightColor, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedFrame, selectedEffect, decorationHue, frameHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, highlightColor, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -263,6 +269,12 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             highlightFontWeight={highlightFontWeight}
             highlightLetterSpacing={highlightLetterSpacing}
             highlightColor={highlightColor}
+            widgetPrimaryTextColor={widgetPrimaryTextColor}
+            widgetSecondaryTextColor={widgetSecondaryTextColor}
+            widgetBorderColor={widgetBorderColor}
+            widgetBorderOpacity={widgetBorderOpacity}
+            widgetBorderWidth={widgetBorderWidth}
+            widgetBorderRadius={widgetBorderRadius}
             joinDateEnabled={joinDateEnabled}
             joinDateFormat={joinDateFormat}
             viewsEnabled={viewsEnabled}

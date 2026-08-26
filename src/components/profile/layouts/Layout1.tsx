@@ -166,6 +166,12 @@ interface Layout1Props {
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
   highlightColor?: string;
+  widgetPrimaryTextColor?: string;
+  widgetSecondaryTextColor?: string;
+  widgetBorderColor?: string;
+  widgetBorderOpacity?: number;
+  widgetBorderWidth?: number;
+  widgetBorderRadius?: number;
   selectedFrame?: {
     inner_width?: number;
     overflow_horizontal?: number;
@@ -364,6 +370,12 @@ const Layout1 = ({
   highlightFontWeight = 400,
   highlightLetterSpacing = 0,
   highlightColor,
+  widgetPrimaryTextColor,
+  widgetSecondaryTextColor,
+  widgetBorderColor,
+  widgetBorderOpacity,
+  widgetBorderWidth,
+  widgetBorderRadius,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -865,7 +877,7 @@ const Layout1 = ({
               )}
 
               {/* Inside Card Widgets */}
-              <ProfileWidgets widgets={widgets} placement="inside" />
+              <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
             </div>
           </div>
 
@@ -948,7 +960,7 @@ const Layout1 = ({
         </CardEffect>
 
         {/* Outside Card Widgets */}
-        <ProfileWidgets widgets={widgets} placement="outside" />
+        <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
         </div>
 
         {/* Floating Comments Button */}
@@ -1267,7 +1279,7 @@ const Layout1 = ({
           )}
 
           {/* Inside Card Widgets */}
-          <ProfileWidgets widgets={widgets} placement="inside" />
+          <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
         </div>
 
         {/* Views count badge in bottom left */}
@@ -1347,7 +1359,7 @@ const Layout1 = ({
       </CardEffect>
 
       {/* Outside Card Widgets */}
-      <ProfileWidgets widgets={widgets} placement="outside" />
+      <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
       </div>
 
       <CommentsModal

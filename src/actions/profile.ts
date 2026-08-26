@@ -309,6 +309,9 @@ export async function updateColorsProfile(data: {
   otherColor?: string | null;
   highlightColor?: string | null;
   pageBgColor?: string | null;
+  widgetPrimaryTextColor?: string | null;
+  widgetSecondaryTextColor?: string | null;
+  widgetBorderColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -329,6 +332,10 @@ export async function updateColorsProfile(data: {
   if (data.otherColor !== undefined) setData.otherColor = data.otherColor?.slice(0, 32) ?? null;
   if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor?.slice(0, 32) ?? null;
   if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor?.slice(0, 7) ?? null;
+  if (data.widgetPrimaryTextColor !== undefined) setData.widgetPrimaryTextColor = data.widgetPrimaryTextColor?.slice(0, 32) ?? null;
+  if (data.widgetSecondaryTextColor !== undefined) setData.widgetSecondaryTextColor = data.widgetSecondaryTextColor?.slice(0, 32) ?? null;
+  if (data.widgetBorderColor !== undefined) setData.widgetBorderColor = data.widgetBorderColor?.slice(0, 32) ?? null;
+  // Clamp rather than trust the client — this drives a CSS alpha.
 
   if (Object.keys(setData).length === 0) return { success: true };
   
@@ -426,6 +433,9 @@ export async function updateEffectsProfile(data: {
 
 export async function updateProfileWidgets(data: {
   username?: string;
+  widgetBorderWidth?: number;
+  widgetBorderRadius?: number;
+  widgetBorderOpacity?: number;
   widgets: Array<{
     id: string;
     platform: string;
@@ -998,10 +1008,27 @@ export async function updateProfileWidgets(data: {
     };
   });
 
+  // The widget border settings live on this page too, so they save alongside the
+  // widgets array. Each is clamped rather than trusted, since all three drive CSS.
+  const setData: Record<string, unknown> = { widgets: sanitizedWidgets };
+
+  if (data.widgetBorderWidth !== undefined) {
+    setData.widgetBorderWidth = Math.min(20, Math.max(0, data.widgetBorderWidth));
+  }
+  if (data.widgetBorderRadius !== undefined) {
+    setData.widgetBorderRadius = Math.min(100, Math.max(0, data.widgetBorderRadius));
+  }
+  if (data.widgetBorderOpacity !== undefined) {
+    setData.widgetBorderOpacity = Math.min(
+      100,
+      Math.max(0, Math.round(data.widgetBorderOpacity))
+    );
+  }
+
   await db
     .insert(schema.userSettings)
-    .values({ userId, widgets: sanitizedWidgets })
-    .onDuplicateKeyUpdate({ set: { widgets: sanitizedWidgets } });
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
 
   revalidatePath("/dashboard/customize/profile/widgets");
   revalidatePath("/dashboard", "layout");

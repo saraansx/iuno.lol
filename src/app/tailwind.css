@@ -78,6 +78,75 @@
 }
 
 /* Keep the class working for anything that explicitly uses it */
+/* ==========================================================================
+   WIDGET THEMING
+   ==========================================================================
+   Every widget card is built from the same shell and the same handful of
+   `text-white/NN` and `border-white/NN` utilities. Rather than thread colour
+   props through all 17 widget components, `ProfileWidgets` wraps them in
+   `.iuno-widgets` and sets three custom properties on it; the rules below
+   re-point those utilities at the user's chosen colours.
+
+   The descendant selector (0,2,0) outranks the bare utility class (0,1,0), so
+   these win without `!important`. Each property keeps a fallback matching the
+   original hardcoded value, so a card outside a themed wrapper — or one rendered
+   before the settings load — looks exactly as it did before.
+
+   Per-element levels are preserved: `/40` text stays dimmer than `/85` text, so
+   the visual hierarchy inside a card survives recolouring.
+
+   The border opacity is a true alpha, matching `hexToRgba` in Layout1 and the
+   rest of the profile settings — 0% means invisible. */
+.iuno-widgets {
+  --widget-primary: 255 255 255;
+  --widget-secondary: 255 255 255;
+  --widget-border: 255 255 255;
+  --widget-border-alpha: 0.1;
+  --widget-border-width: 1px;
+  --widget-border-radius: 24px;
+}
+
+/* Primary text — widget titles (username, channel name, city).
+   Bare `text-white` counts as primary: it is only used where a value is meant to
+   read at full strength, which is what the title level is for. */
+.iuno-widgets .text-white\/95 { color: rgb(var(--widget-primary) / 0.95); }
+.iuno-widgets .text-white { color: rgb(var(--widget-primary)); }
+
+/* Secondary text — stats, labels, condition text, icon strokes. */
+.iuno-widgets .text-white\/90 { color: rgb(var(--widget-secondary) / 0.9); }
+.iuno-widgets .text-white\/85 { color: rgb(var(--widget-secondary) / 0.85); }
+.iuno-widgets .text-white\/80 { color: rgb(var(--widget-secondary) / 0.8); }
+.iuno-widgets .text-white\/70 { color: rgb(var(--widget-secondary) / 0.7); }
+.iuno-widgets .text-white\/60 { color: rgb(var(--widget-secondary) / 0.6); }
+.iuno-widgets .text-white\/50 { color: rgb(var(--widget-secondary) / 0.5); }
+.iuno-widgets .text-white\/40 { color: rgb(var(--widget-secondary) / 0.4); }
+.iuno-widgets .text-white\/35 { color: rgb(var(--widget-secondary) / 0.35); }
+.iuno-widgets .text-white\/30 { color: rgb(var(--widget-secondary) / 0.3); }
+.iuno-widgets .text-white\/25 { color: rgb(var(--widget-secondary) / 0.25); }
+.iuno-widgets .text-white\/20 { color: rgb(var(--widget-secondary) / 0.2); }
+
+/* Card outline. The user's opacity drives the shell border; the inner hairlines
+   that separate avatars and badges scale with it so they never outweigh it. */
+.iuno-widgets .border-white\/10 {
+  border-color: rgb(var(--widget-border) / var(--widget-border-alpha));
+}
+.iuno-widgets .border-white\/5 {
+  border-color: rgb(var(--widget-border) / calc(var(--widget-border-alpha) * 0.5));
+}
+.iuno-widgets .group:hover .border-white\/20,
+.iuno-widgets .hover\:border-white\/20:hover {
+  border-color: rgb(var(--widget-border) / calc(var(--widget-border-alpha) * 2));
+}
+
+/* Shell width and radius.
+   Scoped to `.rounded-[24px]` — the card shell's own class — so only the outer
+   card is resized. The avatar and badge corners inside keep their own radii, which
+   is what stops a square-cornered setting from also squaring off avatars. */
+.iuno-widgets .rounded-\[24px\] {
+  border-width: var(--widget-border-width);
+  border-radius: var(--widget-border-radius);
+}
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
 }

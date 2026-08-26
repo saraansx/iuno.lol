@@ -7,6 +7,7 @@ import { updateColorsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
+import WidgetStyleCustomization from "@/components/dashboard/customize/colors/WidgetStyleCustomization";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
@@ -19,6 +20,9 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const initialOtherColor = user?.otherColor ?? "#ffffff";
   const initialHighlightColor = user?.highlightColor ?? "#ffffff";
   const initialPageBgColor = user?.pageBgColor ?? "#050505";
+  const initialWidgetPrimaryTextColor = user?.widgetPrimaryTextColor ?? "#FFFFFF";
+  const initialWidgetSecondaryTextColor = user?.widgetSecondaryTextColor ?? "#FFFFFF";
+  const initialWidgetBorderColor = user?.widgetBorderColor ?? "#FFFFFF";
 
   const usernameColor = overrides.usernameColor ?? initialUsernameColor;
   const setUsernameColor = (val: string) => updateOverrides({ usernameColor: val === initialUsernameColor ? undefined : val });
@@ -30,6 +34,13 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const setHighlightColor = (val: string) => updateOverrides({ highlightColor: val === initialHighlightColor ? undefined : val });
   const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
   const setPageBgColor = (val: string) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
+
+  const widgetPrimaryTextColor = overrides.widgetPrimaryTextColor ?? initialWidgetPrimaryTextColor;
+  const setWidgetPrimaryTextColor = (val: string) => updateOverrides({ widgetPrimaryTextColor: val === initialWidgetPrimaryTextColor ? undefined : val });
+  const widgetSecondaryTextColor = overrides.widgetSecondaryTextColor ?? initialWidgetSecondaryTextColor;
+  const setWidgetSecondaryTextColor = (val: string) => updateOverrides({ widgetSecondaryTextColor: val === initialWidgetSecondaryTextColor ? undefined : val });
+  const widgetBorderColor = overrides.widgetBorderColor ?? initialWidgetBorderColor;
+  const setWidgetBorderColor = (val: string) => updateOverrides({ widgetBorderColor: val === initialWidgetBorderColor ? undefined : val });
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -53,6 +64,15 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           pageBgColor={pageBgColor}
           setPageBgColor={setPageBgColor}
         />
+
+        <WidgetStyleCustomization
+          primaryTextColor={widgetPrimaryTextColor}
+          setPrimaryTextColor={setWidgetPrimaryTextColor}
+          secondaryTextColor={widgetSecondaryTextColor}
+          setSecondaryTextColor={setWidgetSecondaryTextColor}
+          borderColor={widgetBorderColor}
+          setBorderColor={setWidgetBorderColor}
+        />
       </div>
 
       <DashboardProfilePreview
@@ -64,6 +84,9 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           otherColor,
           highlightColor,
           pageBgColor,
+          widgetPrimaryTextColor,
+          widgetSecondaryTextColor,
+          widgetBorderColor,
         }}
       />
 

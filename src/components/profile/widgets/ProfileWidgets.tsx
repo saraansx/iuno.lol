@@ -74,26 +74,109 @@ function renderWidget(w: WidgetItem) {
   return null;
 }
 
+/**
+ * Converts `#rrggbb` (or `#rgb`) to the "r g b" triplet the CSS variables want.
+ *
+ * The theming rules in `tailwind.css` use `rgb(var(--widget-primary) / 0.85)`, so
+ * the variable has to hold channels rather than a colour — that is what lets one
+ * colour serve every opacity step a widget uses. Returns null for anything
+ * unparseable, and the caller then leaves the variable unset so the stylesheet's
+ * own white fallback applies.
+ */
+function hexToRgbChannels(hex: string | undefined | null): string | null {
+  if (!hex) return null;
+
+  let value = hex.trim().replace(/^#/, "");
+  if (value.length === 3) {
+    value = value
+      .split("")
+      .map((c) => c + c)
+      .join("");
+  }
+  if (!/^[0-9a-fA-F]{6}$/.test(value)) return null;
+
+  const int = parseInt(value, 16);
+  return `${(int >> 16) & 255} ${(int >> 8) & 255} ${int & 255}`;
+}
+
+export interface WidgetStyleProps {
+  /** Widget title colour. */
+  widgetPrimaryTextColor?: string | null;
+  /** Widget stats and label colour. */
+  widgetSecondaryTextColor?: string | null;
+  /** Card outline colour. */
+  widgetBorderColor?: string | null;
+  /** Card outline opacity, 0-100. */
+  widgetBorderOpacity?: number | null;
+  /** Card outline width in px. */
+  widgetBorderWidth?: number | null;
+  /** Card corner radius in px. */
+  widgetBorderRadius?: number | null;
+}
+
+/**
+ * Builds the custom properties the widget theming rules read.
+ *
+ * Only the properties that resolved are emitted, so an unset or malformed colour
+ * falls through to the stylesheet default rather than rendering as black.
+ */
+function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
+  const vars: Record<string, string> = {};
+
+  const primary = hexToRgbChannels(style.widgetPrimaryTextColor);
+  if (primary) vars["--widget-primary"] = primary;
+
+  const secondary = hexToRgbChannels(style.widgetSecondaryTextColor);
+  if (secondary) vars["--widget-secondary"] = secondary;
+
+  const border = hexToRgbChannels(style.widgetBorderColor);
+  if (border) vars["--widget-border"] = border;
+
+  if (typeof style.widgetBorderOpacity === "number") {
+    // Clamp rather than trust the stored value — a hand-edited row should not be
+    // able to produce an invalid alpha.
+    const clamped = Math.min(100, Math.max(0, style.widgetBorderOpacity));
+    vars["--widget-border-alpha"] = String(clamped / 100);
+  }
+
+  if (typeof style.widgetBorderWidth === "number") {
+    const clamped = Math.min(20, Math.max(0, style.widgetBorderWidth));
+    vars["--widget-border-width"] = `${clamped}px`;
+  }
+
+  if (typeof style.widgetBorderRadius === "number") {
+    const clamped = Math.min(100, Math.max(0, style.widgetBorderRadius));
+    vars["--widget-border-radius"] = `${clamped}px`;
+  }
+
+
+  return vars as React.CSSProperties;
+}
+
 export default function ProfileWidgets({
   widgets = [],
   placement = "inside",
+  ...style
 }: {
   widgets?: WidgetItem[];
   placement?: "inside" | "outside";
-}) {
+} & WidgetStyleProps) {
   const activeWidgets = (widgets || []).filter(
     (w) => w.enabled && (w.placement || "inside") === placement
   );
 
   if (activeWidgets.length === 0) return null;
 
+  const themeStyle = widgetThemeStyle(style);
+
   if (activeWidgets.length === 1) {
     const w = activeWidgets[0];
     return (
       <div
-        className={`w-full mt-4 flex justify-center items-center ${
+        className={`iuno-widgets w-full mt-4 flex justify-center items-center ${
           placement === "outside" ? "z-10" : ""
         }`}
+        style={themeStyle}
       >
         <div className="w-full max-w-[340px]">
           {renderWidget(w)}
@@ -104,9 +187,10 @@ export default function ProfileWidgets({
 
   return (
     <div
-      className={`w-full mt-4 grid grid-cols-1 min-[640px]:grid-cols-2 gap-3 ${
+      className={`iuno-widgets w-full mt-4 grid grid-cols-1 min-[640px]:grid-cols-2 gap-3 ${
         placement === "outside" ? "z-10" : ""
       }`}
+      style={themeStyle}
     >
       {activeWidgets.map((w) => (
         <div key={w.id} className="w-full min-w-0">

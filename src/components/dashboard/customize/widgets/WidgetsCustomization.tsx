@@ -432,9 +432,18 @@ export default function WidgetsCustomization({
             </button>
           </div>
 
-          {/* Widget List or Empty State */}
+          {/* Widget List or Empty State.
+              Past four widgets the list scrolls instead of pushing the page down.
+              The cap sits a little above four rows (67px each, 10px apart) so the
+              next row is half-visible — that sliver is what tells the user there
+              is more below. The scroll classes are only applied once they are
+              needed, so a shorter list keeps its natural height and no gutter. */}
           {count > 0 ? (
-            <div className="flex flex-col gap-2.5">
+            <div
+              className={`flex flex-col gap-2.5 ${
+                count > 4 ? "max-h-[310px] overflow-y-auto custom-scrollbar pr-1.5 -mr-1.5" : ""
+              }`}
+            >
               {widgets.map((w, index) => (
                 <div
                   key={w.id}

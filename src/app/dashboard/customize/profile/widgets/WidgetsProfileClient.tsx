@@ -6,6 +6,7 @@ import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePrev
 import SaveBar from "@/components/dashboard/SaveBar";
 import { type FullUser } from "@/lib/features/users/db";
 import WidgetsCustomization, { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
+import WidgetBorderCustomization from "@/components/dashboard/customize/widgets/WidgetBorderCustomization";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { updateProfileWidgets } from "@/actions/profile";
 import { toast } from "sonner";
@@ -122,10 +123,40 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
       : userSavedWidgets;
   }, [overrides.widgets, userSavedWidgets]);
 
+  const initialBorderWidth = user?.widgetBorderWidth ?? 1;
+  const initialBorderRadius = user?.widgetBorderRadius ?? 24;
+  const initialBorderOpacity = user?.widgetBorderOpacity ?? 10;
+
+  const borderWidth = overrides.widgetBorderWidth ?? initialBorderWidth;
+  const setBorderWidth = (val: number) =>
+    updateOverrides({ widgetBorderWidth: val === initialBorderWidth ? undefined : val });
+  const borderRadius = overrides.widgetBorderRadius ?? initialBorderRadius;
+  const setBorderRadius = (val: number) =>
+    updateOverrides({ widgetBorderRadius: val === initialBorderRadius ? undefined : val });
+  const borderOpacity = overrides.widgetBorderOpacity ?? initialBorderOpacity;
+  const setBorderOpacity = (val: number) =>
+    updateOverrides({ widgetBorderOpacity: val === initialBorderOpacity ? undefined : val });
+
+  // The widgets array needs a deep compare (reordering produces a new array that
+  // may still match what is saved), but the border fields are cleared back to
+  // `undefined` when they return to their saved value, so their presence in
+  // `overrides` is itself the signal that something changed.
   const hasChanges = useMemo(() => {
+    const borderChanged =
+      overrides.widgetBorderWidth !== undefined ||
+      overrides.widgetBorderRadius !== undefined ||
+      overrides.widgetBorderOpacity !== undefined;
+    if (borderChanged) return true;
     if (overrides.widgets === undefined) return false;
     return !areWidgetsEqual(currentWidgets, userSavedWidgets);
-  }, [overrides.widgets, currentWidgets, userSavedWidgets]);
+  }, [
+    overrides.widgets,
+    overrides.widgetBorderWidth,
+    overrides.widgetBorderRadius,
+    overrides.widgetBorderOpacity,
+    currentWidgets,
+    userSavedWidgets,
+  ]);
 
   const handleWidgetsChange = (newWidgets: WidgetItem[]) => {
     if (areWidgetsEqual(newWidgets, userSavedWidgets)) {
@@ -142,6 +173,9 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
         const res = await updateProfileWidgets({
           username: user.username,
           widgets: currentWidgets,
+          widgetBorderWidth: borderWidth,
+          widgetBorderRadius: borderRadius,
+          widgetBorderOpacity: borderOpacity,
         });
         if (res.success) {
           toast.success("Widgets updated successfully");
@@ -167,6 +201,15 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
           linkedDiscordId={user?.discordId}
           linkedDiscordUsername={user?.discordUsername}
           onWidgetsChange={handleWidgetsChange}
+        />
+
+        <WidgetBorderCustomization
+          borderWidth={borderWidth}
+          setBorderWidth={setBorderWidth}
+          borderRadius={borderRadius}
+          setBorderRadius={setBorderRadius}
+          borderOpacity={borderOpacity}
+          setBorderOpacity={setBorderOpacity}
         />
       </div>
 

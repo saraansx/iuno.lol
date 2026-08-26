@@ -111,6 +111,14 @@ export const userSettings = mysqlTable('user_settings', {
   otherLetterSpacing: float('other_letter_spacing').default(0),
   otherColor: varchar('other_color', { length: 32 }).default('#FFFFFF'),
   highlightColor: varchar('highlight_color', { length: 32 }).default('#ffffff'),
+  widgetPrimaryTextColor: varchar('widget_primary_text_color', { length: 32 }).default('#FFFFFF'),
+  widgetSecondaryTextColor: varchar('widget_secondary_text_color', { length: 32 }).default('#FFFFFF'),
+  widgetBorderColor: varchar('widget_border_color', { length: 32 }).default('#FFFFFF'),
+  widgetBorderOpacity: int('widget_border_opacity').default(10),
+  // Defaults match the card shell's own `border` (1px) and `rounded-[24px]`, so
+  // an untouched setting renders exactly as the hardcoded widget did.
+  widgetBorderWidth: float('widget_border_width').default(1),
+  widgetBorderRadius: float('widget_border_radius').default(24),
   joinDateEnabled: boolean('join_date_enabled').default(false),
   joinDateFormat: varchar('join_date_format', { length: 32 }).default('Absolute (July 14, 2026)'),
   viewsEnabled: boolean('views_enabled').default(true),
