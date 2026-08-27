@@ -4,7 +4,6 @@ import { useMemo } from "react";
 import dynamic from "next/dynamic";
 
 // Only the selected effect is downloaded — "none" downloads nothing extra.
-const BeamBorderEffect = dynamic(() => import("./border-effects/BeamBorder").then((m) => m.BeamBorderEffect), { ssr: false });
 const ShineBorderEffect = dynamic(() => import("./border-effects/ShineBorderEffect").then((m) => m.ShineBorderEffect), { ssr: false });
 const ElectricBorderEffect = dynamic(() => import("./border-effects/ElectricBorderEffect").then((m) => m.ElectricBorderEffect), { ssr: false });
 
@@ -35,16 +34,20 @@ export function BorderEffect({
 
   if (!effect || effect === "none") return null;
 
+  // These effects paint their own stroke rather than tinting the card's border, so
+  // they need a thickness of their own. `profileBorderWidth` defaults to 0 —
+  // meaning "no card border" — and passing that through rendered a zero-width
+  // beam, i.e. nothing at all. Floor it so choosing an effect always shows
+  // something, while a user who has set a wider border still gets that width.
+  const strokeWidth = Math.max(borderWidth, 2);
+
   return (
     <div
       className="absolute inset-0 pointer-events-none overflow-hidden"
       style={{ borderRadius: `${borderRadius}px`, zIndex }}
     >
-      {effect === "border-beam" && (
-        <BeamBorderEffect colorFrom={from} colorTo={to} borderWidth={borderWidth} />
-      )}
       {effect === "shine-border" && (
-        <ShineBorderEffect colorFrom={from} colorTo={to} borderWidth={borderWidth} />
+        <ShineBorderEffect colorFrom={from} colorTo={to} borderWidth={strokeWidth} />
       )}
       {effect === "electric-border" && (
         <ElectricBorderEffect colorFrom={from} borderRadius={borderRadius} />

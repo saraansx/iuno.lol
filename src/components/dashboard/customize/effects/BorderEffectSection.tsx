@@ -18,7 +18,6 @@ function parseBorderColors(value: string): { from: string; to: string } {
 
 const BORDER_EFFECTS = [
   { id: "none", name: "None" },
-  { id: "border-beam", name: "Border Beam" },
   { id: "shine-border", name: "Shine Border" },
   { id: "electric-border", name: "Electric Border" }
 ];
