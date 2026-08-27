@@ -37,7 +37,6 @@ const FONT_CLASS_MAP: Record<string, string> = {
   "Comfortaa": "var(--font-comfortaa)",
   "Elegant Bloom": "var(--font-elegant-bloom)",
   "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Japanese": "var(--font-japanese)",
   "Pixelify": "var(--font-pixelify)",
 };
 

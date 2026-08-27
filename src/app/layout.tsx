@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Pacifico, Caveat, Dancing_Script, Oxanium, Pixelify_Sans, Noto_Sans_JP } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Pacifico, Caveat, Dancing_Script, Oxanium, Pixelify_Sans } from "next/font/google";
 import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
@@ -87,8 +87,6 @@ const caviarDreams = localFont({
   variable: "--font-caviar-dreams",
   preload: false,
 });
-// Noto Sans JP: variable, so the whole 100-900 weight range works from one file.
-const japanese = Noto_Sans_JP({ subsets: ["latin"], variable: "--font-japanese", preload: false });
 const pixelify = Pixelify_Sans({ subsets: ["latin"], variable: "--font-pixelify", preload: false });
 
 const poppins = localFont({
@@ -139,7 +137,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oxanium.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${chillax.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${japanese.variable} ${pixelify.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oxanium.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${chillax.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${pixelify.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
         <ConditionalBackground />

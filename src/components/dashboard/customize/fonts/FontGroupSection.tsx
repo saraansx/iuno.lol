@@ -2,13 +2,13 @@
 
 import { useState } from "react";
 
-// The 20 faces loaded in the root layout, and the CSS variable each one is exposed
+// The 19 faces loaded in the root layout, and the CSS variable each one is exposed
 // under. Kept here so every font control shares one list.
 export const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
   "Caviar Dreams", "Space Grotesk", "Caveat", "Playfair Display", "Paper Notes",
   "Poppins", "Chillax", "Montserrat", "Dancing Script", "DM Sans",
-  "Comfortaa", "Syne", "Japanese", "Oxanium", "Pixelify"
+  "Comfortaa", "Syne", "Oxanium", "Pixelify"
 ];
 
 export const fontVariables: Record<string, string> = {
@@ -30,7 +30,6 @@ export const fontVariables: Record<string, string> = {
   "Comfortaa": "var(--font-comfortaa)",
   "Elegant Bloom": "var(--font-elegant-bloom)",
   "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Japanese": "var(--font-japanese)",
   "Pixelify": "var(--font-pixelify)",
 };
 

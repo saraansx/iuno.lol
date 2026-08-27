@@ -7,7 +7,7 @@ const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
   "Caviar Dreams", "Space Grotesk", "Caveat", "Playfair Display", "Paper Notes",
   "Poppins", "Chillax", "Montserrat", "Dancing Script", "DM Sans",
-  "Comfortaa", "Syne", "Japanese", "Oxanium", "Pixelify"
+  "Comfortaa", "Syne", "Oxanium", "Pixelify"
 ];
 
 const fontVariables: Record<string, string> = {
@@ -29,7 +29,6 @@ const fontVariables: Record<string, string> = {
   "Comfortaa": "var(--font-comfortaa)",
   "Elegant Bloom": "var(--font-elegant-bloom)",
   "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Japanese": "var(--font-japanese)",
   "Pixelify": "var(--font-pixelify)",
 };
 
