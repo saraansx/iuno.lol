@@ -13,18 +13,30 @@ export function DitherEffect({ intensity = 50 }: { intensity?: number }) {
   const grainOpacity = 0.02 + (intensity / 100) * 0.08;
   const dotOpacity = 0.2 + (intensity / 100) * 0.8;
 
+
+  const darkOpacity = (intensity / 100) * 1.00;
+
   return (
     <>
       {/* Container for the Dither effects */}
       <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
-        
+
+        {/* 0. Dark wash — sits beneath the dots so the texture stays visible on top. */}
+        <div
+          className="absolute inset-0 bg-black transition-opacity duration-500"
+          style={{ opacity: darkOpacity }}
+        />
+
         {/* 1. Dot Pattern
-             Tighter grid (3px vs 4px) with a smaller dot radius, so the pattern
-             reads as fine dithering rather than visible spots. */}
+             The falloff has to stay well under the tile size. At 1.2px falloff on a
+             3px tile the black circles nearly meet, so black becomes the dominant
+             field and the *gaps* read as light dots — the pattern inverts. Keeping
+             the falloff at ~0.8px leaves clear space between dots, so they read as
+             dark specks over the background as intended. */}
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(rgba(0, 0, 0, ${dotOpacity}) 0.5px, rgba(0, 0, 0, 0) 0.9px)`,
+            backgroundImage: `radial-gradient(rgba(0, 0, 0, ${dotOpacity}) 0.5px, rgba(0, 0, 0, 0) 0.8px)`,
             backgroundSize: "3px 3px",
           }}
         />
