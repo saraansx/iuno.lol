@@ -112,7 +112,42 @@ export interface WidgetStyleProps {
   widgetBorderWidth?: number | null;
   /** Card corner radius in px. */
   widgetBorderRadius?: number | null;
+  /** Widget text font family name, as listed in FONT_OPTIONS. */
+  widgetFont?: string | null;
+  /** Base widget text size in px; every card size scales against 12.5. */
+  widgetFontSize?: number | null;
+  /** Widget text weight, 100-900. */
+  widgetFontWeight?: number | null;
+  /** Extra letter spacing in px. */
+  widgetLetterSpacing?: number | null;
 }
+
+// Same list the profile card uses. Kept local so ProfileWidgets stays a leaf and
+// does not import from the dashboard tree.
+const WIDGET_FONT_VARS: Record<string, string> = {
+  "Inter": "var(--font-inter)",
+  "Roboto": "var(--font-roboto)",
+  "Outfit": "var(--font-outfit)",
+  "Space Grotesk": "var(--font-space-grotesk)",
+  "Playfair Display": "var(--font-playfair)",
+  "Poppins": "var(--font-poppins)",
+  "Montserrat": "var(--font-montserrat)",
+  "DM Sans": "var(--font-dm-sans)",
+  "Syne": "var(--font-syne)",
+  "Oxanium": "var(--font-oxanium)",
+  "Pacifico": "var(--font-pacifico)",
+  "Caveat": "var(--font-caveat)",
+  "Paper Notes": "var(--font-paper-notes)",
+  "Chillax": "var(--font-chillax)",
+  "Dancing Script": "var(--font-dancing-script)",
+  "Comfortaa": "var(--font-comfortaa)",
+  "Elegant Bloom": "var(--font-elegant-bloom)",
+  "Caviar Dreams": "var(--font-caviar-dreams)",
+  "Pixelify": "var(--font-pixelify)",
+};
+
+// The size the widget cards were built at; the scale is relative to it.
+const WIDGET_BASE_FONT_SIZE = 12.5;
 
 /**
  * Builds the custom properties the widget theming rules read.
@@ -147,6 +182,24 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   if (typeof style.widgetBorderRadius === "number") {
     const clamped = Math.min(100, Math.max(0, style.widgetBorderRadius));
     vars["--widget-border-radius"] = `${clamped}px`;
+  }
+
+  const font = style.widgetFont ? WIDGET_FONT_VARS[style.widgetFont] : undefined;
+  if (font) vars["--widget-font"] = font;
+
+  if (typeof style.widgetFontSize === "number" && style.widgetFontSize > 0) {
+    const clamped = Math.min(64, Math.max(8, style.widgetFontSize));
+    vars["--widget-font-scale"] = String(clamped / WIDGET_BASE_FONT_SIZE);
+  }
+
+  if (typeof style.widgetFontWeight === "number" && style.widgetFontWeight > 0) {
+    const clamped = Math.min(900, Math.max(100, style.widgetFontWeight));
+    vars["--widget-font-weight"] = String(clamped);
+  }
+
+  if (typeof style.widgetLetterSpacing === "number") {
+    const clamped = Math.min(50, Math.max(-10, style.widgetLetterSpacing));
+    vars["--widget-letter-spacing"] = `${clamped}px`;
   }
 
 

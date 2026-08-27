@@ -75,8 +75,9 @@ interface WidgetBorderCustomizationProps {
  *
  * Width and radius are number inputs, matching the Profile Card border controls
  * in the Appearance section. Opacity stays a slider because it is the one value
- * users nudge by eye rather than type — the border colour itself lives with the
- * other colours on the Colors page.
+ * users nudge by eye rather than type, and uses the same layered slider markup as
+ * the rest of the dashboard — the border colour itself lives with the other
+ * colours on the Colors page.
  */
 export default function WidgetBorderCustomization({
   borderWidth,
@@ -117,18 +118,33 @@ export default function WidgetBorderCustomization({
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <label className="text-[12.5px] font-medium text-white/90">Border Opacity</label>
-            <span className="text-[11px] font-mono text-white/40">{borderOpacity}%</span>
+            <span className="text-[12px] text-white/40 font-mono">{borderOpacity}%</span>
           </div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={1}
-            value={borderOpacity}
-            onChange={(e) => setBorderOpacity(Number(e.target.value))}
-            aria-label="Border opacity"
-            className="w-full h-1.5 rounded-full appearance-none cursor-pointer bg-white/10 accent-[#609fda]"
-          />
+          {/* Same layered markup as the other sliders (background intensity, views
+              animation duration): a track, a filled portion, an invisible native
+              range on top for the actual interaction, and a decorative thumb. */}
+          <div className="relative flex items-center h-5 group w-full">
+            <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+              <div
+                className="absolute h-full bg-[#5b6cf5]"
+                style={{ width: `${borderOpacity}%` }}
+              />
+            </div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={borderOpacity}
+              onChange={(e) => setBorderOpacity(Number(e.target.value))}
+              aria-label="Border opacity"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+            />
+            <div
+              className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+              style={{ left: `calc(${borderOpacity}% - 8px)` }}
+            />
+          </div>
           <p className="text-[11px] text-white/40">
             How visible the outline is. Set to 0% to hide the border entirely.
           </p>

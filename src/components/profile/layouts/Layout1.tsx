@@ -172,6 +172,10 @@ interface Layout1Props {
   widgetBorderOpacity?: number;
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
+  widgetFont?: string;
+  widgetFontSize?: number;
+  widgetFontWeight?: number;
+  widgetLetterSpacing?: number;
   selectedEffect?: {
     id: string;
     name: string;
@@ -362,6 +366,10 @@ const Layout1 = ({
   widgetBorderOpacity,
   widgetBorderWidth,
   widgetBorderRadius,
+  widgetFont,
+  widgetFontSize,
+  widgetFontWeight,
+  widgetLetterSpacing,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -832,7 +840,7 @@ const Layout1 = ({
               )}
 
               {/* Inside Card Widgets */}
-              <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
+              <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
             </div>
           </div>
 
@@ -916,7 +924,7 @@ const Layout1 = ({
         </CardEffect>
 
         {/* Outside Card Widgets */}
-        <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
+        <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
         </div>
 
         {/* Floating Comments Button */}
@@ -1197,7 +1205,7 @@ const Layout1 = ({
           )}
 
           {/* Inside Card Widgets */}
-          <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
+          <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
         </div>
 
         {/* Views count badge in bottom left */}
@@ -1278,7 +1286,7 @@ const Layout1 = ({
       </CardEffect>
 
       {/* Outside Card Widgets */}
-      <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} />
+      <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
       </div>
 
       <CommentsModal

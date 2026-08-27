@@ -112,6 +112,53 @@
   --widget-border-alpha: 0.1;
   --widget-border-width: 1px;
   --widget-border-radius: 24px;
+  --widget-font: var(--font-inter);
+  --widget-font-scale: 1;
+  --widget-font-weight: 400;
+  --widget-letter-spacing: 0px;
+
+  /* Family, weight and tracking simply inherit into the cards. Size cannot: each
+     card hardcodes its own `text-[Npx]`, which would override an inherited
+     font-size, so the per-size rules below scale each one instead. */
+  font-family: var(--widget-font);
+  font-weight: var(--widget-font-weight);
+  letter-spacing: var(--widget-letter-spacing);
+}
+
+/* Each hardcoded size expressed as its original px times --widget-font-scale. That
+   keeps the relative hierarchy (a 14.5px title stays larger than a 11.5px stat)
+   while the user's Size setting moves all of them together. */
+
+.iuno-widgets .text-\[9px\] { font-size: calc(9px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[10px\] { font-size: calc(10px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[11px\] { font-size: calc(11px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[11\.5px\] { font-size: calc(11.5px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[12px\] { font-size: calc(12px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[12\.5px\] { font-size: calc(12.5px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[13px\] { font-size: calc(13px * var(--widget-font-scale)); }
+.iuno-widgets .text-\[14\.5px\] { font-size: calc(14.5px * var(--widget-font-scale)); }
+
+/* Weight and tracking need the same treatment as size: the cards set their own
+   `font-normal` / `tracking-tight`, which are bare utilities (0,1,0) and so would
+   beat the value inherited from the wrapper. These descendant rules (0,2,0) win
+   without `!important`.
+
+   Relative hierarchy is preserved rather than flattened: `font-medium` and
+   `font-bold` stay heavier than `font-normal`, clamped so a user weight of 900
+   cannot push them past the max. Tracking is added to the card's own value, so
+   Spacing 0 leaves `tracking-tight` looking exactly as designed. */
+.iuno-widgets .font-normal { font-weight: var(--widget-font-weight); }
+.iuno-widgets .font-medium { font-weight: min(900, calc(var(--widget-font-weight) + 100)); }
+.iuno-widgets .font-bold { font-weight: min(900, calc(var(--widget-font-weight) + 300)); }
+
+.iuno-widgets .tracking-tight { letter-spacing: calc(-0.025em + var(--widget-letter-spacing)); }
+.iuno-widgets .tracking-normal { letter-spacing: var(--widget-letter-spacing); }
+.iuno-widgets .tracking-wider { letter-spacing: calc(0.05em + var(--widget-letter-spacing)); }
+
+/* The mono runs (handles, counts) keep their monospace face on purpose — swapping
+   them to a display font breaks the column alignment they exist for. */
+.iuno-widgets .font-mono {
+  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 /* Primary text — widget titles (username, channel name, city).

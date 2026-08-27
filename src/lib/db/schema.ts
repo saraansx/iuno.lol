@@ -120,6 +120,14 @@ export const userSettings = mysqlTable('user_settings', {
   // an untouched setting renders exactly as the hardcoded widget did.
   widgetBorderWidth: float('widget_border_width').default(1),
   widgetBorderRadius: float('widget_border_radius').default(24),
+  // Widget text font. Size default matches the most common hardcoded widget size
+  // (12.5px) and acts as the base the other sizes scale against; weight matches the
+  // `font-normal` the cards already use. Spacing 0 means "leave the card's own
+  // tracking alone" rather than "flatten it to zero" — see widgetThemeStyle.
+  widgetFont: varchar('widget_font', { length: 50 }).default('Inter'),
+  widgetFontSize: float('widget_font_size').default(12.5),
+  widgetFontWeight: int('widget_font_weight').default(400),
+  widgetLetterSpacing: float('widget_letter_spacing').default(0),
   joinDateEnabled: boolean('join_date_enabled').default(false),
   joinDateFormat: varchar('join_date_format', { length: 32 }).default('Absolute (July 14, 2026)'),
   viewsEnabled: boolean('views_enabled').default(true),

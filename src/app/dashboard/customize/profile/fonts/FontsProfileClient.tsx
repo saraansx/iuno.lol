@@ -11,7 +11,7 @@ import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
 // Only one group is expanded at a time, matching the Appearance page's accordions.
-type FontGroupKey = "username" | "description" | "other" | "highlight";
+type FontGroupKey = "username" | "description" | "other" | "highlight" | "widgets";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -34,6 +34,12 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const initialHighlightFontSize = user?.highlightFontSize ?? 11;
   const initialHighlightFontWeight = user?.highlightFontWeight ?? 500;
   const initialHighlightLetterSpacing = user?.highlightLetterSpacing ?? 0;
+
+  // Defaults mirror the sizes the widget cards were built at.
+  const initialWidgetFont = user?.widgetFont ?? "Inter";
+  const initialWidgetFontSize = user?.widgetFontSize ?? 12.5;
+  const initialWidgetFontWeight = user?.widgetFontWeight ?? 400;
+  const initialWidgetLetterSpacing = user?.widgetLetterSpacing ?? 0;
 
   const initialOtherFont = user?.otherFont ?? "Inter";
   const initialOtherFontSize = user?.otherFontSize ?? 13;
@@ -66,6 +72,15 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const setHighlightFontWeight = (val: number) => updateOverrides({ highlightFontWeight: val === initialHighlightFontWeight ? undefined : val });
   const highlightLetterSpacing = overrides.highlightLetterSpacing ?? initialHighlightLetterSpacing;
   const setHighlightLetterSpacing = (val: number) => updateOverrides({ highlightLetterSpacing: val === initialHighlightLetterSpacing ? undefined : val });
+
+  const widgetFont = overrides.widgetFont ?? initialWidgetFont;
+  const setWidgetFont = (val: string) => updateOverrides({ widgetFont: val === initialWidgetFont ? undefined : val });
+  const widgetFontSize = overrides.widgetFontSize ?? initialWidgetFontSize;
+  const setWidgetFontSize = (val: number) => updateOverrides({ widgetFontSize: val === initialWidgetFontSize ? undefined : val });
+  const widgetFontWeight = overrides.widgetFontWeight ?? initialWidgetFontWeight;
+  const setWidgetFontWeight = (val: number) => updateOverrides({ widgetFontWeight: val === initialWidgetFontWeight ? undefined : val });
+  const widgetLetterSpacing = overrides.widgetLetterSpacing ?? initialWidgetLetterSpacing;
+  const setWidgetLetterSpacing = (val: number) => updateOverrides({ widgetLetterSpacing: val === initialWidgetLetterSpacing ? undefined : val });
 
   const otherFont = overrides.otherFont ?? initialOtherFont;
   const setOtherFont = (val: string) => updateOverrides({ otherFont: val === initialOtherFont ? undefined : val });
@@ -155,6 +170,22 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
                 spacing={highlightLetterSpacing}
                 setSpacing={setHighlightLetterSpacing}
               />
+
+              <FontGroupSection
+                label="Widgets"
+                hint="Text inside your widget cards."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="14" y="3" rx="1" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" /></svg>}
+                isOpen={openGroup === "widgets"}
+                onToggle={() => toggleGroup("widgets")}
+                font={widgetFont}
+                setFont={setWidgetFont}
+                size={widgetFontSize}
+                setSize={setWidgetFontSize}
+                weight={widgetFontWeight}
+                setWeight={setWidgetFontWeight}
+                spacing={widgetLetterSpacing}
+                setSpacing={setWidgetLetterSpacing}
+              />
             </div>
           </div>
         </div>
@@ -180,6 +211,10 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
           highlightFontSize,
           highlightFontWeight,
           highlightLetterSpacing,
+          widgetFont,
+          widgetFontSize,
+          widgetFontWeight,
+          widgetLetterSpacing,
         }}
       />
 

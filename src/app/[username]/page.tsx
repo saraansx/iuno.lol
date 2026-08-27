@@ -135,6 +135,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgetBorderOpacity: userSettings.widgetBorderOpacity,
       widgetBorderWidth: userSettings.widgetBorderWidth,
       widgetBorderRadius: userSettings.widgetBorderRadius,
+      widgetFont: userSettings.widgetFont,
+      widgetFontSize: userSettings.widgetFontSize,
+      widgetFontWeight: userSettings.widgetFontWeight,
+      widgetLetterSpacing: userSettings.widgetLetterSpacing,
       pageBgColor: userSettings.pageBgColor,
       backgroundEffect: userSettings.backgroundEffect,
       backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
@@ -280,6 +284,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         widgetBorderOpacity={user.widgetBorderOpacity ?? undefined}
         widgetBorderWidth={user.widgetBorderWidth ?? undefined}
         widgetBorderRadius={user.widgetBorderRadius ?? undefined}
+        widgetFont={user.widgetFont ?? undefined}
+        widgetFontSize={user.widgetFontSize ?? undefined}
+        widgetFontWeight={user.widgetFontWeight ?? undefined}
+        widgetLetterSpacing={user.widgetLetterSpacing ?? undefined}
         widgets={user.widgets ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />
