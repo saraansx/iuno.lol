@@ -65,6 +65,7 @@ export async function updateGeneralProfile(data: {
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   avatarDecorationUrl?: string | null;
   avatarDecorationHue?: number;
+  bioAlign?: "left" | "center" | "right";
   profileEffectUrl?: string | null;
   profileEffectHue?: number;
   bannerImageUrl?: string | null;
@@ -113,6 +114,11 @@ export async function updateGeneralProfile(data: {
   if (data.avatarShape !== undefined) setData.avatarShape = data.avatarShape;
   if (data.avatarDecorationUrl !== undefined) setData.avatarDecorationUrl = data.avatarDecorationUrl;
   if (data.avatarDecorationHue !== undefined) setData.avatarDecorationHue = data.avatarDecorationHue;
+  // Checked against the allowed set rather than passed through, since the value
+  // reaches a CSS `text-align` and the column is an enum.
+  if (data.bioAlign !== undefined && ["left", "center", "right"].includes(data.bioAlign)) {
+    setData.bioAlign = data.bioAlign;
+  }
   
 
   if (data.profileEffectUrl !== undefined) {

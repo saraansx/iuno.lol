@@ -99,6 +99,9 @@ export const userSettings = mysqlTable('user_settings', {
   bioFontWeight: int('bio_font_weight').default(400),
   bioLetterSpacing: float('bio_letter_spacing').default(0),
   bioColor: varchar('bio_color', { length: 32 }).default('#FFFFFF'),
+  // Which edge the description text aligns to. Defaults to center, which is how
+  // the bio rendered before this was configurable.
+  bioAlign: mysqlEnum('bio_align', ['left', 'center', 'right']).default('center'),
   otherFont: varchar('other_font', { length: 50 }).default('Inter'),
   otherFontSize: int('other_font_size').default(13),
   otherFontWeight: int('other_font_weight').default(400),

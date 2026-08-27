@@ -156,6 +156,7 @@ interface Layout1Props {
   bioFontWeight?: number;
   bioLetterSpacing?: number;
   bioColor?: string;
+  bioAlign?: "left" | "center" | "right";
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -345,6 +346,7 @@ const Layout1 = ({
   bioFontWeight = 400,
   bioLetterSpacing = 0,
   bioColor = "#FFFFFF",
+  bioAlign = "center",
   otherFont = "Inter",
   otherFontSize = 14,
   otherFontWeight = 400,
@@ -799,10 +801,24 @@ const Layout1 = ({
                 </p>
               )}
               {bio?.trim() && (
-                <div className="w-full mt-1.5 flex justify-center">
+                <div
+                  className={`w-full mt-1.5 flex ${
+                    bioAlign === "left"
+                      ? "justify-start"
+                      : bioAlign === "right"
+                      ? "justify-end"
+                      : "justify-center"
+                  }`}
+                >
                   <DescriptionEffect effect={descriptionEffect}>
                     <p
-                      className="leading-relaxed max-w-[90%] text-center break-words"
+                      className={`leading-relaxed max-w-[90%] break-words ${
+                        bioAlign === "left"
+                          ? "text-left"
+                          : bioAlign === "right"
+                          ? "text-right"
+                          : "text-center"
+                      }`}
                       style={{
                         fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
                         fontSize: `${bioFontSize}px`,
@@ -1161,7 +1177,13 @@ const Layout1 = ({
           {bio && (
             <DescriptionEffect effect={descriptionEffect}>
               <p
-                className="mt-1.5 leading-relaxed max-w-[90%] text-center break-words"
+                className={`mt-1.5 leading-relaxed max-w-[90%] break-words ${
+                  bioAlign === "left"
+                    ? "text-left self-start"
+                    : bioAlign === "right"
+                    ? "text-right self-end"
+                    : "text-center self-center"
+                }`}
                 style={{
                   fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
                   fontSize: `${bioFontSize}px`,

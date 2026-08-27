@@ -79,6 +79,7 @@ const userColumns = {
   bioFontWeight: schema.userSettings.bioFontWeight,
   bioLetterSpacing: schema.userSettings.bioLetterSpacing,
   bioColor: schema.userSettings.bioColor,
+  bioAlign: schema.userSettings.bioAlign,
   otherFont: schema.userSettings.otherFont,
   otherFontSize: schema.userSettings.otherFontSize,
   otherFontWeight: schema.userSettings.otherFontWeight,

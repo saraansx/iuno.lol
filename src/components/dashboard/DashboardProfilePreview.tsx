@@ -81,6 +81,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       bioFontWeight={deferredOverrides.bioFontWeight ?? user?.bioFontWeight ?? 400}
       bioLetterSpacing={deferredOverrides.bioLetterSpacing ?? user?.bioLetterSpacing ?? 0}
       bioColor={deferredOverrides.bioColor ?? user?.bioColor ?? "#ffffff"}
+      bioAlign={deferredOverrides.bioAlign ?? user?.bioAlign ?? "center"}
       otherFont={deferredOverrides.otherFont ?? user?.otherFont ?? "inter"}
       otherFontSize={deferredOverrides.otherFontSize ?? user?.otherFontSize ?? 13}
       otherFontWeight={deferredOverrides.otherFontWeight ?? user?.otherFontWeight ?? 400}

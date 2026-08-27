@@ -67,6 +67,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       bioFontWeight: userSettings.bioFontWeight,
       bioLetterSpacing: userSettings.bioLetterSpacing,
       bioColor: userSettings.bioColor,
+      bioAlign: userSettings.bioAlign,
       otherFont: userSettings.otherFont,
       otherFontSize: userSettings.otherFontSize,
       otherFontWeight: userSettings.otherFontWeight,
@@ -209,6 +210,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bioFontWeight={user.bioFontWeight ?? undefined}
         bioLetterSpacing={user.bioLetterSpacing ?? undefined}
         bioColor={user.bioColor ?? undefined}
+        bioAlign={user.bioAlign ?? undefined}
         otherFont={user.otherFont ?? undefined}
         otherFontSize={user.otherFontSize ?? undefined}
         otherFontWeight={user.otherFontWeight ?? undefined}
