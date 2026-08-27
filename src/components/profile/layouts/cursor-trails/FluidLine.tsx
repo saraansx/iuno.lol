@@ -8,7 +8,7 @@ import { hexToRgb } from "@/lib/utils";
 const POINT_COUNT = 24;
 const HEAD_EASE = 0.5;
 const CHAIN_EASE = 0.32;
-const MAX_WIDTH = 7;
+const MAX_WIDTH = 4;
 
 // Outer pass is the neon bloom, inner pass is the bright core.
 const PASSES = [

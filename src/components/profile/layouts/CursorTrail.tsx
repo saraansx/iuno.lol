@@ -7,6 +7,7 @@ const FluidLineTrail = dynamic(() => import("./cursor-trails/FluidLine").then((m
 const StarsTrail = dynamic(() => import("./cursor-trails/Stars").then((m) => m.StarsTrail), { ssr: false });
 const GhostTrail = dynamic(() => import("./cursor-trails/Ghost").then((m) => m.GhostTrail), { ssr: false });
 const SakuraTrail = dynamic(() => import("./cursor-trails/Sakura").then((m) => m.SakuraTrail), { ssr: false });
+const OnekoTrail = dynamic(() => import("./cursor-trails/Oneko").then((m) => m.OnekoTrail), { ssr: false });
 
 export function CursorTrail({
   trail,
@@ -23,6 +24,7 @@ export function CursorTrail({
       {trail === "stars" && <StarsTrail color={color} />}
       {trail === "ghost" && <GhostTrail color={color} />}
       {trail === "sakura" && <SakuraTrail color={color} />}
+      {trail === "oneko" && <OnekoTrail color={color} />}
     </div>
   );
 }

@@ -16,6 +16,7 @@ const CURSOR_TRAILS = [
   { id: "stars", name: "Sparkles" },
   { id: "ghost", name: "Ghost" },
   { id: "sakura", name: "Sakura Petals" },
+  { id: "oneko", name: "Oneko" },
 ];
 
 export default function CursorTrailSection({
