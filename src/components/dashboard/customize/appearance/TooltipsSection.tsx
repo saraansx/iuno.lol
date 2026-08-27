@@ -52,17 +52,18 @@ export default function TooltipsSection({
       active: isOccupationTooltipEnabled, 
       toggle: onToggleOccupationTooltip 
     },
-    { 
-      name: "Likes", 
-      desc: "Label the like button when visitors hover it.", 
-      active: isLikesTooltipEnabled, 
-      toggle: onToggleLikesTooltip 
-    },
-    { 
-      name: "Dislikes", 
-      desc: "Label the dislike button when visitors hover it.", 
-      active: isDislikesTooltipEnabled, 
-      toggle: onToggleDislikesTooltip 
+    // The two buttons sit side by side on the profile, so one control covers both.
+    // The underlying settings stay separate; this just drives them together, and
+    // treats "on" as both being on so a half-set pair resolves on the next tap.
+    {
+      name: "Likes & dislikes",
+      desc: "Label the like and dislike buttons when visitors hover them.",
+      active: isLikesTooltipEnabled && isDislikesTooltipEnabled,
+      toggle: () => {
+        const next = !(isLikesTooltipEnabled && isDislikesTooltipEnabled);
+        if (isLikesTooltipEnabled !== next) onToggleLikesTooltip();
+        if (isDislikesTooltipEnabled !== next) onToggleDislikesTooltip();
+      },
     },
     { 
       name: "Join date", 
