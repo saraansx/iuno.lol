@@ -222,21 +222,11 @@ export default function ProfileWidgets({
 
   const themeStyle = widgetThemeStyle(style);
 
-  if (activeWidgets.length === 1) {
-    const w = activeWidgets[0];
-    return (
-      <div
-        className={`iuno-widgets w-full mt-4 flex justify-center items-center ${
-          placement === "outside" ? "z-10" : ""
-        }`}
-        style={themeStyle}
-      >
-        <div className="w-full max-w-[340px]">
-          {renderWidget(w)}
-        </div>
-      </div>
-    );
-  }
+  // One grid for every count. A widget that ends up alone on its row spans both
+  // columns instead of sitting half-width with a gap beside it, so a single widget
+  // reads as a full-width card and an odd last one fills the row it is on.
+  // Only the final widget can be alone, and only when the count is odd.
+  const lastSpansFullRow = activeWidgets.length % 2 === 1;
 
   return (
     <div
@@ -245,11 +235,17 @@ export default function ProfileWidgets({
       }`}
       style={themeStyle}
     >
-      {activeWidgets.map((w) => (
-        <div key={w.id} className="w-full min-w-0">
-          {renderWidget(w)}
-        </div>
-      ))}
+      {activeWidgets.map((w, i) => {
+        const isLastAlone = lastSpansFullRow && i === activeWidgets.length - 1;
+        return (
+          <div
+            key={w.id}
+            className={`w-full min-w-0 ${isLastAlone ? "min-[640px]:col-span-2" : ""}`}
+          >
+            {renderWidget(w)}
+          </div>
+        );
+      })}
     </div>
   );
 }
