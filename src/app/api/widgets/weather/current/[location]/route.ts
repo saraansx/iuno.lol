@@ -173,7 +173,18 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ ok: true, data });
+    // The CF cache rule excludes this path from the shared 12h widget window, so
+    // the TTL has to come from here. Mirrors WEATHER_CACHE_TTL_SECONDS above:
+    // 15 minutes, matching the Redis window. `stale-while-revalidate` serves the
+    // slightly-old reading instantly while the refetch happens behind it.
+    return NextResponse.json(
+      { ok: true, data },
+      {
+        headers: {
+          "Cache-Control": `public, max-age=${WEATHER_CACHE_TTL_SECONDS}, s-maxage=${WEATHER_CACHE_TTL_SECONDS}, stale-while-revalidate=${WEATHER_CACHE_TTL_SECONDS}`,
+        },
+      }
+    );
   } catch (err) {
     console.error("[Weather API Error]", err);
     return NextResponse.json(

@@ -77,6 +77,13 @@ interface DiscordUserFields {
 // 12 hours TTL in Redis (seconds)
 const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
+// Presence is realtime: online status, current activity, listening state. It is
+// excluded from the CF widget cache rule for that reason, and this makes the
+// intent explicit rather than relying on Cloudflare's default of not caching
+// extensionless JSON — a shared cache holding this for even a minute shows a
+// stale "online".
+const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -127,7 +134,7 @@ export async function GET(
         in_server: false,
         user: null,
         status: "offline",
-      });
+      }, { headers: NO_STORE });
     }
 
     const discordUser = (memberData.user ||
@@ -295,7 +302,7 @@ export async function GET(
             small_image_url: presenceData.primary_activity.small_image_url ?? null,
           }
         : null,
-    });
+    }, { headers: NO_STORE });
   } catch (err) {
     console.error("[Discord Presence API Error]", err);
     return NextResponse.json({ in_server: false, error: "Internal Server Error" }, { status: 500 });

@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
 
     const responseHeaders: Record<string, string> = {
       "Content-Type": contentType,
-      "Cache-Control": "public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800",
+      "Cache-Control": "public, max-age=43500, s-maxage=43500, stale-while-revalidate=604800",
       "Accept-Ranges": "bytes",
       "Access-Control-Allow-Origin": "*",
     };

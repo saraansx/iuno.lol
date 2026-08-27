@@ -1,9 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { type TwitchChannelData } from "@/lib/twitch";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
 const TWITCH_GQL_URL = "https://gql.twitch.tv/gql";
 const TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
+
+/**
+ * How long a channel response is served before refetching: 15 minutes.
+ *
+ * The shared 12h widget window is wrong here — this payload carries `isLive`, the
+ * stream title and the viewer count, so a day-old copy shows a streamer as live
+ * hours after they went offline. The CF cache rule excludes this path for that
+ * reason, which means the TTL has to come from the header below.
+ */
+const TWITCH_CACHE_TTL_SECONDS = 15 * 60;
 
 interface GqlUserResponse {
   data?: {
@@ -122,7 +133,14 @@ export async function GET(
       );
     }
 
-    const data = await fetchTwitchChannelData(cleanLogin);
+    // Redis on the same 15-minute window as the CDN header below, so repeated
+    // visits to a profile do not each cost a GQL call. The shared 12h widget
+    // window is wrong here: the payload carries `isLive`.
+    const data = await withWidgetCache<TwitchChannelData>(
+      widgetCacheKey("twitch", "channel", cleanLogin),
+      () => fetchTwitchChannelData(cleanLogin),
+      TWITCH_CACHE_TTL_SECONDS
+    );
     if (!data) {
       return NextResponse.json(
         { error: "Twitch channel not found" },
@@ -130,10 +148,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({
-      ok: true,
-      data,
-    });
+    return NextResponse.json(
+      { ok: true, data },
+      {
+        headers: {
+          "Cache-Control": `public, max-age=${TWITCH_CACHE_TTL_SECONDS}, s-maxage=${TWITCH_CACHE_TTL_SECONDS}, stale-while-revalidate=${TWITCH_CACHE_TTL_SECONDS}`,
+        },
+      }
+    );
   } catch (err) {
     console.error("[Twitch Channel API Error]", err);
     return NextResponse.json(
