@@ -17,20 +17,28 @@
   }
 }
 
+/* Registered so the angle can be interpolated — a plain custom property would
+   snap 0deg → 360deg instead of animating. */
+@property --shine-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
 @keyframes shine {
-  0% {
-    background-position: 0% 0%;
-  }
-  50% {
-    background-position: 100% 100%;
-  }
-  100% {
-    background-position: 0% 0%;
+  to {
+    --shine-angle: 360deg;
   }
 }
 
 .animate-shine {
-  animation: shine var(--duration, 14s) infinite linear;
+  animation: shine var(--duration, 8s) infinite linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shine {
+    animation: none;
+  }
 }
 
 @keyframes pingpong-scroll {
