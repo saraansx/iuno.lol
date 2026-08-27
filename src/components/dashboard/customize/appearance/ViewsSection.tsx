@@ -74,13 +74,15 @@ export default function ViewsSection({
           </div>
           <button
             onClick={() => setIsViewsAnimationEnabled(!isViewsAnimationEnabled)}
+            disabled={!isViewsEnabled}
             className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none ${isViewsAnimationEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
           >
             <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${isViewsAnimationEnabled ? "right-[4px]" : "left-[4px]"}`}></div>
           </button>
         </div>
 
-        <div className="flex flex-col gap-3 mt-1">
+        {/* Duration only means something while the counter animates. */}
+        <div className={`flex flex-col gap-3 mt-1 transition-opacity duration-200 ${isViewsAnimationEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
           <div className="flex items-center justify-between">
             <label className="text-[13px] font-medium text-white/90">
               Animation duration
@@ -104,7 +106,10 @@ export default function ViewsSection({
               step="100"
               value={viewsAnimationDuration}
               onChange={(e) => setViewsAnimationDuration(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              // `pointer-events-none` on the wrapper stops the mouse but leaves the
+              // slider in the tab order; `disabled` takes it out for keyboards too.
+              disabled={!isViewsEnabled || !isViewsAnimationEnabled}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 disabled:cursor-default"
             />
             <div
               className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
