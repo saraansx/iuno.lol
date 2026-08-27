@@ -2,10 +2,12 @@ import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import effects from '@/effects.json'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
+import { SITE_CONFIG } from '@/lib/config'
 
 // This page reads no per-request state (no cookies/headers), so Next serves it
 // from the CDN as ISR and only regenerates on first view, after the 30-day
@@ -22,6 +24,35 @@ export const revalidate = 2592000; // 30 days
 export const dynamicParams = true;
 export async function generateStaticParams() {
   return [];
+}
+
+/**
+ * Tab title for a profile: `/username | iuno.lol`.
+ *
+ * `title.absolute` bypasses the root layout's `%s` template, which would
+ * otherwise prepend the site name and produce `iuno.lol - /username`.
+ *
+ * The username comes from the row rather than the URL so its stored casing wins:
+ * visiting `/RIO` still titles the tab `/rio`. A missing profile falls back to the
+ * site name and lets the page itself render the 404.
+ */
+export async function generateMetadata(
+  { params }: { params: Promise<{ username: string }> }
+): Promise<Metadata> {
+  const { username: rawUsername } = await params
+  const username = rawUsername.toLowerCase().trim()
+
+  const rows = await db
+    .select({ username: users.username })
+    .from(users)
+    .where(eq(users.username, username))
+    .limit(1)
+
+  if (rows.length === 0) {
+    return { title: { absolute: SITE_CONFIG.name } }
+  }
+
+  return { title: { absolute: `@${rows[0].username} | ${SITE_CONFIG.name}` } }
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
