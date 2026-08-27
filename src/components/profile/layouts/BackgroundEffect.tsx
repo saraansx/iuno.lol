@@ -30,7 +30,7 @@ export function BackgroundEffect({
       {effect === "snow" && <SnowEffect intensity={intensity} color={color} />}
       {effect === "nighttime" && <NightTimeEffect intensity={intensity} />}
       {effect === "oldtv" && <OldTVEffect intensity={intensity} />}
-      {effect === "dither" && <DitherEffect intensity={intensity} color={color} />}
+      {effect === "dither" && <DitherEffect intensity={intensity} />}
       {effect === "rain" && <RainEffect intensity={intensity} color={color} />}
       {effect === "particles" && <ParticlesEffect intensity={intensity} color={color} />}
       {effect === "shootingstars" && <ShootingStarsEffect intensity={intensity} color={color} />}

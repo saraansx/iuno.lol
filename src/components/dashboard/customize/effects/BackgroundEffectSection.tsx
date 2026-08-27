@@ -25,7 +25,7 @@ const BACKGROUND_EFFECTS = [
   { id: "dither", name: "Dither" },
 ];
 
-const EFFECTS_WITH_COLOR = ["dither", "snow", "rain", "particles", "shootingstars", "hearts"];
+const EFFECTS_WITH_COLOR = ["snow", "rain", "particles", "shootingstars", "hearts"];
 
 export default function BackgroundEffectSection({
   backgroundEffect,
@@ -118,8 +118,7 @@ export default function BackgroundEffectSection({
                     key={effect.id}
                     onClick={() => {
                       setBackgroundEffect(effect.id);
-                      if (effect.id === "dither") setBackgroundEffectColor("#000000");
-                      else if (effect.id === "snow") setBackgroundEffectColor("#ffffff");
+                      if (effect.id === "snow") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "rain") setBackgroundEffectColor("#7dd3fc");
                       else if (effect.id === "particles") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "shootingstars") setBackgroundEffectColor("#ffffff");

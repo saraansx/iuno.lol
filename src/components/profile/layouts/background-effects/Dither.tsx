@@ -1,24 +1,31 @@
 "use client";
-import { hexToRgb } from "@/lib/utils";
 
-export function DitherEffect({ intensity = 50, color = "#000000" }: { intensity?: number, color?: string }) {
+/**
+ * Dithering grain overlay.
+ *
+ * Deliberately has no colour option: the effect is a darkening texture laid over
+ * whatever is behind it, and a light dot colour inverts that into a haze that
+ * washes the page out rather than texturing it. The dots are always black and
+ * only their opacity responds to intensity.
+ */
+export function DitherEffect({ intensity = 50 }: { intensity?: number }) {
   // Intensity scales the opacity of the grain layer and darkness of dots
-  const grainOpacity = 0.02 + (intensity / 100) * 0.08; 
+  const grainOpacity = 0.02 + (intensity / 100) * 0.08;
   const dotOpacity = 0.2 + (intensity / 100) * 0.8;
-  
-  const rgbColor = hexToRgb(color, "0, 0, 0");
 
   return (
     <>
       {/* Container for the Dither effects */}
       <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
         
-        {/* 1. Dot Pattern */}
-        <div 
+        {/* 1. Dot Pattern
+             Tighter grid (3px vs 4px) with a smaller dot radius, so the pattern
+             reads as fine dithering rather than visible spots. */}
+        <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `radial-gradient(rgba(${rgbColor}, ${dotOpacity}) 1px, rgba(${rgbColor}, 0) 1.4px)`,
-            backgroundSize: "4px 4px",
+            backgroundImage: `radial-gradient(rgba(0, 0, 0, ${dotOpacity}) 0.5px, rgba(0, 0, 0, 0) 0.9px)`,
+            backgroundSize: "3px 3px",
           }}
         />
 
