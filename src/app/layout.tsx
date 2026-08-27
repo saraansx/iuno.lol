@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Oswald, Pacifico, Caveat, Dancing_Script, Indie_Flower, Lobster } from "next/font/google";
+import { Geist, Geist_Mono, Inter, Roboto, Outfit, Space_Grotesk, Playfair_Display, Montserrat, DM_Sans, Syne, Pacifico, Caveat, Dancing_Script, Oxanium, Pixelify_Sans, Noto_Sans_JP } from "next/font/google";
 import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
@@ -27,7 +27,7 @@ const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfa
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-montserrat", preload: false });
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", preload: false });
 const syne = Syne({ subsets: ["latin"], variable: "--font-syne", preload: false });
-const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald", preload: false });
+const oxanium = Oxanium({ subsets: ["latin"], variable: "--font-oxanium", preload: false });
 const pacifico = Pacifico({ weight: "400", subsets: ["latin"], variable: "--font-pacifico", preload: false });
 const caveat = Caveat({ subsets: ["latin"], variable: "--font-caveat", preload: false });
 const paperNotes = localFont({
@@ -41,15 +41,16 @@ const paperNotes = localFont({
   variable: "--font-paper-notes",
   preload: false,
 });
-const matchaMint = localFont({
+const chillax = localFont({
   src: [
     {
-      path: "../../fonts/matcha-mint.ttf",
-      weight: "400",
+      // Variable font: one file covers the whole 200-700 range.
+      path: "../../fonts/Chillax-Variable.ttf",
+      weight: "200 700",
       style: "normal",
     }
   ],
-  variable: "--font-matcha-mint",
+  variable: "--font-chillax",
   preload: false,
 });
 const dancingScript = Dancing_Script({ subsets: ["latin"], variable: "--font-dancing-script", preload: false });
@@ -86,8 +87,9 @@ const caviarDreams = localFont({
   variable: "--font-caviar-dreams",
   preload: false,
 });
-const indieFlower = Indie_Flower({ weight: "400", subsets: ["latin"], variable: "--font-indie-flower", preload: false });
-const lobster = Lobster({ weight: "400", subsets: ["latin"], variable: "--font-lobster", preload: false });
+// Noto Sans JP: variable, so the whole 100-900 weight range works from one file.
+const japanese = Noto_Sans_JP({ subsets: ["latin"], variable: "--font-japanese", preload: false });
+const pixelify = Pixelify_Sans({ subsets: ["latin"], variable: "--font-pixelify", preload: false });
 
 const poppins = localFont({
   src: [
@@ -137,7 +139,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oswald.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${matchaMint.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${indieFlower.variable} ${lobster.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oxanium.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${chillax.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${japanese.variable} ${pixelify.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
         <ConditionalBackground />

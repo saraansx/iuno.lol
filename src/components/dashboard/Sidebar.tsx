@@ -298,6 +298,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },
+            { label: "Fonts", href: "/dashboard/customize/profile/fonts" },
             { label: "Colors", href: "/dashboard/customize/profile/colors" },
             { label: "Effects", href: "/dashboard/customize/profile/effects" },
             { label: "Layout", href: "/dashboard/customize/profile/layout" },

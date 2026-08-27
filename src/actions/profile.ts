@@ -289,6 +289,8 @@ export async function updateAppearanceProfile(data: {
   await invalidateLiveStatsCache(userId);
 
   revalidatePath("/dashboard/customize/profile/appearance");
+  // The Fonts page saves through this same action, so it needs revalidating too.
+  revalidatePath("/dashboard/customize/profile/fonts");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
 

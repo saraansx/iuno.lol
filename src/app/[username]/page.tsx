@@ -124,11 +124,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
+      highlightColor: userSettings.highlightColor,
       highlightFont: userSettings.highlightFont,
       highlightFontSize: userSettings.highlightFontSize,
       highlightFontWeight: userSettings.highlightFontWeight,
       highlightLetterSpacing: userSettings.highlightLetterSpacing,
-      highlightColor: userSettings.highlightColor,
       widgetPrimaryTextColor: userSettings.widgetPrimaryTextColor,
       widgetSecondaryTextColor: userSettings.widgetSecondaryTextColor,
       widgetBorderColor: userSettings.widgetBorderColor,
@@ -269,11 +269,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         createdAt={user.createdAt}
         profileId={user.id}
         viewerId={null}
+        highlightColor={user.highlightColor ?? undefined}
         highlightFont={user.highlightFont ?? undefined}
         highlightFontSize={user.highlightFontSize ?? undefined}
         highlightFontWeight={user.highlightFontWeight ?? undefined}
         highlightLetterSpacing={user.highlightLetterSpacing ?? undefined}
-        highlightColor={user.highlightColor ?? undefined}
         widgetPrimaryTextColor={user.widgetPrimaryTextColor ?? undefined}
         widgetSecondaryTextColor={user.widgetSecondaryTextColor ?? undefined}
         widgetBorderColor={user.widgetBorderColor ?? undefined}

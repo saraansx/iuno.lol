@@ -6,8 +6,8 @@ import ColorPickerInput from "@/components/ui/color-picker";
 const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
   "Caviar Dreams", "Space Grotesk", "Caveat", "Playfair Display", "Paper Notes",
-  "Poppins", "Matcha Mint", "Montserrat", "Dancing Script", "DM Sans",
-  "Comfortaa", "Syne", "Indie Flower", "Oswald", "Lobster"
+  "Poppins", "Chillax", "Montserrat", "Dancing Script", "DM Sans",
+  "Comfortaa", "Syne", "Japanese", "Oxanium", "Pixelify"
 ];
 
 const fontVariables: Record<string, string> = {
@@ -20,17 +20,17 @@ const fontVariables: Record<string, string> = {
   "Montserrat": "var(--font-montserrat)",
   "DM Sans": "var(--font-dm-sans)",
   "Syne": "var(--font-syne)",
-  "Oswald": "var(--font-oswald)",
+  "Oxanium": "var(--font-oxanium)",
   "Pacifico": "var(--font-pacifico)",
   "Caveat": "var(--font-caveat)",
   "Paper Notes": "var(--font-paper-notes)",
-  "Matcha Mint": "var(--font-matcha-mint)",
+  "Chillax": "var(--font-chillax)",
   "Dancing Script": "var(--font-dancing-script)",
   "Comfortaa": "var(--font-comfortaa)",
   "Elegant Bloom": "var(--font-elegant-bloom)",
   "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Indie Flower": "var(--font-indie-flower)",
-  "Lobster": "var(--font-lobster)",
+  "Japanese": "var(--font-japanese)",
+  "Pixelify": "var(--font-pixelify)",
 };
 
 interface TapToEnterSectionProps {

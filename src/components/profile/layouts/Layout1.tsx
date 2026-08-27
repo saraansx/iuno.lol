@@ -28,17 +28,17 @@ const FONT_CLASS_MAP: Record<string, string> = {
   "Montserrat": "var(--font-montserrat)",
   "DM Sans": "var(--font-dm-sans)",
   "Syne": "var(--font-syne)",
-  "Oswald": "var(--font-oswald)",
+  "Oxanium": "var(--font-oxanium)",
   "Pacifico": "var(--font-pacifico)",
   "Caveat": "var(--font-caveat)",
   "Paper Notes": "var(--font-paper-notes)",
-  "Matcha Mint": "var(--font-matcha-mint)",
+  "Chillax": "var(--font-chillax)",
   "Dancing Script": "var(--font-dancing-script)",
   "Comfortaa": "var(--font-comfortaa)",
   "Elegant Bloom": "var(--font-elegant-bloom)",
   "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Indie Flower": "var(--font-indie-flower)",
-  "Lobster": "var(--font-lobster)",
+  "Japanese": "var(--font-japanese)",
+  "Pixelify": "var(--font-pixelify)",
 };
 
 const SHAPE_CLASSES: Record<string, string> = {
@@ -162,11 +162,11 @@ interface Layout1Props {
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
+  highlightColor?: string;
   highlightFont?: string;
   highlightFontSize?: number;
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
-  highlightColor?: string;
   widgetPrimaryTextColor?: string;
   widgetSecondaryTextColor?: string;
   widgetBorderColor?: string;
@@ -352,11 +352,11 @@ const Layout1 = ({
   otherFontWeight = 400,
   otherLetterSpacing = 0,
   otherColor = "#FFFFFF",
-  highlightFont = "Inter",
-  highlightFontSize = 13,
-  highlightFontWeight = 400,
-  highlightLetterSpacing = 0,
   highlightColor,
+  highlightFont = "Inter",
+  highlightFontSize = 11,
+  highlightFontWeight = 500,
+  highlightLetterSpacing = 0,
   widgetPrimaryTextColor,
   widgetSecondaryTextColor,
   widgetBorderColor,
@@ -530,6 +530,15 @@ const Layout1 = ({
   }, [createdAt, joinDateFormat]);
 
   const fontClassMap = FONT_CLASS_MAP;
+
+  // Every hover tooltip pill shares these, so the Highlight font group drives
+  // them all from one place.
+  const tooltipTextStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
+    fontSize: `${highlightFontSize}px`,
+    fontWeight: highlightFontWeight,
+    letterSpacing: `${highlightLetterSpacing}px`,
+  };
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
   /* ── WITH BANNER ─────────────────────────────────────────────────── */
@@ -717,7 +726,7 @@ const Layout1 = ({
                   </UsernameEffect>
                   {showUidTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/uid:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/uid:translate-y-0">
-                      <div className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap">
+                      <div className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap" style={tooltipTextStyle}>
                         UID: #{profileId && profileId > 0 ? profileId : 1}
                       </div>
                     </div>
@@ -743,13 +752,8 @@ const Layout1 = ({
                     {showLocationTooltip && (
                       <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
                         <div
-                          className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap"
-                          style={{
-                            fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                            fontSize: "11px",
-                            fontWeight: 500,
-                            letterSpacing: "normal"
-                          }}
+                          className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap"
+                          style={tooltipTextStyle}
                         >
                           Location
                         </div>
@@ -766,13 +770,8 @@ const Layout1 = ({
                       {showOccupationTooltip && (
                         <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
                           <div
-                            className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-[11px] font-mono text-white shadow-lg whitespace-nowrap"
-                            style={{
-                              fontFamily: "var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-                              fontSize: "11px",
-                              fontWeight: 500,
-                              letterSpacing: "normal"
-                            }}
+                            className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap"
+                            style={tooltipTextStyle}
                           >
                             Occupation
                           </div>
@@ -844,10 +843,10 @@ const Layout1 = ({
               className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
               style={{
                 color: highlightColor || 'rgba(255, 255, 255, 0.6)',
-                fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
-                fontSize: `${highlightFontSize}px`,
-                fontWeight: highlightFontWeight,
-                letterSpacing: `${highlightLetterSpacing}px`,
+                fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
+                fontSize: `${otherFontSize}px`,
+                fontWeight: otherFontWeight,
+                letterSpacing: `${otherLetterSpacing}px`,
               }}
             >
               {viewsEnabled && (
@@ -860,7 +859,7 @@ const Layout1 = ({
                   </div>
                   {showViewsTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
+                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
                         Views
                       </div>
                     </div>
@@ -883,7 +882,7 @@ const Layout1 = ({
                     </span>
                     {showJoinDateTooltip && (
                       <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                        <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
+                        <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
                           Join date
                         </div>
                       </div>
@@ -905,6 +904,7 @@ const Layout1 = ({
                 initialDislikes={dislikesCount}
                 initialFeedback={viewerFeedback}
                 highlightColor={highlightColor}
+                tooltipTextStyle={tooltipTextStyle}
                 showLikesTooltip={showLikesTooltip}
                 showDislikesTooltip={showDislikesTooltip}
                 showFeedbackPublicly={showFeedbackPublicly}
@@ -1207,10 +1207,10 @@ const Layout1 = ({
             className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
             style={{
               color: highlightColor || 'rgba(255, 255, 255, 0.6)',
-              fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
-              fontSize: `${highlightFontSize}px`,
-              fontWeight: highlightFontWeight,
-              letterSpacing: `${highlightLetterSpacing}px`,
+              fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
+              fontSize: `${otherFontSize}px`,
+              fontWeight: otherFontWeight,
+              letterSpacing: `${otherLetterSpacing}px`,
             }}
           >
             {viewsEnabled && (
@@ -1223,7 +1223,7 @@ const Layout1 = ({
                 </div>
                 {showViewsTooltip && (
                   <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                    <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
+                    <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
                       Views
                     </div>
                   </div>
@@ -1246,7 +1246,7 @@ const Layout1 = ({
                   </span>
                   {showJoinDateTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white text-[11px] font-mono font-medium px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl">
+                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
                         Join date
                       </div>
                     </div>
@@ -1267,6 +1267,7 @@ const Layout1 = ({
               initialDislikes={dislikesCount}
               initialFeedback={viewerFeedback}
               highlightColor={highlightColor}
+              tooltipTextStyle={tooltipTextStyle}
               showLikesTooltip={showLikesTooltip}
               showDislikesTooltip={showDislikesTooltip}
               showFeedbackPublicly={showFeedbackPublicly}
