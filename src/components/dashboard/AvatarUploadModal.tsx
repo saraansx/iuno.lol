@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useState, useEffect  } from "react";
+import React, {  useState, useEffect, useRef  } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
 
@@ -13,6 +13,14 @@ interface AvatarUploadModalProps {
 }
 
 export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUploadModalProps) {
+  // Blob URLs handed to the parent on Apply. The parent renders them in the preview
+  // until the real upload URL replaces them on save, so revoking here would break
+  // that preview — this modal only revokes the previews it still owns.
+  const appliedUrls = useRef<Set<string>>(new Set());
+  const revokeIfUnused = (url: string | null) => {
+    if (url?.startsWith("blob:") && !appliedUrls.current.has(url)) URL.revokeObjectURL(url);
+  };
+
   const [resolvedUrl, setResolvedUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<"image" | "gif" | "video" | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +38,7 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
     if (!open && !isLoading) {
       const timer = setTimeout(() => {
         setResolvedUrl((prev) => {
-          if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+          revokeIfUnused(prev);
           return null;
         });
         setMediaType(null);
@@ -47,11 +55,7 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
   }, [open, isLoading]);
 
   useEffect(() => {
-    return () => {
-      if (resolvedUrl && resolvedUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(resolvedUrl);
-      }
-    };
+    return () => revokeIfUnused(resolvedUrl);
   }, [resolvedUrl]);
 
   const handleCancelAndClose = () => {
@@ -131,8 +135,11 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
         finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
       }
+      // The bare blob URL, not `finalUrl` — a video gets a `#.mp4` hint appended,
+      // and it is the un-suffixed URL the cleanup paths check.
+      appliedUrls.current.add(resolvedUrl);
       onApply?.(finalUrl, rawSelectedFile || undefined);
-      
+
       // Reset state
       setResolvedUrl(null);
       setMediaType(null);

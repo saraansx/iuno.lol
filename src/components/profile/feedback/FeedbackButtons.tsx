@@ -21,7 +21,7 @@ interface FeedbackButtonsProps {
   initialLikes: number;
   initialDislikes: number;
   initialFeedback?: 'like' | 'dislike' | null;
-  highlightColor?: string | null;
+  accentColor?: string | null;
   /** Resolved CSS for the hover pills, from the Highlight font group. */
   tooltipTextStyle?: React.CSSProperties;
   className?: string;
@@ -36,7 +36,7 @@ export default function FeedbackButtons({
   initialLikes,
   initialDislikes,
   initialFeedback = null,
-  highlightColor,
+  accentColor,
   tooltipTextStyle,
   className = "absolute bottom-3 right-4 flex items-center gap-2.5 z-20",
   showLikesTooltip = true,
@@ -136,9 +136,9 @@ export default function FeedbackButtons({
       className={className}
       style={
         {
-          "--feedback-color": highlightColor || "#ffffff",
-          "--feedback-color-muted": highlightColor
-            ? hexToRgba(highlightColor, 60)
+          "--feedback-color": accentColor || "#5b6cf5",
+          "--feedback-color-muted": accentColor
+            ? hexToRgba(accentColor, 60)
             : "rgba(255, 255, 255, 0.6)",
         } as React.CSSProperties
       }

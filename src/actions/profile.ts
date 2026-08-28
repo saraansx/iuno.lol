@@ -65,7 +65,6 @@ export async function updateGeneralProfile(data: {
   avatarShape?: "square" | "soft" | "rounded" | "circle";
   avatarDecorationUrl?: string | null;
   avatarDecorationHue?: number;
-  bioAlign?: "left" | "center" | "right";
   profileEffectUrl?: string | null;
   profileEffectHue?: number;
   bannerImageUrl?: string | null;
@@ -114,12 +113,6 @@ export async function updateGeneralProfile(data: {
   if (data.avatarShape !== undefined) setData.avatarShape = data.avatarShape;
   if (data.avatarDecorationUrl !== undefined) setData.avatarDecorationUrl = data.avatarDecorationUrl;
   if (data.avatarDecorationHue !== undefined) setData.avatarDecorationHue = data.avatarDecorationHue;
-  // Checked against the allowed set rather than passed through, since the value
-  // reaches a CSS `text-align` and the column is an enum.
-  if (data.bioAlign !== undefined && ["left", "center", "right"].includes(data.bioAlign)) {
-    setData.bioAlign = data.bioAlign;
-  }
-  
 
   if (data.profileEffectUrl !== undefined) {
     if (data.profileEffectUrl === "" || data.profileEffectUrl === null) {
@@ -310,7 +303,6 @@ export async function updateColorsProfile(data: {
   usernameColor?: string | null;
   bioColor?: string | null;
   otherColor?: string | null;
-  highlightColor?: string | null;
   pageBgColor?: string | null;
   widgetPrimaryTextColor?: string | null;
   widgetSecondaryTextColor?: string | null;
@@ -333,7 +325,6 @@ export async function updateColorsProfile(data: {
   if (data.usernameColor !== undefined) setData.usernameColor = data.usernameColor?.slice(0, 32) ?? null;
   if (data.bioColor !== undefined) setData.bioColor = data.bioColor?.slice(0, 32) ?? null;
   if (data.otherColor !== undefined) setData.otherColor = data.otherColor?.slice(0, 32) ?? null;
-  if (data.highlightColor !== undefined) setData.highlightColor = data.highlightColor?.slice(0, 32) ?? null;
   if (data.pageBgColor !== undefined) setData.pageBgColor = data.pageBgColor?.slice(0, 7) ?? null;
   if (data.widgetPrimaryTextColor !== undefined) setData.widgetPrimaryTextColor = data.widgetPrimaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetSecondaryTextColor !== undefined) setData.widgetSecondaryTextColor = data.widgetSecondaryTextColor?.slice(0, 32) ?? null;
@@ -357,6 +348,25 @@ export async function updateColorsProfile(data: {
 /** The structures the Layout page can select. Anything else is rejected. */
 const PROFILE_STRUCTURES = ["standard", "sectioned"] as const;
 
+/** How the card's content is aligned. Anything else is rejected. */
+const CONTENT_ALIGNMENTS = ["left", "center"] as const;
+
+/** Where the avatar sits relative to the name. Anything else is rejected. */
+const AVATAR_PLACEMENTS = ["top", "left", "right", "floating"] as const;
+
+/** Where a profile detail can be placed. Anything else is rejected. */
+const DETAIL_PLACEMENTS = ["top", "beside", "bottom-profile", "bottom-page", "hidden"] as const;
+
+/** The placement columns, keyed by the field name the client sends. */
+const DETAIL_PLACEMENT_FIELDS = [
+  "joinDatePlacement",
+  "locationPlacement",
+  "occupationPlacement",
+  "uidPlacement",
+  "viewsPlacement",
+  "feedbackPlacement",
+] as const;
+
 /** The arrangements the standard card can use. Anything else is rejected. */
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
@@ -366,6 +376,14 @@ export async function updateLayoutProfile(data: {
   profilePreset?: string;
   wrapInCard?: boolean;
   contentWidth?: number;
+  joinDatePlacement?: string;
+  locationPlacement?: string;
+  occupationPlacement?: string;
+  uidPlacement?: string;
+  viewsPlacement?: string;
+  feedbackPlacement?: string;
+  contentAlignment?: string;
+  avatarPlacement?: string;
 }) {
   const userId = await getSessionUserId();
 
@@ -404,6 +422,32 @@ export async function updateLayoutProfile(data: {
   // request should not be able to render the card unusably narrow or wide.
   if (data.contentWidth !== undefined) {
     setData.contentWidth = Math.min(1000, Math.max(480, Math.round(data.contentWidth)));
+  }
+
+  // Checked against the allowed set rather than passed through: each of these picks
+  // which slot a detail renders in, so an arbitrary string must not reach a column.
+  for (const field of DETAIL_PLACEMENT_FIELDS) {
+    const value = data[field];
+    if (value === undefined) continue;
+    if (!DETAIL_PLACEMENTS.includes(value as (typeof DETAIL_PLACEMENTS)[number])) {
+      throw new Error(`Invalid ${field}`);
+    }
+    setData[field] = value;
+  }
+
+  // Same reasoning: both reach layout classes, so only the known values are stored.
+  if (data.contentAlignment !== undefined) {
+    if (!CONTENT_ALIGNMENTS.includes(data.contentAlignment as (typeof CONTENT_ALIGNMENTS)[number])) {
+      throw new Error("Invalid contentAlignment");
+    }
+    setData.contentAlignment = data.contentAlignment;
+  }
+
+  if (data.avatarPlacement !== undefined) {
+    if (!AVATAR_PLACEMENTS.includes(data.avatarPlacement as (typeof AVATAR_PLACEMENTS)[number])) {
+      throw new Error("Invalid avatarPlacement");
+    }
+    setData.avatarPlacement = data.avatarPlacement;
   }
 
   if (Object.keys(setData).length === 0) return { success: true };

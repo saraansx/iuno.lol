@@ -156,7 +156,7 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               />
 
               <FontGroupSection
-                label="Highlight"
+                label="Tooltips"
                 hint="The dark pills that appear when a visitor hovers your card."
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 11-6 6v3h9l3-3" /><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4" /></svg>}
                 isOpen={openGroup === "highlight"}

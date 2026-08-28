@@ -110,8 +110,9 @@ export const userSettings = mysqlTable('user_settings', {
   highlightFontWeight: int('highlight_font_weight').default(400),
   highlightLetterSpacing: float('highlight_letter_spacing').default(0),
   otherLetterSpacing: float('other_letter_spacing').default(0),
-  otherColor: varchar('other_color', { length: 32 }).default('#FFFFFF'),
-  highlightColor: varchar('highlight_color', { length: 32 }).default('#ffffff'),
+  // The brand blue, not white: these drive the small detail chips and the feedback /
+  // comment / views accents, which read as UI rather than body text.
+  otherColor: varchar('other_color', { length: 32 }).default('#5b6cf5'),
   widgetPrimaryTextColor: varchar('widget_primary_text_color', { length: 32 }).default('#FFFFFF'),
   widgetSecondaryTextColor: varchar('widget_secondary_text_color', { length: 32 }).default('#FFFFFF'),
   widgetBorderColor: varchar('widget_border_color', { length: 32 }).default('#FFFFFF'),
@@ -144,6 +145,26 @@ export const userSettings = mysqlTable('user_settings', {
   // card was built at, so an untouched profile is unchanged. Floor is 480: below
   // that the two-column rows inside the card start colliding.
   contentWidth: int('content_width').default(764),
+  // Whether the card's content is centred or left-aligned. 'center' reproduces how
+  // the card has always rendered, so an untouched profile is unchanged.
+  contentAlignment: varchar('content_alignment', { length: 10 }).default('center'),
+  // Where the avatar sits relative to the name: 'top' above it, 'left'/'right'
+  // beside it, 'floating' overlapping the card edge.
+  avatarPlacement: varchar('avatar_placement', { length: 20 }).default('floating'),
+  // Where each profile detail renders: 'top' | 'beside' | 'bottom-profile' |
+  // 'bottom-page' | 'hidden'. Defaults reproduce the arrangement these details had
+  // before the setting existed, so an untouched profile is unchanged.
+  //
+  // These sit alongside the existing enable toggles (joinDateEnabled, viewsEnabled,
+  // feedbackEnabled) rather than replacing them: the toggle stays the master switch
+  // and the placement decides where a shown detail goes. A detail is rendered only
+  // when its toggle is on AND its placement is not 'hidden'.
+  joinDatePlacement: varchar('join_date_placement', { length: 20 }).default('bottom-profile'),
+  locationPlacement: varchar('location_placement', { length: 20 }).default('beside'),
+  occupationPlacement: varchar('occupation_placement', { length: 20 }).default('beside'),
+  uidPlacement: varchar('uid_placement', { length: 20 }).default('hidden'),
+  viewsPlacement: varchar('views_placement', { length: 20 }).default('bottom-profile'),
+  feedbackPlacement: varchar('feedback_placement', { length: 20 }).default('bottom-profile'),
   joinDateEnabled: boolean('join_date_enabled').default(false),
   joinDateFormat: varchar('join_date_format', { length: 32 }).default('Absolute (July 14, 2026)'),
   viewsEnabled: boolean('views_enabled').default(true),

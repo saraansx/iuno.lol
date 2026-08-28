@@ -25,20 +25,13 @@ export default function JoinDateSection({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <svg
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#5b6cf5"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              width="20"
+              height="20"
+              viewBox="0 0 512 512"
+              fill="#5b6cf5"
+              stroke="none"
             >
-              <rect x="3" y="4" width="18" height="18" rx="2"/>
-              <path d="M16 2v4"/>
-              <path d="M8 2v4"/>
-              <path d="M3 10h18"/>
-              <circle cx="12" cy="15" r="2" fill="#5b6cf5" stroke="none"/>
+              <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V180a4 4 0 0 0-4-4H36a4 4 0 0 0-4 4z" />
             </svg>
             <h2 className="text-white font-normal text-[16px] tracking-tight">
               Join date

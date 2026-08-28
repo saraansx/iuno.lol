@@ -10,8 +10,6 @@ interface GeneralInfoSectionProps {
   setOccupation: (val: string) => void;
   bio: string;
   setBio: (val: string) => void;
-  bioAlign: "left" | "center" | "right";
-  setBioAlign: (val: "left" | "center" | "right") => void;
 }
 
 export default function GeneralInfoSection({
@@ -23,8 +21,6 @@ export default function GeneralInfoSection({
   setOccupation,
   bio,
   setBio,
-  bioAlign,
-  setBioAlign,
 }: GeneralInfoSectionProps) {
   const [showFormattingHelp, setShowFormattingHelp] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -144,54 +140,6 @@ export default function GeneralInfoSection({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Text alignment — a segmented control rather than a dropdown, since
-                there are only three options and the icons read faster than labels. */}
-            <div className="flex items-center gap-0.5 bg-[#161616] border border-white/5 rounded-lg p-0.5">
-              {([
-                {
-                  value: "left" as const,
-                  label: "Align left",
-                  lines: [
-                    "M3 6h18", "M3 12h12", "M3 18h15",
-                  ],
-                },
-                {
-                  value: "center" as const,
-                  label: "Align center",
-                  lines: [
-                    "M3 6h18", "M6 12h12", "M4.5 18h15",
-                  ],
-                },
-                {
-                  value: "right" as const,
-                  label: "Align right",
-                  lines: [
-                    "M3 6h18", "M9 12h12", "M6 18h15",
-                  ],
-                },
-              ]).map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setBioAlign(option.value)}
-                  title={option.label}
-                  aria-label={option.label}
-                  aria-pressed={bioAlign === option.value}
-                  className={`w-6 h-6 rounded-md flex items-center justify-center transition-colors cursor-pointer ${
-                    bioAlign === option.value
-                      ? "bg-white/10 text-white"
-                      : "text-white/35 hover:text-white/70 hover:bg-white/5"
-                  }`}
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    {option.lines.map((d) => (
-                      <path key={d} d={d} />
-                    ))}
-                  </svg>
-                </button>
-              ))}
-            </div>
-
             <button
               type="button"
               onClick={() => setShowFormattingHelp(!showFormattingHelp)}

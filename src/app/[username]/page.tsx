@@ -98,7 +98,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       bioFontWeight: userSettings.bioFontWeight,
       bioLetterSpacing: userSettings.bioLetterSpacing,
       bioColor: userSettings.bioColor,
-      bioAlign: userSettings.bioAlign,
       otherFont: userSettings.otherFont,
       otherFontSize: userSettings.otherFontSize,
       otherFontWeight: userSettings.otherFontWeight,
@@ -124,7 +123,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
-      highlightColor: userSettings.highlightColor,
       highlightFont: userSettings.highlightFont,
       highlightFontSize: userSettings.highlightFontSize,
       highlightFontWeight: userSettings.highlightFontWeight,
@@ -141,6 +139,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgetLetterSpacing: userSettings.widgetLetterSpacing,
       wrapInCard: userSettings.wrapInCard,
       contentWidth: userSettings.contentWidth,
+      profilePreset: userSettings.profilePreset,
+      contentAlignment: userSettings.contentAlignment,
+      avatarPlacement: userSettings.avatarPlacement,
+      joinDatePlacement: userSettings.joinDatePlacement,
+      locationPlacement: userSettings.locationPlacement,
+      occupationPlacement: userSettings.occupationPlacement,
+      uidPlacement: userSettings.uidPlacement,
+      viewsPlacement: userSettings.viewsPlacement,
+      feedbackPlacement: userSettings.feedbackPlacement,
       pageBgColor: userSettings.pageBgColor,
       backgroundEffect: userSettings.backgroundEffect,
       backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
@@ -247,7 +254,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bioFontWeight={user.bioFontWeight ?? undefined}
         bioLetterSpacing={user.bioLetterSpacing ?? undefined}
         bioColor={user.bioColor ?? undefined}
-        bioAlign={user.bioAlign ?? undefined}
         otherFont={user.otherFont ?? undefined}
         otherFontSize={user.otherFontSize ?? undefined}
         otherFontWeight={user.otherFontWeight ?? undefined}
@@ -275,7 +281,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         createdAt={user.createdAt}
         profileId={user.id}
         viewerId={null}
-        highlightColor={user.highlightColor ?? undefined}
         highlightFont={user.highlightFont ?? undefined}
         highlightFontSize={user.highlightFontSize ?? undefined}
         highlightFontWeight={user.highlightFontWeight ?? undefined}
@@ -292,6 +297,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         widgetLetterSpacing={user.widgetLetterSpacing ?? undefined}
         wrapInCard={user.wrapInCard ?? undefined}
         contentWidth={user.contentWidth ?? undefined}
+        profilePreset={user.profilePreset ?? undefined}
+        contentAlignment={user.contentAlignment ?? undefined}
+        avatarPlacement={user.avatarPlacement ?? undefined}
+        joinDatePlacement={user.joinDatePlacement ?? undefined}
+        locationPlacement={user.locationPlacement ?? undefined}
+        occupationPlacement={user.occupationPlacement ?? undefined}
+        uidPlacement={user.uidPlacement ?? undefined}
+        viewsPlacement={user.viewsPlacement ?? undefined}
+        feedbackPlacement={user.feedbackPlacement ?? undefined}
         widgets={user.widgets ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />

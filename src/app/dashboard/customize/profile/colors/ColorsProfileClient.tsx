@@ -17,8 +17,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
 
   const initialUsernameColor = user?.usernameColor ?? "#ffffff";
   const initialBioColor = user?.bioColor ?? "#ffffff";
-  const initialOtherColor = user?.otherColor ?? "#ffffff";
-  const initialHighlightColor = user?.highlightColor ?? "#ffffff";
+  const initialOtherColor = user?.otherColor ?? "#5b6cf5";
   const initialPageBgColor = user?.pageBgColor ?? "#050505";
   const initialWidgetPrimaryTextColor = user?.widgetPrimaryTextColor ?? "#FFFFFF";
   const initialWidgetSecondaryTextColor = user?.widgetSecondaryTextColor ?? "#FFFFFF";
@@ -30,8 +29,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const setBioColor = (val: string) => updateOverrides({ bioColor: val === initialBioColor ? undefined : val });
   const otherColor = overrides.otherColor ?? initialOtherColor;
   const setOtherColor = (val: string) => updateOverrides({ otherColor: val === initialOtherColor ? undefined : val });
-  const highlightColor = overrides.highlightColor ?? initialHighlightColor;
-  const setHighlightColor = (val: string) => updateOverrides({ highlightColor: val === initialHighlightColor ? undefined : val });
   const pageBgColor = overrides.pageBgColor ?? initialPageBgColor;
   const setPageBgColor = (val: string) => updateOverrides({ pageBgColor: val === initialPageBgColor ? undefined : val });
 
@@ -59,8 +56,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setBioColor={setBioColor}
           otherColor={otherColor}
           setOtherColor={setOtherColor}
-          highlightColor={highlightColor}
-          setHighlightColor={setHighlightColor}
           pageBgColor={pageBgColor}
           setPageBgColor={setPageBgColor}
         />
@@ -82,7 +77,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           usernameColor,
           bioColor,
           otherColor,
-          highlightColor,
           pageBgColor,
           widgetPrimaryTextColor,
           widgetSecondaryTextColor,

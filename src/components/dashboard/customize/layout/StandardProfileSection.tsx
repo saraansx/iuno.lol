@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { type ContentAlignment } from "@/components/profile/layouts/ProfilePresetLayout";
 
 /** Which arrangement the standard card uses. Mirrors PROFILE_PRESETS in the action. */
 export type ProfilePreset = "split" | "floating" | "modern" | "classic";
@@ -41,6 +42,14 @@ interface StandardProfileSectionProps {
   setWrapInCard: (val: boolean) => void;
   contentWidth: number;
   setContentWidth: (val: number) => void;
+  /**
+   * True when the current placements no longer match the preset's own defaults.
+   * The trigger then reads "Custom" — the preset is still what was last applied, but
+   * saying so would misdescribe an arrangement the user has since edited.
+   */
+  isCustom?: boolean;
+  alignment: ContentAlignment;
+  setAlignment: (val: ContentAlignment) => void;
 }
 
 /** Matches the clamp in updateLayoutProfile. */
@@ -82,6 +91,9 @@ export default function StandardProfileSection({
   setWrapInCard,
   contentWidth,
   setContentWidth,
+  isCustom = false,
+  alignment,
+  setAlignment,
 }: StandardProfileSectionProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -166,7 +178,9 @@ export default function StandardProfileSection({
             onClick={() => setIsOpen(!isOpen)}
             className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer focus:outline-none"
           >
-            <span>{selected?.name ?? "Classic"}</span>
+            <span className={isCustom ? "text-white/50" : ""}>
+              {isCustom ? "Custom" : selected?.name ?? "Classic"}
+            </span>
             <svg
               width="14"
               height="14"
@@ -183,7 +197,7 @@ export default function StandardProfileSection({
           {isOpen && (
             <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#1a1a1a] border border-white/5 rounded-xl shadow-2xl z-50 py-2 max-h-[280px] overflow-y-auto custom-scrollbar">
               {PRESETS.map((option) => {
-                const isSelected = option.id === preset;
+                const isSelected = !isCustom && option.id === preset;
                 return (
                   <button
                     key={option.id}
@@ -227,23 +241,36 @@ export default function StandardProfileSection({
         {/* Alignment is presentational for now: it is shown so the shape of the
             settings is visible, but it is not wired to a column yet. Content width
             and Wrap in card below both change the profile. */}
-        <div className="flex items-center gap-4 opacity-40 pointer-events-none select-none">
-          <RowLabel text="Alignment" hint="Not available yet." disabled />
+        <div className="flex items-center gap-4">
+          <RowLabel
+            text="Alignment"
+            hint="Whether the card's content is centred or aligned to the left."
+          />
           <div className="flex-1 grid grid-cols-2 gap-3">
-            <div className="flex items-center justify-center gap-2 h-[38px] rounded-xl bg-[#111111] border border-white/5">
-              <span className="flex flex-col gap-[3px]">
-                <span className="block h-[2px] w-4 rounded-full bg-white/30" />
-                <span className="block h-[2px] w-2.5 rounded-full bg-white/30" />
-              </span>
-              <span className="text-[13px] text-white/70">Left</span>
-            </div>
-            <div className="flex items-center justify-center gap-2 h-[38px] rounded-xl bg-[#111111] border border-white/5">
-              <span className="flex flex-col items-center gap-[3px]">
-                <span className="block h-[2px] w-4 rounded-full bg-white/30" />
-                <span className="block h-[2px] w-2.5 rounded-full bg-white/30" />
-              </span>
-              <span className="text-[13px] text-white/70">Center</span>
-            </div>
+            {(["left", "center"] as const).map((option) => {
+              const isSelected = alignment === option;
+              return (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => setAlignment(option)}
+                  aria-pressed={isSelected}
+                  className={`flex items-center justify-center gap-2 h-[38px] rounded-xl border transition-colors cursor-pointer focus:outline-none ${
+                    isSelected
+                      ? "bg-[#111326] border-[#5b6cf5]/40"
+                      : "bg-[#111111] border-white/5 hover:border-white/15"
+                  }`}
+                >
+                  <span className={`flex flex-col gap-[3px] ${option === "center" ? "items-center" : ""}`}>
+                    <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                    <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                  </span>
+                  <span className={`text-[13px] ${isSelected ? "text-[#5b6cf5] font-medium" : "text-white/70"}`}>
+                    {option === "left" ? "Left" : "Center"}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 

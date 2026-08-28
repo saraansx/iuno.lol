@@ -10,12 +10,37 @@ import StandardProfileSection, {
   type ProfilePreset,
 } from "@/components/dashboard/customize/layout/StandardProfileSection";
 import HeaderSection from "@/components/dashboard/customize/layout/HeaderSection";
-import ProfileDetailsSection from "@/components/dashboard/customize/layout/ProfileDetailsSection";
+import ProfileDetailsSection, {
+  type DetailPlacementMap,
+} from "@/components/dashboard/customize/layout/ProfileDetailsSection";
+import {
+  type AvatarPlacement,
+  type ContentAlignment,
+  type DetailKey,
+  type DetailPlacement,
+  getDetailDefaults,
+  getFrameDefaults,
+  normalizeAlignment,
+  normalizeAvatarPlacement,
+  normalizePlacement,
+} from "@/components/profile/layouts/ProfilePresetLayout";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { updateLayoutProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
+
+// The column backing each detail, and where that detail sat before the setting
+// existed — so an untouched profile renders unchanged. Module scope: it is constant,
+// and rebuilding it per render would churn on every keystroke elsewhere on the page.
+const DETAIL_FIELDS = {
+  joinDate: ["joinDatePlacement", "bottom-profile"],
+  location: ["locationPlacement", "beside"],
+  occupation: ["occupationPlacement", "beside"],
+  uid: ["uidPlacement", "hidden"],
+  views: ["viewsPlacement", "bottom-profile"],
+  feedback: ["feedbackPlacement", "bottom-profile"],
+} as const;
 
 export default function LayoutProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -30,8 +55,26 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
   const initialPreset = (user?.profilePreset ?? "classic") as ProfilePreset;
 
   const preset = (overrides.profilePreset ?? initialPreset) as ProfilePreset;
-  const setPreset = (val: ProfilePreset) =>
-    updateOverrides({ profilePreset: val === initialPreset ? undefined : val });
+
+  // Picking a preset also writes its detail arrangement, so the choice visibly does
+  // something. They stay editable afterwards — a preset is a starting point, not a
+  // mode the Profile details section has to defer to.
+  const setPreset = (val: ProfilePreset) => {
+    const defaults = getDetailDefaults(val);
+    const frame = getFrameDefaults(val);
+    updateOverrides({
+      profilePreset: val === initialPreset ? undefined : val,
+      contentAlignment: frame.contentAlignment,
+      avatarPlacement: frame.avatarPlacement,
+      contentWidth: frame.contentWidth,
+      ...Object.fromEntries(
+        Object.entries(DETAIL_FIELDS).map(([key, [field]]) => [
+          field,
+          defaults[key as DetailKey],
+        ])
+      ),
+    });
+  };
 
   const initialWrapInCard = user?.wrapInCard ?? true;
 
@@ -44,6 +87,49 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
   const contentWidth = overrides.contentWidth ?? initialContentWidth;
   const setContentWidth = (val: number) =>
     updateOverrides({ contentWidth: val === initialContentWidth ? undefined : val });
+
+  const initialAlignment = normalizeAlignment(user?.contentAlignment);
+  const alignment = normalizeAlignment(overrides.contentAlignment, initialAlignment);
+  const setAlignment = (val: ContentAlignment) =>
+    updateOverrides({ contentAlignment: val === initialAlignment ? undefined : val });
+
+  const initialAvatarPlacement = normalizeAvatarPlacement(user?.avatarPlacement);
+  const avatarPlacement = normalizeAvatarPlacement(
+    overrides.avatarPlacement,
+    initialAvatarPlacement
+  );
+  const setAvatarPlacement = (val: AvatarPlacement) =>
+    updateOverrides({ avatarPlacement: val === initialAvatarPlacement ? undefined : val });
+
+  const placements = Object.fromEntries(
+    Object.entries(DETAIL_FIELDS).map(([key, [field, fallback]]) => [
+      key,
+      normalizePlacement(
+        (overrides[field] as string | undefined) ?? (user?.[field] as string | undefined),
+        fallback
+      ),
+    ])
+  ) as DetailPlacementMap;
+
+  const setPlacement = (key: DetailKey, value: DetailPlacement) => {
+    const [field, fallback] = DETAIL_FIELDS[key];
+    const initial = normalizePlacement(user?.[field] as string | undefined, fallback);
+    updateOverrides({ [field]: value === initial ? undefined : value });
+  };
+
+  // A preset is a starting arrangement, so once any placement is moved the label no
+  // longer describes what is on screen. Comparing against the preset's own defaults
+  // means returning every row to them shows the preset name again, rather than the
+  // dropdown being stuck on "Custom" forever.
+  const presetDefaults = getDetailDefaults(preset);
+  const presetFrame = getFrameDefaults(preset);
+  const isCustom =
+    (Object.keys(presetDefaults) as DetailKey[]).some(
+      (key) => placements[key] !== presetDefaults[key]
+    ) ||
+    alignment !== presetFrame.contentAlignment ||
+    avatarPlacement !== presetFrame.avatarPlacement ||
+    contentWidth !== presetFrame.contentWidth;
 
   const hasChanges = Object.keys(overrides).length > 0;
 
@@ -66,16 +152,30 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
               setWrapInCard={setWrapInCard}
               contentWidth={contentWidth}
               setContentWidth={setContentWidth}
+              isCustom={isCustom}
+              alignment={alignment}
+              setAlignment={setAlignment}
             />
-            <HeaderSection />
-            <ProfileDetailsSection />
+            <HeaderSection avatarPlacement={avatarPlacement} setAvatarPlacement={setAvatarPlacement} />
+            <ProfileDetailsSection placements={placements} setPlacement={setPlacement} />
           </>
         )}
       </div>
 
       <DashboardProfilePreview
         user={user}
-        overrides={{ ...overrides, profileStructure: structure, profilePreset: preset, wrapInCard, contentWidth }}
+        overrides={{ ...overrides, profileStructure: structure, profilePreset: preset,
+          wrapInCard,
+          contentWidth,
+          contentAlignment: alignment,
+          avatarPlacement,
+          joinDatePlacement: placements.joinDate,
+          locationPlacement: placements.location,
+          occupationPlacement: placements.occupation,
+          uidPlacement: placements.uid,
+          viewsPlacement: placements.views,
+          feedbackPlacement: placements.feedback,
+        }}
       />
 
       <SaveBar
@@ -88,6 +188,14 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
               profilePreset: preset,
               wrapInCard,
               contentWidth,
+              contentAlignment: alignment,
+              avatarPlacement,
+              joinDatePlacement: placements.joinDate,
+              locationPlacement: placements.location,
+              occupationPlacement: placements.occupation,
+              uidPlacement: placements.uid,
+              viewsPlacement: placements.views,
+              feedbackPlacement: placements.feedback,
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

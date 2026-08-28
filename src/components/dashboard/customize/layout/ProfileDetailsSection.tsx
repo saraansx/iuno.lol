@@ -1,51 +1,43 @@
 "use client";
 
-/**
- * Placement settings for each profile detail.
- *
- * Presentational for now: the rows show the shape the settings will take — which
- * slot a detail sits in, and whether it is shown at all — but nothing is wired to a
- * column, so the whole block is rendered inert. Wiring a row up means giving it
- * state and dropping the `pointer-events-none` wrapper, the same way Wrap in card
- * works in StandardProfileSection.
- */
+import {
+  type DetailKey,
+  type DetailPlacement,
+} from "@/components/profile/layouts/ProfilePresetLayout";
 
-/** The slots a detail can be placed in. */
-const PLACEMENTS = [
-  "Top of profile",
-  "Beside profile",
-  "Bottom of profile",
-  "Bottom of page",
-] as const;
-
-type Placement = (typeof PLACEMENTS)[number];
+/** The slots a detail can be placed in, with the label shown on each pill. */
+const PLACEMENTS: { id: Exclude<DetailPlacement, "hidden">; label: string }[] = [
+  { id: "top", label: "Top of profile" },
+  { id: "beside", label: "Beside profile" },
+  { id: "bottom-profile", label: "Bottom of profile" },
+  { id: "bottom-page", label: "Bottom of page" },
+];
 
 interface DetailRow {
-  id: string;
+  id: DetailKey;
   name: string;
   icon: React.ReactNode;
-  /** `null` renders the row as hidden — dimmed, with no slot selected. */
-  placement: Placement | null;
+  /**
+   * Restricts which slots this detail offers. Feedback is a pair of buttons rather
+   * than a line of text, so the inline slots above the name would put controls in
+   * the middle of the header — only the two bottom slots make sense for it.
+   */
+  slots?: Exclude<DetailPlacement, "hidden">[];
 }
 
 const DETAILS: DetailRow[] = [
   {
-    id: "join-date",
+    id: "joinDate",
     name: "Join date",
-    placement: null,
     icon: (
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="4" width="18" height="18" rx="2" />
-        <path d="M16 2v4" />
-        <path d="M8 2v4" />
-        <path d="M3 10h18" />
+      <svg width="14" height="14" viewBox="0 0 512 512" fill="currentColor" stroke="none">
+        <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V180a4 4 0 0 0-4-4H36a4 4 0 0 0-4 4z" />
       </svg>
     ),
   },
   {
     id: "location",
     name: "Location",
-    placement: "Beside profile",
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
         <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" />
@@ -55,7 +47,6 @@ const DETAILS: DetailRow[] = [
   {
     id: "occupation",
     name: "Occupation",
-    placement: "Beside profile",
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="7" width="20" height="14" rx="2" />
@@ -66,7 +57,6 @@ const DETAILS: DetailRow[] = [
   {
     id: "uid",
     name: "UID",
-    placement: null,
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 9h16" />
@@ -79,7 +69,6 @@ const DETAILS: DetailRow[] = [
   {
     id: "views",
     name: "Views",
-    placement: "Bottom of profile",
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none">
         <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />
@@ -89,7 +78,7 @@ const DETAILS: DetailRow[] = [
   {
     id: "feedback",
     name: "Feedback",
-    placement: "Bottom of profile",
+    slots: ["bottom-profile", "bottom-page"],
     icon: (
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
@@ -99,22 +88,39 @@ const DETAILS: DetailRow[] = [
 ];
 
 /** The sentence under each detail's name, describing where it currently sits. */
-function placementSummary(placement: Placement | null): string {
+function placementSummary(placement: DetailPlacement): string {
   switch (placement) {
-    case "Top of profile":
+    case "top":
       return "Shown above your name";
-    case "Beside profile":
+    case "beside":
       return "Shown beside your name and profile details";
-    case "Bottom of profile":
+    case "bottom-profile":
       return "Shown beneath the profile section";
-    case "Bottom of page":
-      return "Shown at the bottom of the page";
+    case "bottom-page":
+      return "Shown at the bottom of your profile page";
     default:
       return "Not shown anywhere on your profile";
   }
 }
 
-export default function ProfileDetailsSection() {
+export type DetailPlacementMap = Record<DetailKey, DetailPlacement>;
+
+interface ProfileDetailsSectionProps {
+  placements: DetailPlacementMap;
+  setPlacement: (key: DetailKey, value: DetailPlacement) => void;
+}
+
+/**
+ * Where each profile detail renders, or whether it renders at all.
+ *
+ * Join date, views and feedback also have master toggles elsewhere (Appearance).
+ * Those stay the outer switch — a detail turned off there will not appear no matter
+ * what is picked here, which is why this section does not duplicate them.
+ */
+export default function ProfileDetailsSection({
+  placements,
+  setPlacement,
+}: ProfileDetailsSectionProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
@@ -141,9 +147,10 @@ export default function ProfileDetailsSection() {
         </p>
       </div>
 
-      <div className="flex flex-col opacity-40 pointer-events-none select-none">
+      <div className="flex flex-col">
         {DETAILS.map((detail, index) => {
-          const isHidden = detail.placement === null;
+          const placement = placements[detail.id];
+          const isHidden = placement === "hidden";
 
           return (
             <div
@@ -156,7 +163,7 @@ export default function ProfileDetailsSection() {
             >
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center ${
+                  className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center transition-colors ${
                     isHidden
                       ? "bg-white/[0.03] text-white/20"
                       : "bg-[#5b6cf5]/10 text-[#5b6cf5]"
@@ -174,41 +181,58 @@ export default function ProfileDetailsSection() {
                     {detail.name}
                   </span>
                   <span className="text-[11.5px] text-white/35 leading-snug">
-                    {placementSummary(detail.placement)}
+                    {placementSummary(placement)}
                   </span>
                 </div>
 
-                {/* Only shown for a visible detail: there is nothing to hide on a
-                    row that is already hidden. */}
-                {!isHidden && (
-                  <div className="flex items-center gap-1.5 text-white/45 shrink-0">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-                      <path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-                      <path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-                      <path d="m2 2 20 20" />
-                    </svg>
-                    <span className="text-[12px]">Hide</span>
-                  </div>
-                )}
+                {/* A switch rather than a text button: the bare icon-and-label had
+                    no container, so it read as floating text rather than a control.
+                    Matches the toggles used elsewhere in the dashboard. */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setPlacement(
+                      detail.id,
+                      isHidden ? detail.slots?.[0] ?? "beside" : "hidden"
+                    )
+                  }
+                  aria-label={`${isHidden ? "Show" : "Hide"} ${detail.name}`}
+                  aria-pressed={!isHidden}
+                  title={isHidden ? "Show on profile" : "Hide from profile"}
+                  className={`w-9 h-5 rounded-full relative flex items-center shrink-0 transition-colors cursor-pointer focus:outline-none ${
+                    isHidden ? "bg-white/10 hover:bg-white/[0.14]" : "bg-[#5b6cf5]"
+                  }`}
+                >
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full absolute bg-white shadow-sm transition-all ${
+                      isHidden ? "left-[3px]" : "right-[3px]"
+                    }`}
+                  />
+                </button>
               </div>
 
               <div className="flex flex-wrap gap-2">
-                {PLACEMENTS.map((slot) => {
-                  const isSelected = detail.placement === slot;
+                {(detail.slots
+                  ? PLACEMENTS.filter((p) => detail.slots!.includes(p.id))
+                  : PLACEMENTS
+                ).map((slot) => {
+                  const isSelected = placement === slot.id;
                   return (
-                    <span
-                      key={slot}
-                      className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors ${
+                    <button
+                      key={slot.id}
+                      type="button"
+                      onClick={() => setPlacement(detail.id, slot.id)}
+                      aria-pressed={isSelected}
+                      className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
                         isSelected
                           ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
                           : isHidden
-                            ? "bg-white/[0.02] border-white/5 text-white/25"
-                            : "bg-[#111111] border-white/5 text-white/50"
+                            ? "bg-white/[0.02] border-white/5 text-white/25 hover:text-white/50"
+                            : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
                       }`}
                     >
-                      {slot}
-                    </span>
+                      {slot.label}
+                    </button>
                   );
                 })}
               </div>

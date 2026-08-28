@@ -28,7 +28,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialLocation = user?.location ?? "";
   const initialOccupation = user?.occupation ?? "";
   const initialBio = user?.bio ?? "";
-  const initialBioAlign = (user?.bioAlign ?? "center") as "left" | "center" | "right";
   const initialAvatarUrl = user?.avatarUrl ?? "";
   const initialAvatarShape = (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded";
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
@@ -46,8 +45,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setOccupation = (val: string) => updateOverrides({ occupation: val === initialOccupation ? undefined : val });
   const bio = overrides.bio ?? initialBio;
   const setBio = (val: string) => updateOverrides({ bio: val === initialBio ? undefined : val });
-  const bioAlign = (overrides.bioAlign ?? initialBioAlign) as "left" | "center" | "right";
-  const setBioAlign = (val: "left" | "center" | "right") => updateOverrides({ bioAlign: val === initialBioAlign ? undefined : val });
   const avatarUrl = overrides.avatarUrl ?? initialAvatarUrl;
   const setAvatarUrl = (val: string) => updateOverrides({ avatarUrl: val === initialAvatarUrl ? undefined : val });
   const avatarShape = overrides.avatarShape ?? initialAvatarShape;
@@ -140,8 +137,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setOccupation={setOccupation}
           bio={bio}
           setBio={setBio}
-          bioAlign={bioAlign}
-          setBioAlign={setBioAlign}
         />
       </div>
 
@@ -206,7 +201,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           ...overrides,
           displayName,
           bio,
-          bioAlign,
           location,
           occupation,
           avatarUrl,

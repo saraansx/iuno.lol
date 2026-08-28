@@ -16,6 +16,18 @@ import { CursorTrail } from "./CursorTrail";
 import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
+import {
+  BADGE_CLASSES,
+  type DetailKey,
+  getPresetLayout,
+  normalizeAlignment,
+  normalizeAvatarPlacement,
+  normalizePlacement,
+} from "./ProfilePresetLayout";
+import ProfileDetails, {
+  type DetailPlacements,
+  type DetailTooltips,
+} from "./ProfileDetails";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 
 const FONT_CLASS_MAP: Record<string, string> = {
@@ -155,13 +167,11 @@ interface Layout1Props {
   bioFontWeight?: number;
   bioLetterSpacing?: number;
   bioColor?: string;
-  bioAlign?: "left" | "center" | "right";
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
   otherLetterSpacing?: number;
   otherColor?: string;
-  highlightColor?: string;
   highlightFont?: string;
   highlightFontSize?: number;
   highlightFontWeight?: number;
@@ -178,6 +188,15 @@ interface Layout1Props {
   widgetLetterSpacing?: number;
   wrapInCard?: boolean;
   contentWidth?: number;
+  profilePreset?: string;
+  contentAlignment?: string;
+  avatarPlacement?: string;
+  joinDatePlacement?: string;
+  locationPlacement?: string;
+  occupationPlacement?: string;
+  uidPlacement?: string;
+  viewsPlacement?: string;
+  feedbackPlacement?: string;
   selectedEffect?: {
     id: string;
     name: string;
@@ -351,13 +370,11 @@ const Layout1 = ({
   bioFontWeight = 400,
   bioLetterSpacing = 0,
   bioColor = "#FFFFFF",
-  bioAlign = "center",
   otherFont = "Inter",
   otherFontSize = 14,
   otherFontWeight = 400,
   otherLetterSpacing = 0,
-  otherColor = "#FFFFFF",
-  highlightColor,
+  otherColor = "#5b6cf5",
   highlightFont = "Inter",
   highlightFontSize = 11,
   highlightFontWeight = 500,
@@ -374,6 +391,15 @@ const Layout1 = ({
   widgetLetterSpacing,
   wrapInCard = true,
   contentWidth = 764,
+  profilePreset = "classic",
+  contentAlignment,
+  avatarPlacement,
+  joinDatePlacement,
+  locationPlacement,
+  occupationPlacement,
+  uidPlacement,
+  viewsPlacement,
+  feedbackPlacement,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -555,6 +581,28 @@ const Layout1 = ({
   // working there.
   const cardWidth = `${Math.min(1000, Math.max(480, contentWidth))}px`;
 
+  // Arrangement rules live in ProfilePresetLayout so each preset is defined in one
+  // place rather than as ternaries spread through this component.
+  const badgeClass = BADGE_CLASSES[getPresetLayout(profilePreset).badgePlacement];
+
+  // Alignment drives both the flex axis and text-align, so a left-aligned card reads
+  // as one column rather than centred text in a left-hugging box.
+  const alignment = normalizeAlignment(contentAlignment);
+  const isLeft = alignment === "left";
+  const alignClass = isLeft ? "items-start text-left" : "items-center text-center";
+  // Detail rows are their own flex containers, so they need the main-axis version.
+  const justifyClass = isLeft ? "justify-start" : "justify-center";
+
+  // `floating` keeps the negative margin that lets the avatar overlap the banner;
+  // `top` sits it in the flow above the name. left/right are handled by the row
+  // wrapper below, which places the avatar beside the content instead.
+  const avatarPos = normalizeAvatarPlacement(avatarPlacement);
+  const avatarBeside = avatarPos === "left" || avatarPos === "right";
+
+  // Resolved once so both layout branches place details identically. A detail with a
+  // master toggle (join date, views, feedback) is forced to "hidden" when that toggle
+  // is off, so the existing switches keep working as the outer gate and the placement
+  // only decides where a shown detail goes.
   // Every hover tooltip pill shares these, so the Highlight font group drives
   // them all from one place.
   const tooltipTextStyle: React.CSSProperties = {
@@ -563,6 +611,89 @@ const Layout1 = ({
     fontWeight: highlightFontWeight,
     letterSpacing: `${highlightLetterSpacing}px`,
   };
+
+  const detailPlacements: DetailPlacements = {
+    location: normalizePlacement(locationPlacement, "beside"),
+    occupation: normalizePlacement(occupationPlacement, "beside"),
+    uid: normalizePlacement(uidPlacement, "hidden"),
+    joinDate: joinDateEnabled
+      ? normalizePlacement(joinDatePlacement, "bottom-profile")
+      : "hidden",
+    views: viewsEnabled
+      ? normalizePlacement(viewsPlacement, "bottom-profile")
+      : "hidden",
+    feedback: feedbackEnabled
+      ? normalizePlacement(feedbackPlacement, "bottom-profile")
+      : "hidden",
+  };
+
+  const detailTooltips: DetailTooltips = {
+    location: showLocationTooltip,
+    occupation: showOccupationTooltip,
+    uid: showUidTooltip,
+    joinDate: showJoinDateTooltip,
+    views: showViewsTooltip,
+  };
+
+  // Small-text typography, shared by every detail chip.
+  const detailTextStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
+    fontSize: `${otherFontSize}px`,
+    fontWeight: otherFontWeight,
+    letterSpacing: `${otherLetterSpacing}px`,
+    color: otherColor,
+  };
+
+  // Views and feedback are passed as nodes rather than strings: the first animates
+  // its count and the second owns its own like/dislike state.
+  const detailValues = {
+    location,
+    occupation,
+    uid: profileId && profileId > 0 ? profileId : undefined,
+    joinDate: formattedJoinDate,
+    views: (
+      <>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
+          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+        </svg>
+        <span>{viewsAnimationEnabled ? animatedViews : views}</span>
+      </>
+    ),
+    feedback: (
+      <FeedbackButtons
+        profileId={profileId}
+        viewerId={viewerId}
+        initialLikes={likesCount}
+        initialDislikes={dislikesCount}
+        initialFeedback={viewerFeedback}
+        accentColor={otherColor}
+        tooltipTextStyle={tooltipTextStyle}
+        showLikesTooltip={showLikesTooltip}
+        showDislikesTooltip={showDislikesTooltip}
+        showFeedbackPublicly={showFeedbackPublicly}
+      />
+    ),
+  };
+
+  // Rendered in each slot; `key` keeps React from reusing a chip across slots.
+  const detailSlot = (
+    slot: "top" | "beside" | "bottom-profile" | "bottom-page",
+    className = "",
+    filter: { only?: DetailKey[]; except?: DetailKey[] } = {}
+  ) => (
+    <ProfileDetails
+      slot={slot}
+      only={filter.only}
+      except={filter.except}
+      values={detailValues}
+      placements={detailPlacements}
+      tooltips={detailTooltips}
+      textStyle={detailTextStyle}
+      tooltipTextStyle={tooltipTextStyle}
+      className={className}
+    />
+  );
+
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
   /* ── WITH BANNER ─────────────────────────────────────────────────── */
@@ -735,18 +866,75 @@ const Layout1 = ({
               </div>
             )}
 
-            {/* Avatar overlapping banner bottom or at top of card */}
-            <div className="relative w-full flex justify-center" style={{ marginTop: hasBanner ? "-44px" : "24px" }}>
-              <AvatarInner
-                avatarUrl={avatarUrl}
-                shapeClass={shapeClass}
-                selectedDecoration={selectedDecoration}
-                decorationHue={decorationHue}
-              />
-            </div>
+            {/* Top-of-profile details. Overlaid on the banner rather than placed in
+                the content column: with a banner the row reads as part of the header
+                image, and without one it still needs to sit above the avatar. */}
+            {/* Right-aligned regardless of content alignment: the top row sits over the
+                banner, and the left edge is where the name and details below already
+                start, so stacking another row there crowds them. */}
+            {detailSlot(
+              "top",
+              `justify-end ${
+                hasBanner
+                  ? "absolute top-3 left-0 right-0 z-30 px-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+                  : "w-full pt-5 px-4"
+              }`
+            )}
 
-            {/* Content */}
-            <div className="w-full flex flex-col items-center px-6 pb-16 pt-3">
+            {/* left/right put the avatar and the content side by side, so both are
+                wrapped in one row. top/floating keep them stacked, and the wrapper
+                collapses to `contents` so the flow is exactly as it was. */}
+            <div
+              className={
+                avatarBeside
+                  ? `w-full flex items-start gap-5 px-6 ${
+                      avatarPos === "right" ? "flex-row-reverse" : ""
+                    }`
+                  : "contents"
+              }
+              style={avatarBeside ? { marginTop: hasBanner ? "10px" : "24px" } : undefined}
+            >
+              {/* Avatar overlapping banner bottom or at top of card. Beside the
+                  content it never overlaps: the whole row sits below the banner so
+                  the avatar lines up with the name. */}
+              <div
+                className={
+                  avatarBeside
+                    ? "shrink-0"
+                    : `relative w-full flex ${isLeft ? "justify-start px-6" : "justify-center"}`
+                }
+                style={
+                  avatarBeside
+                    ? undefined
+                    : {
+                        marginTop:
+                          avatarPos === "floating"
+                            ? hasBanner
+                              ? "-44px"
+                              : "24px"
+                            : hasBanner
+                              ? "16px"
+                              : "24px",
+                      }
+                }
+              >
+                <AvatarInner
+                  avatarUrl={avatarUrl}
+                  shapeClass={shapeClass}
+                  selectedDecoration={selectedDecoration}
+                  decorationHue={decorationHue}
+                />
+              </div>
+
+            {/* Content. Beside a tall avatar the name would otherwise start level with
+                the avatar's top edge; a small negative offset lifts the column so the
+                name reads as sitting just under the banner. */}
+            <div
+              className={`flex flex-col pb-16 ${alignClass} ${
+                avatarBeside ? "flex-1 min-w-0" : "w-full px-6 pt-3"
+              }`}
+              style={avatarBeside && hasBanner ? { marginTop: "-6px" } : undefined}
+            >
               {display && (
                 <div className="relative group/uid flex justify-center">
                   <UsernameEffect effect={usernameEffect}>
@@ -763,90 +951,15 @@ const Layout1 = ({
                   )}
                 </div>
               )}
-              {location && (
-                <div
-                  className="mt-1 text-center flex items-center justify-center gap-3"
-                  style={{
-                    fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
-                    fontSize: `${otherFontSize}px`,
-                    fontWeight: otherFontWeight,
-                    letterSpacing: `${otherLetterSpacing}px`,
-                    color: otherColor,
-                  }}
-                >
-                  <span className="flex items-center gap-1.5 group relative">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                    </svg>
-                    {location}
-                    {showLocationTooltip && (
-                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
-                        <div
-                          className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap"
-                          style={tooltipTextStyle}
-                        >
-                          Location
-                        </div>
-                      </div>
-                    )}
-                  </span>
-                  {occupation && (
-                    <span className="flex items-center gap-1.5 group relative">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                      </svg>
-                      {occupation}
-                      {showOccupationTooltip && (
-                        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
-                          <div
-                            className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap"
-                            style={tooltipTextStyle}
-                          >
-                            Occupation
-                          </div>
-                        </div>
-                      )}
-                    </span>
-                  )}
-                </div>
-              )}
-              {!location && occupation && (
-                <p
-                  className="mt-1 text-center flex items-center justify-center gap-3"
-                  style={{
-                    fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
-                    fontSize: `${otherFontSize}px`,
-                    fontWeight: otherFontWeight,
-                    letterSpacing: `${otherLetterSpacing}px`,
-                    color: otherColor,
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                  </svg>
-                  {occupation}
-                </p>
-              )}
+              {detailSlot("beside", `mt-1 text-center ${justifyClass}`)}
               {bio?.trim() && (
                 <div
-                  className={`w-full mt-1.5 flex ${
-                    bioAlign === "left"
-                      ? "justify-start"
-                      : bioAlign === "right"
-                      ? "justify-end"
-                      : "justify-center"
-                  }`}
+                  className={`w-full mt-1.5 flex ${isLeft ? "justify-start" : "justify-center"}`}
                 >
                   <DescriptionEffect effect={descriptionEffect}>
                     <p
                       className={`leading-relaxed max-w-[90%] break-words ${
-                        bioAlign === "left"
-                          ? "text-left"
-                          : bioAlign === "right"
-                          ? "text-right"
-                          : "text-center"
+                        isLeft ? "text-left" : "text-center"
                       }`}
                       style={{
                         fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
@@ -865,82 +978,16 @@ const Layout1 = ({
               {/* Inside Card Widgets */}
               <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
             </div>
+            </div>
           </div>
 
-          {/* Views count badge in bottom left */}
-          {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-            <div
-              className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
-              style={{
-                color: highlightColor || 'rgba(255, 255, 255, 0.6)',
-                fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
-                fontSize: `${otherFontSize}px`,
-                fontWeight: otherFontWeight,
-                letterSpacing: `${otherLetterSpacing}px`,
-              }}
-            >
-              {viewsEnabled && (
-                <div className="relative group/tooltip flex justify-center">
-                  <div className="flex items-center gap-2">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
-                      <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                    </svg>
-                    <span>{viewsAnimationEnabled ? animatedViews : views}</span>
-                  </div>
-                  {showViewsTooltip && (
-                    <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
-                        Views
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {joinDateEnabled && formattedJoinDate && (
-                <>
-                  {viewsEnabled && <span className="opacity-30">|</span>}
-                  <div className="relative group/tooltip flex justify-center">
-                    <span className="flex items-center gap-1.5">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                        <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                        <line x1="16" x2="16" y1="2" y2="6"></line>
-                        <line x1="8" x2="8" y1="2" y2="6"></line>
-                        <line x1="3" x2="21" y1="10" y2="10"></line>
-                      </svg>
-                      {formattedJoinDate}
-                    </span>
-                    {showJoinDateTooltip && (
-                      <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                        <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
-                          Join date
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+          {/* Bottom-of-profile and bottom-of-page detail slots. Which chips land
+              here is decided by each detail's placement, so this markup does not
+              name them individually. */}
+          {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
+          {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
 
 
-          {/* Feedback Buttons */}
-          {feedbackEnabled && (
-            <div className="absolute bottom-3.5 right-4.5 z-[70]">
-              <FeedbackButtons
-                profileId={profileId}
-                viewerId={viewerId}
-                initialLikes={likesCount}
-                initialDislikes={dislikesCount}
-                initialFeedback={viewerFeedback}
-                highlightColor={highlightColor}
-                tooltipTextStyle={tooltipTextStyle}
-                showLikesTooltip={showLikesTooltip}
-                showDislikesTooltip={showDislikesTooltip}
-                showFeedbackPublicly={showFeedbackPublicly}
-              />
-            </div>
-          )}
         </div>
 
         </CardTransition>
@@ -948,6 +995,11 @@ const Layout1 = ({
 
         {/* Outside Card Widgets */}
         <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+
+        {/* Page-level slot: outside the card, so it anchors to the page wrapper
+            rather than the card. */}
+        {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
+        {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
         </div>
 
         {/* Floating Comments Button */}
@@ -955,11 +1007,11 @@ const Layout1 = ({
           <div
             className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-300"
             style={{
-              '--comment-bg': highlightColor ? hexToRgba(highlightColor, 10) : 'rgba(255, 255, 255, 0.1)',
-              '--comment-border': highlightColor ? hexToRgba(highlightColor, 20) : 'rgba(255, 255, 255, 0.2)',
-              '--comment-bg-hover': highlightColor ? hexToRgba(highlightColor, 20) : 'rgba(255, 255, 255, 0.2)',
-              '--comment-border-hover': highlightColor ? hexToRgba(highlightColor, 40) : 'rgba(255, 255, 255, 0.4)',
-              '--comment-icon': highlightColor || '#ffffff',
+              '--comment-bg': otherColor ? hexToRgba(otherColor, 10) : 'rgba(255, 255, 255, 0.1)',
+              '--comment-border': otherColor ? hexToRgba(otherColor, 20) : 'rgba(255, 255, 255, 0.2)',
+              '--comment-bg-hover': otherColor ? hexToRgba(otherColor, 20) : 'rgba(255, 255, 255, 0.2)',
+              '--comment-border-hover': otherColor ? hexToRgba(otherColor, 40) : 'rgba(255, 255, 255, 0.4)',
+              '--comment-icon': otherColor,
             } as React.CSSProperties}
           >
             <button
@@ -1169,6 +1221,7 @@ const Layout1 = ({
             )}
           </div>
 
+          {detailSlot("top", "mt-8 mb-1 text-center justify-center")}
           {display && (
             <UsernameEffect effect={usernameEffect}>
               <h1 className="text-white tracking-tight text-center mt-8" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px` }}>
@@ -1177,48 +1230,13 @@ const Layout1 = ({
             </UsernameEffect>
           )}
 
-          {location && (
-            <p className="text-white text-sm mt-1 text-center flex items-center justify-center gap-3">
-              <span className="flex items-center gap-1.5">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                </svg>
-                {location}
-              </span>
-              {occupation && (
-                <span className="flex items-center gap-1.5">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                  </svg>
-                  {occupation}
-                </span>
-              )}
-            </p>
-          )}
-          {!location && occupation && (
-            <p className="text-white/60 text-sm mt-1 text-center flex items-center justify-center gap-3">
-              {occupation && (
-                <span className="flex items-center gap-1.5">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-                  </svg>
-                  {occupation}
-                </span>
-              )}
-            </p>
-          )}
+          {detailSlot("beside", `mt-1 text-center ${justifyClass}`)}
 
           {bio && (
             <DescriptionEffect effect={descriptionEffect}>
               <p
                 className={`mt-1.5 leading-relaxed max-w-[90%] break-words ${
-                  bioAlign === "left"
-                    ? "text-left self-start"
-                    : bioAlign === "right"
-                    ? "text-right self-end"
-                    : "text-center self-center"
+                  isLeft ? "text-left self-start" : "text-center self-center"
                 }`}
                 style={{
                   fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
@@ -1237,85 +1255,20 @@ const Layout1 = ({
           <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
         </div>
 
-        {/* Views count badge in bottom left */}
-        {(viewsEnabled || (joinDateEnabled && formattedJoinDate)) && (
-          <div
-            className="absolute bottom-3.5 left-4.5 flex items-center gap-2 z-[70] select-none"
-            style={{
-              color: highlightColor || 'rgba(255, 255, 255, 0.6)',
-              fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
-              fontSize: `${otherFontSize}px`,
-              fontWeight: otherFontWeight,
-              letterSpacing: `${otherLetterSpacing}px`,
-            }}
-          >
-            {viewsEnabled && (
-              <div className="relative group/tooltip flex justify-center">
-                <div className="flex items-center gap-2">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
-                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-                  </svg>
-                  <span>{viewsAnimationEnabled ? animatedViews : views}</span>
-                </div>
-                {showViewsTooltip && (
-                  <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                    <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
-                      Views
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+        {/* Bottom-of-profile detail slot. */}
+        {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
+          {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
 
-            {joinDateEnabled && formattedJoinDate && (
-              <>
-                {viewsEnabled && <span className="opacity-30">|</span>}
-                <div className="relative group/tooltip flex justify-center">
-                  <span className="flex items-center gap-1.5">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 opacity-80">
-                      <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
-                      <line x1="16" x2="16" y1="2" y2="6"></line>
-                      <line x1="8" x2="8" y1="2" y2="6"></line>
-                      <line x1="3" x2="21" y1="10" y2="10"></line>
-                    </svg>
-                    {formattedJoinDate}
-                  </span>
-                  {showJoinDateTooltip && (
-                    <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
-                      <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
-                        Join date
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Feedback Buttons */}
-        {feedbackEnabled && (
-          <div className="absolute bottom-3.5 right-4.5 z-[70]">
-            <FeedbackButtons
-              profileId={profileId}
-              viewerId={viewerId}
-              initialLikes={likesCount}
-              initialDislikes={dislikesCount}
-              initialFeedback={viewerFeedback}
-              highlightColor={highlightColor}
-              tooltipTextStyle={tooltipTextStyle}
-              showLikesTooltip={showLikesTooltip}
-              showDislikesTooltip={showDislikesTooltip}
-              showFeedbackPublicly={showFeedbackPublicly}
-            />
-          </div>
-        )}
       </div>
       </CardTransition>
       </CardEffect>
 
       {/* Outside Card Widgets */}
       <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+
+      {/* Page-level slot: outside the card, so it anchors to the page wrapper. */}
+      {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
+        {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
       </div>
 
       <CommentsModal

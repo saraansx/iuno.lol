@@ -10,8 +10,6 @@ interface ColorCustomizationProps {
   setBioColor: (val: string) => void;
   otherColor: string;
   setOtherColor: (val: string) => void;
-  highlightColor: string;
-  setHighlightColor: (val: string) => void;
   pageBgColor: string;
   setPageBgColor: (val: string) => void;
 }
@@ -23,8 +21,6 @@ export default function ColorCustomization({
   setBioColor,
   otherColor,
   setOtherColor,
-  highlightColor,
-  setHighlightColor,
   pageBgColor,
   setPageBgColor,
 }: ColorCustomizationProps) {
@@ -43,7 +39,6 @@ export default function ColorCustomization({
     setUsernameColor(getRandomHex());
     setBioColor(getRandomHex());
     setOtherColor(getRandomHex());
-    setHighlightColor(getRandomHex());
   };
 
   return (
@@ -176,37 +171,6 @@ export default function ColorCustomization({
                   <ColorPickerInput
                     value={otherColor}
                     onChange={setOtherColor}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Highlight Color */}
-          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
-            <button
-              onClick={() => setOpenSection(openSection === 'highlight' ? null : 'highlight')}
-              className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer text-left focus:outline-none"
-            >
-              <div className="text-white/50">
-                <div className="w-4 h-4 rounded-[4px] border-2 border-current" />
-              </div>
-              <span className="text-[13px] font-medium text-white/90 flex-1">Highlight color</span>
-              <div className="flex items-center gap-2 mr-1">
-                <span className="text-[11px] font-mono text-white/40 uppercase">{highlightColor || "#ffffff"}</span>
-                <div className="w-4 h-4 rounded-md border border-white/20 shadow-sm shrink-0" style={{ backgroundColor: highlightColor || "#ffffff" }} />
-              </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${openSection === 'highlight' ? "rotate-180" : ""}`}>
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-            {openSection === 'highlight' && (
-              <div className="px-4 pb-4 pt-0.5">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <ColorPickerInput
-                    value={highlightColor}
-                    onChange={setHighlightColor}
                   />
                 </div>
               </div>

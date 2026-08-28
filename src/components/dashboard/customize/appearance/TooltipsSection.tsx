@@ -35,7 +35,7 @@ export default function TooltipsSection({
 }: TooltipsSectionProps) {
   const items = [
     {
-      name: "Username",
+      name: "Username / UID",
       desc: "Reveal your UID when visitors hover your username.",
       active: isUidTooltipEnabled,
       toggle: onToggleUidTooltip,
@@ -56,8 +56,8 @@ export default function TooltipsSection({
     // The underlying settings stay separate; this just drives them together, and
     // treats "on" as both being on so a half-set pair resolves on the next tap.
     {
-      name: "Likes & dislikes",
-      desc: "Label the like and dislike buttons when visitors hover them.",
+      name: "Feedback",
+      desc: "Label the feedback buttons when visitors hover them.",
       active: isLikesTooltipEnabled && isDislikesTooltipEnabled,
       toggle: () => {
         const next = !(isLikesTooltipEnabled && isDislikesTooltipEnabled);
