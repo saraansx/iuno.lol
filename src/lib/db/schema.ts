@@ -128,6 +128,22 @@ export const userSettings = mysqlTable('user_settings', {
   widgetFontSize: float('widget_font_size').default(12.5),
   widgetFontWeight: int('widget_font_weight').default(400),
   widgetLetterSpacing: float('widget_letter_spacing').default(0),
+  // How the profile is assembled: 'standard' is the single-card page every profile
+  // has today; 'sectioned' is the navigable multi-section variant. Stored as a
+  // string rather than a boolean so a third structure does not need a migration.
+  profileStructure: varchar('profile_structure', { length: 20 }).default('standard'),
+  // Which arrangement the standard card uses: how the avatar and the text blocks
+  // are placed relative to each other. Stored as a string so new arrangements do
+  // not need a migration.
+  profilePreset: varchar('profile_preset', { length: 20 }).default('classic'),
+  // Whether the profile content sits inside the card shell. Off renders the same
+  // content with no background, border or shadow behind it. Defaults true so every
+  // existing profile keeps the card it already had.
+  wrapInCard: boolean('wrap_in_card').default(true),
+  // Max width of the profile card in px. Default matches the `max-w-[764px]` the
+  // card was built at, so an untouched profile is unchanged. Floor is 480: below
+  // that the two-column rows inside the card start colliding.
+  contentWidth: int('content_width').default(764),
   joinDateEnabled: boolean('join_date_enabled').default(false),
   joinDateFormat: varchar('join_date_format', { length: 32 }).default('Absolute (July 14, 2026)'),
   viewsEnabled: boolean('views_enabled').default(true),

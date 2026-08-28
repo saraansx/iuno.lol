@@ -400,41 +400,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                     </div>
                   </div>
                 ))}
-                {renderSectionRow(profileCardItems[4], (
-                  <div className="flex flex-col gap-3">
-                    <span className="text-[12.5px] font-medium text-white/90">
-                      Background Opacity
-                    </span>
-                    <div className="relative flex items-center h-5 group w-full">
-                      <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
-                        <div
-                          className="absolute h-full bg-[#5b6cf5]"
-                          style={{ width: `${profileOpacity}%` }}
-                        />
-                      </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        step={1}
-                        value={profileOpacity}
-                        onChange={(e) => setProfileOpacity(Number(e.target.value))}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
-                      />
-                      <div
-                        className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
-                        style={{
-                          left: `calc(${profileOpacity}% - 8px)`
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-[11px] text-white/30">
-                      <span>0 %</span>
-                      <span>50 %</span>
-                      <span>100 %</span>
-                    </div>
-                  </div>
-                ))}
+                {/* Opacity row is hidden for now. The `profileOpacity` state, its
+                    entry in `profileCardItems` and the preview/save plumbing are all
+                    left in place, so re-showing it is a matter of restoring this
+                    `renderSectionRow(profileCardItems[4], ...)` block. */}
               </div>
               <div className="flex flex-col gap-3 flex-1">
                 {renderSectionRow(profileCardItems[1], (

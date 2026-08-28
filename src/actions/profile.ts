@@ -354,6 +354,72 @@ export async function updateColorsProfile(data: {
   return { success: true };
 }
 
+/** The structures the Layout page can select. Anything else is rejected. */
+const PROFILE_STRUCTURES = ["standard", "sectioned"] as const;
+
+/** The arrangements the standard card can use. Anything else is rejected. */
+const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
+
+export async function updateLayoutProfile(data: {
+  username: string;
+  profileStructure?: string;
+  profilePreset?: string;
+  wrapInCard?: boolean;
+  contentWidth?: number;
+}) {
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const setData: Record<string, unknown> = {};
+
+  // Checked against the allowed set rather than passed through: this value decides
+  // which layout renders, so an arbitrary string must not reach the column.
+  if (data.profileStructure !== undefined) {
+    if (!PROFILE_STRUCTURES.includes(data.profileStructure as (typeof PROFILE_STRUCTURES)[number])) {
+      throw new Error("Invalid profile structure");
+    }
+    setData.profileStructure = data.profileStructure;
+  }
+
+  // Same reasoning as the structure: this value picks which arrangement renders.
+  if (data.profilePreset !== undefined) {
+    if (!PROFILE_PRESETS.includes(data.profilePreset as (typeof PROFILE_PRESETS)[number])) {
+      throw new Error("Invalid profile preset");
+    }
+    setData.profilePreset = data.profilePreset;
+  }
+
+  if (data.wrapInCard !== undefined) setData.wrapInCard = data.wrapInCard;
+
+  // Clamped rather than trusted: this drives a CSS max-width, and a hand-edited
+  // request should not be able to render the card unusably narrow or wide.
+  if (data.contentWidth !== undefined) {
+    setData.contentWidth = Math.min(1000, Math.max(480, Math.round(data.contentWidth)));
+  }
+
+  if (Object.keys(setData).length === 0) return { success: true };
+
+  await db
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
+
+  revalidatePath("/dashboard/customize/profile/layout");
+  revalidatePath("/dashboard", "layout");
+  revalidatePath(`/${data.username}`);
+
+  return { success: true };
+}
+
 export async function updateEffectsProfile(data: {
   username: string;
   backgroundEffect?: string | null;

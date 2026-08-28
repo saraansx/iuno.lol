@@ -176,6 +176,8 @@ interface Layout1Props {
   widgetFontSize?: number;
   widgetFontWeight?: number;
   widgetLetterSpacing?: number;
+  wrapInCard?: boolean;
+  contentWidth?: number;
   selectedEffect?: {
     id: string;
     name: string;
@@ -370,6 +372,8 @@ const Layout1 = ({
   widgetFontSize,
   widgetFontWeight,
   widgetLetterSpacing,
+  wrapInCard = true,
+  contentWidth = 764,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -538,6 +542,19 @@ const Layout1 = ({
 
   const fontClassMap = FONT_CLASS_MAP;
 
+  // Replaces the 764px the card was built at. Clamped to the same range the save
+  // action enforces, so a hand-edited row cannot render the card unusably narrow or
+  // wide. Exposed as a custom property because CardEffect and CardTransition take
+  // only a className, so they cannot receive a style prop.
+  //
+  // Set as a width rather than a max-width, paired with `max-w-[100vw]`. A
+  // `w-full max-w-[Npx]` pair can never exceed its parent, which made the setting
+  // invisible in the narrow dashboard preview. Widening to the viewport instead
+  // keeps the card from overflowing a phone screen on the real page, while still
+  // letting it spill past the preview panel — which is how the setting reads as
+  // working there.
+  const cardWidth = `${Math.min(1000, Math.max(480, contentWidth))}px`;
+
   // Every hover tooltip pill shares these, so the Highlight font group drives
   // them all from one place.
   const tooltipTextStyle: React.CSSProperties = {
@@ -607,10 +624,10 @@ const Layout1 = ({
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
         {/* Wrapper — content + background are siblings */}
-        <div className="w-full max-w-[764px] flex flex-col items-center z-10">
-        <CardEffect effect={cardEffect} className="w-full max-w-[764px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
-        <div className="w-full max-w-[764px] relative flex flex-col items-center overflow-visible z-10">
+        <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
+        <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
+        <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
+        <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center overflow-visible z-10">
           {/* Profile Frame Overlay (Back Layers) */}
           {/* Border Effect Overlay */}
           <BorderEffect
@@ -621,30 +638,36 @@ const Layout1 = ({
             zIndex={30}
           />
 
-          {/* Background card — this entire layer fades with opacity */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-              WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-              borderRadius: `${profileBorderRadius}px`,
-              border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
-              background: hexToRgba(profileBgColor, profileBgOpacity),
-              boxShadow: profileShadowOpacity > 0 ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}` : undefined,
-              opacity: profileOpacity / 100,
-            }}
-          />
+          {/* Background card — this entire layer fades with opacity. Skipped
+              entirely when the card is turned off, so the content sits directly on
+              the page with no background, border or shadow behind it. */}
+          {wrapInCard && (
+            <>
+              <div
+                className="absolute inset-0 z-0"
+                style={{
+                  backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+                  WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+                  borderRadius: `${profileBorderRadius}px`,
+                  border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
+                  background: hexToRgba(profileBgColor, profileBgOpacity),
+                  boxShadow: profileShadowOpacity > 0 ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}` : undefined,
+                  opacity: profileOpacity / 100,
+                }}
+              />
 
-          {/* Subtle top highlight — on the background */}
-          <div
-            className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
-            style={{
-              opacity: profileOpacity / 100,
-              top: `${profileBorderWidth}px`,
-              left: `${profileBorderWidth}px`,
-              right: `${profileBorderWidth}px`
-            }}
-          />
+              {/* Subtle top highlight — on the background */}
+              <div
+                className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
+                style={{
+                  opacity: profileOpacity / 100,
+                  top: `${profileBorderWidth}px`,
+                  left: `${profileBorderWidth}px`,
+                  right: `${profileBorderWidth}px`
+                }}
+              />
+            </>
+          )}
 
           {/* Profile Effect Animation Layers */}
           {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
@@ -1017,10 +1040,10 @@ const Layout1 = ({
       <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
       {/* Wrapper — content + background are siblings */}
-      <div className="w-full max-w-[764px] flex flex-col items-center z-10">
-      <CardEffect effect={cardEffect} className="w-full max-w-[764px]">
-        <CardTransition transition={cardTransition} className="w-full max-w-[764px]">
-        <div className="w-full max-w-[764px] relative flex flex-col items-center justify-center z-10">
+      <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
+      <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
+        <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
+        <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center justify-center z-10">
         {/* Profile Frame Overlay (Back Layers) */}
         {/* Profile Effect Animation Layers (Non-banner) */}
         {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
@@ -1051,30 +1074,36 @@ const Layout1 = ({
           borderWidth={profileBorderWidth}
           zIndex={10}
         />
-        {/* Background card — this entire layer fades with opacity */}
-        <div
-          className="absolute inset-0"
-          style={{
-            backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-            WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-            borderRadius: `${profileBorderRadius}px`,
-            border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
-            background: hexToRgba(profileBgColor, profileBgOpacity),
-            boxShadow: profileShadowOpacity > 0 ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}` : undefined,
-            opacity: profileOpacity / 100,
-          }}
-        />
+        {/* Background card — this entire layer fades with opacity. Skipped entirely
+            when the card is turned off, so the content sits directly on the page
+            with no background, border or shadow behind it. */}
+        {wrapInCard && (
+          <>
+            <div
+              className="absolute inset-0"
+              style={{
+                backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+                WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+                borderRadius: `${profileBorderRadius}px`,
+                border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
+                background: hexToRgba(profileBgColor, profileBgOpacity),
+                boxShadow: profileShadowOpacity > 0 ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}` : undefined,
+                opacity: profileOpacity / 100,
+              }}
+            />
 
-        {/* Subtle top highlight — on the background */}
-        <div
-          className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
-          style={{
-            opacity: profileOpacity / 100,
-            top: `${profileBorderWidth}px`,
-            left: `${profileBorderWidth}px`,
-            right: `${profileBorderWidth}px`
-          }}
-        />
+            {/* Subtle top highlight — on the background */}
+            <div
+              className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
+              style={{
+                opacity: profileOpacity / 100,
+                top: `${profileBorderWidth}px`,
+                left: `${profileBorderWidth}px`,
+                right: `${profileBorderWidth}px`
+              }}
+            />
+          </>
+        )}
 
         {/* Profile Frame Overlay (Front Layers) */}
 
