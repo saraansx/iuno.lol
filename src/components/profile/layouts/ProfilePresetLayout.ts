@@ -60,12 +60,12 @@ export function normalizePlacement(
 export type DetailDefaults = Record<DetailKey, DetailPlacement>;
 
 export const CLASSIC_DETAIL_DEFAULTS: DetailDefaults = {
-  joinDate: "bottom-profile",
+  joinDate: "hidden",
   location: "beside",
   occupation: "beside",
   uid: "hidden",
-  views: "bottom-profile",
-  feedback: "bottom-profile",
+  views: "bottom-page",
+  feedback: "bottom-page",
 };
 
 const PRESET_DETAIL_DEFAULTS: Record<ProfilePresetId, DetailDefaults> = {
@@ -131,12 +131,13 @@ export const PRESET_FRAME_DEFAULTS: Record<
     contentAlignment: ContentAlignment;
     avatarPlacement: AvatarPlacement;
     contentWidth: number;
+    wrapInCard: boolean;
   }
 > = {
-  classic: { contentAlignment: "center", avatarPlacement: "top", contentWidth: 764 },
-  split: { contentAlignment: "left", avatarPlacement: "right", contentWidth: 700 },
-  modern: { contentAlignment: "left", avatarPlacement: "left", contentWidth: 700 },
-  floating: { contentAlignment: "center", avatarPlacement: "floating", contentWidth: 500 },
+  classic: { contentAlignment: "center", avatarPlacement: "top", contentWidth: 500, wrapInCard: false },
+  split: { contentAlignment: "left", avatarPlacement: "right", contentWidth: 700, wrapInCard: true },
+  modern: { contentAlignment: "left", avatarPlacement: "left", contentWidth: 700, wrapInCard: true },
+  floating: { contentAlignment: "center", avatarPlacement: "floating", contentWidth: 500, wrapInCard: true },
 };
 
 export function getFrameDefaults(preset: string | undefined) {

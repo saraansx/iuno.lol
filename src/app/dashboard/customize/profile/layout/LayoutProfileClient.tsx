@@ -61,6 +61,7 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
       contentAlignment: frame.contentAlignment,
       avatarPlacement: frame.avatarPlacement,
       contentWidth: frame.contentWidth,
+      wrapInCard: frame.wrapInCard,
       ...Object.fromEntries(
         Object.entries(DETAIL_FIELDS).map(([key, [field]]) => [
           field,
@@ -119,7 +120,8 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
     ) ||
     alignment !== presetFrame.contentAlignment ||
     avatarPlacement !== presetFrame.avatarPlacement ||
-    contentWidth !== presetFrame.contentWidth;
+    contentWidth !== presetFrame.contentWidth ||
+    wrapInCard !== presetFrame.wrapInCard;
 
   const hasChanges = Object.keys(overrides).length > 0;
 
