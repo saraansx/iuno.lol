@@ -18,6 +18,7 @@ import YouTubeWidget from "./YouTubeWidget";
 import TelegramWidget from "./TelegramWidget";
 import RobloxWidget from "./RobloxWidget";
 import WeatherWidget from "./WeatherWidget";
+import { FONT_FAMILY_VARS } from "@/lib/fonts";
 
 function renderWidget(w: WidgetItem) {
   if (w.type === "presence") {
@@ -103,28 +104,6 @@ export interface WidgetStyleProps {
   widgetLetterSpacing?: number | null;
 }
 
-const WIDGET_FONT_VARS: Record<string, string> = {
-  "Inter": "var(--font-inter)",
-  "Roboto": "var(--font-roboto)",
-  "Outfit": "var(--font-outfit)",
-  "Space Grotesk": "var(--font-space-grotesk)",
-  "Playfair Display": "var(--font-playfair)",
-  "Poppins": "var(--font-poppins)",
-  "Montserrat": "var(--font-montserrat)",
-  "DM Sans": "var(--font-dm-sans)",
-  "Syne": "var(--font-syne)",
-  "Oxanium": "var(--font-oxanium)",
-  "Pacifico": "var(--font-pacifico)",
-  "Caveat": "var(--font-caveat)",
-  "Paper Notes": "var(--font-paper-notes)",
-  "Chillax": "var(--font-chillax)",
-  "Dancing Script": "var(--font-dancing-script)",
-  "Comfortaa": "var(--font-comfortaa)",
-  "Elegant Bloom": "var(--font-elegant-bloom)",
-  "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Pixelify": "var(--font-pixelify)",
-};
-
 const WIDGET_BASE_FONT_SIZE = 12.5;
 
 function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
@@ -154,7 +133,7 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
     vars["--widget-border-radius"] = `${clamped}px`;
   }
 
-  const font = style.widgetFont ? WIDGET_FONT_VARS[style.widgetFont] : undefined;
+  const font = style.widgetFont ? FONT_FAMILY_VARS[style.widgetFont] : undefined;
   if (font) vars["--widget-font"] = font;
 
   if (typeof style.widgetFontSize === "number" && style.widgetFontSize > 0) {

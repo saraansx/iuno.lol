@@ -3,16 +3,10 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { submitFeedbackAction } from "@/actions/feedback";
+import { hexToRgba as toRgba } from "@/lib/utils/color";
 
-function hexToRgba(hex: string, opacity: number): string {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `rgba(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
-        result[3],
-        16
-      )}, ${opacity / 100})`
-    : `rgba(255, 255, 255, ${opacity / 100})`;
-}
+const hexToRgba = (hex: string, opacity: number) =>
+  toRgba(hex, opacity, "255, 255, 255");
 
 interface FeedbackButtonsProps {
   profileId: number;

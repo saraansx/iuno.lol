@@ -29,28 +29,10 @@ import ProfileDetails, {
   type DetailTooltips,
 } from "./ProfileDetails";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
+import { FONT_FAMILY_VARS } from "@/lib/fonts";
+import { hexToRgba as toRgba } from "@/lib/utils/color";
 
-const FONT_CLASS_MAP: Record<string, string> = {
-  "Inter": "var(--font-inter)",
-  "Roboto": "var(--font-roboto)",
-  "Outfit": "var(--font-outfit)",
-  "Space Grotesk": "var(--font-space-grotesk)",
-  "Playfair Display": "var(--font-playfair)",
-  "Poppins": "var(--font-poppins)",
-  "Montserrat": "var(--font-montserrat)",
-  "DM Sans": "var(--font-dm-sans)",
-  "Syne": "var(--font-syne)",
-  "Oxanium": "var(--font-oxanium)",
-  "Pacifico": "var(--font-pacifico)",
-  "Caveat": "var(--font-caveat)",
-  "Paper Notes": "var(--font-paper-notes)",
-  "Chillax": "var(--font-chillax)",
-  "Dancing Script": "var(--font-dancing-script)",
-  "Comfortaa": "var(--font-comfortaa)",
-  "Elegant Bloom": "var(--font-elegant-bloom)",
-  "Caviar Dreams": "var(--font-caviar-dreams)",
-  "Pixelify": "var(--font-pixelify)",
-};
+const FONT_CLASS_MAP = FONT_FAMILY_VARS;
 
 const SHAPE_CLASSES: Record<string, string> = {
   square: "rounded-lg",
@@ -234,15 +216,8 @@ interface Layout1Props {
   widgets?: WidgetItem[];
 }
 
-function hexToRgba(hex: string | undefined, opacity: number): string {
-  if (!hex) return `rgba(5, 5, 5, ${opacity / 100})`;
-  const clean = hex.replace("#", "");
-  if (clean.length !== 6) return `rgba(5, 5, 5, ${opacity / 100})`;
-  const r = parseInt(clean.slice(0, 2), 16);
-  const g = parseInt(clean.slice(2, 4), 16);
-  const b = parseInt(clean.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${opacity / 100})`;
-}
+const hexToRgba = (hex: string | undefined, opacity: number) =>
+  toRgba(hex, opacity, "5, 5, 5");
 
 const AvatarInner = ({
   avatarUrl,
@@ -685,9 +660,12 @@ const Layout1 = ({
 
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
-  if (bannerImageUrl) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
+  // One layout for both cases. There used to be a second, banner-less copy of this
+  // whole tree; it had drifted and was missing avatar placement, full-width inside
+  // widgets, the comments button, the entry-screen blur and background-effect
+  // layering. Every banner-specific bit here is already guarded by `hasBanner`.
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
         <EntryTransition
           transition={entryTransition}
           enabled={enterScreenEnabled}
@@ -987,234 +965,6 @@ const Layout1 = ({
         />
       </div>
     );
-  }
-
-  return (
-    <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
-      <EntryTransition
-        transition={entryTransition}
-        enabled={enterScreenEnabled}
-        text={enterScreenText}
-        font={enterScreenFont}
-        fontSize={enterScreenFontSize}
-        fontWeight={enterScreenFontWeight}
-        letterSpacing={enterScreenLetterSpacing}
-        color={enterScreenColor}
-        opacity={enterScreenOpacity}
-        fontClassMap={FONT_CLASS_MAP}
-      />
-
-      {bannerBackgroundUrl && (
-        isVideoUrl(bannerBackgroundUrl) ? (
-          <video
-            key={bannerBackgroundUrl}
-            src={bannerBackgroundUrl}
-            className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-            style={{
-              filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
-            }}
-            autoPlay
-            muted
-            ref={(el) => { if (el) el.defaultMuted = true; }}
-            loop
-            playsInline
-          />
-        ) : (
-          <Image
-            src={bannerBackgroundUrl}
-            alt="Background"
-            fill
-            className="object-cover z-0 pointer-events-none"
-            style={{
-              filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
-            }}
-            unoptimized
-            priority
-          />
-        )
-      )}
-
-      <BackgroundEffect
-        effect={backgroundEffect ?? "none"}
-        intensity={backgroundEffectIntensity}
-        color={backgroundEffectColor}
-      />
-
-      <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
-
-      <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
-      <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
-        <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
-        <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center justify-center z-10">
-        {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
-          <div
-            className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
-            style={{
-              borderRadius: `${profileBorderRadius}px`,
-              filter: effectHue ? `hue-rotate(${effectHue}deg)` : undefined,
-            }}
-          >
-            {selectedEffect.effects.map((fx, idx) => (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                key={idx}
-                src={fx.src}
-                alt="Profile Effect"
-                className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none"
-                style={{ zIndex: fx.z_index ?? 30 }}
-              />
-            ))}
-          </div>
-        )}
-        <BorderEffect
-          effect={borderEffect}
-          color={borderEffectColor}
-          borderRadius={profileBorderRadius}
-          borderWidth={profileBorderWidth}
-          zIndex={10}
-        />
-        {wrapInCard && (
-          <>
-            <div
-              className="absolute inset-0"
-              style={{
-                backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-                WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-                borderRadius: `${profileBorderRadius}px`,
-                border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
-                background: hexToRgba(profileBgColor, profileBgOpacity),
-                boxShadow: profileShadowOpacity > 0 ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}` : undefined,
-                opacity: profileOpacity / 100,
-              }}
-            />
-
-            <div
-              className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
-              style={{
-                opacity: profileOpacity / 100,
-                top: `${profileBorderWidth}px`,
-                left: `${profileBorderWidth}px`,
-                right: `${profileBorderWidth}px`
-              }}
-            />
-          </>
-        )}
-
-        <div
-          className="relative z-20 flex flex-col items-center justify-center w-full"
-          style={{
-            paddingTop: `calc(2.5rem + ${profileBorderWidth}px)`,
-            paddingBottom: `calc(3.5rem + ${profileBorderWidth}px)`,
-            paddingLeft: `calc(1.5rem + ${profileBorderWidth}px)`,
-            paddingRight: `calc(1.5rem + ${profileBorderWidth}px)`,
-          }}
-        >
-          <div className="absolute -top-12 w-24 h-24">
-            <div
-              className={`absolute inset-0 bg-[#0a0a0a] border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
-            >
-              {avatarUrl ? (
-                isVideoUrl(avatarUrl) ? (
-                  <video
-                    src={avatarUrl}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                  />
-                ) : (
-                  <Image src={avatarUrl} alt="Avatar" fill className="object-cover" unoptimized priority />
-                )
-              ) : (
-                <svg
-                  width="36"
-                  height="36"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="white"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-20"
-                >
-                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                  <circle cx="12" cy="7" r="4" />
-                </svg>
-              )}
-            </div>
-
-            {selectedDecoration && (
-              <div className="pointer-events-none absolute -inset-2 z-10">
-                <Image
-                  src={selectedDecoration.url}
-                  alt={selectedDecoration.name}
-                  fill
-                  unoptimized
-                  priority
-                  className="object-contain"
-                  style={{ filter: `hue-rotate(${decorationHue}deg)` }}
-                />
-              </div>
-            )}
-          </div>
-
-          {detailSlot("top", "mt-8 mb-1 text-center justify-center")}
-          {display && (
-            <UsernameEffect effect={usernameEffect}>
-              <h1 className="text-white tracking-tight text-center mt-8" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px` }}>
-                {display}
-              </h1>
-            </UsernameEffect>
-          )}
-
-          {detailSlot("beside", `mt-1 text-center ${justifyClass}`)}
-
-          {bio && (
-            <DescriptionEffect effect={descriptionEffect}>
-              <p
-                className={`mt-1.5 leading-relaxed max-w-[90%] break-words ${
-                  isLeft ? "text-left self-start" : "text-center self-center"
-                }`}
-                style={{
-                  fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
-                  fontSize: `${bioFontSize}px`,
-                  fontWeight: bioFontWeight,
-                  letterSpacing: `${bioLetterSpacing}px`,
-                  color: bioColor,
-                }}
-              >
-                {renderFormattedText(bio)}
-              </p>
-            </DescriptionEffect>
-          )}
-
-          <ProfileWidgets widgets={widgets} placement="inside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
-        </div>
-
-        {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
-          {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
-
-      </div>
-      </CardTransition>
-      </CardEffect>
-
-      <ProfileWidgets widgets={widgets} placement="outside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
-
-      {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
-        {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
-      </div>
-
-      <CommentsModal
-        isOpen={isCommentsModalOpen}
-        onClose={() => setIsCommentsModalOpen(false)}
-        profileId={profileId}
-        viewerId={viewerId}
-        showCommentsPublicly={showCommentsPublicly}
-        allowNewComments={allowNewComments}
-      />
-    </div>
-  );
 };
 
 export default Layout1;
