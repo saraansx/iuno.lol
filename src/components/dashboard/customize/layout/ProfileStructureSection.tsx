@@ -7,7 +7,6 @@ interface StructureOption {
   name: string;
   description: string;
   diagram: React.ReactNode;
-  comingSoon?: boolean;
 }
 
 function StandardDiagram() {
@@ -61,7 +60,6 @@ const STRUCTURES: StructureOption[] = [
     name: "Sectioned profile",
     description: "Split your content into navigable sections.",
     diagram: <SectionedDiagram />,
-    comingSoon: true,
   },
 ];
 
@@ -83,50 +81,32 @@ export default function ProfileStructureSection({
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-stretch">
         {STRUCTURES.map((option) => {
           const isSelected = structure === option.id;
-          const isDisabled = Boolean(option.comingSoon);
 
           return (
             <button
               key={option.id}
               type="button"
-              onClick={() => !isDisabled && setStructure(option.id)}
-              disabled={isDisabled}
+              onClick={() => setStructure(option.id)}
               aria-pressed={isSelected}
-              className={`group relative h-full flex items-stretch gap-4 p-4 rounded-[16px] border text-left transition-all duration-200 focus:outline-none ${
+              className={`group relative h-full flex items-stretch gap-4 p-4 rounded-[16px] border text-left transition-all duration-200 focus:outline-none cursor-pointer ${
                 isSelected
                   ? "bg-[#0e1016] border-[#5b6cf5] shadow-[0_0_0_1px_rgba(91,108,245,0.25)]"
-                  : "bg-[#0c0c0c] border-white/5"
-              } ${
-                isDisabled
-                  ? "cursor-not-allowed"
-                  : "cursor-pointer hover:border-white/15 hover:bg-[#0e0e0e]"
+                  : "bg-[#0c0c0c] border-white/5 hover:border-white/15 hover:bg-[#0e0e0e]"
               }`}
             >
-              <div
-                className={`w-[92px] shrink-0 self-center aspect-[4/3] rounded-lg bg-[#0a0a0a] border border-white/[0.06] overflow-hidden transition-opacity ${
-                  isDisabled ? "opacity-40" : ""
-                }`}
-              >
+              <div className="w-[92px] shrink-0 self-center aspect-[4/3] rounded-lg bg-[#0a0a0a] border border-white/[0.06] overflow-hidden">
                 {option.diagram}
               </div>
 
               <div className="flex flex-col justify-center gap-1 min-w-0 pr-8">
                 <span
                   className={`text-[13.5px] font-medium leading-tight ${
-                    isSelected
-                      ? "text-[#5b6cf5]"
-                      : isDisabled
-                        ? "text-white/50"
-                        : "text-white/90"
+                    isSelected ? "text-[#5b6cf5]" : "text-white/90"
                   }`}
                 >
                   {option.name}
                 </span>
-                <span
-                  className={`text-[12px] leading-relaxed ${
-                    isDisabled ? "text-white/25" : "text-white/40"
-                  }`}
-                >
+                <span className="text-[12px] leading-relaxed text-white/40">
                   {option.description}
                 </span>
               </div>
@@ -141,12 +121,6 @@ export default function ProfileStructureSection({
                 >
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l4.59-4.58L17 11l-6 6z" />
                 </svg>
-              )}
-
-              {option.comingSoon && (
-                <span className="absolute top-3.5 right-3.5 text-[10px] font-medium tracking-wide uppercase text-white/35 bg-white/[0.06] border border-white/[0.07] rounded-full px-2 py-0.5">
-                  Soon
-                </span>
               )}
             </button>
           );

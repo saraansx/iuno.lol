@@ -293,11 +293,11 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },
+            { label: "Effects", href: "/dashboard/customize/profile/effects" },
             { label: "Fonts", href: "/dashboard/customize/profile/fonts" },
             { label: "Colors", href: "/dashboard/customize/profile/colors" },
-            { label: "Effects", href: "/dashboard/customize/profile/effects" },
-            { label: "Layout", href: "/dashboard/customize/profile/layout" },
             { label: "Widgets", href: "/dashboard/customize/profile/widgets" },
+            { label: "Layout", href: "/dashboard/customize/profile/layout" },
             { label: "Metadata", href: "/dashboard/customize/profile/metadata" },
           ]
         },
