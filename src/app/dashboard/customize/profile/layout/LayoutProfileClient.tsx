@@ -3,9 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
-import ProfileStructureSection, {
-  type ProfileStructure,
-} from "@/components/dashboard/customize/layout/ProfileStructureSection";
 import StandardProfileSection, {
   type ProfilePreset,
 } from "@/components/dashboard/customize/layout/StandardProfileSection";
@@ -42,12 +39,6 @@ const DETAIL_FIELDS = {
 export default function LayoutProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
-
-  const initialStructure = (user?.profileStructure ?? "standard") as ProfileStructure;
-
-  const structure = (overrides.profileStructure ?? initialStructure) as ProfileStructure;
-  const setStructure = (val: ProfileStructure) =>
-    updateOverrides({ profileStructure: val === initialStructure ? undefined : val });
 
   const initialPreset = (user?.profilePreset ?? "classic") as ProfilePreset;
 
@@ -131,30 +122,24 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
         className="w-full pb-10 flex flex-col gap-8"
         style={{ paddingRight: "calc(var(--preview-width, 380px) + 2rem)" }}
       >
-        <ProfileStructureSection structure={structure} setStructure={setStructure} />
-
-        {structure === "standard" && (
-          <>
-            <StandardProfileSection
-              preset={preset}
-              setPreset={setPreset}
-              wrapInCard={wrapInCard}
-              setWrapInCard={setWrapInCard}
-              contentWidth={contentWidth}
-              setContentWidth={setContentWidth}
-              isCustom={isCustom}
-              alignment={alignment}
-              setAlignment={setAlignment}
-            />
-            <HeaderSection avatarPlacement={avatarPlacement} setAvatarPlacement={setAvatarPlacement} />
-            <ProfileDetailsSection placements={placements} setPlacement={setPlacement} />
-          </>
-        )}
+        <StandardProfileSection
+          preset={preset}
+          setPreset={setPreset}
+          wrapInCard={wrapInCard}
+          setWrapInCard={setWrapInCard}
+          contentWidth={contentWidth}
+          setContentWidth={setContentWidth}
+          isCustom={isCustom}
+          alignment={alignment}
+          setAlignment={setAlignment}
+        />
+        <HeaderSection avatarPlacement={avatarPlacement} setAvatarPlacement={setAvatarPlacement} />
+        <ProfileDetailsSection placements={placements} setPlacement={setPlacement} />
       </div>
 
       <DashboardProfilePreview
         user={user}
-        overrides={{ ...overrides, profileStructure: structure, profilePreset: preset,
+        overrides={{ ...overrides, profilePreset: preset,
           wrapInCard,
           contentWidth,
           contentAlignment: alignment,
@@ -174,7 +159,6 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
           try {
             await updateLayoutProfile({
               username: user?.username || "",
-              profileStructure: structure,
               profilePreset: preset,
               wrapInCard,
               contentWidth,
