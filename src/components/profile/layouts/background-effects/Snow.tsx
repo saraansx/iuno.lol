@@ -6,7 +6,6 @@ export function SnowEffect({ intensity = 50, color = "#ffffff" }: { intensity?: 
 
   useEffect(() => {
     const flakeCount = Math.floor((intensity / 100) * 150);
-    // Wrap in setTimeout to prevent synchronous cascading render warnings
     const timeoutId = setTimeout(() => {
       setFlakes((prev) => {
         if (prev.length === flakeCount) return prev;

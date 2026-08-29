@@ -83,7 +83,6 @@ export async function updateGeneralProfile(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate that all image URLs point to our own S3 bucket
   const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.avatarDecorationUrl];
   if (data.profileEffectUrl && !data.profileEffectUrl.startsWith("effect:")) {
     urlFields.push(data.profileEffectUrl);
@@ -286,11 +285,9 @@ export async function updateAppearanceProfile(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  // Invalidate live stats cache (views/likes/dislikes toggles affect live stats)
   await invalidateLiveStatsCache(userId);
 
   revalidatePath("/dashboard/customize/profile/appearance");
-  // The Fonts page saves through this same action, so it needs revalidating too.
   revalidatePath("/dashboard/customize/profile/fonts");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
@@ -329,7 +326,6 @@ export async function updateColorsProfile(data: {
   if (data.widgetPrimaryTextColor !== undefined) setData.widgetPrimaryTextColor = data.widgetPrimaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetSecondaryTextColor !== undefined) setData.widgetSecondaryTextColor = data.widgetSecondaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetBorderColor !== undefined) setData.widgetBorderColor = data.widgetBorderColor?.slice(0, 32) ?? null;
-  // Clamp rather than trust the client — this drives a CSS alpha.
 
   if (Object.keys(setData).length === 0) return { success: true };
   
@@ -345,19 +341,14 @@ export async function updateColorsProfile(data: {
   return { success: true };
 }
 
-/** The structures the Layout page can select. Anything else is rejected. */
 const PROFILE_STRUCTURES = ["standard", "sectioned"] as const;
 
-/** How the card's content is aligned. Anything else is rejected. */
 const CONTENT_ALIGNMENTS = ["left", "center"] as const;
 
-/** Where the avatar sits relative to the name. Anything else is rejected. */
 const AVATAR_PLACEMENTS = ["top", "left", "right", "floating"] as const;
 
-/** Where a profile detail can be placed. Anything else is rejected. */
 const DETAIL_PLACEMENTS = ["top", "beside", "bottom-profile", "bottom-page", "hidden"] as const;
 
-/** The placement columns, keyed by the field name the client sends. */
 const DETAIL_PLACEMENT_FIELDS = [
   "joinDatePlacement",
   "locationPlacement",
@@ -367,7 +358,6 @@ const DETAIL_PLACEMENT_FIELDS = [
   "feedbackPlacement",
 ] as const;
 
-/** The arrangements the standard card can use. Anything else is rejected. */
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
 export async function updateLayoutProfile(data: {
@@ -399,8 +389,6 @@ export async function updateLayoutProfile(data: {
 
   const setData: Record<string, unknown> = {};
 
-  // Checked against the allowed set rather than passed through: this value decides
-  // which layout renders, so an arbitrary string must not reach the column.
   if (data.profileStructure !== undefined) {
     if (!PROFILE_STRUCTURES.includes(data.profileStructure as (typeof PROFILE_STRUCTURES)[number])) {
       throw new Error("Invalid profile structure");
@@ -408,7 +396,6 @@ export async function updateLayoutProfile(data: {
     setData.profileStructure = data.profileStructure;
   }
 
-  // Same reasoning as the structure: this value picks which arrangement renders.
   if (data.profilePreset !== undefined) {
     if (!PROFILE_PRESETS.includes(data.profilePreset as (typeof PROFILE_PRESETS)[number])) {
       throw new Error("Invalid profile preset");
@@ -418,14 +405,10 @@ export async function updateLayoutProfile(data: {
 
   if (data.wrapInCard !== undefined) setData.wrapInCard = data.wrapInCard;
 
-  // Clamped rather than trusted: this drives a CSS max-width, and a hand-edited
-  // request should not be able to render the card unusably narrow or wide.
   if (data.contentWidth !== undefined) {
     setData.contentWidth = Math.min(1000, Math.max(480, Math.round(data.contentWidth)));
   }
 
-  // Checked against the allowed set rather than passed through: each of these picks
-  // which slot a detail renders in, so an arbitrary string must not reach a column.
   for (const field of DETAIL_PLACEMENT_FIELDS) {
     const value = data[field];
     if (value === undefined) continue;
@@ -435,7 +418,6 @@ export async function updateLayoutProfile(data: {
     setData[field] = value;
   }
 
-  // Same reasoning: both reach layout classes, so only the known values are stored.
   if (data.contentAlignment !== undefined) {
     if (!CONTENT_ALIGNMENTS.includes(data.contentAlignment as (typeof CONTENT_ALIGNMENTS)[number])) {
       throw new Error("Invalid contentAlignment");
@@ -667,7 +649,6 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // Validate max 1 presence, max 1 server, max 1 github user, max 1 github repo, max 1 pinterest profile, max 1 pinterest board, max 1 valorant, max 1 steam, max 1 genshin, max 1 twitch
   let presenceCount = 0;
   let serverCount = 0;
   let githubUserCount = 0;
@@ -993,9 +974,6 @@ export async function updateProfileWidgets(data: {
         ? w.activityImageShape
         : "rounded";
 
-    // Steam and Genshin each expose two mutually exclusive backdrop sources.
-    // The blurred-avatar "background image" wins, so the artwork source is
-    // forced off whenever it is enabled — a crafted payload cannot set both.
     const steamShowBackgroundImage = Boolean(w.steamShowBackgroundImage);
     const steamBackground: "none" | "large" | "small" = steamShowBackgroundImage
       ? "none"
@@ -1100,8 +1078,6 @@ export async function updateProfileWidgets(data: {
       youtubeShowVideoLikes: w.youtubeShowVideoLikes !== undefined ? Boolean(w.youtubeShowVideoLikes) : true,
       youtubeShowUploadDate: w.youtubeShowUploadDate !== undefined ? Boolean(w.youtubeShowUploadDate) : true,
       youtubeShowBackground: w.youtubeShowBackground !== undefined ? Boolean(w.youtubeShowBackground) : false,
-      // The banner and the blurred background image are mutually exclusive
-      // backdrops; the banner wins if a record somehow arrives with both set.
       youtubeShowBanner: w.youtubeShowBanner !== undefined ? Boolean(w.youtubeShowBanner) : false,
       telegramShowBio: w.telegramShowBio !== undefined ? Boolean(w.telegramShowBio) : true,
       telegramShowBackground: w.telegramShowBackground !== undefined ? Boolean(w.telegramShowBackground) : false,
@@ -1121,8 +1097,6 @@ export async function updateProfileWidgets(data: {
     };
   });
 
-  // The widget border settings live on this page too, so they save alongside the
-  // widgets array. Each is clamped rather than trusted, since all three drive CSS.
   const setData: Record<string, unknown> = { widgets: sanitizedWidgets };
 
   if (data.widgetBorderWidth !== undefined) {

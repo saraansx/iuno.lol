@@ -1,10 +1,3 @@
-/**
- * Extracts client IP address with priority for edge proxy headers.
- * 1. x-real-ip (Vercel / Nginx edge)
- * 2. cf-connecting-ip (Cloudflare)
- * 3. x-vercel-ip (Vercel platform)
- * 4. x-forwarded-for (first IP in proxy chain)
- */
 export function getClientIp(headers: Headers | { get(name: string): string | null }): string | null {
   const realIp = headers.get('x-real-ip')?.trim();
   if (realIp && isValidIp(realIp)) return realIp;
@@ -26,6 +19,5 @@ export function getClientIp(headers: Headers | { get(name: string): string | nul
 
 function isValidIp(ip: string): boolean {
   if (!ip || ip.length > 45 || ip === 'unknown') return false;
-  // Basic sanity check for IPv4 or IPv6
   return /^[0-9a-fA-F:.]+$/.test(ip);
 }

@@ -34,8 +34,6 @@ export function CommentsModal({
 
   const isPreview = viewerId === -1;
 
-  // Render-time adjustment: reset page + show loading when modal opens
-  // This avoids the lint rule which flags synchronous setState inside effects
   const [prevOpen, setPrevOpen] = useState(isOpen);
   if (prevOpen !== isOpen) {
     setPrevOpen(isOpen);
@@ -77,9 +75,6 @@ export function CommentsModal({
     }
   }, [isOpen]);
 
-  // Load comments on open, filter change, and page increment. All setState
-  // calls happen after the `await getComments()` — they are not synchronous —
-  // but the compiler rule can't prove that through the useCallback boundary.
   useEffect(() => {
     if (!isOpen || isPreview) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -90,8 +85,6 @@ export function CommentsModal({
     const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
     if (scrollHeight - scrollTop <= clientHeight + 50) {
       if (hasMore && !isLoadingMore && !isLoading) {
-        // Throttle: flip the loading flag synchronously so rapid scroll events
-        // can't increment the page multiple times before the effect runs.
         setIsLoadingMore(true);
         setPage(p => p + 1);
       }
@@ -150,47 +143,38 @@ export function CommentsModal({
   };
 
   const handleLike = async (id: number) => {
-    // Optimistic UI update
     setComments(prev => prev.map(c => 
       c.id === id 
         ? { ...c, isLiked: !c.isLiked, likesCount: c.isLiked ? Math.max(0, c.likesCount - 1) : c.likesCount + 1 } 
         : c
     ));
-    // Background server call
     toggleLikeComment(id).catch(() => {
-      // Silently fail or revert
     });
   };
 
   const handlePin = async (id: number) => {
-    // Optimistic UI update
     setComments(prev => {
       const updated = prev.map(c => c.id === id ? { ...c, isPinned: !c.isPinned } : c);
       
-      // Secondary sort based on current filter
       if (filter === "Oldest first") {
         updated.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
       } else if (filter === "Most liked") {
         updated.sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0));
       } else {
-        // Default: Newest first
         updated.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       }
 
-      // Primary sort: pinned comments stay on top
       updated.sort((a, b) => (a.isPinned === b.isPinned ? 0 : a.isPinned ? -1 : 1));
       
       return updated;
     });
     togglePinComment(id, profileId).catch(() => {
-      // Error
     });
   };
 
   const handleDelete = async (id: number) => {
     setComments(prev => prev.filter(c => c.id !== id && c.replyToId !== id));
     deleteComment(id, profileId).catch(() => {
-      // Error
     });
   };
 
@@ -238,7 +222,6 @@ export function CommentsModal({
     if (newContent && newContent.trim() !== current.content) {
       setComments(prev => prev.map(c => c.id === id ? { ...c, content: newContent } : c));
       editComment(id, newContent).catch(() => {
-        // Error
       });
     }
   };
@@ -251,7 +234,6 @@ export function CommentsModal({
 
   return (
     <>
-      {/* Backdrop */}
       <div 
         className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity duration-300 ${isAnimating ? "opacity-100" : "opacity-0"}`}
         onClick={() => {
@@ -265,7 +247,6 @@ export function CommentsModal({
           isAnimating ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 -translate-y-2"
         }`}
       >
-        {/* Header */}
         <div className="flex flex-col border-b border-white/5">
           <div className="flex items-center justify-between p-4 pb-2">
             <h2 className="text-[18px] font-semibold text-white tracking-tight">Comments</h2>
@@ -323,7 +304,6 @@ export function CommentsModal({
           </div>
         </div>
 
-        {/* Body */}
         <div 
           className="flex-1 overflow-y-auto max-h-[400px] flex flex-col p-4 pt-0 gap-2"
           onScroll={handleScroll}
@@ -370,7 +350,6 @@ export function CommentsModal({
           )}
         </div>
 
-        {/* Footer Input */}
         <div className="p-4 border-t border-white/5 bg-[#0a0a0a]">
           {!viewerId ? (
             <button 

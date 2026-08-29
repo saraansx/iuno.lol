@@ -6,14 +6,6 @@ import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 const TWITCH_GQL_URL = "https://gql.twitch.tv/gql";
 const TWITCH_CLIENT_ID = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
-/**
- * How long a channel response is served before refetching: 15 minutes.
- *
- * The shared 12h widget window is wrong here — this payload carries `isLive`, the
- * stream title and the viewer count, so a day-old copy shows a streamer as live
- * hours after they went offline. The CF cache rule excludes this path for that
- * reason, which means the TTL has to come from the header below.
- */
 const TWITCH_CACHE_TTL_SECONDS = 15 * 60;
 
 interface GqlUserResponse {
@@ -133,9 +125,6 @@ export async function GET(
       );
     }
 
-    // Redis on the same 15-minute window as the CDN header below, so repeated
-    // visits to a profile do not each cost a GQL call. The shared 12h widget
-    // window is wrong here: the payload carries `isLive`.
     const data = await withWidgetCache<TwitchChannelData>(
       widgetCacheKey("twitch", "channel", cleanLogin),
       () => fetchTwitchChannelData(cleanLogin),

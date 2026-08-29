@@ -28,12 +28,8 @@ function pickThumbnail(thumbs: ThumbnailSet | undefined): string {
   );
 }
 
-// The Data API exposes no "is this a Short?" flag, so we infer it from length:
-// Shorts are the short vertical clips, classically <= 60s. Anything longer is
-// treated as a regular upload. Bump this if you want to be stricter.
 const SHORTS_MAX_SECONDS = 60;
 
-/** Parses an ISO 8601 video duration (e.g. "PT1H2M30S") to total seconds. */
 function parseIsoDurationSeconds(iso: string): number {
   const m = iso.match(/^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/);
   if (!m) return 0;
@@ -45,8 +41,6 @@ async function ytFetch(url: string): Promise<Record<string, unknown> | null> {
     const res = await fetch(url, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: { Accept: "application/json" },
-      // Freshness is owned by the Redis cache in GET; caching here too would
-      // stack both windows and double the worst-case staleness.
       cache: "no-store",
     });
     if (!res.ok) {
@@ -73,7 +67,6 @@ export async function fetchYouTubeData(
   }
   const key = encodeURIComponent(apiKey);
 
-  // 1. Resolve the channel (snippet + statistics + uploads playlist + banner).
   const part = "snippet,statistics,contentDetails,brandingSettings";
   let channelItems: Array<Record<string, unknown>> = [];
 
@@ -84,7 +77,6 @@ export async function fetchYouTubeData(
     channelItems = (json?.items as Array<Record<string, unknown>>) || [];
   } else {
     const handle = cleanInput.replace(/^@/, "");
-    // Prefer the modern handle lookup, fall back to the legacy username.
     const byHandle = await ytFetch(
       `${API_BASE}/channels?part=${part}&forHandle=${encodeURIComponent("@" + handle)}&key=${key}`
     );
@@ -115,8 +107,6 @@ export async function fetchYouTubeData(
     ? cleanInput
     : `@${cleanInput}`;
 
-  // `bannerExternalUrl` is a bare googleusercontent base URL; appending a width
-  // suffix yields a predictably sized banner. Empty when the channel has none.
   const branding = (channel.brandingSettings as Record<string, unknown>) || {};
   const brandingImage = (branding.image as Record<string, unknown>) || {};
   const rawBanner = String(brandingImage.bannerExternalUrl || "");
@@ -132,11 +122,6 @@ export async function fetchYouTubeData(
     viewCount: Number(statistics.viewCount || 0),
   };
 
-  // 2. Resolve the channel's latest *regular* upload (used by latest-video mode
-  //    and the video-thumbnail image source). The Data API has no "is Short"
-  //    flag, so we pull the newest handful of uploads, batch-fetch their
-  //    durations, and pick the newest one that isn't a Short (<= 60s). Cost is
-  //    still cheap: playlistItems (1u) + one batched videos call (1u).
   const uploadsPlaylist = String(relatedPlaylists.uploads || "");
   if (uploadsPlaylist) {
     const playlistJson = await ytFetch(
@@ -147,7 +132,6 @@ export async function fetchYouTubeData(
     const playlistItems =
       (playlistJson?.items as Array<Record<string, unknown>>) || [];
 
-    // Video ids in newest-first order (playlistItems returns uploads newest-first).
     const videoIds = playlistItems
       .map((item) => {
         const c = (item.contentDetails as Record<string, unknown>) || {};
@@ -164,12 +148,9 @@ export async function fetchYouTubeData(
       const videoItems =
         (videoJson?.items as Array<Record<string, unknown>>) || [];
 
-      // Index by id so we can walk in the playlist's newest-first order.
       const byId = new Map<string, Record<string, unknown>>();
       for (const v of videoItems) byId.set(String(v.id || ""), v);
 
-      // Prefer the newest non-Short; fall back to the newest upload overall
-      // (covers channels that only post Shorts).
       let chosen: Record<string, unknown> | null = null;
       let newestFallback: Record<string, unknown> | null = null;
       for (const id of videoIds) {

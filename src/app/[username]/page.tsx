@@ -9,33 +9,13 @@ import effects from '@/effects.json'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 
-// This page reads no per-request state (no cookies/headers), so Next serves it
-// from the CDN as ISR and only regenerates on first view, after the 30-day
-// window, or when the owner saves (revalidatePath(`/${username}`) in the
-// profile actions). Viewer-specific bits (who's viewing, their own feedback)
-// are fetched client-side in Layout1 via /api/profile/me so they never get
-// baked into the shared cache.
-export const revalidate = 2592000; // 30 days
+export const revalidate = 2592000;
 
-// Opt this dynamic route into ISR. No usernames are prebuilt at build time
-// (empty array), but without this export Next treats the route as fully dynamic
-// and ignores `revalidate`. With it, each profile is rendered once on first
-// visit, then served from the CDN until the window elapses or the owner saves.
 export const dynamicParams = true;
 export async function generateStaticParams() {
   return [];
 }
 
-/**
- * Tab title for a profile: `/username | iuno.lol`.
- *
- * `title.absolute` bypasses the root layout's `%s` template, which would
- * otherwise prepend the site name and produce `iuno.lol - /username`.
- *
- * The username comes from the row rather than the URL so its stored casing wins:
- * visiting `/RIO` still titles the tab `/rio`. A missing profile falls back to the
- * site name and lets the page itself render the 404.
- */
 export async function generateMetadata(
   { params }: { params: Promise<{ username: string }> }
 ): Promise<Metadata> {

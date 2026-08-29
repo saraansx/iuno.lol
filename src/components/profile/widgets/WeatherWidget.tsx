@@ -12,12 +12,6 @@ import {
 import WidgetSkeleton from "./WidgetSkeleton";
 import WidgetUnavailable from "./WidgetUnavailable";
 
-/**
- * Day and night sky gradients for the atmospheric background.
- *
- * Keyed by icon family so the backdrop agrees with the illustration — a
- * thunderstorm card should not sit on a clear-blue sky.
- */
 const SKY_GRADIENTS: Record<string, { day: string; night: string }> = {
   clear: {
     day: "from-[#2b7fd4]/45 via-[#4aa3e8]/25 to-transparent",
@@ -56,10 +50,6 @@ const SKY_GRADIENTS: Record<string, { day: string; night: string }> = {
 export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
   const cleanLocation = (widget.targetId || "").trim();
 
-  // Weather goes stale on its own, unlike a profile — refresh while the page is
-  // open so a card left up overnight is not showing yesterday's temperature. The
-  // route's own Redis window means this costs an upstream call at most every
-  // 15 minutes regardless of how many visitors are watching.
   const { weather, isLoading } = useWeather(cleanLocation, {
     refetchInterval: 15 * 60 * 1000,
   });
@@ -85,7 +75,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
   const temperature = formatTemperature(weather.temperatureC, unit);
   const feelsLike = formatTemperature(weather.feelsLikeC, unit);
 
-  // "Feels like" only earns its place when it differs from the real reading.
   const showFeelsLikeRow =
     showFeelsLike && Math.round(weather.feelsLikeC) !== Math.round(weather.temperatureC);
 
@@ -93,8 +82,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
     ? `${weather.location}, ${weather.country}`
     : weather.location;
 
-  // With the location hidden the temperature takes the title line, so it must not
-  // also appear in the stats row underneath.
   const title = showLocation ? place : temperature;
 
   const gradient = SKY_GRADIENTS[weather.icon] ?? SKY_GRADIENTS.cloudy;
@@ -102,7 +89,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
 
   return (
     <div className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 flex items-center justify-between relative box-border">
-      {/* Atmospheric sky gradient */}
       {showAtmosphericBackground && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           <div className={`absolute inset-0 bg-gradient-to-br ${skyClass}`} />
@@ -111,7 +97,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Condition Illustration */}
         <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
           <WeatherConditionIcon
             kind={weather.icon}
@@ -121,21 +106,17 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
           />
         </div>
 
-        {/* Location & Readings */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Title: place name, or the temperature when the location is hidden */}
           <OverflowPingPong deps={[title, showLocation, unit]}>
             <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {title}
             </span>
           </OverflowPingPong>
 
-          {/* Stats Row */}
           <OverflowPingPong
             deps={[weather, unit, showCondition, showFeelsLikeRow, showLocation]}
           >
             <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
-              {/* Temperature — only here when the title is showing the place */}
               {showLocation && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <WeatherTemperatureIcon
@@ -146,7 +127,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               )}
 
-              {/* Feels Like */}
               {showFeelsLikeRow && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <span className="text-white/40">Feels</span>
@@ -154,7 +134,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               )}
 
-              {/* Condition */}
               {showCondition && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <WeatherConditionMarkerIcon
@@ -165,7 +144,6 @@ export default function WeatherWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               )}
 
-              {/* Nothing else enabled — name the place so the row is never empty */}
               {!showLocation && !showFeelsLikeRow && !showCondition && (
                 <span className="text-white/40 shrink-0">{place}</span>
               )}

@@ -20,7 +20,6 @@ export function useYouTubeChannel(
   const [error, setError] = useState<string | null>(null);
   const [trigger, setTrigger] = useState<number>(0);
 
-  // The YouTube Data API is quota-metered, so wait for typing to settle.
   const { value: fetchInput, isPending } = useDebouncedValue(cleanInput);
 
   useEffect(() => {
@@ -32,9 +31,6 @@ export function useYouTubeChannel(
     }
 
     let isMounted = true;
-    // Drop the previous channel's data immediately. Without this, `data` still
-    // holds the old channel while the new fetch is in flight, so consumers
-    // gated on `loading && !data` never show their loading state.
     setData(null);
     setLoading(true);
     setError(null);

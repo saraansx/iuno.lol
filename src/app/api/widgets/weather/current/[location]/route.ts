@@ -11,38 +11,8 @@ import {
   weatherIconForConditionId,
 } from "@/lib/weather";
 
-/**
- * Current weather for a location, via OpenWeather.
- *
- * One upstream call per location: the Current Weather endpoint returns the
- * temperature, the condition, the resolved city name and the country together.
- *
- * The location can arrive as a place name — a city, optionally with state and/or
- * country ("Kolkata", "Vienna, Austria", "Springfield, IL, US") — or as a
- * `lat,lon` pair, which OpenWeather takes on different parameters, so the form is
- * detected before the call rather than after.
- *
- * Unlike the profile widgets this has no image proxy: the card's icon is an
- * inline SVG chosen from the condition ID, so no image is ever fetched.
- *
- * The reading is cached in Redis on a much shorter window than the profile
- * widgets — weather that is twelve hours stale is wrong, not merely dated. See
- * `WEATHER_CACHE_TTL_SECONDS` below.
- */
-
 const WEATHER_API = "https://api.openweathermap.org/data/2.5/weather";
 
-/**
- * How long a reading is served before refetching: 15 minutes.
- *
- * The shared 12h widget window is wrong for weather — a temperature from this
- * morning is simply incorrect by the afternoon. OpenWeather updates its station
- * data on a roughly 10-minute cycle, so refetching much faster than this would
- * return the same numbers while spending a call to learn that.
- *
- * It also keeps usage far inside the free tier: 15 minutes is 96 calls a day per
- * distinct location, no matter how many visitors are watching.
- */
 const WEATHER_CACHE_TTL_SECONDS = 15 * 60;
 
 const REQUEST_HEADERS = {
@@ -58,10 +28,6 @@ interface OpenWeatherResponse {
   sys?: { country?: string };
 }
 
-/**
- * Builds the query parameters for `location`, choosing the parameter OpenWeather
- * expects for the form it is in.
- */
 function buildLocationQuery(location: string): string {
   const coords = parseWeatherCoords(location);
   if (coords) {
@@ -71,11 +37,6 @@ function buildLocationQuery(location: string): string {
   return `q=${encodeURIComponent(location)}`;
 }
 
-/**
- * Fetches current weather for `location`, which is a place name (optionally with
- * state and/or country) or a `lat,lon` pair. Returns null when the place cannot
- * be found.
- */
 export async function fetchWeatherData(
   location: string
 ): Promise<WeatherData | null> {
@@ -95,8 +56,6 @@ export async function fetchWeatherData(
       }
     );
 
-    // 404 is an unknown place, which is a normal outcome rather than a fault.
-    // Anything else is worth a log line, but the key must never reach it.
     if (!res.ok) {
       await res.body?.cancel();
       if (res.status !== 404) {
@@ -113,15 +72,11 @@ export async function fetchWeatherData(
     const condition = json.weather?.[0];
     const conditionId = condition?.id ?? 0;
 
-    // The icon suffix is "d" or "n" for day or night at the location, which is
-    // more reliable than comparing timestamps against sunrise/sunset ourselves.
     const isDay = condition?.icon ? condition.icon.endsWith("d") : true;
 
     const coords = parseWeatherCoords(location);
 
     return {
-      // A coordinate lookup usually still resolves to a nearby place name; fall
-      // back to the coordinates only when it does not.
       location:
         json.name ||
         (coords
@@ -129,8 +84,6 @@ export async function fetchWeatherData(
           : location),
       country: countryNameFromCode(json.sys?.country ?? ""),
       temperatureC: temperature,
-      // `feels_like` is occasionally absent; the actual reading is the honest
-      // fallback, and the card hides "feels like" when the two agree anyway.
       feelsLikeC:
         typeof json.main?.feels_like === "number"
           ? json.main.feels_like
@@ -173,10 +126,6 @@ export async function GET(
       );
     }
 
-    // The CF cache rule excludes this path from the shared 12h widget window, so
-    // the TTL has to come from here. Mirrors WEATHER_CACHE_TTL_SECONDS above:
-    // 15 minutes, matching the Redis window. `stale-while-revalidate` serves the
-    // slightly-old reading instantly while the refetch happens behind it.
     return NextResponse.json(
       { ok: true, data },
       {

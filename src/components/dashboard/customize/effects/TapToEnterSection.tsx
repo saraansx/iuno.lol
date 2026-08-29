@@ -100,7 +100,6 @@ export default function TapToEnterSection({
           <span className="text-[14px] font-normal text-white/90">Enter text</span>
         </div>
 
-        {/* Toggle Switch */}
         <button
           type="button"
           role="switch"
@@ -119,7 +118,6 @@ export default function TapToEnterSection({
       </div>
 
       <div className={`flex flex-col gap-5 transition-opacity duration-200 ${enterScreenEnabled ? "opacity-100" : "opacity-40 pointer-events-none"}`}>
-        {/* Overlay Text Input */}
         <div className="flex flex-col gap-2">
           <label className="text-[12.5px] font-medium text-white/90">
             Overlay Text
@@ -137,9 +135,7 @@ export default function TapToEnterSection({
           </div>
         </div>
 
-        {/* Typography Controls */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Font Family Picker */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Font Family</label>
             <div className="relative">
@@ -191,7 +187,6 @@ export default function TapToEnterSection({
             </div>
           </div>
 
-          {/* Text Color */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Text Color</label>
             <ColorPickerInput
@@ -202,9 +197,7 @@ export default function TapToEnterSection({
           </div>
         </div>
 
-        {/* Font Size, Weight, Letter Spacing */}
         <div className="grid grid-cols-3 gap-3">
-          {/* Size */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Size</label>
             <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -230,7 +223,6 @@ export default function TapToEnterSection({
             </div>
           </div>
 
-          {/* Weight */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Weight</label>
             <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -256,7 +248,6 @@ export default function TapToEnterSection({
             </div>
           </div>
 
-          {/* Letter Spacing */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
             <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
@@ -284,7 +275,6 @@ export default function TapToEnterSection({
           </div>
         </div>
 
-        {/* Text Opacity Slider */}
         <div className="flex flex-col gap-3">
           <div className="flex justify-between items-center">
             <label className="text-[12.5px] font-medium text-white/90">Text Opacity</label>
@@ -321,9 +311,7 @@ export default function TapToEnterSection({
           </div>
         </div>
 
-        {/* Blur Intensity & Blur Color */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
-          {/* Blur Intensity Slider */}
           <div className="flex flex-col gap-3">
             <div className="flex justify-between items-center">
               <label className="text-[12.5px] font-medium text-white/90">Blur Intensity</label>
@@ -360,7 +348,6 @@ export default function TapToEnterSection({
             </div>
           </div>
 
-          {/* Blur Color */}
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Blur Color</label>
             <ColorPickerInput

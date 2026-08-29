@@ -1,8 +1,5 @@
 import Redis from "ioredis";
 
-// Global singleton pattern for Next.js hot-reloading in development.
-// Connects to self-hosted Redis on VPS (REDIS_URL or 127.0.0.1:6379)
-
 const globalForRedis = globalThis as unknown as {
   redisInstance?: Redis;
 };

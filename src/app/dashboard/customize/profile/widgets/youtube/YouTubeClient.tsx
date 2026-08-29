@@ -73,8 +73,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
   const [showBanner, setShowBanner] = useState<boolean>(initialShowBanner);
   const [showViewButton, setShowViewButton] = useState<boolean>(initialShowViewButton);
 
-  // The card has a single backdrop slot, so enabling one backdrop turns the other
-  // off. That invariant is what keeps the two greyed-out states consistent.
   const handleShowBackgroundChange = (val: boolean) => {
     setShowBackground(val);
     if (val) setShowBanner(false);
@@ -237,7 +235,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
     }
   };
 
-  // ── Derived preview values (mirror YouTubeWidget display logic) ──
   const isVideoMode = mode === "latest-video";
   const rawImageUrl =
     imageSource === "video-thumbnail"
@@ -256,9 +253,7 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Section */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left: Account input card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -288,7 +283,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right: Real-Time Live Preview card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -323,14 +317,12 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
                 </div>
               ) : (
                 <div className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden flex items-center justify-between relative box-border">
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
                       <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
                     </div>
                   )}
 
-                  {/* Channel Banner Backdrop */}
                   {previewBannerSrc && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -343,7 +335,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  {/* Blurred Image Backdrop */}
                   {!previewBannerSrc && showBackground && imageProxyUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -357,7 +348,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Image */}
                     <div
                       className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -375,9 +365,7 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
                       )}
                     </div>
 
-                    {/* Title & Stats */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-                      {/* Title row */}
                       <OverflowPingPong deps={[data, previewTitle, previewSubtitle, isVideoMode]}>
                         <div className="flex items-center gap-1.5 shrink-0">
                           <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
@@ -391,7 +379,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
                         </div>
                       </OverflowPingPong>
 
-                      {/* Stats row */}
                       <OverflowPingPong
                         deps={[
                           data,
@@ -479,7 +466,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Settings Panel */}
         <YouTubeCustomization
           placement={placement}
           onPlacementChange={setPlacement}
@@ -510,7 +496,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
         />
       </div>
 
-      {/* Floating Save/Add Widget Bar */}
       <SaveBar
         show={isChanged || !isEditing}
         onSave={handleSaveWidgetConfirm}

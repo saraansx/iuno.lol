@@ -85,8 +85,6 @@ export function useInstagramUser(
     };
   }, [fetchUsername, enabled, trigger, refetchInterval]);
 
-  // While the typed username is ahead of the fetched one, report the loading
-  // state instead of the profile the hook still holds.
   return {
     user: isPending ? null : user,
     isLoading: isPending || isLoading,

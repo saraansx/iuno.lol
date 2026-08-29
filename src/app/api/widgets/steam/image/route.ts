@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-/**
- * Steam serves avatars, frames and profile backgrounds from a handful of CDN
- * hosts, and the animated variants are .webm/.mp4 rather than images — hence the
- * Range passthrough below, which lets the browser seek instead of buffering the
- * whole clip.
- */
 const ALLOWED_HOSTS = [
   "steamstatic.com",
   "steamcommunity.com",
@@ -14,12 +8,6 @@ const ALLOWED_HOSTS = [
   "akamaihd.net",
 ];
 
-/**
- * Base for the CDN-relative item paths the Steam user route caches (frames,
- * animated avatars, profile backgrounds). Resolution happens *before* the host
- * whitelist below, so a crafted `//evil.com/x` still resolves to a foreign host
- * and is rejected there rather than fetched.
- */
 const ITEM_CDN = "https://cdn.fastly.steamstatic.com/steamcommunity/public/images/";
 
 export async function GET(req: NextRequest) {
@@ -42,8 +30,6 @@ export async function GET(req: NextRequest) {
       return new NextResponse(null, { status: 400 });
     }
 
-    // Suffix match on a dot boundary — a bare `includes` would also accept
-    // hosts like `steamstatic.com.example.net`.
     const hostname = parsedUrl.hostname.toLowerCase();
     const isAllowedHost = ALLOWED_HOSTS.some(
       (h) => hostname === h || hostname.endsWith(`.${h}`)

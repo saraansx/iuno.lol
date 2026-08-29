@@ -60,14 +60,12 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Background Banner / Map Splash */}
       {bgImageUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,7 +79,6 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Avatar Icon */}
         <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -95,9 +92,7 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
           )}
         </div>
 
-        {/* Player Info & Badges */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Title with ping-pong overflow scroll */}
           <OverflowPingPong deps={[valorantData.name, valorantData.tag]}>
             <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {valorantData.name}
@@ -107,10 +102,8 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
             </span>
           </OverflowPingPong>
 
-          {/* Badges / Stats */}
           <OverflowPingPong deps={[rankData, valorantData.current_rank, showRank, showRR, showLevel]}>
             <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
-              {/* Rank */}
               {showRank && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   {rankIconUrl && (
@@ -125,7 +118,6 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               )}
 
-              {/* RR */}
               {showRR && rankMode === "current" && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <ValorantFlameIcon size={14} className="w-3.5 h-3.5 text-white/50 shrink-0" />
@@ -135,7 +127,6 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               )}
 
-              {/* Level */}
               {showLevel && (
                 <div className="flex items-center gap-1.5 shrink-0">
                   <ValorantUserIcon size={14} className="w-3.5 h-3.5 text-white/50 shrink-0" />

@@ -8,8 +8,6 @@ export function usePinterestUser(username: string) {
   const cleanUsername = (username || "").trim().toLowerCase();
   const isValidUsername = /^[a-zA-Z0-9_]{1,30}$/.test(cleanUsername);
 
-  // Wait for typing to settle before hitting the upstream Pinterest scrape. An
-  // invalid username debounces to "" at once, so the preview clears immediately.
   const { value: fetchUsername, isPending } = useDebouncedValue(
     isValidUsername ? cleanUsername : ""
   );
@@ -60,8 +58,6 @@ export function usePinterestUser(username: string) {
     };
   }, [fetchUsername]);
 
-  // While the typed username is ahead of the fetched one, report the loading
-  // state instead of the account the hook still holds.
   const isReady = isValidUsername && !isPending;
 
   return {

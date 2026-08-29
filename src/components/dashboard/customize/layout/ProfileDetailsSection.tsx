@@ -5,7 +5,6 @@ import {
   type DetailPlacement,
 } from "@/components/profile/layouts/ProfilePresetLayout";
 
-/** The slots a detail can be placed in, with the label shown on each pill. */
 const PLACEMENTS: { id: Exclude<DetailPlacement, "hidden">; label: string }[] = [
   { id: "top", label: "Top of profile" },
   { id: "beside", label: "Beside profile" },
@@ -17,11 +16,6 @@ interface DetailRow {
   id: DetailKey;
   name: string;
   icon: React.ReactNode;
-  /**
-   * Restricts which slots this detail offers. Feedback is a pair of buttons rather
-   * than a line of text, so the inline slots above the name would put controls in
-   * the middle of the header — only the two bottom slots make sense for it.
-   */
   slots?: Exclude<DetailPlacement, "hidden">[];
 }
 
@@ -87,7 +81,6 @@ const DETAILS: DetailRow[] = [
   },
 ];
 
-/** The sentence under each detail's name, describing where it currently sits. */
 function placementSummary(placement: DetailPlacement): string {
   switch (placement) {
     case "top":
@@ -110,13 +103,6 @@ interface ProfileDetailsSectionProps {
   setPlacement: (key: DetailKey, value: DetailPlacement) => void;
 }
 
-/**
- * Where each profile detail renders, or whether it renders at all.
- *
- * Join date, views and feedback also have master toggles elsewhere (Appearance).
- * Those stay the outer switch — a detail turned off there will not appear no matter
- * what is picked here, which is why this section does not duplicate them.
- */
 export default function ProfileDetailsSection({
   placements,
   setPlacement,
@@ -155,8 +141,6 @@ export default function ProfileDetailsSection({
           return (
             <div
               key={detail.id}
-              // Hairline between rows rather than around them, so the list reads as
-              // one block instead of six stacked cards.
               className={`flex flex-col gap-3 py-5 ${
                 index > 0 ? "border-t border-white/5" : "pt-0"
               }`}
@@ -185,9 +169,6 @@ export default function ProfileDetailsSection({
                   </span>
                 </div>
 
-                {/* A switch rather than a text button: the bare icon-and-label had
-                    no container, so it read as floating text rather than a control.
-                    Matches the toggles used elsewhere in the dashboard. */}
                 <button
                   type="button"
                   onClick={() =>

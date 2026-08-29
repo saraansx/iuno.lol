@@ -52,14 +52,12 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Blurred Channel Backdrop */}
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -73,7 +71,6 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Avatar */}
         <div className="relative shrink-0">
           <div
             className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border ${
@@ -96,7 +93,6 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
             )}
           </div>
 
-          {/* Mini Live Pill overlay on Avatar if live */}
           {isCurrentlyLive && (
             <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-[#eb0400] text-white text-[9px] font-bold uppercase rounded-[4px] tracking-wider shadow-sm z-20">
               LIVE
@@ -104,25 +100,20 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
           )}
         </div>
 
-        {/* User Info & Live / Follower Details */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden pr-6">
-          {/* Header Row: Twitch SVG + Name + Partner Badge + Live Badge */}
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <OverflowPingPong deps={[channel, channel.displayName, isCurrentlyLive]}>
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Official Twitch Purple Logo */}
                 <TwitchLogoIcon size={14} className="w-3.5 h-3.5 shrink-0" />
 
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {channel.displayName}
                 </span>
 
-                {/* Verified Partner Badge */}
                 {showPartnerBadge && channel.isPartner && (
                   <TwitchPartnerBadgeIcon size={14} className="w-3.5 h-3.5 shrink-0" />
                 )}
 
-                {/* Live Indicator Pill in Header if Live */}
                 {isCurrentlyLive && channel.viewersCount !== null && (
                   <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500/15 border border-red-500/25 shrink-0 ml-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -135,10 +126,8 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
             </OverflowPingPong>
           </div>
 
-          {/* Subtitle / Stats Row */}
           <div className="min-w-0 overflow-hidden">
             {isCurrentlyLive ? (
-              /* When Live: Show Stream Title or Game */
               <OverflowPingPong
                 deps={[channel.streamTitle, channel.gameName, isCurrentlyLive]}
               >
@@ -159,7 +148,6 @@ export default function TwitchWidget({ widget }: { widget: WidgetItem }) {
                 </div>
               </OverflowPingPong>
             ) : (
-              /* When Offline: Show Followers / Channel status */
               <OverflowPingPong deps={[channel.followersCount, showFollowers]}>
                 <div className="flex items-center gap-1.5 text-[12.5px] font-normal leading-tight whitespace-nowrap shrink-0">
                   {showFollowers && (

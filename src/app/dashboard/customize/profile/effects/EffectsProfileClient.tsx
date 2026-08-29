@@ -99,7 +99,6 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
 
   return (
     <>
-      {/* Settings Content */}
       <div className="flex-1 flex flex-col gap-6 pr-[calc(var(--preview-width,380px)+2rem)] pb-20">
         <EffectsCustomization
           backgroundEffect={backgroundEffect}

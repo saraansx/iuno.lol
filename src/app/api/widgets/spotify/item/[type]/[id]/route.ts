@@ -149,8 +149,6 @@ export async function fetchSpotifyItem(
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      // Freshness is owned by the Redis cache in GET; caching here too would stack
-      // both windows and double the worst-case staleness.
       cache: "no-store",
     });
 
@@ -205,13 +203,11 @@ export async function fetchSpotifyItem(
       const imageUrl = data.images?.[0]?.url || data.images?.[1]?.url || null;
       let trackCount = data.tracks?.total ?? 0;
 
-      // Spotify API client credentials flow returns 403 on /tracks and omits tracks.total
       if (trackCount === 0) {
         try {
           const embedRes = await fetch(`https://open.spotify.com/embed/playlist/${encodeURIComponent(data.id)}`, {
             signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-            // Freshness is owned by the Redis cache in GET (see note above).
             cache: "no-store",
           });
           if (embedRes.ok) {
@@ -226,7 +222,6 @@ export async function fetchSpotifyItem(
             }
           }
         } catch {
-          // ignore embed fallback error
         }
       }
 
@@ -248,12 +243,10 @@ export async function fetchSpotifyItem(
       let followers = data.followers?.total || 0;
       let monthlyListeners = 0;
 
-      // Spotify API client credentials flow omits followers and listeners on /v1/artists/{id}
       try {
         const artistPageRes = await fetch(`https://open.spotify.com/artist/${encodeURIComponent(data.id)}`, {
           signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-          // Freshness is owned by the Redis cache in GET (see note above).
           cache: "no-store",
         });
         if (artistPageRes.ok) {
@@ -279,7 +272,6 @@ export async function fetchSpotifyItem(
           }
         }
       } catch {
-        // ignore artist page scrape error
       }
 
       const subtitleParts: string[] = [];
@@ -309,12 +301,10 @@ export async function fetchSpotifyItem(
         imageUrl = data.images?.[0]?.url || data.images?.[1]?.url || null;
         followers = data.followers?.total || 0;
       } else {
-        // Spotify Web API client credentials flow returns 404/403 for /v1/users/{id}
         try {
           const userPageRes = await fetch(`https://open.spotify.com/user/${encodeURIComponent(id)}`, {
             signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
             headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" },
-            // Freshness is owned by the Redis cache in GET (see note above).
             cache: "no-store",
           });
           if (userPageRes.ok) {
@@ -337,7 +327,6 @@ export async function fetchSpotifyItem(
             }
           }
         } catch {
-          // ignore user page scrape error
         }
       }
 
@@ -386,7 +375,6 @@ export async function GET(
       );
     }
 
-    // Keyed on type + id so each Spotify sub-type caches independently.
     const data = await withWidgetCache(
       widgetCacheKey("spotify", cleanType, cleanId),
       () =>

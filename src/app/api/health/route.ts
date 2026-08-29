@@ -10,7 +10,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const service = searchParams.get('service')?.toLowerCase().trim();
 
-  // 1. Check specific service if requested
   if (service) {
     switch (service) {
       case 'web':
@@ -77,7 +76,6 @@ export async function GET(request: NextRequest) {
 
       case 'media':
       case 'storage': {
-        // Media served from S3 bucket / storage domain
         const bucket = process.env.AWS_S3_BUCKET_NAME || 'storage.iuno.lol';
         return NextResponse.json({
           status: 'ok',
@@ -119,7 +117,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // 2. Comprehensive check for all services (default)
   const checks: Record<string, 'up' | 'down'> = {
     database: 'down',
     redis: 'down',

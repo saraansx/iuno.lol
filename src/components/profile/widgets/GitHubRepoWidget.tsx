@@ -69,14 +69,12 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Background Avatar Ambient Overlay */}
       {showBackgroundOverlay && ownerName && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -90,7 +88,6 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Owner / Repo Icon */}
         <div
           className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -110,16 +107,13 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
           />
         </div>
 
-        {/* Repo Info & Stats */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Repo Name with ping-pong overflow scroll */}
           <OverflowPingPong deps={[repoData, repoData?.full_name]}>
             <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {repoData.full_name || cleanRepo}
             </span>
           </OverflowPingPong>
 
-          {/* Stats Row */}
           {(showStars || showForks || showWatchers || showOpenIssues || (showPrimaryLanguage && repoData.language)) && (
             <OverflowPingPong deps={[repoData, showStars, showForks, showWatchers, showOpenIssues, showPrimaryLanguage]}>
               <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">

@@ -10,7 +10,6 @@ interface GhostSnapshot {
   scale: number;
 }
 
-// Standard modern cursor pointer SVG path (scaled to ~19px, +20% over native 16px)
 function drawCursor(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -85,7 +84,6 @@ export function GhostTrail({ color = "#ffffff" }: { color?: string }) {
         const dy = y - lastPos.y;
         const dist = Math.hypot(dx, dy);
 
-        // Spawn a ghost snapshot every few pixels of movement
         if (dist > 6) {
           ghosts.unshift({
             x,
@@ -116,8 +114,8 @@ export function GhostTrail({ color = "#ffffff" }: { color?: string }) {
 
         for (let i = ghosts.length - 1; i >= 0; i--) {
           const g = ghosts[i];
-          g.opacity *= 0.95; // longer trail lifetime
-          g.scale *= 0.992;  // slower shrink
+          g.opacity *= 0.95;
+          g.scale *= 0.992;
 
           if (g.opacity < 0.02) {
             ghosts.splice(i, 1);

@@ -12,11 +12,11 @@ import {
 
 interface Sparkle {
   id: number;
-  x: number;        // % across the bio width
-  y: number;        // % down the bio height
-  size: number;     // px
-  duration: number; // ms the sparkle's twinkle lasts
-  hue: number;      // hue-rotate deg for variety
+  x: number;
+  y: number;
+  size: number;
+  duration: number;
+  hue: number;
 }
 
 const SPARKLE_COUNT = 10;
@@ -25,26 +25,6 @@ const SPAWN_INTERVAL_MAX = 1200;
 
 type WithStyleChildren = { style?: CSSProperties; children?: ReactNode };
 
-/**
- * SparkleDescriptionEffect
- *
- * Sprinkles small four-point star sparkles across the bio. Each one spawns at a
- * random spot, twinkles in and out, then gets recycled.
- *
- * Unlike SparkleUsernameEffect there is no wrapper element. The bio is a block
- * at max-w-[90%] and is a flex item in both of Layout1's render paths, so any
- * wrapper would become the flex item itself and shrink-wrap to its content —
- * max-w-[90%] would then resolve against that shrunken box instead of the
- * content column, re-wrapping the text and shifting it out of place. Instead
- * `position: relative` is merged onto the bio element and the sparkles are
- * rendered inside it, matching how the other description effects apply
- * themselves. Being absolutely positioned they are out of flow, so they add no
- * size and never move the text.
- *
- * Sparkles also stay within 5–95% vertically, rather than the username's
- * -10–110%: the bio is a taller multi-line block, so sparkles drifting outside
- * it read as floating debris rather than decoration.
- */
 export default function SparkleDescriptionEffect({ children }: { children: ReactNode }) {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const idRef = useRef(0);
@@ -59,8 +39,8 @@ export default function SparkleDescriptionEffect({ children }: { children: React
       const next: Sparkle = {
         id: idRef.current,
         x: Math.random() * 100,
-        y: 5 + Math.random() * 90, // keep sparkles over the text, not floating off it
-        size: 5 + Math.random() * 7, // 5–12px — smaller than the username's, to suit ~15px text
+        y: 5 + Math.random() * 90,
+        size: 5 + Math.random() * 7,
         duration: 900 + Math.random() * 700,
         hue: Math.random() * 360,
       };
@@ -89,7 +69,6 @@ export default function SparkleDescriptionEffect({ children }: { children: React
     );
   }
 
-  // Fallback for a bare string / fragment — needs its own positioning context.
   return (
     <span style={{ position: "relative", display: "inline-block" }}>
       {children}
@@ -99,8 +78,6 @@ export default function SparkleDescriptionEffect({ children }: { children: React
 }
 
 function SparkleMark({ sparkle }: { sparkle: Sparkle }) {
-  // The pop animation ends at opacity 0 with `forwards` fill, so the mark fades
-  // out and stays hidden on its own — no extra timer or state needed.
   return (
     <span
       aria-hidden
@@ -117,7 +94,6 @@ function SparkleMark({ sparkle }: { sparkle: Sparkle }) {
       }}
     >
       <svg viewBox="0 0 24 24" width="100%" height="100%" fill="white">
-        {/* Four-point star — narrow vertically/horizontally, fat on the diagonals */}
         <path d="M12 0 C12.6 6.5 17.5 11.4 24 12 C17.5 12.6 12.6 17.5 12 24 C11.4 17.5 6.5 12.6 0 12 C6.5 11.4 11.4 6.5 12 0 Z" />
       </svg>
       <style>{`

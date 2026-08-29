@@ -10,8 +10,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
     }
 
-    // The field is named `username` across every widget's validate route; here it
-    // carries a location.
     const { username } = await req.json();
     const cleanLocation = cleanWeatherLocation(username);
 

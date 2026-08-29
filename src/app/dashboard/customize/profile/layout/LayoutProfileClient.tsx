@@ -30,9 +30,6 @@ import { toast } from "@/components/ui/toast";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-// The column backing each detail, and where that detail sat before the setting
-// existed — so an untouched profile renders unchanged. Module scope: it is constant,
-// and rebuilding it per render would churn on every keystroke elsewhere on the page.
 const DETAIL_FIELDS = {
   joinDate: ["joinDatePlacement", "bottom-profile"],
   location: ["locationPlacement", "beside"],
@@ -56,9 +53,6 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
 
   const preset = (overrides.profilePreset ?? initialPreset) as ProfilePreset;
 
-  // Picking a preset also writes its detail arrangement, so the choice visibly does
-  // something. They stay editable afterwards — a preset is a starting point, not a
-  // mode the Profile details section has to defer to.
   const setPreset = (val: ProfilePreset) => {
     const defaults = getDetailDefaults(val);
     const frame = getFrameDefaults(val);
@@ -117,10 +111,6 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
     updateOverrides({ [field]: value === initial ? undefined : value });
   };
 
-  // A preset is a starting arrangement, so once any placement is moved the label no
-  // longer describes what is on screen. Comparing against the preset's own defaults
-  // means returning every row to them shows the preset name again, rather than the
-  // dropdown being stuck on "Custom" forever.
   const presetDefaults = getDetailDefaults(preset);
   const presetFrame = getFrameDefaults(preset);
   const isCustom =
@@ -141,8 +131,6 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
       >
         <ProfileStructureSection structure={structure} setStructure={setStructure} />
 
-        {/* Only the selected structure's settings are shown, so the page never
-            offers controls that do not apply to the chosen layout. */}
         {structure === "standard" && (
           <>
             <StandardProfileSection

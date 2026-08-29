@@ -5,11 +5,6 @@ export interface WidgetIconProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-/* ==========================================================================
-   COMMON & UTILITY ICONS
-   ========================================================================== */
-
-/** Top-right external redirect arrow */
 export function WidgetRedirectIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -34,7 +29,6 @@ export function WidgetRedirectIcon({
   );
 }
 
-/** Verified checkmark badge */
 export function VerifiedBadgeIcon({
   size = 14,
   fill = "#0095F6",
@@ -61,10 +55,6 @@ export function VerifiedBadgeIcon({
     </svg>
   );
 }
-
-/* ==========================================================================
-   INSTAGRAM ICONS
-   ========================================================================== */
 
 export function InstagramLogoIcon({
   className = "w-3.5 h-3.5",
@@ -140,10 +130,6 @@ export function InstagramUserPlusIcon({
     </svg>
   );
 }
-
-/* ==========================================================================
-   SPOTIFY ICONS
-   ========================================================================== */
 
 export function SpotifyLogoIcon({
   size = 14,
@@ -287,10 +273,6 @@ export function SpotifyCalendarIcon({
   );
 }
 
-/* ==========================================================================
-   TWITCH ICONS
-   ========================================================================== */
-
 export function TwitchLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -318,10 +300,6 @@ export function TwitchPartnerBadgeIcon({
   return <VerifiedBadgeIcon fill="#9146FF" size={size} className={className} {...props} />;
 }
 
-/* ==========================================================================
-   DISCORD ICONS
-   ========================================================================== */
-
 export function DiscordLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -340,10 +318,6 @@ export function DiscordLogoIcon({
     </svg>
   );
 }
-
-/* ==========================================================================
-   GITHUB ICONS
-   ========================================================================== */
 
 export function GitHubLogoIcon({
   size = 14,
@@ -446,10 +420,6 @@ export function GitHubIssuesIcon({
   );
 }
 
-/* ==========================================================================
-   STEAM ICONS
-   ========================================================================== */
-
 export function SteamLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -469,10 +439,6 @@ export function SteamLogoIcon({
   );
 }
 
-/* ==========================================================================
-   GENSHIN ICONS
-   ========================================================================== */
-
 export function GenshinLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -487,11 +453,8 @@ export function GenshinLogoIcon({
       className={`shrink-0 ${className}`}
       {...props}
     >
-      {/* Top 4-pointed star */}
       <path d="M12 0.5C12.3 2.1 13 2.8 14.6 3.1C13 3.4 12.3 4.1 12 5.7C11.7 4.1 11 3.4 9.4 3.1C11 2.8 11.7 2.1 12 0.5Z" />
-      {/* Crown / Tiara crest */}
       <path d="M7 4.2C8.3 4.9 10 5.4 12 5.4C14 5.4 15.7 4.9 17 4.2C16.8 5.6 15.8 6.6 14.5 7.1C13.7 6.8 12.9 6.6 12 6.6C11.1 6.6 10.3 6.8 9.5 7.1C8.2 6.6 7.2 5.6 7 4.2Z" />
-      {/* GI Monogram & Crest Body */}
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -500,10 +463,6 @@ export function GenshinLogoIcon({
     </svg>
   );
 }
-
-/* ==========================================================================
-   VALORANT ICONS
-   ========================================================================== */
 
 export function ValorantLogoIcon({
   size = 14,
@@ -571,10 +530,6 @@ export function ValorantUserIcon({
   );
 }
 
-/* ==========================================================================
-   PINTEREST ICONS
-   ========================================================================== */
-
 export function PinterestLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -593,10 +548,6 @@ export function PinterestLogoIcon({
     </svg>
   );
 }
-
-/* ==========================================================================
-   TIKTOK ICONS
-   ========================================================================== */
 
 export function TikTokLogoIcon({
   size = 14,
@@ -702,11 +653,6 @@ export function TikTokVerifiedIcon({
   return <VerifiedBadgeIcon fill="#20D5EC" size={size} className={className} {...props} />;
 }
 
-/* ==========================================================================
-   YOUTUBE ICONS
-   ========================================================================== */
-
-/** YouTube play-button glyph (uses currentColor so it can be tinted red). */
 export function YouTubeLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -726,7 +672,6 @@ export function YouTubeLogoIcon({
   );
 }
 
-/** Subscribers (people) */
 export function YouTubeSubscribersIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -746,7 +691,6 @@ export function YouTubeSubscribersIcon({
   );
 }
 
-/** Views (eye) — used for both total views and per-video views */
 export function YouTubeViewsIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -766,7 +710,6 @@ export function YouTubeViewsIcon({
   );
 }
 
-/** Video count (video camera) */
 export function YouTubeVideoIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -786,7 +729,6 @@ export function YouTubeVideoIcon({
   );
 }
 
-/** Video likes (thumbs up) */
 export function YouTubeLikesIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -806,7 +748,6 @@ export function YouTubeLikesIcon({
   );
 }
 
-/** Upload date (calendar) */
 export function YouTubeCalendarIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -826,11 +767,6 @@ export function YouTubeCalendarIcon({
   );
 }
 
-/* ==========================================================================
-   TELEGRAM
-   ========================================================================== */
-
-/** Telegram paper-plane mark, in the brand blue. */
 export function TelegramLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -850,7 +786,6 @@ export function TelegramLogoIcon({
   );
 }
 
-/** Bio line marker for the Telegram card. */
 export function TelegramBioIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -870,11 +805,6 @@ export function TelegramBioIcon({
   );
 }
 
-/* ==========================================================================
-   ROBLOX
-   ========================================================================== */
-
-/** Roblox tilted-square mark. */
 export function RobloxLogoIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -894,7 +824,6 @@ export function RobloxLogoIcon({
   );
 }
 
-/** Roblox verified checkmark, in the platform's blue. */
 export function RobloxVerifiedBadgeIcon({
   size = 14,
   className = "w-3.5 h-3.5",
@@ -903,7 +832,6 @@ export function RobloxVerifiedBadgeIcon({
   return <VerifiedBadgeIcon fill="#0066FF" size={size} className={className} {...props} />;
 }
 
-/** Followers marker for the Roblox card. */
 export function RobloxFollowersIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -923,7 +851,6 @@ export function RobloxFollowersIcon({
   );
 }
 
-/** Friends marker for the Roblox card. */
 export function RobloxFriendsIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -943,11 +870,6 @@ export function RobloxFriendsIcon({
   );
 }
 
-/* ==========================================================================
-   WEATHER
-   ========================================================================== */
-
-/** Thermometer marker for the temperature stat. */
 export function WeatherTemperatureIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -967,7 +889,6 @@ export function WeatherTemperatureIcon({
   );
 }
 
-/** Cloud marker for the condition stat. */
 export function WeatherConditionMarkerIcon({
   size = 13,
   className = "w-[13px] h-[13px]",
@@ -987,16 +908,6 @@ export function WeatherConditionMarkerIcon({
   );
 }
 
-/**
- * The card's main condition illustration.
- *
- * One component rather than eight exports: the card picks an icon purely from
- * the resolved `WeatherIconKind` plus whether it is day, and keeping the mapping
- * here means the card never has to branch on condition itself. Colours are baked
- * in rather than inherited — a sun that renders in the text colour reads as a
- * grey blob, and the illustration is the one place in the card that is meant to
- * carry colour.
- */
 export function WeatherConditionIcon({
   kind = "cloudy",
   isDay = true,
@@ -1032,7 +943,6 @@ export function WeatherConditionIcon({
       className={`shrink-0 ${className}`}
       {...props}
     >
-      {/* Sun or moon, shown for clear and partly-cloudy skies. */}
       {(kind === "clear" || kind === "partly-cloudy") &&
         (isDay ? (
           <g>
@@ -1067,7 +977,6 @@ export function WeatherConditionIcon({
           />
         ))}
 
-      {/* Cloud body — present for everything except a fully clear sky. */}
       {kind !== "clear" && (
         <path
           d="M20 46a10 10 0 01-1-19.9A13.5 13.5 0 0145 30.5h.5a8 8 0 010 15.5H20z"
@@ -1075,7 +984,6 @@ export function WeatherConditionIcon({
         />
       )}
 
-      {/* Fog bars sit under the cloud instead of precipitation. */}
       {kind === "fog" &&
         [52, 58].map((y, i) => (
           <rect
@@ -1089,7 +997,6 @@ export function WeatherConditionIcon({
           />
         ))}
 
-      {/* Drizzle and rain: short slanted streaks, denser for rain. */}
       {(kind === "drizzle" || kind === "rain") &&
         (kind === "rain" ? [22, 32, 42] : [26, 38]).map((x) => (
           <rect
@@ -1104,13 +1011,11 @@ export function WeatherConditionIcon({
           />
         ))}
 
-      {/* Snow: flakes rather than streaks. */}
       {kind === "snow" &&
         [22, 32, 42].map((x, i) => (
           <circle key={x} cx={x} cy={i === 1 ? 58 : 54} r="2.6" fill={snow} />
         ))}
 
-      {/* Thunderstorm: a single bolt, no rain, so it stays legible at 56px. */}
       {kind === "thunderstorm" && (
         <path d="M34 48l-10 9h7l-3 8 11-11h-7l4-6z" fill={bolt} />
       )}

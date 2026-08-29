@@ -37,7 +37,6 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       ? `/api/widgets/genshin/image?url=${encodeURIComponent((genshinData.namecard_bg_url || genshinData.namecard_url)!)}`
       : null;
 
-  // Blurred character avatar backdrop — mutually exclusive with the namecard artwork.
   const avatarBgSrc = showBackgroundImage ? avatarSrc : null;
 
   return (
@@ -47,14 +46,12 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Namecard Background Layer */}
       {namecardBgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -67,7 +64,6 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
         </div>
       )}
 
-      {/* Background Image (blurred character avatar) */}
       {avatarBgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -81,7 +77,6 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Avatar */}
         <div
           className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -97,13 +92,10 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
           )}
         </div>
 
-        {/* User Info & Stats */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Nickname & Region Header */}
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <OverflowPingPong deps={[genshinData, genshinData.nickname]}>
               <div className="flex items-center gap-1.5 shrink-0">
-                {/* Genshin Impact Primogem Logo */}
                 <GenshinLogoIcon size={14} className="w-3.5 h-3.5 text-[#609fda] shrink-0" />
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {genshinData.nickname}
@@ -118,11 +110,9 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
             )}
           </div>
 
-          {/* Stats Row */}
           {(showAr || showWorldLevel || showAchievements) && (
             <OverflowPingPong deps={[genshinData, showAr, showWorldLevel, showAchievements]}>
               <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
-                {/* Adventure Rank */}
                 {showAr && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-white/40">AR</span>
@@ -130,7 +120,6 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
                   </div>
                 )}
 
-                {/* World Level */}
                 {showWorldLevel && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <span className="text-white/40">WL</span>
@@ -138,7 +127,6 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
                   </div>
                 )}
 
-                {/* Achievements */}
                 {showAchievements && (
                   <div className="flex items-center gap-1.5 shrink-0">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">

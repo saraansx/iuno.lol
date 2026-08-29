@@ -4,10 +4,6 @@ import { profileFeedback } from '@/lib/db/schema';
 import { and, eq } from 'drizzle-orm';
 import { decrypt } from '@/lib/server/security/jwt';
 
-// Per-viewer state for a profile: whether the caller is signed in and whether
-// they've already liked/disliked this profile. This is unique to each viewer,
-// so the response is never cached (no-store) and never shared — keeping the
-// public profile page (/[username]) fully CDN-cacheable.
 export const dynamic = 'force-dynamic';
 
 const NO_STORE = { 'Cache-Control': 'private, no-store' } as const;
@@ -21,16 +17,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400, headers: NO_STORE });
     }
 
-    // Lightweight cookie decode (same pattern as /api/track-view). Full session
-    // verification isn't needed here: this only drives UI state — the actual
-    // vote goes through submitFeedbackAction, which authorizes server-side.
     const sessionCookie = request.cookies.get('iuno_session')?.value;
     const payload = sessionCookie ? await decrypt(sessionCookie) : undefined;
     const rawId = payload ? Number(payload.userId) : NaN;
     const viewerId = Number.isInteger(rawId) && rawId > 0 ? rawId : null;
 
-    // Signed out, or the owner viewing their own profile → no feedback row.
-    if (!viewerId || viewerId === profileId) {
+    // Self-view still reports its feedback. Liking your own profile is allowed, so
+    // short-circuiting here left the buttons unaware of a like the viewer had
+    // already given, and they kept rendering as un-liked.
+    if (!viewerId) {
       return NextResponse.json({ viewerId, feedback: null }, { headers: NO_STORE });
     }
 
@@ -49,8 +44,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ viewerId, feedback }, { headers: NO_STORE });
   } catch (error) {
     console.error('[profile/me] failed:', error);
-    // Fail open to the signed-out state — the page still renders, voting just
-    // prompts a sign-in until the next successful fetch.
     return NextResponse.json({ viewerId: null, feedback: null }, { headers: NO_STORE });
   }
 }

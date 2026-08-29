@@ -2,7 +2,6 @@ import { defineConfig } from 'drizzle-kit'
 import fs from 'fs'
 import path from 'path'
 
-// Auto-parse .env.local or .env for Drizzle CLI commands
 const envFile = fs.existsSync(path.join(process.cwd(), '.env.local'))
   ? '.env.local'
   : fs.existsSync(path.join(process.cwd(), '.env'))

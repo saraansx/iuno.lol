@@ -31,7 +31,6 @@ export function InstagramVerifiedIcon({ className = "w-3.5 h-3.5" }: { className
   );
 }
 
-/* Filled solid Instagram grid / post icon */
 export function InstagramGridIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg
@@ -47,7 +46,6 @@ export function InstagramGridIcon({ className = "w-3.5 h-3.5" }: { className?: s
   );
 }
 
-/* Filled solid followers icon */
 export function InstagramUsersIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg
@@ -60,7 +58,6 @@ export function InstagramUsersIcon({ className = "w-3.5 h-3.5" }: { className?: 
   );
 }
 
-/* Filled solid following / user-plus icon */
 export function InstagramUserPlusIcon({ className = "w-3.5 h-3.5" }: { className?: string }) {
   return (
     <svg

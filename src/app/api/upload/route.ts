@@ -97,27 +97,21 @@ function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | n
 
 export async function POST(req: Request) {
   try {
-    // Auth before anything else — cheap, no body buffered.
     const userId = await getSessionUserId();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Coarse content-length guard (header can be spoofed/absent; per-format
-    // size caps still apply after parsing).
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
     if (contentLength > 22 * 1024 * 1024) {
       return NextResponse.json({ error: "Payload too large. Max request size is 20MB." }, { status: 413 });
     }
 
-    // Pre-parse rate limit — runs before the body is buffered so an attacker
-    // can't blast concurrent large requests to exhaust memory.
     const preRl = await uploadPreRateLimit(userId);
     if (!preRl.ok) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${preRl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
     }
 
-    // Only now is it safe to buffer the request body.
     const formData = await req.formData();
     const file = formData.get("fileToUpload") as File;
     const assetType = formData.get("assetType") as string;
@@ -126,7 +120,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
-    // Fine-grained per-asset-type rate limit (after parse, where assetType is known).
     const rl = await uploadRateLimit(userId, assetType);
     if (!rl.ok) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${rl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
@@ -141,7 +134,6 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Deep binary magic byte verification
     const detected = getRealFileExtension(buffer);
     if (!detected) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });

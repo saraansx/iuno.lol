@@ -49,13 +49,10 @@ export default function RobloxCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Show Followers */}
         <RobloxToggleSetting
           label="Show followers"
           description="Display the player's follower count."
@@ -63,7 +60,6 @@ export default function RobloxCustomization({
           onChange={onShowFollowersChange}
         />
 
-        {/* Show Friends */}
         <RobloxToggleSetting
           label="Show friends"
           description="Display the player's friend count."
@@ -71,7 +67,6 @@ export default function RobloxCustomization({
           onChange={onShowFriendsChange}
         />
 
-        {/* Show Verified Badge */}
         <RobloxToggleSetting
           label="Show verified badge"
           description="Display the Roblox verified checkmark beside the display name for accounts that have one."
@@ -79,7 +74,6 @@ export default function RobloxCustomization({
           onChange={onShowVerifiedBadgeChange}
         />
 
-        {/* Background Image */}
         <RobloxToggleSetting
           label="Background image"
           description="Display a subtle blurred player avatar backdrop in the widget card."
@@ -87,7 +81,6 @@ export default function RobloxCustomization({
           onChange={onShowBackgroundChange}
         />
 
-        {/* Show View Button */}
         <RobloxToggleSetting
           label="Show redirect button"
           description="Display a top-right direct link button opening the Roblox profile."

@@ -16,14 +16,13 @@ export async function GET(req: NextRequest) {
     )
   }
 
-  // CSRF state token
   const state = randomBytes(16).toString('hex')
   const cookieStore = await cookies()
   cookieStore.set('discord_oauth_state', state, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: 60 * 10,
     path: '/',
   })
 

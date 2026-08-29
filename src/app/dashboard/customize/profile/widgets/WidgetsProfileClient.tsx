@@ -137,10 +137,6 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
   const setBorderOpacity = (val: number) =>
     updateOverrides({ widgetBorderOpacity: val === initialBorderOpacity ? undefined : val });
 
-  // The widgets array needs a deep compare (reordering produces a new array that
-  // may still match what is saved), but the border fields are cleared back to
-  // `undefined` when they return to their saved value, so their presence in
-  // `overrides` is itself the signal that something changed.
   const hasChanges = useMemo(() => {
     const borderChanged =
       overrides.widgetBorderWidth !== undefined ||
@@ -194,7 +190,6 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
 
   return (
     <>
-      {/* Settings Content */}
       <div className="flex-1 flex flex-col gap-6 pr-[calc(var(--preview-width,380px)+2rem)] pb-20">
         <WidgetsCustomization
           initialWidgets={currentWidgets}

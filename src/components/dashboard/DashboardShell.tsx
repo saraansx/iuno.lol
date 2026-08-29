@@ -19,7 +19,6 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
 
   useEffect(() => {
     const checkVerification = () => {
-      // Check if our 30-minute clearance cookie exists
       if (document.cookie.includes("turnstile_cleared=true")) {
         setIsVerified(true);
       } else {
@@ -46,10 +45,8 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
         />
       )}
 
-      {/* Sidebar */}
       <Sidebar username={username} userId={userId} avatarUrl={avatarUrl} decorationUrl={decorationUrl} decorationHue={decorationHue} />
 
-      {/* Main Content Area */}
       <main className="flex-1 p-4 pl-0 flex">
         <div className="flex-1 bg-[#0c0c0c] border border-white/4 rounded-[2.5rem] relative shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] overflow-hidden">
 

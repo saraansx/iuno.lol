@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected trail is downloaded — "none" downloads nothing extra.
 const FluidLineTrail = dynamic(() => import("./cursor-trails/FluidLine").then((m) => m.FluidLineTrail), { ssr: false });
 const StarsTrail = dynamic(() => import("./cursor-trails/Stars").then((m) => m.StarsTrail), { ssr: false });
 const GhostTrail = dynamic(() => import("./cursor-trails/Ghost").then((m) => m.GhostTrail), { ssr: false });

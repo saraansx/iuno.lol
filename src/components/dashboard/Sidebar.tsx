@@ -51,9 +51,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
   return (
     <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0">
       
-      {/* Top Content: Logo and Navigation */}
       <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar pt-2">
-        {/* Logo and Toggle */}
         <div className="py-4 relative flex transition-all shrink-0 items-center overflow-hidden h-[68px]">
           <Link 
             href="/" 
@@ -86,7 +84,6 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           </button>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 px-3 py-2 flex flex-col gap-6">
           {navItems.map((group: NavGroup) => (
             <div key={group.section}>
@@ -208,7 +205,6 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
         </nav>
       </div>
 
-      {/* Bottom Section - User Widget */}
       <div className={`pt-2 pb-3 shrink-0 transition-all ${open ? 'px-3' : 'px-2'}`}>
         <div className={`rounded-xl border border-white/5 bg-[#0a0a0a] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
@@ -219,7 +215,6 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                 username ? username[0] : "?"
               )}
             </div>
-            {/* Decoration Overlay */}
             {decorationUrl && (
               <div className="pointer-events-none absolute -inset-[3px] z-10">
                 <Image

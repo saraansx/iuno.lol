@@ -15,7 +15,7 @@ export const MorphingText: React.FC<MorphingTextProps> = ({ texts, className }) 
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % texts.length);
-    }, 2500); // 2.5 seconds per word
+    }, 2500);
     return () => clearInterval(timer);
   }, [texts.length]);
 

@@ -161,9 +161,7 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Account Settings Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -195,7 +193,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right Side: Live Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -233,14 +230,12 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                   </div>
                 </div>
               ) : (
-                /* Live Twitch Channel Widget Card */
                 <a
                   href={`https://twitch.tv/${encodeURIComponent(channel.login)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
                       <svg
@@ -259,7 +254,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  {/* Blurred Backdrop */}
                   {bgSrc && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -273,7 +267,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Avatar */}
                     <div className="relative shrink-0">
                       <div
                         className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border ${
@@ -296,7 +289,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                         )}
                       </div>
 
-                      {/* Mini Live Pill overlay on Avatar if live */}
                       {isCurrentlyLive && (
                         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.2 bg-[#eb0400] text-white text-[9px] font-bold uppercase rounded-[4px] tracking-wider shadow-sm z-20">
                           LIVE
@@ -304,15 +296,12 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                       )}
                     </div>
 
-                    {/* User Info & Details */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden pr-6">
-                      {/* Header Row */}
                       <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
                         <OverflowPingPong
                           deps={[channel, channel.displayName, isCurrentlyLive]}
                         >
                           <div className="flex items-center gap-1.5 shrink-0">
-                            {/* Official Twitch Purple Logo */}
                             <svg
                               width="13"
                               height="13"
@@ -327,7 +316,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                               {channel.displayName}
                             </span>
 
-                            {/* Verified Partner Badge */}
                             {showPartnerBadge && channel.isPartner && (
                               <svg
                                 width="14"
@@ -347,7 +335,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                               </svg>
                             )}
 
-                            {/* Live Indicator Pill */}
                             {isCurrentlyLive && channel.viewersCount !== null && (
                               <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-red-500/15 border border-red-500/25 shrink-0 ml-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -360,7 +347,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
                         </OverflowPingPong>
                       </div>
 
-                      {/* Subtitle Row */}
                       <div className="min-w-0 overflow-hidden">
                         {isCurrentlyLive ? (
                           <OverflowPingPong
@@ -418,7 +404,6 @@ export default function TwitchClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Customization Container */}
         <TwitchCustomization
           placement={placement}
           onPlacementChange={setPlacement}

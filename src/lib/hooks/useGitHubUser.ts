@@ -11,8 +11,6 @@ export function useGitHubUser(username: string) {
     .replace(/\/$/, "");
   const isValidUser = /^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(cleanUsername);
 
-  // Wait for typing to settle before spending a GitHub API call. An invalid
-  // username debounces to "" at once, so the preview clears immediately.
   const { value: fetchUsername, isPending } = useDebouncedValue(isValidUser ? cleanUsername : "");
 
   const [data, setData] = useState<GitHubUserData | null>(null);
@@ -61,8 +59,6 @@ export function useGitHubUser(username: string) {
     };
   }, [fetchUsername]);
 
-  // While the typed username is ahead of the fetched one, report the loading
-  // state instead of the account the hook still holds.
   const isReady = isValidUser && !isPending;
 
   return {

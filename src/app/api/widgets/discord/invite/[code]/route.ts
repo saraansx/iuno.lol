@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-// Responses are never statically cached by Next.js; freshness is controlled by the
-// Redis cache below (1 hour), so member counts can lag by up to that window.
 export const dynamic = "force-dynamic";
 
 export interface DiscordServerData {
@@ -55,8 +53,6 @@ export async function GET(
 
     const data = await res.json();
 
-    // Map guild fields explicitly instead of storing Discord's raw object — that
-    // passthrough cached ~650B of unused `features` plus undeclared nsfw/premium fields.
     const guild = data.guild
       ? {
           id: data.guild.id,

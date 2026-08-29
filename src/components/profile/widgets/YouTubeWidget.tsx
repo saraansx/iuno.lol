@@ -34,8 +34,6 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
 
   const isVideoMode = mode === "latest-video";
 
-  // The raw upstream image URL depends on the chosen source; video-thumbnail
-  // falls back to the channel avatar when the channel has no uploads.
   const rawImageUrl =
     imageSource === "video-thumbnail"
       ? data?.video?.thumbnailUrl || data?.avatarUrl || ""
@@ -49,8 +47,6 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
     ? `/api/widgets/youtube/image?url=${encodeURIComponent(data.bannerUrl)}`
     : "";
 
-  // The card has one backdrop slot. The editor keeps these two mutually
-  // exclusive; if a stored record has both, the banner wins.
   const bannerSrc = showBanner && bannerUrl ? bannerUrl : null;
   const bgSrc = !bannerSrc && showBackground ? imageUrl : null;
 
@@ -80,14 +76,12 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Channel Banner Backdrop */}
       {bannerSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -100,7 +94,6 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
         </div>
       )}
 
-      {/* Blurred Image Backdrop */}
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -114,7 +107,6 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Image (channel avatar or video thumbnail) */}
         <div
           className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -132,9 +124,7 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
           )}
         </div>
 
-        {/* Title & Stats */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Title row with ping-pong overflow scroll */}
           <OverflowPingPong deps={[data, title, subtitle, isVideoMode]}>
             <div className="flex items-center gap-1.5 shrink-0">
               <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
@@ -148,7 +138,6 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
             </div>
           </OverflowPingPong>
 
-          {/* Stats row with ping-pong overflow scroll */}
           <OverflowPingPong
             deps={[
               data,

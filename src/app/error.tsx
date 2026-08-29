@@ -12,9 +12,6 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log to console. digest is Next.js's server-side
-    // error ID — always include it so you can correlate issues with
-    // Vercel function logs.
     console.error("[error.tsx]", error);
   }, [error]);
 

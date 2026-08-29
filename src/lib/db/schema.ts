@@ -15,8 +15,6 @@ import {
 
 import { relations } from 'drizzle-orm'
 
-// ── Users ──────────────────────────────────────────────────────────────────
-
 export const users = mysqlTable('users', {
   id: int('id').primaryKey().autoincrement(),
   username: varchar('username', { length: 32 }).notNull().unique(),
@@ -99,8 +97,6 @@ export const userSettings = mysqlTable('user_settings', {
   bioFontWeight: int('bio_font_weight').default(400),
   bioLetterSpacing: float('bio_letter_spacing').default(0),
   bioColor: varchar('bio_color', { length: 32 }).default('#FFFFFF'),
-  // Which edge the description text aligns to. Defaults to center, which is how
-  // the bio rendered before this was configurable.
   bioAlign: mysqlEnum('bio_align', ['left', 'center', 'right']).default('center'),
   otherFont: varchar('other_font', { length: 50 }).default('Inter'),
   otherFontSize: int('other_font_size').default(13),
@@ -110,55 +106,23 @@ export const userSettings = mysqlTable('user_settings', {
   highlightFontWeight: int('highlight_font_weight').default(400),
   highlightLetterSpacing: float('highlight_letter_spacing').default(0),
   otherLetterSpacing: float('other_letter_spacing').default(0),
-  // The brand blue, not white: these drive the small detail chips and the feedback /
-  // comment / views accents, which read as UI rather than body text.
   otherColor: varchar('other_color', { length: 32 }).default('#5b6cf5'),
   widgetPrimaryTextColor: varchar('widget_primary_text_color', { length: 32 }).default('#FFFFFF'),
   widgetSecondaryTextColor: varchar('widget_secondary_text_color', { length: 32 }).default('#FFFFFF'),
   widgetBorderColor: varchar('widget_border_color', { length: 32 }).default('#FFFFFF'),
   widgetBorderOpacity: int('widget_border_opacity').default(10),
-  // Defaults match the card shell's own `border` (1px) and `rounded-[24px]`, so
-  // an untouched setting renders exactly as the hardcoded widget did.
   widgetBorderWidth: float('widget_border_width').default(1),
   widgetBorderRadius: float('widget_border_radius').default(24),
-  // Widget text font. Size default matches the most common hardcoded widget size
-  // (12.5px) and acts as the base the other sizes scale against; weight matches the
-  // `font-normal` the cards already use. Spacing 0 means "leave the card's own
-  // tracking alone" rather than "flatten it to zero" — see widgetThemeStyle.
   widgetFont: varchar('widget_font', { length: 50 }).default('Inter'),
   widgetFontSize: float('widget_font_size').default(12.5),
   widgetFontWeight: int('widget_font_weight').default(400),
   widgetLetterSpacing: float('widget_letter_spacing').default(0),
-  // How the profile is assembled: 'standard' is the single-card page every profile
-  // has today; 'sectioned' is the navigable multi-section variant. Stored as a
-  // string rather than a boolean so a third structure does not need a migration.
   profileStructure: varchar('profile_structure', { length: 20 }).default('standard'),
-  // Which arrangement the standard card uses: how the avatar and the text blocks
-  // are placed relative to each other. Stored as a string so new arrangements do
-  // not need a migration.
   profilePreset: varchar('profile_preset', { length: 20 }).default('classic'),
-  // Whether the profile content sits inside the card shell. Off renders the same
-  // content with no background, border or shadow behind it. Defaults true so every
-  // existing profile keeps the card it already had.
   wrapInCard: boolean('wrap_in_card').default(true),
-  // Max width of the profile card in px. Default matches the `max-w-[764px]` the
-  // card was built at, so an untouched profile is unchanged. Floor is 480: below
-  // that the two-column rows inside the card start colliding.
   contentWidth: int('content_width').default(764),
-  // Whether the card's content is centred or left-aligned. 'center' reproduces how
-  // the card has always rendered, so an untouched profile is unchanged.
   contentAlignment: varchar('content_alignment', { length: 10 }).default('center'),
-  // Where the avatar sits relative to the name: 'top' above it, 'left'/'right'
-  // beside it, 'floating' overlapping the card edge.
   avatarPlacement: varchar('avatar_placement', { length: 20 }).default('floating'),
-  // Where each profile detail renders: 'top' | 'beside' | 'bottom-profile' |
-  // 'bottom-page' | 'hidden'. Defaults reproduce the arrangement these details had
-  // before the setting existed, so an untouched profile is unchanged.
-  //
-  // These sit alongside the existing enable toggles (joinDateEnabled, viewsEnabled,
-  // feedbackEnabled) rather than replacing them: the toggle stays the master switch
-  // and the placement decides where a shown detail goes. A detail is rendered only
-  // when its toggle is on AND its placement is not 'hidden'.
   joinDatePlacement: varchar('join_date_placement', { length: 20 }).default('bottom-profile'),
   locationPlacement: varchar('location_placement', { length: 20 }).default('beside'),
   occupationPlacement: varchar('occupation_placement', { length: 20 }).default('beside'),
@@ -288,8 +252,6 @@ export const userSettingsRelations = relations(userSettings, ({ one }) => ({
   }),
 }))
 
-// ── OTP / Verification tokens ──────────────────────────────────────────────
-
 export const otpTokens = mysqlTable('otp_tokens', {
   id: int('id').primaryKey().autoincrement(),
   email: varchar('email', { length: 255 }).notNull(),
@@ -299,8 +261,6 @@ export const otpTokens = mysqlTable('otp_tokens', {
 }, (table) => ({
   emailIdx: index('email_idx').on(table.email),
 }))
-
-// ── Email verification tokens ──────────────────────────────────────────────
 
 export const verificationTokens = mysqlTable('verification_tokens', {
   id: int('id').primaryKey().autoincrement(),
@@ -312,8 +272,6 @@ export const verificationTokens = mysqlTable('verification_tokens', {
   emailIdx: index('email_idx').on(table.email),
 }))
 
-// ── Password reset tokens ──────────────────────────────────────────────────
-
 export const passwordResetTokens = mysqlTable('password_reset_tokens', {
   id: int('id').primaryKey().autoincrement(),
   email: varchar('email', { length: 255 }).notNull(),
@@ -323,8 +281,6 @@ export const passwordResetTokens = mysqlTable('password_reset_tokens', {
 }, (table) => ({
   emailIdx: index('email_idx').on(table.email),
 }))
-
-// ── Profile views (per-day tracking) ───────────────────────────────────────
 
 export const profileViews = mysqlTable('profile_views', {
   id: int('id').primaryKey().autoincrement(),
@@ -341,18 +297,12 @@ export const profileViews = mysqlTable('profile_views', {
   viewDateIdx: index('view_date_idx').on(table.viewDate),
 }))
 
-
-
-// ── Affiliate codes ────────────────────────────────────────────────────────
-
 export const affiliateCodes = mysqlTable('affiliate_codes', {
   id: int('id').primaryKey().autoincrement(),
   code: varchar('code', { length: 32 }).notNull().unique(),
   userId: int('user_id').references(() => users.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
-
-// ── Comments ───────────────────────────────────────────────────────────────
 
 export const profileComments = mysqlTable('profile_comments', {
   id: int('id').primaryKey().autoincrement(),
@@ -361,7 +311,7 @@ export const profileComments = mysqlTable('profile_comments', {
   content: varchar('content', { length: 2000 }).notNull(),
   isPinned: boolean('is_pinned').default(false).notNull(),
   likesCount: int('likes_count').default(0).notNull(),
-  replyToId: int('reply_to_id').references((): AnyMySqlColumn => profileComments.id, { onDelete: 'cascade' }), // optional parent comment ID
+  replyToId: int('reply_to_id').references((): AnyMySqlColumn => profileComments.id, { onDelete: 'cascade' }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
@@ -405,9 +355,6 @@ export const commentLikesRelations = relations(commentLikes, ({ one }) => ({
   }),
 }))
 
-
-// ── Profile Feedback ───────────────────────────────────────────────────────
-
 export const profileFeedback = mysqlTable('profile_feedback', {
   id: int('id').primaryKey().autoincrement(),
   receiverId: int('receiver_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -431,9 +378,6 @@ export const profileFeedbackRelations = relations(profileFeedback, ({ one }) => 
     relationName: 'feedback_given',
   }),
 }))
-
-
-// ── Re-export as schema object for Drizzle relational queries ──────────────
 
 export const schema = {
   users,

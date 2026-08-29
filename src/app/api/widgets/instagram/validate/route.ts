@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Try fetching live data, fallback to placeholder if Instagram blocks server IP
     const data = (await fetchInstagramUserData(cleanUsername)) || {
       username: cleanUsername,
       fullName: cleanUsername,

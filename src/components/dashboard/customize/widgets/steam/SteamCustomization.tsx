@@ -62,13 +62,10 @@ export default function SteamCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Show Level */}
         <SteamToggleSetting
           label="Show level"
           description="Display current Steam account level badge."
@@ -76,7 +73,6 @@ export default function SteamCustomization({
           onChange={onShowLevelChange}
         />
 
-        {/* Show Games */}
         <SteamToggleSetting
           label="Show games count"
           description="Display total number of owned games in library."
@@ -84,7 +80,6 @@ export default function SteamCustomization({
           onChange={onShowGamesChange}
         />
 
-        {/* Show Member Since */}
         <SteamToggleSetting
           label="Show member since"
           description="Display account creation year badge."
@@ -92,7 +87,6 @@ export default function SteamCustomization({
           onChange={onShowMemberSinceChange}
         />
 
-        {/* Show Avatar Frame */}
         <SteamToggleSetting
           label="Show avatar frame"
           description="Display customized Steam Points Shop avatar frame if equipped."
@@ -100,7 +94,6 @@ export default function SteamCustomization({
           onChange={onShowAvatarFrameChange}
         />
 
-        {/* Show Animated Avatar */}
         <SteamToggleSetting
           label="Show animated avatar"
           description="Use animated avatar image if equipped on Steam profile."
@@ -108,14 +101,12 @@ export default function SteamCustomization({
           onChange={onShowAnimatedAvatarChange}
         />
 
-        {/* Profile Background */}
         <SteamBackgroundSetting
           value={background}
           onChange={onBackgroundChange}
           disabled={showBackgroundImage}
         />
 
-        {/* Background Image (blurred avatar) */}
         <SteamToggleSetting
           label="Background image"
           description={
@@ -128,7 +119,6 @@ export default function SteamCustomization({
           disabled={background !== "none"}
         />
 
-        {/* Show View Button */}
         <SteamToggleSetting
           label="Show redirect button"
           description="Display link out button to open profile on Steam."

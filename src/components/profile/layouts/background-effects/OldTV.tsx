@@ -1,13 +1,10 @@
 "use client";
 
 export function OldTVEffect({ intensity = 50 }: { intensity?: number }) {
-  // Intensity scales the opacity of the static noise. Cap at a higher opacity (0.35) for more grain.
   const staticOpacity = (intensity / 100) * 0.35; 
   
-  // Scale the scanline darkness with intensity (between 0.15 and 0.45)
   const scanlineDarkness = 0.15 + (intensity / 100) * 0.3;
   
-  // Scale the vignette darkness with intensity (between 0.5 and 0.95)
   const vignetteDarkness = 0.5 + (intensity / 100) * 0.45;
 
   return (
@@ -19,10 +16,8 @@ export function OldTVEffect({ intensity = 50 }: { intensity?: number }) {
         }
       `}</style>
       
-      {/* Container for the TV effects */}
       <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
         
-        {/* 1. Static Noise Effect */}
         <div 
           className="absolute inset-0"
           style={{
@@ -32,7 +27,6 @@ export function OldTVEffect({ intensity = 50 }: { intensity?: number }) {
           }}
         />
 
-        {/* 2. Scanlines Effect */}
         <div 
           className="absolute inset-0"
           style={{
@@ -41,7 +35,6 @@ export function OldTVEffect({ intensity = 50 }: { intensity?: number }) {
           }}
         />
 
-        {/* 3. Vignette (Dark Corners) */}
         <div 
           className="absolute inset-0"
           style={{

@@ -3,14 +3,11 @@
 import { useEffect, useRef } from "react";
 import { hexToRgb } from "@/lib/utils";
 
-// The ribbon is a chain of points: the head chases the cursor and every other
-// point chases the one ahead of it. The lag is what reads as silk.
 const POINT_COUNT = 24;
 const HEAD_EASE = 0.5;
 const CHAIN_EASE = 0.32;
 const MAX_WIDTH = 4;
 
-// Outer pass is the neon bloom, inner pass is the bright core.
 const PASSES = [
   { widthScale: 2.4, alpha: 0.2, blur: 20 },
   { widthScale: 1, alpha: 0.95, blur: 8 },
@@ -30,7 +27,6 @@ export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // Touch pointers have no hover state to trail behind.
     if (!window.matchMedia("(pointer: fine)").matches) return;
 
     const ctx = canvas.getContext("2d");
@@ -62,8 +58,6 @@ export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
       target.x = e.clientX - rect.left;
       target.y = e.clientY - rect.top;
 
-      // First sample collapses the whole chain onto the cursor so the ribbon
-      // grows out of it instead of whipping in from the corner.
       if (!seeded) {
         seeded = true;
         for (const p of points) {
@@ -91,7 +85,6 @@ export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
           const curr = points[i];
           const next = points[i + 1];
 
-          // Taper both width and opacity toward the tail.
           const taper = 1 - i / last;
 
           ctx.beginPath();
@@ -117,7 +110,6 @@ export function FluidLineTrail({ color = "#ffffff" }: { color?: string }) {
           points[i].y += (points[i - 1].y - points[i].y) * CHAIN_EASE;
         }
 
-        // Once the chain has caught up it is a single dot — leave it out.
         const tail = points[points.length - 1];
         const spread = Math.hypot(head.x - tail.x, head.y - tail.y);
         if (spread > 1.5) draw();

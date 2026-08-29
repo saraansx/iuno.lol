@@ -31,8 +31,6 @@ export default function WidgetStyleCustomization({
     return color;
   };
 
-  // Opacity is left alone: randomising it can make the card outline vanish, which
-  // reads as the button having broken something rather than restyled it.
   const handleRandomize = () => {
     setPrimaryTextColor(getRandomHex());
     setSecondaryTextColor(getRandomHex());
@@ -77,7 +75,6 @@ export default function WidgetStyleCustomization({
         </div>
 
         <div className="flex flex-col gap-2">
-          {/* Primary Text */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'primary' ? null : 'primary')}
@@ -111,7 +108,6 @@ export default function WidgetStyleCustomization({
             )}
           </div>
 
-          {/* Secondary Text */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'secondary' ? null : 'secondary')}
@@ -145,7 +141,6 @@ export default function WidgetStyleCustomization({
             )}
           </div>
 
-          {/* Border Color */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'border' ? null : 'border')}

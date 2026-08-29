@@ -83,7 +83,6 @@ export default function RecentComments({
     const currentList = isReceived ? received : given;
     const setList = isReceived ? setReceived : setGiven;
 
-    // Optimistic UI update (list + total count)
     setList(currentList.filter(c => c.id !== commentId && c.replyToId !== commentId));
     if (isReceived) setReceivedTotal(t => Math.max(0, t - 1));
     else setGivenTotal(t => Math.max(0, t - 1));
@@ -91,13 +90,11 @@ export default function RecentComments({
     try {
       const res = await deleteComment(commentId, profileId);
       if (res.success) {
-        // If we just removed the last item on a page, step back one page
         if (currentList.length === 1 && currentPage > 1) {
           fetchComments(currentPage - 1, activeTab);
           return;
         }
       } else {
-        // Failure: restore the current page of both tabs
         fetchComments(currentPage, activeTab);
         fetchComments(isReceived ? givenPage : receivedPage, isReceived ? "given" : "received");
       }
@@ -108,7 +105,6 @@ export default function RecentComments({
   };
 
   const handleLike = async (commentId: number) => {
-    // Optimistic UI update for both lists
     const updater = (prev: CommentData[]) => prev.map(c =>
       c.id === commentId
         ? { ...c, isLiked: !c.isLiked, likesCount: c.isLiked ? Math.max(0, c.likesCount - 1) : c.likesCount + 1 }
@@ -130,7 +126,6 @@ export default function RecentComments({
   };
 
   const handlePin = async (commentId: number, profileId: number) => {
-    // Optimistic UI update for received list (you can only pin comments on your profile)
     const updater = (prev: CommentData[]) => prev.map(c =>
       c.id === commentId
         ? { ...c, isPinned: !c.isPinned }
@@ -223,9 +218,7 @@ export default function RecentComments({
                         {format(new Date(comment.createdAt), "MM/dd/yyyy, hh:mm a")}
                       </span>
 
-                      {/* Interaction icons */}
                       <div className="flex items-center gap-2.5">
-                        {/* Likes */}
                         <button
                           onClick={() => handleLike(comment.id)}
                           className={`flex items-center justify-center transition-colors focus:outline-none gap-1.5 ${comment.isLiked ? 'text-[#ff4b4b]' : 'text-white/40 hover:text-white'}`}
@@ -237,7 +230,6 @@ export default function RecentComments({
                           {comment.likesCount > 0 && <span className="text-[12px] font-medium leading-none">{comment.likesCount}</span>}
                         </button>
 
-                        {/* Pin */}
                         {activeTab === "received" ? (
                           <button
                             onClick={() => handlePin(comment.id, comment.profileId)}
@@ -256,7 +248,6 @@ export default function RecentComments({
                           </div>
                         ) : null}
 
-                        {/* Delete */}
                         <button
                           onClick={() => handleDelete(comment.id, comment.profileId)}
                           className="flex items-center justify-center text-white/40 hover:text-red-500 transition-colors focus:outline-none"
@@ -280,7 +271,6 @@ export default function RecentComments({
         )}
       </div>
 
-      {/* Page nav arrows */}
       {(received.length > 0 || given.length > 0) && (
         <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-white/5 shrink-0">
           <button

@@ -75,7 +75,6 @@ export default function CardTransitionSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Card Effect */}
         <div className="flex flex-col gap-3">
           <label className="text-[12.5px] font-medium text-white/90">
             Card Effect
@@ -134,7 +133,6 @@ export default function CardTransitionSection({
           </div>
         </div>
 
-        {/* Card Transition */}
         <div className="flex flex-col gap-3">
           <label className="text-[12.5px] font-medium text-white/90">
             Card Transition

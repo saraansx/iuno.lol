@@ -24,7 +24,6 @@ export function RainEffect({ intensity = 50, color = "#ffffff" }: { intensity?: 
     canvas.height = height * dpr;
     ctx.scale(dpr, dpr);
 
-    // Handle resize
     const handleResize = () => {
       if (!canvas) return;
       width = canvas.offsetWidth;

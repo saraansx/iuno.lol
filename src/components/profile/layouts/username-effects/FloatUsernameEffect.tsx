@@ -1,18 +1,7 @@
 "use client";
 
-const FLOAT_DURATION = 3200; // ms for one full float cycle
+const FLOAT_DURATION = 3200;
 
-/**
- * FloatUsernameEffect
- *
- * Drifts the wrapped element along a smooth elliptical path — rises and sways
- * side to side while tilting slightly, then returns, repeating forever. The
- * keyframes are 8 parametric samples of an ellipse with `linear` timing so
- * the speed is constant along the path: no ease-in-out micro-pauses at
- * keyframe boundaries, which is what causes the "stiff" feel.
- *
- * Wraps children (the username <h1>) so its styling is preserved.
- */
 export default function FloatUsernameEffect({ children }: { children: React.ReactNode }) {
   return (
     <span

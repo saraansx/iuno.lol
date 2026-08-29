@@ -98,7 +98,6 @@ export function StarsTrail({ color = "#ffffff" }: { color?: string }) {
         const dy = y - lastMousePos.y;
         const dist = Math.hypot(dx, dy);
 
-        // Spawn particles based on distance moved
         if (dist > 4) {
           const count = Math.min(3, Math.floor(dist / 8) + 1);
           for (let i = 0; i < count; i++) {
@@ -111,7 +110,7 @@ export function StarsTrail({ color = "#ffffff" }: { color?: string }) {
                 x: x + (Math.random() - 0.5) * 8,
                 y: y + (Math.random() - 0.5) * 8,
                 vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed - 0.2, // slight upward drift
+                vy: Math.sin(angle) * speed - 0.2,
                 size: 4 + Math.random() * 6,
                 rotation: Math.random() * Math.PI,
                 rotationSpeed: (Math.random() - 0.5) * 0.1,
@@ -147,17 +146,15 @@ export function StarsTrail({ color = "#ffffff" }: { color?: string }) {
             continue;
           }
 
-          const progress = p.life / p.maxLife; // 1 down to 0
+          const progress = p.life / p.maxLife;
           const alpha = progress * 0.9;
           const currentSize = p.size * (0.4 + 0.6 * progress);
 
-          // Glow pass
           ctx.shadowBlur = 10;
           ctx.shadowColor = `rgba(${rgb}, ${alpha})`;
           ctx.fillStyle = `rgba(${rgb}, ${alpha})`;
           drawFourPointStar(ctx, p.x, p.y, currentSize, p.rotation);
 
-          // Core bright pass
           ctx.shadowBlur = 3;
           ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.9})`;
           drawFourPointStar(ctx, p.x, p.y, currentSize * 0.5, p.rotation);

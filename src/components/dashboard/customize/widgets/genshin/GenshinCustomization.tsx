@@ -57,13 +57,10 @@ export default function GenshinCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Background Card (namecard artwork) */}
         <GenshinToggleSetting
           label="Background card"
           description={
@@ -76,7 +73,6 @@ export default function GenshinCustomization({
           disabled={showBackgroundImage}
         />
 
-        {/* Background Image (blurred avatar) */}
         <GenshinToggleSetting
           label="Background image"
           description={
@@ -89,7 +85,6 @@ export default function GenshinCustomization({
           disabled={showBackground}
         />
 
-        {/* Show Region */}
         <GenshinToggleSetting
           label="Show server region"
           description="Display player's server region badge (NA, EU, ASIA, SAR, CN)."
@@ -97,7 +92,6 @@ export default function GenshinCustomization({
           onChange={onShowRegionChange}
         />
 
-        {/* Show Adventure Rank */}
         <GenshinToggleSetting
           label="Show Adventure Rank"
           description="Display player's Adventure Rank level (AR)."
@@ -105,7 +99,6 @@ export default function GenshinCustomization({
           onChange={onShowArChange}
         />
 
-        {/* Show World Level */}
         <GenshinToggleSetting
           label="Show World Level"
           description="Display player's current world level tier."
@@ -113,7 +106,6 @@ export default function GenshinCustomization({
           onChange={onShowWorldLevelChange}
         />
 
-        {/* Show Achievements */}
         <GenshinToggleSetting
           label="Show achievements count"
           description="Display completed achievements counter."
@@ -121,7 +113,6 @@ export default function GenshinCustomization({
           onChange={onShowAchievementsChange}
         />
 
-        {/* Show View Button */}
         <GenshinToggleSetting
           label="Show redirect button"
           description="Display link out button to open player profile on Enka.Network."

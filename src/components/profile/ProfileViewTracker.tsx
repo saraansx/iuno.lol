@@ -23,8 +23,6 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
 
     const trackView = async () => {
       try {
-        // The owner-view check is enforced server-side in /api/track-view from
-        // the session cookie, so no viewer-id lookup is needed here.
         const fp = await fpPromise.load();
         const result = await fp.get();
         const fingerprint = result.visitorId;
@@ -46,5 +44,5 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     trackView();
   }, [profileId]);
 
-  return null; // Invisible component
+  return null;
 }

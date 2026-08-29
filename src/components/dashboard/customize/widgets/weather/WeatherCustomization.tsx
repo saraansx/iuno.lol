@@ -46,13 +46,10 @@ export default function WeatherCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Temperature Unit */}
         <TemperatureUnitSetting value={unit} onChange={onUnitChange} />
 
-        {/* Show Condition */}
         <WeatherToggleSetting
           label="Show condition"
           description="Display the weather condition text (e.g. 'Partly cloudy')."
@@ -60,7 +57,6 @@ export default function WeatherCustomization({
           onChange={onShowConditionChange}
         />
 
-        {/* Show Feels Like */}
         <WeatherToggleSetting
           label="Show feels like"
           description="Display the perceived temperature in addition to the actual one."
@@ -68,7 +64,6 @@ export default function WeatherCustomization({
           onChange={onShowFeelsLikeChange}
         />
 
-        {/* Show Location */}
         <WeatherToggleSetting
           label="Show location"
           description="When on, the title shows the city; when off, the title shows the temperature."
@@ -76,7 +71,6 @@ export default function WeatherCustomization({
           onChange={onShowLocationChange}
         />
 
-        {/* Atmospheric Background */}
         <WeatherToggleSetting
           label="Atmospheric background"
           description="Add a subtle sky or night gradient behind the card, matching the current conditions."

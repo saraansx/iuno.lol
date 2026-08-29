@@ -10,7 +10,6 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-// Only one group is expanded at a time, matching the Appearance page's accordions.
 type FontGroupKey = "username" | "description" | "other" | "highlight" | "widgets";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
@@ -35,7 +34,6 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const initialHighlightFontWeight = user?.highlightFontWeight ?? 500;
   const initialHighlightLetterSpacing = user?.highlightLetterSpacing ?? 0;
 
-  // Defaults mirror the sizes the widget cards were built at.
   const initialWidgetFont = user?.widgetFont ?? "Inter";
   const initialWidgetFontSize = user?.widgetFontSize ?? 12.5;
   const initialWidgetFontWeight = user?.widgetFontWeight ?? 400;

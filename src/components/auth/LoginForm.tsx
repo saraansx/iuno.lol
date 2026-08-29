@@ -37,7 +37,6 @@ const LoginForm = () => {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-
   const tabs: { id: LoginMethod; label: string; icon: React.ReactNode }[] = [
     {
       id: "password",
@@ -91,7 +90,6 @@ const LoginForm = () => {
       setShowTurnstileModal(true);
       return;
     }
-
 
     if (validate()) {
       setShowTurnstileModal(true);
@@ -155,9 +153,7 @@ const LoginForm = () => {
         onClose={() => setShowTurnstileModal(false)}
         onSuccess={handleTurnstileSuccess}
       />
-      {/* Method Switcher */}
       <div className="w-full bg-white/2 border border-white/5 rounded-xl p-1 flex relative">
-        {/* Sliding indicator */}
         <motion.div
           className="absolute top-1 bottom-1 bg-[#609fda]/20 rounded-lg shadow-[0_0_15px_rgba(96,159,218,0.1)]"
           initial={false}
@@ -184,7 +180,6 @@ const LoginForm = () => {
         ))}
       </div>
 
-      {/* Email - always visible */}
       <FloatingInput
         id="email"
         label="Email Address"
@@ -195,7 +190,6 @@ const LoginForm = () => {
         autoComplete="email"
       />
 
-      {/* Password fields */}
       {method === "password" && (
         <motion.div
           key="password-fields"
@@ -222,7 +216,6 @@ const LoginForm = () => {
         </motion.div>
       )}
 
-      {/* OTP fields */}
       {method === "otp" && (
         <motion.div
           key="otp-fields"
@@ -271,7 +264,6 @@ const LoginForm = () => {
         </motion.div>
       )}
 
-      {/* Submit Button */}
       <Button 
         type="submit" 
         disabled={isPending}
@@ -289,11 +281,8 @@ const LoginForm = () => {
       {error && <p className="text-red-400 text-xs mt-2 text-center">{error}</p>}
       {success && <p className="text-emerald-500 text-xs mt-2 text-center">{success}</p>}
 
-
-      {/* Divider */}
       <div className="my-3 border-t border-white/5" />
 
-      {/* Discord */}
       <button
         type="button"
         onClick={() => window.location.href = '/api/auth/discord'}

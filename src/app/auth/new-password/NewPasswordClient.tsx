@@ -18,7 +18,6 @@ export default function NewPasswordClient() {
           <NewPasswordForm />
         </Suspense>
 
-        {/* BACK TO SIGN IN LINK */}
         <div className="mt-8 text-center">
           <p className="text-xs text-white/40 font-light">
             Remember your password?{" "}

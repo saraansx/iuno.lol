@@ -25,7 +25,6 @@ export function useWeather(
 
   const cleanLocation = cleanWeatherLocation(location);
 
-  // Wait for typing to settle before hitting the geocoder.
   const { value: fetchLocation, isPending } = useDebouncedValue(cleanLocation);
 
   useEffect(() => {
@@ -86,8 +85,6 @@ export function useWeather(
     };
   }, [fetchLocation, enabled, trigger, refetchInterval]);
 
-  // While the typed location is ahead of the fetched one, report the loading
-  // state instead of the reading the hook still holds.
   return {
     weather: isPending ? null : weather,
     isLoading: isPending || isLoading,

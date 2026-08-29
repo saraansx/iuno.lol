@@ -20,7 +20,6 @@ export default function ZoomCardEffect({ children, className = "" }: ZoomCardEff
     const mouseX = e.clientX - centerX;
     const mouseY = e.clientY - centerY;
 
-    // Slight perspective tilt toward the cursor while zoomed
     const rotateY = (mouseX / (rect.width / 2)) * 4;
     const rotateX = -(mouseY / (rect.height / 2)) * 4;
 

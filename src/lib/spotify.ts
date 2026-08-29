@@ -7,7 +7,6 @@ export interface SpotifyItemData {
   subtitle?: string | null;
   imageUrl: string | null;
   externalUrl: string;
-  // Specific fields:
   artistName?: string | null;
   albumName?: string | null;
   trackCount?: number | null;
@@ -24,13 +23,11 @@ export function parseSpotifyIdentifier(input: string): {
   const clean = (input || "").trim();
   if (!clean) return { type: null, id: null };
 
-  // Username for Spotify User (can be alphanumeric, query params, etc)
   const userUrlMatch = clean.match(/https?:\/\/(?:open|play)\.spotify\.com\/(?:intl-[a-z]{2}\/)?user\/([a-zA-Z0-9_.-]+)/i);
   if (userUrlMatch) {
     return { type: "user", id: userUrlMatch[1] };
   }
 
-  // Match URI: spotify:track:7DlpqkrDONZOjFRDFkRqGb
   const uriMatch = clean.match(/^spotify:(track|album|playlist|artist|user):([a-zA-Z0-9_.-]+)$/i);
   if (uriMatch) {
     return {
@@ -39,7 +36,6 @@ export function parseSpotifyIdentifier(input: string): {
     };
   }
 
-  // Match URL: https://open.spotify.com/track/7DlpqkrDONZOjFRDFkRqGb?si=...
   const urlMatch = clean.match(/https?:\/\/(?:open|play)\.spotify\.com\/(?:intl-[a-z]{2}\/)?(track|album|playlist|artist|user)\/([a-zA-Z0-9_.-]+)/i);
   if (urlMatch) {
     return {
@@ -48,7 +44,6 @@ export function parseSpotifyIdentifier(input: string): {
     };
   }
 
-  // Raw ID (alphanumeric, e.g. Spotify user ID or 22-char resource ID)
   if (/^[a-zA-Z0-9_.-]{3,64}$/.test(clean)) {
     return { type: null, id: clean };
   }

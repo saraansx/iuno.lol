@@ -157,8 +157,6 @@ export default function ColorBends({
   const pointerCurrentRef = useRef<THREE.Vector2>(new THREE.Vector2(0, 0));
   const pointerSmoothRef = useRef<number>(8);
 
-  // Mount effect initializes the renderer once; the effect below keeps
-  // uniforms in sync when props change (react-bits pattern).
   useEffect(() => {
     const container = containerRef.current!;
     const scene = new THREE.Scene();
@@ -255,7 +253,7 @@ export default function ColorBends({
     const handleVisibilityChange = () => {
       isVisible = !document.hidden;
       if (isVisible && rafRef.current === null) {
-        timer.update(); // Prevent delta time spike on tab reactivation
+        timer.update();
         rafRef.current = requestAnimationFrame(loop);
       } else if (!isVisible && rafRef.current !== null) {
         cancelAnimationFrame(rafRef.current);

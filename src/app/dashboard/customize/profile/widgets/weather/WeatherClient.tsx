@@ -23,7 +23,6 @@ import {
 import WidgetSkeleton from "@/components/profile/widgets/WidgetSkeleton";
 import { toast } from "sonner";
 
-/** Mirrors the gradients in WeatherWidget so the preview matches the live card. */
 const SKY_GRADIENTS: Record<string, { day: string; night: string }> = {
   clear: {
     day: "from-[#2b7fd4]/45 via-[#4aa3e8]/25 to-transparent",
@@ -211,9 +210,7 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Location Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Location</h2>
@@ -247,7 +244,6 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right Side: Live Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -285,9 +281,7 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
                   </div>
                 </div>
               ) : (
-                /* Live Weather Widget Card */
                 <div className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 flex items-center justify-between relative box-border">
-                  {/* Atmospheric sky gradient */}
                   {showBackground && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       <div className={`absolute inset-0 bg-gradient-to-br ${skyClass}`} />
@@ -296,7 +290,6 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Condition Illustration */}
                     <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
                       <WeatherConditionIcon
                         kind={weather.icon}
@@ -306,7 +299,6 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
                       />
                     </div>
 
-                    {/* Location & Readings */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <OverflowPingPong deps={[title, showLocation, unit]}>
                         <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
@@ -358,7 +350,6 @@ export default function WeatherClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Customization Container */}
         <WeatherCustomization
           placement={placement}
           onPlacementChange={setPlacement}

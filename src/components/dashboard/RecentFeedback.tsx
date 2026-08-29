@@ -5,7 +5,6 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { getDashboardFeedback } from "@/actions/feedback";
 
-
 type FeedbackData = {
   id: number;
   receiverId: number;
@@ -85,7 +84,6 @@ export default function RecentFeedback({
     }
   }, [activeTab, receivedPage, givenPage, receivedHasMore, givenHasMore]);
 
-
   const data = activeTab === "received" ? received : given;
   const page = activeTab === "received" ? receivedPage : givenPage;
   const hasMore = activeTab === "received" ? receivedHasMore : givenHasMore;
@@ -129,7 +127,6 @@ export default function RecentFeedback({
               const otherUser = activeTab === "received" ? item.giver : item.receiver;
               return (
                 <div key={item.id} className="p-3 flex items-center gap-3 transition-colors bg-[#141414] hover:bg-[#1a1a1a] border border-white/5 rounded-[20px]">
-                  {/* Avatar */}
                   <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 bg-white/5 flex items-center justify-center mt-1">
                     {otherUser?.avatarUrl ? (
                       <Image src={otherUser.avatarUrl} alt={otherUser.username || "User"} width={32} height={32} className="w-full h-full object-cover" />
@@ -138,7 +135,6 @@ export default function RecentFeedback({
                     )}
                   </div>
 
-                  {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-sm font-medium text-white/90 truncate">{otherUser?.username || "Unknown user"}</span>
@@ -164,7 +160,6 @@ export default function RecentFeedback({
         )}
       </div>
 
-      {/* Page nav arrows */}
       {(received.length > 0 || given.length > 0) && (
         <div className="flex items-center justify-center gap-4 mt-4 pt-3 border-t border-white/5 shrink-0">
           <button

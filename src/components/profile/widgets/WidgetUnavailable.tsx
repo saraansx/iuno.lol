@@ -1,16 +1,3 @@
-/**
- * The failed state shared by every public widget card.
- *
- * A widget keeps pointing at whatever account was saved, and that account can
- * later be renamed, deleted, or made private — or the upstream API can simply be
- * down. Public cards used to render the loading skeleton for all of those, so a
- * visitor sat watching a grey box that was never going to fill in. This says so
- * instead, in the same shell and at the same height, so nothing on the profile
- * shifts when a widget fails.
- *
- * `label` names what failed ("TikTok account", "GitHub repository") to keep the
- * message specific on a profile carrying several widgets.
- */
 export default function WidgetUnavailable({
   imageShape,
   label,

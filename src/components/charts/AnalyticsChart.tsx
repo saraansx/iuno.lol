@@ -91,7 +91,6 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
   return (
     <div className={`bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full relative transition-opacity duration-300 opacity-100`}>
 
-      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <h2 className="text-white font-inter font-medium text-lg tracking-wide">Views</h2>
@@ -111,7 +110,6 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
         </div>
       </div>
 
-      {/* Chart */}
       <div ref={containerRef} className="h-80 w-full relative">
         {!isMounted || dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">

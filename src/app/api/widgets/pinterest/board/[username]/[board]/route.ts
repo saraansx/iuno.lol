@@ -25,7 +25,6 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
   let firstPinImage: string | null = null;
   let fetched = false;
 
-  // 1. Try Pinterest Board JSON Resource with app state headers
   const resourceUrl = `https://www.pinterest.com/resource/BoardResource/get/?data=${encodeURIComponent(
     JSON.stringify({ options: { username: cleanUsername, slug: cleanBoard } })
   )}`;
@@ -70,7 +69,6 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
             fetched = true;
           }
         } catch {
-          // ignore parse error
         }
       }
     }
@@ -78,7 +76,6 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
     console.warn("[Pinterest Board Resource Fallback]", e);
   }
 
-  // 2. Fetch Board RSS feed for pin images
   try {
     const rssRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/${encodeURIComponent(cleanBoard)}.rss`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -109,7 +106,6 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
     console.warn("[Pinterest Board RSS Parse]", e);
   }
 
-  // 3. Fallback: Public HTML scraping
   if (!fetched) {
     try {
       const htmlRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/${encodeURIComponent(cleanBoard)}/`, {

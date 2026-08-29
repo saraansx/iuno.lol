@@ -8,13 +8,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { feedbackRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 
-/**
- * Handle feedback (like / dislike / unlike / undislike) with idempotent
- * counter updates. Each action first checks whether the giver already has
- * a feedback row for this receiver, and only adjusts the counter when the
- * state is actually changing. A transaction with FOR UPDATE locks the
- * existing row to prevent races from double-counting.
- */
 export async function submitFeedbackAction(userId: number, type: 'like' | 'dislike' | 'unlike' | 'undislike') {
   const sessionUserId = await getSessionUserId();
 
@@ -30,7 +23,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
   try {
     await db.transaction(async (tx) => {
-      // Lock the existing feedback row if one exists.
       const existingRows = await tx
         .select({ type: schema.profileFeedback.type })
         .from(schema.profileFeedback)
@@ -49,7 +41,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
       switch (type) {
         case "like":
           if (existingType === "like") {
-            // Already liked — no-op.
             return { applied: false };
           }
           counterDiffs.likesCount = sql`${schema.users.likesCount} + 1`;
@@ -83,7 +74,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
           break;
       }
 
-      // Apply counter deltas if any.
       if (Object.keys(counterDiffs).length > 0) {
         await tx
           .update(schema.users)
@@ -91,7 +81,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
           .where(eq(schema.users.id, userId));
       }
 
-      // Persist the feedback row.
       if (type === "like" || type === "dislike") {
         await tx
           .insert(schema.profileFeedback)
@@ -211,7 +200,6 @@ export async function getDashboardFeedback(page: number = 1, limit: number = 4) 
       }
     }));
 
-    // Total counts for tab labels
     const [receivedTotal] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(schema.profileFeedback)

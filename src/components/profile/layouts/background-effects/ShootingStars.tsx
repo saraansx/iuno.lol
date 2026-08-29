@@ -61,19 +61,18 @@ export function ShootingStarsEffect({ intensity = 50, color = "#ffffff" }: { int
         opacity: 0,
         spawn: () => {
           star.x = Math.random() * width;
-          star.y = Math.random() * height * 0.5; // Spawn mostly in upper half
-          star.length = (Math.random() * 0.08 + 0.02) * width; // Relative length
-          star.speed = (Math.random() * 0.004 + 0.002) * width; // Relative speed
+          star.y = Math.random() * height * 0.5;
+          star.length = (Math.random() * 0.08 + 0.02) * width;
+          star.speed = (Math.random() * 0.004 + 0.002) * width;
           star.opacity = Math.random() * 0.8 + 0.2;
           star.active = true;
         },
         update: () => {
           if (!star.active) return;
           
-          // Move down and left
           star.x -= star.speed;
-          star.y += star.speed * 0.6; // Angle
-          star.opacity -= 0.005; // Fade out slower
+          star.y += star.speed * 0.6;
+          star.opacity -= 0.005;
 
           if (star.opacity <= 0 || star.x < 0 || star.y > height) {
             star.active = false;
@@ -109,7 +108,6 @@ export function ShootingStarsEffect({ intensity = 50, color = "#ffffff" }: { int
 
       ctx.clearRect(0, 0, width, height);
 
-      // Handle spawn chance based on intensity
       const spawnChance = (propsRef.current.intensity / 100) * 0.05;
 
       for (const star of stars) {

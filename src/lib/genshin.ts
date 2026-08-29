@@ -1,10 +1,10 @@
 export interface GenshinPlayerData {
   uid: string;
   nickname: string;
-  level: number; // Adventure Rank (AR)
+  level: number;
   world_level: number;
   achievements: number;
-  region: string; // "NA" | "EU" | "ASIA" | "SAR" | "CN"
+  region: string;
   avatar_url: string;
   namecard_url?: string | null;
   namecard_bg_url?: string | null;

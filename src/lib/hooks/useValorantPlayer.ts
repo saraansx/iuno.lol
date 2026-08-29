@@ -9,8 +9,6 @@ export function useValorantPlayer(riotId: string) {
   const parts = cleanInput.split("#");
   const isValidRiotId = parts.length === 2 && parts[0].length >= 3 && parts[1].length >= 3;
 
-  // Debounced as one "name#tag" string, so a half-typed Riot ID never fires a
-  // request. An incomplete value debounces to "" at once, clearing the preview.
   const { value: fetchRiotId, isPending } = useDebouncedValue(isValidRiotId ? cleanInput : "");
 
   const [data, setData] = useState<ValorantPlayerData | null>(null);
@@ -61,8 +59,6 @@ export function useValorantPlayer(riotId: string) {
     };
   }, [fetchRiotId]);
 
-  // While the typed Riot ID is ahead of the fetched one, report the loading
-  // state instead of the player the hook still holds.
   const isReady = isValidRiotId && !isPending;
 
   return {

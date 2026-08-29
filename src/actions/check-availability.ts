@@ -24,8 +24,6 @@ export async function checkAvailability({ username, email }: { username: string;
     const emailError = validateEmail(cleanEmail)
     if (emailError) return { error: emailError }
 
-    // Check both — if either exists, return the same generic message so the
-    // response never reveals which field is taken.
     const existingUser = await getUserByEmail(cleanEmail)
     if (existingUser && existingUser.emailVerified) {
       return { error: 'An account with that information already exists.' }

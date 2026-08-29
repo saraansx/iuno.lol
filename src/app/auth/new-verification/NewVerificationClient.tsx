@@ -57,7 +57,6 @@ const NewVerificationForm = () => {
     >
       <div className="bg-[#0a0a0a]/30 backdrop-blur-3xl border border-white/5 rounded-4xl p-12 shadow-2xl overflow-hidden relative">
         <div className="flex flex-col items-center text-center gap-8 relative z-10">
-          {/* Animated Icon */}
           <div className="w-16 h-16 bg-white/2 border border-white/5 rounded-2xl flex items-center justify-center relative group">
             <div className="absolute inset-0 bg-[#609fda]/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
             <svg className="text-[#609fda] relative z-10" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -80,7 +79,6 @@ const NewVerificationForm = () => {
             </p>
           </div>
 
-          {/* Minimal Status Feedback */}
           {!success && !error && (
             <div className="flex gap-1.5">
               <div className="w-1 h-1 bg-[#609fda] rounded-full animate-pulse" />

@@ -12,8 +12,6 @@ export function useGitHubRepo(repoString: string) {
   const parts = cleanRepo.split("/");
   const isValidRepo = parts.length === 2 && Boolean(parts[0]) && Boolean(parts[1]);
 
-  // Debounced as one "owner/repo" string, so a half-typed pair never fires a
-  // request. An incomplete value debounces to "" at once, clearing the preview.
   const { value: fetchRepo, isPending } = useDebouncedValue(isValidRepo ? cleanRepo : "");
 
   const [data, setData] = useState<GitHubRepoData | null>(null);
@@ -66,8 +64,6 @@ export function useGitHubRepo(repoString: string) {
     };
   }, [fetchRepo]);
 
-  // While the typed repo is ahead of the fetched one, report the loading state
-  // instead of the repository the hook still holds.
   const isReady = isValidRepo && !isPending;
 
   return {

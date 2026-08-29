@@ -66,10 +66,8 @@ export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?
           heart.y -= heart.speed;
           heart.time += heart.swaySpeed;
           
-          // Horizontal sway
           heart.x += Math.sin(heart.time) * 0.5;
 
-          // Reset if it goes above screen
           if (heart.y < -heart.size * 2) {
             heart.y = height + heart.size * 2;
             heart.x = Math.random() * width;
@@ -78,17 +76,14 @@ export function HeartsEffect({ intensity = 50, color = "#ffb6c1" }: { intensity?
         draw: (currentRgbColor: string) => {
           if (!ctx) return;
 
-          // Draw heart directly with offsets without save/restore state overhead
           const topCurveHeight = heart.size * 0.3;
           ctx.beginPath();
           ctx.moveTo(heart.x, heart.y + topCurveHeight);
-          // top left curve
           ctx.bezierCurveTo(
             heart.x - heart.size / 2, heart.y - heart.size / 2,
             heart.x - heart.size, heart.y + topCurveHeight,
             heart.x, heart.y + heart.size
           );
-          // top right curve
           ctx.bezierCurveTo(
             heart.x + heart.size, heart.y + topCurveHeight,
             heart.x + heart.size / 2, heart.y - heart.size / 2,

@@ -292,7 +292,6 @@ const AvatarInner = ({
       )}
     </div>
 
-    {/* Decoration Overlay */}
     {selectedDecoration && (
       <div className="pointer-events-none absolute -inset-2 z-10">
         <Image
@@ -433,17 +432,11 @@ const Layout1 = ({
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
 
-  // Viewer-specific state (is this visitor signed in? did they already vote?)
-  // is fetched client-side so the page HTML stays identical for every visitor
-  // and can be served from the CDN. Starts from the server-provided props
-  // (null) so there's no hydration mismatch, then hydrates after mount.
   const [viewerId, setViewerId] = useState<number | null>(viewerIdProp ?? null);
   const [viewerFeedback, setViewerFeedback] = useState<'like' | 'dislike' | null>(viewerFeedbackProp);
 
   useEffect(() => {
     if (typeof window === "undefined" || !profileId) return;
-    // Dashboard preview renders with viewerId={-1} as a sentinel that disables
-    // interactions. Keep it — don't run the real lookup or overwrite it.
     if (viewerIdProp === -1) return;
 
     const controller = new AbortController();
@@ -481,7 +474,6 @@ const Layout1 = ({
   useEffect(() => {
     if (typeof window !== "undefined" && username && viewerId !== -1) {
       const controller = new AbortController();
-      // Fetch live data (views, likes, dislikes) from the API by username (prevents enumeration)
       fetch(`/api/profile/live?username=${encodeURIComponent(username)}`, {
         signal: controller.signal,
       })
@@ -504,7 +496,6 @@ const Layout1 = ({
       };
     }
   }, [username, views, initialLikes, initialDislikes, viewerId]);
-
 
   useEffect(() => {
     if (!viewsAnimationEnabled || liveViews === 0) {
@@ -568,43 +559,19 @@ const Layout1 = ({
 
   const fontClassMap = FONT_CLASS_MAP;
 
-  // Replaces the 764px the card was built at. Clamped to the same range the save
-  // action enforces, so a hand-edited row cannot render the card unusably narrow or
-  // wide. Exposed as a custom property because CardEffect and CardTransition take
-  // only a className, so they cannot receive a style prop.
-  //
-  // Set as a width rather than a max-width, paired with `max-w-[100vw]`. A
-  // `w-full max-w-[Npx]` pair can never exceed its parent, which made the setting
-  // invisible in the narrow dashboard preview. Widening to the viewport instead
-  // keeps the card from overflowing a phone screen on the real page, while still
-  // letting it spill past the preview panel — which is how the setting reads as
-  // working there.
-  const cardWidth = `${Math.min(1000, Math.max(480, contentWidth))}px`;
+  const cardWidthPx = Math.min(1000, Math.max(480, contentWidth));
+  const cardWidth = `${cardWidthPx}px`;
 
-  // Arrangement rules live in ProfilePresetLayout so each preset is defined in one
-  // place rather than as ternaries spread through this component.
   const badgeClass = BADGE_CLASSES[getPresetLayout(profilePreset).badgePlacement];
 
-  // Alignment drives both the flex axis and text-align, so a left-aligned card reads
-  // as one column rather than centred text in a left-hugging box.
   const alignment = normalizeAlignment(contentAlignment);
   const isLeft = alignment === "left";
   const alignClass = isLeft ? "items-start text-left" : "items-center text-center";
-  // Detail rows are their own flex containers, so they need the main-axis version.
   const justifyClass = isLeft ? "justify-start" : "justify-center";
 
-  // `floating` keeps the negative margin that lets the avatar overlap the banner;
-  // `top` sits it in the flow above the name. left/right are handled by the row
-  // wrapper below, which places the avatar beside the content instead.
   const avatarPos = normalizeAvatarPlacement(avatarPlacement);
   const avatarBeside = avatarPos === "left" || avatarPos === "right";
 
-  // Resolved once so both layout branches place details identically. A detail with a
-  // master toggle (join date, views, feedback) is forced to "hidden" when that toggle
-  // is off, so the existing switches keep working as the outer gate and the placement
-  // only decides where a shown detail goes.
-  // Every hover tooltip pill shares these, so the Highlight font group drives
-  // them all from one place.
   const tooltipTextStyle: React.CSSProperties = {
     fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
     fontSize: `${highlightFontSize}px`,
@@ -635,7 +602,6 @@ const Layout1 = ({
     views: showViewsTooltip,
   };
 
-  // Small-text typography, shared by every detail chip.
   const detailTextStyle: React.CSSProperties = {
     fontFamily: fontClassMap[otherFont] || "var(--font-inter)",
     fontSize: `${otherFontSize}px`,
@@ -644,8 +610,6 @@ const Layout1 = ({
     color: otherColor,
   };
 
-  // Views and feedback are passed as nodes rather than strings: the first animates
-  // its count and the second owns its own like/dislike state.
   const detailValues = {
     location,
     occupation,
@@ -675,7 +639,6 @@ const Layout1 = ({
     ),
   };
 
-  // Rendered in each slot; `key` keeps React from reusing a chip across slots.
   const detailSlot = (
     slot: "top" | "beside" | "bottom-profile" | "bottom-page",
     className = "",
@@ -694,9 +657,34 @@ const Layout1 = ({
     />
   );
 
+  // Rendered outside the content column rather than in it, so the row spans the
+  // card instead of starting after the avatar when the avatar sits beside.
+  // `px-6` keeps it level with the avatar's own edge rather than flush to the border.
+  // `pb-16` is the space the absolutely-positioned bottom-profile badges sit in. It
+  // used to live on the content column; it moved here because this is now the last
+  // thing in the card.
+  const insideWidgets = (
+    <div className="w-full px-6 pb-16">
+      <ProfileWidgets
+        widgets={widgets}
+        placement="inside"
+        cardWidth={cardWidthPx}
+        widgetPrimaryTextColor={widgetPrimaryTextColor}
+        widgetSecondaryTextColor={widgetSecondaryTextColor}
+        widgetBorderColor={widgetBorderColor}
+        widgetBorderOpacity={widgetBorderOpacity}
+        widgetBorderWidth={widgetBorderWidth}
+        widgetBorderRadius={widgetBorderRadius}
+        widgetFont={widgetFont}
+        widgetFontSize={widgetFontSize}
+        widgetFontWeight={widgetFontWeight}
+        widgetLetterSpacing={widgetLetterSpacing}
+      />
+    </div>
+  );
+
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
-  /* ── WITH BANNER ─────────────────────────────────────────────────── */
   if (bannerImageUrl) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
@@ -754,13 +742,10 @@ const Layout1 = ({
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
-        {/* Wrapper — content + background are siblings */}
         <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
         <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
         <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
         <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center overflow-visible z-10">
-          {/* Profile Frame Overlay (Back Layers) */}
-          {/* Border Effect Overlay */}
           <BorderEffect
             effect={borderEffect}
             color={borderEffectColor}
@@ -769,9 +754,6 @@ const Layout1 = ({
             zIndex={30}
           />
 
-          {/* Background card — this entire layer fades with opacity. Skipped
-              entirely when the card is turned off, so the content sits directly on
-              the page with no background, border or shadow behind it. */}
           {wrapInCard && (
             <>
               <div
@@ -787,7 +769,6 @@ const Layout1 = ({
                 }}
               />
 
-              {/* Subtle top highlight — on the background */}
               <div
                 className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
                 style={{
@@ -800,7 +781,6 @@ const Layout1 = ({
             </>
           )}
 
-          {/* Profile Effect Animation Layers */}
           {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
             <div
               className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
@@ -822,14 +802,10 @@ const Layout1 = ({
             </div>
           )}
 
-          {/* Profile Frame Overlay (Front Layers) */}
-
-          {/* Content — always full opacity, positioned independently */}
           <div
             className="relative z-20 flex flex-col items-center w-full"
             style={{ padding: `${profileBorderWidth}px` }}
           >
-            {/* Banner */}
             {hasBanner && (
               <div
                 className="w-full h-[160px] overflow-hidden relative shrink-0"
@@ -861,17 +837,10 @@ const Layout1 = ({
                     priority
                   />
                 )}
-                {/* Bottom gradient shade */}
                 <div className={`absolute inset-x-0 bottom-0 pointer-events-none ${bannerBlend ? "h-full bg-gradient-to-t from-[#000000]/80 via-transparent to-transparent" : "h-8 bg-gradient-to-t from-black/60 to-transparent"}`} />
               </div>
             )}
 
-            {/* Top-of-profile details. Overlaid on the banner rather than placed in
-                the content column: with a banner the row reads as part of the header
-                image, and without one it still needs to sit above the avatar. */}
-            {/* Right-aligned regardless of content alignment: the top row sits over the
-                banner, and the left edge is where the name and details below already
-                start, so stacking another row there crowds them. */}
             {detailSlot(
               "top",
               `justify-end ${
@@ -881,9 +850,6 @@ const Layout1 = ({
               }`
             )}
 
-            {/* left/right put the avatar and the content side by side, so both are
-                wrapped in one row. top/floating keep them stacked, and the wrapper
-                collapses to `contents` so the flow is exactly as it was. */}
             <div
               className={
                 avatarBeside
@@ -894,9 +860,6 @@ const Layout1 = ({
               }
               style={avatarBeside ? { marginTop: hasBanner ? "10px" : "24px" } : undefined}
             >
-              {/* Avatar overlapping banner bottom or at top of card. Beside the
-                  content it never overlaps: the whole row sits below the banner so
-                  the avatar lines up with the name. */}
               <div
                 className={
                   avatarBeside
@@ -926,11 +889,8 @@ const Layout1 = ({
                 />
               </div>
 
-            {/* Content. Beside a tall avatar the name would otherwise start level with
-                the avatar's top edge; a small negative offset lifts the column so the
-                name reads as sitting just under the banner. */}
             <div
-              className={`flex flex-col pb-16 ${alignClass} ${
+              className={`flex flex-col ${alignClass} ${
                 avatarBeside ? "flex-1 min-w-0" : "w-full px-6 pt-3"
               }`}
               style={avatarBeside && hasBanner ? { marginTop: "-6px" } : undefined}
@@ -975,34 +935,26 @@ const Layout1 = ({
                 </div>
               )}
 
-              {/* Inside Card Widgets */}
-              <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
             </div>
             </div>
+
+            {insideWidgets}
           </div>
 
-          {/* Bottom-of-profile and bottom-of-page detail slots. Which chips land
-              here is decided by each detail's placement, so this markup does not
-              name them individually. */}
           {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
           {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
-
 
         </div>
 
         </CardTransition>
         </CardEffect>
 
-        {/* Outside Card Widgets */}
-        <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+        <ProfileWidgets widgets={widgets} placement="outside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
 
-        {/* Page-level slot: outside the card, so it anchors to the page wrapper
-            rather than the card. */}
         {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
         {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
         </div>
 
-        {/* Floating Comments Button */}
         {commentsEnabled && (
           <div
             className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-300"
@@ -1037,7 +989,6 @@ const Layout1 = ({
     );
   }
 
-  /* ── NO BANNER — original layout ────────────────────────────────── */
   return (
     <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
       <EntryTransition
@@ -1091,13 +1042,10 @@ const Layout1 = ({
 
       <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
-      {/* Wrapper — content + background are siblings */}
       <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
       <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
         <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
         <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center justify-center z-10">
-        {/* Profile Frame Overlay (Back Layers) */}
-        {/* Profile Effect Animation Layers (Non-banner) */}
         {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
           <div
             className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
@@ -1118,7 +1066,6 @@ const Layout1 = ({
             ))}
           </div>
         )}
-        {/* Border Effect Overlay */}
         <BorderEffect
           effect={borderEffect}
           color={borderEffectColor}
@@ -1126,9 +1073,6 @@ const Layout1 = ({
           borderWidth={profileBorderWidth}
           zIndex={10}
         />
-        {/* Background card — this entire layer fades with opacity. Skipped entirely
-            when the card is turned off, so the content sits directly on the page
-            with no background, border or shadow behind it. */}
         {wrapInCard && (
           <>
             <div
@@ -1144,7 +1088,6 @@ const Layout1 = ({
               }}
             />
 
-            {/* Subtle top highlight — on the background */}
             <div
               className="absolute h-px bg-gradient-to-r from-transparent via-white/[0.1] to-transparent z-10"
               style={{
@@ -1157,9 +1100,6 @@ const Layout1 = ({
           </>
         )}
 
-        {/* Profile Frame Overlay (Front Layers) */}
-
-        {/* Content — always full opacity, positioned independently */}
         <div
           className="relative z-20 flex flex-col items-center justify-center w-full"
           style={{
@@ -1169,7 +1109,6 @@ const Layout1 = ({
             paddingRight: `calc(1.5rem + ${profileBorderWidth}px)`,
           }}
         >
-          {/* Avatar sitting on the top border */}
           <div className="absolute -top-12 w-24 h-24">
             <div
               className={`absolute inset-0 bg-[#0a0a0a] border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
@@ -1205,7 +1144,6 @@ const Layout1 = ({
               )}
             </div>
 
-            {/* Decoration Overlay */}
             {selectedDecoration && (
               <div className="pointer-events-none absolute -inset-2 z-10">
                 <Image
@@ -1251,11 +1189,9 @@ const Layout1 = ({
             </DescriptionEffect>
           )}
 
-          {/* Inside Card Widgets */}
-          <ProfileWidgets widgets={widgets} placement="inside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+          <ProfileWidgets widgets={widgets} placement="inside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
         </div>
 
-        {/* Bottom-of-profile detail slot. */}
         {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
           {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
 
@@ -1263,10 +1199,8 @@ const Layout1 = ({
       </CardTransition>
       </CardEffect>
 
-      {/* Outside Card Widgets */}
-      <ProfileWidgets widgets={widgets} placement="outside" widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+      <ProfileWidgets widgets={widgets} placement="outside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
 
-      {/* Page-level slot: outside the card, so it anchors to the page wrapper. */}
       {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
         {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
       </div>
@@ -1284,9 +1218,4 @@ const Layout1 = ({
 };
 
 export default Layout1;
-
-
-
-
-
 

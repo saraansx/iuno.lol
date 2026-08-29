@@ -32,7 +32,6 @@ export function CustomizeProfileProvider({
     if (hasMounted.current) {
       if (pendingClearRef.current) {
         pendingClearRef.current = false;
-        // Queue clear on next frame to prevent sync render cascades
         requestAnimationFrame(() => setOverrides({}));
       }
     } else {

@@ -14,8 +14,6 @@ interface TurnstileVerificationProps {
 const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, onClose, onSuccess }) => {
   const [rayId, setRayId] = useState("");
 
-  // false during SSR, true after hydration — the portal target (document.body)
-  // only exists on the client, so skip rendering until we've hydrated.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -26,15 +24,12 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
     if (isOpen) {
       const fetchRayId = async () => {
         try {
-          // Fetch from root to get Cloudflare headers
           const res = await fetch(window.location.origin, { method: "HEAD" });
           const cfRay = res.headers.get("cf-ray");
 
           if (cfRay) {
-            // cf-ray header format is usually "RayID-AirportCode", we just want the ID part
             setRayId(cfRay.split('-')[0]);
           } else {
-            // Fallback for local development when not behind Cloudflare
             const chars = '0123456789abcdef';
             let id = '';
             for (let i = 0; i < 16; i++) {
@@ -51,16 +46,12 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
     }
   }, [isOpen]);
 
-  // Render through a portal to <body> so the fixed overlay escapes any ancestor
-  // containing block. The auth card's backdrop-filter / the swap animation's
-  // filter blur would otherwise trap the modal inside the card and clip it.
   if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
-          {/* Original clean backdrop without dots */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -69,7 +60,6 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
           />
 
-          {/* Modal - back to the bluish/dark theme */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 5 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -77,7 +67,6 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
             transition={{ duration: 0.2 }}
             className="relative w-full max-w-sm bg-[#050505]/95 backdrop-blur-3xl border border-white/10 rounded-[20px] overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.7)] p-6"
           >
-            {/* Header */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-[16px] font-medium text-white/90 tracking-tight">security check</h2>
@@ -91,7 +80,6 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
               <p className="text-white/40 text-[13px] font-normal">verification required to continue</p>
             </div>
 
-            {/* Turnstile Container */}
             <div className="mb-6">
               <div className="w-full bg-white/2 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center min-h-22.5 relative overflow-hidden shadow-inner">
                 <Turnstile
@@ -105,12 +93,10 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
               </div>
             </div>
             
-            {/* Footer with Ray ID */}
             <div className="pt-2 flex items-center justify-between">
               <span className="text-[#666666] font-mono text-[11px] font-medium">ray id: {rayId}</span>
             </div>
             
-            {/* Minimal blue glow at the bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent" />
           </motion.div>
         </div>

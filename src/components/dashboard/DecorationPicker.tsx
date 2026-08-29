@@ -5,14 +5,11 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import decorations from "@/Deco.json";
 
-
 export type Decoration = {
   id: string;
   name: string;
   url: string;
 };
-
-
 
 interface DecorationPickerProps {
   open: boolean;
@@ -72,7 +69,6 @@ export default function DecorationPicker({
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -82,7 +78,6 @@ export default function DecorationPicker({
             className="fixed inset-0 z-[90] bg-black/35 backdrop-blur-[2px] cursor-pointer"
           />
 
-          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -92,7 +87,6 @@ export default function DecorationPicker({
             className="fixed z-[91] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
           >
         
-        {/* Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
           <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Avatar Decoration</h2>
           <button
@@ -105,8 +99,6 @@ export default function DecorationPicker({
             </svg>
           </button>
         </div>
-
-
 
         <div className="grid min-h-0 flex-1 grid-cols-[250px_1fr] gap-5 px-5 py-5">
           <aside className="flex h-fit self-center flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">

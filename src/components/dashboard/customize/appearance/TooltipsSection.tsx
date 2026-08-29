@@ -52,9 +52,6 @@ export default function TooltipsSection({
       active: isOccupationTooltipEnabled, 
       toggle: onToggleOccupationTooltip 
     },
-    // The two buttons sit side by side on the profile, so one control covers both.
-    // The underlying settings stay separate; this just drives them together, and
-    // treats "on" as both being on so a half-set pair resolves on the next tap.
     {
       name: "Feedback",
       desc: "Label the feedback buttons when visitors hover them.",

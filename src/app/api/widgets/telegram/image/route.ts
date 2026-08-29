@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readImageWithLimit, FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-/**
- * Avatar proxy for the Telegram user widget.
- *
- * Telegram serves profile photos from `cdn*.telesco.pe`, which is not on the
- * CSP `img-src` allow-list and hands a visitor's IP to Telegram if loaded
- * directly. Routing them through here keeps both problems away: the response is
- * same-origin, and the `Cache-Control` header below lets the Cloudflare edge and
- * the visitor's browser hold the bytes so this route is only hit on a cold miss.
- */
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

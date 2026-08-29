@@ -162,15 +162,12 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
       ? `/api/widgets/genshin/image?url=${encodeURIComponent((genshinData.namecard_bg_url || genshinData.namecard_url)!)}`
       : null;
 
-  // Blurred character avatar backdrop — mutually exclusive with the namecard artwork.
   const avatarBgSrc = showBackgroundImage ? avatarSrc : null;
 
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Account Settings Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -202,7 +199,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right Side: Live Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -240,14 +236,12 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                   </div>
                 </div>
               ) : (
-                /* Live Genshin Impact Widget Card */
                 <a
                   href={`https://enka.network/u/${encodeURIComponent(cleanUid)}/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -257,7 +251,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  {/* Namecard Background Cover */}
                   {namecardBgSrc && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -270,7 +263,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  {/* Background Image (blurred character avatar) */}
                   {avatarBgSrc && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -284,7 +276,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Avatar */}
                     <div
                       className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -300,11 +291,9 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                       )}
                     </div>
 
-                    {/* User Info & Stats */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-2 min-w-0 overflow-hidden">
                         <div className="flex items-center gap-1.5 min-w-0">
-                          {/* Genshin Impact Primogem Logo */}
                           <svg
                             width="14"
                             height="14"
@@ -328,7 +317,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
                         )}
                       </div>
 
-                      {/* Stats Pills */}
                       <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 truncate">
                         {showAr && (
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -361,7 +349,6 @@ export default function GenshinClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Section: Customization Options */}
         <GenshinCustomization
           placement={placement}
           onPlacementChange={setPlacement}

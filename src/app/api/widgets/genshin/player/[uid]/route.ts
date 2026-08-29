@@ -3,16 +3,9 @@ import { type GenshinPlayerData, getGenshinRegion, buildEnkaUiUrl } from "@/lib/
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-/**
- * Enka.Network exposes the numeric game IDs (avatarId, nameCardId) in the live
- * API, but the CDN assets are keyed by their real internal asset names
- * (e.g. "UI_AvatarIcon_Ambor", "UI_NameCardPic_Tzz3_P"). The mapping between the
- * two lives in Enka's public store JSON. We load those maps once and cache them
- * in module memory (they only change on a new game version).
- */
 const ENKA_STORE_BASE =
   "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store";
-const MAP_TTL_MS = 1000 * 60 * 60 * 12; // 12h
+const MAP_TTL_MS = 1000 * 60 * 60 * 12;
 
 interface CharacterEntry {
   SideIconName?: string;
@@ -49,8 +42,6 @@ async function fetchStoreJson<T>(name: string): Promise<T | null> {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/json",
       },
-      // Freshness is owned by the Redis cache in GET; caching here too would stack
-      // both windows and double the worst-case staleness.
       cache: "no-store",
     });
     if (!res.ok) return null;
@@ -81,14 +72,12 @@ async function loadEnkaMaps(): Promise<EnkaMaps | null> {
   return inflight;
 }
 
-/** Resolve the character/profile-picture icon asset name from Enka IDs. */
 function resolveAvatarAsset(
   profilePicture: ProfilePicture | undefined,
   maps: EnkaMaps | null
 ): string | null {
   if (!profilePicture || !maps) return null;
 
-  // Preferred: avatarId -> square character icon (fills any container shape).
   if (profilePicture.avatarId) {
     const char = maps.characters[String(profilePicture.avatarId)];
     if (char) {
@@ -100,7 +89,6 @@ function resolveAvatarAsset(
     }
   }
 
-  // Legacy: profilePicture.id -> pfps map (circular icon).
   if (profilePicture.id) {
     const pfp = maps.pfps[String(profilePicture.id)];
     if (pfp?.iconPath) return pfp.iconPath;
@@ -109,7 +97,6 @@ function resolveAvatarAsset(
   return null;
 }
 
-/** Resolve the wide namecard banner asset name from a nameCardId. */
 function resolveNamecardAsset(
   nameCardId: number | null | undefined,
   maps: EnkaMaps | null

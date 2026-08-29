@@ -19,12 +19,10 @@ interface Petal {
   maxLife: number;
 }
 
-// Pre-cached normalized petal Path2D
 const PETAL_PATH = new Path2D(
   "M 0 -1 C 0.75 -0.5, 0.8 0.6, 0 1 C -0.8 0.6, -0.75 -0.5, 0 -1 Z"
 );
 
-// Draw smooth, organic petal shape using direct transform matrix without save/restore state stack
 function drawPetal(
   ctx: CanvasRenderingContext2D,
   dpr: number,
@@ -39,7 +37,6 @@ function drawPetal(
   const scaleX = size * Math.cos(flip);
   const scaleY = size;
 
-  // Set transformed matrix directly (dpr scaled)
   ctx.setTransform(
     (cosR * scaleX) * dpr,
     (sinR * scaleX) * dpr,
@@ -113,7 +110,7 @@ export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
                 x: x + (Math.random() - 0.5) * 12,
                 y: y + (Math.random() - 0.5) * 12,
                 vx: (Math.random() - 0.5) * 0.8,
-                vy: 0.6 + Math.random() * 0.9, // downward drift
+                vy: 0.6 + Math.random() * 0.9,
                 size: 5 + Math.random() * 5,
                 rotation: Math.random() * Math.PI * 2,
                 rotationSpeed: (Math.random() - 0.5) * 0.04,
@@ -152,14 +149,13 @@ export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
             continue;
           }
 
-          // Gentle horizontal sway like real falling petals
           const sway = Math.sin(time * p.swaySpeed + p.swayOffset) * 0.6;
           p.x += p.vx + sway;
           p.y += p.vy;
           p.rotation += p.rotationSpeed;
           p.flip += p.flipSpeed;
 
-          const progress = p.life / p.maxLife; // 1 down to 0
+          const progress = p.life / p.maxLife;
           const alpha = progress * 0.85;
 
           ctx.shadowBlur = 8;
@@ -169,7 +165,6 @@ export function SakuraTrail({ color = "#ffffff" }: { color?: string }) {
           drawPetal(ctx, dpr, p.x, p.y, p.size, p.rotation, p.flip);
         }
 
-        // Reset transform once after loop
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
 

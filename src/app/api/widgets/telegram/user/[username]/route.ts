@@ -7,30 +7,12 @@ import {
   isValidTelegramUsername,
 } from "@/lib/telegram";
 
-/**
- * Public Telegram profile lookup.
- *
- * Telegram exposes no public read API for user profiles, so this reads the
- * `t.me/<username>` preview page and pulls the OpenGraph tags out of it. The
- * result is cached in Redis under the shared widget window, so the scrape runs
- * once per handle per window no matter how many profiles show that handle.
- */
-
-/** Avatar Telegram serves for handles that do not exist. */
 const PLACEHOLDER_AVATAR = /telegram\.org\/img\/t_logo/i;
 
-/** Title Telegram serves for handles that do not exist. */
 const PLACEHOLDER_TITLE = /^Telegram:\s*Contact\s*@/i;
 
-/** Only read the head — the OG tags are there, and the body can be large. */
 const MAX_HTML_BYTES = 256 * 1024;
 
-/**
- * Reads an OpenGraph tag's content, tolerating either attribute order.
- *
- * `t.me` currently emits `property` before `content`, but matching only that
- * order would break silently if Telegram ever swapped them.
- */
 function readOgTag(html: string, property: string): string | null {
   const patterns = [
     new RegExp(
@@ -50,13 +32,6 @@ function readOgTag(html: string, property: string): string | null {
   return null;
 }
 
-/**
- * Decodes the HTML entities that appear in OG tag content.
- *
- * Telegram escapes `&`, quotes and angle brackets in names and bios, so a bio
- * containing "Tips &amp; tricks" would otherwise render with the entity visible.
- * `&amp;` is resolved last so `&amp;lt;` does not turn into `<`.
- */
 function decodeHtmlEntities(value: string): string {
   return value
     .replace(/&quot;/g, '"')
@@ -68,12 +43,6 @@ function decodeHtmlEntities(value: string): string {
     .replace(/&amp;/g, "&");
 }
 
-/**
- * Reads a response body up to `MAX_HTML_BYTES`.
- *
- * `res.text()` would buffer the whole page; the OG tags live in the head, so
- * this stops as soon as it has enough and cancels the rest.
- */
 async function readHtmlHead(res: Response): Promise<string> {
   const body = res.body;
   if (!body) return "";
@@ -92,7 +61,6 @@ async function readHtmlHead(res: Response): Promise<string> {
       total += value.byteLength;
       html += decoder.decode(value, { stream: true });
 
-      // The tags we need are all in <head>; stop once it closes.
       if (html.includes("</head>")) break;
     }
   } finally {
@@ -102,13 +70,6 @@ async function readHtmlHead(res: Response): Promise<string> {
   return html;
 }
 
-/**
- * Fetches and parses one public Telegram profile.
- *
- * Returns null when the handle does not exist. Telegram answers `200` for a
- * missing handle and serves a generic page rather than a 404, so absence is
- * detected from the placeholder title and avatar instead of the status code.
- */
 export async function fetchTelegramUserData(
   username: string
 ): Promise<TelegramUserData | null> {
@@ -135,10 +96,6 @@ export async function fetchTelegramUserData(
 
     const rawImage = readOgTag(html, "image");
 
-    // A handle with no account still returns 200. Both markers have to be absent
-    // for the profile to be real: a genuine profile with no avatar set keeps its
-    // own display name, and the placeholder title only appears when there is no
-    // account behind the handle.
     if (PLACEHOLDER_TITLE.test(rawTitle)) return null;
 
     const avatarUrl =

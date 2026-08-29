@@ -17,7 +17,6 @@ export function useSteamUser(input: string) {
   const [loading, setLoading] = useState<boolean>(isValidId);
   const [error, setError] = useState<Error | null>(null);
 
-  // Each lookup scrapes steamcommunity.com, so wait for typing to settle.
   const { value: fetchInput, isPending } = useDebouncedValue(cleanInput);
 
   useEffect(() => {

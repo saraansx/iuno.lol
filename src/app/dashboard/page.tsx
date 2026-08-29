@@ -9,7 +9,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { getDashboardComments } from "@/actions/comments";
 import { getDashboardFeedback } from "@/actions/feedback";
 
-
 export const metadata: Metadata = {
   title: "Overview",
   description: "Manage your iuno.lol account and identity",
@@ -39,7 +38,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Breadcrumb */}
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
@@ -50,13 +48,11 @@ export default async function DashboardPage() {
         </Breadcrumb>
       </div>
 
-      {/* Page Title */}
       <div>
         <h1 className="text-2xl font-inter font-medium text-white tracking-tight">Welcome back, {user?.username || 'User'}</h1>
         <p className="text-white/30 text-sm mt-1 font-inter">Here is an overview of your statistics.</p>
       </div>
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-4 gap-4">
         {[
           { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#609fda" },
@@ -86,19 +82,16 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Analytics Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="md:col-span-2 min-w-0 min-h-0">
           <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} />
       </div>
-
 
         <div className="md:col-span-1 min-w-0 min-h-0">
           <DeviceChart stats={deviceStats} />
         </div>
       </div>
 
-      {/* Additional Stats / Features */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
         <RecentComments
           initialReceived={commentsReceived}

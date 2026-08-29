@@ -36,7 +36,6 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             <span className="font-light text-white tracking-tight text-lg uppercase">Iuno<span className="text-[#609fda] lowercase">.lol</span></span>
           </Link>
 
-          {/* Links */}
           <div className="hidden md:flex items-center gap-1 bg-[#609fda]/3 rounded-full p-1 border border-[#609fda]/10 relative">
             {tabs.map((tab) => (
               <button
@@ -66,7 +65,6 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             ))}
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-6">
             {isAuthenticated ? (
               <button 

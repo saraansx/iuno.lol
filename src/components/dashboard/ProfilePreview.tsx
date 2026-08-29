@@ -168,7 +168,6 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
       className="bg-[#0c0c0c] fixed right-0 top-4 bottom-4 z-40 flex flex-col border-y border-l border-white/5"
       style={{ width: `${width}px` }}
     >
-      {/* Drag Handle */}
       <div
         onMouseDown={handleMouseDown}
         className={`absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
@@ -180,7 +179,6 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
         }`} />
       </div>
 
-      {/* Header */}
       <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between shrink-0">
         <p className="text-[11px] uppercase tracking-[0.15em] text-white/20 font-normal">
           Preview
@@ -198,7 +196,6 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
         </a>
       </div>
 
-      {/* Full Page Preview */}
       <div
         className="flex-1 overflow-hidden relative"
         style={{ backgroundColor: pageBgColor || '#0a0a0a' }}

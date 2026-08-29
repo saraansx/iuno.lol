@@ -85,7 +85,6 @@ export default function ColorPickerInput({
 
   const parsedHsv = hexToHsv(currentColor);
 
-  // Track hue state and the previous color prop to update hue on prop change without effect
   const [hueState, setHueState] = useState<{ color: string; hue: number }>(() => ({
     color: currentColor,
     hue: parsedHsv.h,
@@ -106,7 +105,6 @@ export default function ColorPickerInput({
   const satValRef = useRef<HTMLDivElement>(null);
   const hueRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     if (!isOpen) return;
     function handlePointerDown(e: MouseEvent | TouchEvent) {
@@ -140,7 +138,6 @@ export default function ColorPickerInput({
     setLocalInput(null);
   };
 
-  // Drag on Saturation/Value board
   const updateSatVal = useCallback(
     (clientX: number, clientY: number) => {
       if (!satValRef.current) return;
@@ -169,15 +166,14 @@ export default function ColorPickerInput({
     window.addEventListener("pointerup", onPointerUp);
   };
 
-  // Drag on Hue bar
   const updateHue = useCallback(
     (clientX: number) => {
       if (!hueRef.current) return;
       const rect = hueRef.current.getBoundingClientRect();
       const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
       const nextHue = (x / rect.width) * 360;
-      const currentS = sat === 0 && val === 100 ? 100 : sat; // if pure white, jump to color
-      const currentV = val === 0 ? 100 : val;                // if pure black, jump to color
+      const currentS = sat === 0 && val === 100 ? 100 : sat;
+      const currentV = val === 0 ? 100 : val;
       const nextColor = hsvToHex(nextHue, currentS, currentV);
       setHueState({ color: nextColor, hue: nextHue });
       onChange(nextColor);
@@ -212,7 +208,6 @@ export default function ColorPickerInput({
           }
         }
       } catch {
-        // canceled or unsupported
       }
     }
   };
@@ -262,10 +257,8 @@ export default function ColorPickerInput({
         </button>
       </div>
 
-      {/* Dark Theme Color Picker Popover */}
       {isOpen && !disabled && (
         <div className="absolute top-[calc(100%+6px)] right-0 z-50 w-[220px] bg-[#0f0f0f] border border-white/10 rounded-xl p-2.5 shadow-2xl backdrop-blur-xl flex flex-col gap-2.5 animate-in fade-in zoom-in-95 duration-150 select-none">
-          {/* Saturation / Value Gradient Box */}
           <div
             ref={satValRef}
             onPointerDown={handleSatValPointerDown}
@@ -275,7 +268,6 @@ export default function ColorPickerInput({
             <div className="absolute inset-0 bg-gradient-to-r from-white to-transparent" />
             <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent" />
 
-            {/* Handle */}
             <div
               className="absolute w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white shadow-sm pointer-events-none"
               style={{
@@ -286,7 +278,6 @@ export default function ColorPickerInput({
             />
           </div>
 
-          {/* Hue Bar + Eyedropper */}
           <div className="flex items-center gap-2 pt-0.5">
             <button
               type="button"

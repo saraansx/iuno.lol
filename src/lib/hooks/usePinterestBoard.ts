@@ -13,8 +13,6 @@ export function usePinterestBoard(input: string) {
   const parts = cleanInput.split("/").filter(Boolean);
   const isValidBoard = parts.length >= 2 && Boolean(parts[0]) && Boolean(parts[1]);
 
-  // Debounced as one "user/board" string, so a half-typed pair never fires a
-  // request. An incomplete value debounces to "" at once, clearing the preview.
   const { value: fetchBoard, isPending } = useDebouncedValue(isValidBoard ? cleanInput : "");
 
   const [data, setData] = useState<PinterestBoardData | null>(null);
@@ -67,8 +65,6 @@ export function usePinterestBoard(input: string) {
     };
   }, [fetchBoard]);
 
-  // While the typed board is ahead of the fetched one, report the loading state
-  // instead of the board the hook still holds.
   const isReady = isValidBoard && !isPending;
 
   return {

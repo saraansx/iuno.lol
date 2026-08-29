@@ -44,8 +44,6 @@ export default function RobloxWidget({ widget }: { widget: WidgetItem }) {
 
   const bgSrc = showBackground ? avatarSrc : null;
 
-  // Either stat can be missing when Roblox rate-limits its counter host, so the
-  // row is only rendered when there is something to put in it.
   const hasFollowers = showFollowers && user.followersCount !== null;
   const hasFriends = showFriends && user.friendsCount !== null;
 
@@ -56,14 +54,12 @@ export default function RobloxWidget({ widget }: { widget: WidgetItem }) {
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
           <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
         </div>
       )}
 
-      {/* Blurred Avatar Backdrop */}
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -77,7 +73,6 @@ export default function RobloxWidget({ widget }: { widget: WidgetItem }) {
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Avatar */}
         <div
           className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square"
@@ -95,15 +90,11 @@ export default function RobloxWidget({ widget }: { widget: WidgetItem }) {
               className="w-full h-full object-cover block"
             />
           ) : (
-            /* Thumbnails render lazily on Roblox's side — show the mark rather
-               than an empty square while one is still pending. */
             <RobloxLogoIcon size={28} className="w-[28px] h-[28px] opacity-40" />
           )}
         </div>
 
-        {/* Name & Stats */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden pr-6">
-          {/* Header Row: Roblox mark + display name + verified badge */}
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             <OverflowPingPong deps={[user, user.displayName, showVerifiedBadge]}>
               <div className="flex items-center gap-1.5 shrink-0">
@@ -120,7 +111,6 @@ export default function RobloxWidget({ widget }: { widget: WidgetItem }) {
             </OverflowPingPong>
           </div>
 
-          {/* Stats Row: followers / friends, or the username as a fallback */}
           <div className="min-w-0 overflow-hidden">
             <OverflowPingPong deps={[user, showFollowers, showFriends]}>
               <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">

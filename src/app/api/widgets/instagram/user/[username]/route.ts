@@ -3,14 +3,13 @@ import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
-const CACHE_TTL_SECONDS = 12 * 60 * 60; // 12 hours
+const CACHE_TTL_SECONDS = 12 * 60 * 60;
 
 async function readCache(username: string): Promise<InstagramUserData | null> {
   try {
     const cached = await redis.get(`ig:profile:${username}`);
     if (cached) return JSON.parse(cached) as InstagramUserData;
   } catch {
-    // cache is best-effort only
   }
   return null;
 }
@@ -19,7 +18,6 @@ async function writeCache(username: string, data: InstagramUserData): Promise<vo
   try {
     await redis.set(`ig:profile:${username}`, JSON.stringify(data), "EX", CACHE_TTL_SECONDS);
   } catch {
-    // cache is best-effort only
   }
 }
 
@@ -34,9 +32,6 @@ async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData 
     cache: "no-store",
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
-  // Say which side gave up. A missing profile, a rate-limited worker, and a
-  // worker that Instagram itself refused all end as the same silent 404 here,
-  // and only the log can tell them apart.
   if (!res.ok) {
     console.warn(`[Instagram] proxy answered ${res.status} for "${username}"`);
     return null;
@@ -45,10 +40,6 @@ async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData 
   const json = await res.json();
   if (json.ok && json.data?.username) {
     const d = json.data;
-    // Build a trimmed object holding only the fields the widget renders — the
-    // worker also returns biography, an HD avatar, isPrivate and an external
-    // URL we never use. Also replace the ~600-char CDN URL with the worker's
-    // short redirect URL so the Redis cache entry stays small.
     return {
       username: d.username,
       fullName: d.fullName ?? d.username,

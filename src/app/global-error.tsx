@@ -13,9 +13,6 @@ export default function GlobalError({
     console.error("[global-error.tsx]", error);
   }, [error]);
 
-  // Global error boundary catches failures in the root layout itself, so it
-  // must render its own <html>/<body>. Kept self-contained — no fonts or
-  // shared layout here.
   return (
     <html lang="en" className="h-full antialiased">
       <body

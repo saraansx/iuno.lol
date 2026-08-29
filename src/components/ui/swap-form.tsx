@@ -11,13 +11,9 @@ import RegisterForm from "@/components/auth/RegisterForm";
 export type AuthMode = "signin" | "register";
 
 interface SwapFormProps {
-  /** Which mode to start on. Defaults to "signin". */
   initialMode?: AuthMode;
-  /** Called whenever the user toggles between sign in / register. */
   onModeChange?: (mode: AuthMode) => void;
-  /** Called when the register flow completes successfully (hides card chrome). */
   onRegisterSuccess?: (success: boolean) => void;
-  /** Custom labels. Falls back to the app's copy. */
   texts?: {
     signinTitle?: string;
     signinSubtitle?: string;
@@ -42,11 +38,6 @@ const swapVariants = {
 const toggleClassName =
   "text-[#609fda] hover:text-[#609fda]/90 font-medium relative inline-block cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 after:bg-[#609fda] hover:after:w-full after:transition-all after:duration-300";
 
-/**
- * SwapForm — the shared auth card for /signin and /register. Holds the real
- * LoginForm/RegisterForm and animates the swap between them (blur + y + scale
- * via AnimatePresence), so "create account" and "sign in" never leave the page.
- */
 export default function SwapForm({
   initialMode = "signin",
   onModeChange,
@@ -66,8 +57,6 @@ export default function SwapForm({
     ? texts.signinSubtitle ?? DEFAULT_TEXTS.signinSubtitle
     : texts.registerSubtitle ?? DEFAULT_TEXTS.registerSubtitle;
 
-  // Hide the logo/heading/footer once registration succeeds so the form's own
-  // "check your email" screen fills the card (matches the old register page).
   const showChrome = !(!isSignIn && registerSuccess);
 
   const switchMode = (next: AuthMode) => {

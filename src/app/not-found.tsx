@@ -5,24 +5,10 @@ export const metadata: Metadata = {
   title: "Page not found",
 };
 
-/**
- * Root 404. Rendered by Next.js for unmatched routes and wherever
- * notFound() is called — most often an unclaimed or deleted profile
- * handle from src/app/[username]/page.tsx.
- *
- * No card: an oversized ghost "404" sits behind crisp copy, letting the
- * shared background stay visible instead of being muted by a panel.
- */
 export default function NotFound() {
   return (
     <div className="flex-1 flex items-center justify-center px-6 py-24 font-poppins">
       <main className="relative flex flex-col items-center text-center">
-        {/*
-          Ghost numeral. Absolutely positioned and pointer-events-none so it
-          never interferes with layout or the link below. select-none keeps it
-          out of text selection, aria-hidden out of the accessibility tree —
-          the heading already conveys "404".
-        */}
         <span
           aria-hidden="true"
           className="pointer-events-none select-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[clamp(11rem,34vw,20rem)] font-semibold leading-none tracking-tighter text-white/[0.06] tabular-nums"

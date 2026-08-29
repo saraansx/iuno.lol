@@ -17,11 +17,9 @@ export default function DiveCardEffect({ children, className = "" }: DiveCardEff
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // -1 to 1 relative to center
     const relX = (e.clientX - centerX) / (rect.width / 2);
     const relY = (e.clientY - centerY) / (rect.height / 2);
 
-    // Stronger tilt than zoom — the card "dives" toward the cursor
     const rotateY = relX * 10;
     const rotateX = -relY * 10;
 
@@ -31,7 +29,6 @@ export default function DiveCardEffect({ children, className = "" }: DiveCardEff
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    // Spring back with a bounce
     setTransform("perspective(1200px) rotateX(0deg) rotateY(0deg)");
   }, []);
 

@@ -11,7 +11,6 @@ import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
-// ── Exchange code for access token ─────────────────────────────────────────
 async function exchangeCode(code: string): Promise<string> {
   const res = await fetch(`${DISCORD_API}/oauth2/token`, {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -35,7 +34,6 @@ async function exchangeCode(code: string): Promise<string> {
   return data.access_token as string
 }
 
-// ── Fetch Discord user info ────────────────────────────────────────────────
 async function fetchDiscordUser(accessToken: string) {
   const res = await fetch(`${DISCORD_API}/users/@me`, {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -53,7 +51,6 @@ async function fetchDiscordUser(accessToken: string) {
   }
 }
 
-// ── Add user to guild via bot ──────────────────────────────────────────────
 async function addUserToGuild(discordUserId: string, accessToken: string) {
   const guildId  = process.env.DISCORD_GUILD_ID!
   const botToken = process.env.DISCORD_BOT_TOKEN!
@@ -68,15 +65,12 @@ async function addUserToGuild(discordUserId: string, accessToken: string) {
     body: JSON.stringify({ access_token: accessToken }),
   })
 
-  // 201 = added, 204 = already a member — both are fine
   if (res.status !== 201 && res.status !== 204) {
     const err = await res.text()
     console.error(`[Discord] Guild join failed (${res.status}): ${err}`)
-    // Non-fatal — user still signs in even if guild join fails
   }
 }
 
-// ── Route handler ──────────────────────────────────────────────────────────
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl
   const code  = searchParams.get('code')
@@ -85,14 +79,12 @@ export async function GET(req: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  // ── Rate limit: 10 Discord logins per 10 minutes per IP ──────────────────
   const rateIp = getClientIp(req.headers)
   const rate = await discordOAuthRateLimit(rateIp)
   if (!rate.ok) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_rate_limited`)
   }
 
-  // User denied access
   if (error) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_denied`)
   }
@@ -101,7 +93,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_invalid`)
   }
 
-  // Validate CSRF state
   const cookieStore = await cookies()
   const savedState  = cookieStore.get('discord_oauth_state')?.value
   cookieStore.delete('discord_oauth_state')
@@ -111,27 +102,22 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    // 1. Exchange code → access token
     const accessToken = await exchangeCode(code)
 
-    // 2. Get Discord user info
     const discordUser = await fetchDiscordUser(accessToken)
 
-    // 3. Block if Discord has no email or it's unverified
     if (!discordUser.email || !discordUser.verified) {
       return NextResponse.redirect(
         `${appUrl}/signin?error=discord_email_unverified`
       )
     }
 
-    // 4. Upsert or link Discord to current logged-in user or account
     const loggedInUserId = await getSessionUserId()
     const ip = getClientIp(req.headers) ?? undefined
 
     let userId: number
 
     if (loggedInUserId) {
-      // User is already logged in — verify discord ID is not claimed by another user
       const existingUser = await getUserByDiscordId(discordUser.id);
       if (existingUser && existingUser.id !== loggedInUserId) {
         return NextResponse.redirect(
@@ -139,7 +125,6 @@ export async function GET(req: NextRequest) {
         );
       }
 
-      // Link Discord directly to this session's account
       await db
         .update(schema.users)
         .set({
@@ -158,10 +143,8 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    // 5. Add user to Discord guild (non-fatal if it fails)
     await addUserToGuild(discordUser.id, accessToken)
 
-    // 6. Create session if not logged in
     if (!loggedInUserId) {
       await createSession(userId)
     }

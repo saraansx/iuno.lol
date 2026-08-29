@@ -45,13 +45,10 @@ export default function TelegramCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Show Bio */}
         <TelegramToggleSetting
           label="Show bio"
           description="Display the profile's bio line below the display name."
@@ -59,7 +56,6 @@ export default function TelegramCustomization({
           onChange={onShowBioChange}
         />
 
-        {/* Background Image */}
         <TelegramToggleSetting
           label="Background image"
           description="Use the profile photo as a background behind the card."
@@ -67,7 +63,6 @@ export default function TelegramCustomization({
           onChange={onShowBackgroundChange}
         />
 
-        {/* Background Overlay — only meaningful while a background is shown. */}
         <TelegramToggleSetting
           label="Background overlay"
           description="Darken and blur the background image so the card content stays readable."
@@ -76,7 +71,6 @@ export default function TelegramCustomization({
           disabled={!showBackground}
         />
 
-        {/* Show View Button */}
         <TelegramToggleSetting
           label="Show redirect button"
           description="Display a top-right direct link button opening the Telegram profile."

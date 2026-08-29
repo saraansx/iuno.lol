@@ -18,9 +18,6 @@ export async function newPassword(token: string, password: string) {
       return { error: passwordError }
     }
 
-    // Rate limit BEFORE the token lookup. Keyed by IP because the email is only
-    // known once the lookup succeeds, and running it after would let a tripped
-    // limit destroy an otherwise valid one-time token.
     const h = await headers()
     const ip = getClientIp(h)
     const rate = await resetPasswordRateLimit(ip)

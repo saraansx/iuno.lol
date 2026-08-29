@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected transition is downloaded — "none" downloads nothing extra.
 const FadeCardTransition = dynamic(() => import("./card-transitions/FadeCardTransition"));
 const SlideUpCardTransition = dynamic(() => import("./card-transitions/SlideUpCardTransition"));
 const SlideDownCardTransition = dynamic(() => import("./card-transitions/SlideDownCardTransition"));

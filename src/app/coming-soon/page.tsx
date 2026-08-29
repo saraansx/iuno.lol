@@ -8,7 +8,6 @@ import { MessageCircle, ArrowRight } from "lucide-react";
 import { Highlighter } from "@/components/ui/highlighter";
 import { MorphingText } from "@/components/ui/morphing-text";
 
-
 const MORPH_WORDS = [
   "Coming Soon",
   "Something Extraordinary",
@@ -36,7 +35,6 @@ export default function ComingSoonPage() {
       
       <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-5 p-12 rounded-3xl bg-white/[0.02] backdrop-blur-[16px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]">
 
-        {/* Brand Logo Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -53,7 +51,6 @@ export default function ComingSoonPage() {
           </div>
         </motion.div>
 
-        {/* Liquid Morphing Title */}
         <div className="h-14 sm:h-16 flex items-center justify-center w-full">
           <MorphingText
             texts={MORPH_WORDS}
@@ -61,7 +58,6 @@ export default function ComingSoonPage() {
           />
         </div>
 
-        {/* Description */}
         <motion.p
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,7 +71,6 @@ export default function ComingSoonPage() {
           on the web.
         </motion.p>
 
-        {/* Handle Reservation Form */}
         <motion.form
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
@@ -102,7 +97,6 @@ export default function ComingSoonPage() {
           </button>
         </motion.form>
 
-        {/* Discord Action */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -141,9 +141,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid: Account on Left, Live Preview on Right */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Account Settings Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -152,7 +150,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
               </p>
             </div>
 
-            {/* Board Input */}
             <div className="flex flex-col gap-2">
               <label className="text-[12.5px] font-normal text-white/80">Pinterest Board</label>
               <div className="relative">
@@ -175,7 +172,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
             </div>
           </div>
 
-          {/* Right Side: Live Pinterest Board Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -213,14 +209,12 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   </div>
                 </div>
               ) : (
-                /* Live Pinterest Board Widget Card */
                 <a
                   href={boardData.url || `https://www.pinterest.com/${encodeURIComponent(username)}/${encodeURIComponent(boardSlug)}/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -230,7 +224,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                     </div>
                   )}
 
-                  {/* Blurred Background Layer */}
                   {showBackgroundOverlay && bgImageUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -244,7 +237,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Cover / Pin Image */}
                     <div
                       className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
                         imageShape === "square"
@@ -268,7 +260,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
                       )}
                     </div>
 
-                    {/* Info + Counts */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
@@ -308,7 +299,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
           </div>
         </div>
 
-        {/* Bottom Section: Dedicated Full-Width Board Customization Container */}
         <PinterestBoardCustomization
           placement={placement}
           onPlacementChange={setPlacement}
@@ -323,7 +313,6 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
         />
       </div>
 
-      {/* Floating Save/Add Widget Bar */}
       <SaveBar
         show={isChanged || !isEditing}
         onSave={handleSaveWidgetConfirm}

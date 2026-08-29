@@ -15,11 +15,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// Only Inter is preloaded — used as the body default font everywhere.
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-// All other fonts: preload: false. They load on demand when a profile
-// actually references them via the fontClassMap in Layout1.
 const roboto = Roboto({ weight: ["400", "500", "700"], subsets: ["latin"], variable: "--font-roboto", preload: false });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", preload: false });
 const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-space-grotesk", preload: false });
@@ -44,7 +41,6 @@ const paperNotes = localFont({
 const chillax = localFont({
   src: [
     {
-      // Variable font: one file covers the whole 200-700 range.
       path: "../../fonts/Chillax-Variable.ttf",
       weight: "200 700",
       style: "normal",

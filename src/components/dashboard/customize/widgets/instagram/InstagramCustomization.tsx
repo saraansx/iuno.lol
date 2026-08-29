@@ -49,13 +49,10 @@ export default function InstagramCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Show Followers */}
         <InstagramToggleSetting
           label="Show followers"
           description="Display your total follower count on the profile widget."
@@ -63,7 +60,6 @@ export default function InstagramCustomization({
           onChange={onShowFollowersChange}
         />
 
-        {/* Show Following */}
         <InstagramToggleSetting
           label="Show following"
           description="Display your total following count on the profile widget."
@@ -71,7 +67,6 @@ export default function InstagramCustomization({
           onChange={onShowFollowingChange}
         />
 
-        {/* Show Post Count */}
         <InstagramToggleSetting
           label="Show post count"
           description="Display your total public post count on the profile widget."
@@ -79,7 +74,6 @@ export default function InstagramCustomization({
           onChange={onShowPostsChange}
         />
 
-        {/* Background Image */}
         <InstagramToggleSetting
           label="Background image"
           description="Display a subtle blurred avatar backdrop in the widget card."
@@ -87,7 +81,6 @@ export default function InstagramCustomization({
           onChange={onShowBackgroundChange}
         />
 
-        {/* Show Redirect Button */}
         <InstagramToggleSetting
           label="Show redirect button"
           description="Display a top-right direct link button opening your Instagram profile."

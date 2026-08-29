@@ -16,7 +16,6 @@ export default async function Page() {
 
   return (
     <div className="flex flex-col gap-8 h-full">
-      {/* Breadcrumb */}
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
@@ -49,7 +48,6 @@ export default async function Page() {
         </Breadcrumb>
       </div>
 
-      {/* Header */}
       <div className="flex flex-col gap-1 pb-2 w-full pt-2" style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}>
         <h1 className="text-[20px] font-normal text-white tracking-tight">Discord Server</h1>
         <p className="text-white/40 text-[13px] mt-0.5">Live member count, icon and join button for your Discord guild.</p>

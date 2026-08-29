@@ -93,7 +93,6 @@ export default function EffectsPicker({
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -103,7 +102,6 @@ export default function EffectsPicker({
             className="fixed inset-0 z-[90] bg-black/35 backdrop-blur-[2px] cursor-pointer"
           />
 
-          {/* Modal Container */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -112,7 +110,6 @@ export default function EffectsPicker({
             onClick={(e) => e.stopPropagation()}
             className="fixed z-[91] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
           >
-            {/* Header */}
             <div className="flex items-center justify-between px-5 pt-4 pb-2">
               <h2 className="text-[16px] font-semibold tracking-tight text-white/90">Choose Profile Effect</h2>
               <button
@@ -130,13 +127,11 @@ export default function EffectsPicker({
               <aside className="flex h-fit self-center flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
                 <p className="text-[14px] font-semibold text-white/90">Preview</p>
                 <div className="mt-5 flex items-center justify-center">
-                  {/* Profile Card Mockup for Effects */}
                   <div className="relative w-full max-w-[160px] aspect-[4/5] bg-[#111] rounded-[14px] border border-white/5 flex flex-col items-center pt-8 overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-[60px] bg-[#1a1a1a] rounded-t-[14px] z-1">
                       <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-[#111] via-[#111]/60 to-transparent pointer-events-none" />
                     </div>
 
-                    {/* Background effect animation - on top of banner & card */}
                     {selectedEffectData && selectedEffectData.effects && selectedEffectData.effects.length > 0 && (
                       <div
                         className="absolute inset-0 pointer-events-none z-20 overflow-hidden"

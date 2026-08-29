@@ -13,9 +13,6 @@ interface AvatarUploadModalProps {
 }
 
 export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUploadModalProps) {
-  // Blob URLs handed to the parent on Apply. The parent renders them in the preview
-  // until the real upload URL replaces them on save, so revoking here would break
-  // that preview — this modal only revokes the previews it still owns.
   const appliedUrls = useRef<Set<string>>(new Set());
   const revokeIfUnused = (url: string | null) => {
     if (url?.startsWith("blob:") && !appliedUrls.current.has(url)) URL.revokeObjectURL(url);
@@ -34,7 +31,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
   const [rawSelectedFile, setRawSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
-    // Reset state when modal opens/closes
     if (!open && !isLoading) {
       const timer = setTimeout(() => {
         setResolvedUrl((prev) => {
@@ -117,7 +113,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       const isGif = file.type.includes("gif");
       setMediaType(isVid ? "video" : isGif ? "gif" : "image");
       
-      // Store the raw file to pass to onApply
       setRawSelectedFile(file);
       
       setIsLoading(false);
@@ -135,12 +130,9 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
         finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
       }
-      // The bare blob URL, not `finalUrl` — a video gets a `#.mp4` hint appended,
-      // and it is the un-suffixed URL the cleanup paths check.
       appliedUrls.current.add(resolvedUrl);
       onApply?.(finalUrl, rawSelectedFile || undefined);
 
-      // Reset state
       setResolvedUrl(null);
       setMediaType(null);
       setRawSelectedFile(null);
@@ -156,7 +148,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       <AnimatePresence>
         {open && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -166,7 +157,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
               onClick={handleCancelAndClose}
             />
 
-            {/* Modal */}
             <motion.div
               initial={{ opacity: 0, scale: 0.98, y: 6 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -174,7 +164,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
               transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
               className="fixed z-[101] top-1/2 left-1/2 w-[min(500px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0c0c0c] shadow-[0_18px_50px_rgba(0,0,0,0.55)]"
             >
-              {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06]">
                 <h2 className="text-[14px] font-medium text-white/90">Import Avatar Media</h2>
                 <button
@@ -187,7 +176,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
                 </button>
               </div>
 
-              {/* Body */}
               <div className="flex flex-col gap-4 px-5 py-5">
                 <div className="flex flex-col gap-1.5">
                   <FileUpload
@@ -205,7 +193,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
                   )}
                 </div>
 
-                {/* Actions */}
                 <div className="mt-1 border-t border-white/[0.06] pt-4">
                   <button
                     onClick={handleApply}
@@ -227,7 +214,6 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
         )}
       </AnimatePresence>
 
-      {/* Interactive Avatar Cropper Modal */}
       {cropImageSrc && (
         <MediaCropModal
           open={cropModalOpen}

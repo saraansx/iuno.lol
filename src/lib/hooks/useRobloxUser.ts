@@ -25,7 +25,6 @@ export function useRobloxUser(
 
   const cleanInput = cleanRobloxInput(input);
 
-  // Wait for typing to settle before hitting the profile route.
   const { value: fetchInput, isPending } = useDebouncedValue(cleanInput);
 
   useEffect(() => {
@@ -80,8 +79,6 @@ export function useRobloxUser(
     };
   }, [fetchInput, enabled, trigger]);
 
-  // While the typed input is ahead of the fetched one, report the loading state
-  // instead of the profile the hook still holds.
   return {
     user: isPending ? null : user,
     isLoading: isPending || isLoading,

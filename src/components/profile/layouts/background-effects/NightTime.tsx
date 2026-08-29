@@ -6,7 +6,6 @@ export function NightTimeEffect({ intensity = 50 }: { intensity?: number }) {
 
   useEffect(() => {
     const starCount = Math.floor((intensity / 100) * 100);
-    // Wrap in setTimeout to prevent synchronous cascading render warnings
     const timeoutId = setTimeout(() => {
       setStars((prev) => {
         if (prev.length === starCount) return prev;
@@ -28,7 +27,6 @@ export function NightTimeEffect({ intensity = 50 }: { intensity?: number }) {
     return () => clearTimeout(timeoutId);
   }, [intensity]);
 
-  // The darkness opacity scales with intensity, up to 90% dark
   const darknessOpacity = (intensity / 100) * 0.75;
 
   return (
@@ -40,13 +38,11 @@ export function NightTimeEffect({ intensity = 50 }: { intensity?: number }) {
         }
       `}</style>
       
-      {/* Dark overlay for night effect */}
       <div 
         className="absolute inset-0 bg-[#02040a] transition-opacity duration-500" 
         style={{ opacity: darknessOpacity }} 
       />
       
-      {/* Stars */}
       {stars.map((s) => (
         <div
           key={s.id}

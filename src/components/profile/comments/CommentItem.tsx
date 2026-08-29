@@ -87,7 +87,6 @@ export function CommentItem({
   return (
     <div className="w-full flex flex-col">
       <div className={`group relative flex transition-colors w-full ${isNested ? "gap-2.5 px-0 py-1" : "gap-3 px-4 py-3"}`}>
-      {/* Avatar */}
       <div className="shrink-0 pt-1">
         {comment.author.avatarUrl ? (
           <Image
@@ -104,7 +103,6 @@ export function CommentItem({
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-col flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <span className={`${isNested ? "text-[13px]" : "text-[14px]"} font-light text-white/90 truncate`}>
@@ -159,10 +157,8 @@ export function CommentItem({
         )}
       </div>
       
-      {/* Inline Actions */}
       <div className="flex items-center gap-1 pt-1 ml-auto self-start shrink-0">
         
-        {/* Like */}
         <button onClick={() => onLike(comment.id)} className={`flex items-center justify-center transition-colors focus:outline-none gap-1.5 ${comment.isLiked ? 'text-[#ff4b4b]' : 'text-white/40 hover:text-white'}`} title={comment.isLiked ? "Unlike" : "Like"}>
           <svg width="11" height="11" viewBox="0 0 512 512" fill="currentColor">
             <path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"/>
@@ -170,8 +166,6 @@ export function CommentItem({
           {comment.likesCount > 0 && <span className="text-[12px] font-medium leading-none">{comment.likesCount}</span>}
         </button>
 
-
-        {/* Reply */}
         {canReply && (
           <button onClick={() => setIsReplying(!isReplying)} className="w-4 h-4 flex items-center justify-center text-white/40 hover:text-white transition-colors focus:outline-none" title="Reply">
             <svg width="11" height="11" viewBox="0 0 512 512" fill="currentColor">
@@ -180,7 +174,6 @@ export function CommentItem({
           </button>
         )}
 
-        {/* Pin */}
         {canPin && (
           <button onClick={() => onPin(comment.id)} className={`w-4 h-4 flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#5b6cf5] hover:text-[#4a58c9]" : "text-white/40 hover:text-white"}`} title={comment.isPinned ? "Unpin" : "Pin"}>
             <svg width="12" height="12" viewBox="0 0 384 512" fill="currentColor" className="-rotate-45 transform origin-center overflow-visible">
@@ -189,7 +182,6 @@ export function CommentItem({
           </button>
         )}
 
-        {/* Edit / Cancel */}
         {canEdit && (
           isEditing ? (
             <button onClick={() => { setIsEditing(false); setEditContent(comment.content); }} className="w-4 h-4 flex items-center justify-center text-white/40 hover:text-white transition-colors focus:outline-none" title="Cancel Edit">
@@ -207,7 +199,6 @@ export function CommentItem({
           )
         )}
 
-        {/* Delete */}
         {canDelete && (
           <button onClick={() => onDelete(comment.id)} className="w-4 h-4 flex items-center justify-center text-white/40 hover:text-red-500 transition-colors focus:outline-none" title="Delete">
             <svg width="11" height="11" viewBox="0 0 448 512" fill="currentColor">
@@ -215,10 +206,9 @@ export function CommentItem({
             </svg>
           </button>
         )}
-      </div> {/* End of actions */}
-      </div> {/* End of main comment row */}
+      </div>
+      </div>
       
-      {/* Inline Reply Input */}
       {isReplying && (
         <div className="ml-[60px] mr-4 mb-2 relative mt-[-10px] z-10">
           <div className="absolute left-[-28px] top-0 bottom-0 w-[1px] bg-white/10" />
@@ -250,7 +240,6 @@ export function CommentItem({
         </div>
       )}
 
-      {/* Replies List */}
       {sortedReplies.length > 0 && (
         <div className="ml-[60px] mb-2 flex flex-col relative mt-[-10px] z-10">
           <button 

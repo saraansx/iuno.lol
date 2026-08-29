@@ -9,7 +9,7 @@ export interface ValorantPlayerData {
   name: string;
   tag: string;
   account_level: number;
-  card_id: string; // e.g. "a78feb94-4e1f-e845-c253-c182d9db9ef"
+  card_id: string;
   current_rank: {
     tier: number;
     tier_name: string;
@@ -92,7 +92,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   let fetchedAccount = false;
   let region = "ap";
 
-  // 1. Fetch Account Details (v1/account)
   try {
     const accRes = await fetch(`https://api.henrikdev.xyz/valorant/v1/account/${encodedName}/${encodedTag}`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -117,7 +116,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
     console.warn("[HenrikDev Account API Error]", e);
   }
 
-  // 2. Fetch MMR Data (v2/mmr or v1/mmr)
   try {
     const mmrRes = await fetch(`https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodedName}/${encodedTag}`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -148,7 +146,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
   let lastMatchAny: { agent: string; map: string } | undefined;
   let lastMatchComp: { agent: string; map: string } | undefined;
 
-  // 3. Fetch Matches for Last Played Agent & Map (v3/matches)
   try {
     const matchesRes = await fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region}/${encodedName}/${encodedTag}?size=5`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -160,7 +157,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
       const matchesJson = await matchesRes.json();
       const matches = matchesJson?.data || [];
 
-      // Find any latest match
       for (const match of matches) {
         const player = match.players?.all_players?.find(
           (p: { name?: string; tag?: string }) =>
@@ -191,7 +187,6 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
     console.warn("[HenrikDev Matches API Error]", e);
   }
 
-  // 4. If account was never fetched and no MMR data found, profile does not exist
   if (!fetchedAccount && !currentTier) {
     return null;
   }

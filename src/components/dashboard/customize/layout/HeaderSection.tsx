@@ -3,13 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { type AvatarPlacement } from "@/components/profile/layouts/ProfilePresetLayout";
 
-/**
- * Header placement settings for the standard profile.
- *
- * Avatar is wired up; Badges is still presentational, shown so the shape of the
- * setting is visible but rendered inert until it has a column behind it.
- */
-
 const AVATAR_OPTIONS: { id: AvatarPlacement; name: string; description: string }[] = [
   { id: "top", name: "Top", description: "Avatar displayed above the name." },
   { id: "left", name: "Left", description: "Avatar displayed to the left of the name." },
@@ -17,10 +10,8 @@ const AVATAR_OPTIONS: { id: AvatarPlacement; name: string; description: string }
   { id: "floating", name: "Floating", description: "Avatar overlaps the box as a floating element." },
 ];
 
-/** The value the Badges dropdown currently displays. */
 const BADGES_PLACEMENT = "Header footer";
 
-/** Label with a hint icon, matching the layout rows in StandardProfileSection. */
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (
     <div className="flex items-center gap-1.5 w-[130px] shrink-0">
@@ -38,7 +29,6 @@ function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabl
   );
 }
 
-/** A dropdown trigger rendered without a menu, since nothing is selectable yet. */
 function InertDropdown({ value }: { value: string }) {
   return (
     <div className="flex-1 flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5">
@@ -151,8 +141,6 @@ export default function HeaderSection({
                         isSelected ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
                       }`}
                     >
-                      {/* Fixed-width check column so every row's text starts on the
-                          same edge whether or not it is the selected one. */}
                       <span className="w-3.5 shrink-0 pt-[3px] text-[#5b6cf5]">
                         {isSelected && (
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -176,7 +164,6 @@ export default function HeaderSection({
           </div>
         </div>
 
-        {/* Badges has no column yet, so it stays inert rather than looking editable. */}
         <div className="flex items-center gap-4 opacity-40 pointer-events-none select-none">
           <RowLabel text="Badges" hint="Not available yet." disabled />
           <InertDropdown value={BADGES_PLACEMENT} />

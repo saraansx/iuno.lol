@@ -35,7 +35,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Pinterest board not found or private" });
     }
 
-    // Default: Pinterest Profile
     const cleanUsername = id
       .trim()
       .replace(/^https?:\/\/(www\.)?pinterest\.[a-z.]+\//i, "")

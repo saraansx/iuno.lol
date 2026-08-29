@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected effect is downloaded — "none" downloads nothing extra.
 const BlurUsernameEffect = dynamic(() => import("./username-effects/BlurUsernameEffect"));
 const SparkleUsernameEffect = dynamic(() => import("./username-effects/SparkleUsernameEffect"));
 const ShuffleUsernameEffect = dynamic(() => import("./username-effects/ShuffleUsernameEffect"));

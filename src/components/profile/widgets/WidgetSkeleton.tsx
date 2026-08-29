@@ -1,15 +1,3 @@
-/**
- * The loading state shared by every widget card — the public profile cards and
- * the dashboard customize previews both render this.
- *
- * It lives in one place because there used to be 26 hand-written copies, and
- * they had drifted apart on bar widths and stray platform logos. Change the
- * look here and every widget follows.
- *
- * The grey block mirrors the widget's own image shape, so the skeleton previews
- * the shape the user picked. Widgets with no image-shape setting (Valorant)
- * omit the prop and get the default rounded square.
- */
 export default function WidgetSkeleton({ imageShape }: { imageShape?: string }) {
   const shapeClass =
     imageShape === "square"

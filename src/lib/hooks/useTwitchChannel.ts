@@ -29,7 +29,6 @@ export function useTwitchChannel(
     .replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "")
     .replace(/\/$/, "");
 
-  // Wait for typing to settle before hitting the Twitch GQL endpoint.
   const { value: fetchLogin, isPending } = useDebouncedValue(cleanLogin);
 
   useEffect(() => {
@@ -90,8 +89,6 @@ export function useTwitchChannel(
     };
   }, [fetchLogin, enabled, trigger, refetchInterval]);
 
-  // While the typed login is ahead of the fetched one, report the loading state
-  // instead of the channel the hook still holds.
   return {
     channel: isPending ? null : channel,
     isLoading: isPending || isLoading,

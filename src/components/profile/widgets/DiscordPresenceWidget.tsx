@@ -60,8 +60,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
   const showViewButton = widget.showViewButton !== undefined ? widget.showViewButton : true;
 
   const [hoveredBadge, setHoveredBadge] = useState<{ name: string; x: number; y: number } | null>(null);
-  // The asset URL that failed to load, not a flag: a new song or activity brings
-  // a different URL, which un-hides the image without needing a reset.
   const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
   const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
 
@@ -103,8 +101,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
       }?size=128`
     : `https://cdn.discordapp.com/embed/avatars/${Number(BigInt(widget.targetId && /^\d+$/.test(widget.targetId) ? widget.targetId : "0") % BigInt(5))}.png`;
 
-  // Activity artwork can live on any host, so it goes through the resolver that
-  // keeps it inside the CSP's `img-src`.
   const activityIconUrl = discordActivityImageUrl(
     discordData?.primary_activity?.small_image_url || discordData?.primary_activity?.large_image_url
   );
@@ -142,14 +138,12 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
         rel="noopener noreferrer"
         className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] flex items-center justify-between transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 box-border relative overflow-hidden cursor-pointer"
       >
-        {/* Top-Right Redirect Badge */}
         {showViewButton && (
           <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
             <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
           </div>
         )}
 
-        {/* Background Layer: User Avatar Overlay */}
         {showBackgroundOverlay && avatarUrl ? (
           <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -164,7 +158,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
 
         <div className="@container flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
           <div className="flex items-center gap-3.5 min-w-0 flex-1">
-            {/* Avatar */}
             <div className="relative shrink-0 flex items-center justify-center">
               <div
                 className={`relative w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 ${
@@ -182,9 +175,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                 />
               </div>
 
-              {/* Status Indicator */}
-              {/* A circle's edge curves inward at the corner, so seat the dot on
-                  the edge (~4:30) instead of the bounding-box corner. */}
               <div
                 className={`absolute z-20 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center ${
                   imageShape === "circle" ? "bottom-0.5 right-0.5" : "-bottom-0.5 -right-0.5"
@@ -207,8 +197,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                 )}
               </div>
 
-              {/* Avatar Decoration — Discord renders these at 1.2x the avatar,
-                  offset -10% on each side (support.discord.com). */}
               {showAvatarDecoration && discordData?.user?.avatar_decoration_data?.asset && (
                 <div className="absolute -inset-[10%] pointer-events-none z-10">
                   <Image
@@ -223,9 +211,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
               )}
             </div>
 
-            {/* User Info */}
             <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-              {/* Header Row */}
               <OverflowPingPong deps={[discordData, showGuildTag, showBadges]}>
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {discordData?.user?.username || (loading ? "Loading..." : "Discord User")}
@@ -277,7 +263,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
                 )}
               </OverflowPingPong>
 
-              {/* Activity / Status */}
               <OverflowPingPong deps={[discordData, showActivity, fallbackText]}>
                 {!showActivity ? (
                   fallbackText ? (
@@ -354,7 +339,6 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
             </div>
           </div>
 
-          {/* Right-side Presence Thumbnail */}
           {showActivity && showActivityImage && activityThumbnailUrl && activityThumbnailUrl !== failedThumbnailUrl && (
             <div
               className={`relative shrink-0 w-[74px] h-[74px] overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ml-2 @max-[280px]:hidden ${

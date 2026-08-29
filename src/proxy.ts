@@ -94,13 +94,11 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // 2. Valid admin cookie lets you through
   const adminCookie = request.cookies.get(ADMIN_COOKIE)?.value
   if (adminCookie && (await verifyAdminToken(adminCookie))) {
     return response
   }
 
-  // 3. Coming-soon gate
   if (GATE_ENABLED) {
     const isStaticFile = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|webp|mp4|webm|json|xml|txt)$/i.test(path)
     const isPublicAsset =
@@ -118,16 +116,8 @@ export default async function middleware(request: NextRequest) {
   return response
 }
 
-// Only run middleware on these paths
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api/cron (cron jobs)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api/cron|_next/static|_next/image|favicon.ico).*)',
   ],
 }

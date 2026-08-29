@@ -74,15 +74,6 @@ function renderWidget(w: WidgetItem) {
   return null;
 }
 
-/**
- * Converts `#rrggbb` (or `#rgb`) to the "r g b" triplet the CSS variables want.
- *
- * The theming rules in `tailwind.css` use `rgb(var(--widget-primary) / 0.85)`, so
- * the variable has to hold channels rather than a colour — that is what lets one
- * colour serve every opacity step a widget uses. Returns null for anything
- * unparseable, and the caller then leaves the variable unset so the stylesheet's
- * own white fallback applies.
- */
 function hexToRgbChannels(hex: string | undefined | null): string | null {
   if (!hex) return null;
 
@@ -100,30 +91,18 @@ function hexToRgbChannels(hex: string | undefined | null): string | null {
 }
 
 export interface WidgetStyleProps {
-  /** Widget title colour. */
   widgetPrimaryTextColor?: string | null;
-  /** Widget stats and label colour. */
   widgetSecondaryTextColor?: string | null;
-  /** Card outline colour. */
   widgetBorderColor?: string | null;
-  /** Card outline opacity, 0-100. */
   widgetBorderOpacity?: number | null;
-  /** Card outline width in px. */
   widgetBorderWidth?: number | null;
-  /** Card corner radius in px. */
   widgetBorderRadius?: number | null;
-  /** Widget text font family name, as listed in FONT_OPTIONS. */
   widgetFont?: string | null;
-  /** Base widget text size in px; every card size scales against 12.5. */
   widgetFontSize?: number | null;
-  /** Widget text weight, 100-900. */
   widgetFontWeight?: number | null;
-  /** Extra letter spacing in px. */
   widgetLetterSpacing?: number | null;
 }
 
-// Same list the profile card uses. Kept local so ProfileWidgets stays a leaf and
-// does not import from the dashboard tree.
 const WIDGET_FONT_VARS: Record<string, string> = {
   "Inter": "var(--font-inter)",
   "Roboto": "var(--font-roboto)",
@@ -146,15 +125,8 @@ const WIDGET_FONT_VARS: Record<string, string> = {
   "Pixelify": "var(--font-pixelify)",
 };
 
-// The size the widget cards were built at; the scale is relative to it.
 const WIDGET_BASE_FONT_SIZE = 12.5;
 
-/**
- * Builds the custom properties the widget theming rules read.
- *
- * Only the properties that resolved are emitted, so an unset or malformed colour
- * falls through to the stylesheet default rather than rendering as black.
- */
 function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   const vars: Record<string, string> = {};
 
@@ -168,8 +140,6 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   if (border) vars["--widget-border"] = border;
 
   if (typeof style.widgetBorderOpacity === "number") {
-    // Clamp rather than trust the stored value — a hand-edited row should not be
-    // able to produce an invalid alpha.
     const clamped = Math.min(100, Math.max(0, style.widgetBorderOpacity));
     vars["--widget-border-alpha"] = String(clamped / 100);
   }
@@ -202,17 +172,22 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
     vars["--widget-letter-spacing"] = `${clamped}px`;
   }
 
-
   return vars as React.CSSProperties;
 }
+
+/** Card width at or above which two widgets sit side by side. */
+const TWO_COLUMN_MIN_CARD_WIDTH = 650;
 
 export default function ProfileWidgets({
   widgets = [],
   placement = "inside",
+  cardWidth,
   ...style
 }: {
   widgets?: WidgetItem[];
   placement?: "inside" | "outside";
+  /** Rendered card width in px. Narrow cards stay one widget per row. */
+  cardWidth?: number;
 } & WidgetStyleProps) {
   const activeWidgets = (widgets || []).filter(
     (w) => w.enabled && (w.placement || "inside") === placement
@@ -222,17 +197,19 @@ export default function ProfileWidgets({
 
   const themeStyle = widgetThemeStyle(style);
 
-  // One grid for every count. A widget that ends up alone on its row spans both
-  // columns instead of sitting half-width with a gap beside it, so a single widget
-  // reads as a full-width card and an odd last one fills the row it is on.
-  // Only the final widget can be alone, and only when the count is odd.
-  const lastSpansFullRow = activeWidgets.length % 2 === 1;
+  // A narrow card gets one widget per row: two would leave each about 300px wide,
+  // which is too tight for the denser widgets. Undefined means "not told", and the
+  // previous two-column behaviour is kept.
+  const twoColumns = cardWidth === undefined || cardWidth >= TWO_COLUMN_MIN_CARD_WIDTH;
+
+  // Only meaningful with two columns; in one column every row is already full width.
+  const lastSpansFullRow = twoColumns && activeWidgets.length % 2 === 1;
 
   return (
     <div
-      className={`iuno-widgets w-full mt-4 grid grid-cols-1 min-[640px]:grid-cols-2 gap-3 ${
-        placement === "outside" ? "z-10" : ""
-      }`}
+      className={`iuno-widgets w-full mt-4 grid grid-cols-1 gap-3 ${
+        twoColumns ? "min-[640px]:grid-cols-2" : ""
+      } ${placement === "outside" ? "z-10" : ""}`}
       style={themeStyle}
     >
       {activeWidgets.map((w, i) => {

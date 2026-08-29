@@ -16,7 +16,6 @@ interface AddWidgetModalProps {
   onAdd: (widget: { platform: string; type: string; useLinked: boolean; customId: string }) => void;
   linkedDiscordId?: string | null;
   linkedDiscordUsername?: string | null;
-  /** Canonical widget types already present on the profile. Each is limited to one. */
   usedTypes?: string[];
 }
 
@@ -89,8 +88,6 @@ export default function AddWidgetModal({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
-  // First platform that still has a free type, used as the fallback so the modal
-  // never opens on (or stays stuck on) a fully-used platform.
   const firstOpenPlatform =
     PLATFORMS.find(
       (p) => PLATFORM_WIDGET_TYPES[p.id] && !isPlatformFull(p.id, usedTypes)
@@ -103,20 +100,14 @@ export default function AddWidgetModal({
 
   const setSelectedPlatform = (platform: string) => {
     setPlatformChoice(platform);
-    // Drop any sub-type picked for the previous platform.
     setCustomWidgetType(null);
   };
 
   const platformTypes = PLATFORM_WIDGET_TYPES[selectedPlatform] || [];
 
-  // Default to the first type this platform still has available, so a platform
-  // with one type taken (e.g. Discord presence) lands on the free one (server).
   const defaultWidgetType =
     platformTypes.find((type) => !isTypeUsed(type)) || platformTypes[0] || "presence";
 
-  // Ignore a manually picked type that doesn't belong to the current platform or
-  // is already taken — otherwise switching platforms leaves a stale sub-type
-  // selected and no input section renders.
   const widgetType =
     customWidgetType &&
     platformTypes.includes(customWidgetType) &&
@@ -211,8 +202,6 @@ export default function AddWidgetModal({
     ? cleanWeatherLocation(weatherLocation)
     : "";
 
-  // For Spotify the pasted link/URI can resolve to a different sub-type than the
-  // dropdown selection, so the limit has to be checked against the resolved type.
   const resolvedSpotifyType = isSpotify
     ? (() => {
         const parsed = parseSpotifyIdentifier(spotifyInput.trim());
@@ -400,18 +389,15 @@ export default function AddWidgetModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         onClick={onClose}
         className="fixed inset-0 bg-black/75 backdrop-blur-md transition-opacity animate-in fade-in duration-200"
       />
 
-      {/* Modal Card */}
       <div
         ref={modalRef}
         className="relative w-full max-w-[440px] bg-[#0c0c0c] border border-white/10 rounded-[24px] p-6 shadow-2xl z-10 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200"
       >
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex flex-col">
             <h3 className="text-[16px] font-normal text-white/95 tracking-tight">Add a Widget</h3>
@@ -431,7 +417,6 @@ export default function AddWidgetModal({
           </button>
         </div>
 
-        {/* Platform Dropdown */}
         <div className="flex flex-col gap-2">
           <label className="text-[12px] font-normal text-white/60">Platform</label>
           <div className="relative" ref={dropdownRef}>
@@ -664,7 +649,6 @@ export default function AddWidgetModal({
 
         {isSpotify && (
           <>
-            {/* Spotify Item Type Dropdown */}
             <div className="flex flex-col gap-2">
               <label className="text-[12px] font-normal text-white/60">Type</label>
               <div className="relative" ref={spotifyTypeDropdownRef}>
@@ -731,7 +715,6 @@ export default function AddWidgetModal({
               </div>
             </div>
 
-            {/* Spotify Identifier Input */}
             <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
               <label className="text-[12px] font-normal text-white/60">
                 {SPOTIFY_TYPES.find((t) => t.id === widgetType)?.name || "Spotify Item"} Link or ID
@@ -757,7 +740,6 @@ export default function AddWidgetModal({
 
         {isDiscord && (
           <>
-            {/* Widget Type */}
             <div className="flex flex-col gap-2">
               <label className="text-[12px] font-normal text-white/60">Type</label>
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
@@ -792,10 +774,8 @@ export default function AddWidgetModal({
               </div>
             </div>
 
-            {/* Discord Presence Settings */}
             {isPresence && (
               <>
-                {/* Linked Discord Account Toggle / Link Button */}
                 <div className="flex flex-col gap-2 p-3.5 rounded-xl bg-[#141414]/60 border border-white/5">
                   <div className="flex items-center justify-between">
                     <div className="flex flex-col">
@@ -837,7 +817,6 @@ export default function AddWidgetModal({
                   </div>
                 </div>
 
-                {/* Discord User ID Input */}
                 <div className={`flex flex-col gap-1.5 transition-opacity duration-200 ${useLinkedAccount && linkedDiscordId ? "opacity-35 pointer-events-none" : "opacity-100"}`}>
                   <div className="flex items-center justify-between">
                     <label className="text-[12px] font-normal text-white/60">Discord User ID</label>
@@ -863,7 +842,6 @@ export default function AddWidgetModal({
               </>
             )}
 
-            {/* Discord Server Settings */}
             {isServer && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
                 <label className="text-[12px] font-normal text-white/60">Discord Server Invite Code</label>
@@ -906,7 +884,6 @@ export default function AddWidgetModal({
 
         {isGitHub && (
           <>
-            {/* Widget Type */}
             <div className="flex flex-col gap-2">
               <label className="text-[12px] font-normal text-white/60">Type</label>
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
@@ -941,7 +918,6 @@ export default function AddWidgetModal({
               </div>
             </div>
 
-            {/* GitHub User Settings */}
             {isGitHubUser && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
                 <label className="text-[12px] font-normal text-white/60">GitHub Username</label>
@@ -961,7 +937,6 @@ export default function AddWidgetModal({
               </div>
             )}
 
-            {/* GitHub Repo Settings */}
             {isGitHubRepo && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
                 <label className="text-[12px] font-normal text-white/60">GitHub Repository</label>
@@ -985,7 +960,6 @@ export default function AddWidgetModal({
 
         {isPinterest && (
           <>
-            {/* Widget Type */}
             <div className="flex flex-col gap-2">
               <label className="text-[12px] font-normal text-white/60">Type</label>
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
@@ -1020,7 +994,6 @@ export default function AddWidgetModal({
               </div>
             </div>
 
-            {/* Pinterest Profile Settings */}
             {isPinterestProfile && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
                 <label className="text-[12px] font-normal text-white/60">Pinterest Username</label>
@@ -1040,7 +1013,6 @@ export default function AddWidgetModal({
               </div>
             )}
 
-            {/* Pinterest Board Settings */}
             {isPinterestBoard && (
               <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
                 <label className="text-[12px] font-normal text-white/60">Pinterest Board</label>
@@ -1179,7 +1151,6 @@ export default function AddWidgetModal({
           </div>
         )}
 
-        {/* Action Buttons */}
         <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/5">
           <button
             type="button"

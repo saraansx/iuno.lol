@@ -5,19 +5,11 @@ import { forwardRef, useState } from "react";
 
 interface FloatingInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  /** Renders as type="password" with a show/hide toggle. */
   isPassword?: boolean;
-  /** Turns the border red and shows a message below the field. */
   error?: string;
-  /** Shows a `n/maxLength` counter in the corner (requires `maxLength`). */
   showCharacterCount?: boolean;
 }
 
-/**
- * FloatingInputBase — same floating-label behavior as `FloatingInput`, but with
- * a solid `bg-[#121212]` field instead of `bg-transparent` (matches the old
- * shared `Input` component's look when it sits on a light/variegated backdrop).
- */
 const FloatingInputBase = forwardRef<HTMLInputElement, FloatingInputProps>(
   ({ label, className, isPassword, error, showCharacterCount, type, onChange, onFocus, onBlur, ...props }, ref) => {
     const [focused, setFocused] = useState(false);

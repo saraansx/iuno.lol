@@ -6,11 +6,6 @@ import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { commentRateLimit, commentLikeRateLimit, commentEditRateLimit, commentDeleteRateLimit, commentPinRateLimit } from "@/lib/rate-limit";
 
-/**
- * Shape of the author object we're allowed to expose to the client.
- * Never spread the full `users` row here — it contains the password hash,
- * email, and ip.
- */
 type PublicCommentAuthor = {
   id: number;
   username: string;
@@ -126,7 +121,6 @@ export async function getComments(
   } else if (filter === "Most liked") {
     orderBys = [desc(schema.profileComments.isPinned), desc(schema.profileComments.likesCount), desc(schema.profileComments.createdAt)];
   } else {
-    // Default: Newest first
     orderBys = [desc(schema.profileComments.isPinned), desc(schema.profileComments.createdAt)];
   }
 
@@ -139,7 +133,7 @@ export async function getComments(
       } : undefined,
     },
     orderBy: orderBys,
-    limit: limit + 1, // Fetch one extra to know if there's a next page
+    limit: limit + 1,
     offset: (page - 1) * limit,
   });
 
@@ -184,13 +178,11 @@ export async function toggleLikeComment(commentId: number) {
 
     if (existingLikes.length > 0) {
       await tx.delete(schema.commentLikes).where(eq(schema.commentLikes.id, existingLikes[0].id));
-      // Atomic decrement (ensures it doesn't drop below 0)
       await tx.update(schema.profileComments)
         .set({ likesCount: sql`GREATEST(0, ${schema.profileComments.likesCount} - 1)` })
         .where(eq(schema.profileComments.id, commentId));
     } else {
       await tx.insert(schema.commentLikes).values({ commentId, userId });
-      // Atomic increment
       await tx.update(schema.profileComments)
         .set({ likesCount: sql`${schema.profileComments.likesCount} + 1` })
         .where(eq(schema.profileComments.id, commentId));
@@ -274,13 +266,10 @@ export async function deleteComment(commentId: number, profileId: number) {
 
   if (!comment) return { error: "Comment not found" };
 
-  // The profileId param is attacker-controllable, so it must never be used
-  // for authorization. Authorize against the comment's ACTUAL profile owner.
   if (comment.profileId !== profileId) {
     return { error: "Comment not found" };
   }
 
-  // Can delete if author OR if profile owner
   if (comment.authorId !== userId && comment.profileId !== userId) {
     return { error: "Unauthorized" };
   }
@@ -301,7 +290,6 @@ export async function getDashboardComments(page: number = 1, limit: number = 4) 
 
   const offset = (page - 1) * limit;
 
-  // Received comments (on this user's profile)
   const rawReceived = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, userId),
     with: {
@@ -311,11 +299,10 @@ export async function getDashboardComments(page: number = 1, limit: number = 4) 
       },
     },
     orderBy: [desc(schema.profileComments.createdAt)],
-    limit: limit + 1, // Fetch one extra to know if there's a next page
+    limit: limit + 1,
     offset,
   });
 
-  // Given comments (written by this user)
   const rawGiven = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.authorId, userId),
     with: {
@@ -325,7 +312,7 @@ export async function getDashboardComments(page: number = 1, limit: number = 4) 
       },
     },
     orderBy: [desc(schema.profileComments.createdAt)],
-    limit: limit + 1, // Fetch one extra to know if there's a next page
+    limit: limit + 1,
     offset,
   });
 
@@ -334,8 +321,6 @@ export async function getDashboardComments(page: number = 1, limit: number = 4) 
   const givenHasMore = rawGiven.length > limit;
   const givenSlice = givenHasMore ? rawGiven.slice(0, limit) : rawGiven;
 
-  // Total counts (not page-limited) so the tab labels can show "Received 60"
-  // even though only one page of 4 is rendered.
   const [receivedCount] = await db
     .select({ count: sql<number>`COUNT(*)` })
     .from(schema.profileComments)

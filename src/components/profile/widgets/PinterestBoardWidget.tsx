@@ -47,7 +47,6 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
       rel="noopener noreferrer"
       className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
     >
-      {/* Top-Right Redirect Badge */}
       {showViewButton && (
         <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -57,7 +56,6 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
         </div>
       )}
 
-      {/* Background Image Layer */}
       {showBackgroundOverlay && bgImageUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -71,7 +69,6 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
       )}
 
       <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-        {/* Cover / Pin Image */}
         <div
           className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${
             imageShape === "square" ? "rounded-none" : imageShape === "circle" ? "rounded-full" : "rounded-2xl"
@@ -91,16 +88,13 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
           )}
         </div>
 
-        {/* Board Info & Pin Count */}
         <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-          {/* Title with ping-pong overflow scroll */}
           <OverflowPingPong deps={[boardData, boardData?.name]}>
             <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
               {boardData.name}
             </span>
           </OverflowPingPong>
 
-          {/* Pin count & Creator */}
           <OverflowPingPong deps={[boardData, showPinCount]}>
             <div className="flex items-center gap-2 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap shrink-0">
               {showPinCount && (

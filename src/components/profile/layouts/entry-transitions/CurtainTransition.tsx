@@ -18,7 +18,6 @@ export function CurtainTransition({
       onClick={onClick}
       className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer select-none overflow-hidden"
     >
-      {/* Top Half */}
       <div
         style={{
           backgroundColor: hexToRgba(blurColor, overlayOpacity),
@@ -30,7 +29,6 @@ export function CurtainTransition({
         }`}
       />
 
-      {/* Bottom Half */}
       <div
         style={{
           backgroundColor: hexToRgba(blurColor, overlayOpacity),
@@ -42,7 +40,6 @@ export function CurtainTransition({
         }`}
       />
 
-      {/* Center text container */}
       <div
         className={`relative z-10 transition-all duration-300 ${
           isExiting ? "opacity-0 scale-90" : "opacity-100 scale-100"

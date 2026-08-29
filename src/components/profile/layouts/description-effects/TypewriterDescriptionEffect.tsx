@@ -3,30 +3,17 @@
 import { useEffect, useRef, useState } from "react";
 import { countRichText, revealRichText } from "./richTextReveal";
 
-const TYPE_SPEED = 40;         // ms per character typed
-const ERASE_SPEED = 14;        // ms per character erased
-const HOLD_AFTER_TYPE = 2400;  // ms the full bio lingers before erasing
-const HOLD_AFTER_ERASE = 300;  // ms the empty state lingers before retyping
-const INITIAL_DELAY = 300;     // ms before the first cycle starts
+const TYPE_SPEED = 40;
+const ERASE_SPEED = 14;
+const HOLD_AFTER_TYPE = 2400;
+const HOLD_AFTER_ERASE = 300;
+const INITIAL_DELAY = 300;
 
 type Phase = "typing" | "holding-typed" | "erasing" | "holding-empty";
 
-/**
- * TypewriterDescriptionEffect
- *
- * Cycles: type char-by-char → hold → erase char-by-char → hold blank → retype.
- *
- * Same phase machine as TypewriterUsernameEffect. The bio is what differs:
- * renderFormattedText emits <strong>/<u>/<s>/<em> formatting plus bullet rows
- * and line breaks through dangerouslySetInnerHTML, so the reveal has to walk the
- * tree and cut at character boundaries rather than slice a string. The untyped
- * remainder stays in flow at opacity 0, which keeps every frame the exact size
- * of the finished bio — text wraps where it finally will and the card never
- * grows line by line. See richTextReveal.tsx.
- */
 export default function TypewriterDescriptionEffect({ children }: { children: React.ReactNode }) {
   const total = countRichText(children);
-  const [left, setLeft] = useState(0); // visible chars revealed from the start
+  const [left, setLeft] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelledRef = useRef(false);
   const phaseRef = useRef<Phase>("typing");
@@ -99,9 +86,6 @@ export default function TypewriterDescriptionEffect({ children }: { children: Re
 
   if (total === 0) return <>{children}</>;
 
-  // Fresh state per render; revealRichText consumes `left` in document order and
-  // drops the caret in at the reveal boundary, right after the last typed
-  // character. Once the bio is fully typed the caret sits at the very end.
   const shown = revealRichText(children, {
     left,
     caret: <Caret key="tw-caret" />,

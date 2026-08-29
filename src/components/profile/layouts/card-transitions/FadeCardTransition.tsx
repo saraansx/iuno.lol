@@ -10,7 +10,6 @@ export default function FadeCardTransition({ children, className = "" }: FadeCar
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    // Trigger the fade after mount so the transition actually animates
     const raf = requestAnimationFrame(() => setVisible(true));
     return () => cancelAnimationFrame(raf);
   }, []);

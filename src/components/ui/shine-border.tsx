@@ -4,28 +4,11 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 interface ShineBorderProps extends React.HTMLAttributes<HTMLDivElement> {
-  /**
-   * Width of the border in pixels
-   * @default 1
-   */
   borderWidth?: number;
-  /**
-   * Duration of the animation in seconds
-   * @default 14
-   */
   duration?: number;
-  /**
-   * Color of the border, can be a single color or an array of colors
-   * @default "#000000"
-   */
   shineColor?: string | string[];
 }
 
-/**
- * Shine Border
- *
- * An animated background border effect component with configurable properties.
- */
 export function ShineBorder({
   borderWidth = 1,
   duration = 8,
@@ -34,7 +17,6 @@ export function ShineBorder({
   style,
   ...props
 }: ShineBorderProps) {
-  // One lit arc spanning 0.12–0.28turn, rest transparent, rotated by --shine-angle.
   const colors = Array.isArray(shineColor) ? shineColor : [shineColor];
   const stops = colors
     .map((c, i) => `${c} ${(0.12 + (i * 0.16) / Math.max(colors.length - 1, 1)).toFixed(3)}turn`)
@@ -56,9 +38,6 @@ export function ShineBorder({
         } as React.CSSProperties
       }
       className={cn(
-        // Plain class, not `motion-safe:` — animate-shine is hand-written CSS, not a
-        // Tailwind utility, so the variant emits nothing. Reduced-motion is handled
-        // by a media query on .animate-shine in tailwind.css.
         "animate-shine pointer-events-none absolute inset-0 size-full rounded-[inherit]",
         className
       )}

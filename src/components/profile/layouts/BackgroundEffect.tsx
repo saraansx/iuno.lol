@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected effect is downloaded — "none" downloads nothing extra.
 const SnowEffect = dynamic(() => import("./background-effects/Snow").then((m) => m.SnowEffect), { ssr: false });
 const NightTimeEffect = dynamic(() => import("./background-effects/NightTime").then((m) => m.NightTimeEffect), { ssr: false });
 const OldTVEffect = dynamic(() => import("./background-effects/OldTV").then((m) => m.OldTVEffect), { ssr: false });

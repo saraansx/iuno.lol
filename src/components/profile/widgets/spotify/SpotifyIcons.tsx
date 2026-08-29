@@ -5,9 +5,6 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
   className?: string;
 }
 
-/**
- * Solid silhouette user / artist icon (as seen in Spotify widget metadata).
- */
 export function SpotifyArtistIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -24,9 +21,6 @@ export function SpotifyArtistIcon({ size = 12, className = "", ...props }: IconP
   );
 }
 
-/**
- * Vinyl record / album disc icon with center hole and groove.
- */
 export function SpotifyAlbumIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -46,9 +40,6 @@ export function SpotifyAlbumIcon({ size = 12, className = "", ...props }: IconPr
   );
 }
 
-/**
- * Followers group / audience solid icon.
- */
 export function SpotifyFollowersIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -64,9 +55,6 @@ export function SpotifyFollowersIcon({ size = 12, className = "", ...props }: Ic
   );
 }
 
-/**
- * Monthly listeners / headphones icon.
- */
 export function SpotifyListenersIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -82,9 +70,6 @@ export function SpotifyListenersIcon({ size = 12, className = "", ...props }: Ic
   );
 }
 
-/**
- * Track count / music notes icon.
- */
 export function SpotifyTracksIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -100,9 +85,6 @@ export function SpotifyTracksIcon({ size = 12, className = "", ...props }: IconP
   );
 }
 
-/**
- * Release year / time icon (clean solid clock glyph).
- */
 export function SpotifyCalendarIcon({ size = 12, className = "", ...props }: IconProps) {
   return (
     <svg
@@ -122,9 +104,6 @@ export function SpotifyCalendarIcon({ size = 12, className = "", ...props }: Ico
   );
 }
 
-/**
- * Spotify official brand icon (green mark).
- */
 export function SpotifyLogoIcon({ size = 13, className = "", ...props }: IconProps) {
   return (
     <svg

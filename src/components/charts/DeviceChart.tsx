@@ -35,25 +35,22 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
   }, [isMounted]);
 
   const data = [
-    { name: 'iOS', value: stats.ios, color: '#f472b6' }, // pink
-    { name: 'Android', value: stats.android, color: '#4ade80' }, // green
-    { name: 'Windows', value: stats.windows, color: '#60a5fa' }, // blue
-    { name: 'Mac', value: stats.mac, color: '#94a3b8' }, // slate/silver
-    { name: 'Other', value: stats.other, color: '#52525b' }, // dark gray
+    { name: 'iOS', value: stats.ios, color: '#f472b6' },
+    { name: 'Android', value: stats.android, color: '#4ade80' },
+    { name: 'Windows', value: stats.windows, color: '#60a5fa' },
+    { name: 'Mac', value: stats.mac, color: '#94a3b8' },
+    { name: 'Other', value: stats.other, color: '#52525b' },
   ].filter(item => item.value > 0);
 
-  // If no data, show a placeholder
   const displayData = data.length > 0 ? data : [{ name: 'No Data', value: 1, color: '#333333' }];
 
   return (
     <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full h-full relative transition-opacity duration-300 opacity-100 flex flex-col">
-      {/* Header */}
       <div className="mb-4">
         <h2 className="text-white font-inter font-medium text-lg tracking-wide">Devices</h2>
         <p className="text-white/30 text-xs mt-1 font-inter">How visitors break down by device type.</p>
       </div>
 
-      {/* Chart */}
       <div ref={containerRef} className="h-48 w-full relative mt-4">
         {!isMounted || dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -102,7 +99,6 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
         )}
       </div>
 
-      {/* Legend */}
       {isMounted && dimensions.width > 0 && data.length > 0 && (
         <div className="flex items-center justify-center gap-4 mt-4">
           {data.map((entry) => (

@@ -38,7 +38,7 @@ export async function login(input: LoginInput) {
 
     const user = await getUserByEmailWithPassword(email)
     if (!user) {
-      return { error: 'Invalid credentials.' } // Prevent enumeration
+      return { error: 'Invalid credentials.' }
     }
 
     if (!user.emailVerified) {
@@ -70,7 +70,6 @@ export async function login(input: LoginInput) {
       return { error: 'Invalid login method.' }
     }
 
-    // Create session
     await createSession(user.id)
 
     return { success: 'Logged in successfully!', username: user.username }

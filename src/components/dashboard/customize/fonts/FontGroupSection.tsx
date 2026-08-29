@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-// The 19 faces loaded in the root layout, and the CSS variable each one is exposed
-// under. Kept here so every font control shares one list.
 export const FONT_OPTIONS = [
   "Inter", "Pacifico", "Roboto", "Elegant Bloom", "Outfit",
   "Caviar Dreams", "Space Grotesk", "Caveat", "Playfair Display", "Paper Notes",
@@ -35,7 +33,6 @@ export const fontVariables: Record<string, string> = {
 
 interface FontGroupSectionProps {
   label: string;
-  /** Shown under the label so it is clear which text on the card this drives. */
   hint?: string;
   icon: React.ReactNode;
   isOpen: boolean;
@@ -81,7 +78,6 @@ export default function FontGroupSection({
           <span className="text-[13px] font-medium text-white/90">{label}</span>
           {hint && <span className="text-[11.5px] text-white/40 leading-tight">{hint}</span>}
         </div>
-        {/* Preview the chosen face on the row so the picker can stay collapsed. */}
         <span className="text-[12.5px] text-white/40 shrink-0" style={{ fontFamily: family }}>
           {font}
         </span>

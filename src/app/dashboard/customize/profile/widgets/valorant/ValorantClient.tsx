@@ -215,9 +215,7 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid: Account on Left, Live Preview on Right */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Account Settings Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -226,7 +224,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
               </p>
             </div>
 
-            {/* Riot ID Input */}
             <div className="flex flex-col gap-2">
               <label className="text-[12.5px] font-normal text-white/80">Riot ID</label>
               <div className="relative">
@@ -250,7 +247,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right Side: Live Valorant Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -288,14 +284,12 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                   </div>
                 </div>
               ) : (
-                /* Live Valorant Widget Card Preview */
                 <a
                   href={`https://tracker.gg/valorant/profile/riot/${encodeURIComponent(valorantData.name)}%23${encodeURIComponent(valorantData.tag)}/overview`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -305,7 +299,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                     </div>
                   )}
 
-                  {/* Background Layer */}
                   {bgImageUrl && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -319,7 +312,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Avatar Icon */}
                     <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
                       {avatarUrl ? (
                         // eslint-disable-next-line @next/next/no-img-element
@@ -333,7 +325,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                       )}
                     </div>
 
-                    {/* Info + Badges */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className="text-[14.5px] font-normal text-white/95 tracking-tight truncate">
@@ -344,7 +335,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
                         </span>
                       </div>
 
-                      {/* Badges / Stats */}
                       <div className="flex items-center gap-2.5 text-[12.5px] font-normal leading-tight text-white/60 whitespace-nowrap overflow-hidden">
                         {showRank && (
                           <div className="flex items-center gap-1.5 shrink-0">
@@ -391,7 +381,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Section: Dedicated Full-Width Valorant Customization Container */}
         <ValorantCustomization
           placement={placement}
           onPlacementChange={setPlacement}
@@ -416,7 +405,6 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
         />
       </div>
 
-      {/* Floating Save/Add Widget Bar */}
       <SaveBar
         show={isChanged || !isEditing}
         onSave={handleSaveWidgetConfirm}

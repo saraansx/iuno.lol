@@ -72,13 +72,10 @@ export default function SpotifyCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Track: Show Artist */}
         {isTrack && (
           <SpotifyToggleSetting
             label="Show artist"
@@ -88,7 +85,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Track: Show Album */}
         {isTrack && (
           <SpotifyToggleSetting
             label="Show album"
@@ -98,7 +94,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Album: Show Artist */}
         {isAlbum && (
           <SpotifyToggleSetting
             label="Show artist"
@@ -108,7 +103,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Album: Show Track Count */}
         {isAlbum && (
           <SpotifyToggleSetting
             label="Show track count"
@@ -118,7 +112,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Album: Show Release Year */}
         {isAlbum && (
           <SpotifyToggleSetting
             label="Show release year"
@@ -128,7 +121,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Playlist: Show Owner */}
         {isPlaylist && (
           <SpotifyToggleSetting
             label="Show owner"
@@ -138,7 +130,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Playlist: Show Track Count */}
         {isPlaylist && (
           <SpotifyToggleSetting
             label="Show track count"
@@ -148,7 +139,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Artist: Show Followers */}
         {isArtist && (
           <SpotifyToggleSetting
             label="Show followers"
@@ -158,7 +148,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Artist: Show Monthly Listeners */}
         {isArtist && (
           <SpotifyToggleSetting
             label="Show monthly listeners"
@@ -168,7 +157,6 @@ export default function SpotifyCustomization({
           />
         )}
 
-        {/* Background Image */}
         <SpotifyToggleSetting
           label="Background image"
           description="Display a subtle blurred artwork backdrop in the widget card."
@@ -176,7 +164,6 @@ export default function SpotifyCustomization({
           onChange={onShowBackgroundChange}
         />
 
-        {/* Show View Button */}
         <SpotifyToggleSetting
           label="Show redirect button"
           description="Display a top-right direct link button opening Spotify."

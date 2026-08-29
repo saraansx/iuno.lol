@@ -8,8 +8,6 @@ export function useGenshinPlayer(uid: string) {
   const cleanUid = (uid || "").trim();
   const isValidUid = /^[1-9][0-9]{8,9}$/.test(cleanUid);
 
-  // Wait for typing to settle before hitting the upstream Enka API. A UID that
-  // is not yet complete debounces to "" at once, clearing the preview.
   const { value: fetchUid, isPending } = useDebouncedValue(isValidUid ? cleanUid : "");
 
   const [data, setData] = useState<GenshinPlayerData | null>(null);
@@ -61,8 +59,6 @@ export function useGenshinPlayer(uid: string) {
     };
   }, [fetchUid]);
 
-  // While the typed UID is ahead of the fetched one, report the loading state
-  // instead of the player the hook still holds.
   const isReady = isValidUid && !isPending;
 
   return {

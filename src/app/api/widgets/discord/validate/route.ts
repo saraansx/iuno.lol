@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: false, error: "Invalid Discord invite code format" });
       }
 
-      // Validate invite code via Discord API
       const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true`, {
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: { "User-Agent": "iuno-presence-proxy/1.0" },
@@ -52,7 +51,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: false, error: "Invalid Discord ID format" });
     }
 
-    // Presence type: Validate user via bot token or public gateway
     const botToken = process.env.DISCORD_BOT_TOKEN;
     if (botToken) {
       const res = await fetch(`https://discord.com/api/v10/users/${id}`, {
@@ -82,7 +80,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Fallback: Check snowflake timestamp math to ensure ID belongs to real Discord Epoch
     const snowflake = BigInt(id);
     const discordEpoch = BigInt(1420070400000);
     const timestamp = Number((snowflake >> BigInt(22)) + discordEpoch);

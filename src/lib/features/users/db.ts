@@ -144,8 +144,6 @@ export async function createUser(input: CreateUserInput) {
   const passwordHash = await hashPassword(input.password)
 
   try {
-    // Both inserts run in one transaction — if userSettings fails, the user
-    // insert rolls back too (no orphaned user rows).
     const userId = await db.transaction(async (tx) => {
       const [result] = await tx.insert(schema.users).values({
         username,
@@ -234,7 +232,6 @@ export async function assertEmailAvailable(email: string) {
   const existing = await getUserByEmail(email)
   if (!existing) return
 
-
   if (!existing.emailVerified) {
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
     if (existing.createdAt < fiveMinutesAgo) return
@@ -282,8 +279,6 @@ export async function markEmailVerified(email: string) {
     .where(eq(schema.users.email, email.toLowerCase().trim()))
 }
 
-// ── Discord OAuth ──────────────────────────────────────────────────────────
-
 export async function getUserByDiscordId(discordId: string) {
   const result = await db
     .select(userColumns)
@@ -305,10 +300,8 @@ type UpsertDiscordUserInput = {
 export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<number> {
   const { discordId, discordUsername, email, emailVerified, ip } = input
 
-  // 1. Already linked via discordId
   const byDiscord = await getUserByDiscordId(discordId)
   if (byDiscord) {
-    // Refresh discord username in case it changed
     await db
       .update(schema.users)
       .set({ discordUsername })
@@ -372,17 +365,14 @@ export async function updatePassword(email: string, passwordUnhashed: string) {
     .where(eq(schema.users.email, email.toLowerCase().trim()))
 }
 
-// ── Profile views analytics ───────────────────────────────────────────────
-
 interface AnalyticsRow { view_date?: string | Date; count: string | number; }
 
 export interface RawViewBin {
-  d: string; // YYYY-MM-DD
-  c: number; // views count
+  d: string;
+  c: number;
 }
 
 export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
-  // Fetch all raw view bins for the user from the last 7 days.
   const rows = await db.execute(sql`
     SELECT view_date, count
     FROM profile_views
@@ -394,7 +384,6 @@ export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
   if (!Array.isArray(resultRows)) return []
 
   return resultRows.map(row => {
-    // Sometimes MySQL driver returns Date objects, sometimes strings
     const dString = row.view_date instanceof Date
       ? row.view_date.toISOString().split('T')[0]
       : typeof row.view_date === 'string'
@@ -441,6 +430,4 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
     other: Number(resultRows[0].other) || 0
   }
 }
-
-
 

@@ -2,14 +2,6 @@
 
 import { useState } from "react";
 
-/**
- * Pixel field that can be emptied while typing.
- *
- * A controlled `type="number"` bound straight to the saved value snaps back to
- * `0` the instant the field is cleared, so replacing `24` with `8` means fighting
- * a `0` that reappears mid-edit. Keeping the raw text in local state lets the
- * field sit genuinely empty until a number is typed; it only settles on blur.
- */
 function PixelInput({
   label,
   value,
@@ -21,7 +13,6 @@ function PixelInput({
   onChange: (val: number) => void;
   max: number;
 }) {
-  // null means "not being edited" — show the saved value instead of a draft.
   const [draft, setDraft] = useState<string | null>(null);
 
   return (
@@ -37,8 +28,6 @@ function PixelInput({
           onChange={(e) => {
             const raw = e.target.value;
             setDraft(raw);
-            // An empty field is a valid intermediate state, so nothing is
-            // committed until there is a number to commit.
             if (raw === "") return;
             const parsed = Number(raw);
             if (Number.isFinite(parsed)) {
@@ -46,8 +35,6 @@ function PixelInput({
             }
           }}
           onBlur={() => {
-            // Once focus leaves the value has to be a number, so an empty or
-            // unparseable field settles to 0.
             if (draft !== null && !Number.isFinite(Number(draft || NaN))) {
               onChange(0);
             }
@@ -70,15 +57,6 @@ interface WidgetBorderCustomizationProps {
   setBorderOpacity: (val: number) => void;
 }
 
-/**
- * Size and visibility of the widget card outline.
- *
- * Width and radius are number inputs, matching the Profile Card border controls
- * in the Appearance section. Opacity stays a slider because it is the one value
- * users nudge by eye rather than type, and uses the same layered slider markup as
- * the rest of the dashboard — the border colour itself lives with the other
- * colours on the Colors page.
- */
 export default function WidgetBorderCustomization({
   borderWidth,
   setBorderWidth,
@@ -114,15 +92,11 @@ export default function WidgetBorderCustomization({
           />
         </div>
 
-        {/* Border Opacity */}
         <div className="flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <label className="text-[12.5px] font-medium text-white/90">Border Opacity</label>
             <span className="text-[12px] text-white/40 font-mono">{borderOpacity}%</span>
           </div>
-          {/* Same layered markup as the other sliders (background intensity, views
-              animation duration): a track, a filled portion, an invisible native
-              range on top for the actual interaction, and a decorative thumb. */}
           <div className="relative flex items-center h-5 group w-full">
             <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
               <div

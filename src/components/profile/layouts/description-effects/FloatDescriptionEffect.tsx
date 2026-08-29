@@ -2,19 +2,10 @@
 
 import { cloneElement, isValidElement, type CSSProperties, type ReactNode } from "react";
 
-const FLOAT_DURATION = 3200; // ms for one full float cycle
+const FLOAT_DURATION = 3200;
 
 type WithStyle = { style?: CSSProperties };
 
-/**
- * FloatDescriptionEffect
- *
- * Same elliptical drift as FloatUsernameEffect, but the animation is applied
- * to the bio element itself rather than a wrapper <span>. The bio is a block
- * with max-w-[90%] whose width and centering resolve against its parent, so an
- * extra box in between would change where the text sits. transform never
- * affects layout, so the drift can't resize or shift the card.
- */
 export default function FloatDescriptionEffect({ children }: { children: ReactNode }) {
   const style: CSSProperties = {
     willChange: "transform",

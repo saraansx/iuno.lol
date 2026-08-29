@@ -5,8 +5,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 interface OverflowPingPongProps {
   children: ReactNode;
   className?: string;
-  speed?: number; // pixels per second travel speed
-  pauseDuration?: number; // seconds to pause on each side
+  speed?: number;
+  pauseDuration?: number;
   deps?: unknown[];
 }
 

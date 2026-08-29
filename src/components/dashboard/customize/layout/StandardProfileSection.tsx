@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { type ContentAlignment } from "@/components/profile/layouts/ProfilePresetLayout";
 
-/** Which arrangement the standard card uses. Mirrors PROFILE_PRESETS in the action. */
 export type ProfilePreset = "split" | "floating" | "modern" | "classic";
 
 interface PresetOption {
@@ -42,24 +41,14 @@ interface StandardProfileSectionProps {
   setWrapInCard: (val: boolean) => void;
   contentWidth: number;
   setContentWidth: (val: number) => void;
-  /**
-   * True when the current placements no longer match the preset's own defaults.
-   * The trigger then reads "Custom" — the preset is still what was last applied, but
-   * saying so would misdescribe an arrangement the user has since edited.
-   */
   isCustom?: boolean;
   alignment: ContentAlignment;
   setAlignment: (val: ContentAlignment) => void;
 }
 
-/** Matches the clamp in updateLayoutProfile. */
 export const CONTENT_WIDTH_MIN = 480;
 export const CONTENT_WIDTH_MAX = 1000;
 
-/**
- * Label with a hint icon, matching the row style used across the layout settings.
- * `disabled` dims it for the rows that are not wired up yet.
- */
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (
     <div className="flex items-center gap-1.5 w-[130px] shrink-0">
@@ -77,13 +66,6 @@ function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabl
   );
 }
 
-/**
- * Presets for the standard (single-card) profile.
- *
- * Kept in its own component so the structure picker stays a plain chooser and a
- * future sectioned equivalent never has to be untangled from shared code. The
- * Layout page renders this only while `profileStructure` is `standard`.
- */
 export default function StandardProfileSection({
   preset,
   setPreset,
@@ -110,16 +92,9 @@ export default function StandardProfileSection({
 
   const selected = PRESETS.find((p) => p.id === preset);
 
-  // Held locally while dragging, so each pixel of movement re-renders this row
-  // rather than pushing a new width into the shared overrides and relaying out the
-  // whole preview card. `null` means "not dragging" — the committed value is used.
   const [draftWidth, setDraftWidth] = useState<number | null>(null);
   const draftRef = useRef<number | null>(null);
 
-  // Commit on a window-level pointerup rather than the input's own: a drag very
-  // often ends with the cursor outside the 20px-tall track, and the input's
-  // onPointerUp never fires in that case, which left the value stuck at its old
-  // number and read as the slider refusing to move.
   useEffect(() => {
     const commit = () => {
       if (draftRef.current === null) return;
@@ -135,8 +110,6 @@ export default function StandardProfileSection({
     };
   }, [setContentWidth]);
 
-  // The slider is driven by the clamped value so the thumb can never sit off the
-  // track, while `contentWidth` itself stays untouched for the warning below.
   const clampedWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, contentWidth));
   const displayWidth = draftWidth ?? clampedWidth;
   const fillPercent =
@@ -210,8 +183,6 @@ export default function StandardProfileSection({
                       isSelected ? "bg-white/[0.06]" : "hover:bg-white/[0.04]"
                     }`}
                   >
-                    {/* Fixed-width check column so every row's text starts on the
-                        same edge whether or not it is the selected one. */}
                     <span className="w-3.5 shrink-0 pt-[3px] text-[#5b6cf5]">
                       {isSelected && (
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -238,9 +209,6 @@ export default function StandardProfileSection({
       <div className="h-px w-full bg-white/5" />
 
       <div className="flex flex-col gap-5">
-        {/* Alignment is presentational for now: it is shown so the shape of the
-            settings is visible, but it is not wired to a column yet. Content width
-            and Wrap in card below both change the profile. */}
         <div className="flex items-center gap-4">
           <RowLabel
             text="Alignment"
@@ -296,7 +264,6 @@ export default function StandardProfileSection({
                     draftRef.current = next;
                     setDraftWidth(next);
                   }}
-                  // Keyboard changes never see a pointerup, so they commit here.
                   onKeyUp={() => {
                     if (draftRef.current === null) return;
                     setContentWidth(draftRef.current);
@@ -316,9 +283,6 @@ export default function StandardProfileSection({
               </span>
             </div>
           </div>
-          {/* The range input cannot go below the floor, so this only appears for a
-              stored value that predates the limit — it explains the snap rather
-              than letting the number silently change. */}
           {contentWidth < CONTENT_WIDTH_MIN && (
             <span className="text-[11.5px] text-[#e2894b] pl-[146px]">
               Minimum is {CONTENT_WIDTH_MIN} px

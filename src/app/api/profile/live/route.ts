@@ -4,7 +4,7 @@ import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
 
-const CACHE_TTL = 60; // seconds
+const CACHE_TTL = 60;
 const CACHE_PREFIX = 'live:';
 
 async function getLiveStatsByUsername(username: string) {
@@ -31,14 +31,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Missing username' }, { status: 400 });
     }
 
-    // Validate username format to prevent injection/abuse
     if (username.length > 32 || !/^[a-z0-9_.]+$/.test(username)) {
       return NextResponse.json({ error: 'Invalid username' }, { status: 400 });
     }
 
     const cacheKey = `${CACHE_PREFIX}${username}`;
 
-    // 1. Try Redis cache first
     const cached = await redis.get(cacheKey);
     if (cached) {
       const parsed = typeof cached === "string" ? JSON.parse(cached) : cached;
@@ -47,7 +45,6 @@ export async function GET(request: Request) {
       });
     }
 
-    // 2. Cache miss - fetch from DB
     const stats = await getLiveStatsByUsername(username);
 
     if (!stats) {
@@ -60,7 +57,6 @@ export async function GET(request: Request) {
       dislikesCount: stats.dislikesCount,
     };
 
-    // 3. Store in Redis with TTL
     await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL);
 
     return NextResponse.json(responseData, {
@@ -72,14 +68,12 @@ export async function GET(request: Request) {
   }
 }
 
-// Helper to invalidate cache when profile stats change (accepts username or numeric id)
 export async function invalidateLiveStatsCache(identifier: string | number) {
   if (typeof identifier === 'string') {
     await redis.del(`${CACHE_PREFIX}${identifier.toLowerCase()}`);
     return;
   }
 
-  // If numeric ID passed, find username to bust key
   const [user] = await db
     .select({ username: users.username })
     .from(users)

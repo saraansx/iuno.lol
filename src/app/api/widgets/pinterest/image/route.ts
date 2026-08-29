@@ -10,7 +10,6 @@ export async function GET(req: NextRequest) {
       return new NextResponse(null, { status: 400 });
     }
 
-    // Security check: Only proxy valid Pinterest CDN domains or safe origins
     let parsedUrl: URL;
     try {
       parsedUrl = new URL(imageUrl);

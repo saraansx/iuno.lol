@@ -17,11 +17,9 @@ export default function ElasticCardEffect({ children, className = "" }: ElasticC
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
 
-    // -1 to 1 relative to center
     const relX = (e.clientX - centerX) / (rect.width / 2);
     const relY = (e.clientY - centerY) / (rect.height / 2);
 
-    // Stretch toward the cursor along each axis (rubber-band feel)
     const scaleX = 1 + relX * 0.15;
     const scaleY = 1 - relX * 0.06 + Math.abs(relY) * 0.05;
     const rotate = relX * 4;
@@ -30,7 +28,6 @@ export default function ElasticCardEffect({ children, className = "" }: ElasticC
   }, []);
 
   const handleMouseLeave = useCallback(() => {
-    // Snap back with a springy overshoot via the transition
     setTransform("scale(1, 1)");
   }, []);
 

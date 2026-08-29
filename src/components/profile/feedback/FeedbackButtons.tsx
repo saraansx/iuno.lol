@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { submitFeedbackAction } from "@/actions/feedback";
 
-// helper for hexToRgba
 function hexToRgba(hex: string, opacity: number): string {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
@@ -22,7 +21,6 @@ interface FeedbackButtonsProps {
   initialDislikes: number;
   initialFeedback?: 'like' | 'dislike' | null;
   accentColor?: string | null;
-  /** Resolved CSS for the hover pills, from the Highlight font group. */
   tooltipTextStyle?: React.CSSProperties;
   className?: string;
   showLikesTooltip?: boolean;
@@ -50,8 +48,6 @@ export default function FeedbackButtons({
   const [hasDisliked, setHasDisliked] = useState(initialFeedback === "dislike");
   const [pending, setPending] = useState(false);
 
-  // Server is the source of truth for whether this viewer already voted, so a
-  // new browser or device shows the correct state instead of an empty heart.
   useEffect(() => {
     setHasLiked(initialFeedback === "like");
     setHasDisliked(initialFeedback === "dislike");
@@ -74,7 +70,6 @@ export default function FeedbackButtons({
       return;
     }
 
-    // Snapshot so a rejected action can be rolled back.
     const prev = {
       likes: likesCount,
       dislikes: dislikesCount,
@@ -93,7 +88,6 @@ export default function FeedbackButtons({
         action = "like";
         setLikesCount((v) => v + 1);
         setHasLiked(true);
-        // A single "like" call also clears an existing dislike server-side.
         if (hasDisliked) {
           setDislikesCount((v) => Math.max(0, v - 1));
           setHasDisliked(false);
@@ -143,7 +137,6 @@ export default function FeedbackButtons({
         } as React.CSSProperties
       }
     >
-      {/* Like Button */}
       <div className="relative group/tooltip flex justify-center">
         <button
           onClick={isDisabled ? undefined : handleLike}
@@ -167,7 +160,6 @@ export default function FeedbackButtons({
             <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
           </svg>
         </button>
-        {/* Tooltip */}
         {showLikesTooltip && (
           <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
             <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>
@@ -177,7 +169,6 @@ export default function FeedbackButtons({
         )}
       </div>
 
-      {/* Dislike Button */}
       <div className="relative group/tooltip flex justify-center">
         <button
           onClick={isDisabled ? undefined : handleDislike}
@@ -201,7 +192,6 @@ export default function FeedbackButtons({
             <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
           </svg>
         </button>
-        {/* Tooltip */}
         {showDislikesTooltip && (
           <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/tooltip:translate-y-0">
             <div className="bg-[#0f0f12]/75 border border-white/10 text-white px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap backdrop-blur-xl" style={tooltipTextStyle}>

@@ -140,10 +140,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
     "Compact"
   ];
 
-
-
-
-
   const toggleSection = (key: SectionKey) => {
     setOpenSection((prev) => (prev === key ? null : key));
   };
@@ -251,8 +247,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
       },
     ];
 
-
-
   const renderSectionRow = (item: (typeof profileCardItems)[number], children?: React.ReactNode) => {
     const isOpen = openSection === item.key;
     return (
@@ -300,9 +294,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
         className="w-full pb-10 flex flex-col gap-6"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
-        {/* Appearance Settings Container */}
         <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
-          {/* Profile Card */}
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg
@@ -328,7 +320,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
               <div className="flex flex-col gap-3 flex-1">
                 {renderSectionRow(profileCardItems[0], (
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Background Opacity */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Opacity
@@ -351,7 +342,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       </div>
                     </div>
 
-                    {/* Background Color */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Color
@@ -365,7 +355,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                 ))}
                 {renderSectionRow(profileCardItems[2], (
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Shadow Opacity */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Shadow Opacity
@@ -388,7 +377,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       </div>
                     </div>
 
-                    {/* Shadow Color */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Shadow Color
@@ -400,15 +388,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                     </div>
                   </div>
                 ))}
-                {/* Opacity row is hidden for now. The `profileOpacity` state, its
-                    entry in `profileCardItems` and the preview/save plumbing are all
-                    left in place, so re-showing it is a matter of restoring this
-                    `renderSectionRow(profileCardItems[4], ...)` block. */}
               </div>
               <div className="flex flex-col gap-3 flex-1">
                 {renderSectionRow(profileCardItems[1], (
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Border Width */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Width
@@ -430,7 +413,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                         <span className="text-[13px] text-white/30 ml-2">px</span>
                       </div>
                     </div>
-                    {/* Border Radius */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Radius
@@ -452,7 +434,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                         <span className="text-[13px] text-white/30 ml-2">px</span>
                       </div>
                     </div>
-                    {/* Border Color */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Color
@@ -462,7 +443,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                         onChange={setProfileBorderColor}
                       />
                     </div>
-                    {/* Border Opacity */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Opacity
@@ -488,7 +468,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                 ))}
                 {renderSectionRow(profileCardItems[3], (
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Card Blur */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Card Blur
@@ -510,7 +489,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                         <span className="text-[13px] text-white/30 ml-2">px</span>
                       </div>
                     </div>
-                    {/* Background Blur */}
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Blur
@@ -539,8 +517,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           </div>
         </div>
 
-
-        {/* Small half-width containers */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <JoinDateSection
             isJoinDateEnabled={isJoinDateEnabled}

@@ -4,9 +4,6 @@ import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
 import { getClientIp } from '@/lib/server/security/ip';
 
-// Acquire the per-visitor dedupe lock and, only if it's newly acquired,
-// increment the pending counters + mark the profile — all in one round trip.
-// Returns 1 when the view was counted, 0 when the visitor was already seen.
 const TRACK_VIEW_SCRIPT = `
 if redis.call('SET', KEYS[1], '1', 'NX', 'EX', ARGV[1]) then
   redis.call('HINCRBY', KEYS[2], 'total', 1)
@@ -26,7 +23,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
     }
 
-    // Owner viewing their own profile must not inflate their own view count.
     const sessionCookie = request.cookies.get('iuno_session')?.value;
     if (sessionCookie) {
       const payload = await decrypt(sessionCookie);
@@ -34,10 +30,6 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true, message: 'Owner view ignored' });
       }
     }
-
-    // No profile-existence check here: the flush cron verifies each profile
-    // exists before writing to the DB, so a view for a deleted/nonexistent
-    // id is simply dropped there — no FK risk, and one fewer round trip here.
 
     const ip = getClientIp(request.headers) || 'direct';
     const userAgent = request.headers.get('user-agent') || '';

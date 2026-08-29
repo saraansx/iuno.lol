@@ -14,11 +14,7 @@ export function hexToRgba(hex: string | undefined, opacity: number): string {
   return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, opacity / 100))})`;
 }
 
-/**
- * Computes overlay background opacity based on blur intensity (0 to 40px)
- */
 export function getBlurOverlayOpacity(blur: number, baseMaxOpacity = 70): number {
   if (blur <= 0) return 0;
-  // Scale opacity proportionally with blur intensity: 0px -> 0%, 40px -> baseMaxOpacity%
   return (blur / 40) * baseMaxOpacity;
 }

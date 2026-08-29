@@ -175,9 +175,7 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
   return (
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
-        {/* Top 2-Column Grid */}
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Left Side: Account Settings Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
@@ -208,7 +206,6 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          {/* Right Side: Live Preview Card */}
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
@@ -246,21 +243,18 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
                   </div>
                 </div>
               ) : (
-                /* Live Roblox Player Widget Card */
                 <a
                   href={`https://www.roblox.com/users/${encodeURIComponent(robloxUser.id)}/profile`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group block w-full h-[104px] p-4 bg-[#101010]/80 backdrop-blur-md border border-white/10 rounded-[24px] overflow-hidden transition-all duration-200 hover:border-white/20 hover:bg-[#141414]/90 flex items-center justify-between relative box-border cursor-pointer"
                 >
-                  {/* Top-Right Redirect Badge */}
                   {showViewButton && (
                     <div className="absolute top-3 right-3 z-20 w-6 h-6 rounded-full bg-black/40 backdrop-blur-sm border border-white/10 flex items-center justify-center text-white/50 group-hover:text-white transition-colors">
                       <WidgetRedirectIcon size={11} className="w-[11px] h-[11px]" />
                     </div>
                   )}
 
-                  {/* Blurred Avatar Backdrop */}
                   {bgSrc && (
                     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -274,7 +268,6 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
                   )}
 
                   <div className="flex items-center gap-3.5 min-w-0 w-full relative z-10">
-                    {/* Avatar */}
                     <div
                       className={`relative w-[74px] h-[74px] shrink-0 overflow-hidden bg-[#181818] border border-white/10 shadow-sm flex items-center justify-center ${shapeClass}`}
                     >
@@ -290,7 +283,6 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
                       )}
                     </div>
 
-                    {/* Name & Stats */}
                     <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden pr-6">
                       <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
                         <OverflowPingPong
@@ -360,7 +352,6 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
           </div>
         </div>
 
-        {/* Bottom Customization Container */}
         <RobloxCustomization
           placement={placement}
           onPlacementChange={setPlacement}

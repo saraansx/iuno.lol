@@ -69,16 +69,11 @@ export async function registerRateLimit(email: string, ip: string | null) {
 }
 
 export async function resetPasswordRateLimit(ip: string | null) {
-  // Keyed by IP, not email — the email is only known after the token lookup
-  // succeeds, so an email key can't guard the lookup itself. 10 attempts per
-  // 10 minutes caps how fast anyone can hammer the reset-token table.
   if (!ip) return { ok: true as const };
   return checkRateLimit(`reset:ip:${ip}`, 10, 10 * 60, 5 * 60);
 }
 
 export async function uploadPreRateLimit(userId: number) {
-  // 20 total uploads per 5 minutes per user — checked before body is parsed
-  // to prevent memory exhaustion from concurrent large payloads.
   return checkRateLimit(`upload:pre:${userId}`, 20, 5 * 60, 60);
 }
 
@@ -102,7 +97,6 @@ export async function commentRateLimit(userId: number) {
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60, 2 * 60);
 }
 
-
 export async function profileUpdateRateLimit(userId: number) {
   return checkRateLimit(`profile_update:${userId}`, 10, 60, 60);
 }
@@ -113,32 +107,26 @@ export async function checkAvailabilityRateLimit(ip: string | null) {
 }
 
 export async function feedbackRateLimit(userId: number) {
-  // 20 feedback actions per minute per user
   return checkRateLimit(`feedback:${userId}`, 20, 60, 60);
 }
 
 export async function discordOAuthRateLimit(ip: string | null) {
-  // 10 Discord login attempts per 10 minutes per IP
   if (!ip) return { ok: true as const };
   return checkRateLimit(`discord_oauth:${ip}`, 10, 10 * 60, 5 * 60);
 }
 
 export async function commentLikeRateLimit(userId: number) {
-  // 20 comment likes per minute per user
   return checkRateLimit(`comment_like:${userId}`, 20, 60, 60);
 }
 
 export async function commentEditRateLimit(userId: number) {
-  // 10 comment edits per minute per user
   return checkRateLimit(`comment_edit:${userId}`, 10, 60, 60);
 }
 
 export async function commentDeleteRateLimit(userId: number) {
-  // 10 comment deletes per minute per user
   return checkRateLimit(`comment_delete:${userId}`, 10, 60, 60);
 }
 
 export async function commentPinRateLimit(userId: number) {
-  // 20 pin toggles per minute per user (pin is profile-owner only)
   return checkRateLimit(`comment_pin:${userId}`, 20, 60, 60);
 }

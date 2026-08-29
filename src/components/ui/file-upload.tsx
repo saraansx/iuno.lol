@@ -119,7 +119,6 @@ export const FileUpload = ({
                   )}
                 </div>
 
-                {/* Progress Bar & Status during upload */}
                 {(isLoading || (uploadProgress > 0 && !resolvedUrl)) && (
                   <div className="flex flex-col gap-1.5 w-full pt-1">
                     <div className="flex justify-between items-center text-[11px]">
@@ -137,7 +136,6 @@ export const FileUpload = ({
                   </div>
                 )}
 
-                {/* In-Place Media Preview once upload completes */}
                 {resolvedUrl && (
                   <div className="w-full mt-1.5 flex flex-col items-center gap-2">
                     {isAvatar ? (

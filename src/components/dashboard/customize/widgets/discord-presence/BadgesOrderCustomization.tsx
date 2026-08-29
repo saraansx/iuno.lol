@@ -34,7 +34,6 @@ export default function BadgesOrderCustomization({
   const activeDragIdRef = useRef<string | null>(null);
   const targetHoverIdRef = useRef<string | null>(null);
 
-  // Sort available badges according to badgeOrder
   const sortedBadges = (availableBadges || []).sort((a, b) => {
     const idxA = badgeOrder.indexOf(a.id);
     const idxB = badgeOrder.indexOf(b.id);
@@ -53,7 +52,6 @@ export default function BadgesOrderCustomization({
   };
 
   const handlePointerDown = (e: React.PointerEvent, badgeId: string) => {
-    // Only drag with left click / primary touch
     if (e.button !== 0) return;
 
     const card = (e.currentTarget as HTMLElement).closest("[data-badge-id]") as HTMLElement;
@@ -86,7 +84,6 @@ export default function BadgesOrderCustomization({
         };
       });
 
-      // Find element under cursor
       const elements = document.elementsFromPoint(e.clientX, e.clientY);
       let foundTargetId: string | null = null;
 
@@ -155,7 +152,6 @@ export default function BadgesOrderCustomization({
         </p>
       </div>
 
-      {/* Grid of Badges */}
       <div
         ref={containerRef}
         className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3"
@@ -178,7 +174,6 @@ export default function BadgesOrderCustomization({
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                {/* 360 Drag Handle */}
                 <div
                   onPointerDown={(e) => handlePointerDown(e, badge.id)}
                   className="text-white/30 hover:text-white/80 flex items-center justify-center shrink-0 p-1 cursor-grab active:cursor-grabbing touch-none transition-colors"
@@ -194,7 +189,6 @@ export default function BadgesOrderCustomization({
                   </svg>
                 </div>
 
-                {/* Badge Icon */}
                 <div className="relative w-5 h-5 flex items-center justify-center shrink-0 pointer-events-none">
                   <Image
                     src={badge.icon}
@@ -206,13 +200,11 @@ export default function BadgesOrderCustomization({
                   />
                 </div>
 
-                {/* Badge Name */}
                 <span className="text-[13px] font-normal text-white/90 tracking-tight truncate pointer-events-none">
                   {badge.name}
                 </span>
               </div>
 
-              {/* Toggle Switch */}
               <button
                 type="button"
                 onClick={() => handleToggleBadge(badge.id)}
@@ -231,7 +223,6 @@ export default function BadgesOrderCustomization({
         })}
       </div>
 
-      {/* Floating 360-Degree Drag Card (Minimal dark glass, no tilt, no colored glow) */}
       {activeDraggingBadge && dragPos && (
         <div
           style={{

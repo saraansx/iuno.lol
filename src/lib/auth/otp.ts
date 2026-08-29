@@ -18,13 +18,11 @@ async function isOTPCorrect(otp: string, hashedOTP: string): Promise<boolean> {
   return bcrypt.compare(otp, hashedOTP.replace('$2y$', '$2a$'))
 }
 
-/** Create or replace a 6-digit OTP for the given email (expires in 5 min) */
 export async function createOTPToken(email: string): Promise<string> {
   const otp        = generateOTP()
   const expiresAt  = addMinutes(new Date(), 5)
   const hashedOTP  = await hashOTP(otp)
 
-  // Cleanup all expired OTP tokens
   await db.delete(schema.otpTokens).where(lt(schema.otpTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
@@ -48,9 +46,7 @@ export async function createOTPToken(email: string): Promise<string> {
   return otp
 }
 
-/** Verify an OTP — returns status and deletes the token if valid or max attempts reached */
 export async function verifyOTPToken(email: string, otp: string): Promise<{ success: boolean; error?: string }> {
-  // Find the hashed token by email (must still be valid)
   const row = await db.query.otpTokens.findFirst({
     where: eq(schema.otpTokens.email, email),
     orderBy: (tokens, { desc }) => [desc(tokens.createdAt)]
@@ -63,7 +59,7 @@ export async function verifyOTPToken(email: string, otp: string): Promise<{ succ
   const attemptsKey = `otp_attempts:${email}:${row.id}`
   const attempts = await redis.incr(attemptsKey)
   if (attempts === 1) {
-    await redis.expire(attemptsKey, 300) // 5 min window
+    await redis.expire(attemptsKey, 300)
   }
 
   const maxAttempts = 3
@@ -85,7 +81,6 @@ export async function verifyOTPToken(email: string, otp: string): Promise<{ succ
     return { success: false, error: `Invalid OTP. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.` }
   }
 
-  // Success, clean up database and Redis attempts tracker
   await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
   await redis.del(attemptsKey)
 

@@ -18,7 +18,6 @@ const BROWSER_HEADERS = {
   "Accept-Language": "en-US,en;q=0.9",
 };
 
-/** Parses a compact stat like "1.2M", "159M", "12.3B"/"12.3G", or a plain integer. */
 function parseCompactStat(s: string): number {
   const clean = s.replace(/,/g, "").trim().toUpperCase();
   if (clean.endsWith("B") || clean.endsWith("G")) return Math.round(parseFloat(clean) * 1_000_000_000);
@@ -27,7 +26,6 @@ function parseCompactStat(s: string): number {
   return parseInt(clean, 10) || 0;
 }
 
-/** Pulls the "… Likes" value out of the page's OpenGraph/meta description. */
 function extractLikesFromHtml(html: string): number {
   const ogDescMatch =
     html.match(/<meta\s+[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
@@ -39,11 +37,6 @@ function extractLikesFromHtml(html: string): number {
   return likesMatch ? parseCompactStat(likesMatch[1]) : 0;
 }
 
-/**
- * Fetches the profile page with a crawler User-Agent, which is the only variant
- * where TikTok puts the "… Followers, … Following, … Likes" summary into the
- * OpenGraph description. Used to recover an untruncated likes count.
- */
 async function fetchLikesFromCrawler(username: string): Promise<number> {
   try {
     const res = await fetch(`https://www.tiktok.com/@${encodeURIComponent(username)}`, {
@@ -58,15 +51,6 @@ async function fetchLikesFromCrawler(username: string): Promise<number> {
   }
 }
 
-/**
- * TikTok stores total likes ("heart") in a signed 32-bit int, so accounts with
- * more than ~2.1B likes overflow to a negative number in the JSON state — and
- * we can't tell how many times it wrapped, so adding 2^32 back is unreliable.
- * The OpenGraph description ("… Likes") is a human-formatted, untruncated value,
- * so when the JSON count is non-positive we fall back to it: first on the page
- * we already have, then via a dedicated crawler-UA fetch (the browser-UA page
- * only exposes the bio in its description, not the stats).
- */
 async function resolveHeartCount(
   rawJsonValue: unknown,
   html: string,
@@ -87,21 +71,17 @@ export async function fetchTikTokUserData(
     return null;
   }
 
-  // Attempt 1: Fetch TikTok HTML & parse __UNIVERSAL_DATA_FOR_REHYDRATION__ or SIGI_STATE JSON script
   try {
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: BROWSER_HEADERS,
-      // Freshness is owned by the Redis cache in GET; caching here too would stack
-      // both windows and double the worst-case staleness.
       cache: "no-store",
     });
 
     if (res.ok) {
       const html = await res.text();
 
-      // Check for JSON state in script tags
       const universalMatch = html.match(
         /<script\s+id="__UNIVERSAL_DATA_FOR_REHYDRATION__"\s+type="application\/json">([\s\S]*?)<\/script>/i
       );
@@ -113,9 +93,6 @@ export async function fetchTikTokUserData(
           const userDetail = defaultScope?.["webapp.user-detail"];
           const userInfo = userDetail?.userInfo?.user;
           const stats = userDetail?.userInfo?.stats;
-          // statsV2 holds the same counts as strings — TikTok added it precisely
-          // because `stats` uses signed 32-bit ints that overflow (go negative)
-          // for accounts past ~2.1B likes. Prefer it whenever present.
           const statsV2 = userDetail?.userInfo?.statsV2;
 
           if (userInfo) {
@@ -139,7 +116,6 @@ export async function fetchTikTokUserData(
         }
       }
 
-      // Check for SIGI_STATE JSON
       const sigiMatch = html.match(
         /<script\s+id="SIGI_STATE"\s+type="application\/json">([\s\S]*?)<\/script>/i
       );
@@ -175,7 +151,6 @@ export async function fetchTikTokUserData(
         }
       }
 
-      // Fallback: OpenGraph tags
       const ogDescMatch =
         html.match(/<meta\s+[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
         html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:description["']/i) ||
@@ -233,13 +208,11 @@ export async function fetchTikTokUserData(
     console.warn("[TikTok HTML scrape failed]", err);
   }
 
-  // Attempt 2: Crawler scrape
   try {
     const pageUrl = `https://www.tiktok.com/@${encodeURIComponent(username)}`;
     const res = await fetch(pageUrl, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: CRAWLER_HEADERS,
-      // Freshness is owned by the Redis cache in GET (see note above).
       cache: "no-store",
     });
 

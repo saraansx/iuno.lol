@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected effect is downloaded — "none" downloads nothing extra.
 const SkewCardEffect = dynamic(() => import("./card-effects/SkewCardEffect"));
 const MagnetCardEffect = dynamic(() => import("./card-effects/MagnetCardEffect"));
 const ZoomCardEffect = dynamic(() => import("./card-effects/ZoomCardEffect"));

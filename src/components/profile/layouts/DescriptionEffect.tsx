@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 
-// Only the selected effect is downloaded — "none" downloads nothing extra.
 const BlurDescriptionEffect = dynamic(() => import("./description-effects/BlurDescriptionEffect"));
 const SparkleDescriptionEffect = dynamic(() => import("./description-effects/SparkleDescriptionEffect"));
 const ShuffleDescriptionEffect = dynamic(() => import("./description-effects/ShuffleDescriptionEffect"));

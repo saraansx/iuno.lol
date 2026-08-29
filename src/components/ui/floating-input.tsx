@@ -5,20 +5,11 @@ import { forwardRef, useState } from "react";
 
 interface FloatingInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  /** Renders as type="password" with a show/hide toggle. */
   isPassword?: boolean;
-  /** Turns the border red and shows a message below the field. */
   error?: string;
-  /** Shows a `n/maxLength` counter in the corner (requires `maxLength`). */
   showCharacterCount?: boolean;
 }
 
-/**
- * FloatingInput — the label sits inside the field and floats to the top when
- * the input is focused or filled. Position is tracked with `focused`/`hasValue`
- * state (mirroring the input's own `onChange`/`onBlur` so it stays correct for
- * controlled inputs). Uses `bg-transparent` so it sits over the card backdrop.
- */
 const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
   ({ label, className, isPassword, error, showCharacterCount, type, onChange, onFocus, onBlur, ...props }, ref) => {
     const [focused, setFocused] = useState(false);

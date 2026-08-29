@@ -66,7 +66,6 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // GitHub User validation
     const cleanUsername = id.trim().replace(/^https?:\/\/(www\.)?github\.com\//i, "").replace(/\/$/, "");
     if (!/^[a-zA-Z0-9](?:[a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$/.test(cleanUsername)) {
       return NextResponse.json({ ok: false, error: "Invalid GitHub username format" });

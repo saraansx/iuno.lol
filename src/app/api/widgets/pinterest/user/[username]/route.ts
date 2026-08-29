@@ -18,7 +18,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
   let firstPinImage: string | null = null;
   let fetched = false;
 
-  // 1. Try Pinterest Public JSON Resource endpoint with app state headers
   const resourceUrl = `https://www.pinterest.com/resource/UserResource/get/?data=${encodeURIComponent(
     JSON.stringify({ options: { username: cleanUsername } })
   )}`;
@@ -55,7 +54,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
             fetched = true;
           }
         } catch {
-          // ignore parse error
         }
       }
     }
@@ -63,7 +61,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
     console.warn("[Pinterest Resource Endpoint Fallback]", e);
   }
 
-  // 2. Fetch User RSS feed for latest pin image
   try {
     const rssRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/feed.rss`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -93,7 +90,6 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
     console.warn("[Pinterest RSS Parse]", e);
   }
 
-  // 3. Fallback: Parse public HTML page
   if (!fetched) {
     try {
       const htmlRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/`, {

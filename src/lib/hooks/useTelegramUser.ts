@@ -25,7 +25,6 @@ export function useTelegramUser(
 
   const cleanUsername = cleanTelegramUsername(username);
 
-  // Wait for typing to settle before hitting the profile route.
   const { value: fetchUsername, isPending } = useDebouncedValue(cleanUsername);
 
   useEffect(() => {
@@ -80,8 +79,6 @@ export function useTelegramUser(
     };
   }, [fetchUsername, enabled, trigger]);
 
-  // While the typed handle is ahead of the fetched one, report the loading state
-  // instead of the profile the hook still holds.
   return {
     user: isPending ? null : user,
     isLoading: isPending || isLoading,

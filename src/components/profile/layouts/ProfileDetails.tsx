@@ -3,23 +3,12 @@
 import React from "react";
 import { type DetailKey, type DetailPlacement } from "./ProfilePresetLayout";
 
-/**
- * Renders the profile detail chips assigned to one slot.
- *
- * The details used to be hardcoded into fixed spots in Layout1 — location and
- * occupation inline under the username, views and join date in the card corner.
- * Each is now placeable, so the markup lives here and Layout1 mounts this component
- * once per slot. That keeps one copy of each chip instead of the two Layout1 would
- * otherwise need (its banner and no-banner branches render separately).
- */
-
 export interface DetailValues {
   location?: string;
   occupation?: string;
   uid?: number;
   joinDate?: string | null;
   views?: React.ReactNode;
-  /** Rendered as-is; the feedback buttons own their state, so Layout1 passes them. */
   feedback?: React.ReactNode;
 }
 
@@ -42,21 +31,16 @@ export interface DetailTooltips {
 
 interface ProfileDetailsProps {
   slot: Exclude<DetailPlacement, "hidden">;
-  /** Restricts the render to these details. Omitted means every detail in the slot. */
   only?: DetailKey[];
-  /** Excludes these details, for splitting one slot across two corners. */
   except?: DetailKey[];
   values: DetailValues;
   placements: DetailPlacements;
   tooltips: DetailTooltips;
-  /** Typography for the chip text, shared with the rest of the card's small text. */
   textStyle: React.CSSProperties;
-  /** Typography for the hover pills, from the Highlight font group. */
   tooltipTextStyle: React.CSSProperties;
   className?: string;
 }
 
-/** A hover pill, matching the ones Layout1 renders elsewhere. */
 function Tooltip({ label, style }: { label: string; style: React.CSSProperties }) {
   return (
     <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover:translate-y-0 pointer-events-none">
@@ -115,8 +99,6 @@ export default function ProfileDetails({
     return true;
   };
 
-  // Each chip is included only when it belongs to this slot AND has something to
-  // show, so an empty location never leaves a stray icon behind.
   const chips: React.ReactNode[] = [];
 
   if (inSlot("location") && values.location) {
@@ -177,9 +159,6 @@ export default function ProfileDetails({
 
   if (chips.length === 0) return null;
 
-  // No `justify-*` here: a hardcoded one cannot be overridden by `className`, since
-  // Tailwind resolves conflicts by stylesheet order rather than by the order classes
-  // appear in the string. The caller owns the alignment.
   return (
     <div
       className={`flex items-center gap-3 flex-wrap ${className}`}

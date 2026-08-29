@@ -39,7 +39,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
   return (
     <>
       <main className="min-h-screen bg-transparent relative">
-        {/* ColorBends background — behind all content */}
         <div className="absolute inset-0 z-0 blur-[3px] pointer-events-none">
           <ColorBends
             colors={["#609fda", "#000000", "#90afcc"]}
@@ -60,9 +59,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <Navbar isAuthenticated={isAuthenticated} />
 
-        {/* Hero Content */}
         <div className="relative z-10 flex flex-col items-center justify-center pt-48 px-4 text-center">
-          {/* Badge */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -72,7 +69,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             <span className="text-[#609fda]/80 text-xs font-normal tracking-wide">Craft your identity. Claim your unique handle.</span>
           </motion.div>
 
-          {/* Main Titles */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,7 +83,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             </h2>
           </motion.div>
 
-          {/* Description */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -97,7 +92,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             Custom backgrounds, animated effects, Discord widgets, and more to help your page stand out, completely free.
           </motion.p>
 
-          {/* Claim Input */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

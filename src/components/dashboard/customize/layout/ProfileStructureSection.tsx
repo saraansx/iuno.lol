@@ -1,26 +1,18 @@
 "use client";
 
-/** The structures the page can select. Mirrors PROFILE_STRUCTURES in the action. */
 export type ProfileStructure = "standard" | "sectioned";
 
 interface StructureOption {
   id: ProfileStructure;
   name: string;
   description: string;
-  /** Rendered inside the card as a miniature of the layout it selects. */
   diagram: React.ReactNode;
-  /** Set while the structure is built out; the card reads as unavailable. */
   comingSoon?: boolean;
 }
 
-/**
- * A skeleton of the single-card profile: avatar, name, two lines of text and a
- * row of small blocks for the badges.
- */
 function StandardDiagram() {
   return (
     <div className="w-full h-full flex items-center justify-center p-2.5">
-      {/* One card, centred, the way the real page reads. */}
       <div className="w-full h-full rounded-md bg-white/[0.05] border border-white/[0.07] flex flex-col items-center justify-center gap-[3px]">
         <div className="w-4 h-4 rounded-full bg-white/20" />
         <div className="h-1 w-9 rounded-full bg-white/[0.18]" />
@@ -34,14 +26,9 @@ function StandardDiagram() {
   );
 }
 
-/**
- * A tab strip above stacked panels — the first highlighted to show one section is
- * active at a time, which is what distinguishes this from the standard layout.
- */
 function SectionedDiagram() {
   return (
     <div className="w-full h-full flex flex-col gap-[5px] p-2.5">
-      {/* Tab strip: first pill lit, so it reads as one section active at a time. */}
       <div className="flex gap-[3px] shrink-0">
         <div className="h-1.5 flex-[2] rounded-full bg-white/25" />
         <div className="h-1.5 flex-1 rounded-full bg-white/[0.08]" />
@@ -96,8 +83,6 @@ export default function ProfileStructureSection({
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 items-stretch">
         {STRUCTURES.map((option) => {
           const isSelected = structure === option.id;
-          // A structure still being built cannot be selected, but it is shown so
-          // the choice that is coming is visible rather than hidden.
           const isDisabled = Boolean(option.comingSoon);
 
           return (
@@ -107,8 +92,6 @@ export default function ProfileStructureSection({
               onClick={() => !isDisabled && setStructure(option.id)}
               disabled={isDisabled}
               aria-pressed={isSelected}
-              // `items-stretch` + `h-full` keeps both cards the same height whatever
-              // the description wraps to, so the row never looks ragged.
               className={`group relative h-full flex items-stretch gap-4 p-4 rounded-[16px] border text-left transition-all duration-200 focus:outline-none ${
                 isSelected
                   ? "bg-[#0e1016] border-[#5b6cf5] shadow-[0_0_0_1px_rgba(91,108,245,0.25)]"
@@ -127,10 +110,6 @@ export default function ProfileStructureSection({
                 {option.diagram}
               </div>
 
-              {/* Centred against the thumbnail rather than top-aligned: with two
-                  short lines of text, top-aligning leaves the block floating above
-                  the diagram's midline. pr-8 reserves the corner the check and the
-                  badge sit in so neither can overlap the description. */}
               <div className="flex flex-col justify-center gap-1 min-w-0 pr-8">
                 <span
                   className={`text-[13.5px] font-medium leading-tight ${

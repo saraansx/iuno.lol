@@ -49,13 +49,10 @@ export default function TwitchCustomization({
       </div>
 
       <div className="flex flex-col gap-3">
-        {/* Placement */}
         <PlacementSetting value={placement} onChange={onPlacementChange} />
 
-        {/* Image Shape */}
         <ImageShapeSetting value={imageShape} onChange={onImageShapeChange} />
 
-        {/* Show Live Status */}
         <TwitchToggleSetting
           label="Show live status"
           description="Display live stream indicator, viewer count, and game title when broadcasting."
@@ -63,7 +60,6 @@ export default function TwitchCustomization({
           onChange={onShowLiveStatusChange}
         />
 
-        {/* Show Followers */}
         <TwitchToggleSetting
           label="Show followers"
           description="Display channel follower count when stream is offline or live status is hidden."
@@ -71,7 +67,6 @@ export default function TwitchCustomization({
           onChange={onShowFollowersChange}
         />
 
-        {/* Show Partner Badge */}
         <TwitchToggleSetting
           label="Show partner badge"
           description="Display verified partner checkmark icon beside the streamer username."
@@ -79,7 +74,6 @@ export default function TwitchCustomization({
           onChange={onShowPartnerBadgeChange}
         />
 
-        {/* Show Background Image */}
         <TwitchToggleSetting
           label="Background image"
           description="Display a subtle blurred channel avatar backdrop in the widget card."
@@ -87,7 +81,6 @@ export default function TwitchCustomization({
           onChange={onShowBackgroundChange}
         />
 
-        {/* Show View Button */}
         <TwitchToggleSetting
           label="Show redirect button"
           description="Display a top-right direct link button opening your Twitch channel."

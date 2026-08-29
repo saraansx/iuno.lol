@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/lib/redis";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
-// NOTE: do not add `export const dynamic = "force-dynamic"` here. It rewrites every
-// fetch in this route to `no-store`, which defeats the revalidate windows below and
-// makes each request hit the Discord API twice. GET route handlers are uncached by
-// default, and the bot fetch is explicitly `no-store`, so presence is always fresh.
-
 interface PresenceResponse {
   in_server: boolean;
   user: {
@@ -51,7 +46,6 @@ interface PresenceResponse {
   } | null;
 }
 
-/** Clan / primary-guild tag, shaped the same wherever Discord returns it. */
 interface DiscordClan {
   id?: string;
   identity_guild_id?: string;
@@ -59,7 +53,6 @@ interface DiscordClan {
   badge?: string;
 }
 
-/** The subset of Discord's guild-member payload this route reads. */
 interface DiscordMemberData {
   user?: DiscordUserFields;
   clan?: DiscordClan | null;
@@ -74,14 +67,8 @@ interface DiscordUserFields {
   primary_guild?: DiscordClan | null;
 }
 
-// 12 hours TTL in Redis (seconds)
 const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
-// Presence is realtime: online status, current activity, listening state. It is
-// excluded from the CF widget cache rule for that reason, and this makes the
-// intent explicit rather than relying on Cloudflare's default of not caching
-// extensionless JSON — a shared cache holding this for even a minute shows a
-// stale "online".
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
 
 export async function GET(
@@ -96,7 +83,6 @@ export async function GET(
 
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const guildId = process.env.DISCORD_GUILD_ID;
-  // Hosted presence worker origin, e.g. https://bot.iuno.lol
   const botUrl = (process.env.DISCORD_BOT_URL || "").replace(/\/$/, "");
 
   if (!botToken || !guildId) {
@@ -104,12 +90,6 @@ export async function GET(
   }
 
   try {
-    // 1. Guild membership + profile fields (username, avatar, clan). These change
-    // rarely, but the widget polls every 5s, so the lookup is cached in Redis to
-    // keep Discord's REST API off the per-poll path. Only a successful lookup is
-    // cached: `withWidgetCache` skips null, so a 404 (not in the server) or an API
-    // error is never stored — a user who joins still shows up on the next poll
-    // rather than waiting out a stale negative entry.
     const memberData = await withWidgetCache<DiscordMemberData>(
       widgetCacheKey("discord", "member", id),
       async () => {
@@ -129,7 +109,6 @@ export async function GET(
     );
 
     if (!memberData) {
-      // Not in the Discord server, or the lookup failed.
       return NextResponse.json<PresenceResponse>({
         in_server: false,
         user: null,
@@ -140,7 +119,6 @@ export async function GET(
     const discordUser = (memberData.user ||
       (memberData as unknown as DiscordUserFields)) as DiscordUserFields;
 
-    // 2. Fetch live presence from the hosted Bot gateway worker (Zero DB / Zero Redis)
     let presenceData: {
       status?: "online" | "idle" | "dnd" | "offline";
       last_seen?: number | null;
@@ -159,21 +137,17 @@ export async function GET(
           presenceData = await botRes.json();
         }
       } catch {
-        // Worker unreachable or slow — fall back to offline rather than failing the widget
       }
     }
 
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
-    // 3. Direct user profile lookup strictly via user token matching exact Discord Web Client
-    // Uses Redis cache so external proxy / user profile endpoint is called ONLY ONCE per 48 hours per ID.
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
     const redisBadgesKey = `discord:badges:v2:${id}`;
 
     try {
       const cached = await redis.get(redisBadgesKey);
       if (cached) {
-        // Format: Array of [id, icon, description] or legacy [{ id, description, icon }]
         const parsed = JSON.parse(cached);
         if (Array.isArray(parsed) && parsed.length > 0) {
           if (Array.isArray(parsed[0])) {
@@ -188,7 +162,6 @@ export async function GET(
         }
       }
     } catch {
-      // Redis read failure fallback
     }
 
     if (!userProfileBadges || userProfileBadges.length === 0) {
@@ -225,7 +198,6 @@ export async function GET(
             headers["Cookie"] = discordCookie;
           }
 
-          // Proxy target support (Cloudflare Worker)
           const proxyOrigin = (process.env.DISCORD_PROXY_URL || "https://discord.com").replace(/\/$/, "");
           const targetEndpoint = `${proxyOrigin}/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`;
 
@@ -243,7 +215,6 @@ export async function GET(
                 icon: b.icon || "",
               }));
 
-            // Compact storage: [id, icon, description] tuples
             const compactBadges = userProfileBadges.map((b) => [b.id, b.icon, b.description]);
 
             try {
@@ -254,7 +225,6 @@ export async function GET(
                 BADGES_CACHE_TTL_SEC
               );
             } catch {
-              // Redis set failure ignored
             }
           } else {
             console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());

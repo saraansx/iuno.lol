@@ -78,7 +78,6 @@ export default function ColorCustomization({
         </div>
 
         <div className="flex flex-col gap-2">
-          {/* Username Color */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'username' ? null : 'username')}
@@ -111,7 +110,6 @@ export default function ColorCustomization({
             )}
           </div>
 
-          {/* Description Color */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'bio' ? null : 'bio')}
@@ -144,7 +142,6 @@ export default function ColorCustomization({
             )}
           </div>
 
-          {/* Other Color */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'other' ? null : 'other')}
@@ -177,7 +174,6 @@ export default function ColorCustomization({
             )}
           </div>
 
-          {/* Page Background Color */}
           <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
             <button
               onClick={() => setOpenSection(openSection === 'pagebg' ? null : 'pagebg')}

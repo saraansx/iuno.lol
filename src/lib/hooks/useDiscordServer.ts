@@ -8,8 +8,6 @@ export function useDiscordServer(inviteCode: string) {
   const cleanCode = (inviteCode || "").trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "");
   const isValidCode = cleanCode.length >= 2;
 
-  // Wait for typing to settle before resolving the invite. A code that is not
-  // yet long enough debounces to "" at once, clearing the preview.
   const { value: fetchCode, isPending } = useDebouncedValue(isValidCode ? cleanCode : "");
 
   const [data, setData] = useState<DiscordServerData | null>(null);
@@ -26,7 +24,6 @@ export function useDiscordServer(inviteCode: string) {
     let isMounted = true;
     const controller = new AbortController();
 
-    // Async data fetch without synchronous setState in effect body
     const fetchServer = async () => {
       setData(null);
       setLoading(true);
@@ -59,8 +56,6 @@ export function useDiscordServer(inviteCode: string) {
     };
   }, [fetchCode]);
 
-  // While the typed invite is ahead of the fetched one, report the loading state
-  // instead of the server the hook still holds.
   const isReady = isValidCode && !isPending;
 
   return {

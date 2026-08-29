@@ -7,13 +7,11 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
 }
 
-/** Create a one-time email verification token (expires in 4 min) */
 export async function createVerificationToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
   const expiresAt = addMinutes(new Date(), 4)
   const hashed    = hashToken(token)
 
-  // Cleanup all expired verification tokens
   await db.delete(schema.verificationTokens).where(lt(schema.verificationTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
@@ -37,7 +35,6 @@ export async function createVerificationToken(email: string): Promise<string> {
   return token
 }
 
-/** Consume a verification token — returns the email if valid */
 export async function consumeVerificationToken(token: string): Promise<string | null> {
   const now    = new Date()
   const hashed = hashToken(token)
@@ -56,13 +53,11 @@ export async function consumeVerificationToken(token: string): Promise<string | 
   return row.email
 }
 
-/** Create a password-reset token (expires in 5 min) */
 export async function createPasswordResetToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
   const expiresAt = addMinutes(new Date(), 5)
   const hashed    = hashToken(token)
 
-  // Cleanup all expired password reset tokens
   await db.delete(schema.passwordResetTokens).where(lt(schema.passwordResetTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
@@ -86,7 +81,6 @@ export async function createPasswordResetToken(email: string): Promise<string> {
   return token
 }
 
-/** Consume a password-reset token — returns the email if valid */
 export async function consumePasswordResetToken(token: string): Promise<string | null> {
   const now    = new Date()
   const hashed = hashToken(token)

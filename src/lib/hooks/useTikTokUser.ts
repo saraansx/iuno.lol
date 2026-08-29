@@ -18,7 +18,6 @@ export function useTikTokUser(rawUsername: string | null | undefined): UseTikTok
   const [error, setError] = useState<string | null>(null);
   const [trigger, setTrigger] = useState<number>(0);
 
-  // Each miss hits the upstream TikTok scrape, so wait for typing to settle.
   const { value: fetchUsername, isPending } = useDebouncedValue(cleanUsername);
 
   useEffect(() => {
@@ -30,9 +29,6 @@ export function useTikTokUser(rawUsername: string | null | undefined): UseTikTok
     }
 
     let isMounted = true;
-    // Drop the previous user's data immediately. Without this, `data` still
-    // holds the old profile while the new fetch is in flight, so consumers
-    // gated on `loading && !data` never show their loading state.
     setData(null);
     setLoading(true);
     setError(null);

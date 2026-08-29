@@ -17,7 +17,6 @@ export function parseInlineFormatting(text: string): React.ReactNode {
   let key = 0;
 
   while (remaining.length > 0) {
-    // 1. Check for Discord Custom Emoji at start of remaining
     const emojiMatch = remaining.match(/^<(a)?:([a-zA-Z0-9_~]+):([0-9]+)>/);
     if (emojiMatch) {
       const isAnimated = Boolean(emojiMatch[1]);
@@ -41,7 +40,6 @@ export function parseInlineFormatting(text: string): React.ReactNode {
       continue;
     }
 
-    // 2. Check formatting rules (bold, italic, underline, strikethrough)
     let matched = false;
     for (const { regex, render } of FORMAT_RULES) {
       const match = remaining.match(regex);
@@ -53,7 +51,6 @@ export function parseInlineFormatting(text: string): React.ReactNode {
       }
     }
 
-    // 3. Find next potential trigger (< for emoji, *~_ for markdown formatting)
     if (!matched) {
       const nextIndex = remaining.search(/[<*~_]/);
       if (nextIndex === -1) {

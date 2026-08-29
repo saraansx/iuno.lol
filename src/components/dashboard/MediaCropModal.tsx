@@ -194,7 +194,6 @@ export default function MediaCropModal({
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -204,7 +203,6 @@ export default function MediaCropModal({
             onClick={onClose}
           />
 
-          {/* Modal */}
           <motion.div
             initial={{ opacity: 0, scale: 0.98, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -212,7 +210,6 @@ export default function MediaCropModal({
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
             className="fixed z-[111] top-1/2 left-1/2 w-[min(540px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#0c0c0c] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex flex-col gap-5"
           >
-            {/* Header */}
             <div className="flex flex-col gap-1">
               <h2 className="text-[17px] font-semibold text-white/90 tracking-tight">
                 {title}
@@ -222,7 +219,6 @@ export default function MediaCropModal({
               </p>
             </div>
 
-            {/* Cropper Container */}
             <div className="relative w-full h-[300px] rounded-2xl overflow-hidden bg-neutral-950 border border-white/5">
               <Cropper
                 image={isVideo ? undefined : imageSrc}
@@ -242,7 +238,6 @@ export default function MediaCropModal({
               />
             </div>
 
-            {/* Zoom Slider */}
             <div className="flex items-center gap-3 px-1 pt-1">
               <button
                 type="button"
@@ -283,7 +278,6 @@ export default function MediaCropModal({
               </button>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 type="button"

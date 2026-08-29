@@ -72,15 +72,9 @@ export default function YouTubeCustomization({
   onShowViewButtonChange,
 }: YouTubeCustomizationProps) {
   const isChannel = mode === "channel";
-  // Channel mode → the per-video stats are irrelevant; latest-video mode → the
-  // channel-wide stats are irrelevant. Grey out whichever set doesn't apply.
   const channelStatsDisabled = !isChannel;
   const videoStatsDisabled = isChannel;
 
-  // The card can only have one backdrop, so the banner and the background image
-  // are mutually exclusive: whichever is on greys the other out. The one that is
-  // already on always stays interactive, so a widget can never get stuck with
-  // both greyed (and both-on legacy records stay recoverable).
   const bannerDisabled = showBackground && !showBanner;
   const backgroundDisabled = showBanner && !showBackground;
 

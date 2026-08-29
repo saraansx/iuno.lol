@@ -22,7 +22,6 @@ export default function SteamBackgroundSetting({ value, onChange, disabled = fal
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // The menu can still be open when the setting becomes unavailable, so derive it closed.
   const menuOpen = isOpen && !disabled;
 
   const options = [

@@ -81,7 +81,6 @@ export default function ViewsSection({
           </button>
         </div>
 
-        {/* Duration only means something while the counter animates. */}
         <div className={`flex flex-col gap-3 mt-1 transition-opacity duration-200 ${isViewsAnimationEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
           <div className="flex items-center justify-between">
             <label className="text-[13px] font-medium text-white/90">
@@ -106,8 +105,6 @@ export default function ViewsSection({
               step="100"
               value={viewsAnimationDuration}
               onChange={(e) => setViewsAnimationDuration(Number(e.target.value))}
-              // `pointer-events-none` on the wrapper stops the mouse but leaves the
-              // slider in the tab order; `disabled` takes it out for keyboards too.
               disabled={!isViewsEnabled || !isViewsAnimationEnabled}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20 disabled:cursor-default"
             />
