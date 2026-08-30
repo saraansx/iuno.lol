@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
+import SectionedProfileSection from "@/components/dashboard/customize/layout/SectionedProfileSection";
 import StandardProfileSection, {
   type ProfilePreset,
 } from "@/components/dashboard/customize/layout/StandardProfileSection";
@@ -13,6 +14,9 @@ import ProfileDetailsSection, {
 import {
   type AvatarPlacement,
   type ContentAlignment,
+  DEFAULT_DETAILS,
+  DEFAULT_FRAME,
+  DEFAULT_PRESET,
   type DetailKey,
   type DetailPlacement,
   getDetailDefaults,
@@ -28,19 +32,27 @@ import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
 const DETAIL_FIELDS = {
-  joinDate: ["joinDatePlacement", "bottom-profile"],
-  location: ["locationPlacement", "beside"],
-  occupation: ["occupationPlacement", "beside"],
-  uid: ["uidPlacement", "hidden"],
-  views: ["viewsPlacement", "bottom-profile"],
-  feedback: ["feedbackPlacement", "bottom-profile"],
+  joinDate: ["joinDatePlacement", DEFAULT_DETAILS.joinDate],
+  location: ["locationPlacement", DEFAULT_DETAILS.location],
+  occupation: ["occupationPlacement", DEFAULT_DETAILS.occupation],
+  uid: ["uidPlacement", DEFAULT_DETAILS.uid],
+  views: ["viewsPlacement", DEFAULT_DETAILS.views],
+  feedback: ["feedbackPlacement", DEFAULT_DETAILS.feedback],
 } as const;
 
 export default function LayoutProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
 
-  const initialPreset = (user?.profilePreset ?? "classic") as ProfilePreset;
+  const initialStructure = user?.profileStructure ?? "standard";
+  const structure = overrides.profileStructure ?? initialStructure;
+  const sectioned = structure === "sectioned";
+  const setSectioned = (val: boolean) => {
+    const next = val ? "sectioned" : "standard";
+    updateOverrides({ profileStructure: next === initialStructure ? undefined : next });
+  };
+
+  const initialPreset = (user?.profilePreset ?? DEFAULT_PRESET) as ProfilePreset;
 
   const preset = (overrides.profilePreset ?? initialPreset) as ProfilePreset;
 
@@ -62,13 +74,13 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
     });
   };
 
-  const initialWrapInCard = user?.wrapInCard ?? true;
+  const initialWrapInCard = user?.wrapInCard ?? DEFAULT_FRAME.wrapInCard;
 
   const wrapInCard = overrides.wrapInCard ?? initialWrapInCard;
   const setWrapInCard = (val: boolean) =>
     updateOverrides({ wrapInCard: val === initialWrapInCard ? undefined : val });
 
-  const initialContentWidth = user?.contentWidth ?? 764;
+  const initialContentWidth = user?.contentWidth ?? DEFAULT_FRAME.contentWidth;
 
   const contentWidth = overrides.contentWidth ?? initialContentWidth;
   const setContentWidth = (val: number) =>
@@ -122,6 +134,8 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
         className="w-full pb-10 flex flex-col gap-8"
         style={{ paddingRight: "calc(var(--preview-width, 380px) + 2rem)" }}
       >
+        <SectionedProfileSection enabled={sectioned} setEnabled={setSectioned} />
+
         <StandardProfileSection
           preset={preset}
           setPreset={setPreset}
@@ -134,12 +148,13 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
           setAlignment={setAlignment}
         />
         <HeaderSection avatarPlacement={avatarPlacement} setAvatarPlacement={setAvatarPlacement} />
+
         <ProfileDetailsSection placements={placements} setPlacement={setPlacement} />
       </div>
 
       <DashboardProfilePreview
         user={user}
-        overrides={{ ...overrides, profilePreset: preset,
+        overrides={{ ...overrides, profileStructure: structure, profilePreset: preset,
           wrapInCard,
           contentWidth,
           contentAlignment: alignment,
@@ -159,6 +174,7 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
           try {
             await updateLayoutProfile({
               username: user?.username || "",
+              profileStructure: structure,
               profilePreset: preset,
               wrapInCard,
               contentWidth,

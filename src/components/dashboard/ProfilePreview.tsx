@@ -88,6 +88,11 @@ interface ProfilePreviewProps {
   wrapInCard?: boolean;
   contentWidth?: number;
   profilePreset?: string;
+  profileStructure?: string;
+  aboutSectionEnabled?: boolean;
+  aboutSectionTitle?: string;
+  aboutSectionDescription?: string;
+  widgetsSectionEnabled?: boolean;
   contentAlignment?: string;
   avatarPlacement?: string;
   joinDatePlacement?: string;
@@ -116,7 +121,7 @@ interface ProfilePreviewProps {
   widgets?: import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[];
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -201,7 +206,7 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
         style={{ backgroundColor: pageBgColor || '#0a0a0a' }}
       >
         <div
-          className="w-full h-full overflow-hidden relative z-10"
+          className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           <Layout1 
@@ -277,6 +282,11 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             wrapInCard={wrapInCard}
             contentWidth={contentWidth}
             profilePreset={profilePreset}
+            profileStructure={profileStructure}
+            aboutSectionEnabled={aboutSectionEnabled}
+            aboutSectionTitle={aboutSectionTitle}
+            aboutSectionDescription={aboutSectionDescription}
+            widgetsSectionEnabled={widgetsSectionEnabled}
             contentAlignment={contentAlignment}
             avatarPlacement={avatarPlacement}
             joinDatePlacement={joinDatePlacement}

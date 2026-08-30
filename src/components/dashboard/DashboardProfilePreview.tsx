@@ -2,6 +2,7 @@
 
 import { useDeferredValue } from "react";
 import ProfilePreview from "@/components/dashboard/ProfilePreview";
+import { DEFAULT_DETAILS, DEFAULT_FRAME, DEFAULT_PRESET } from "@/components/profile/layouts/ProfilePresetLayout";
 import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
@@ -100,17 +101,22 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       widgetFontSize={deferredOverrides.widgetFontSize ?? user?.widgetFontSize ?? 12.5}
       widgetFontWeight={deferredOverrides.widgetFontWeight ?? user?.widgetFontWeight ?? 400}
       widgetLetterSpacing={deferredOverrides.widgetLetterSpacing ?? user?.widgetLetterSpacing ?? 0}
-      wrapInCard={deferredOverrides.wrapInCard ?? user?.wrapInCard ?? true}
-      contentWidth={deferredOverrides.contentWidth ?? user?.contentWidth ?? 764}
-      profilePreset={deferredOverrides.profilePreset ?? user?.profilePreset ?? "classic"}
-      contentAlignment={deferredOverrides.contentAlignment ?? user?.contentAlignment ?? "center"}
-      avatarPlacement={deferredOverrides.avatarPlacement ?? user?.avatarPlacement ?? "floating"}
-      joinDatePlacement={deferredOverrides.joinDatePlacement ?? user?.joinDatePlacement ?? "bottom-profile"}
-      locationPlacement={deferredOverrides.locationPlacement ?? user?.locationPlacement ?? "beside"}
-      occupationPlacement={deferredOverrides.occupationPlacement ?? user?.occupationPlacement ?? "beside"}
-      uidPlacement={deferredOverrides.uidPlacement ?? user?.uidPlacement ?? "hidden"}
-      viewsPlacement={deferredOverrides.viewsPlacement ?? user?.viewsPlacement ?? "bottom-profile"}
-      feedbackPlacement={deferredOverrides.feedbackPlacement ?? user?.feedbackPlacement ?? "bottom-profile"}
+      wrapInCard={deferredOverrides.wrapInCard ?? user?.wrapInCard ?? DEFAULT_FRAME.wrapInCard}
+      contentWidth={deferredOverrides.contentWidth ?? user?.contentWidth ?? DEFAULT_FRAME.contentWidth}
+      profilePreset={deferredOverrides.profilePreset ?? user?.profilePreset ?? DEFAULT_PRESET}
+      profileStructure={deferredOverrides.profileStructure ?? user?.profileStructure ?? "standard"}
+      aboutSectionEnabled={deferredOverrides.aboutSectionEnabled ?? user?.aboutSectionEnabled ?? true}
+      aboutSectionTitle={deferredOverrides.aboutSectionTitle ?? user?.aboutSectionTitle ?? undefined}
+      aboutSectionDescription={deferredOverrides.aboutSectionDescription ?? user?.aboutSectionDescription ?? undefined}
+      widgetsSectionEnabled={deferredOverrides.widgetsSectionEnabled ?? user?.widgetsSectionEnabled ?? true}
+      contentAlignment={deferredOverrides.contentAlignment ?? user?.contentAlignment ?? DEFAULT_FRAME.contentAlignment}
+      avatarPlacement={deferredOverrides.avatarPlacement ?? user?.avatarPlacement ?? DEFAULT_FRAME.avatarPlacement}
+      joinDatePlacement={deferredOverrides.joinDatePlacement ?? user?.joinDatePlacement ?? DEFAULT_DETAILS.joinDate}
+      locationPlacement={deferredOverrides.locationPlacement ?? user?.locationPlacement ?? DEFAULT_DETAILS.location}
+      occupationPlacement={deferredOverrides.occupationPlacement ?? user?.occupationPlacement ?? DEFAULT_DETAILS.occupation}
+      uidPlacement={deferredOverrides.uidPlacement ?? user?.uidPlacement ?? DEFAULT_DETAILS.uid}
+      viewsPlacement={deferredOverrides.viewsPlacement ?? user?.viewsPlacement ?? DEFAULT_DETAILS.views}
+      feedbackPlacement={deferredOverrides.feedbackPlacement ?? user?.feedbackPlacement ?? DEFAULT_DETAILS.feedback}
       joinDateEnabled={deferredOverrides.joinDateEnabled ?? user?.joinDateEnabled ?? true}
       joinDateFormat={deferredOverrides.joinDateFormat ?? user?.joinDateFormat ?? "standard"}
       viewsEnabled={deferredOverrides.viewsEnabled ?? user?.viewsEnabled ?? true}

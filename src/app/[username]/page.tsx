@@ -120,6 +120,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       wrapInCard: userSettings.wrapInCard,
       contentWidth: userSettings.contentWidth,
       profilePreset: userSettings.profilePreset,
+      profileStructure: userSettings.profileStructure,
+      aboutSectionEnabled: userSettings.aboutSectionEnabled,
+      aboutSectionTitle: userSettings.aboutSectionTitle,
+      aboutSectionDescription: userSettings.aboutSectionDescription,
+      widgetsSectionEnabled: userSettings.widgetsSectionEnabled,
       contentAlignment: userSettings.contentAlignment,
       avatarPlacement: userSettings.avatarPlacement,
       joinDatePlacement: userSettings.joinDatePlacement,
@@ -170,8 +175,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
   return (
-    <div 
-      className="min-h-screen relative overflow-hidden"
+    <div
+      className="min-h-screen relative overflow-x-clip"
       style={{ backgroundColor: user.pageBgColor || '#050505' }}
     >
       <Layout1
@@ -278,6 +283,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         wrapInCard={user.wrapInCard ?? undefined}
         contentWidth={user.contentWidth ?? undefined}
         profilePreset={user.profilePreset ?? undefined}
+        profileStructure={user.profileStructure ?? undefined}
+        aboutSectionEnabled={user.aboutSectionEnabled ?? undefined}
+        aboutSectionTitle={user.aboutSectionTitle ?? undefined}
+        aboutSectionDescription={user.aboutSectionDescription ?? undefined}
+        widgetsSectionEnabled={user.widgetsSectionEnabled ?? undefined}
         contentAlignment={user.contentAlignment ?? undefined}
         avatarPlacement={user.avatarPlacement ?? undefined}
         joinDatePlacement={user.joinDatePlacement ?? undefined}

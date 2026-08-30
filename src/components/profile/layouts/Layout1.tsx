@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useEffect, useState  } from "react";
+import React, {  useEffect, useRef, useState  } from "react";
 import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
@@ -18,6 +18,9 @@ import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting
 import ProfileWidgets from "../widgets/ProfileWidgets";
 import {
   BADGE_CLASSES,
+  DEFAULT_DETAILS,
+  DEFAULT_FRAME,
+  DEFAULT_PRESET,
   type DetailKey,
   getPresetLayout,
   normalizeAlignment,
@@ -171,6 +174,11 @@ interface Layout1Props {
   wrapInCard?: boolean;
   contentWidth?: number;
   profilePreset?: string;
+  profileStructure?: string;
+  aboutSectionEnabled?: boolean;
+  aboutSectionTitle?: string;
+  aboutSectionDescription?: string;
+  widgetsSectionEnabled?: boolean;
   contentAlignment?: string;
   avatarPlacement?: string;
   joinDatePlacement?: string;
@@ -363,9 +371,14 @@ const Layout1 = ({
   widgetFontSize,
   widgetFontWeight,
   widgetLetterSpacing,
-  wrapInCard = true,
-  contentWidth = 764,
-  profilePreset = "classic",
+  wrapInCard = DEFAULT_FRAME.wrapInCard,
+  contentWidth = DEFAULT_FRAME.contentWidth,
+  profilePreset = DEFAULT_PRESET,
+  profileStructure,
+  aboutSectionEnabled = true,
+  aboutSectionTitle,
+  aboutSectionDescription,
+  widgetsSectionEnabled = true,
   contentAlignment,
   avatarPlacement,
   joinDatePlacement,
@@ -547,6 +560,71 @@ const Layout1 = ({
   const avatarPos = normalizeAvatarPlacement(avatarPlacement);
   const avatarBeside = avatarPos === "left" || avatarPos === "right";
 
+  // Sectioned profiles keep the preset card as the first screen and move the
+  // description + outside widgets into an About screen below it. That second screen
+  // only exists when it has something in it, so an empty About never gets a page.
+  const sectioned = profileStructure === "sectioned";
+  const aboutText = bio?.trim() || "";
+  const aboutSubtitle = aboutSectionDescription?.trim() || "";
+  const hasOutsideWidgets = (widgets ?? []).some(
+    (w) => w.enabled && (w.placement || "inside") === "outside"
+  );
+  // Outside-card widgets live inside the About section, so hiding About hides them too.
+  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
+  const aboutVisible =
+    aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets);
+  const screenCount = sectioned && aboutVisible ? 2 : 1;
+  const paged = sectioned && screenCount > 1;
+
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [activeScreen, setActiveScreen] = useState(0);
+
+  const goToScreen = (index: number) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollTo({ top: index * el.clientHeight, behavior: "smooth" });
+  };
+
+  // One gesture = one screen, for wheel and touch alike. CSS `snap-mandatory` lets the
+  // gesture free-scroll and then yanks, which feels stiff, so paging is driven here.
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!paged || !el) return;
+
+    let locked = false;
+    const turn = (dir: number) => {
+      const page = Math.round(el.scrollTop / el.clientHeight);
+      const next = Math.min(screenCount - 1, Math.max(0, page + dir));
+      if (next === page) return;
+      locked = true;
+      setTimeout(() => { locked = false; }, 700);
+      el.scrollTo({ top: next * el.clientHeight, behavior: "smooth" });
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      if (locked || Math.abs(e.deltaY) < 4) return;
+      turn(e.deltaY > 0 ? 1 : -1);
+    };
+
+    let startY = 0;
+    const onTouchStart = (e: TouchEvent) => { startY = e.touches[0].clientY; };
+    const onTouchEnd = (e: TouchEvent) => {
+      const dy = startY - e.changedTouches[0].clientY;
+      if (locked || Math.abs(dy) < 40) return;
+      turn(dy > 0 ? 1 : -1);
+    };
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, [paged, screenCount]);
+
   const tooltipTextStyle: React.CSSProperties = {
     fontFamily: fontClassMap[highlightFont] || "var(--font-inter)",
     fontSize: `${highlightFontSize}px`,
@@ -555,17 +633,17 @@ const Layout1 = ({
   };
 
   const detailPlacements: DetailPlacements = {
-    location: normalizePlacement(locationPlacement, "beside"),
-    occupation: normalizePlacement(occupationPlacement, "beside"),
-    uid: normalizePlacement(uidPlacement, "hidden"),
+    location: normalizePlacement(locationPlacement, DEFAULT_DETAILS.location),
+    occupation: normalizePlacement(occupationPlacement, DEFAULT_DETAILS.occupation),
+    uid: normalizePlacement(uidPlacement, DEFAULT_DETAILS.uid),
     joinDate: joinDateEnabled
-      ? normalizePlacement(joinDatePlacement, "bottom-profile")
+      ? normalizePlacement(joinDatePlacement, DEFAULT_DETAILS.joinDate)
       : "hidden",
     views: viewsEnabled
-      ? normalizePlacement(viewsPlacement, "bottom-profile")
+      ? normalizePlacement(viewsPlacement, DEFAULT_DETAILS.views)
       : "hidden",
     feedback: feedbackEnabled
-      ? normalizePlacement(feedbackPlacement, "bottom-profile")
+      ? normalizePlacement(feedbackPlacement, DEFAULT_DETAILS.feedback)
       : "hidden",
   };
 
@@ -638,8 +716,8 @@ const Layout1 = ({
   // `pb-16` is the space the absolutely-positioned bottom-profile badges sit in. It
   // used to live on the content column; it moved here because this is now the last
   // thing in the card.
-  const insideWidgets = (
-    <div className="w-full px-6 pb-16">
+  const insideWidgets = (className: string) => (
+    <div className={className}>
       <ProfileWidgets
         widgets={widgets}
         placement="inside"
@@ -658,6 +736,64 @@ const Layout1 = ({
     </div>
   );
 
+  const outsideWidgets = (
+    <ProfileWidgets
+      widgets={widgets}
+      placement="outside"
+      cardWidth={cardWidthPx}
+      widgetPrimaryTextColor={widgetPrimaryTextColor}
+      widgetSecondaryTextColor={widgetSecondaryTextColor}
+      widgetBorderColor={widgetBorderColor}
+      widgetBorderOpacity={widgetBorderOpacity}
+      widgetBorderWidth={widgetBorderWidth}
+      widgetBorderRadius={widgetBorderRadius}
+      widgetFont={widgetFont}
+      widgetFontSize={widgetFontSize}
+      widgetFontWeight={widgetFontWeight}
+      widgetLetterSpacing={widgetLetterSpacing}
+    />
+  );
+
+  // `text`/`left` are passed in because the About section has its own copy and always
+  // reads left-aligned, while the card copy is the bio and follows profile alignment.
+  const textBlock = (text: string, left: boolean) => (
+    <div className={`w-full flex ${left ? "justify-start" : "justify-center"}`}>
+      <DescriptionEffect effect={descriptionEffect}>
+        <p
+          className={`leading-relaxed max-w-[90%] break-words ${
+            left ? "text-left" : "text-center"
+          }`}
+          style={{
+            fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+            fontSize: `${bioFontSize}px`,
+            fontWeight: bioFontWeight,
+            letterSpacing: `${bioLetterSpacing}px`,
+            color: bioColor,
+          }}
+        >
+          {renderFormattedText(text)}
+        </p>
+      </DescriptionEffect>
+    </div>
+  );
+
+  // Same surface as the profile card, minus the layered highlight line — the
+  // About card is a plain panel, so one element carries the whole look.
+  const sectionSurface: React.CSSProperties = {
+    backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+    WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+    borderRadius: `${profileBorderRadius}px`,
+    border:
+      profileBorderWidth > 0
+        ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}`
+        : "1px solid rgba(255,255,255,0.08)",
+    background: hexToRgba(profileBgColor, profileBgOpacity),
+    boxShadow:
+      profileShadowOpacity > 0
+        ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}`
+        : undefined,
+  };
+
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
   // One layout for both cases. There used to be a second, banner-less copy of this
@@ -665,7 +801,22 @@ const Layout1 = ({
   // widgets, the comments button, the entry-screen blur and background-effect
   // layering. Every banner-specific bit here is already guarded by `hasBanner`.
   return (
-    <div className="min-h-screen w-full flex items-center justify-center px-6 relative overflow-hidden">
+    <div
+      ref={scrollerRef}
+      onScroll={
+        paged
+          ? (e) => {
+              const el = e.currentTarget;
+              setActiveScreen(Math.round(el.scrollTop / el.clientHeight));
+            }
+          : undefined
+      }
+      className={`w-full flex flex-col items-center relative ${
+        sectioned
+          ? "h-screen overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          : "min-h-screen overflow-x-clip"
+      }`}
+    >
         <EntryTransition
           transition={entryTransition}
           enabled={enterScreenEnabled}
@@ -681,6 +832,11 @@ const Layout1 = ({
           fontClassMap={FONT_CLASS_MAP}
         />
 
+        {/* One viewport-sized background layer. Sticky, so a sectioned profile's second
+            screen scrolls over the same background instead of stretching it across both.
+            The negative margin keeps it out of the flow; `overflow-x-clip` on the parent
+            (not `overflow-hidden`) is what lets the sticky work at all. */}
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
         {bannerBackgroundUrl && (
           isVideoUrl(bannerBackgroundUrl) ? (
             <video
@@ -717,9 +873,33 @@ const Layout1 = ({
           color={backgroundEffectColor}
           aboveContainer={backgroundEffectAboveContainer}
         />
+        </div>
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
+        {/* Page dots. Same sticky-out-of-flow trick as the background so they stay
+            pinned to the viewport while the screens page past. */}
+        {paged && (
+          <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[60]">
+            <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 pointer-events-auto">
+              {Array.from({ length: screenCount }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => goToScreen(i)}
+                  aria-label={`Go to section ${i + 1}`}
+                  aria-current={activeScreen === i}
+                  className={`rounded-full transition-all cursor-pointer ${
+                    activeScreen === i ? "w-2.5 h-2.5" : "w-1.5 h-1.5 bg-white/25 hover:bg-white/40"
+                  }`}
+                  style={activeScreen === i ? { backgroundColor: otherColor } : undefined}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="w-full min-h-screen flex items-center justify-center px-6">
         <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
         <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
         <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
@@ -890,33 +1070,12 @@ const Layout1 = ({
                 </div>
               )}
               {detailSlot("beside", `mt-1 text-center ${justifyClass}`)}
-              {bio?.trim() && (
-                <div
-                  className={`w-full mt-1.5 flex ${isLeft ? "justify-start" : "justify-center"}`}
-                >
-                  <DescriptionEffect effect={descriptionEffect}>
-                    <p
-                      className={`leading-relaxed max-w-[90%] break-words ${
-                        isLeft ? "text-left" : "text-center"
-                      }`}
-                      style={{
-                        fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
-                        fontSize: `${bioFontSize}px`,
-                        fontWeight: bioFontWeight,
-                        letterSpacing: `${bioLetterSpacing}px`,
-                        color: bioColor,
-                      }}
-                    >
-                      {renderFormattedText(bio.trim())}
-                    </p>
-                  </DescriptionEffect>
-                </div>
-              )}
+              {!sectioned && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), isLeft)}</div>}
 
             </div>
             </div>
 
-            {insideWidgets}
+            {insideWidgets("w-full px-6 pb-16")}
           </div>
 
           {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
@@ -927,11 +1086,60 @@ const Layout1 = ({
         </CardTransition>
         </CardEffect>
 
-        <ProfileWidgets widgets={widgets} placement="outside" cardWidth={cardWidthPx} widgetPrimaryTextColor={widgetPrimaryTextColor} widgetSecondaryTextColor={widgetSecondaryTextColor} widgetBorderColor={widgetBorderColor} widgetBorderOpacity={widgetBorderOpacity} widgetBorderWidth={widgetBorderWidth} widgetBorderRadius={widgetBorderRadius} widgetFont={widgetFont} widgetFontSize={widgetFontSize} widgetFontWeight={widgetFontWeight} widgetLetterSpacing={widgetLetterSpacing} />
+        {!sectioned && outsideWidgets}
 
         {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
         {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
         </div>
+        </div>
+
+        {paged && (
+          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+            <div
+              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              style={{ "--card-w": cardWidth } as React.CSSProperties}
+            >
+              {aboutVisible && (
+                <>
+                  <div className="mb-3 text-left">
+                    <h2
+                      style={{
+                        fontFamily: fontClassMap[usernameFont] || "var(--font-inter)",
+                        fontSize: "15px",
+                        fontWeight: 500,
+                        letterSpacing: `${usernameLetterSpacing}px`,
+                        color: usernameColor,
+                      }}
+                    >
+                      {aboutSectionTitle?.trim() || "About"}
+                    </h2>
+                    {aboutSubtitle && (
+                      <p
+                        className="mt-0.5 opacity-50"
+                        style={{
+                          fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+                          fontSize: "12.5px",
+                          letterSpacing: `${bioLetterSpacing}px`,
+                          color: bioColor,
+                        }}
+                      >
+                        {renderFormattedText(aboutSubtitle)}
+                      </p>
+                    )}
+                  </div>
+                  {/* Inside-card widgets stay on the preset card up top; only
+                      outside-card ones drop below this description card. */}
+                  {aboutText && (
+                    <div className="relative w-full p-6" style={sectionSurface}>
+                      {textBlock(aboutText, true)}
+                    </div>
+                  )}
+                  {aboutHasWidgets && outsideWidgets}
+                </>
+              )}
+            </div>
+          </div>
+        )}
 
         {commentsEnabled && (
           <div

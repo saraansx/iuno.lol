@@ -22,23 +22,25 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     sessionStorage.setItem(sessionKey, 'true');
 
     const trackView = async () => {
+      // Fingerprint is a best-effort extra signal — the server dedups on IP+UA
+      // first, so a failure here must not cost us the view.
+      let fingerprint: string | undefined;
       try {
         const fp = await fpPromise.load();
-        const result = await fp.get();
-        const fingerprint = result.visitorId;
-
-        fetch('/api/track-view', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ profileId, fingerprint }),
-        }).catch(err => {
-          console.error('[views] Client tracking failed:', err);
-        });
+        fingerprint = (await fp.get()).visitorId;
       } catch (err) {
         console.error('[views] Fingerprint failed:', err);
       }
+
+      fetch('/api/track-view', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ profileId, fingerprint }),
+      }).catch(err => {
+        console.error('[views] Client tracking failed:', err);
+      });
     };
 
     trackView();

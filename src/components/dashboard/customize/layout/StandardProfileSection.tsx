@@ -152,7 +152,7 @@ export default function StandardProfileSection({
             className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer focus:outline-none"
           >
             <span className={isCustom ? "text-white/50" : ""}>
-              {isCustom ? "Custom" : selected?.name ?? "Classic"}
+              {isCustom ? "Custom" : selected?.name ?? "Modern"}
             </span>
             <svg
               width="14"

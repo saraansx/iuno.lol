@@ -298,6 +298,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             { label: "Colors", href: "/dashboard/customize/profile/colors" },
             { label: "Widgets", href: "/dashboard/customize/profile/widgets" },
             { label: "Layout", href: "/dashboard/customize/profile/layout" },
+            { label: "Section builder", href: "/dashboard/customize/profile/section-builder" },
           ]
         },
         { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },

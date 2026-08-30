@@ -363,6 +363,10 @@ const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 export async function updateLayoutProfile(data: {
   username: string;
   profileStructure?: string;
+  aboutSectionEnabled?: boolean;
+  aboutSectionTitle?: string;
+  aboutSectionDescription?: string;
+  widgetsSectionEnabled?: boolean;
   profilePreset?: string;
   wrapInCard?: boolean;
   contentWidth?: number;
@@ -403,6 +407,22 @@ export async function updateLayoutProfile(data: {
     setData.profilePreset = data.profilePreset;
   }
 
+  if (data.aboutSectionEnabled !== undefined) {
+    setData.aboutSectionEnabled = data.aboutSectionEnabled;
+  }
+
+  if (data.aboutSectionTitle !== undefined) {
+    setData.aboutSectionTitle = data.aboutSectionTitle.trim().slice(0, 60) || "About";
+  }
+
+  if (data.aboutSectionDescription !== undefined) {
+    setData.aboutSectionDescription = data.aboutSectionDescription.trim().slice(0, 1000) || null;
+  }
+
+  if (data.widgetsSectionEnabled !== undefined) {
+    setData.widgetsSectionEnabled = data.widgetsSectionEnabled;
+  }
+
   if (data.wrapInCard !== undefined) setData.wrapInCard = data.wrapInCard;
 
   if (data.contentWidth !== undefined) {
@@ -440,6 +460,7 @@ export async function updateLayoutProfile(data: {
     .onDuplicateKeyUpdate({ set: setData });
 
   revalidatePath("/dashboard/customize/profile/layout");
+  revalidatePath("/dashboard/customize/profile/section-builder");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${data.username}`);
 

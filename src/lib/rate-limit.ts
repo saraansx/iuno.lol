@@ -106,6 +106,13 @@ export async function checkAvailabilityRateLimit(ip: string | null) {
   return checkRateLimit(`check:${ip}`, 10, 60, 30);
 }
 
+// Matches the 48h view dedup window: an IP can only ever be counted once per
+// profile in that time, so anything past this is either abuse or a very busy
+// shared IP. Overflow only stops view tracking — browsing is unaffected.
+export async function trackViewRateLimit(ip: string) {
+  return checkRateLimit(`track_view:${ip}`, 200, 48 * 60 * 60, 48 * 60 * 60);
+}
+
 export async function feedbackRateLimit(userId: number) {
   return checkRateLimit(`feedback:${userId}`, 20, 60, 60);
 }

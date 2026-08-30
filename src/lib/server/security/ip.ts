@@ -1,19 +1,23 @@
+const TRUSTED_IP_HEADER = 'cf-connecting-ip';
+
+let warned = false;
+
 export function getClientIp(headers: Headers | { get(name: string): string | null }): string | null {
-  const realIp = headers.get('x-real-ip')?.trim();
-  if (realIp && isValidIp(realIp)) return realIp;
-
-  const cfIp = headers.get('cf-connecting-ip')?.trim();
-  if (cfIp && isValidIp(cfIp)) return cfIp;
-
-  const vercelIp = headers.get('x-vercel-ip')?.trim();
-  if (vercelIp && isValidIp(vercelIp)) return vercelIp;
-
-  const forwarded = headers.get('x-forwarded-for');
-  if (forwarded) {
-    const firstIp = forwarded.split(',')[0].trim();
-    if (firstIp && isValidIp(firstIp)) return firstIp;
+  const raw = headers.get(TRUSTED_IP_HEADER)?.trim();
+  if (raw) {
+    const first = raw.split(',')[0].trim();
+    if (first && isValidIp(first)) return first;
   }
 
+  // Local dev has no Cloudflare in front of it.
+  if (process.env.NODE_ENV !== 'production') return '127.0.0.1';
+
+  if (!warned) {
+    warned = true;
+    console.error(
+      `[security] "${TRUSTED_IP_HEADER}" missing in production — IP-based limits are inactive. Is traffic still routed through Cloudflare?`,
+    );
+  }
   return null;
 }
 

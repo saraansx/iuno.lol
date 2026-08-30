@@ -1,6 +1,9 @@
 
 export type ProfilePresetId = "split" | "floating" | "modern" | "classic";
 
+/** What a brand-new profile (and any unknown preset) falls back to. */
+export const DEFAULT_PRESET: ProfilePresetId = "modern";
+
 export interface ProfilePresetLayout {
   badgePlacement: "card" | "page";
 }
@@ -97,8 +100,10 @@ const PRESET_DETAIL_DEFAULTS: Record<ProfilePresetId, DetailDefaults> = {
 };
 
 export function getDetailDefaults(preset: string | undefined): DetailDefaults {
-  return PRESET_DETAIL_DEFAULTS[preset as ProfilePresetId] ?? CLASSIC_DETAIL_DEFAULTS;
+  return PRESET_DETAIL_DEFAULTS[preset as ProfilePresetId] ?? PRESET_DETAIL_DEFAULTS[DEFAULT_PRESET];
 }
+
+export const DEFAULT_DETAILS = PRESET_DETAIL_DEFAULTS[DEFAULT_PRESET];
 
 export type ContentAlignment = "left" | "center";
 
@@ -109,7 +114,7 @@ const AVATAR_PLACEMENTS: AvatarPlacement[] = ["top", "left", "right", "floating"
 
 export function normalizeAlignment(
   value: string | null | undefined,
-  fallback: ContentAlignment = "center"
+  fallback: ContentAlignment = "left"
 ): ContentAlignment {
   return CONTENT_ALIGNMENTS.includes(value as ContentAlignment)
     ? (value as ContentAlignment)
@@ -118,7 +123,7 @@ export function normalizeAlignment(
 
 export function normalizeAvatarPlacement(
   value: string | null | undefined,
-  fallback: AvatarPlacement = "floating"
+  fallback: AvatarPlacement = "left"
 ): AvatarPlacement {
   return AVATAR_PLACEMENTS.includes(value as AvatarPlacement)
     ? (value as AvatarPlacement)
@@ -141,5 +146,7 @@ export const PRESET_FRAME_DEFAULTS: Record<
 };
 
 export function getFrameDefaults(preset: string | undefined) {
-  return PRESET_FRAME_DEFAULTS[preset as ProfilePresetId] ?? PRESET_FRAME_DEFAULTS.classic;
+  return PRESET_FRAME_DEFAULTS[preset as ProfilePresetId] ?? PRESET_FRAME_DEFAULTS[DEFAULT_PRESET];
 }
+
+export const DEFAULT_FRAME = PRESET_FRAME_DEFAULTS[DEFAULT_PRESET];
