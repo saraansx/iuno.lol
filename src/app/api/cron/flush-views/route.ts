@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
-import { verifySignatureAppRouter } from "@upstash/qstash/nextjs";
+import { isAuthorizedCron } from '@/lib/cron-auth';
 
 const SET_KEY = 'profiles_with_pending_views';
 
@@ -170,5 +170,12 @@ async function handler() {
   }
 }
 
-export const GET = verifySignatureAppRouter(handler);
-export const POST = verifySignatureAppRouter(handler);
+export async function GET(request: Request) {
+  if (!isAuthorizedCron(request)) return new Response('Unauthorized', { status: 401 });
+  return handler();
+}
+
+export async function POST(request: Request) {
+  if (!isAuthorizedCron(request)) return new Response('Unauthorized', { status: 401 });
+  return handler();
+}
