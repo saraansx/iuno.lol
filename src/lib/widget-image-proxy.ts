@@ -54,10 +54,6 @@ export async function readImageWithLimit(
 
 const MAX_REDIRECTS = 3;
 
-// 12h 3min. Unlike the JSON routes there is no Redis layer here, so the edge is
-// the only cache standing between a profile view and Spotify/Steam's API — a
-// short TTL would multiply upstream calls. Safe to hold this long because an
-// image URL changes when its content does.
 const CACHE_CONTROL = "public, max-age=43380, s-maxage=43380";
 
 const BROWSER_UA =

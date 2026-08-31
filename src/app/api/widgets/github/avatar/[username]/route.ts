@@ -1,9 +1,6 @@
 import { NextRequest } from "next/server";
 import { proxyWidgetImage } from "@/lib/widget-image-proxy";
 
-// GitHub serves the avatar as a redirect to its CDN, so this goes through the
-// shared proxy: every hop is re-validated, the content type is checked, and the
-// response carries nosniff.
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ username: string }> }

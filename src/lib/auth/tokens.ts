@@ -35,6 +35,10 @@ export async function createVerificationToken(email: string): Promise<string> {
   return token
 }
 
+export async function deleteVerificationTokens(email: string) {
+  await db.delete(schema.verificationTokens).where(eq(schema.verificationTokens.email, email))
+}
+
 export async function consumeVerificationToken(token: string): Promise<string | null> {
   const now    = new Date()
   const hashed = hashToken(token)

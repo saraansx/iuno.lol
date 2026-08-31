@@ -1,10 +1,5 @@
 import { redis } from "@/lib/redis";
 
-/**
- * Sliding window. Attempts are timestamps in a sorted set and stale ones are
- * dropped on every call, so being over the limit only blocks until the oldest
- * attempt ages out — there is no separate cooldown key to sit out in full.
- */
 const RATE_LIMIT_SCRIPT = `
 local now = tonumber(ARGV[1])
 local window = tonumber(ARGV[2])
@@ -46,12 +41,10 @@ async function evalLimit(
   return ok === 1 ? { ok: true } : { ok: false, retryAfterSeconds: retryAfter };
 }
 
-/** Counts this call against the limit. */
 export function checkRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
   return evalLimit(key, maxAttempts, windowSeconds, true);
 }
 
-/** Reads the limit without counting — pair with recordAttempt on failure only. */
 export function peekRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
   return evalLimit(key, maxAttempts, windowSeconds, false);
 }
@@ -64,7 +57,6 @@ export async function recordAttempt(key: string, windowSeconds: number) {
 
 const LOGIN_WINDOW = 10 * 60;
 
-/** Only failed logins count, so a correct password never locks anyone out. */
 export async function loginRateLimit(email: string, ip: string | null) {
   const emailRate = await peekRateLimit(`login:email:${email}`, 5, LOGIN_WINDOW);
   if (!emailRate.ok) return emailRate;

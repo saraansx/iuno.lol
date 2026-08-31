@@ -1,6 +1,6 @@
 'use server'
 
-import { createVerificationToken } from '@/lib/auth/tokens'
+import { createVerificationToken, deleteVerificationTokens } from '@/lib/auth/tokens'
 import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
@@ -57,8 +57,15 @@ export async function register(input: RegisterInput) {
 
     await createUser({ username, email, password, affiliateCode })
 
-    const token = await createVerificationToken(email)
-    await sendVerificationEmail(email, token)
+    try {
+      const token = await createVerificationToken(email)
+      await sendVerificationEmail(email, token)
+    } catch (err: unknown) {
+      console.error('[register] Verification email failed:', err)
+      await deleteUnverifiedUserByEmail(email)
+      await deleteVerificationTokens(email)
+      return { error: 'Could not send the verification email. Please try again.' }
+    }
 
     return { success: 'Account created! Please verify your email.' }
   } catch (err: unknown) {

@@ -2,12 +2,6 @@ import { redis } from "@/lib/redis";
 
 export const WIDGET_CACHE_TTL_SECONDS = 12 * 60 * 60;
 
-/**
- * Second argument for a successful widget JSON response. Lets Cloudflare hold
- * it at the edge for an hour while browsers revalidate every time, so a stale
- * widget clears on reload. Only put this on success paths — a cached 404 would
- * outlive the profile edit that fixed it.
- */
 export const WIDGET_EDGE_CACHE = {
   headers: { "Cache-Control": "public, max-age=0, s-maxage=3600" },
 } as const;
