@@ -21,7 +21,7 @@ export async function resendVerification(email: string, turnstileToken: string) 
     }
 
     if (user.emailVerified) {
-      return { success: 'If an account exists, a verification email was sent!' }
+      return { error: 'That email is already verified. You can sign in.' }
     }
 
     try {
@@ -30,12 +30,12 @@ export async function resendVerification(email: string, turnstileToken: string) 
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : ''
       if (message.startsWith('Please wait')) {
-        return { success: 'If an account exists, a verification email was sent!' }
+        return { error: message }
       }
       throw err
     }
 
-    return { success: 'If an account exists, a verification email was sent!' }
+    return { success: 'Verification email sent! Check your inbox.' }
   } catch (err: unknown) {
     console.error('[resendVerification] Failed:', err)
     return { error: 'Something went wrong. Please try again.' }
