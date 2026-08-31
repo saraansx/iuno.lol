@@ -9,7 +9,7 @@ function hashToken(token: string): string {
 
 export async function createVerificationToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
-  const expiresAt = addMinutes(new Date(), 4)
+  const expiresAt = addMinutes(new Date(), 9)
   const hashed    = hashToken(token)
 
   await db.delete(schema.verificationTokens).where(lt(schema.verificationTokens.expiresAt, new Date()))

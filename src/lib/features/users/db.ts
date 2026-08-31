@@ -232,13 +232,15 @@ export async function getUserForSession(id: number) {
 
 export type FullUser = NonNullable<Awaited<ReturnType<typeof getUserById>>>;
 
+export const UNVERIFIED_GRACE_MS = 10 * 60 * 1000
+
 export async function assertEmailAvailable(email: string) {
   const existing = await getUserByEmail(email)
   if (!existing) return
 
   if (!existing.emailVerified) {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
-    if (existing.createdAt < fiveMinutesAgo) return
+    const cutoff = new Date(Date.now() - UNVERIFIED_GRACE_MS)
+    if (existing.createdAt < cutoff) return
   }
 
   throw new Error('An account with that email already exists.')
@@ -249,8 +251,8 @@ export async function assertUsernameAvailable(username: string) {
   if (!existing) return
 
   if (!existing.emailVerified) {
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
-    if (existing.createdAt < fiveMinutesAgo) return
+    const cutoff = new Date(Date.now() - UNVERIFIED_GRACE_MS)
+    if (existing.createdAt < cutoff) return
   }
 
   throw new Error('That username is already taken.')
@@ -265,13 +267,13 @@ export async function deleteUnverifiedUserByEmail(email: string) {
 }
 
 export async function cleanupExpiredUnverifiedUsers() {
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000)
+  const cutoff = new Date(Date.now() - UNVERIFIED_GRACE_MS)
   await db
     .delete(schema.users)
     .where(
       and(
         eq(schema.users.emailVerified, false),
-        lt(schema.users.createdAt, fiveMinutesAgo)
+        lt(schema.users.createdAt, cutoff)
       )
     )
 }

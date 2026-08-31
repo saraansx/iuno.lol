@@ -17,7 +17,7 @@ export async function resendVerification(email: string, turnstileToken: string) 
     const user = await getUserByEmail(email)
 
     if (!user) {
-      return { success: 'If an account exists, a verification email was sent!' }
+      return { error: 'No pending signup found for that email. Please register again.' }
     }
 
     if (user.emailVerified) {
