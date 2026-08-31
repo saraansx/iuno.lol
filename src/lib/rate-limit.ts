@@ -57,8 +57,12 @@ export async function recordAttempt(key: string, windowSeconds: number) {
 
 const LOGIN_WINDOW = 10 * 60;
 
+function emailKey(email: string) {
+  return email.toLowerCase().trim();
+}
+
 export async function loginRateLimit(email: string, ip: string | null) {
-  const emailRate = await peekRateLimit(`login:email:${email}`, 5, LOGIN_WINDOW);
+  const emailRate = await peekRateLimit(`login:email:${emailKey(email)}`, 5, LOGIN_WINDOW);
   if (!emailRate.ok) return emailRate;
 
   if (ip) {
@@ -70,12 +74,12 @@ export async function loginRateLimit(email: string, ip: string | null) {
 }
 
 export async function recordFailedLogin(email: string, ip: string | null) {
-  await recordAttempt(`login:email:${email}`, LOGIN_WINDOW);
+  await recordAttempt(`login:email:${emailKey(email)}`, LOGIN_WINDOW);
   if (ip) await recordAttempt(`login:ip:${ip}`, LOGIN_WINDOW);
 }
 
 export async function registerRateLimit(email: string, ip: string | null) {
-  const emailRate = await checkRateLimit(`register:email:${email}`, 3, 10 * 60);
+  const emailRate = await checkRateLimit(`register:email:${emailKey(email)}`, 3, 10 * 60);
   if (!emailRate.ok) return emailRate;
 
   if (ip) {

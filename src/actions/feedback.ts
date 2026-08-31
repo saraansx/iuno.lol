@@ -7,11 +7,21 @@ import { revalidatePath } from "next/cache";
 import { getSessionUserId } from "@/lib/auth/session";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 
+const FEEDBACK_TYPES = ["like", "dislike", "unlike", "undislike"] as const;
+
 export async function submitFeedbackAction(userId: number, type: 'like' | 'dislike' | 'unlike' | 'undislike') {
   const sessionUserId = await getSessionUserId();
 
   if (!sessionUserId) {
     return { success: false, error: "You must be logged in to like or dislike." };
+  }
+
+  if (!FEEDBACK_TYPES.includes(type)) {
+    return { success: false, error: "Invalid feedback type." };
+  }
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return { success: false, error: "Invalid profile." };
   }
 
   try {
