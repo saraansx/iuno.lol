@@ -1,6 +1,6 @@
 'use server'
 
-import { assertUsernameAvailable, getUserByEmail } from '@/lib/features/users/db'
+import { assertEmailAvailable, assertUsernameAvailable } from '@/lib/features/users/db'
 import { headers } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
 import { validateUsername, validateEmail } from '@/lib/server/security/validation'
@@ -15,22 +15,15 @@ export async function checkAvailability({ username, email }: { username: string;
       return { error: 'You\'re checking too fast. Please try again shortly.' }
     }
 
-    const cleanUsername = username.trim().toLowerCase()
-    const cleanEmail = email.trim().toLowerCase()
-
-    const usernameError = validateUsername(cleanUsername)
+    const usernameError = validateUsername(username)
     if (usernameError) return { error: usernameError }
 
-    const emailError = validateEmail(cleanEmail)
+    const emailError = validateEmail(email)
     if (emailError) return { error: emailError }
 
-    const existingUser = await getUserByEmail(cleanEmail)
-    if (existingUser && existingUser.emailVerified) {
-      return { error: 'An account with that information already exists.' }
-    }
-
     try {
-      await assertUsernameAvailable(cleanUsername)
+      await assertEmailAvailable(email)
+      await assertUsernameAvailable(username)
     } catch {
       return { error: 'An account with that information already exists.' }
     }
