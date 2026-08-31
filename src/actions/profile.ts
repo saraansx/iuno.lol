@@ -47,6 +47,15 @@ async function emptyS3Directory(userId: number, assetType: string) {
 
 const STORAGE_BASE = `https://storage.iuno.lol/`;
 
+// Always resolve the username from the session's userId. Taking it from the
+// action's arguments meant the client chose which page got revalidated — a
+// wrong value left the owner's own page stale, and any signed-in user could
+// point it at a stranger's page.
+async function revalidateOwnProfile(userId: number) {
+  const user = await getUserById(userId);
+  if (user?.username) revalidatePath(`/${user.username}`);
+}
+
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
   return url.startsWith(STORAGE_BASE) ||
@@ -55,7 +64,6 @@ function isValidMediaUrl(url: string | null | undefined): boolean {
 }
 
 export async function updateGeneralProfile(data: {
-  username: string;
   displayName?: string;
   location?: string;
   timezone?: string;
@@ -149,13 +157,12 @@ export async function updateGeneralProfile(data: {
 
   revalidatePath("/dashboard/customize/profile/general");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${data.username}`);
+  await revalidateOwnProfile(userId);
 
   return { success: true };
 }
 
 export async function updateAppearanceProfile(data: {
-  username: string;
   pageBgColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
@@ -290,13 +297,12 @@ export async function updateAppearanceProfile(data: {
   revalidatePath("/dashboard/customize/profile/appearance");
   revalidatePath("/dashboard/customize/profile/fonts");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${data.username}`);
+  await revalidateOwnProfile(userId);
 
   return { success: true };
 }
 
 export async function updateColorsProfile(data: {
-  username: string;
   usernameColor?: string | null;
   bioColor?: string | null;
   otherColor?: string | null;
@@ -336,7 +342,7 @@ export async function updateColorsProfile(data: {
 
   revalidatePath("/dashboard/customize/profile/colors");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${data.username}`);
+  await revalidateOwnProfile(userId);
   
   return { success: true };
 }
@@ -361,7 +367,6 @@ const DETAIL_PLACEMENT_FIELDS = [
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
 export async function updateLayoutProfile(data: {
-  username: string;
   profileStructure?: string;
   aboutSectionEnabled?: boolean;
   aboutSectionTitle?: string;
@@ -462,13 +467,12 @@ export async function updateLayoutProfile(data: {
   revalidatePath("/dashboard/customize/profile/layout");
   revalidatePath("/dashboard/customize/profile/section-builder");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${data.username}`);
+  await revalidateOwnProfile(userId);
 
   return { success: true };
 }
 
 export async function updateEffectsProfile(data: {
-  username: string;
   backgroundEffect?: string | null;
   backgroundEffectIntensity?: number | null;
   backgroundEffectColor?: string | null;
@@ -542,7 +546,7 @@ export async function updateEffectsProfile(data: {
 
   revalidatePath("/dashboard/customize/profile/effects");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${data.username}`);
+  await revalidateOwnProfile(userId);
 
   return { success: true };
 }

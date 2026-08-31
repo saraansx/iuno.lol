@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface SteamUserData {
@@ -173,10 +174,13 @@ export async function fetchSteamUserData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "steam_user");
+    if (limited) return limited;
+
     const { id } = await params;
     const cleanId = (id || "").trim();
 
@@ -192,7 +196,7 @@ export async function GET(
       return NextResponse.json({ error: "Steam profile not found" }, { status: 404 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Steam User API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

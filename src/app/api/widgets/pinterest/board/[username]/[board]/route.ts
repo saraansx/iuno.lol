@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface PinterestBoardData {
@@ -193,10 +194,13 @@ export async function fetchPinterestBoardData(cleanUsername: string, cleanBoard:
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string; board: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "pinterest_board");
+    if (limited) return limited;
+
     const { username, board } = await params;
     const cleanUsername = (username || "").trim().toLowerCase();
     const cleanBoard = (board || "").trim().toLowerCase().replace(/^\/+|\/+$/g, "");
@@ -213,7 +217,7 @@ export async function GET(
       return NextResponse.json({ error: "Pinterest board not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Pinterest Board API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

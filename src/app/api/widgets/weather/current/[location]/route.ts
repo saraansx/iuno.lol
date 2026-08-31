@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 import {
@@ -99,10 +100,13 @@ export async function fetchWeatherData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ location: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "weather_current");
+    if (limited) return limited;
+
     const { location } = await params;
     const cleanLocation = cleanWeatherLocation(decodeURIComponent(location));
 

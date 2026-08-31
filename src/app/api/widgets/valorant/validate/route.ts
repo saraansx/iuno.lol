@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { getSessionUserId } from "@/lib/auth/session";
 import { fetchValorantPlayerData } from "../player/[name]/[tag]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const limited = await widgetRateLimit(req, "valorant_validate", 20);
+    if (limited) return limited;
+
     const sessionUserId = await getSessionUserId();
     if (!sessionUserId) {
       return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });

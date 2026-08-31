@@ -154,7 +154,6 @@ export default async function Page() {
           }`}
         >
           <AboutSectionRow
-            username={user?.username ?? ""}
             hidden={user?.aboutSectionEnabled === false}
             title={user?.aboutSectionTitle ?? "About"}
             description={user?.aboutSectionDescription ?? ""}

@@ -184,10 +184,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
         show={hasChanges}
         onSave={async () => {
           try {
-            await updateEffectsProfile({
-              username: user?.username || "",
-              ...overrides
-            });
+            await updateEffectsProfile(overrides);
             toast.success("Profile Saved Sucessfully");
             scheduleClear();
             router.refresh();

@@ -7,13 +7,12 @@ import { toast } from "@/components/ui/toast";
 import SectionVisibilityButton from "./SectionVisibilityButton";
 
 interface AboutSectionRowProps {
-  username: string;
   hidden: boolean;
   title: string;
   description: string;
 }
 
-export default function AboutSectionRow({ username, hidden, title, description }: AboutSectionRowProps) {
+export default function AboutSectionRow({ hidden, title, description }: AboutSectionRowProps) {
   const [open, setOpen] = useState(false);
   const [titleValue, setTitleValue] = useState(title);
   const [descValue, setDescValue] = useState(description);
@@ -26,7 +25,6 @@ export default function AboutSectionRow({ username, hidden, title, description }
     startTransition(async () => {
       try {
         await updateLayoutProfile({
-          username,
           aboutSectionTitle: titleValue,
           aboutSectionDescription: descValue,
         });
@@ -92,7 +90,6 @@ export default function AboutSectionRow({ username, hidden, title, description }
             </svg>
           </button>
           <SectionVisibilityButton
-            username={username}
             name="About"
             field="aboutSectionEnabled"
             hidden={hidden}

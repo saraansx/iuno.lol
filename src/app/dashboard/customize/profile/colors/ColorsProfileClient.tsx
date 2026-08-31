@@ -87,10 +87,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
         show={hasChanges}
         onSave={async () => {
           try {
-            await updateColorsProfile({
-              username: user?.username || "",
-              ...overrides
-            });
+            await updateColorsProfile(overrides);
             toast.success("Profile Saved Sucessfully");
             scheduleClear();
             router.refresh();

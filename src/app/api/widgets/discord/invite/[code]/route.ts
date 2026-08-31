@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +19,7 @@ export interface DiscordServerData {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params;
@@ -31,10 +32,13 @@ export async function GET(
   const cacheKey = widgetCacheKey("discord", "invite", cleanCode);
   const cached = await readWidgetCache<DiscordServerData>(cacheKey);
   if (cached) {
-    return NextResponse.json(cached);
+    return NextResponse.json(cached, WIDGET_EDGE_CACHE);
   }
 
   try {
+    const limited = await widgetRateLimit(req, "discord_invite");
+    if (limited) return limited;
+
     const res = await fetch(`https://discord.com/api/v10/invites/${encodeURIComponent(cleanCode)}?with_counts=true&with_expiration=true`, {
       signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       headers: {

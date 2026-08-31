@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { redis } from "@/lib/redis";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 
@@ -72,7 +73,7 @@ const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
@@ -90,6 +91,9 @@ export async function GET(
   }
 
   try {
+    const limited = await widgetRateLimit(req, "discord_presence");
+    if (limited) return limited;
+
     const memberData = await withWidgetCache<DiscordMemberData>(
       widgetCacheKey("discord", "member", id),
       async () => {

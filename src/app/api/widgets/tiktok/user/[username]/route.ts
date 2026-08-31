@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { type TikTokUserData, cleanTikTokUsername } from "@/lib/tiktok";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const CRAWLER_HEADERS = {
@@ -268,10 +269,13 @@ export async function fetchTikTokUserData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "tiktok_user");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = cleanTikTokUsername(username);
 
@@ -296,7 +300,7 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       data,
-    });
+    }, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[TikTok Profile API Error]", err);
     return NextResponse.json(

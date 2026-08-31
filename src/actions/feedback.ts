@@ -5,7 +5,6 @@ import { eq, sql, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { getSessionUserId } from "@/lib/auth/session";
-import { feedbackRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
 
 export async function submitFeedbackAction(userId: number, type: 'like' | 'dislike' | 'unlike' | 'undislike') {
@@ -13,12 +12,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
   if (!sessionUserId) {
     return { success: false, error: "You must be logged in to like or dislike." };
-  }
-
-  const rate = await feedbackRateLimit(sessionUserId);
-  if (!rate.ok) {
-    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
-    return { success: false, error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
   }
 
   try {

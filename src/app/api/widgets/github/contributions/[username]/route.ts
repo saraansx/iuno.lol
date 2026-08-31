@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 interface ContributionsPayload {
@@ -7,10 +8,13 @@ interface ContributionsPayload {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "github_contributions");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = (username || "").trim().toLowerCase();
 
@@ -21,7 +25,7 @@ export async function GET(
     const cacheKey = widgetCacheKey("github", "contributions", cleanUsername);
     const cached = await readWidgetCache<ContributionsPayload>(cacheKey);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, WIDGET_EDGE_CACHE);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -91,7 +95,7 @@ export async function GET(
     const payload: ContributionsPayload = { contributions: days };
     await writeWidgetCache(cacheKey, payload);
 
-    return NextResponse.json(payload);
+    return NextResponse.json(payload, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[GitHub Contributions Route Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

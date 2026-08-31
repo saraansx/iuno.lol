@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { type SpotifyItemData } from "@/lib/spotify";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 let cachedToken: string | null = null;
@@ -353,10 +354,13 @@ export async function fetchSpotifyItem(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ type: string; id: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "spotify_item");
+    if (limited) return limited;
+
     const { type, id } = await params;
     const cleanType = type.toLowerCase();
     const cleanId = (id || "").trim();
@@ -393,7 +397,7 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       data,
-    });
+    }, WIDGET_EDGE_CACHE);
   } catch (err: unknown) {
     console.error("[Spotify Lookup Error]", err);
     return NextResponse.json(

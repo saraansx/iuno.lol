@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { type GenshinPlayerData, getGenshinRegion, buildEnkaUiUrl } from "@/lib/genshin";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const ENKA_STORE_BASE =
@@ -168,10 +169,13 @@ export async function fetchGenshinPlayerData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ uid: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "genshin_player");
+    if (limited) return limited;
+
     const { uid } = await params;
     const cleanUid = (uid || "").trim();
 
@@ -187,7 +191,7 @@ export async function GET(
       return NextResponse.json({ error: "Genshin player profile not found" }, { status: 404 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Genshin Player API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

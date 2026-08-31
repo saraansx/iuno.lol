@@ -173,7 +173,6 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
         onSave={async () => {
           try {
             await updateLayoutProfile({
-              username: user?.username || "",
               profileStructure: structure,
               profilePreset: preset,
               wrapInCard,

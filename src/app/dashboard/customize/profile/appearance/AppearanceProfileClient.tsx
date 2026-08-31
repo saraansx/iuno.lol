@@ -609,10 +609,9 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
         show={Object.keys(overrides).length > 0}
         onSave={async () => {
           try {
-            await updateAppearanceProfile({
-              username: user?.username || "",
-              ...(overrides as Omit<Parameters<typeof updateAppearanceProfile>[0], "username">)
-            });
+            await updateAppearanceProfile(
+              overrides as Parameters<typeof updateAppearanceProfile>[0]
+            );
             toast.success("Profile Saved Sucessfully");
             scheduleClear();
             router.refresh();

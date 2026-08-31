@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 import {
   type TelegramUserData,
@@ -116,10 +117,13 @@ export async function fetchTelegramUserData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "telegram_user");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = cleanTelegramUsername(username);
 
@@ -142,7 +146,7 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ ok: true, data });
+    return NextResponse.json({ ok: true, data }, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Telegram Profile API Error]", err);
     return NextResponse.json(

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface PinterestUserData {
@@ -135,10 +136,13 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "pinterest_user");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = (username || "").trim().toLowerCase();
 
@@ -154,7 +158,7 @@ export async function GET(
       return NextResponse.json({ error: "Pinterest user not found" }, { status: 404 });
     }
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Pinterest User API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

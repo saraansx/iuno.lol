@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface GitHubUserData {
@@ -13,10 +14,13 @@ export interface GitHubUserData {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "github_user");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = (username || "").trim().toLowerCase();
 
@@ -27,7 +31,7 @@ export async function GET(
     const cacheKey = widgetCacheKey("github", "user", cleanUsername);
     const cached = await readWidgetCache<GitHubUserData>(cacheKey);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, WIDGET_EDGE_CACHE);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -65,7 +69,7 @@ export async function GET(
 
     await writeWidgetCache(cacheKey, result);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[GitHub User Route Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

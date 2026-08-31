@@ -246,10 +246,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
               finalOverrides.bannerBackgroundUrl = await uploadPendingFile(pendingFiles.background, "background");
             }
 
-            await updateGeneralProfile({
-              username: user?.username || "",
-              ...(finalOverrides as Omit<Parameters<typeof updateGeneralProfile>[0], "username">)
-            });
+            await updateGeneralProfile(
+              finalOverrides as Parameters<typeof updateGeneralProfile>[0]
+            );
             toast.success("Profile Saved Sucessfully");
             clearPendingFiles();
             scheduleClear();

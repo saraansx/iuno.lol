@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export { getRankIconUrl, getAgentIconUrl, getMapSplashUrl };
@@ -215,10 +216,13 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ name: string; tag: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "valorant_player");
+    if (limited) return limited;
+
     const { name, tag } = await params;
     const cleanName = (name || "").trim();
     const cleanTag = (tag || "").trim().replace(/^#/, "");
@@ -235,7 +239,7 @@ export async function GET(
       return NextResponse.json({ error: "Valorant player not found" }, { status: 404 });
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(data, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Valorant Player API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

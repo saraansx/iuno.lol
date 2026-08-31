@@ -4,7 +4,6 @@ import { createPasswordResetToken } from '@/lib/auth/tokens'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
-import { forgotPasswordRateLimit } from '@/lib/rate-limit'
 
 export async function forgotPassword(email: string, turnstileToken: string) {
   try {
@@ -14,12 +13,6 @@ export async function forgotPassword(email: string, turnstileToken: string) {
 
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
-
-    const rate = await forgotPasswordRateLimit(email)
-    if (!rate.ok) {
-      const minutes = Math.ceil(rate.retryAfterSeconds / 60)
-      return { error: `You're being rate limited. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
-    }
 
     const user = await getUserByEmail(email)
     if (!user) {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { readWidgetCache, writeWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { readWidgetCache, writeWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export interface GitHubRepoData {
@@ -16,10 +17,13 @@ export interface GitHubRepoData {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ owner: string; repo: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "github_repo");
+    if (limited) return limited;
+
     const { owner, repo } = await params;
     const cleanOwner = (owner || "").trim();
     const cleanRepo = (repo || "").trim();
@@ -31,7 +35,7 @@ export async function GET(
     const cacheKey = widgetCacheKey("github", "repo", cleanOwner, cleanRepo);
     const cached = await readWidgetCache<GitHubRepoData>(cacheKey);
     if (cached) {
-      return NextResponse.json(cached);
+      return NextResponse.json(cached, WIDGET_EDGE_CACHE);
     }
 
     const token = process.env.GITHUB_TOKEN;
@@ -75,7 +79,7 @@ export async function GET(
 
     await writeWidgetCache(cacheKey, result);
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[GitHub Repo Route Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

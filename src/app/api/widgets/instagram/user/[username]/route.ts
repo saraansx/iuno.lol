@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 
 const CACHE_TTL_SECONDS = 12 * 60 * 60;
 
@@ -79,10 +81,13 @@ export async function fetchInstagramUserData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ username: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "instagram_user");
+    if (limited) return limited;
+
     const { username } = await params;
     const cleanUsername = cleanInstagramUsername(username);
 
@@ -105,7 +110,7 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       data,
-    });
+    }, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[Instagram Profile API Error]", err);
     return NextResponse.json(

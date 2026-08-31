@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { type YouTubeWidgetData, cleanYouTubeInput } from "@/lib/youtube";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const API_BASE = "https://www.googleapis.com/youtube/v3";
@@ -186,10 +187,13 @@ export async function fetchYouTubeData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ input: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "youtube_channel");
+    if (limited) return limited;
+
     const { input } = await params;
     const cleanInput = cleanYouTubeInput(input);
 
@@ -217,7 +221,7 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       data,
-    });
+    }, WIDGET_EDGE_CACHE);
   } catch (err) {
     console.error("[YouTube Channel API Error]", err);
     return NextResponse.json(

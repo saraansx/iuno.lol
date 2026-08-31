@@ -4,7 +4,6 @@ import { createOTPToken } from '@/lib/auth/otp'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendTwoFactorTokenEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
-import { sendOTPRateLimit } from '@/lib/rate-limit'
 
 export const sendOTP = async (email: string, turnstileToken: string) => {
   try {
@@ -14,12 +13,6 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
 
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
-
-    const rate = await sendOTPRateLimit(email)
-    if (!rate.ok) {
-      const minutes = Math.ceil(rate.retryAfterSeconds / 60)
-      return { error: `You're being rate limited. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
-    }
 
     const user = await getUserByEmail(email)
     if (!user) {

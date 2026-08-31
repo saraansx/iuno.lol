@@ -6,14 +6,12 @@ import { updateLayoutProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 
 interface SectionVisibilityButtonProps {
-  username: string;
   name: string;
   field: "aboutSectionEnabled" | "widgetsSectionEnabled";
   hidden: boolean;
 }
 
 export default function SectionVisibilityButton({
-  username,
   name,
   field,
   hidden,
@@ -24,7 +22,7 @@ export default function SectionVisibilityButton({
   const toggle = () =>
     startTransition(async () => {
       try {
-        await updateLayoutProfile({ username, [field]: hidden });
+        await updateLayoutProfile({ [field]: hidden });
         toast.success(hidden ? `${name} section shown` : `${name} section hidden`);
         router.refresh();
       } catch (error) {

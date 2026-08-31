@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { createSession, getSessionUserId } from '@/lib/auth/session'
-import { upsertDiscordUser, getUserByDiscordId } from '@/lib/features/users/db'
 import { getClientIp } from '@/lib/server/security/ip'
-import { discordOAuthRateLimit } from '@/lib/rate-limit'
+import { upsertDiscordUser, getUserByDiscordId } from '@/lib/features/users/db'
 import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
@@ -78,12 +77,6 @@ export async function GET(req: NextRequest) {
   const error = searchParams.get('error')
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
-
-  const rateIp = getClientIp(req.headers)
-  const rate = await discordOAuthRateLimit(rateIp)
-  if (!rate.ok) {
-    return NextResponse.redirect(`${appUrl}/signin?error=discord_rate_limited`)
-  }
 
   if (error) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_denied`)

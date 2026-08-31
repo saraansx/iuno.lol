@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
 import { type TwitchChannelData } from "@/lib/twitch";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
@@ -111,10 +112,13 @@ export async function fetchTwitchChannelData(
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ login: string }> }
 ) {
   try {
+    const limited = await widgetRateLimit(req, "twitch_channel");
+    if (limited) return limited;
+
     const { login } = await params;
     const cleanLogin = (login || "").trim().toLowerCase();
 

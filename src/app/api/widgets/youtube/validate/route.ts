@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
+import { widgetRateLimit } from "@/lib/widget-guard";
+import { getSessionUserId } from "@/lib/auth/session";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { fetchYouTubeData } from "../channel/[input]/route";
 
 export async function POST(req: NextRequest) {
   try {
+    const limited = await widgetRateLimit(req, "youtube_validate", 20);
+    if (limited) return limited;
+
+    const sessionUserId = await getSessionUserId();
+    if (!sessionUserId) {
+      return NextResponse.json({ valid: false, error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await req.json();
     const rawInput = body?.input;
 

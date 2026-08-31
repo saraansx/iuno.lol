@@ -4,7 +4,7 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
-import { commentRateLimit, commentLikeRateLimit, commentEditRateLimit, commentDeleteRateLimit, commentPinRateLimit } from "@/lib/rate-limit";
+import { commentRateLimit, commentLikeRateLimit } from "@/lib/rate-limit";
 
 type PublicCommentAuthor = {
   id: number;
@@ -196,12 +196,6 @@ export async function togglePinComment(commentId: number, profileId: number) {
   const userId = await getSessionUserId();
   if (!userId || userId !== profileId) return { error: "Unauthorized" };
 
-  const rate = await commentPinRateLimit(userId);
-  if (!rate.ok) {
-    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
-    return { error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
-  }
-
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
   });
@@ -220,12 +214,6 @@ export async function togglePinComment(commentId: number, profileId: number) {
 export async function editComment(commentId: number, content: string) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
-
-  const rate = await commentEditRateLimit(userId);
-  if (!rate.ok) {
-    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
-    return { error: `You're editing too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
-  }
 
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
@@ -253,12 +241,6 @@ export async function editComment(commentId: number, content: string) {
 export async function deleteComment(commentId: number, profileId: number) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
-
-  const rate = await commentDeleteRateLimit(userId);
-  if (!rate.ok) {
-    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
-    return { error: `You're deleting too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
-  }
 
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
