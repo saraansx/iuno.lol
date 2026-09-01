@@ -22,9 +22,6 @@ export async function GET(request: NextRequest) {
     const rawId = payload ? Number(payload.userId) : NaN;
     const viewerId = Number.isInteger(rawId) && rawId > 0 ? rawId : null;
 
-    // Self-view still reports its feedback. Liking your own profile is allowed, so
-    // short-circuiting here left the buttons unaware of a like the viewer had
-    // already given, and they kept rendering as un-liked.
     if (!viewerId) {
       return NextResponse.json({ viewerId, feedback: null }, { headers: NO_STORE });
     }
