@@ -200,7 +200,7 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
                 />
               </div>
               <p className="text-[11.5px] text-white/35">
-                Paste a Roblox profile link (e.g. https://roblox.com/users/156/profile), the
+                Paste a Roblox profile link (e.g. https:
                 numeric User ID, or a Roblox username (3-20 letters, numbers and underscores).
               </p>
             </div>
