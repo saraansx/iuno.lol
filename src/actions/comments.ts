@@ -158,36 +158,45 @@ export async function toggleLikeComment(commentId: number) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
 
+  if (!Number.isInteger(commentId) || commentId <= 0) {
+    return { error: "Invalid comment." };
+  }
+
   const rate = await commentLikeRateLimit(userId);
   if (!rate.ok) {
     const minutes = Math.ceil(rate.retryAfterSeconds / 60);
     return { error: `You're doing that too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
   }
 
-  await db.transaction(async (tx) => {
-    const existingLikes = await tx
-      .select({ id: schema.commentLikes.id })
-      .from(schema.commentLikes)
-      .where(
-        and(
-          eq(schema.commentLikes.commentId, commentId),
-          eq(schema.commentLikes.userId, userId)
+  try {
+    await db.transaction(async (tx) => {
+      const existingLikes = await tx
+        .select({ id: schema.commentLikes.id })
+        .from(schema.commentLikes)
+        .where(
+          and(
+            eq(schema.commentLikes.commentId, commentId),
+            eq(schema.commentLikes.userId, userId)
+          )
         )
-      )
-      .for("update");
+        .for("update");
 
-    if (existingLikes.length > 0) {
-      await tx.delete(schema.commentLikes).where(eq(schema.commentLikes.id, existingLikes[0].id));
-      await tx.update(schema.profileComments)
-        .set({ likesCount: sql`GREATEST(0, ${schema.profileComments.likesCount} - 1)` })
-        .where(eq(schema.profileComments.id, commentId));
-    } else {
-      await tx.insert(schema.commentLikes).values({ commentId, userId });
-      await tx.update(schema.profileComments)
-        .set({ likesCount: sql`${schema.profileComments.likesCount} + 1` })
-        .where(eq(schema.profileComments.id, commentId));
-    }
-  });
+      if (existingLikes.length > 0) {
+        await tx.delete(schema.commentLikes).where(eq(schema.commentLikes.id, existingLikes[0].id));
+        await tx.update(schema.profileComments)
+          .set({ likesCount: sql`GREATEST(0, ${schema.profileComments.likesCount} - 1)` })
+          .where(eq(schema.profileComments.id, commentId));
+      } else {
+        await tx.insert(schema.commentLikes).values({ commentId, userId });
+        await tx.update(schema.profileComments)
+          .set({ likesCount: sql`${schema.profileComments.likesCount} + 1` })
+          .where(eq(schema.profileComments.id, commentId));
+      }
+    });
+  } catch (error) {
+    console.error("Failed to toggle comment like:", error);
+    return { error: "Database error" };
+  }
 
   return { success: true };
 }
