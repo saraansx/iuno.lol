@@ -15,7 +15,6 @@ export const metadata: Metadata = {
 
 const LAYOUT_HREF = "/dashboard/customize/profile/layout";
 
-/** Widgets render as a section but are owned by the Widgets page, so this is a notice. */
 function WidgetsNotice() {
   return (
     <div inert className="flex gap-3.5 bg-[#e0a355]/[0.04] border border-[#e0a355]/15 rounded-[16px] px-4 py-3.5">
