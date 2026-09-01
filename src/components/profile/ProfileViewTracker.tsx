@@ -22,9 +22,7 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     sessionStorage.setItem(sessionKey, 'true');
 
     const trackView = async () => {
-      // Fingerprint is a best-effort extra signal — the server dedups on IP+UA
-      // first, so a failure here must not cost us the view.
-      let fingerprint: string | undefined;
+    let fingerprint: string | undefined;
       try {
         const fp = await fpPromise.load();
         fingerprint = (await fp.get()).visitorId;
