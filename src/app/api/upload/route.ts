@@ -104,7 +104,7 @@ export async function POST(req: Request) {
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
     if (contentLength > 22 * 1024 * 1024) {
-      return NextResponse.json({ error: "Payload too large. Max request size is 20MB." }, { status: 413 });
+      return NextResponse.json({ error: "Payload too large. Maximum file size is 20MB." }, { status: 413 });
     }
 
     const preRl = await uploadPreRateLimit(userId);
