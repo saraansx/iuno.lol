@@ -366,7 +366,7 @@ const DETAIL_PLACEMENT_FIELDS = [
 
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
-export const MAX_WIDGETS = 4;
+const MAX_WIDGETS = 4;
 
 export async function updateLayoutProfile(data: {
   profileStructure?: string;
