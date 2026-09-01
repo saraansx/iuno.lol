@@ -9,7 +9,6 @@ interface StructureOption {
   diagram: React.ReactNode;
 }
 
-/** Looping showcase animations for the structure thumbnails. */
 function DiagramKeyframes() {
   return (
     <style>{`
@@ -67,8 +66,7 @@ function SectionedDiagram() {
           className="struct-anim absolute inset-0 h-[400%] flex flex-col"
           style={{ willChange: "transform", animation: "struct-sections 8s ease-in-out infinite" }}
         >
-          {/* slide 4 repeats slide 1 so the loop wraps seamlessly */}
-          <SectionSlide>
+         <SectionSlide>
             <div className="w-full h-full rounded-md bg-white/[0.05] border border-white/[0.07] flex items-center gap-1.5 px-1.5">
               <div className="w-3.5 h-3.5 rounded-full bg-white/20 shrink-0" />
               <div className="flex flex-col gap-1 flex-1">
