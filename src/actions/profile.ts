@@ -366,6 +366,8 @@ const DETAIL_PLACEMENT_FIELDS = [
 
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
+export const MAX_WIDGETS = 4;
+
 export async function updateLayoutProfile(data: {
   profileStructure?: string;
   aboutSectionEnabled?: boolean;
@@ -795,11 +797,11 @@ export async function updateProfileWidgets(data: {
   if (weatherCount > 1) {
     throw new Error("You can only add 1 Weather widget.");
   }
-  if ((data.widgets || []).length > 4) {
-    throw new Error("You can only add a maximum of 4 widgets.");
+  if ((data.widgets || []).length > MAX_WIDGETS) {
+    throw new Error(`You can only add a maximum of ${MAX_WIDGETS} widgets.`);
   }
 
-  const sanitizedWidgets = (data.widgets || []).slice(0, 6).map((w) => {
+  const sanitizedWidgets = (data.widgets || []).slice(0, MAX_WIDGETS).map((w) => {
     const platform =
       w.platform === "github"
         ? "github"
