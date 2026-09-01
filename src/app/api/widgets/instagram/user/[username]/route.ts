@@ -1,27 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
-import { redis } from "@/lib/redis";
 import { type InstagramUserData, cleanInstagramUsername } from "@/lib/instagram";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
-import { WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
-
-const CACHE_TTL_SECONDS = 12 * 60 * 60;
-
-async function readCache(username: string): Promise<InstagramUserData | null> {
-  try {
-    const cached = await redis.get(`ig:profile:${username}`);
-    if (cached) return JSON.parse(cached) as InstagramUserData;
-  } catch {
-  }
-  return null;
-}
-
-async function writeCache(username: string, data: InstagramUserData): Promise<void> {
-  try {
-    await redis.set(`ig:profile:${username}`, JSON.stringify(data), "EX", CACHE_TTL_SECONDS);
-  } catch {
-  }
-}
+import { WIDGET_EDGE_CACHE, widgetCacheKey, withWidgetCache } from "@/lib/widget-cache";
 
 async function fetchViaWorkerProxy(username: string): Promise<InstagramUserData | null> {
   const proxyBase = (process.env.INSTAGRAM_PROXY_URL || "").replace(/\/$/, "");
@@ -68,16 +49,9 @@ export async function fetchInstagramUserData(
     return null;
   }
 
-  const cached = await readCache(username);
-  if (cached) return cached;
-
-  const data = await fetchViaWorkerProxy(username);
-
-  if (data) {
-    await writeCache(username, data);
-  }
-
-  return data;
+  return withWidgetCache(widgetCacheKey("instagram", username), () =>
+    fetchViaWorkerProxy(username)
+  );
 }
 
 export async function GET(
