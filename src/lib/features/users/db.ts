@@ -188,9 +188,13 @@ export async function getUserByEmail(email: string) {
 
 export async function getUserByEmailWithPassword(email: string) {
   const result = await db
-    .select({ ...userColumns, password: schema.users.password })
+    .select({
+      id: schema.users.id,
+      username: schema.users.username,
+      password: schema.users.password,
+      emailVerified: schema.users.emailVerified,
+    })
     .from(schema.users)
-    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.email, email.toLowerCase().trim()))
     .limit(1)
   return result[0] || null
@@ -263,7 +267,9 @@ export async function deleteUnverifiedUserByEmail(email: string) {
   const user = await getUserByEmail(cleanEmail)
   if (!user || user.emailVerified) return
 
-  await db.delete(schema.users).where(eq(schema.users.email, cleanEmail))
+  await db
+    .delete(schema.users)
+    .where(and(eq(schema.users.email, cleanEmail), eq(schema.users.emailVerified, false)))
 }
 
 export async function cleanupExpiredUnverifiedUsers() {
