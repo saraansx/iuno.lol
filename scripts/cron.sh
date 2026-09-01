@@ -10,6 +10,8 @@ BASE_URL="${CRON_BASE_URL:-http://127.0.0.1:3000}"
 CRON_SECRET="$(sed -n 's/^CRON_SECRET=//p' "$APP_DIR/.env" | tr -d '\r' | tr -d "\"'")"
 [ -n "$CRON_SECRET" ] || { echo "CRON_SECRET missing from $APP_DIR/.env" >&2; exit 1; }
 
-exec curl -fsS --max-time 120 \
+curl -fsS --max-time 120 \
   -H "Authorization: Bearer $CRON_SECRET" \
   "$BASE_URL/api/cron/$ROUTE"
+
+echo
