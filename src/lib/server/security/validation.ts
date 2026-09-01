@@ -20,25 +20,14 @@ export function validatePassword(password: string): string | null {
   return null
 }
 
-/**
- * Names that can never be a username. Profiles live at `/<username>`, so
- * anything here that matches a real top-level route would be unreachable — the
- * page wins and the profile never renders. Hyphenated routes are already
- * impossible because the username charset has no hyphen.
- *
- * ADD TO THIS when you create a new top-level page under `src/app`.
- */
+
 const RESERVED_USERNAMES = new Set([
-  // real routes today
   'api', 'auth', 'dashboard', 'register', 'signin',
-  // pages we may add
   'login', 'logout', 'signup', 'signout', 'settings', 'account', 'profile',
   'pricing', 'premium', 'upgrade', 'terms', 'privacy', 'about', 'contact',
   'help', 'support', 'faq', 'blog', 'docs', 'explore', 'search', 'home',
-  // impersonation
   'admin', 'administrator', 'official', 'staff', 'team', 'mod', 'moderator',
   'security', 'system', 'root', 'iuno', 'billing', 'payment',
-  // infra / well-known
   'www', 'cdn', 'static', 'assets', 'media', 'public', 'favicon', 'robots',
   'sitemap', 'well_known',
 ])

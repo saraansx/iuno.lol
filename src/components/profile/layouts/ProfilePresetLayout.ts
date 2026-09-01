@@ -1,7 +1,6 @@
 
 export type ProfilePresetId = "split" | "floating" | "modern" | "classic";
 
-/** What a brand-new profile (and any unknown preset) falls back to. */
 export const DEFAULT_PRESET: ProfilePresetId = "modern";
 
 export interface ProfilePresetLayout {

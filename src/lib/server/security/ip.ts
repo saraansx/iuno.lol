@@ -9,7 +9,6 @@ export function getClientIp(headers: Headers | { get(name: string): string | nul
     if (first && isValidIp(first)) return first;
   }
 
-  // Local dev has no Cloudflare in front of it.
   if (process.env.NODE_ENV !== 'production') return '127.0.0.1';
 
   if (!warned) {

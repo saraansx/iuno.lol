@@ -560,17 +560,13 @@ const Layout1 = ({
   const avatarPos = normalizeAvatarPlacement(avatarPlacement);
   const avatarBeside = avatarPos === "left" || avatarPos === "right";
 
-  // Sectioned profiles keep the preset card as the first screen and move the
-  // description + outside widgets into an About screen below it. That second screen
-  // only exists when it has something in it, so an empty About never gets a page.
   const sectioned = profileStructure === "sectioned";
   const aboutText = bio?.trim() || "";
   const aboutSubtitle = aboutSectionDescription?.trim() || "";
   const hasOutsideWidgets = (widgets ?? []).some(
     (w) => w.enabled && (w.placement || "inside") === "outside"
   );
-  // Outside-card widgets live inside the About section, so hiding About hides them too.
-  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
+ const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
   const aboutVisible =
     aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets);
   const screenCount = sectioned && aboutVisible ? 2 : 1;
@@ -585,9 +581,7 @@ const Layout1 = ({
     el.scrollTo({ top: index * el.clientHeight, behavior: "smooth" });
   };
 
-  // One gesture = one screen, for wheel and touch alike. CSS `snap-mandatory` lets the
-  // gesture free-scroll and then yanks, which feels stiff, so paging is driven here.
-  useEffect(() => {
+useEffect(() => {
     const el = scrollerRef.current;
     if (!paged || !el) return;
 
@@ -715,12 +709,6 @@ const Layout1 = ({
     />
   );
 
-  // Rendered outside the content column rather than in it, so the row spans the
-  // card instead of starting after the avatar when the avatar sits beside.
-  // `px-6` keeps it level with the avatar's own edge rather than flush to the border.
-  // `pb-16` is the space the absolutely-positioned bottom-profile badges sit in. It
-  // used to live on the content column; it moved here because this is now the last
-  // thing in the card.
   const insideWidgets = (className: string) => (
     <div className={className}>
       <ProfileWidgets
@@ -759,9 +747,7 @@ const Layout1 = ({
     />
   );
 
-  // `text`/`left` are passed in because the About section has its own copy and always
-  // reads left-aligned, while the card copy is the bio and follows profile alignment.
-  const textBlock = (text: string, left: boolean) => (
+const textBlock = (text: string, left: boolean) => (
     <div className={`w-full flex ${left ? "justify-start" : "justify-center"}`}>
       <DescriptionEffect effect={descriptionEffect}>
         <p
@@ -782,9 +768,7 @@ const Layout1 = ({
     </div>
   );
 
-  // Same surface as the profile card, minus the layered highlight line — the
-  // About card is a plain panel, so one element carries the whole look.
-  const sectionSurface: React.CSSProperties = {
+const sectionSurface: React.CSSProperties = {
     backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
     WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
     borderRadius: `${profileBorderRadius}px`,
@@ -801,10 +785,6 @@ const Layout1 = ({
 
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
-  // One layout for both cases. There used to be a second, banner-less copy of this
-  // whole tree; it had drifted and was missing avatar placement, full-width inside
-  // widgets, the comments button, the entry-screen blur and background-effect
-  // layering. Every banner-specific bit here is already guarded by `hasBanner`.
   return (
     <div
       ref={scrollerRef}
@@ -837,10 +817,7 @@ const Layout1 = ({
           fontClassMap={FONT_CLASS_MAP}
         />
 
-        {/* One viewport-sized background layer. Sticky, so a sectioned profile's second
-            screen scrolls over the same background instead of stretching it across both.
-            The negative margin keeps it out of the flow; `overflow-x-clip` on the parent
-            (not `overflow-hidden`) is what lets the sticky work at all. */}
+
         <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
         {bannerBackgroundUrl && (
           isVideoUrl(bannerBackgroundUrl) ? (
@@ -858,9 +835,7 @@ const Layout1 = ({
               playsInline
             />
           ) : (
-            // `fill` needs a positioned parent and the outer layer has to stay
-            // `sticky`, so this wrapper is what the image measures against.
-            <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 z-0 pointer-events-none">
               <Image
                 src={bannerBackgroundUrl}
                 alt="Background"
@@ -886,8 +861,7 @@ const Layout1 = ({
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
-        {/* Page dots. Same sticky-out-of-flow trick as the background so they stay
-            pinned to the viewport while the screens page past. */}
+
         {paged && (
           <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[60]">
             <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 pointer-events-auto">
@@ -1136,8 +1110,7 @@ const Layout1 = ({
                       </p>
                     )}
                   </div>
-                  {/* Inside-card widgets stay on the preset card up top; only
-                      outside-card ones drop below this description card. */}
+
                   {aboutText && (
                     <div className="relative w-full p-6" style={sectionSurface}>
                       {textBlock(aboutText, true)}

@@ -154,7 +154,6 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   return vars as React.CSSProperties;
 }
 
-/** Card width at or above which two widgets sit side by side. */
 const TWO_COLUMN_MIN_CARD_WIDTH = 650;
 
 export default function ProfileWidgets({
@@ -165,8 +164,7 @@ export default function ProfileWidgets({
 }: {
   widgets?: WidgetItem[];
   placement?: "inside" | "outside";
-  /** Rendered card width in px. Narrow cards stay one widget per row. */
-  cardWidth?: number;
+ cardWidth?: number;
 } & WidgetStyleProps) {
   const activeWidgets = (widgets || []).filter(
     (w) => w.enabled && (w.placement || "inside") === placement
@@ -176,13 +174,9 @@ export default function ProfileWidgets({
 
   const themeStyle = widgetThemeStyle(style);
 
-  // A narrow card gets one widget per row: two would leave each about 300px wide,
-  // which is too tight for the denser widgets. Undefined means "not told", and the
-  // previous two-column behaviour is kept.
   const twoColumns = cardWidth === undefined || cardWidth >= TWO_COLUMN_MIN_CARD_WIDTH;
 
-  // Only meaningful with two columns; in one column every row is already full width.
-  const lastSpansFullRow = twoColumns && activeWidgets.length % 2 === 1;
+ const lastSpansFullRow = twoColumns && activeWidgets.length % 2 === 1;
 
   return (
     <div
