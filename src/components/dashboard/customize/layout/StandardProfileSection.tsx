@@ -41,6 +41,8 @@ interface StandardProfileSectionProps {
   setWrapInCard: (val: boolean) => void;
   contentWidth: number;
   setContentWidth: (val: number) => void;
+  profileOpacity: number;
+  setProfileOpacity: (val: number) => void;
   isCustom?: boolean;
   alignment: ContentAlignment;
   setAlignment: (val: ContentAlignment) => void;
@@ -48,6 +50,9 @@ interface StandardProfileSectionProps {
 
 export const CONTENT_WIDTH_MIN = 480;
 export const CONTENT_WIDTH_MAX = 1000;
+
+export const CARD_OPACITY_MIN = 10;
+export const CARD_OPACITY_MAX = 100;
 
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (
@@ -73,6 +78,8 @@ export default function StandardProfileSection({
   setWrapInCard,
   contentWidth,
   setContentWidth,
+  profileOpacity,
+  setProfileOpacity,
   isCustom = false,
   alignment,
   setAlignment,
@@ -92,28 +99,13 @@ export default function StandardProfileSection({
 
   const selected = PRESETS.find((p) => p.id === preset);
 
-  const [draftWidth, setDraftWidth] = useState<number | null>(null);
-  const draftRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const commit = () => {
-      if (draftRef.current === null) return;
-      setContentWidth(draftRef.current);
-      draftRef.current = null;
-      setDraftWidth(null);
-    };
-    window.addEventListener("pointerup", commit);
-    window.addEventListener("pointercancel", commit);
-    return () => {
-      window.removeEventListener("pointerup", commit);
-      window.removeEventListener("pointercancel", commit);
-    };
-  }, [setContentWidth]);
-
-  const clampedWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, contentWidth));
-  const displayWidth = draftWidth ?? clampedWidth;
+const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, contentWidth));
   const fillPercent =
     ((displayWidth - CONTENT_WIDTH_MIN) / (CONTENT_WIDTH_MAX - CONTENT_WIDTH_MIN)) * 100;
+
+  const displayOpacity = Math.min(CARD_OPACITY_MAX, Math.max(CARD_OPACITY_MIN, profileOpacity));
+  const opacityFillPercent =
+    ((displayOpacity - CARD_OPACITY_MIN) / (CARD_OPACITY_MAX - CARD_OPACITY_MIN)) * 100;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
@@ -259,17 +251,7 @@ export default function StandardProfileSection({
                   max={CONTENT_WIDTH_MAX}
                   step={4}
                   value={displayWidth}
-                  onChange={(e) => {
-                    const next = Number(e.target.value);
-                    draftRef.current = next;
-                    setDraftWidth(next);
-                  }}
-                  onKeyUp={() => {
-                    if (draftRef.current === null) return;
-                    setContentWidth(draftRef.current);
-                    draftRef.current = null;
-                    setDraftWidth(null);
-                  }}
+                  onChange={(e) => setContentWidth(Number(e.target.value))}
                   aria-label="Content width"
                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
                 />
@@ -310,6 +292,51 @@ export default function StandardProfileSection({
                 }`}
               />
             </button>
+          </div>
+        </div>
+
+
+        <div className="flex items-center gap-4">
+          <RowLabel
+            text="Card opacity"
+            hint={`How solid the card is, between ${CARD_OPACITY_MIN}% and ${CARD_OPACITY_MAX}%.`}
+            disabled={!wrapInCard}
+          />
+          <div
+            className={`flex-1 flex items-center gap-4 transition-opacity ${
+              wrapInCard ? "" : "opacity-40"
+            }`}
+          >
+            <div className="relative flex items-center h-5 group w-full min-w-0">
+              <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className={wrapInCard ? "absolute h-full bg-[#5b6cf5]" : "absolute h-full bg-white/20"}
+                  style={{ width: `${opacityFillPercent}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={CARD_OPACITY_MIN}
+                max={CARD_OPACITY_MAX}
+                step={1}
+                value={displayOpacity}
+                disabled={!wrapInCard}
+                onChange={(e) => setProfileOpacity(Number(e.target.value))}
+                aria-label="Card opacity"
+                className={`absolute inset-0 w-full h-full opacity-0 z-20 ${
+                  wrapInCard ? "cursor-pointer" : "cursor-not-allowed"
+                }`}
+              />
+              <div
+                className={`absolute w-4 h-4 bg-[#050505] border-[2px] rounded-full pointer-events-none transition-transform shadow-lg ${
+                  wrapInCard ? "border-[#5b6cf5] group-active:scale-110" : "border-white/20"
+                }`}
+                style={{ left: `calc(${opacityFillPercent}% - 8px)` }}
+              />
+            </div>
+            <span className="text-[12px] text-white/40 font-mono shrink-0 w-[62px] text-right">
+              {displayOpacity} %
+            </span>
           </div>
         </div>
       </div>
