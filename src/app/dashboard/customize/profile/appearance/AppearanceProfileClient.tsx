@@ -19,8 +19,7 @@ type SectionKey =
   | "profile-bg"
   | "profile-border"
   | "profile-shadow"
-  | "profile-blur"
-  | "profile-opacity";
+  | "profile-blur";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -39,7 +38,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialProfileBackgroundBlur = user?.profileBackgroundBlur ?? 0;
   const initialProfileShadowColor = user?.profileShadowColor ?? "#000000";
   const initialProfileShadowOpacity = user?.profileShadowOpacity ?? 0;
-  const initialProfileOpacity = user?.profileOpacity ?? 100;
   const [openSection, setOpenSection] = useState<SectionKey | null>(null);
 
   const profileBgOpacity = overrides.profileBgOpacity ?? initialProfileBgOpacity;
@@ -62,8 +60,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const setProfileShadowOpacity = (val: number) => updateOverrides({ profileShadowOpacity: val === initialProfileShadowOpacity ? undefined : val });
   const profileShadowColor = overrides.profileShadowColor ?? initialProfileShadowColor;
   const setProfileShadowColor = (val: string) => updateOverrides({ profileShadowColor: val === initialProfileShadowColor ? undefined : val });
-  const profileOpacity = overrides.profileOpacity ?? initialProfileOpacity;
-  const setProfileOpacity = (val: number) => updateOverrides({ profileOpacity: val === initialProfileOpacity ? undefined : val });
   const initialJoinDateEnabled = user?.joinDateEnabled ?? false;
   const rawJoinDateFormat = user?.joinDateFormat ?? "Absolute";
   const initialJoinDateFormat = rawJoinDateFormat.includes(" (") ? rawJoinDateFormat.split(" (")[0] : rawJoinDateFormat;
@@ -223,25 +219,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
             strokeLinejoin="round"
           >
             <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
-          </svg>
-        ),
-      },
-      {
-        key: "profile-opacity",
-        label: "Opacity",
-        icon: (
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" />
-            <path d="M3 21L21 3" stroke="currentColor" strokeLinecap="round" />
           </svg>
         ),
       },
@@ -587,7 +564,6 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           profileBackgroundBlur,
           profileShadowColor,
           profileShadowOpacity,
-          profileOpacity,
           joinDateEnabled: isJoinDateEnabled,
           joinDateFormat,
           viewsEnabled: isViewsEnabled,

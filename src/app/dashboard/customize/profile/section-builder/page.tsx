@@ -45,7 +45,15 @@ export default async function Page() {
 
   const user = await getUserById(userId);
   const isSectioned = user?.profileStructure === "sectioned";
-  const sectionCount = 1;
+  const sectionRows = [
+    <AboutSectionRow
+      key="about"
+      hidden={user?.aboutSectionEnabled === false}
+      title={user?.aboutSectionTitle ?? "About"}
+      description={user?.aboutSectionDescription ?? ""}
+    />,
+    <WidgetsNotice key="widgets" />,
+  ];
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -130,7 +138,7 @@ export default async function Page() {
 
         <div className="flex items-center gap-4">
           <span className="text-[12.5px] font-normal text-white/40 tracking-tight shrink-0">
-            Profile sections ({sectionCount})
+            Profile sections ({sectionRows.length})
           </span>
           <div className="h-px flex-1 bg-white/5" />
           <button
@@ -153,12 +161,7 @@ export default async function Page() {
             isSectioned ? "" : "opacity-40"
           }`}
         >
-          <AboutSectionRow
-            hidden={user?.aboutSectionEnabled === false}
-            title={user?.aboutSectionTitle ?? "About"}
-            description={user?.aboutSectionDescription ?? ""}
-          />
-          <WidgetsNotice />
+          {sectionRows}
         </div>
       </div>
 

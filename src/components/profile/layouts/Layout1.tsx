@@ -602,9 +602,14 @@ const Layout1 = ({
     };
 
     const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) < 4) return;
+      const dir = e.deltaY > 0 ? 1 : -1;
+      const page = Math.round(el.scrollTop / el.clientHeight);
+      const next = Math.min(screenCount - 1, Math.max(0, page + dir));
+      if (next === page) return;
       e.preventDefault();
-      if (locked || Math.abs(e.deltaY) < 4) return;
-      turn(e.deltaY > 0 ? 1 : -1);
+      if (locked) return;
+      turn(dir);
     };
 
     let startY = 0;
@@ -853,17 +858,21 @@ const Layout1 = ({
               playsInline
             />
           ) : (
-            <Image
-              src={bannerBackgroundUrl}
-              alt="Background"
-              fill
-              className="object-cover z-0 pointer-events-none"
-              style={{
-                filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
-              }}
-              unoptimized
-              priority
-            />
+            // `fill` needs a positioned parent and the outer layer has to stay
+            // `sticky`, so this wrapper is what the image measures against.
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <Image
+                src={bannerBackgroundUrl}
+                alt="Background"
+                fill
+                className="object-cover"
+                style={{
+                  filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
+                }}
+                unoptimized
+                priority
+              />
+            </div>
           )
         )}
 
