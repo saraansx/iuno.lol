@@ -47,10 +47,6 @@ async function emptyS3Directory(userId: number, assetType: string) {
 
 const STORAGE_BASE = `https://storage.iuno.lol/`;
 
-// Always resolve the username from the session's userId. Taking it from the
-// action's arguments meant the client chose which page got revalidated — a
-// wrong value left the owner's own page stale, and any signed-in user could
-// point it at a stranger's page.
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
   if (user?.username) revalidatePath(`/${user.username}`);
@@ -377,6 +373,7 @@ export async function updateLayoutProfile(data: {
   profilePreset?: string;
   wrapInCard?: boolean;
   contentWidth?: number;
+  profileOpacity?: number;
   joinDatePlacement?: string;
   locationPlacement?: string;
   occupationPlacement?: string;
@@ -434,6 +431,10 @@ export async function updateLayoutProfile(data: {
 
   if (data.contentWidth !== undefined) {
     setData.contentWidth = Math.min(1000, Math.max(480, Math.round(data.contentWidth)));
+  }
+
+  if (data.profileOpacity !== undefined) {
+    setData.profileOpacity = Math.min(100, Math.max(10, Math.round(data.profileOpacity)));
   }
 
   for (const field of DETAIL_PLACEMENT_FIELDS) {
