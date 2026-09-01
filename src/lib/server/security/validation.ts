@@ -66,6 +66,9 @@ export function validateEmail(email: string): string | null {
   if (!email) {
     return 'Email is required.'
   }
+  if (email.length > 254) {
+    return 'Email is too long.'
+  }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return 'Invalid email format.'
   }
