@@ -24,6 +24,13 @@ type SectionKey =
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
+
+function clampNumber(raw: string, min: number, max: number) {
+  const parsed = Number(raw);
+  if (raw === "" || !Number.isFinite(parsed)) return min;
+  return Math.max(min, Math.min(max, parsed));
+}
+
 export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
@@ -309,11 +316,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileBgOpacity}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileBgOpacity(0);
-                            else setProfileBgOpacity(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileBgOpacity(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
@@ -344,11 +347,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileShadowOpacity}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileShadowOpacity(0);
-                            else setProfileShadowOpacity(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileShadowOpacity(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
@@ -380,11 +379,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={20}
                           step={0.1}
                           value={profileBorderWidth}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileBorderWidth(0);
-                            else setProfileBorderWidth(Math.max(0, Math.min(20, Number(val))));
-                          }}
+                          onChange={(e) => setProfileBorderWidth(clampNumber(e.target.value, 0, 20))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
@@ -401,11 +396,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileBorderRadius}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileBorderRadius(0);
-                            else setProfileBorderRadius(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileBorderRadius(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
@@ -432,11 +423,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileBorderOpacity}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileBorderOpacity(0);
-                            else setProfileBorderOpacity(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileBorderOpacity(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                       </div>
@@ -456,11 +443,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileCardBlur}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileCardBlur(0);
-                            else setProfileCardBlur(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileCardBlur(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>
@@ -477,11 +460,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                           max={100}
                           step={0.1}
                           value={profileBackgroundBlur}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            if (val === "") setProfileBackgroundBlur(0);
-                            else setProfileBackgroundBlur(Math.max(0, Math.min(100, Number(val))));
-                          }}
+                          onChange={(e) => setProfileBackgroundBlur(clampNumber(e.target.value, 0, 100))}
                           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <span className="text-[13px] text-white/30 ml-2">px</span>

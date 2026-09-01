@@ -86,6 +86,12 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
   const setContentWidth = (val: number) =>
     updateOverrides({ contentWidth: val === initialContentWidth ? undefined : val });
 
+  const initialProfileOpacity = user?.profileOpacity ?? 100;
+
+  const profileOpacity = overrides.profileOpacity ?? initialProfileOpacity;
+  const setProfileOpacity = (val: number) =>
+    updateOverrides({ profileOpacity: val === initialProfileOpacity ? undefined : val });
+
   const initialAlignment = normalizeAlignment(user?.contentAlignment);
   const alignment = normalizeAlignment(overrides.contentAlignment, initialAlignment);
   const setAlignment = (val: ContentAlignment) =>
@@ -143,6 +149,8 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
           setWrapInCard={setWrapInCard}
           contentWidth={contentWidth}
           setContentWidth={setContentWidth}
+          profileOpacity={profileOpacity}
+          setProfileOpacity={setProfileOpacity}
           isCustom={isCustom}
           alignment={alignment}
           setAlignment={setAlignment}
@@ -157,6 +165,7 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
         overrides={{ ...overrides, profileStructure: structure, profilePreset: preset,
           wrapInCard,
           contentWidth,
+          profileOpacity,
           contentAlignment: alignment,
           avatarPlacement,
           joinDatePlacement: placements.joinDate,
@@ -177,6 +186,7 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
               profilePreset: preset,
               wrapInCard,
               contentWidth,
+              profileOpacity,
               contentAlignment: alignment,
               avatarPlacement,
               joinDatePlacement: placements.joinDate,
