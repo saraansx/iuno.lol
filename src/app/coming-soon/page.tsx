@@ -16,8 +16,6 @@ const MORPH_WORDS = [
   "Crafting Your Identity"
 ];
 
-// A fixed instant, not "now + 10 days": the latter restarts on every visit and
-// shows a different number to every visitor. Change this one line to move launch.
 const LAUNCH_AT = Date.UTC(2026, 8, 8, 0, 0, 0);
 
 const UNITS = ["Days", "Hours", "Minutes", "Seconds"] as const;
@@ -33,8 +31,6 @@ function remainingParts(msLeft: number) {
 }
 
 function Countdown() {
-  // Null until mounted so the server and first client render agree; a clock read
-  // during SSR would differ from hydration and warn.
   const [msLeft, setMsLeft] = useState<number | null>(null);
 
   useEffect(() => {
