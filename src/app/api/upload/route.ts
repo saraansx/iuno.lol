@@ -116,7 +116,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload") as File;
     const assetType = formData.get("assetType") as string;
 
-    if (!file || !["avatar", "background", "banner"].includes(assetType)) {
+    if (!file || !["avatar", "background", "banner", "favicon", "cursor"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -125,7 +125,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${rl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
     }
 
-    const maxSize = assetType === "background" ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+    // Favicons and cursors are drawn at 32px or smaller, so they get a much
+    // tighter cap than the media assets.
+    const isTinyAsset = assetType === "favicon" || assetType === "cursor";
+    const maxSize = assetType === "background"
+      ? 20 * 1024 * 1024
+      : isTinyAsset
+      ? 1024 * 1024
+      : 5 * 1024 * 1024;
 
     if (file.size > maxSize) {
       const limitMB = maxSize / (1024 * 1024);
@@ -137,6 +144,10 @@ export async function POST(req: Request) {
     const detected = getRealFileExtension(buffer);
     if (!detected) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });
+    }
+
+    if (isTinyAsset && !detected.mime.startsWith("image/")) {
+      return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 
     const filename = `${userId}/${assetType}/media.${detected.ext}`;

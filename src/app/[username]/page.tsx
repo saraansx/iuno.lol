@@ -5,10 +5,11 @@ import { notFound } from 'next/navigation'
 import type { Metadata, Viewport } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
+import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import effects from '@/effects.json'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
-import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor } from '@/lib/og'
+import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle } from '@/lib/og'
 
 export const revalidate = 2592000;
 
@@ -49,6 +50,8 @@ export async function generateMetadata(
       displayName: userSettings.displayName,
       avatarUrl: userSettings.avatarUrl,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      faviconUrl: userSettings.faviconUrl,
+      tabTitle: userSettings.tabTitle,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -63,10 +66,10 @@ export async function generateMetadata(
   const title = row.embedTitle?.trim() || `@${row.username}`
   const description = row.embedDescription?.trim() || undefined
   const image = buildOgImageUrl(row.username, row)
-
   return {
-    title: { absolute: `@${row.username} | ${SITE_CONFIG.name}` },
+    title: { absolute: formatTabTitle(row.tabTitle, row.username) },
     description,
+    icons: { icon: row.faviconUrl || '/logo.png' },
     openGraph: {
       title,
       description,
@@ -170,6 +173,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       contentWidth: userSettings.contentWidth,
       profilePreset: userSettings.profilePreset,
       profileStructure: userSettings.profileStructure,
+      cursorUrl: userSettings.cursorUrl,
+      tabTitle: userSettings.tabTitle,
+      tabTitleAnimated: userSettings.tabTitleAnimated,
       aboutSectionEnabled: userSettings.aboutSectionEnabled,
       aboutSectionTitle: userSettings.aboutSectionTitle,
       aboutSectionDescription: userSettings.aboutSectionDescription,
@@ -226,7 +232,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   return (
     <div
       className="min-h-screen relative overflow-x-clip"
-      style={{ backgroundColor: user.pageBgColor || '#050505' }}
+      style={{
+        backgroundColor: user.pageBgColor || '#050505',
+        // Trailing `auto` keeps a working pointer if the image ever fails to load.
+        ...(user.cursorUrl ? { cursor: `url(${JSON.stringify(user.cursorUrl)}), auto` } : {}),
+      }}
     >
       <Layout1
         username={user.username}
@@ -348,6 +358,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         widgets={user.widgets ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />
+      {user.tabTitleAnimated && (
+        <TabTitleTypewriter text={formatTabTitle(user.tabTitle, user.username)} />
+      )}
     </div>
   )
 }

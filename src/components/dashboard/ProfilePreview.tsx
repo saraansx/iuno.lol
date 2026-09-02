@@ -188,17 +188,6 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
         <p className="text-[11px] uppercase tracking-[0.15em] text-white/20 font-normal">
           Preview
         </p>
-        <a
-          href={`/${username || ""}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[11px] text-[#609fda] hover:text-[#609fda]/80 transition-colors font-medium flex items-center gap-1.5 cursor-pointer"
-        >
-          View Profile
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
-          </svg>
-        </a>
       </div>
 
       <div

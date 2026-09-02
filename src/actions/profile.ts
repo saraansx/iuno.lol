@@ -480,6 +480,10 @@ export async function updateMetadataProfile(data: {
   embedTitle?: string;
   embedDescription?: string;
   embedColor?: string;
+  faviconUrl?: string | null;
+  cursorUrl?: string | null;
+  tabTitle?: string;
+  tabTitleAnimated?: boolean;
 }) {
   const userId = await getSessionUserId();
 
@@ -508,6 +512,25 @@ export async function updateMetadataProfile(data: {
   if (data.embedColor !== undefined) {
     const val = data.embedColor.trim().toLowerCase();
     setData.embedColor = /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
+  }
+
+  if (data.faviconUrl !== undefined) {
+    if (!isValidMediaUrl(data.faviconUrl)) throw new Error("Invalid favicon URL");
+    setData.faviconUrl = data.faviconUrl || null;
+  }
+
+  if (data.cursorUrl !== undefined) {
+    if (!isValidMediaUrl(data.cursorUrl)) throw new Error("Invalid cursor URL");
+    setData.cursorUrl = data.cursorUrl || null;
+  }
+
+  if (data.tabTitle !== undefined) {
+    const val = data.tabTitle.trim().slice(0, 60);
+    setData.tabTitle = val === "" ? null : val;
+  }
+
+  if (data.tabTitleAnimated !== undefined) {
+    setData.tabTitleAnimated = Boolean(data.tabTitleAnimated);
   }
 
   if (Object.keys(setData).length === 0) return { success: true };

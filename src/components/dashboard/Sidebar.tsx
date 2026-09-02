@@ -26,6 +26,7 @@ interface NavItem {
   icon: React.ReactElement;
   href?: string;
   subItems?: SubItem[];
+  external?: boolean;
 }
 
 interface NavGroup {
@@ -177,6 +178,8 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                     <Link
                       key={item.label}
                       href={item.href!}
+                      target={item.external ? "_blank" : undefined}
+                      rel={item.external ? "noopener noreferrer" : undefined}
                       className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group ${
                         isActive
                           ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
@@ -206,7 +209,33 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
       </div>
 
       <div className={`pt-2 pb-3 shrink-0 transition-all ${open ? 'px-3' : 'px-2'}`}>
-        <div className={`rounded-xl border border-white/5 bg-[#0a0a0a] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
+        <div className="flex flex-col gap-2">
+        {username && (
+          <Link
+            href={`/${username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`rounded-xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 flex items-center transition-colors ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/35 group-hover:text-[#609fda] transition-colors">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
+            <motion.span
+              animate={{
+                width: animate ? (open ? "auto" : 0) : "auto",
+                opacity: animate ? (open ? 1 : 0) : 1,
+                marginLeft: animate ? (open ? "10px" : "0px") : "10px",
+              }}
+              className="text-[13px] text-white/60 group-hover:text-white transition-colors font-normal tracking-tight whitespace-nowrap overflow-hidden"
+            >
+              My Page
+            </motion.span>
+          </Link>
+        )}
+
+        <div className={`rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
             <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
               {avatarUrl ? (
@@ -258,6 +287,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg>
           </motion.button>
+        </div>
         </div>
       </div>
     </SidebarBody>
