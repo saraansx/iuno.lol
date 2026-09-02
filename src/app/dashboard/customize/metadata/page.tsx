@@ -1,12 +1,15 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
+import { buildOgImagePath } from "@/lib/og";
+import MetadataProfileClient from "./MetadataProfileClient";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Metadata",
-  description: "Metadata settings.",
+  description: "Control how your profile appears in shared links.",
 };
 
 export default async function Page() {
@@ -15,6 +18,8 @@ export default async function Page() {
   if (!userId) {
     redirect('/signin');
   }
+
+  const user = await getUserById(userId);
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -38,16 +43,36 @@ export default async function Page() {
         </Breadcrumb>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center text-center -mt-10">
-        <svg className="text-white/15 mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 8v4l3 3"/>
-        </svg>
-
-        <h1 className="text-[15px] font-medium text-white tracking-tight">Metadata in progress</h1>
-        <p className="text-white/30 text-[13px] mt-1.5 max-w-60 mx-auto">
-          We&apos;re currently working on this section. Check back soon.
-        </p>
+      <div className="flex flex-col gap-6 pb-2 w-full pt-2">
+        <div>
+          <div className="flex items-center gap-3">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#5b6cf5"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+            <h1 className="text-[20px] font-normal text-white tracking-tight">Profile Metadata</h1>
+          </div>
+          <p className="text-white/40 text-[13px] mt-0.5">Control how your profile looks when someone shares your link</p>
+        </div>
       </div>
+
+      <MetadataProfileClient
+        user={user}
+        ogImagePath={
+          user?.username
+            ? buildOgImagePath(user.username, user)
+            : null
+        }
+      />
     </div>
   );
 }
