@@ -145,6 +145,7 @@ export default function ProfileDetails({
     chips.push(
       <span key="views" className="flex items-center gap-2 group relative">
         {values.views}
+        {tooltips.views && <Tooltip label="Views" style={tooltipTextStyle} />}
       </span>
     );
   }

@@ -9,7 +9,8 @@ import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import effects from '@/effects.json'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
-import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle } from '@/lib/og'
+import { CURSOR_HOTSPOT } from '@/lib/cursor'
+import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle, isAllowedOgImage } from '@/lib/og'
 
 export const revalidate = 2592000;
 
@@ -18,8 +19,6 @@ export async function generateStaticParams() {
   return [];
 }
 
-// Discord and most other unfurlers take the embed's accent stripe from
-// theme-color, which Next.js only emits from a viewport export.
 export async function generateViewport(
   { params }: { params: Promise<{ username: string }> }
 ): Promise<Viewport> {
@@ -229,13 +228,23 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
+  // Buttons and links carry their own `cursor-pointer`, which beats a cursor
+  // inherited from an ancestor, so the rule in tailwind.css has to match
+  // descendants too. It reads the URL from this variable rather than injected
+  // CSS, so a stored value can never escape into a stylesheet. The trailing
+  // coordinates are the hotspot — see CURSOR_HOTSPOT.
+  const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
+  const cursorValue = cursorUrl
+    ? `url(${JSON.stringify(cursorUrl)}) ${CURSOR_HOTSPOT} ${CURSOR_HOTSPOT}`
+    : null
+
   return (
     <div
       className="min-h-screen relative overflow-x-clip"
+      data-custom-cursor={cursorValue ? '' : undefined}
       style={{
         backgroundColor: user.pageBgColor || '#050505',
-        // Trailing `auto` keeps a working pointer if the image ever fails to load.
-        ...(user.cursorUrl ? { cursor: `url(${JSON.stringify(user.cursorUrl)}), auto` } : {}),
+        ...(cursorValue ? ({ '--profile-cursor': cursorValue } as React.CSSProperties) : {}),
       }}
     >
       <Layout1

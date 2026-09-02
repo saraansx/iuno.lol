@@ -116,7 +116,7 @@ export default function BrowserTabSection({
         />
         <AssetTile
           label="Custom cursor"
-          hint="Small PNG, 32x32 works best. Max 1MB."
+          hint="Small PNG. Scaled to 32x32. Max 1MB."
           url={cursorUrl}
           onPick={() => setCursorModalOpen(true)}
           onClear={clearCursor}

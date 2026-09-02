@@ -1,10 +1,5 @@
-export const CURSOR_PX = 32;
+import { CURSOR_PX } from "@/lib/cursor";
 
-/**
- * A cursor image renders at its native pixel size and CSS cannot scale it, so an
- * ordinary upload would cover half the screen. Redraw it at cursor scale instead
- * of rejecting the file. Returns null when the image is already small enough.
- */
 export async function shrinkToCursorSize(
   objectUrl: string,
 ): Promise<{ url: string; file: File } | null> {
@@ -18,16 +13,19 @@ export async function shrinkToCursorSize(
   if (!img) return null;
 
   const longest = Math.max(img.naturalWidth, img.naturalHeight);
-  if (longest <= CURSOR_PX) return null;
+  if (!longest) return null;
 
-  const scale = CURSOR_PX / longest;
+  const scale = Math.min(1, CURSOR_PX / longest);
+  const width = Math.max(1, Math.round(img.naturalWidth * scale));
+  const height = Math.max(1, Math.round(img.naturalHeight * scale));
+
   const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-  canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+  canvas.width = CURSOR_PX;
+  canvas.height = CURSOR_PX;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, (CURSOR_PX - width) / 2, (CURSOR_PX - height) / 2, width, height);
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/png"),
