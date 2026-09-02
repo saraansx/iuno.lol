@@ -1,0 +1,44 @@
+import { createHash } from "crypto";
+import { SITE_CONFIG } from "@/lib/config";
+
+export const OG_WIDTH = 1200;
+export const OG_HEIGHT = 630;
+
+export const DEFAULT_EMBED_COLOR = "#5b6cf5";
+
+export function normalizeEmbedColor(color: string | null | undefined): string {
+  const val = color?.trim().toLowerCase();
+  return val && /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
+}
+
+const ALLOWED_IMAGE_PREFIXES = [
+  "https://storage.iuno.lol/",
+  "https://cdn.iuno.lol/",
+  "https://cdn.discordapp.com/",
+];
+
+export function isAllowedOgImage(url: string | null | undefined): boolean {
+  if (!url) return false;
+  return ALLOWED_IMAGE_PREFIXES.some((p) => url.startsWith(p));
+}
+
+type OgInputs = {
+  avatarUrl?: string | null;
+  bannerBackgroundUrl?: string | null;
+  displayName?: string | null;
+};
+
+export function buildOgImagePath(username: string, inputs: OgInputs): string {
+  const version = createHash("sha256")
+    .update(
+      [inputs.avatarUrl ?? "", inputs.bannerBackgroundUrl ?? "", inputs.displayName ?? ""].join("|"),
+    )
+    .digest("hex")
+    .slice(0, 12);
+
+  return `/api/og/${encodeURIComponent(username)}?v=${version}`;
+}
+
+export function buildOgImageUrl(username: string, inputs: OgInputs): string {
+  return `${SITE_CONFIG.url}${buildOgImagePath(username, inputs)}`;
+}
