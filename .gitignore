@@ -47,5 +47,3 @@ next-env.d.ts
 .claude/
 .agents/
 
-# deploy artifacts
-next.tar.gz
