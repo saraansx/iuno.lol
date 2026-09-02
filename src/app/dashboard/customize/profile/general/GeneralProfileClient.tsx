@@ -9,7 +9,8 @@ import { toast } from "@/components/ui/toast";
 import AssetsSection from "@/components/dashboard/customize/general/AssetsSection";
 import GeneralInfoSection from "@/components/dashboard/customize/general/GeneralInfoSection";
 import AvatarUploadModal from "@/components/dashboard/AvatarUploadModal";
-import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
+import BannerUpload from "@/components/dashboard/uploads/BannerUpload";
+import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
@@ -150,24 +151,22 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         }}
       />
 
-      <BannerUploadModal
+      <BannerUpload
         open={bannerImageModalOpen}
         onClose={() => setBannerImageModalOpen(false)}
         onApply={(url, rawFile) => {
           setBannerImageUrl(url);
           if (rawFile) setPendingFile("banner", rawFile);
         }}
-        type="image"
       />
 
-      <BannerUploadModal
+      <BackgroundUpload
         open={bannerBackgroundModalOpen}
         onClose={() => setBannerBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {
           setBannerBackgroundUrl(url);
           if (rawFile) setPendingFile("background", rawFile);
         }}
-        type="background"
       />
 
       <DecorationPicker

@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { updateMetadataProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
-import BannerUploadModal from "@/components/dashboard/BannerUploadModal";
+import FaviconUpload from "@/components/dashboard/uploads/FaviconUpload";
+import CursorUpload from "@/components/dashboard/uploads/CursorUpload";
 import EmbedContentSection from "@/components/dashboard/customize/metadata/EmbedContentSection";
 import EmbedPreviewSection from "@/components/dashboard/customize/metadata/EmbedPreviewSection";
 import BrowserTabSection from "@/components/dashboard/customize/metadata/BrowserTabSection";
@@ -114,24 +115,22 @@ export default function MetadataProfileClient({
         </div>
       </div>
 
-      <BannerUploadModal
+      <FaviconUpload
         open={faviconModalOpen}
         onClose={() => setFaviconModalOpen(false)}
         onApply={(url, rawFile) => {
           setFaviconUrl(url);
           setPendingFavicon(rawFile ?? null);
         }}
-        type="favicon"
       />
 
-      <BannerUploadModal
+      <CursorUpload
         open={cursorModalOpen}
         onClose={() => setCursorModalOpen(false)}
         onApply={(url, rawFile) => {
           setCursorUrl(url);
           setPendingCursor(rawFile ?? null);
         }}
-        type="cursor"
       />
 
       <SaveBar

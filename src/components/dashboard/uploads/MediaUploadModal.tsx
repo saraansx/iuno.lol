@@ -1,73 +1,33 @@
 "use client";
 
-import React, {  useState, useEffect, useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
 
-interface BannerUploadModalProps {
+export interface MediaUploadModalProps {
   open: boolean;
   onClose: () => void;
   onApply?: (url: string, rawFile?: File) => void;
-  type?: "image" | "background" | "favicon" | "cursor";
 }
 
-const SIZE_LIMIT_MB: Record<string, number> = {
-  image: 5,
-  background: 20,
-  favicon: 1,
-  cursor: 1,
-};
-
-const CURSOR_PX = 32;
-
-/**
- * A cursor image renders at its native pixel size and CSS cannot scale it, so an
- * ordinary upload would cover half the screen. Redraw it at cursor scale instead
- * of rejecting the file. Returns null when the image is already small enough.
- */
-async function shrinkToCursorSize(
-  objectUrl: string,
-): Promise<{ url: string; file: File } | null> {
-  const img = await new Promise<HTMLImageElement | null>((resolve) => {
-    const probe = new window.Image();
-    probe.onload = () => resolve(probe);
-    probe.onerror = () => resolve(null);
-    probe.src = objectUrl;
-  });
-
-  if (!img) return null;
-
-  const longest = Math.max(img.naturalWidth, img.naturalHeight);
-  if (longest <= CURSOR_PX) return null;
-
-  const scale = CURSOR_PX / longest;
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-  canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-  const blob = await new Promise<Blob | null>((resolve) =>
-    canvas.toBlob(resolve, "image/png"),
-  );
-  if (!blob) return null;
-
-  return {
-    url: URL.createObjectURL(blob),
-    file: new File([blob], "cursor.png", { type: "image/png" }),
-  };
+interface Props extends MediaUploadModalProps {
+  title: string;
+  limitMB: number;
+  /**
+   * Optional rewrite of the picked file before it is previewed and uploaded.
+   * Return null to keep the original.
+   */
+  transform?: (objectUrl: string, file: File) => Promise<{ url: string; file: File } | null>;
 }
 
-const MODAL_TITLE: Record<string, string> = {
-  image: "Import Banner Media",
-  background: "Import Background Media",
-  favicon: "Import Favicon",
-  cursor: "Import Cursor",
-};
-
-export default function BannerUploadModal({ open, onClose, onApply, type = "image" }: BannerUploadModalProps) {
+export default function MediaUploadModal({
+  open,
+  onClose,
+  onApply,
+  title,
+  limitMB,
+  transform,
+}: Props) {
   const appliedUrls = useRef<Set<string>>(new Set());
   const revokeIfUnused = (url: string | null) => {
     if (url?.startsWith("blob:") && !appliedUrls.current.has(url)) URL.revokeObjectURL(url);
@@ -114,9 +74,8 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
   const processFile = async (file: File) => {
     if (!file) return;
 
-    const limit = SIZE_LIMIT_MB[type];
-    if (file.size > limit * 1024 * 1024) {
-      setErrorMsg(`File must be less than ${limit}MB`);
+    if (file.size > limitMB * 1024 * 1024) {
+      setErrorMsg(`File must be less than ${limitMB}MB`);
       return;
     }
 
@@ -132,16 +91,14 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
       const isVid = file.type.startsWith("video");
       const isGif = file.type.includes("gif");
 
-      if (type === "cursor") {
-        const shrunk = await shrinkToCursorSize(localUrl);
-        if (shrunk) {
-          URL.revokeObjectURL(localUrl);
-          setResolvedUrl(shrunk.url);
-          setMediaType("image");
-          setRawSelectedFile(shrunk.file);
-          setIsLoading(false);
-          return;
-        }
+      const rewritten = transform ? await transform(localUrl, file) : null;
+      if (rewritten) {
+        URL.revokeObjectURL(localUrl);
+        setResolvedUrl(rewritten.url);
+        setMediaType("image");
+        setRawSelectedFile(rewritten.file);
+        setIsLoading(false);
+        return;
       }
 
       setResolvedUrl(localUrl);
@@ -172,9 +129,6 @@ export default function BannerUploadModal({ open, onClose, onApply, type = "imag
       onClose();
     }
   };
-
-  const title = MODAL_TITLE[type];
-  const limitMB = SIZE_LIMIT_MB[type];
 
   return (
     <AnimatePresence>
