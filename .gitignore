@@ -46,3 +46,6 @@ next-env.d.ts
 # AI harness skills / config (installed locally, don't commit)
 .claude/
 .agents/
+
+# deploy artifacts
+next.tar.gz
