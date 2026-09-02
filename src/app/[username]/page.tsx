@@ -2,18 +2,37 @@ import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import effects from '@/effects.json'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
+import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor } from '@/lib/og'
 
 export const revalidate = 2592000;
 
 export const dynamicParams = true;
 export async function generateStaticParams() {
   return [];
+}
+
+// Discord and most other unfurlers take the embed's accent stripe from
+// theme-color, which Next.js only emits from a viewport export.
+export async function generateViewport(
+  { params }: { params: Promise<{ username: string }> }
+): Promise<Viewport> {
+  const { username: rawUsername } = await params
+  const username = rawUsername.toLowerCase().trim()
+
+  const rows = await db
+    .select({ embedColor: userSettings.embedColor })
+    .from(users)
+    .leftJoin(userSettings, eq(users.id, userSettings.userId))
+    .where(eq(users.username, username))
+    .limit(1)
+
+  return { themeColor: normalizeEmbedColor(rows[0]?.embedColor) }
 }
 
 export async function generateMetadata(
@@ -23,8 +42,16 @@ export async function generateMetadata(
   const username = rawUsername.toLowerCase().trim()
 
   const rows = await db
-    .select({ username: users.username })
+    .select({
+      username: users.username,
+      embedTitle: userSettings.embedTitle,
+      embedDescription: userSettings.embedDescription,
+      displayName: userSettings.displayName,
+      avatarUrl: userSettings.avatarUrl,
+      bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+    })
     .from(users)
+    .leftJoin(userSettings, eq(users.id, userSettings.userId))
     .where(eq(users.username, username))
     .limit(1)
 
@@ -32,7 +59,29 @@ export async function generateMetadata(
     return { title: { absolute: SITE_CONFIG.name } }
   }
 
-  return { title: { absolute: `@${rows[0].username} | ${SITE_CONFIG.name}` } }
+  const row = rows[0]
+  const title = row.embedTitle?.trim() || `@${row.username}`
+  const description = row.embedDescription?.trim() || undefined
+  const image = buildOgImageUrl(row.username, row)
+
+  return {
+    title: { absolute: `@${row.username} | ${SITE_CONFIG.name}` },
+    description,
+    openGraph: {
+      title,
+      description,
+      url: `${SITE_CONFIG.url}/${row.username}`,
+      siteName: SITE_CONFIG.name,
+      images: [{ url: image, width: OG_WIDTH, height: OG_HEIGHT }],
+      type: 'profile',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [image],
+    },
+  }
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
