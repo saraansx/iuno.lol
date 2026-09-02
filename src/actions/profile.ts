@@ -11,6 +11,7 @@ import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
+import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -469,6 +470,54 @@ export async function updateLayoutProfile(data: {
 
   revalidatePath("/dashboard/customize/profile/layout");
   revalidatePath("/dashboard/customize/profile/section-builder");
+  revalidatePath("/dashboard", "layout");
+  await revalidateOwnProfile(userId);
+
+  return { success: true };
+}
+
+export async function updateMetadataProfile(data: {
+  embedTitle?: string;
+  embedDescription?: string;
+  embedColor?: string;
+}) {
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const setData: Record<string, unknown> = {};
+
+  if (data.embedTitle !== undefined) {
+    const val = data.embedTitle.trim().slice(0, 100);
+    setData.embedTitle = val === "" ? null : val;
+  }
+
+  if (data.embedDescription !== undefined) {
+    const val = data.embedDescription.trim().slice(0, 250);
+    setData.embedDescription = val === "" ? null : val;
+  }
+
+  if (data.embedColor !== undefined) {
+    const val = data.embedColor.trim().toLowerCase();
+    setData.embedColor = /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
+  }
+
+  if (Object.keys(setData).length === 0) return { success: true };
+
+  await db
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
+
+  revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");
   await revalidateOwnProfile(userId);
 
