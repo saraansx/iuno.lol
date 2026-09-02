@@ -39,44 +39,40 @@ function AssetTile({
 
       <div
         onClick={onPick}
-        className="group relative h-[104px] rounded-xl border border-white/5 bg-[#161616] overflow-hidden cursor-pointer hover:border-white/10 transition-colors"
+        className="relative h-32 rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
       >
-        {url ? (
-          <Image
-            src={url}
-            alt=""
-            fill
-            unoptimized
-            className="object-contain p-6"
-          />
-        ) : null}
+        {url && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClear();
+            }}
+            className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-lg border border-dashed border-red-500/80 text-red-500 bg-black/40 hover:bg-red-500/20 hover:border-red-500 hover:text-red-400 transition-all"
+            title={`Remove ${label.toLowerCase()}`}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </button>
+        )}
 
-        <div
-          className={`absolute inset-0 flex flex-col items-center justify-center gap-2 transition-opacity ${
-            url ? "opacity-0 group-hover:opacity-100 bg-black/55" : "opacity-100"
-          }`}
-        >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
-            <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-            <circle cx="9" cy="9" r="2" />
-            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-          </svg>
-          <span className="text-[12.5px] text-white/80">{url ? "Change" : "Upload"}</span>
+        {url ? (
+          <Image src={url} alt="" fill unoptimized className="object-contain p-8" />
+        ) : (
+          <div className="absolute inset-0 bg-[#161616]" />
+        )}
+
+        <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
+          {!url && (
+            <>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+              <span className="text-[13px] font-medium text-white/90">Upload {label}</span>
+            </>
+          )}
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-2">
-        <p className="text-[11px] text-white/30 leading-[1.6]">{hint}</p>
-        {url && (
-          <button
-            type="button"
-            onClick={onClear}
-            className="text-[11px] text-white/35 hover:text-white/70 transition-colors cursor-pointer shrink-0"
-          >
-            Remove
-          </button>
-        )}
-      </div>
+      <p className="text-[11px] text-white/30 leading-[1.6]">{hint}</p>
     </div>
   );
 }
