@@ -106,6 +106,7 @@ export default async function middleware(request: NextRequest) {
       path === '/api/health' ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
+      path.startsWith('/api/og/') ||
       isStaticFile
 
     if (!isPublicAsset) {
