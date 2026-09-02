@@ -69,7 +69,7 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
 
   const encodedName = encodeURIComponent(cleanName);
   const encodedTag = encodeURIComponent(cleanTag);
-  const henrikKey = process.env.HENRIK_VALORANT_API_KEY || process.env.VALORANT_API_KEY;
+  const henrikKey = process.env.HENRIK_VALORANT_API_KEY;
   const headers: Record<string, string> = {
     "User-Agent": "iuno-valorant-widget/1.0",
   };

@@ -61,9 +61,9 @@ export async function fetchYouTubeData(
   const cleanInput = cleanYouTubeInput(rawInput);
   if (!cleanInput) return null;
 
-  const apiKey = process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY;
+  const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
-    console.warn("[YouTube API] Missing YOUTUBE_API_KEY / GOOGLE_API_KEY");
+    console.warn("[YouTube API] Missing YOUTUBE_API_KEY");
     return null;
   }
   const key = encodeURIComponent(apiKey);
