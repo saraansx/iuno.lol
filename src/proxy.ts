@@ -5,6 +5,17 @@ import { SignJWT, jwtVerify } from 'jose'
 const ADMIN_COOKIE = 'admin_session_v3'
 const GATE_ENABLED = process.env.COMING_SOON_MODE !== 'false'
 
+// Single-segment app routes. Anything else with one segment is a profile, which
+// stays public while the gate is up so shared links unfurl.
+const RESERVED_PATHS = new Set([
+  '/',
+  '/api',
+  '/auth',
+  '/dashboard',
+  '/register',
+  '/signin',
+])
+
 function jwtSecretKey(): Uint8Array | null {
   const secret = process.env.JWT_SECRET_KEY
   return secret ? new TextEncoder().encode(secret) : null
@@ -101,12 +112,17 @@ export default async function middleware(request: NextRequest) {
 
   if (GATE_ENABLED) {
     const isStaticFile = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|webp|mp4|webm|json|xml|txt)$/i.test(path)
+
+    const isProfilePath =
+      /^\/[a-z0-9_.]{1,32}$/i.test(path) && !RESERVED_PATHS.has(path.toLowerCase())
+
     const isPublicAsset =
       path === '/coming-soon' ||
       path === '/api/health' ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||
+      isProfilePath ||
       isStaticFile
 
     if (!isPublicAsset) {
