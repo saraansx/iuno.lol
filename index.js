@@ -1,15 +1,9 @@
-// Pterodactyl entrypoint. The NodeJS egg runs this file directly (its MAIN_FILE
-// variable is capped at 16 chars, so it cannot point at next's own bin), and the
-// egg has no shell access — so the production build is done here when missing or
-// stale, then `next start` takes over.
 const { spawn, spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 
 const root = __dirname;
 const port = process.env.PORT || process.env.SERVER_PORT || "3000";
-// NOT process.env.HOSTNAME — Docker sets that to the container id, which makes
-// next bind to the container's own IP and breaks localhost (cloudflared needs it).
 const host = process.env.BIND_HOST || "0.0.0.0";
 const nextBin = path.join(root, "node_modules", "next", "dist", "bin", "next");
 const buildId = path.join(root, ".next", "BUILD_ID");
