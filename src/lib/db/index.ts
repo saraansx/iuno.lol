@@ -21,7 +21,7 @@ const poolConnection = globalForDb.pool ?? mysql.createPool({
   connectTimeout:   20000,
 });
 
-if (process.env.NODE_ENV !== "production") globalForDb.pool = poolConnection;
+globalForDb.pool = poolConnection;
 
 export const db = drizzle(poolConnection, { schema, mode: 'default' });
 
