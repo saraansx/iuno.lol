@@ -100,7 +100,7 @@ export default async function middleware(request: NextRequest) {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
         })
-        return redirectResponse
+        return redirectResponse 
       }
     }
   }
