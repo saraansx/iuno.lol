@@ -4,37 +4,46 @@ on:
   push:
     branches: [main]
 
+# Two pushes back to back must not build over each other on the same box.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          command_timeout: 20m
           script: |
+            set -e
             cd /home/ubuntu/iuno.lol
+
             git fetch origin main
             git reset --hard origin/main
             npm install --legacy-peer-deps
-            mkdir -p /home/ubuntu/next-cache-backup
-            cp -rn .next/cache/* /home/ubuntu/next-cache-backup/ 2>/dev/null || true
 
-            # 1. Build to temporary folder while .next is still serving traffic
-            npm run build -- --dest .next-temp || npm run build
+            # Build into a side folder so the live .next keeps serving traffic.
+            # Seed it with the old cache: that is where the 30-day ISR cache
+            # lives, and it keeps the build incremental.
+            rm -rf .next-build .next-old
+            mkdir -p .next-build
+            cp -r .next/cache .next-build/cache 2>/dev/null || true
 
-            # 2. If separate folder was built, instant atomic swap; otherwise ensure cache restored
-            if [ -d ".next-temp" ]; then
-              cp -rn /home/ubuntu/next-cache-backup/* .next-temp/cache/ 2>/dev/null || true
-              rm -rf .next-old
-              mv .next .next-old 2>/dev/null || true
-              mv .next-temp .next
-              rm -rf .next-old
-            else
-              cp -rn /home/ubuntu/next-cache-backup/* .next/cache/ 2>/dev/null || true
-            fi
+            NEXT_DIST_DIR=.next-build npm run build
 
-            rm -rf /home/ubuntu/next-cache-backup
-            pm2 reload iuno-web || pm2 restart iuno-web
+            # Build passed -> swap it in. If it had failed, set -e stopped us
+            # above and .next is still the old working build.
+            if [ -d .next ]; then mv .next .next-old; fi
+            mv .next-build .next
+            pm2 reload iuno-web --update-env || pm2 restart iuno-web
+            rm -rf .next-old
+
+            sleep 5
+            curl -fsS -o /dev/null http://127.0.0.1:3000/api/health
+            echo "deploy ok"
