@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/toast";
 import { submitFeedbackAction } from "@/actions/feedback";
 import { hexToRgba as toRgba } from "@/lib/utils/color";
 
@@ -61,6 +61,16 @@ export default function FeedbackButtons({
     }
     if (viewerId === null || viewerId === undefined) {
       toast.error("Please sign in to like or dislike profiles.");
+      return;
+    }
+
+    const isAddingFeedback = intent === "like" ? !hasLiked : !hasDisliked;
+    if (viewerId === profileId && isAddingFeedback) {
+      toast.error(
+        intent === "like"
+          ? "You can't like your own profile."
+          : "You can't dislike your own profile."
+      );
       return;
     }
 

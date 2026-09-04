@@ -59,8 +59,11 @@ export async function addComment(profileId: number, content: string, replyToId?:
 
   const profile = await getUserById(profileId);
   if (!profile) return { error: "Profile not found" };
-  if (!profile.allowNewComments && authorId !== profileId) {
+  if (profile.commentsEnabled === false) {
     return { error: "Comments are disabled on this profile." };
+  }
+  if (!profile.allowNewComments && authorId !== profileId) {
+    return { error: "New comments are turned off for this profile." };
   }
 
   if (!content || content.trim().length === 0) {
@@ -111,6 +114,9 @@ export async function getComments(
 
   const profile = await getUserById(profileId);
   if (!profile) return { success: true, comments: [], hasMore: false };
+  if (profile.commentsEnabled === false) {
+    return { success: true, comments: [], hasMore: false };
+  }
   if (!profile.showCommentsPublicly && viewerId !== profileId) {
     return { success: true, comments: [], hasMore: false };
   }
@@ -230,6 +236,11 @@ export async function editComment(commentId: number, content: string) {
 
   if (!comment || comment.authorId !== userId) {
     return { error: "Unauthorized" };
+  }
+
+  const profile = await getUserById(comment.profileId);
+  if (profile?.commentsEnabled === false) {
+    return { error: "Comments are disabled on this profile." };
   }
 
   if (!content || content.trim().length === 0) {
