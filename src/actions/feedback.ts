@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 
 import { getSessionUserId } from "@/lib/auth/session";
 import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
+import { safePage } from "@/lib/utils";
 
 const FEEDBACK_TYPES = ["like", "dislike", "unlike", "undislike"] as const;
 
@@ -152,7 +153,7 @@ export async function getDashboardFeedback(page: number = 1, limit: number = 4) 
   }
 
   try {
-    const offset = (page - 1) * limit;
+    const offset = (safePage(page) - 1) * limit;
 
     const receivedRaw = await db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.receiverId, sessionUserId),

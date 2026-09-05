@@ -5,6 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function safePage(page: number) {
+  return Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
+}
+
 export function hexToRgb(hex: string, fallback = "255, 255, 255") {
   let clean = hex.replace("#", "");
   if (clean.length === 3) {

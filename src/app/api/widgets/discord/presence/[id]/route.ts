@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
 import { redis } from "@/lib/redis";
 import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { discordActivityImageUrl } from "@/lib/discord-activity-image";
+import { signWidgetImageUrl } from "@/lib/server/security/widget-signature";
 
 interface PresenceResponse {
   in_server: boolean;
@@ -71,6 +73,10 @@ interface DiscordUserFields {
 const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
+
+function resolveActivityImage(url?: string | null): string | null {
+  return discordActivityImageUrl(url, signWidgetImageUrl);
+}
 
 export async function GET(
   req: NextRequest,
@@ -258,7 +264,7 @@ export async function GET(
         ? {
             song: presenceData.spotify.song,
             artist: presenceData.spotify.artist,
-            album_art_url: presenceData.spotify.album_art_url ?? null,
+            album_art_url: resolveActivityImage(presenceData.spotify.album_art_url),
           }
         : null,
       primary_activity: presenceData?.primary_activity
@@ -266,8 +272,8 @@ export async function GET(
             name: presenceData.primary_activity.name,
             state: presenceData.primary_activity.state ?? null,
             details: presenceData.primary_activity.details ?? null,
-            large_image_url: presenceData.primary_activity.large_image_url ?? null,
-            small_image_url: presenceData.primary_activity.small_image_url ?? null,
+            large_image_url: resolveActivityImage(presenceData.primary_activity.large_image_url),
+            small_image_url: resolveActivityImage(presenceData.primary_activity.small_image_url),
           }
         : null,
     }, { headers: NO_STORE });

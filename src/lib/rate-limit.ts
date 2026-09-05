@@ -55,7 +55,22 @@ export async function recordAttempt(key: string, windowSeconds: number) {
   await redis.expire(`rl:w:${key}`, windowSeconds);
 }
 
+const UNIDENTIFIED_IP_KEY = "noip";
+const UNIDENTIFIED_IP_FACTOR = 5;
+const UNIDENTIFIED_IP_CEILING = 300;
+
+export function ipBucket(prefix: string, ip: string | null, maxPerIp: number) {
+  if (ip) return { key: `${prefix}:${ip}`, max: maxPerIp };
+
+  return {
+    key: `${prefix}:${UNIDENTIFIED_IP_KEY}`,
+    max: Math.min(maxPerIp * UNIDENTIFIED_IP_FACTOR, UNIDENTIFIED_IP_CEILING),
+  };
+}
+
 const LOGIN_WINDOW = 10 * 60;
+const LOGIN_IP_MAX = 20;
+const REGISTER_IP_MAX = 5;
 
 function emailKey(email: string) {
   return email.toLowerCase().trim();
@@ -65,29 +80,21 @@ export async function loginRateLimit(email: string, ip: string | null) {
   const emailRate = await peekRateLimit(`login:email:${emailKey(email)}`, 5, LOGIN_WINDOW);
   if (!emailRate.ok) return emailRate;
 
-  if (ip) {
-    const ipRate = await peekRateLimit(`login:ip:${ip}`, 20, LOGIN_WINDOW);
-    if (!ipRate.ok) return ipRate;
-  }
-
-  return { ok: true as const };
+  const bucket = ipBucket("login:ip", ip, LOGIN_IP_MAX);
+  return peekRateLimit(bucket.key, bucket.max, LOGIN_WINDOW);
 }
 
 export async function recordFailedLogin(email: string, ip: string | null) {
   await recordAttempt(`login:email:${emailKey(email)}`, LOGIN_WINDOW);
-  if (ip) await recordAttempt(`login:ip:${ip}`, LOGIN_WINDOW);
+  await recordAttempt(ipBucket("login:ip", ip, LOGIN_IP_MAX).key, LOGIN_WINDOW);
 }
 
 export async function registerRateLimit(email: string, ip: string | null) {
   const emailRate = await checkRateLimit(`register:email:${emailKey(email)}`, 3, 10 * 60);
   if (!emailRate.ok) return emailRate;
 
-  if (ip) {
-    const ipRate = await checkRateLimit(`register:ip:${ip}`, 5, 10 * 60);
-    if (!ipRate.ok) return ipRate;
-  }
-
-  return { ok: true as const };
+  const bucket = ipBucket("register:ip", ip, REGISTER_IP_MAX);
+  return checkRateLimit(bucket.key, bucket.max, 10 * 60);
 }
 
 export async function uploadPreRateLimit(userId: number) {
@@ -107,13 +114,13 @@ export async function profileUpdateRateLimit(userId: number) {
 }
 
 export async function checkAvailabilityRateLimit(ip: string | null) {
-  if (!ip) return { ok: true as const };
-  return checkRateLimit(`check:${ip}`, 10, 60);
+  const bucket = ipBucket("check", ip, 10);
+  return checkRateLimit(bucket.key, bucket.max, 60);
 }
 
 export async function discordOAuthRateLimit(ip: string | null) {
-  if (!ip) return { ok: true as const };
-  return checkRateLimit(`discord_oauth:${ip}`, 10, 10 * 60);
+  const bucket = ipBucket("discord_oauth", ip, 10);
+  return checkRateLimit(bucket.key, bucket.max, 10 * 60);
 }
 
 export async function commentLikeRateLimit(userId: number) {

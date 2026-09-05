@@ -1,12 +1,19 @@
 
+const PROXY_PATH = "/api/widgets/discord/image";
+
 const DIRECT_IMAGE_HOSTS = new Set([
   "cdn.discordapp.com",
   "media.discordapp.net",
   "i.scdn.co",
 ]);
 
-export function discordActivityImageUrl(url?: string | null): string | null {
+export function discordActivityImageUrl(
+  url?: string | null,
+  sign?: (target: string) => string
+): string | null {
   if (!url) return null;
+
+  if (url.startsWith(`${PROXY_PATH}?`)) return url;
 
   let parsed: URL;
   try {
@@ -19,5 +26,7 @@ export function discordActivityImageUrl(url?: string | null): string | null {
 
   if (DIRECT_IMAGE_HOSTS.has(parsed.hostname.toLowerCase())) return url;
 
-  return `/api/widgets/discord/image?url=${encodeURIComponent(url)}`;
+  if (!sign) return null;
+
+  return `${PROXY_PATH}?url=${encodeURIComponent(url)}&sig=${sign(url)}`;
 }

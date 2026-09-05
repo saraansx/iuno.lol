@@ -5,6 +5,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { commentRateLimit, commentLikeRateLimit } from "@/lib/rate-limit";
+import { safePage } from "@/lib/utils";
 
 type PublicCommentAuthor = {
   id: number;
@@ -84,6 +85,10 @@ export async function addComment(profileId: number, content: string, replyToId?:
     if (!parentComment) {
       return { error: "Parent comment not found on this profile." };
     }
+
+    if (parentComment.replyToId != null) {
+      return { error: "You can only reply to a top-level comment." };
+    }
   }
 
   const [result] = await db.insert(schema.profileComments).values({
@@ -140,7 +145,7 @@ export async function getComments(
     },
     orderBy: orderBys,
     limit: limit + 1,
-    offset: (page - 1) * limit,
+    offset: (safePage(page) - 1) * limit,
   });
 
   const hasMore = rawComments.length > limit;
@@ -290,7 +295,7 @@ export async function getDashboardComments(page: number = 1, limit: number = 4) 
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
 
-  const offset = (page - 1) * limit;
+  const offset = (safePage(page) - 1) * limit;
 
   const rawReceived = await db.query.profileComments.findMany({
     where: eq(schema.profileComments.profileId, userId),

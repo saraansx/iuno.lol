@@ -12,6 +12,7 @@ import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
+import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 
 const s3Client = new S3Client({
   region: process.env.AWS_REGION!,
@@ -132,6 +133,8 @@ export async function updateGeneralProfile(data: {
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
 
   const promises = [];
+
+  sanitizeProfileSettings(setData);
 
   if (avatarUrlVal === null) promises.push(emptyS3Directory(userId, "avatar"));
   if (bannerImageUrlVal === null) promises.push(emptyS3Directory(userId, "banner"));
@@ -282,6 +285,8 @@ export async function updateAppearanceProfile(data: {
   if (data.showJoinDateTooltip !== undefined) setData.showJoinDateTooltip = data.showJoinDateTooltip;
   if (data.showViewsTooltip !== undefined) setData.showViewsTooltip = data.showViewsTooltip;
 
+  sanitizeProfileSettings(setData);
+
   if (Object.keys(setData).length === 0) return { success: true };
 
   await db
@@ -329,6 +334,8 @@ export async function updateColorsProfile(data: {
   if (data.widgetPrimaryTextColor !== undefined) setData.widgetPrimaryTextColor = data.widgetPrimaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetSecondaryTextColor !== undefined) setData.widgetSecondaryTextColor = data.widgetSecondaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetBorderColor !== undefined) setData.widgetBorderColor = data.widgetBorderColor?.slice(0, 32) ?? null;
+
+  sanitizeProfileSettings(setData);
 
   if (Object.keys(setData).length === 0) return { success: true };
   
@@ -460,6 +467,8 @@ export async function updateLayoutProfile(data: {
     }
     setData.avatarPlacement = data.avatarPlacement;
   }
+
+  sanitizeProfileSettings(setData);
 
   if (Object.keys(setData).length === 0) return { success: true };
 
@@ -611,6 +620,8 @@ export async function updateEffectsProfile(data: {
   if (data.enterScreenOpacity !== undefined) setData.enterScreenOpacity = data.enterScreenOpacity;
   if (data.enterScreenBlur !== undefined) setData.enterScreenBlur = data.enterScreenBlur;
   if (data.enterScreenBlurColor !== undefined) setData.enterScreenBlurColor = data.enterScreenBlurColor?.slice(0, 32) ?? '#000000';
+
+  sanitizeProfileSettings(setData);
 
   if (Object.keys(setData).length === 0) return { success: true };
   
@@ -1211,6 +1222,8 @@ export async function updateProfileWidgets(data: {
       Math.max(0, Math.round(data.widgetBorderOpacity))
     );
   }
+
+  sanitizeProfileSettings(setData);
 
   await db
     .insert(schema.userSettings)

@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getClientIp } from "@/lib/server/security/ip";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 
 export async function widgetRateLimit(
   req: NextRequest,
   key: string,
   maxPerMinute = 120,
 ): Promise<NextResponse | null> {
-  const ip = getClientIp(req.headers);
-  if (!ip) return null;
+  const bucket = ipBucket(`widget:${key}`, getClientIp(req.headers), maxPerMinute);
 
   try {
-    const rate = await checkRateLimit(`widget:${key}:${ip}`, maxPerMinute, 60);
+    const rate = await checkRateLimit(bucket.key, bucket.max, 60);
     if (!rate.ok) {
       return NextResponse.json(
         { error: "Too many requests" },

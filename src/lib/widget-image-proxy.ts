@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lookup } from "node:dns/promises";
 import { getClientIp } from "@/lib/server/security/ip";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
@@ -222,18 +222,16 @@ export async function proxyWidgetImage(
     return new NextResponse(null, { status: 403 });
   }
 
-  const ip = getClientIp(req.headers);
-  if (ip) {
-    try {
-      const limit = await checkRateLimit(`${opts.key}:${ip}`, 120, 60);
-      if (!limit.ok) {
-        return new NextResponse(null, {
-          status: 429,
-          headers: { "Retry-After": String(limit.retryAfterSeconds) },
-        });
-      }
-    } catch {
+  const bucket = ipBucket(opts.key, getClientIp(req.headers), 120);
+  try {
+    const limit = await checkRateLimit(bucket.key, bucket.max, 60);
+    if (!limit.ok) {
+      return new NextResponse(null, {
+        status: 429,
+        headers: { "Retry-After": String(limit.retryAfterSeconds) },
+      });
     }
+  } catch {
   }
 
   try {

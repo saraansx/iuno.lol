@@ -14,7 +14,7 @@ export function getClientIp(headers: Headers | { get(name: string): string | nul
   if (!warned) {
     warned = true;
     console.error(
-      `[security] "${TRUSTED_IP_HEADER}" missing in production — IP-based limits are inactive. Is traffic still routed through Cloudflare?`,
+      `[security] "${TRUSTED_IP_HEADER}" missing in production — these requests can't be told apart, so they share one rate-limit bucket. Is traffic still routed through Cloudflare?`,
     );
   }
   return null;
