@@ -1,4 +1,5 @@
 import { db, schema } from '@/lib/db'
+import { UserFacingError } from '@/lib/errors'
 import { addMinutes } from 'date-fns'
 import { eq, and, gt, lt } from 'drizzle-orm'
 import { randomBytes, createHash } from 'crypto'
@@ -24,7 +25,7 @@ export async function createVerificationToken(email: string): Promise<string> {
     if (existingRows.length > 0) {
       const timePassed = (Date.now() - existingRows[0].createdAt.getTime()) / 1000
       if (timePassed < 60) {
-        throw new Error(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another email.`)
+        throw new UserFacingError(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another email.`)
       }
     }
 
@@ -74,7 +75,7 @@ export async function createPasswordResetToken(email: string): Promise<string> {
     if (existingRows.length > 0) {
       const timePassed = (Date.now() - existingRows[0].createdAt.getTime()) / 1000
       if (timePassed < 60) {
-        throw new Error(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another email.`)
+        throw new UserFacingError(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another email.`)
       }
     }
 

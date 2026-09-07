@@ -24,8 +24,8 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
       setError("Username is required.");
       return;
     }
-    if (clean.length < 3 || clean.length > 32) {
-      setError("Username must be between 3 and 32 characters.");
+    if (clean.length < 2 || clean.length > 32) {
+      setError("Username must be between 2 and 32 characters.");
       return;
     }
     if (!/^[a-z0-9_.]+$/.test(clean)) {

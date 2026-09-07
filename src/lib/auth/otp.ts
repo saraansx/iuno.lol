@@ -1,4 +1,5 @@
 import { db, schema } from '@/lib/db'
+import { UserFacingError } from '@/lib/errors'
 import { addMinutes } from 'date-fns'
 import { eq, lt } from 'drizzle-orm'
 import { randomInt } from 'crypto'
@@ -35,7 +36,7 @@ export async function createOTPToken(email: string): Promise<string> {
     if (existingRows.length > 0) {
       const timePassed = (Date.now() - existingRows[0].createdAt.getTime()) / 1000
       if (timePassed < 60) {
-        throw new Error(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another OTP.`)
+        throw new UserFacingError(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another OTP.`)
       }
     }
 

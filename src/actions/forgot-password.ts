@@ -4,6 +4,7 @@ import { createPasswordResetToken } from '@/lib/auth/tokens'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
+import { UserFacingError } from '@/lib/errors'
 
 export async function forgotPassword(email: string, turnstileToken: string) {
   try {
@@ -23,8 +24,7 @@ export async function forgotPassword(email: string, turnstileToken: string) {
       const token = await createPasswordResetToken(email)
       await sendPasswordResetEmail(email, token)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : ''
-      if (message.startsWith('Please wait')) {
+      if (err instanceof UserFacingError) {
         return { success: 'If an account exists, a reset link was sent!' }
       }
       throw err

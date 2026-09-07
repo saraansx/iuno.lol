@@ -10,6 +10,8 @@ import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
+const GUILD_JOIN_TIMEOUT_MS = 10_000
+
 async function exchangeCode(code: string): Promise<string> {
   const res = await fetch(`${DISCORD_API}/oauth2/token`, {
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
@@ -54,19 +56,23 @@ async function addUserToGuild(discordUserId: string, accessToken: string) {
   const guildId  = process.env.DISCORD_GUILD_ID!
   const botToken = process.env.DISCORD_BOT_TOKEN!
 
-  const res = await fetch(`${DISCORD_API}/guilds/${guildId}/members/${discordUserId}`, {
-    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    method: 'PUT',
-    headers: {
-      Authorization:  `Bot ${botToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ access_token: accessToken }),
-  })
+  try {
+    const res = await fetch(`${DISCORD_API}/guilds/${guildId}/members/${discordUserId}`, {
+      signal: AbortSignal.timeout(GUILD_JOIN_TIMEOUT_MS),
+      method: 'PUT',
+      headers: {
+        Authorization:  `Bot ${botToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ access_token: accessToken }),
+    })
 
-  if (res.status !== 201 && res.status !== 204) {
-    const err = await res.text()
-    console.error(`[Discord] Guild join failed (${res.status}): ${err}`)
+    if (res.status !== 201 && res.status !== 204) {
+      const err = await res.text()
+      console.error(`[Discord] Guild join failed (${res.status}): ${err}`)
+    }
+  } catch (err) {
+    console.error('[Discord] Guild join failed:', err)
   }
 }
 
@@ -136,11 +142,11 @@ export async function GET(req: NextRequest) {
       })
     }
 
-    await addUserToGuild(discordUser.id, accessToken)
-
     if (!loggedInUserId) {
       await createSession(userId)
     }
+
+    await addUserToGuild(discordUser.id, accessToken)
 
     return NextResponse.redirect(`${appUrl}/dashboard/customize/profile/widgets`)
   } catch (err) {

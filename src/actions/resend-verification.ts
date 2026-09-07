@@ -4,6 +4,7 @@ import { createVerificationToken } from '@/lib/auth/tokens'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
+import { UserFacingError } from '@/lib/errors'
 
 export async function resendVerification(email: string, turnstileToken: string) {
   try {
@@ -28,9 +29,8 @@ export async function resendVerification(email: string, turnstileToken: string) 
       const token = await createVerificationToken(email)
       await sendVerificationEmail(email, token)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : ''
-      if (message.startsWith('Please wait')) {
-        return { error: message }
+      if (err instanceof UserFacingError) {
+        return { error: err.message }
       }
       throw err
     }

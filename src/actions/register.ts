@@ -7,6 +7,7 @@ import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
 import { validatePassword, validateUsername, validateEmail } from '@/lib/server/security/validation'
 import { registerRateLimit } from '@/lib/rate-limit'
+import { UserFacingError } from '@/lib/errors'
 import { headers } from 'next/headers'
 
 type RegisterInput = {
@@ -69,6 +70,9 @@ export async function register(input: RegisterInput) {
 
     return { success: 'Account created! Please verify your email.' }
   } catch (err: unknown) {
+    if (err instanceof UserFacingError) {
+      return { error: err.message }
+    }
     console.error('[register] Failed:', err)
     return { error: 'Something went wrong. Please try again.' }
   }

@@ -36,14 +36,11 @@ export function validateUsername(username: string): string | null {
   if (!username) {
     return 'Username is required.'
   }
-  if (username.length < 3 || username.length > 32) {
-    return 'Username must be between 3 and 32 characters.'
+  if (username.length < 2 || username.length > 32) {
+    return 'Username must be between 2 and 32 characters.'
   }
   if (!/^[a-z0-9_.]+$/.test(username)) {
     return 'Invalid username characters.'
-  }
-  if (!/^[a-z0-9]$/.test(username.slice(-1))) {
-    return 'Username must end with a letter or number.'
   }
   if (RESERVED_USERNAMES.has(username.toLowerCase())) {
     return 'That username is reserved.'

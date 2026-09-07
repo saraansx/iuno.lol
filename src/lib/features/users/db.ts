@@ -1,5 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
+import { validateUsername } from '@/lib/server/security/validation'
+import { UserFacingError } from '@/lib/errors'
 import { eq, sql, and, lt } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
@@ -175,8 +177,8 @@ export async function createUser(input: CreateUserInput) {
     if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
       const e = err as { code: string; message: string }
       if (e.code === 'ER_DUP_ENTRY') {
-        if (e.message.includes('email')) throw new Error('An account with that email already exists.')
-        if (e.message.includes('username')) throw new Error('That username is already taken.')
+        if (e.message.includes('email')) throw new UserFacingError('An account with that email already exists.')
+        if (e.message.includes('username')) throw new UserFacingError('That username is already taken.')
       }
     }
     throw err
@@ -254,7 +256,7 @@ export async function assertEmailAvailable(email: string) {
     if (existing.createdAt < cutoff) return
   }
 
-  throw new Error('An account with that email already exists.')
+  throw new UserFacingError('An account with that email already exists.')
 }
 
 export async function assertUsernameAvailable(username: string) {
@@ -266,7 +268,7 @@ export async function assertUsernameAvailable(username: string) {
     if (existing.createdAt < cutoff) return
   }
 
-  throw new Error('That username is already taken.')
+  throw new UserFacingError('That username is already taken.')
 }
 
 export async function deleteUnverifiedUserByEmail(email: string) {
@@ -339,14 +341,20 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
     }
   }
 
-  let cleaned = discordUsername.toLowerCase().replace(/[^a-z0-9_]/g, '')
-  cleaned = cleaned.replace(/^[^a-z]+/, '').replace(/_+$/, '')
+  let cleaned = discordUsername.toLowerCase().replace(/[^a-z0-9_.]/g, '')
+  cleaned = cleaned.replace(/^[^a-z0-9]+/, '')
   const base = cleaned.slice(0, 24) || 'user'
   let username = base
   let attempt = 0
 
   while (true) {
     try {
+      if (validateUsername(username)) {
+        username = `${base}${randomBytes(2).toString('hex')}`
+        if (++attempt > 10) throw new Error('Could not generate a valid username.')
+        continue
+      }
+
       const insertId = await db.transaction(async (tx) => {
         const [result] = await tx.insert(schema.users).values({
           username,

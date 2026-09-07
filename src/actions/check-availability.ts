@@ -5,6 +5,7 @@ import { headers } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
 import { validateUsername, validateEmail } from '@/lib/server/security/validation'
 import { checkAvailabilityRateLimit } from '@/lib/rate-limit'
+import { UserFacingError } from '@/lib/errors'
 
 export async function checkAvailability({ username, email }: { username: string; email: string }) {
   try {
@@ -24,8 +25,11 @@ export async function checkAvailability({ username, email }: { username: string;
     try {
       await assertEmailAvailable(email)
       await assertUsernameAvailable(username)
-    } catch {
-      return { error: 'An account with that information already exists.' }
+    } catch (err: unknown) {
+      if (err instanceof UserFacingError) {
+        return { error: err.message }
+      }
+      throw err
     }
 
     return { success: true }

@@ -64,12 +64,10 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
       const cleanUsername = username.trim().toLowerCase();
       if (!cleanUsername) {
         newErrors.username = "Username cannot be empty.";
-      } else if (cleanUsername.length < 3 || cleanUsername.length > 32) {
-        newErrors.username = "Username must be between 3 and 32 characters.";
+      } else if (cleanUsername.length < 2 || cleanUsername.length > 32) {
+        newErrors.username = "Username must be between 2 and 32 characters.";
       } else if (!/^[a-z0-9_.]+$/.test(cleanUsername)) {
         newErrors.username = "Only letters, numbers, underscores, and dots allowed.";
-      } else if (!/^[a-z0-9]$/.test(cleanUsername.slice(-1))) {
-        newErrors.username = "Username must end with a letter or number.";
       }
       if (!email) newErrors.email = "Email cannot be empty.";
     } else if (step === 2) {

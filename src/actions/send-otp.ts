@@ -4,6 +4,7 @@ import { createOTPToken } from '@/lib/auth/otp'
 import { getUserByEmail } from '@/lib/features/users/db'
 import { sendTwoFactorTokenEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
+import { UserFacingError } from '@/lib/errors'
 
 export const sendOTP = async (email: string, turnstileToken: string) => {
   try {
@@ -23,8 +24,7 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
       const otp = await createOTPToken(email)
       await sendTwoFactorTokenEmail(email, otp)
     } catch (error) {
-      const message = error instanceof Error ? error.message : ''
-      if (message.startsWith('Please wait')) {
+      if (error instanceof UserFacingError) {
         return { success: 'If an account exists, an OTP was sent!' }
       }
       throw error

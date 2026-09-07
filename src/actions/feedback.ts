@@ -1,4 +1,4 @@
-"use server";
+                                                  "use server";
 
 import { db, schema } from "@/lib/db";
 import { eq, sql, and } from "drizzle-orm";
@@ -46,6 +46,12 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
   try {
     await db.transaction(async (tx) => {
+      await tx
+        .select({ id: schema.users.id })
+        .from(schema.users)
+        .where(eq(schema.users.id, userId))
+        .for("update");
+
       const existingRows = await tx
         .select({ type: schema.profileFeedback.type })
         .from(schema.profileFeedback)
