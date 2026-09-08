@@ -63,7 +63,11 @@ export default function RecentFeedback({
 
     setIsLoading(true);
     try {
-      const res = await getDashboardFeedback(nextPage, PAGE_SIZE);
+      const res = await getDashboardFeedback(
+        isReceived ? nextPage : receivedPage,
+        isReceived ? givenPage : nextPage,
+        PAGE_SIZE,
+      );
       if (res.success) {
         if (isReceived) {
           setReceived(res.received ?? []);

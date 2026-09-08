@@ -161,7 +161,6 @@ export default function TikTokClient({ user }: { user: FullUser | null }) {
     startTransition(async () => {
       try {
         const res = await updateProfileWidgets({
-          username: user.username,
           widgets: updated,
         });
         if (res?.success) {

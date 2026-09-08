@@ -156,14 +156,19 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
   }
 }
 
-export async function getDashboardFeedback(page: number = 1, limit: number = 4) {
+export async function getDashboardFeedback(
+  receivedPage: number = 1,
+  givenPage: number = 1,
+  limit: number = 4,
+) {
   const sessionUserId = await getSessionUserId();
   if (!sessionUserId) {
     return { success: false, error: "Unauthorized" };
   }
 
   try {
-    const offset = (safePage(page) - 1) * limit;
+    const receivedOffset = (safePage(receivedPage) - 1) * limit;
+    const givenOffset = (safePage(givenPage) - 1) * limit;
 
     const receivedRaw = await db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.receiverId, sessionUserId),
@@ -184,7 +189,7 @@ export async function getDashboardFeedback(page: number = 1, limit: number = 4) 
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
       limit: limit + 1,
-      offset,
+      offset: receivedOffset,
     });
 
     const receivedHasMore = receivedRaw.length > limit;
@@ -218,7 +223,7 @@ export async function getDashboardFeedback(page: number = 1, limit: number = 4) 
       },
       orderBy: (pf, { desc }) => [desc(pf.createdAt)],
       limit: limit + 1,
-      offset,
+      offset: givenOffset,
     });
 
     const givenHasMore = givenRaw.length > limit;

@@ -199,7 +199,6 @@ export default function YouTubeClient({ user }: { user: FullUser | null }) {
     startTransition(async () => {
       try {
         const res = await updateProfileWidgets({
-          username: user.username,
           widgets: updated,
         });
         if (res?.success) {

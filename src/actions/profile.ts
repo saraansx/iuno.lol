@@ -689,7 +689,6 @@ export async function updateEffectsProfile(data: {
 }
 
 export async function updateProfileWidgets(data: {
-  username?: string;
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
   widgetBorderOpacity?: number;

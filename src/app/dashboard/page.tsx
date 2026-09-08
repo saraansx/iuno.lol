@@ -27,7 +27,7 @@ export default async function DashboardPage() {
     user ? getAnalyticsData(user.id) : Promise.resolve([]),
     user ? getDeviceStats(user.id) : Promise.resolve({ ios: 0, android: 0, windows: 0, mac: 0, other: 0 }),
     getDashboardComments(1, 4),
-    getDashboardFeedback(1, 4)
+    getDashboardFeedback(1, 1, 4)
   ]);
 
   const commentsReceived = commentsRes.success && commentsRes.received ? commentsRes.received : [];

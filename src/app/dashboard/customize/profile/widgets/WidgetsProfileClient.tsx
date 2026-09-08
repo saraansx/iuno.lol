@@ -163,11 +163,9 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
   };
 
   const handleSave = () => {
-    if (!user?.username) return;
     startTransition(async () => {
       try {
         const res = await updateProfileWidgets({
-          username: user.username,
           widgets: currentWidgets,
           widgetBorderWidth: borderWidth,
           widgetBorderRadius: borderRadius,

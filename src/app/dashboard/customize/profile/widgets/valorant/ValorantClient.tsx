@@ -160,9 +160,7 @@ export default function ValorantClient({ user }: { user: FullUser | null }) {
 
     startTransition(async () => {
       try {
-        if (!user?.username) return;
         const res = await updateProfileWidgets({
-          username: user.username,
           widgets: updated,
         });
         if (res?.success) {
