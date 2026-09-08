@@ -45,7 +45,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
   }
 
   try {
-    await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx) => {
       await tx
         .select({ id: schema.users.id })
         .from(schema.users)
@@ -131,6 +131,10 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
       return { applied: true };
     });
 
+    if (!result?.applied) {
+      return { success: true, changed: false };
+    }
+
     try {
       await invalidateLiveStatsCache(userId);
       const [receiver] = await db
@@ -145,7 +149,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
       console.error("Failed to invalidate cache/revalidate profile:", e);
     }
 
-    return { success: true };
+    return { success: true, changed: true };
   } catch (error) {
     console.error("Failed to submit feedback:", error);
     return { success: false, error: "Database error" };
