@@ -13,27 +13,21 @@ export const maxDuration = 60;
 
 async function handler() {
   try {
-    const profileIds = await redis.smembers('profiles_with_pending_views');
+    const profileIds = await redis.smembers(SET_KEY);
 
     if (!profileIds || profileIds.length === 0) {
       return NextResponse.json({ success: true, message: 'No pending views to flush.' });
     }
 
-    let hgetResults: (Record<string, string> | null)[] | null = null;
-    try {
-      const pipe = redis.pipeline();
-      for (const idStr of profileIds) {
-        pipe.hgetall(`views_pending:${idStr}`);
-      }
-      const rawExec = await pipe.exec();
-      hgetResults = (rawExec || []).map((tuple) => {
-        const [err, res] = tuple;
-        if (err || !res) return null;
-        return res as Record<string, string>;
-      });
-    } catch {
-      hgetResults = null;
+    const grab = redis.multi();
+    for (const idStr of profileIds) {
+      const key = `views_pending:${idStr}`;
+      grab.hgetall(key);
+      grab.get(key);
+      grab.del(key);
+      grab.srem(SET_KEY, idStr);
     }
+    const grabbed = (await grab.exec()) || [];
 
     const pending: {
       profileId: number;
@@ -46,55 +40,29 @@ async function handler() {
     }[] = [];
 
     for (let i = 0; i < profileIds.length; i++) {
-      const idStr = profileIds[i];
-      const profileId = parseInt(idStr);
+      const profileId = parseInt(profileIds[i]);
       if (isNaN(profileId)) continue;
 
-      const redisKey = `views_pending:${profileId}`;
-      let data: Record<string, string | number> | null = null;
-      let legacyCount = 0;
+      const [hashErr, hashRaw] = grabbed[i * 4] ?? [null, null];
+      const [strErr, strRaw] = grabbed[i * 4 + 1] ?? [null, null];
 
-      const raw = hgetResults ? hgetResults[i] : null;
-      if (raw && Object.keys(raw).length > 0) {
-        data = raw;
-      } else {
-        try {
-          const individual = (await redis.hgetall(redisKey)) as Record<string, string> | null;
-          if (individual && Object.keys(individual).length > 0) {
-            data = individual;
-          }
-        } catch {
-        }
+      const data = !hashErr && hashRaw && Object.keys(hashRaw as object).length > 0
+        ? (hashRaw as Record<string, string>)
+        : null;
+      const legacyCount = !strErr && strRaw ? parseInt(String(strRaw)) : 0;
 
-        if (!data) {
-          try {
-            const legacyVal = await redis.get(redisKey);
-            if (legacyVal) legacyCount = parseInt(String(legacyVal));
-          } catch {
-          }
-        }
-      }
+      const total = data ? parseInt(String(data.total || '0')) : legacyCount;
+      if (!total || total <= 0) continue;
 
-      if (!data && legacyCount === 0) {
-        await redis.del(redisKey);
-        await redis.srem(SET_KEY, idStr);
-        continue;
-      }
-
-      const total = legacyCount > 0 ? legacyCount : parseInt(String(data?.total || '0'));
-      const ios = parseInt(String(data?.ios || '0'));
-      const android = parseInt(String(data?.android || '0'));
-      const windows = parseInt(String(data?.windows || '0'));
-      const mac = parseInt(String(data?.mac || '0'));
-      const other = parseInt(String(data?.other || '0'));
-
-      if (total <= 0) {
-        await redis.del(redisKey);
-        await redis.srem(SET_KEY, idStr);
-        continue;
-      }
-
-      pending.push({ profileId, total, ios, android, windows, mac, other });
+      pending.push({
+        profileId,
+        total,
+        ios: parseInt(String(data?.ios || '0')),
+        android: parseInt(String(data?.android || '0')),
+        windows: parseInt(String(data?.windows || '0')),
+        mac: parseInt(String(data?.mac || '0')),
+        other: parseInt(String(data?.other || '0')),
+      });
     }
 
     if (pending.length === 0) {
@@ -114,7 +82,6 @@ async function handler() {
         const existing = new Set((resultRows || []).map(r => Number(r.id)));
 
         const validChunk = chunk.filter(e => existing.has(e.profileId));
-        const removedChunk = chunk.filter(e => !existing.has(e.profileId));
 
         if (validChunk.length > 0) {
           await db.transaction(async (tx) => {
@@ -147,15 +114,24 @@ async function handler() {
 
           totalFlushed += validChunk.reduce((sum, e) => sum + e.total, 0);
         }
-
-        const cleanupPipe = redis.pipeline();
-        for (const e of [...validChunk, ...removedChunk]) {
-          cleanupPipe.del(`views_pending:${e.profileId}`);
-          cleanupPipe.srem(SET_KEY, String(e.profileId));
-        }
-        await cleanupPipe.exec();
       } catch (err) {
-        console.error(`[cron] Flush failed for chunk starting at profile ${chunk[0]?.profileId}, will retry:`, err);
+        console.error(`[cron] Flush failed for chunk starting at profile ${chunk[0]?.profileId}, restoring to Redis:`, err);
+        try {
+          const restore = redis.pipeline();
+          for (const e of chunk) {
+            const key = `views_pending:${e.profileId}`;
+            restore.hincrby(key, 'total', e.total);
+            if (e.ios) restore.hincrby(key, 'ios', e.ios);
+            if (e.android) restore.hincrby(key, 'android', e.android);
+            if (e.windows) restore.hincrby(key, 'windows', e.windows);
+            if (e.mac) restore.hincrby(key, 'mac', e.mac);
+            if (e.other) restore.hincrby(key, 'other', e.other);
+            restore.sadd(SET_KEY, String(e.profileId));
+          }
+          await restore.exec();
+        } catch (restoreErr) {
+          console.error('[cron] Could not restore pending views to Redis — these views are lost:', restoreErr);
+        }
       }
     }
 
