@@ -28,6 +28,4 @@ function createRedisClient(): Redis {
 
 export const redis = globalForRedis.redisInstance ?? createRedisClient();
 
-if (process.env.NODE_ENV !== "production") {
-  globalForRedis.redisInstance = redis;
-}
+globalForRedis.redisInstance = redis;
