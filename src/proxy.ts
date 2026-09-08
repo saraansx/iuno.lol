@@ -119,6 +119,8 @@ export default async function middleware(request: NextRequest) {
     const isPublicAsset =
       path === '/coming-soon' ||
       path === '/api/health' ||
+      path === '/api/track-view' ||
+      path.startsWith('/api/profile/') ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||
