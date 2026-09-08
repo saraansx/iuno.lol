@@ -17,12 +17,12 @@ jobs:
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
+          username: root
           key: ${{ secrets.EC2_SSH_KEY }}
           command_timeout: 20m
           script: |
             set -e
-            cd /home/ubuntu/iuno.lol
+            cd /root/iuno.lol
 
             git fetch origin main
             git reset --hard origin/main
