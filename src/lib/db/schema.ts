@@ -145,7 +145,7 @@ export const userSettings = mysqlTable('user_settings', {
   cursorUrl: varchar('cursor_url', { length: 500 }),
   tabTitle: varchar('tab_title', { length: 60 }),
   tabTitleAnimated: boolean('tab_title_animated').default(false),
-  commentsEnabled: boolean('comments_enabled').default(false),
+  commentsEnabled: boolean('comments_enabled').default(true),
   showCommentsPublicly: boolean('show_comments_publicly').default(true),
   allowNewComments: boolean('allow_new_comments').default(true),
   feedbackEnabled: boolean('feedback_enabled').default(true),

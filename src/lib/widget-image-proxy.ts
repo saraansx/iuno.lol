@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { lookup } from "node:dns/promises";
+import { lookup as dnsLookup, type LookupAddress, type LookupOptions } from "node:dns";
+import type { LookupFunction } from "node:net";
+import https from "node:https";
+import { Readable } from "node:stream";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 
@@ -123,21 +126,42 @@ function isBlockedIpv6(address: string): boolean {
   return false;
 }
 
-async function resolvesToPublicHost(hostname: string): Promise<boolean> {
-  const host = hostname.replace(/^\[|\]$/g, "");
+const BLOCKED_HOST_CODE = "WIDGET_PROXY_BLOCKED_HOST";
 
-  let records: Array<{ address: string; family: number }>;
-  try {
-    records = await lookup(host, { all: true, verbatim: true });
-  } catch {
-    return false;
-  }
-
-  if (records.length === 0) return false;
-  return records.every((record) =>
-    record.family === 6 ? !isBlockedIpv6(record.address) : !isBlockedIpv4(record.address)
-  );
+function blockedHostError(message: string): NodeJS.ErrnoException {
+  const err: NodeJS.ErrnoException = new Error(message);
+  err.code = BLOCKED_HOST_CODE;
+  return err;
 }
+
+function isBlockedAddress(record: LookupAddress): boolean {
+  return record.family === 6
+    ? isBlockedIpv6(record.address)
+    : isBlockedIpv4(record.address);
+}
+
+const guardedLookup: LookupFunction = (hostname, options, callback) => {
+  const requested: LookupOptions = options ?? {};
+  const wantsAll = requested.all === true;
+
+  dnsLookup(
+    hostname,
+    { family: requested.family, hints: requested.hints, verbatim: true, all: true },
+    (err, addresses) => {
+      if (err) return callback(err, []);
+
+      if (addresses.length === 0) {
+        return callback(blockedHostError(`No DNS records for ${hostname}`), []);
+      }
+      if (addresses.some(isBlockedAddress)) {
+        return callback(blockedHostError(`Blocked address for ${hostname}`), []);
+      }
+
+      if (wantsAll) return callback(null, addresses);
+      return callback(null, addresses[0].address, addresses[0].family);
+    }
+  );
+};
 
 function isAllowedHost(hostname: string, allowedHosts?: string[]): boolean {
   if (!allowedHosts) return true;
@@ -168,6 +192,78 @@ function resolveContentType(url: URL, upstream: string | null, allowed: Set<stri
   return byExt && allowed.has(byExt) ? byExt : null;
 }
 
+function requestOnce(
+  target: URL,
+  headers: Record<string, string>
+): Promise<Response | { error: number }> {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = (value: Response | { error: number }) => {
+      if (settled) return;
+      settled = true;
+      resolve(value);
+    };
+  
+    let deadline: NodeJS.Timeout | undefined;
+    const clearDeadline = () => {
+      if (deadline) clearTimeout(deadline);
+      deadline = undefined;
+    };
+
+    const req = https.request(
+      {
+        protocol: target.protocol,
+        hostname: target.hostname.replace(/^\[|\]$/g, ""),
+        port: target.port || 443,
+        path: `${target.pathname}${target.search}`,
+        method: "GET",
+        headers: { ...headers, Host: target.host },
+        lookup: guardedLookup,
+        servername: target.hostname.replace(/^\[|\]$/g, ""),
+      },
+      (res) => {
+        const status = res.statusCode ?? 502;
+        const resHeaders = new Headers();
+        for (const [name, value] of Object.entries(res.headers)) {
+          if (value === undefined) continue;
+          if (Array.isArray(value)) {
+            for (const entry of value) resHeaders.append(name, entry);
+          } else {
+            resHeaders.set(name, value);
+          }
+        }
+
+        const hasBody = status !== 204 && status !== 304;
+
+        res.on("close", clearDeadline);
+
+        const body = hasBody
+          ? (Readable.toWeb(res) as unknown as ReadableStream<Uint8Array>)
+          : null;
+
+        if (!hasBody) res.resume();
+
+        finish(new Response(body, { status, headers: resHeaders }));
+      }
+    );
+
+    deadline = setTimeout(() => {
+      req.destroy(new Error("Upstream request exceeded time budget"));
+    }, FETCH_TIMEOUT_MS);
+
+    req.setTimeout(FETCH_TIMEOUT_MS, () => {
+      req.destroy(new Error("Upstream request timed out"));
+    });
+
+    req.on("error", (err: NodeJS.ErrnoException) => {
+      clearDeadline();
+      finish({ error: err.code === BLOCKED_HOST_CODE ? 403 : 502 });
+    });
+
+    req.end();
+  });
+}
+
 async function fetchValidated(
   startUrl: URL,
   opts: WidgetProxyOptions,
@@ -177,20 +273,17 @@ async function fetchValidated(
 
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     if (!isAllowedHost(target.hostname, opts.allowedHosts)) return { error: 403 };
-    if (!(await resolvesToPublicHost(target.hostname))) return { error: 403 };
 
     const headers: Record<string, string> = {
       "User-Agent": BROWSER_UA,
       Accept: "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+      "Accept-Encoding": "identity",
     };
     if (opts.referer) headers.Referer = opts.referer;
     if (range && opts.allowRange) headers.Range = range;
 
-    const res = await fetch(target.toString(), {
-      headers,
-      redirect: "manual",
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-    });
+    const res = await requestOnce(target, headers);
+    if ("error" in res) return res;
 
     if (res.status >= 300 && res.status < 400) {
       const location = res.headers.get("location");

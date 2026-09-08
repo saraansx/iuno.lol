@@ -3,9 +3,7 @@ import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
-
-const CACHE_TTL = 60;
-const CACHE_PREFIX = 'live:';
+import { LIVE_STATS_CACHE_TTL, liveStatsCacheKey } from '@/lib/live-stats-cache';
 
 async function getLiveStatsByUsername(username: string) {
   const result = await db
@@ -35,14 +33,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Invalid username' }, { status: 400 });
     }
 
-    const cacheKey = `${CACHE_PREFIX}${username}`;
+    const cacheKey = liveStatsCacheKey(username);
 
     const cached = await redis.get(cacheKey);
     if (cached) {
-      const parsed = typeof cached === "string" ? JSON.parse(cached) : cached;
-      return NextResponse.json(parsed, {
-        headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
-      });
+      try {
+        const parsed = typeof cached === "string" ? JSON.parse(cached) : cached;
+        return NextResponse.json(parsed, {
+          headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+        });
+      } catch {
+        await redis.del(cacheKey);
+      }
     }
 
     const stats = await getLiveStatsByUsername(username);
@@ -57,7 +59,7 @@ export async function GET(request: Request) {
       dislikesCount: stats.dislikesCount,
     };
 
-    await redis.set(cacheKey, JSON.stringify(responseData), "EX", CACHE_TTL);
+    await redis.set(cacheKey, JSON.stringify(responseData), "EX", LIVE_STATS_CACHE_TTL);
 
     return NextResponse.json(responseData, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
@@ -65,22 +67,5 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('[live-data] Error fetching live data:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  }
-}
-
-export async function invalidateLiveStatsCache(identifier: string | number) {
-  if (typeof identifier === 'string') {
-    await redis.del(`${CACHE_PREFIX}${identifier.toLowerCase()}`);
-    return;
-  }
-
-  const [user] = await db
-    .select({ username: users.username })
-    .from(users)
-    .where(eq(users.id, identifier))
-    .limit(1);
-
-  if (user?.username) {
-    await redis.del(`${CACHE_PREFIX}${user.username.toLowerCase()}`);
   }
 }

@@ -118,7 +118,7 @@ export default function GitHubRepoClient({ user }: { user: FullUser | null }) {
       );
     } else {
       const newWidget: WidgetItem = {
-        id: `widget_${Date.now()}`,
+        id: `widget_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         platform: "github",
         type: "github-repo",
         targetId: cleanRepo,

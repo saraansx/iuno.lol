@@ -5,7 +5,7 @@ import { eq, sql, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { getSessionUserId } from "@/lib/auth/session";
-import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
+import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { safePage } from "@/lib/utils";
 
 const FEEDBACK_TYPES = ["like", "dislike", "unlike", "undislike"] as const;

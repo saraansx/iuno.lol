@@ -103,7 +103,7 @@ export default function TelegramClient({ user }: { user: FullUser | null }) {
       );
     } else {
       const newWidget: WidgetItem = {
-        id: `widget_${Date.now()}`,
+        id: `widget_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
         platform: "telegram",
         type: "telegram-profile",
         targetId: cleanUsername,

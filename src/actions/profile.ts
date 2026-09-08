@@ -6,7 +6,7 @@ import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { invalidateLiveStatsCache } from "@/app/api/profile/live/route";
+import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
@@ -48,6 +48,42 @@ async function emptyS3Directory(userId: number, assetType: string) {
 }
 
 const STORAGE_BASE = `https://storage.iuno.lol/`;
+
+/**
+ * Deletes every object under the asset prefix except the one the saved URL points
+ * at. Runs after the DB write, so a failed save leaves the previously saved file
+ * intact instead of pointing the profile at a deleted object.
+ */
+async function pruneUnusedAssets(userId: number, assetType: string, keepUrl: string) {
+  try {
+    const prefix = `${userId}/${assetType}/`;
+    if (!keepUrl.startsWith(STORAGE_BASE)) return;
+
+    const keepKey = decodeURIComponent(new URL(keepUrl).pathname.replace(/^\//, ""));
+    if (!keepKey.startsWith(prefix)) return;
+
+    const listed = await s3Client.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.AWS_S3_BUCKET_NAME!,
+        Prefix: prefix,
+      })
+    );
+    if (!listed.Contents?.length) return;
+
+    for (const item of listed.Contents) {
+      if (item.Key && item.Key !== keepKey) {
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET_NAME!,
+            Key: item.Key,
+          })
+        );
+      }
+    }
+  } catch (error) {
+    console.error(`Failed to prune old ${assetType} assets:`, error);
+  }
+}
 
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
@@ -152,6 +188,12 @@ export async function updateGeneralProfile(data: {
   if (promises.length > 0) {
     await Promise.all(promises);
   }
+
+  const prunes: Promise<void>[] = [];
+  if (avatarUrlVal) prunes.push(pruneUnusedAssets(userId, "avatar", avatarUrlVal));
+  if (bannerImageUrlVal) prunes.push(pruneUnusedAssets(userId, "banner", bannerImageUrlVal));
+  if (bannerBackgroundUrlVal) prunes.push(pruneUnusedAssets(userId, "background", bannerBackgroundUrlVal));
+  if (prunes.length > 0) await Promise.all(prunes);
 
   await invalidateLiveStatsCache(userId);
 
@@ -548,6 +590,15 @@ export async function updateMetadataProfile(data: {
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
+
+  const prunes: Promise<void>[] = [];
+  if (typeof setData.faviconUrl === "string" && setData.faviconUrl) {
+    prunes.push(pruneUnusedAssets(userId, "favicon", setData.faviconUrl));
+  }
+  if (typeof setData.cursorUrl === "string" && setData.cursorUrl) {
+    prunes.push(pruneUnusedAssets(userId, "cursor", setData.cursorUrl));
+  }
+  if (prunes.length > 0) await Promise.all(prunes);
 
   revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");
@@ -1100,7 +1151,7 @@ export async function updateProfileWidgets(data: {
       : true;
 
     return {
-      id: String(w.id || `widget_${Date.now()}`).slice(0, 50),
+      id: String(w.id || `widget_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`).slice(0, 50),
       platform,
       type,
       targetId,

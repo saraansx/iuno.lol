@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 
@@ -10,35 +10,6 @@ const s3Client = new S3Client({
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
   },
 });
-
-async function deleteOldFile(userId: number, assetType: string, newKey: string) {
-  try {
-    const prefix = `${userId}/${assetType}/`;
-
-    const listedObjects = await s3Client.send(
-      new ListObjectsV2Command({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Prefix: prefix,
-      })
-    );
-
-    if (!listedObjects.Contents || listedObjects.Contents.length === 0) return;
-
-    for (const item of listedObjects.Contents) {
-      if (item.Key && item.Key !== newKey) {
-        console.log(`Deleting orphaned S3 object: ${item.Key}`);
-        await s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME!,
-            Key: item.Key,
-          })
-        );
-      }
-    }
-  } catch (error) {
-    console.error("Failed to cleanup old S3 objects:", error);
-  }
-}
 
 function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | null {
   if (buffer.length < 12) return null;
@@ -113,10 +84,10 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const file = formData.get("fileToUpload") as File;
+    const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!file || !["avatar", "background", "banner", "favicon", "cursor"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -125,8 +96,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${rl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
     }
 
-    // Favicons and cursors are drawn at 32px or smaller, so they get a much
-    // tighter cap than the media assets.
     const isTinyAsset = assetType === "favicon" || assetType === "cursor";
     const maxSize = assetType === "background"
       ? 20 * 1024 * 1024
@@ -150,7 +119,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 
-    const filename = `${userId}/${assetType}/media.${detected.ext}`;
+    const filename = `${userId}/${assetType}/media_${Date.now()}.${detected.ext}`;
 
     await s3Client.send(
       new PutObjectCommand({
@@ -162,10 +131,7 @@ export async function POST(req: Request) {
       })
     );
 
-    deleteOldFile(userId, assetType, filename).catch((err) => console.error("Failed to delete old file:", err));
-
-    const cacheBuster = Date.now();
-    const publicUrl = `https://storage.iuno.lol/${filename}?v=${cacheBuster}`;
+    const publicUrl = `https://storage.iuno.lol/${filename}`;
 
     return NextResponse.json({ url: publicUrl });
 
