@@ -16,7 +16,7 @@ const MORPH_WORDS = [
   "Crafting Your Identity"
 ];
 
-const LAUNCH_AT = Date.UTC(2026, 8, 8, 0, 0, 0);
+const LAUNCH_AT = Date.UTC(2026, 8, 13, 0, 0, 0);
 
 const UNITS = ["Days", "Hours", "Minutes", "Seconds"] as const;
 
