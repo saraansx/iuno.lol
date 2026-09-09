@@ -422,6 +422,32 @@ const Layout1 = ({
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
 
+  const [bgSoundOn, setBgSoundOn] = useState(false);
+  const bgVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    if (!bannerBackgroundSound || bgSoundOn) return;
+    const enable = () => {
+      const el = bgVideoRef.current;
+      if (el) {
+        el.muted = false;
+        el.defaultMuted = false;
+        el.volume = 1;
+        el.play().catch(() => {});
+      }
+      setBgSoundOn(true);
+    };
+    window.addEventListener("pointerdown", enable);
+    window.addEventListener("touchstart", enable);
+    window.addEventListener("click", enable);
+    window.addEventListener("keydown", enable);
+    return () => {
+      window.removeEventListener("pointerdown", enable);
+      window.removeEventListener("touchstart", enable);
+      window.removeEventListener("click", enable);
+      window.removeEventListener("keydown", enable);
+    };
+  }, [bannerBackgroundSound, bgSoundOn]);
+
   const [viewerId, setViewerId] = useState<number | null>(viewerIdProp ?? null);
   const [viewerFeedback, setViewerFeedback] = useState<'like' | 'dislike' | null>(viewerFeedbackProp);
 
@@ -831,8 +857,8 @@ const sectionSurface: React.CSSProperties = {
                 filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
               }}
               autoPlay
-              muted={!bannerBackgroundSound}
-              ref={(el) => { if (el) el.defaultMuted = !bannerBackgroundSound; }}
+              muted={!bgSoundOn}
+              ref={bgVideoRef}
               loop
               playsInline
             />

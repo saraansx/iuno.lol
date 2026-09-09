@@ -197,7 +197,9 @@ export default function AssetsSection({
               <label className="text-[12.5px] font-medium text-white/90">Background</label>
               {bannerBackgroundUrl && isVideoUrl(bannerBackgroundUrl) && (
                 <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-white/50">Sound</span>
+                  <span className="text-[12px] text-white/50">
+                    {bannerBackgroundSound ? "Sound · live page only" : "Sound"}
+                  </span>
                   <button
                     type="button"
                     onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
