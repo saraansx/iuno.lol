@@ -35,6 +35,7 @@ const userColumns = {
   bannerImageUrl: schema.userSettings.bannerImageUrl,
   bannerBlend: schema.userSettings.bannerBlend,
   bannerBackgroundUrl: schema.userSettings.bannerBackgroundUrl,
+  bannerBackgroundSound: schema.userSettings.bannerBackgroundSound,
   pageBgColor: schema.userSettings.pageBgColor,
   backgroundEffect: schema.userSettings.backgroundEffect,
   backgroundEffectIntensity: schema.userSettings.backgroundEffectIntensity,

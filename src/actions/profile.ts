@@ -112,6 +112,7 @@ export async function updateGeneralProfile(data: {
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
+  bannerBackgroundSound?: boolean;
 }) {
   const userId = await getSessionUserId();
   
@@ -167,6 +168,7 @@ export async function updateGeneralProfile(data: {
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
   if (data.bannerBlend !== undefined) setData.bannerBlend = data.bannerBlend;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
+  if (data.bannerBackgroundSound !== undefined) setData.bannerBackgroundSound = !!data.bannerBackgroundSound;
 
   const promises = [];
 

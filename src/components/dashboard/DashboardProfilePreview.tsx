@@ -46,6 +46,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}
       bannerBlend={deferredOverrides.bannerBlend ?? user?.bannerBlend ?? false}
       bannerBackgroundUrl={deferredOverrides.bannerBackgroundUrl ?? user?.bannerBackgroundUrl ?? undefined}
+      bannerBackgroundSound={deferredOverrides.bannerBackgroundSound ?? user?.bannerBackgroundSound ?? false}
       backgroundEffect={deferredOverrides.backgroundEffect ?? user?.backgroundEffect ?? "none"}
       backgroundEffectIntensity={deferredOverrides.backgroundEffectIntensity ?? user?.backgroundEffectIntensity ?? 50}
       backgroundEffectColor={deferredOverrides.backgroundEffectColor ?? user?.backgroundEffectColor ?? "#ffffff"}

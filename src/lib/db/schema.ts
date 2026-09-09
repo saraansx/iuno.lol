@@ -51,6 +51,7 @@ export const userSettings = mysqlTable('user_settings', {
   bannerImageUrl: varchar('banner_image_url', { length: 500 }),
   bannerBlend: boolean('banner_blend').default(false),
   bannerBackgroundUrl: varchar('banner_background_url', { length: 500 }),
+  bannerBackgroundSound: boolean('banner_background_sound').default(false),
   profileBgColor: varchar('profile_bg_color', { length: 7 }).default('#050505'),
   pageBgColor: varchar('page_bg_color', { length: 7 }).default('#050505'),
   backgroundEffect: varchar('background_effect', { length: 50 }).default('none'),

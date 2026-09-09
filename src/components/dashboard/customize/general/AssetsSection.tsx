@@ -17,6 +17,8 @@ interface AssetsSectionProps {
   setBannerBlend: (blend: boolean) => void;
   bannerBackgroundUrl: string;
   setBannerBackgroundUrl: (url: string) => void;
+  bannerBackgroundSound: boolean;
+  setBannerBackgroundSound: (sound: boolean) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
@@ -39,6 +41,8 @@ export default function AssetsSection({
   setBannerBlend,
   bannerBackgroundUrl,
   setBannerBackgroundUrl,
+  bannerBackgroundSound,
+  setBannerBackgroundSound,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -189,7 +193,28 @@ export default function AssetsSection({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-[12.5px] font-medium text-white/90">Background</label>
+            <div className="flex items-center justify-between">
+              <label className="text-[12.5px] font-medium text-white/90">Background</label>
+              {bannerBackgroundUrl && isVideoUrl(bannerBackgroundUrl) && (
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] text-white/50">Sound</span>
+                  <button
+                    type="button"
+                    onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
+                    title={bannerBackgroundSound ? "Mute background video" : "Play background video with sound"}
+                    className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                      bannerBackgroundSound ? "bg-[#5b6cf5]" : "bg-white/10"
+                    }`}
+                  >
+                    <div
+                      className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${
+                        bannerBackgroundSound ? "right-[4px]" : "left-[4px]"
+                      }`}
+                    />
+                  </button>
+                </div>
+              )}
+            </div>
             <div
               onClick={() => setBannerBackgroundModalOpen(true)}
               className="relative h-32 rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"

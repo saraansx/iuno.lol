@@ -107,6 +107,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       bannerImageUrl: userSettings.bannerImageUrl,
       bannerBlend: userSettings.bannerBlend,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      bannerBackgroundSound: userSettings.bannerBackgroundSound,
       profileBgColor: userSettings.profileBgColor,
       profileBgOpacity: userSettings.profileBgOpacity,
       profileBorderColor: userSettings.profileBorderColor,
@@ -262,6 +263,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBlend={user.bannerBlend ?? false}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
+        bannerBackgroundSound={user.bannerBackgroundSound ?? false}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

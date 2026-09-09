@@ -107,6 +107,7 @@ interface Layout1Props {
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
+  bannerBackgroundSound?: boolean;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -307,6 +308,7 @@ const Layout1 = ({
   bannerImageUrl,
   bannerBlend = false,
   bannerBackgroundUrl,
+  bannerBackgroundSound = false,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -829,8 +831,8 @@ const sectionSurface: React.CSSProperties = {
                 filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
               }}
               autoPlay
-              muted
-              ref={(el) => { if (el) el.defaultMuted = true; }}
+              muted={!bannerBackgroundSound}
+              ref={(el) => { if (el) el.defaultMuted = !bannerBackgroundSound; }}
               loop
               playsInline
             />

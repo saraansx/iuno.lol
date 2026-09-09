@@ -57,6 +57,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setBannerBlend = (val: boolean) => updateOverrides({ bannerBlend: val === initialBannerBlend ? undefined : val });
   const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
   const setBannerBackgroundUrl = (val: string) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
+  const initialBannerBackgroundSound = user?.bannerBackgroundSound ?? false;
+  const bannerBackgroundSound = overrides.bannerBackgroundSound !== undefined ? Boolean(overrides.bannerBackgroundSound) : Boolean(initialBannerBackgroundSound);
+  const setBannerBackgroundSound = (val: boolean) => updateOverrides({ bannerBackgroundSound: val === initialBannerBackgroundSound ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -121,6 +124,8 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setBannerBlend={setBannerBlend}
           bannerBackgroundUrl={bannerBackgroundUrl}
           setBannerBackgroundUrl={setBannerBackgroundUrl}
+          bannerBackgroundSound={bannerBackgroundSound}
+          setBannerBackgroundSound={setBannerBackgroundSound}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
