@@ -1,8 +1,10 @@
             import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Lets CI build into a side folder (.next-build) while .next keeps serving traffic.
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  experimental: {
+    proxyClientMaxBodySize: "30mb",
+  },
   reactCompiler: true,
   images: {
     unoptimized: true,

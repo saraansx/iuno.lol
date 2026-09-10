@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { FONT_FAMILY_VARS, FONT_OPTIONS as SHARED_FONT_OPTIONS } from "@/lib/fonts";
+import NumberDraftInput from "@/components/ui/number-draft-input";
 
 export const FONT_OPTIONS = SHARED_FONT_OPTIONS;
 
@@ -23,7 +24,6 @@ interface FontGroupSectionProps {
   setSpacing: (val: number) => void;
 }
 
-const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
 
 export default function FontGroupSection({
   label,
@@ -113,49 +113,34 @@ export default function FontGroupSection({
             <div className="grid grid-cols-3 gap-3">
               <div className="flex flex-col gap-2">
                 <label className="text-[12.5px] font-medium text-white/90">Size</label>
-                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                  <input
-                    type="number"
-                    min={10}
-                    max={64}
-                    value={size}
-                    onChange={(e) => setSize(e.target.value === "" ? 0 : Number(e.target.value))}
-                    onBlur={() => setSize(clamp(size, 10, 64))}
-                    className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <span className="text-[13px] text-white/30 ml-2">px</span>
-                </div>
+                <NumberDraftInput
+                  min={10}
+                  max={64}
+                  suffix="px"
+                  value={size}
+                  onCommit={setSize}
+                />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[12.5px] font-medium text-white/90">Weight</label>
-                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                  <input
-                    type="number"
-                    min={100}
-                    max={900}
-                    step={100}
-                    value={weight}
-                    onChange={(e) => setWeight(e.target.value === "" ? 0 : Number(e.target.value))}
-                    onBlur={() => setWeight(clamp(weight, 100, 900))}
-                    className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
+                <NumberDraftInput
+                  min={100}
+                  max={900}
+                  step={100}
+                  value={weight}
+                  onCommit={setWeight}
+                />
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
-                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                  <input
-                    type="number"
-                    min={-10}
-                    max={50}
-                    step={0.1}
-                    value={spacing}
-                    onChange={(e) => setSpacing(e.target.value === "" ? 0 : Number(e.target.value))}
-                    onBlur={() => setSpacing(clamp(spacing, -10, 50))}
-                    className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                  <span className="text-[13px] text-white/30 ml-2">px</span>
-                </div>
+                <NumberDraftInput
+                  min={-10}
+                  max={50}
+                  step={0.1}
+                  suffix="px"
+                  value={spacing}
+                  onCommit={setSpacing}
+                />
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import NumberDraftInput from "@/components/ui/number-draft-input";
 import { FONT_FAMILY_VARS as fontVariables, FONT_OPTIONS } from "@/lib/fonts";
 
 interface TapToEnterSectionProps {
@@ -172,78 +173,39 @@ export default function TapToEnterSection({
         <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Size</label>
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-              <input
-                type="number"
+            <NumberDraftInput
                 disabled={!enterScreenEnabled}
                 min={10}
                 max={48}
+                suffix="px"
                 value={enterScreenFontSize}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "") setEnterScreenFontSize(0);
-                  else setEnterScreenFontSize(Number(val));
-                }}
-                onBlur={() => {
-                  if (typeof enterScreenFontSize === "number") {
-                    setEnterScreenFontSize(Math.max(10, Math.min(48, enterScreenFontSize)));
-                  }
-                }}
-                className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onCommit={setEnterScreenFontSize}
               />
-              <span className="text-[13px] text-white/30 ml-2">px</span>
-            </div>
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Weight</label>
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-              <input
-                type="number"
+            <NumberDraftInput
                 disabled={!enterScreenEnabled}
                 min={100}
                 max={900}
                 step={100}
                 value={enterScreenFontWeight}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "") setEnterScreenFontWeight(0);
-                  else setEnterScreenFontWeight(Number(val));
-                }}
-                onBlur={() => {
-                  if (typeof enterScreenFontWeight === "number") {
-                    setEnterScreenFontWeight(Math.max(100, Math.min(900, enterScreenFontWeight)));
-                  }
-                }}
-                className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onCommit={setEnterScreenFontWeight}
               />
-            </div>
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-[12.5px] font-medium text-white/90">Spacing</label>
-            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-              <input
-                type="number"
+            <NumberDraftInput
                 disabled={!enterScreenEnabled}
                 min={-5}
                 max={20}
                 step={0.5}
+                suffix="px"
                 value={enterScreenLetterSpacing}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "") setEnterScreenLetterSpacing(0);
-                  else setEnterScreenLetterSpacing(Number(val));
-                }}
-                onBlur={() => {
-                  if (typeof enterScreenLetterSpacing === "number") {
-                    setEnterScreenLetterSpacing(Math.max(-5, Math.min(20, enterScreenLetterSpacing)));
-                  }
-                }}
-                className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                onCommit={setEnterScreenLetterSpacing}
               />
-              <span className="text-[13px] text-white/30 ml-2">px</span>
-            </div>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ import CommentsSection from "@/components/dashboard/customize/appearance/Comment
 import FeedbackSection from "@/components/dashboard/customize/appearance/FeedbackSection";
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
 import ColorPickerInput from "@/components/ui/color-picker";
+import NumberDraftInput from "@/components/ui/number-draft-input";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -24,12 +25,6 @@ type SectionKey =
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
-
-function clampNumber(raw: string, min: number, max: number) {
-  const parsed = Number(raw);
-  if (raw === "" || !Number.isFinite(parsed)) return min;
-  return Math.max(min, Math.min(max, parsed));
-}
 
 export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -308,18 +303,14 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Opacity
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <span className="text-[13px] text-white/30 mr-2">%</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileBgOpacity}
-                          onChange={(e) => setProfileBgOpacity(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </div>
+                      <NumberDraftInput
+                        prefix="%"
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        value={profileBgOpacity}
+                        onCommit={setProfileBgOpacity}
+                      />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -339,18 +330,14 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Shadow Opacity
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <span className="text-[13px] text-white/30 mr-2">%</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileShadowOpacity}
-                          onChange={(e) => setProfileShadowOpacity(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </div>
+                      <NumberDraftInput
+                        prefix="%"
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        value={profileShadowOpacity}
+                        onCommit={setProfileShadowOpacity}
+                      />
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -372,35 +359,27 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Width
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <input
-                          type="number"
-                          min={0}
-                          max={20}
-                          step={0.1}
-                          value={profileBorderWidth}
-                          onChange={(e) => setProfileBorderWidth(clampNumber(e.target.value, 0, 20))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                        <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
+                      <NumberDraftInput
+                        min={0}
+                        max={20}
+                        step={0.1}
+                        suffix="px"
+                        value={profileBorderWidth}
+                        onCommit={setProfileBorderWidth}
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Radius
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileBorderRadius}
-                          onChange={(e) => setProfileBorderRadius(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                        <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
+                      <NumberDraftInput
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        suffix="px"
+                        value={profileBorderRadius}
+                        onCommit={setProfileBorderRadius}
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
@@ -415,18 +394,14 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Border Opacity
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <span className="text-[13px] text-white/30 mr-2">%</span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileBorderOpacity}
-                          onChange={(e) => setProfileBorderOpacity(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                      </div>
+                      <NumberDraftInput
+                        prefix="%"
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        value={profileBorderOpacity}
+                        onCommit={setProfileBorderOpacity}
+                      />
                     </div>
                   </div>
                 ))}
@@ -436,35 +411,27 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
                       <label className="text-[12.5px] font-medium text-white/90">
                         Card Blur
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileCardBlur}
-                          onChange={(e) => setProfileCardBlur(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                        <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
+                      <NumberDraftInput
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        suffix="px"
+                        value={profileCardBlur}
+                        onCommit={setProfileCardBlur}
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
                       <label className="text-[12.5px] font-medium text-white/90">
                         Background Blur
                       </label>
-                      <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step={0.1}
-                          value={profileBackgroundBlur}
-                          onChange={(e) => setProfileBackgroundBlur(clampNumber(e.target.value, 0, 100))}
-                          className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                        />
-                        <span className="text-[13px] text-white/30 ml-2">px</span>
-                      </div>
+                      <NumberDraftInput
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        suffix="px"
+                        value={profileBackgroundBlur}
+                        onCommit={setProfileBackgroundBlur}
+                      />
                     </div>
                   </div>
                 ))}
