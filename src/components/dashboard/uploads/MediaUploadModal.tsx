@@ -129,7 +129,7 @@ export default function MediaUploadModal({
 
     if (mediaType === "video" && rawSelectedFile && assetType) {
       setIsLoading(true);
-      setUploadProgress(100);
+      setUploadProgress(0);
       setStatusText("Uploading");
       setErrorMsg(null);
       try {
@@ -137,14 +137,39 @@ export default function MediaUploadModal({
         formData.append("reqtype", "fileupload");
         formData.append("fileToUpload", rawSelectedFile);
         formData.append("assetType", assetType);
-        const res = await fetch("/api/upload", { method: "POST", body: formData });
-        if (!res.ok) {
-          const err = await res.json().catch(() => null);
-          throw new Error(err?.error || "Upload failed");
-        }
-        const data = await res.json();
+        const url: string = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", "/api/upload");
+          xhr.upload.onprogress = (e) => {
+            if (e.lengthComputable) {
+              setUploadProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
+              setStatusText(`Uploading ${Math.round((e.loaded / e.total) * 100)}%`);
+            } else {
+              setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB`);
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                resolve((JSON.parse(xhr.responseText) as { url: string }).url);
+              } catch {
+                reject(new Error("Upload failed"));
+              }
+            } else {
+              try {
+                reject(new Error((JSON.parse(xhr.responseText) as { error?: string }).error || "Upload failed"));
+              } catch {
+                reject(new Error("Upload failed"));
+              }
+            }
+          };
+          xhr.onerror = () => reject(new Error("Upload failed"));
+          xhr.send(formData);
+        });
+        setUploadProgress(100);
+        setStatusText("Uploading 100%");
         appliedUrls.current.add(resolvedUrl);
-        onApply?.(data.url);
+        onApply?.(url);
         closeAndReset();
       } catch (e) {
         console.error(e);
