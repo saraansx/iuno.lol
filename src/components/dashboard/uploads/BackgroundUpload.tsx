@@ -3,5 +3,5 @@
 import MediaUploadModal, { type MediaUploadModalProps } from "./MediaUploadModal";
 
 export default function BackgroundUpload(props: MediaUploadModalProps) {
-  return <MediaUploadModal {...props} title="Import Background Media" limitMB={20} />;
+  return <MediaUploadModal {...props} title="Import Background Media" limitMB={20} assetType="background" />;
 }

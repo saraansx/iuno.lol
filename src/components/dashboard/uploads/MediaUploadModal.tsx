@@ -8,6 +8,8 @@ export interface MediaUploadModalProps {
   open: boolean;
   onClose: () => void;
   onApply?: (url: string, rawFile?: File) => void;
+  /** /api/upload assetType; when set, videos upload to S3 on Apply so Save stays fast. */
+  assetType?: "avatar" | "background" | "banner";
 }
 
 interface Props extends MediaUploadModalProps {
@@ -27,6 +29,7 @@ export default function MediaUploadModal({
   title,
   limitMB,
   transform,
+  assetType,
 }: Props) {
   const appliedUrls = useRef<Set<string>>(new Set());
   const revokeIfUnused = (url: string | null) => {
@@ -111,23 +114,55 @@ export default function MediaUploadModal({
     }
   };
 
-  const handleApply = () => {
-    if (resolvedUrl) {
-      let finalUrl = resolvedUrl;
-      if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
-        finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
-      }
-      appliedUrls.current.add(resolvedUrl);
-      onApply?.(finalUrl, rawSelectedFile || undefined);
+  const closeAndReset = () => {
+    setResolvedUrl(null);
+    setMediaType(null);
+    setRawSelectedFile(null);
+    setErrorMsg(null);
+    setUploadProgress(null);
+    setStatusText("");
+    onClose();
+  };
 
-      setResolvedUrl(null);
-      setMediaType(null);
-      setRawSelectedFile(null);
+  const handleApply = async () => {
+    if (!resolvedUrl) return;
+
+    if (mediaType === "video" && rawSelectedFile && assetType) {
+      setIsLoading(true);
+      setUploadProgress(100);
+      setStatusText("Uploading");
       setErrorMsg(null);
-      setUploadProgress(null);
-      setStatusText("");
-      onClose();
+      try {
+        const formData = new FormData();
+        formData.append("reqtype", "fileupload");
+        formData.append("fileToUpload", rawSelectedFile);
+        formData.append("assetType", assetType);
+        const res = await fetch("/api/upload", { method: "POST", body: formData });
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          throw new Error(err?.error || "Upload failed");
+        }
+        const data = await res.json();
+        appliedUrls.current.add(resolvedUrl);
+        onApply?.(data.url);
+        closeAndReset();
+      } catch (e) {
+        console.error(e);
+        setErrorMsg(e instanceof Error ? e.message : "Failed to upload video");
+        setIsLoading(false);
+        setUploadProgress(null);
+        setStatusText("");
+      }
+      return;
     }
+
+    let finalUrl = resolvedUrl;
+    if (mediaType === "video" && !/\.(mp4|webm|ogg|mov|mkv|avi|gifv)(?:\?|#|$)/i.test(finalUrl)) {
+      finalUrl += finalUrl.includes("#") ? "&ext=.mp4" : "#.mp4";
+    }
+    appliedUrls.current.add(resolvedUrl);
+    onApply?.(finalUrl, rawSelectedFile || undefined);
+    closeAndReset();
   };
 
   return (
