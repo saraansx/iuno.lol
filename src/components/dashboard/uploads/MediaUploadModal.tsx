@@ -133,13 +133,27 @@ export default function MediaUploadModal({
       setStatusText("Uploading");
       setErrorMsg(null);
       try {
-        const formData = new FormData();
-        formData.append("reqtype", "fileupload");
-        formData.append("fileToUpload", rawSelectedFile);
-        formData.append("assetType", assetType);
+        const signRes = await fetch("/api/upload/sign", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            assetType,
+            contentType: rawSelectedFile.type,
+            size: rawSelectedFile.size,
+          }),
+        });
+        const sign = (await signRes.json().catch(() => null)) as {
+          uploadUrl?: string;
+          url?: string;
+          error?: string;
+        } | null;
+        if (!signRes.ok || !sign?.uploadUrl || !sign?.url) {
+          throw new Error(sign?.error || "Upload failed");
+        }
         const url: string = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
-          xhr.open("POST", "/api/upload");
+          xhr.open("PUT", sign.uploadUrl!);
+          xhr.setRequestHeader("Content-Type", rawSelectedFile.type);
           const uploadStart = Date.now();
           xhr.upload.onprogress = (e) => {
             const elapsed = Math.max(0.5, (Date.now() - uploadStart) / 1000);
@@ -154,22 +168,11 @@ export default function MediaUploadModal({
             }
           };
           xhr.onload = () => {
-            if (xhr.status >= 200 && xhr.status < 300) {
-              try {
-                resolve((JSON.parse(xhr.responseText) as { url: string }).url);
-              } catch {
-                reject(new Error("Upload failed"));
-              }
-            } else {
-              try {
-                reject(new Error((JSON.parse(xhr.responseText) as { error?: string }).error || "Upload failed"));
-              } catch {
-                reject(new Error("Upload failed"));
-              }
-            }
+            if (xhr.status >= 200 && xhr.status < 300) resolve(sign.url!);
+            else reject(new Error("Upload failed"));
           };
           xhr.onerror = () => reject(new Error("Upload failed"));
-          xhr.send(formData);
+          xhr.send(rawSelectedFile);
         });
         setUploadProgress(100);
         setStatusText("Uploading 100%");

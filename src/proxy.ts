@@ -68,7 +68,7 @@ export default async function middleware(request: NextRequest) {
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob: https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com https://cdn.iuno.lol https://cdn.discordapp.com https://discord-decoration.art https://i.scdn.co https://media.discordapp.net https://media.valorant-api.com https://api.henrikdev.xyz https://avatars.githubusercontent.com https://github.com https://*.workers.dev https://*.steamstatic.com",
     "media-src 'self' data: blob: https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com https://cdn.iuno.lol https://*.steamstatic.com",
-    "connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com",
+    "connect-src 'self' https://challenges.cloudflare.com https://cloudflareinsights.com https://static.cloudflareinsights.com https://storage.iuno.lol https://iuno-media-storage-bucket.s3.us-east-1.amazonaws.com https://s3.us-east-1.amazonaws.com https://*.s3.us-east-1.amazonaws.com",
     "frame-src 'self' https://challenges.cloudflare.com",
     "object-src 'none'",
     "base-uri 'self'",
