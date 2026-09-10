@@ -140,12 +140,17 @@ export default function MediaUploadModal({
         const url: string = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open("POST", "/api/upload");
+          const uploadStart = Date.now();
           xhr.upload.onprogress = (e) => {
-            if (e.lengthComputable) {
-              setUploadProgress(Math.min(99, Math.round((e.loaded / e.total) * 100)));
-              setStatusText(`Uploading ${Math.round((e.loaded / e.total) * 100)}%`);
+            const elapsed = Math.max(0.5, (Date.now() - uploadStart) / 1000);
+            const mbps = ((e.loaded * 8) / elapsed / 1e6).toFixed(1);
+            if (e.lengthComputable && e.total > 0) {
+              const pct = Math.round((e.loaded / e.total) * 100);
+              const eta = Math.max(1, Math.round((e.total - e.loaded) / (e.loaded / elapsed)));
+              setUploadProgress(Math.min(99, pct));
+              setStatusText(`Uploading ${pct}% · ${mbps} Mbps · ~${eta}s left`);
             } else {
-              setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB`);
+              setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB · ${mbps} Mbps`);
             }
           };
           xhr.onload = () => {
