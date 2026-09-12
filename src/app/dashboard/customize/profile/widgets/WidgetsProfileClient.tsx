@@ -81,10 +81,6 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.spotifyShowMonthlyListeners === target.spotifyShowMonthlyListeners &&
       item.spotifyShowFollowers === target.spotifyShowFollowers &&
       item.spotifyShowBackground === target.spotifyShowBackground &&
-      item.instagramShowFollowers === target.instagramShowFollowers &&
-      item.instagramShowFollowing === target.instagramShowFollowing &&
-      item.instagramShowPosts === target.instagramShowPosts &&
-      item.instagramShowBackground === target.instagramShowBackground &&
       item.tiktokShowFollowers === target.tiktokShowFollowers &&
       item.tiktokShowFollowing === target.tiktokShowFollowing &&
       item.tiktokShowLikes === target.tiktokShowLikes &&

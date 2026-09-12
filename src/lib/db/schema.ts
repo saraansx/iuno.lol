@@ -211,10 +211,6 @@ export const userSettings = mysqlTable('user_settings', {
     spotifyShowMonthlyListeners?: boolean;
     spotifyShowFollowers?: boolean;
     spotifyShowBackground?: boolean;
-    instagramShowFollowers?: boolean;
-    instagramShowFollowing?: boolean;
-    instagramShowPosts?: boolean;
-    instagramShowBackground?: boolean;
     tiktokShowFollowers?: boolean;
     tiktokShowFollowing?: boolean;
     tiktokShowLikes?: boolean;
