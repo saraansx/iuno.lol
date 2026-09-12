@@ -5,7 +5,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
-import { S3Client, ListObjectsV2Command, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
@@ -14,74 +13,32 @@ import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+const CATBOX_API = "https://catbox.moe/user/api.php";
+const CATBOX_BASE = "https://files.catbox.moe/";
 
-async function emptyS3Directory(userId: number, assetType: string) {
+function catboxFileId(url: string): string | null {
   try {
-    const prefix = `${userId}/${assetType}/`;
-    const listedObjects = await s3Client.send(
-      new ListObjectsV2Command({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Prefix: prefix,
-      })
-    );
-    if (!listedObjects.Contents || listedObjects.Contents.length === 0) return;
-    for (const item of listedObjects.Contents) {
-      if (item.Key) {
-        await s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME!,
-            Key: item.Key,
-          })
-        );
-      }
-    }
-  } catch (error) {
-    console.error(`Failed to empty S3 directory for ${assetType}:`, error);
+    const u = new URL(url);
+    if (u.hostname !== "files.catbox.moe") return null;
+    const name = u.pathname.replace(/^\//, "");
+    return name || null;
+  } catch {
+    return null;
   }
 }
 
-const STORAGE_BASE = `https://storage.iuno.lol/`;
-
-/**
- * Deletes every object under the asset prefix except the one the saved URL points
- * at. Runs after the DB write, so a failed save leaves the previously saved file
- * intact instead of pointing the profile at a deleted object.
- */
-async function pruneUnusedAssets(userId: number, assetType: string, keepUrl: string) {
+async function deleteCatboxFiles(urls: (string | null | undefined)[]) {
+  const userhash = process.env.CATBOX_USERHASH;
+  const files = urls.map((u) => (u ? catboxFileId(u) : null)).filter((f): f is string => Boolean(f));
+  if (!userhash || files.length === 0) return;
   try {
-    const prefix = `${userId}/${assetType}/`;
-    if (!keepUrl.startsWith(STORAGE_BASE)) return;
-
-    const keepKey = decodeURIComponent(new URL(keepUrl).pathname.replace(/^\//, ""));
-    if (!keepKey.startsWith(prefix)) return;
-
-    const listed = await s3Client.send(
-      new ListObjectsV2Command({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Prefix: prefix,
-      })
-    );
-    if (!listed.Contents?.length) return;
-
-    for (const item of listed.Contents) {
-      if (item.Key && item.Key !== keepKey) {
-        await s3Client.send(
-          new DeleteObjectCommand({
-            Bucket: process.env.AWS_S3_BUCKET_NAME!,
-            Key: item.Key,
-          })
-        );
-      }
-    }
+    const form = new FormData();
+    form.append("reqtype", "deletefiles");
+    form.append("userhash", userhash);
+    form.append("files", files.join(" "));
+    await fetch(CATBOX_API, { method: "POST", body: form });
   } catch (error) {
-    console.error(`Failed to prune old ${assetType} assets:`, error);
+    console.error("Failed to delete Catbox files:", error);
   }
 }
 
@@ -92,8 +49,8 @@ async function revalidateOwnProfile(userId: number) {
 
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
-  return url.startsWith(STORAGE_BASE) ||
-         url.startsWith("https://cdn.discordapp.com/") || 
+  return url.startsWith(CATBOX_BASE) ||
+         url.startsWith("https://cdn.discordapp.com/") ||
          url.startsWith("https://discord-decoration.art/");
 }
 
@@ -170,32 +127,34 @@ export async function updateGeneralProfile(data: {
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
   if (data.bannerBackgroundSound !== undefined) setData.bannerBackgroundSound = !!data.bannerBackgroundSound;
 
-  const promises = [];
-
   sanitizeProfileSettings(setData);
 
-  if (avatarUrlVal === null) promises.push(emptyS3Directory(userId, "avatar"));
-  if (bannerImageUrlVal === null) promises.push(emptyS3Directory(userId, "banner"));
-  if (bannerBackgroundUrlVal === null) promises.push(emptyS3Directory(userId, "background"));
+  const prev = await getUserById(userId);
 
   if (Object.keys(setData).length > 0) {
-    promises.push(
-      db
-        .insert(schema.userSettings)
-        .values({ userId, ...setData })
-        .onDuplicateKeyUpdate({ set: setData })
-    );
+    await db
+      .insert(schema.userSettings)
+      .values({ userId, ...setData })
+      .onDuplicateKeyUpdate({ set: setData });
   }
 
-  if (promises.length > 0) {
-    await Promise.all(promises);
+  const stale: (string | null | undefined)[] = [];
+  if (avatarUrlVal === null) {
+    if (prev?.avatarUrl) stale.push(prev.avatarUrl);
+  } else if (avatarUrlVal && prev?.avatarUrl && prev.avatarUrl !== avatarUrlVal) {
+    stale.push(prev.avatarUrl);
   }
-
-  const prunes: Promise<void>[] = [];
-  if (avatarUrlVal) prunes.push(pruneUnusedAssets(userId, "avatar", avatarUrlVal));
-  if (bannerImageUrlVal) prunes.push(pruneUnusedAssets(userId, "banner", bannerImageUrlVal));
-  if (bannerBackgroundUrlVal) prunes.push(pruneUnusedAssets(userId, "background", bannerBackgroundUrlVal));
-  if (prunes.length > 0) await Promise.all(prunes);
+  if (bannerImageUrlVal === null) {
+    if (prev?.bannerImageUrl) stale.push(prev.bannerImageUrl);
+  } else if (bannerImageUrlVal && prev?.bannerImageUrl && prev.bannerImageUrl !== bannerImageUrlVal) {
+    stale.push(prev.bannerImageUrl);
+  }
+  if (bannerBackgroundUrlVal === null) {
+    if (prev?.bannerBackgroundUrl) stale.push(prev.bannerBackgroundUrl);
+  } else if (bannerBackgroundUrlVal && prev?.bannerBackgroundUrl && prev.bannerBackgroundUrl !== bannerBackgroundUrlVal) {
+    stale.push(prev.bannerBackgroundUrl);
+  }
+  if (stale.length > 0) await deleteCatboxFiles(stale);
 
   await invalidateLiveStatsCache(userId);
 
@@ -588,19 +547,23 @@ export async function updateMetadataProfile(data: {
 
   if (Object.keys(setData).length === 0) return { success: true };
 
+  const prev = await getUserById(userId);
+
   await db
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  const prunes: Promise<void>[] = [];
-  if (typeof setData.faviconUrl === "string" && setData.faviconUrl) {
-    prunes.push(pruneUnusedAssets(userId, "favicon", setData.faviconUrl));
+  const stale: (string | null | undefined)[] = [];
+  if (typeof setData.faviconUrl === "string") {
+    if (!setData.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
+    else if (setData.faviconUrl !== prev?.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
   }
-  if (typeof setData.cursorUrl === "string" && setData.cursorUrl) {
-    prunes.push(pruneUnusedAssets(userId, "cursor", setData.cursorUrl));
+  if (typeof setData.cursorUrl === "string") {
+    if (!setData.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
+    else if (setData.cursorUrl !== prev?.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
   }
-  if (prunes.length > 0) await Promise.all(prunes);
+  if (stale.length > 0) await deleteCatboxFiles(stale);
 
   revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");

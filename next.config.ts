@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "iuno-media-storage-bucket.s3.us-east-1.amazonaws.com",
+        hostname: "files.catbox.moe",
       },
       {
         protocol: "https",

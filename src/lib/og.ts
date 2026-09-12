@@ -11,10 +11,6 @@ export function normalizeEmbedColor(color: string | null | undefined): string {
   return val && /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
 }
 
-/**
- * A custom tab title is always shown as a handle, so it carries the "@" whether
- * or not the user typed one. With nothing set we fall back to the site-wide form.
- */
 export function formatTabTitle(
   tabTitle: string | null | undefined,
   username: string,
@@ -24,7 +20,7 @@ export function formatTabTitle(
 }
 
 const ALLOWED_IMAGE_PREFIXES = [
-  "https://storage.iuno.lol/",
+  "https://files.catbox.moe/",
   "https://cdn.iuno.lol/",
   "https://cdn.discordapp.com/",
 ];

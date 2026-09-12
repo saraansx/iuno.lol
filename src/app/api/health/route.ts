@@ -76,13 +76,12 @@ export async function GET(request: NextRequest) {
 
       case 'media':
       case 'storage': {
-        const bucket = process.env.AWS_S3_BUCKET_NAME || 'storage.iuno.lol';
+        const configured = Boolean(process.env.CATBOX_USERHASH);
         return NextResponse.json({
-          status: 'ok',
-          service: 'Media Storage (AWS S3)',
-          bucket,
+          status: configured ? 'ok' : 'down',
+          service: 'Media Storage (Catbox)',
           responseTimeMs: Date.now() - startTime,
-        });
+        }, { status: configured ? 200 : 503 });
       }
 
       case 'cron': {

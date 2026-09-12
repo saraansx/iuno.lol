@@ -80,7 +80,7 @@ export default function Page() {
 
           {count > 0 ? (
             <div className="flex flex-col gap-2.5">
-              {tracks.map((track, index) => (
+              {tracks.map((track) => (
                 <div
                   key={track.id}
                   className="group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border border-white/5 rounded-2xl transition-all duration-150"

@@ -1,15 +1,8 @@
 import { NextResponse } from "next/server";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION!,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
-  },
-});
+const CATBOX_API = "https://catbox.moe/user/api.php";
 
 function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | null {
   if (buffer.length < 12) return null;
@@ -74,8 +67,8 @@ export async function POST(req: Request) {
     }
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-    if (contentLength > 22 * 1024 * 1024) {
-      return NextResponse.json({ error: "Payload too large. Maximum file size is 20MB." }, { status: 413 });
+    if (contentLength > 12 * 1024 * 1024) {
+      return NextResponse.json({ error: "Payload too large. Maximum file size is 10MB." }, { status: 413 });
     }
 
     const preRl = await uploadPreRateLimit(userId);
@@ -98,7 +91,7 @@ export async function POST(req: Request) {
 
     const isTinyAsset = assetType === "favicon" || assetType === "cursor";
     const maxSize = assetType === "background"
-      ? 20 * 1024 * 1024
+      ? 10 * 1024 * 1024
       : isTinyAsset
       ? 1024 * 1024
       : 5 * 1024 * 1024;
@@ -119,25 +112,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 
-    const filename = `${userId}/${assetType}/media_${Date.now()}.${detected.ext}`;
+    const userhash = process.env.CATBOX_USERHASH;
+    if (!userhash) {
+      return NextResponse.json({ error: "Upload storage is not configured." }, { status: 500 });
+    }
 
-    await s3Client.send(
-      new PutObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET_NAME!,
-        Key: filename,
-        Body: buffer,
-        ContentType: detected.mime,
-        CacheControl: "public, max-age=31536000, immutable",
-      })
-    );
+    const catboxForm = new FormData();
+    catboxForm.append("reqtype", "fileupload");
+    catboxForm.append("userhash", userhash);
+    catboxForm.append("fileToUpload", new Blob([buffer], { type: detected.mime }), `media_${Date.now()}.${detected.ext}`);
 
-    const publicUrl = `https://storage.iuno.lol/${filename}`;
+    const catboxRes = await fetch(CATBOX_API, { method: "POST", body: catboxForm });
+    const body = (await catboxRes.text()).trim();
+    if (!catboxRes.ok || !body.startsWith("https://files.catbox.moe/")) {
+      console.error("Catbox upload error:", catboxRes.status, body);
+      return NextResponse.json({ error: "Failed to upload file." }, { status: 502 });
+    }
 
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({ url: body });
 
   } catch (error) {
 
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Failed to upload file to S3" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
   }
 }
