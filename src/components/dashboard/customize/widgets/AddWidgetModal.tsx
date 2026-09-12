@@ -54,13 +54,6 @@ export default function AddWidgetModal({
 }: AddWidgetModalProps) {
   const isTypeUsed = (type: string) => usedTypes.includes(type);
 
-  const hasPresenceWidget = isTypeUsed("presence");
-  const hasServerWidget = isTypeUsed("server");
-  const hasGitHubUserWidget = isTypeUsed("github-user");
-  const hasGitHubRepoWidget = isTypeUsed("github-repo");
-  const hasPinterestProfileWidget = isTypeUsed("pinterest-profile");
-  const hasPinterestBoardWidget = isTypeUsed("pinterest-board");
-
   const [platformChoice, setPlatformChoice] = useState<string | null>(null);
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
   const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
@@ -197,17 +190,7 @@ export default function AddWidgetModal({
     ? cleanWeatherLocation(weatherLocation)
     : "";
 
-  const resolvedSpotifyType = isSpotify
-    ? (() => {
-        const parsed = parseSpotifyIdentifier(spotifyInput.trim());
-        return parsed.type ? `spotify-${parsed.type}` : widgetType;
-      })()
-    : widgetType;
-
-  const isTargetTypeAvailable = !isTypeUsed(resolvedSpotifyType);
-
   const isFormatValid =
-    isTargetTypeAvailable &&
     (isDiscord
       ? isPresence
         ? useLinkedAccount
@@ -480,24 +463,16 @@ export default function AddWidgetModal({
             {isPlatformDropdownOpen && (
               <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5 max-h-[308px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
                 {PLATFORMS.map((platform) => {
-                  const isFull =
-                    Boolean(PLATFORM_WIDGET_TYPES[platform.id]) &&
-                    isPlatformFull(platform.id, usedTypes);
-
                   return (
                     <button
                       key={platform.id}
                       type="button"
-                      disabled={isFull}
                       onClick={() => {
-                        if (isFull) return;
                         setSelectedPlatform(platform.id);
                         setIsPlatformDropdownOpen(false);
                       }}
                       className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
-                        isFull
-                          ? "opacity-30 cursor-not-allowed text-white/30"
-                          : selectedPlatform === platform.id
+                        selectedPlatform === platform.id
                           ? "bg-white/10 text-white font-normal cursor-pointer"
                           : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
                       }`}
@@ -554,9 +529,7 @@ export default function AddWidgetModal({
                         ) : null}
                         <span>{platform.name}</span>
                       </div>
-                      {isFull ? (
-                        <span className="text-[11px] text-white/30">Added</span>
-                      ) : selectedPlatform === platform.id ? (
+                      {selectedPlatform === platform.id ? (
                         <span className="w-1.5 h-1.5 rounded-full bg-[#609fda]" />
                       ) : null}
                     </button>
@@ -639,30 +612,22 @@ export default function AddWidgetModal({
                 {isSpotifyTypeDropdownOpen && (
                   <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
                     {SPOTIFY_TYPES.map((typeOption) => {
-                      const isUsed = isTypeUsed(typeOption.id);
-
                       return (
                         <button
                           key={typeOption.id}
                           type="button"
-                          disabled={isUsed}
                           onClick={() => {
-                            if (isUsed) return;
                             setWidgetType(typeOption.id);
                             setIsSpotifyTypeDropdownOpen(false);
                           }}
                           className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
-                            isUsed
-                              ? "opacity-30 cursor-not-allowed text-white/30"
-                              : widgetType === typeOption.id
+                            widgetType === typeOption.id
                               ? "bg-white/10 text-white font-normal cursor-pointer"
                               : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
                           }`}
                         >
                           <span>{typeOption.name}</span>
-                          {isUsed ? (
-                            <span className="text-[11px] text-white/30">Added</span>
-                          ) : widgetType === typeOption.id ? (
+                          {widgetType === typeOption.id ? (
                             <span className="w-1.5 h-1.5 rounded-full bg-[#1ED760]" />
                           ) : null}
                         </button>
@@ -703,12 +668,9 @@ export default function AddWidgetModal({
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
                 <button
                   type="button"
-                  disabled={hasPresenceWidget}
                   onClick={() => setWidgetType("presence")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasPresenceWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "presence"
+                    widgetType === "presence"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
@@ -717,12 +679,9 @@ export default function AddWidgetModal({
                 </button>
                 <button
                   type="button"
-                  disabled={hasServerWidget}
                   onClick={() => setWidgetType("server")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasServerWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "server"
+                    widgetType === "server"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
@@ -847,12 +806,9 @@ export default function AddWidgetModal({
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
                 <button
                   type="button"
-                  disabled={hasGitHubUserWidget}
                   onClick={() => setWidgetType("github-user")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasGitHubUserWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "github-user"
+                    widgetType === "github-user"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
@@ -861,12 +817,9 @@ export default function AddWidgetModal({
                 </button>
                 <button
                   type="button"
-                  disabled={hasGitHubRepoWidget}
                   onClick={() => setWidgetType("github-repo")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasGitHubRepoWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "github-repo"
+                    widgetType === "github-repo"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
@@ -923,12 +876,9 @@ export default function AddWidgetModal({
               <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
                 <button
                   type="button"
-                  disabled={hasPinterestProfileWidget}
                   onClick={() => setWidgetType("pinterest-profile")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasPinterestProfileWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "pinterest-profile"
+                    widgetType === "pinterest-profile"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
@@ -937,12 +887,9 @@ export default function AddWidgetModal({
                 </button>
                 <button
                   type="button"
-                  disabled={hasPinterestBoardWidget}
                   onClick={() => setWidgetType("pinterest-board")}
                   className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
-                    hasPinterestBoardWidget
-                      ? "opacity-30 cursor-not-allowed text-white/30 bg-transparent"
-                      : widgetType === "pinterest-board"
+                    widgetType === "pinterest-board"
                       ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
                       : "text-white/40 hover:text-white/70 cursor-pointer"
                   }`}
