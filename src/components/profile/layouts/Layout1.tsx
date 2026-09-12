@@ -44,7 +44,7 @@ const SHAPE_CLASSES: Record<string, string> = {
   circle: "rounded-full",
 };
 
-const renderFormattedText = (text: string) => {
+const renderFormattedText = (text: string, left = false) => {
   if (!text) return null;
 
   const lines = text.split("\n");
@@ -74,7 +74,7 @@ const renderFormattedText = (text: string) => {
 
     if (isBullet) {
       return (
-        <span key={idx} className="flex items-center gap-2 justify-center">
+        <span key={idx} className={`flex items-center gap-2 ${left ? "justify-start" : "justify-center"}`}>
           <span className="text-[12px] opacity-70">•</span>
           <span>{formatted}</span>
         </span>
@@ -790,7 +790,7 @@ const textBlock = (text: string, left: boolean) => (
             color: bioColor,
           }}
         >
-          {renderFormattedText(text)}
+          {renderFormattedText(text, left)}
         </p>
       </DescriptionEffect>
     </div>
@@ -879,13 +879,26 @@ const sectionSurface: React.CSSProperties = {
           )
         )}
 
+        {!backgroundEffectAboveContainer && (
         <BackgroundEffect
           effect={backgroundEffect ?? "none"}
           intensity={backgroundEffectIntensity}
           color={backgroundEffectColor}
-          aboveContainer={backgroundEffectAboveContainer}
+          aboveContainer={false}
+        />
+        )}
+        </div>
+
+        {backgroundEffectAboveContainer && (
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-40">
+        <BackgroundEffect
+          effect={backgroundEffect ?? "none"}
+          intensity={backgroundEffectIntensity}
+          color={backgroundEffectColor}
+          aboveContainer
         />
         </div>
+        )}
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
 
