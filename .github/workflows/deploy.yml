@@ -32,6 +32,9 @@ jobs:
             # Seed it with the old cache: that is where the 30-day ISR cache
             # lives, and it keeps the build incremental.
             rm -rf .next-build .next-old
+            # Stale generated route types (e.g. deleted pages) break the build
+            # typecheck — drop them, they regenerate. ISR cache stays.
+            rm -rf .next/types
             mkdir -p .next-build
             cp -r .next/cache .next-build/cache 2>/dev/null || true
 
