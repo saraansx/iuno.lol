@@ -424,8 +424,25 @@ const Layout1 = ({
 
   const [bgSoundOn, setBgSoundOn] = useState(false);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
+  // While the enter screen is showing, nothing behind it runs — video stays
+  // paused and sound only starts after tap-to-enter (user gesture).
+  const [entered, setEntered] = useState(!enterScreenEnabled);
+  const handleEntered = () => {
+    setEntered(true);
+    const el = bgVideoRef.current;
+    if (el) {
+      if (bannerBackgroundSound) {
+        el.muted = false;
+        el.defaultMuted = false;
+        el.volume = 1;
+      }
+      el.play().catch(() => {});
+    }
+    if (bannerBackgroundSound) setBgSoundOn(true);
+  };
   useEffect(() => {
     if (!bannerBackgroundSound || bgSoundOn) return;
+    if (enterScreenEnabled && !entered) return;
     const enable = () => {
       const el = bgVideoRef.current;
       if (el) {
@@ -446,7 +463,7 @@ const Layout1 = ({
       window.removeEventListener("click", enable);
       window.removeEventListener("keydown", enable);
     };
-  }, [bannerBackgroundSound, bgSoundOn]);
+  }, [bannerBackgroundSound, bgSoundOn, enterScreenEnabled, entered]);
 
   const [viewerId, setViewerId] = useState<number | null>(viewerIdProp ?? null);
   const [viewerFeedback, setViewerFeedback] = useState<'like' | 'dislike' | null>(viewerFeedbackProp);
@@ -843,6 +860,7 @@ const sectionSurface: React.CSSProperties = {
           blur={enterScreenBlur}
           blurColor={enterScreenBlurColor}
           fontClassMap={FONT_CLASS_MAP}
+          onEnter={handleEntered}
         />
 
 
@@ -856,7 +874,7 @@ const sectionSurface: React.CSSProperties = {
               style={{
                 filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
               }}
-              autoPlay
+              autoPlay={entered}
               muted={!bgSoundOn}
               ref={bgVideoRef}
               loop
