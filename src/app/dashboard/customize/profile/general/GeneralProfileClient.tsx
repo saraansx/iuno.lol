@@ -221,20 +221,26 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           try {
             const finalOverrides = { ...overrides };
 
-            const uploadPendingFile = async (file: File, type: "avatar" | "background" | "banner"): Promise<string> => {
+            const uploadPendingFile = async (file: File, type: "avatar" | "background" | "banner", attempt = 0): Promise<string> => {
               const formData = new FormData();
               formData.append("reqtype", "fileupload");
               formData.append("fileToUpload", file);
               formData.append("assetType", type);
-              
+
               const res = await fetch("/api/upload", {
                 method: "POST",
                 body: formData,
               });
-              
+
               if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || `Failed to upload ${type}`);
+                // First attempt often hits a transient reset to Catbox — retry once
+                if (attempt === 0 && (res.status === 502 || res.status === 500)) {
+                  await res.body?.cancel().catch(() => {});
+                  await new Promise((r) => setTimeout(r, 1500));
+                  return uploadPendingFile(file, type, 1);
+                }
+                const err = await res.json().catch(() => null) as { error?: string } | null;
+                throw new Error(err?.error || `Failed to upload ${type}`);
               }
               const data = await res.json();
               return data.url;

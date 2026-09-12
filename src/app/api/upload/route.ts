@@ -122,11 +122,38 @@ export async function POST(req: Request) {
     catboxForm.append("userhash", userhash);
     catboxForm.append("fileToUpload", new Blob([buffer], { type: detected.mime }), `media_${Date.now()}.${detected.ext}`);
 
-    const catboxRes = await fetch(CATBOX_API, { method: "POST", body: catboxForm });
-    const body = (await catboxRes.text()).trim();
+    let catboxRes: Response;
+    let body: string;
+    try {
+      catboxRes = await fetch(CATBOX_API, { method: "POST", body: catboxForm });
+      body = (await catboxRes.text()).trim();
+    } catch (e) {
+      console.error("Catbox upload network error:", e);
+      return NextResponse.json({ error: "Couldn't reach the upload server. Try again." }, { status: 502 });
+    }
     if (!catboxRes.ok || !body.startsWith("https://files.catbox.moe/")) {
-      console.error("Catbox upload error:", catboxRes.status, body);
-      return NextResponse.json({ error: "Failed to upload file." }, { status: 502 });
+      console.error("Catbox upload error:", catboxRes.status, body.slice(0, 200));
+      return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
+    }
+
+    // Verify the stored file serves bytes — Catbox sometimes stores 0-byte files.
+    // NOTE: plain GET always reports Content-Length: 0, so use a Range request.
+    try {
+      const check = await fetch(body, { headers: { Range: "bytes=0-0" } });
+      const sample = check.ok || check.status === 206 ? await check.arrayBuffer().catch(() => null) : null;
+      if (!sample || sample.byteLength === 0) {
+        throw new Error(`verify failed: ${check.status} ${sample?.byteLength ?? -1}b`);
+      }
+    } catch (e) {
+      console.error("Catbox upload verify error:", body, e);
+      try {
+        const del = new FormData();
+        del.append("reqtype", "deletefiles");
+        del.append("userhash", userhash);
+        del.append("files", body.slice("https://files.catbox.moe/".length));
+        await fetch(CATBOX_API, { method: "POST", body: del });
+      } catch {}
+      return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }
 
     return NextResponse.json({ url: body });
