@@ -1,19 +1,14 @@
 "use client";
 
 export function DitherEffect({ intensity = 50 }: { intensity?: number }) {
-  const grainOpacity = 0.02 + (intensity / 100) * 0.08;
-  const dotOpacity = 0.2 + (intensity / 100) * 0.8;
-
-  const darkOpacity = (intensity / 100) * 1.00;
+  const grainOpacity = 0.01 + (intensity / 100) * 0.04;
+  const dotOpacity = 0.05 + (intensity / 100) * 0.55;
 
   return (
     <>
       <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
-
-        <div
-          className="absolute inset-0 bg-black transition-opacity duration-500"
-          style={{ opacity: darkOpacity }}
-        />
+        {/* Fixed subtle dark tint — baked in, not adjustable */}
+        <div className="absolute inset-0 bg-black/25" />
 
         <div
           className="absolute inset-0"
