@@ -370,6 +370,7 @@ export default function SearchTracksModal({
   }, [selectedId, lyricLines.length]);
 
   const showEmpty = query.trim() === "" || (!loading && !error && searched && results.length === 0) || (!loading && !error && !searched);
+  const emptyActive = query.trim() !== "";
   const playing = selectedTrack !== null && playingId === selectedTrack.id;
   const buffering = selectedTrack !== null && bufferingId === selectedTrack.id;
   const previewActive = playing || buffering;
@@ -595,9 +596,15 @@ export default function SearchTracksModal({
                 </div>
               ) : showEmpty ? (
                 <div className="flex flex-col items-center justify-center text-center py-12">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-3">
-                    <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
-                  </svg>
+                  <div className={`flex items-end gap-1 h-8 mb-3 ${emptyActive ? "[&>span]:animate-eq" : ""}`} aria-hidden="true">
+                    {[0.5, 0.9, 0.35, 0.7, 1, 0.45, 0.8].map((h, i) => (
+                      <span
+                        key={i}
+                        style={{ height: `${h * 100}%`, animationDelay: `${i * 120}ms` }}
+                        className={`w-1 rounded-full bg-[#609fda]/70 ${emptyActive ? "" : "opacity-40"}`}
+                      />
+                    ))}
+                  </div>
                   <p className="text-[14px] font-normal text-white">
                     {loading ? "Searching..." : query.trim() === "" ? "Search for a song" : "No tracks found"}
                   </p>

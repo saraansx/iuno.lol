@@ -63,6 +63,26 @@
   animation-play-state: paused;
 }
 
+@keyframes eq {
+  0%, 100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-eq {
+  transform-origin: bottom;
+  animation: eq 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-eq {
+    animation: none;
+  }
+}
+
 /* Global scrollbar — applies to the whole page and any container */
 ::-webkit-scrollbar {
   width: 6px;
