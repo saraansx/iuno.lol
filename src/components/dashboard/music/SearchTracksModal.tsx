@@ -385,14 +385,14 @@ export default function SearchTracksModal({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.div
-            initial={{ opacity: 0, scale: 0.98, y: 6 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.98, y: 6 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className={`relative w-full ${results.length > 0 ? "max-w-[900px]" : "max-w-[560px]"} max-h-[85vh] flex flex-col bg-[#0c0c0c] border border-white/10 rounded-[24px] shadow-2xl z-10 overflow-hidden transition-all duration-200`}
           >
             <div className="px-6 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
