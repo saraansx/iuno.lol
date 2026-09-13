@@ -332,15 +332,10 @@ export default function SearchTracksModal({
                     {results.slice(0, 5).map((t) => {
                       const rowDur = formatDuration(t.duration);
                       const isSelected = t.id === selectedTrack.id;
-                      const rowPlaying = playingId === t.id;
-                      const rowBuffering = bufferingId === t.id;
                       return (
                         <button
                           key={t.id}
-                          onClick={() => {
-                            if ((playingId && playingId !== t.id) || (bufferingId && bufferingId !== t.id)) stopPreview();
-                            setSelectedId(t.id);
-                          }}
+                          onClick={() => setSelectedId(t.id)}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left cursor-pointer ${
                             isSelected
                               ? "bg-[#609fda]/10 border border-[#609fda]/25"
@@ -354,18 +349,8 @@ export default function SearchTracksModal({
                             <span className="text-[13px] text-white truncate block">{t.title}</span>
                             <span className="text-[12px] text-white/40 truncate block">{t.artist}</span>
                           </span>
-                          {rowBuffering ? (
-                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0" />
-                          ) : rowPlaying ? (
-                            <span className="flex items-end gap-[2px] h-3.5 shrink-0">
-                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_infinite]" style={{ height: "60%" }} />
-                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_0.2s_infinite]" style={{ height: "100%" }} />
-                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_0.4s_infinite]" style={{ height: "40%" }} />
-                            </span>
-                          ) : (
-                            rowDur && (
-                              <span className="text-[11.5px] font-mono text-white/30 shrink-0">{rowDur}</span>
-                            )
+                          {rowDur && (
+                            <span className="text-[11.5px] font-mono text-white/30 shrink-0">{rowDur}</span>
                           )}
                         </button>
                       );
@@ -415,13 +400,7 @@ export default function SearchTracksModal({
                       </div>
                     )}
 
-                    <div className="flex items-center gap-1.5 px-4 pt-3 shrink-0">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
-                      </svg>
-                      <span className="text-[11px] font-normal tracking-wider text-white/40 uppercase">Lyrics</span>
-                    </div>
-                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 pb-3 pt-1">
+                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 py-3">
                       <div className="pointer-events-none absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#0c0c0c] to-transparent z-10" />
                       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0c0c0c] to-transparent z-10" />
                       {lyricsLoading ? (
@@ -429,13 +408,7 @@ export default function SearchTracksModal({
                           <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
                         </div>
                       ) : lyricLines.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center text-center py-8">
-                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-3">
-                            <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
-                          </svg>
-                          <p className="text-[13px] font-normal text-white">No lyrics found</p>
-                          <p className="text-[12px] text-white/40 mt-1">Play the preview to listen anyway.</p>
-                        </div>
+                        <p className="text-[12.5px] text-white/40 text-center py-8">No lyrics found.</p>
                       ) : (
                         <div className="flex flex-col gap-2 py-1">
                           {lyricLines.map((l, i) => {
