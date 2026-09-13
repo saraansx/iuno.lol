@@ -24,8 +24,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Missing artwork id" }, { status: 400 });
   }
 
-  const ctrl = new AbortController();
-  const timeout = setTimeout(() => ctrl.abort(), 20_000);
   try {
     const upstream = await fetch(
       `${EVI_BASE}/api/artwork?id=${encodeURIComponent(id)}&artist=${encodeURIComponent(artist)}`,
@@ -36,7 +34,6 @@ export async function GET(req: NextRequest) {
           ...(process.env.EVI_COOKIE ? { Cookie: process.env.EVI_COOKIE } : {}),
         },
         cache: "no-store",
-        signal: ctrl.signal,
       },
     );
 
@@ -67,7 +64,5 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error("[Music Artwork Error]", err);
     return NextResponse.json({ ok: false, error: "Artwork failed" }, { status: 500 });
-  } finally {
-    clearTimeout(timeout);
   }
 }

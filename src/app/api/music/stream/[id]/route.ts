@@ -9,17 +9,6 @@ const EVI_BASE = "https://evi.wtf";
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
-// fail before nginx proxy_read_timeout so client gets JSON, not a hung socket
-const UPSTREAM_TIMEOUT_MS = 20_000;
-
-function fetchUpstream(url: string, headers: Record<string, string>) {
-  const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), UPSTREAM_TIMEOUT_MS);
-  return fetch(url, { headers, cache: "no-store", signal: ctrl.signal }).finally(() =>
-    clearTimeout(t),
-  );
-}
-
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -49,32 +38,16 @@ export async function GET(
     const range = req.headers.get("range");
     if (range) headers.Range = range;
 
-    // try requested quality, fall back to 128 on timeout/5xx (lighter transcode)
-    let upstream: Response | null = null;
-    for (const q of quality === "128" ? ["128"] : [quality, "128"]) {
-      try {
-        const res = await fetchUpstream(
-          `${EVI_BASE}/api/stream/${encodeURIComponent(songId)}?quality=${q}`,
-          headers,
-        );
-        if ((res.ok || res.status === 206) && res.body) {
-          upstream = res;
-          break;
-        }
-        await res.body?.cancel();
-      } catch {
-        // timeout/abort — try next quality
-      }
-    }
+    const upstream = await fetch(
+      `${EVI_BASE}/api/stream/${encodeURIComponent(songId)}?quality=${quality}`,
+      { headers, cache: "no-store" },
+    );
 
-    const body = upstream?.body;
-    if (!upstream || !body) {
+    if ((!upstream.ok && upstream.status !== 206) || !upstream.body) {
+      await upstream.body?.cancel();
       return NextResponse.json(
-        { ok: false, error: "Stream timed out, try again", retryable: true },
-        {
-          status: 504,
-          headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
-        },
+        { ok: false, error: "Stream upstream failed" },
+        { status: 502 },
       );
     }
 
@@ -89,7 +62,7 @@ export async function GET(
     }
     if (!out["Content-Type"]) out["Content-Type"] = "audio/mpeg";
 
-    return new NextResponse(body, { status: upstream.status, headers: out });
+    return new NextResponse(upstream.body, { status: upstream.status, headers: out });
   } catch (err) {
     console.error("[Music Stream Error]", err);
     return NextResponse.json({ ok: false, error: "Stream failed" }, { status: 500 });
