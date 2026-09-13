@@ -70,10 +70,10 @@ export default function Page() {
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
                 count >= MAX_TRACKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#609fda]/15 hover:bg-[#609fda]/25 border border-[#609fda]/20 text-white cursor-pointer active:scale-95"
+                  : "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer active:scale-95"
               }`}
             >
-              <span className={`text-[13px] leading-none font-normal ${count >= MAX_TRACKS ? "text-white/30" : "text-[#609fda]"}`}>+</span>
+              <span className={`text-[13px] leading-none font-normal ${count >= MAX_TRACKS ? "text-white/30" : "text-white"}`}>+</span>
               <span>Add track</span>
             </button>
           </div>

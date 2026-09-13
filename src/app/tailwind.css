@@ -41,6 +41,11 @@
   }
 }
 
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}
+
 @keyframes pingpong-scroll {
   0%, 16.66% {
     transform: translateX(0px);

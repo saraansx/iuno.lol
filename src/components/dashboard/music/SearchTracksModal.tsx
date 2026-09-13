@@ -13,6 +13,8 @@ export type SearchTrack = {
   streamUrl?: string | null;
 };
 
+type LyricLine = { text: string; start: number; end: number };
+
 function formatDuration(sec: number | null | undefined): string | null {
   if (typeof sec !== "number" || !Number.isFinite(sec) || sec <= 0) return null;
   const m = Math.floor(sec / 60);
@@ -62,6 +64,21 @@ export default function SearchTracksModal({
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [bufferingId, setBufferingId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
+  const [lyricsLoading, setLyricsLoading] = useState(false);
+  const activeLyricRef = useRef<HTMLParagraphElement | null>(null);
+  const lyricsScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const stopPreview = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = null;
+    audioRef.current?.pause();
+    audioRef.current = null;
+    setPlayingId(null);
+    setBufferingId(null);
+    setElapsed(0);
+  };
 
   useEffect(() => {
     if (!open) {
@@ -71,13 +88,10 @@ export default function SearchTracksModal({
       setLoading(false);
       setSearched(false);
       abortRef.current?.abort();
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = null;
-      audioRef.current?.pause();
-      audioRef.current = null;
-      setPlayingId(null);
-      setBufferingId(null);
-      setElapsed(0);
+      stopPreview();
+      setSelectedId(null);
+      setLyricLines([]);
+      setLyricsLoading(false);
     }
   }, [open ]);
 
@@ -98,6 +112,9 @@ export default function SearchTracksModal({
       setLoading(false);
       setSearched(false);
       abortRef.current?.abort();
+      stopPreview();
+      setSelectedId(null);
+      setLyricLines([]);
       return;
     }
 
@@ -136,6 +153,10 @@ export default function SearchTracksModal({
         if (ctrl.signal.aborted) return;
         setResults(items);
         setSearched(true);
+        // default-select first track so lyrics panel shows immediately
+        setSelectedId((prev) =>
+          prev && items.some((i) => i.id === prev) ? prev : (items[0]?.id ?? null),
+        );
       } catch (err) {
         if (err instanceof DOMException && err.name === "AbortError") return;
         setError(err instanceof Error ? err.message : "Search failed");
@@ -149,15 +170,42 @@ export default function SearchTracksModal({
     return () => clearTimeout(t);
   }, [query]);
 
-  const stopPreview = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = null;
-    audioRef.current?.pause();
-    audioRef.current = null;
-    setPlayingId(null);
-    setBufferingId(null);
-    setElapsed(0);
-  };
+  const selectedTrack = results.find((t) => t.id === selectedId) ?? results[0] ?? null;
+
+  // fetch lyrics for selected track
+  useEffect(() => {
+    if (!selectedTrack) {
+      setLyricLines([]);
+      setLyricsLoading(false);
+      return;
+    }
+    const ctrl = new AbortController();
+    setLyricLines([]);
+    setLyricsLoading(true);
+    (async () => {
+      try {
+        const qs = new URLSearchParams({
+          id: selectedTrack.id,
+          title: selectedTrack.title,
+          artist: selectedTrack.artist,
+          duration: String(Math.round(selectedTrack.duration ?? 0)),
+        });
+        const res = await fetch(`/api/music/lyrics?${qs.toString()}`, {
+          cache: "no-store",
+          signal: ctrl.signal,
+        });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.ok) throw new Error(data?.error || "Lyrics failed");
+        if (ctrl.signal.aborted) return;
+        setLyricLines(Array.isArray(data.lines) ? data.lines : []);
+      } catch {
+        if (!ctrl.signal.aborted) setLyricLines([]);
+      } finally {
+        if (!ctrl.signal.aborted) setLyricsLoading(false);
+      }
+    })();
+    return () => ctrl.abort();
+  }, [selectedTrack]);
 
   const togglePreview = (t: SearchTrack) => {
     if (!t.streamUrl) return;
@@ -188,7 +236,46 @@ export default function SearchTracksModal({
     audio.play().catch(stopPreview);
   };
 
+  const previewMs = elapsed * 1000;
+  const isPreviewingSelected =
+    selectedTrack !== null &&
+    (playingId === selectedTrack.id || bufferingId === selectedTrack.id);
+  const activeLineIdx =
+    selectedTrack && playingId === selectedTrack.id && lyricLines.length > 0
+      ? lyricLines.findIndex((l, i) => {
+          const next = lyricLines[i + 1];
+          return previewMs >= l.start && (next ? previewMs < next.start : previewMs <= l.end + 4000);
+        })
+      : -1;
+
+  useEffect(() => {
+    const container = lyricsScrollRef.current;
+    const active = activeLyricRef.current;
+    if (!container || !active) return;
+    container.scrollTo({
+      top: active.offsetTop - container.clientHeight / 2 + active.clientHeight / 2,
+      behavior: "smooth",
+    });
+  }, [activeLineIdx]);
+
+  // block manual scroll (wheel/touch) — auto-scroll only
+  useEffect(() => {
+    const el = lyricsScrollRef.current;
+    if (!el) return;
+    const prevent = (e: Event) => e.preventDefault();
+    el.addEventListener("wheel", prevent, { passive: false });
+    el.addEventListener("touchmove", prevent, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", prevent);
+      el.removeEventListener("touchmove", prevent);
+    };
+  }, [selectedId, lyricLines.length]);
+
   const showEmpty = query.trim() === "" || (!loading && !error && searched && results.length === 0) || (!loading && !error && !searched);
+  const playing = selectedTrack !== null && playingId === selectedTrack.id;
+  const buffering = selectedTrack !== null && bufferingId === selectedTrack.id;
+  const previewActive = playing || buffering;
+  const dur = formatDuration(selectedTrack?.duration);
 
   return (
     <AnimatePresence>
@@ -207,12 +294,12 @@ export default function SearchTracksModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: 6 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-[560px] max-h-[85vh] flex flex-col bg-[#0c0c0c] border border-white/10 rounded-[24px] shadow-2xl z-10 overflow-hidden"
+            className={`relative w-full ${results.length > 0 ? "max-w-[900px]" : "max-w-[560px]"} max-h-[85vh] flex flex-col bg-[#0c0c0c] border border-white/10 rounded-[24px] shadow-2xl z-10 overflow-hidden transition-all duration-200`}
           >
             <div className="px-6 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
               <h3 className="text-[15px] font-normal text-white tracking-tight">Search Tracks</h3>
               <p className="text-[12.5px] text-white/40 mt-0.5">
-                Search for a track and import the available metadata automatically.
+                Select a track to preview audio and lyrics, then add it.
               </p>
             </div>
 
@@ -239,26 +326,26 @@ export default function SearchTracksModal({
                   <p className="text-[14px] font-normal text-white">Search failed</p>
                   <p className="text-[12.5px] text-white/40 mt-1">{error}</p>
                 </div>
-              ) : results.length > 0 ? (
-                <div className="flex flex-col gap-1.5 py-3">
-                  {results.slice(0, 5).map((t) => {
-                    const dur = formatDuration(t.duration);
-                    const playing = playingId === t.id;
-                    const buffering = bufferingId === t.id;
-                    const active = playing || buffering;
-                    return (
-                      <div
-                        key={t.id}
-                        className="relative flex items-center gap-2 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] transition-colors overflow-hidden"
-                      >
+              ) : results.length > 0 && selectedTrack ? (
+                <div className="flex gap-4 py-3 min-h-0">
+                  <div className="flex flex-col gap-1.5 flex-1 min-w-0 basis-0">
+                    {results.slice(0, 5).map((t) => {
+                      const rowDur = formatDuration(t.duration);
+                      const isSelected = t.id === selectedTrack.id;
+                      const rowPlaying = playingId === t.id;
+                      const rowBuffering = bufferingId === t.id;
+                      return (
                         <button
+                          key={t.id}
                           onClick={() => {
-                            stopPreview();
-                            onSelect(t);
-                            setQuery("");
-                            onClose();
+                            if ((playingId && playingId !== t.id) || (bufferingId && bufferingId !== t.id)) stopPreview();
+                            setSelectedId(t.id);
                           }}
-                          className="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"
+                          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left cursor-pointer ${
+                            isSelected
+                              ? "bg-[#609fda]/10 border border-[#609fda]/25"
+                              : "border border-transparent hover:bg-white/[0.05]"
+                          }`}
                         >
                           <span className="w-10 h-10 rounded-lg bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                             <Artwork src={t.artwork} />
@@ -267,41 +354,129 @@ export default function SearchTracksModal({
                             <span className="text-[13px] text-white truncate block">{t.title}</span>
                             <span className="text-[12px] text-white/40 truncate block">{t.artist}</span>
                           </span>
-                          {dur && (
-                            <span className="text-[11.5px] font-mono text-white/30 shrink-0">{dur}</span>
+                          {rowBuffering ? (
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0" />
+                          ) : rowPlaying ? (
+                            <span className="flex items-end gap-[2px] h-3.5 shrink-0">
+                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_infinite]" style={{ height: "60%" }} />
+                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_0.2s_infinite]" style={{ height: "100%" }} />
+                              <span className="w-[3px] rounded-full bg-[#609fda] animate-[eq_0.9s_ease-in-out_0.4s_infinite]" style={{ height: "40%" }} />
+                            </span>
+                          ) : (
+                            rowDur && (
+                              <span className="text-[11.5px] font-mono text-white/30 shrink-0">{rowDur}</span>
+                            )
                           )}
                         </button>
-                        {t.streamUrl && (
-                          <button
-                            type="button"
-                            onClick={() => togglePreview(t)}
-                            title={active ? "Stop 30s preview" : "Play 30s preview"}
-                            className={`w-8 h-8 rounded-lg border flex items-center justify-center shrink-0 transition-colors cursor-pointer ${
-                              active
-                                ? "bg-[#609fda]/20 border-[#609fda]/30 text-white"
-                                : "bg-white/[0.04] border-white/10 text-white/60 hover:text-white hover:border-white/20"
-                            }`}
-                          >
-                            {buffering ? (
-                              <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0" />
-                            ) : playing ? (
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                <rect x="6" y="5" width="4" height="14" rx="1" />
-                                <rect x="14" y="5" width="4" height="14" rx="1" />
-                              </svg>
-                            ) : (
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M8 5.5v13l11-6.5-11-6.5z" />
-                              </svg>
-                            )}
-                          </button>
-                        )}
-                        {playing && (
-                          <div className="absolute bottom-0 left-0 h-[2px] bg-[#609fda] transition-none" style={{ width: `${Math.min(100, (elapsed / 30) * 100)}%` }} />
-                        )}
+                      );
+                    })}
+                  </div>
+
+                  <div className="flex-1 min-w-0 basis-0 h-[324px] flex flex-col rounded-2xl border border-white/[0.07] bg-[#101010]/80 backdrop-blur-md overflow-hidden">
+                    <div className="flex items-center gap-3 px-4 pt-3.5 pb-3 border-b border-white/[0.06] shrink-0">
+                      <span className="w-11 h-11 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
+                        <Artwork src={selectedTrack.artwork} />
+                      </span>
+                      <span className="flex-1 min-w-0 flex flex-col">
+                        <span className="text-[13px] text-white truncate block">{selectedTrack.title}</span>
+                        <span className="text-[11.5px] text-white/40 truncate block">
+                          {selectedTrack.artist}{dur ? ` · ${dur}` : ""}
+                        </span>
+                      </span>
+                      {selectedTrack.streamUrl && (
+                        <button
+                          type="button"
+                          onClick={() => togglePreview(selectedTrack)}
+                          title={previewActive ? "Stop preview" : "Play preview"}
+                          className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer ${
+                            previewActive
+                              ? "bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                              : "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                          }`}
+                        >
+                          {buffering ? (
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0" />
+                          ) : playing ? (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <rect x="6" y="5" width="4" height="14" rx="1" />
+                              <rect x="14" y="5" width="4" height="14" rx="1" />
+                            </svg>
+                          ) : (
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M8 5.5v13l11-6.5-11-6.5z" />
+                            </svg>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                    {playing && (
+                      <div className="h-[2px] bg-white/5 shrink-0">
+                        <div className="h-full bg-[#609fda]" style={{ width: `${Math.min(100, (elapsed / 30) * 100)}%` }} />
                       </div>
-                    );
-                  })}
+                    )}
+
+                    <div className="flex items-center gap-1.5 px-4 pt-3 shrink-0">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+                      </svg>
+                      <span className="text-[11px] font-normal tracking-wider text-white/40 uppercase">Lyrics</span>
+                    </div>
+                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 pb-3 pt-1">
+                      <div className="pointer-events-none absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#0c0c0c] to-transparent z-10" />
+                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0c0c0c] to-transparent z-10" />
+                      {lyricsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+                        </div>
+                      ) : lyricLines.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center text-center py-8">
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-3">
+                            <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+                          </svg>
+                          <p className="text-[13px] font-normal text-white">No lyrics found</p>
+                          <p className="text-[12px] text-white/40 mt-1">Play the preview to listen anyway.</p>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2 py-1">
+                          {lyricLines.map((l, i) => {
+                            const isActive = i === activeLineIdx;
+                            const isPast = activeLineIdx >= 0 && i < activeLineIdx;
+                            return (
+                              <p
+                                key={`${l.start}-${i}`}
+                                ref={isActive ? activeLyricRef : undefined}
+                                className={`text-[13px] leading-relaxed transition-all duration-300 ${
+                                  isActive
+                                    ? "text-white font-normal blur-0 opacity-100"
+                                    : !isPreviewingSelected
+                                      ? "text-white/60 blur-0 opacity-80"
+                                      : isPast
+                                        ? "text-white/35 blur-[1.5px] opacity-70"
+                                        : "text-white/45 blur-[2px] opacity-60"
+                                }`}
+                              >
+                                {l.text}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    <div className="px-4 py-3 border-t border-white/[0.06] shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          stopPreview();
+                          onSelect(selectedTrack);
+                          setQuery("");
+                          onClose();
+                        }}
+                        className="w-full h-9 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white text-[13px] font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+                      >
+                        Add track
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : showEmpty ? (
                 <div className="flex flex-col items-center justify-center text-center py-12">
