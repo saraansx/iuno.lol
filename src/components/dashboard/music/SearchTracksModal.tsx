@@ -63,6 +63,7 @@ export default function SearchTracksModal({
   const [searched, setSearched] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioTrackIdRef = useRef<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [bufferingId, setBufferingId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -75,9 +76,23 @@ export default function SearchTracksModal({
   const stopPreview = () => {
     audioRef.current?.pause();
     audioRef.current = null;
+    audioTrackIdRef.current = null;
     setPlayingId(null);
     setBufferingId(null);
     setElapsed(0);
+  };
+
+  // replay from start: reset scroll to top
+  const endPreview = () => {
+    stopPreview();
+    lyricsScrollRef.current?.scrollTo({ top: 0 });
+  };
+
+  // pause only: keep audio + position for resume
+  const pausePreview = () => {
+    audioRef.current?.pause();
+    setPlayingId(null);
+    setBufferingId(null);
   };
 
   useEffect(() => {
@@ -208,14 +223,30 @@ export default function SearchTracksModal({
 
   const togglePreview = (t: SearchTrack) => {
     if (!t.streamUrl) return;
-    if (playingId === t.id || bufferingId === t.id) {
-      stopPreview();
+    // same song paused mid-way: resume from position
+    if (
+      audioRef.current &&
+      audioTrackIdRef.current === t.id &&
+      playingId === null &&
+      bufferingId === null
+    ) {
+      const audio = audioRef.current;
+      setBufferingId(t.id);
+      audio.play().catch(() => setBufferingId(null));
       return;
     }
+    // playing or buffering: pause (keep position)
+    if (playingId === t.id || bufferingId === t.id) {
+      pausePreview();
+      return;
+    }
+    // new song or replay after end: start from 0
     stopPreview();
+    lyricsScrollRef.current?.scrollTo({ top: 0 });
     const audio = new Audio(t.streamUrl);
     audio.preload = "auto";
     audioRef.current = audio;
+    audioTrackIdRef.current = t.id;
     setBufferingId(t.id);
     setElapsed(0);
     const tick = () => setElapsed(audio.currentTime);
@@ -229,7 +260,7 @@ export default function SearchTracksModal({
     audio.addEventListener("timeupdate", tick);
     audio.addEventListener("playing", onPlaying);
     audio.addEventListener("waiting", onWaiting);
-    audio.addEventListener("ended", stopPreview);
+    audio.addEventListener("ended", endPreview);
     audio.addEventListener("error", stopPreview);
     audio.play().catch(stopPreview);
   };
@@ -238,11 +269,67 @@ export default function SearchTracksModal({
   const isPreviewingSelected =
     selectedTrack !== null &&
     (playingId === selectedTrack.id || bufferingId === selectedTrack.id);
+  // ♪ rows are part of the lyrics flow: intro, instrumental gaps, outro.
+  // Thresholds in ms, matched 1:1 between row insertion and active detection.
+  const GAP_MS = 3000;
+  const EDGE_MS = 300;
+  const LINE_EARLY_MS = 0;
+  type DisplayItem =
+    | { kind: "line"; line: LyricLine; idx: number }
+    | { kind: "music"; key: string };
+  const displayItems: DisplayItem[] = [];
+  {
+    // every song gets intro + outro ♪ rows; gaps only where timing proves one
+    if (lyricLines.length > 0) {
+      displayItems.push({ kind: "music", key: "intro" });
+    }
+    lyricLines.forEach((l, i) => {
+      displayItems.push({ kind: "line", line: l, idx: i });
+      const next = lyricLines[i + 1];
+      if (next && next.start - l.end > GAP_MS) {
+        displayItems.push({ kind: "music", key: `gap-${i}` });
+      }
+    });
+    if (lyricLines.length > 0) {
+      displayItems.push({ kind: "music", key: "outro" });
+    }
+  }
+
+  const isPlayingSelected =
+    selectedTrack !== null && playingId === selectedTrack.id;
+
+  const activeMusicKey: string | null =
+    isPlayingSelected && lyricLines.length > 0
+      ? (() => {
+          const first = lyricLines[0];
+          if (previewMs < first.start - LINE_EARLY_MS) return "intro";
+          for (let i = 0; i < lyricLines.length - 1; i++) {
+            const l = lyricLines[i];
+            const next = lyricLines[i + 1];
+            if (
+              next.start - l.end > GAP_MS &&
+              previewMs > l.end + EDGE_MS &&
+              previewMs < next.start - LINE_EARLY_MS
+            ) {
+              return `gap-${i}`;
+            }
+          }
+          const last = lyricLines[lyricLines.length - 1];
+          if (previewMs > last.end + EDGE_MS) {
+            return "outro";
+          }
+          return null;
+        })()
+      : null;
+
   const activeLineIdx =
-    selectedTrack && playingId === selectedTrack.id && lyricLines.length > 0
+    isPlayingSelected && lyricLines.length > 0 && activeMusicKey === null
       ? lyricLines.findIndex((l, i) => {
           const next = lyricLines[i + 1];
-          return previewMs >= l.start && (next ? previewMs < next.start : previewMs <= l.end + 4000);
+          return (
+            previewMs >= l.start - LINE_EARLY_MS &&
+            (next ? previewMs < next.start : previewMs <= l.end + 4000)
+          );
         })
       : -1;
 
@@ -262,7 +349,7 @@ export default function SearchTracksModal({
       container.clientHeight / 2 +
       aRect.height / 2;
     container.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-  }, [activeLineIdx]);
+  }, [activeLineIdx, activeMusicKey]);
 
   // reset scroll on track switch so new lyrics animate in from top
   useEffect(() => {
@@ -346,7 +433,10 @@ export default function SearchTracksModal({
                       return (
                         <button
                           key={t.id}
-                          onClick={() => setSelectedId(t.id)}
+                          onClick={() => {
+                            if (t.id !== selectedId) stopPreview();
+                            setSelectedId(t.id);
+                          }}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left cursor-pointer ${
                             isSelected
                               ? "bg-[#609fda]/10 border border-[#609fda]/25"
@@ -405,13 +495,7 @@ export default function SearchTracksModal({
                         </button>
                       )}
                     </div>
-                    {(playing || buffering) && typeof selectedTrack.duration === "number" && selectedTrack.duration > 0 && (
-                      <div className="h-[2px] bg-white/5 shrink-0">
-                        <div className="h-full bg-[#609fda]" style={{ width: `${Math.min(100, (elapsed / (selectedTrack.duration ?? 1)) * 100)}%` }} />
-                      </div>
-                    )}
-
-                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-y-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 py-3">
                       <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                           key={`${selectedTrack.id}-${lyricsLoading ? "loading" : "loaded"}`}
@@ -425,10 +509,41 @@ export default function SearchTracksModal({
                               <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
                             </div>
                           ) : lyricLines.length === 0 ? (
-                            <p className="text-[12.5px] text-white/40 text-center py-8">No lyrics found.</p>
+                            <p className="text-[13px] text-white/50 blur-[2.5px] opacity-70 select-none text-center py-8">
+                              ♪
+                            </p>
                           ) : (
                             <div className="flex flex-col gap-2 py-1">
-                              {lyricLines.map((l, i) => {
+                              {displayItems.map((item, di) => {
+                                if (item.kind === "music") {
+                                  const isActiveMusic =
+                                    isPreviewingSelected && activeMusicKey === item.key;
+                                  return (
+                                    <motion.p
+                                      key={item.key}
+                                      data-lyric-idx={`m-${item.key}`}
+                                      ref={isActiveMusic ? activeLyricRef : undefined}
+                                      initial={{ opacity: 0, y: 8 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{
+                                        delay: Math.min(di * 0.02, 0.4),
+                                        duration: 0.3,
+                                        ease: [0.22, 1, 0.36, 1],
+                                      }}
+                                      className={`text-[13px] leading-relaxed transition-all duration-300 select-none ${
+                                        isActiveMusic
+                                          ? "text-white font-normal blur-0 opacity-100"
+                                          : !isPreviewingSelected
+                                            ? "text-white/50 blur-[2.5px] opacity-70"
+                                            : "text-white/45 blur-[3px] opacity-50"
+                                      }`}
+                                    >
+                                      ♪
+                                    </motion.p>
+                                  );
+                                }
+                                const l = item.line;
+                                const i = item.idx;
                                 const isActive = i === activeLineIdx;
                                 const isPast = activeLineIdx >= 0 && i < activeLineIdx;
                                 return (
@@ -439,7 +554,7 @@ export default function SearchTracksModal({
                                     initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{
-                                      delay: Math.min(i * 0.02, 0.4),
+                                      delay: Math.min(di * 0.02, 0.4),
                                       duration: 0.3,
                                       ease: [0.22, 1, 0.36, 1],
                                     }}
