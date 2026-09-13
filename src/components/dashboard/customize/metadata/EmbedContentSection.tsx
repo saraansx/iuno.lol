@@ -96,7 +96,7 @@ export default function EmbedContentSection({
         <label className="text-[12.5px] font-medium text-white/90">Card background</label>
         {embedBackgroundUrl ? (
           <div className="flex items-center gap-3">
-            <div className="relative w-full max-w-64 aspect-[1200/630] rounded-xl overflow-hidden bg-[#161616] border border-white/5 group shrink-0">
+            <div className="relative w-full max-w-80 aspect-[1200/630] rounded-xl overflow-hidden bg-[#161616] border border-white/5 group shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={embedBackgroundUrl} alt="Card background" className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -121,7 +121,7 @@ export default function EmbedContentSection({
           <button
             type="button"
             onClick={() => setEmbedBackgroundModalOpen(true)}
-            className="w-full max-w-64 aspect-[1200/630] rounded-xl bg-[#161616] border border-white/5 hover:border-white/15 flex flex-col items-center justify-center gap-1 text-white/30 hover:text-white/60 transition-all cursor-pointer shrink-0"
+            className="w-full max-w-80 aspect-[1200/630] rounded-xl bg-[#161616] border border-white/5 hover:border-white/15 flex flex-col items-center justify-center gap-1 text-white/30 hover:text-white/60 transition-all cursor-pointer shrink-0"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" />

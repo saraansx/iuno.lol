@@ -79,7 +79,7 @@ export default function SearchTracksModal({
 
               {q === "" || results.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-12">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-3">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mb-3">
                     <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
                   </svg>
                   <p className="text-[14px] font-normal text-white">Search for a song</p>
@@ -112,13 +112,6 @@ export default function SearchTracksModal({
                   ))}
                 </div>
               )}
-            </div>
-
-            <div className="flex items-center justify-between px-6 py-3.5 border-t border-white/[0.06]">
-              <span className="text-[11.5px] text-white/30">Evi × Frail</span>
-              <span className="text-[11.5px] text-white/30">
-                Powered by <span className="text-white/70 font-medium">evi.wtf</span>
-              </span>
             </div>
           </motion.div>
         </div>
