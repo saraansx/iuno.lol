@@ -38,6 +38,8 @@ export async function GET(req: NextRequest) {
     );
   }
 
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 20_000);
   try {
     const upstream = await fetch(`${EVI_BASE}/api/search?q=${encodeURIComponent(q)}`, {
       headers: {
@@ -46,6 +48,7 @@ export async function GET(req: NextRequest) {
         ...(process.env.EVI_COOKIE ? { Cookie: process.env.EVI_COOKIE } : {}),
       },
       cache: "no-store",
+      signal: ctrl.signal,
     });
 
     if (!upstream.ok) {
@@ -97,11 +100,13 @@ export async function GET(req: NextRequest) {
   } catch (err) {
     console.error("[Music Search Error]", err);
     return NextResponse.json(
-      { ok: false, error: "Search failed" },
+      { ok: false, error: "Search timed out, try again" },
       {
-        status: 500,
+        status: 504,
         headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
       },
     );
+  } finally {
+    clearTimeout(timeout);
   }
 }

@@ -213,25 +213,44 @@ export default function SearchTracksModal({
       return;
     }
     stopPreview();
-    const audio = new Audio(t.streamUrl);
-    audio.preload = "auto";
-    audioRef.current = audio;
-    setBufferingId(t.id);
-    setElapsed(0);
-    const tick = () => setElapsed(audio.currentTime);
-    const onPlaying = () => {
-      setBufferingId(null);
-      setPlayingId(t.id);
+    // retry once at 128 on stall/error (lighter evi transcode)
+    const urls =
+      t.streamUrl.includes("quality=320")
+        ? [t.streamUrl, t.streamUrl.replace("quality=320", "quality=128")]
+        : [t.streamUrl];
+    let attempt = 0;
+    const playAttempt = () => {
+      const url = urls[attempt];
+      if (!url) return stopPreview();
+      const audio = new Audio(url);
+      audio.preload = "auto";
+      audioRef.current = audio;
+      setBufferingId(t.id);
+      if (attempt === 0) setElapsed(0);
+      const tick = () => setElapsed(audio.currentTime);
+      const onPlaying = () => {
+        setBufferingId(null);
+        setPlayingId(t.id);
+      };
+      const onWaiting = () => {
+        if (audioRef.current === audio) setBufferingId(t.id);
+      };
+      const onError = () => {
+        if (audioRef.current === audio) {
+          audioRef.current = null;
+          attempt += 1;
+          if (attempt < urls.length) playAttempt();
+          else stopPreview();
+        }
+      };
+      audio.addEventListener("timeupdate", tick);
+      audio.addEventListener("playing", onPlaying);
+      audio.addEventListener("waiting", onWaiting);
+      audio.addEventListener("ended", stopPreview);
+      audio.addEventListener("error", onError);
+      audio.play().catch(onError);
     };
-    const onWaiting = () => {
-      if (audioRef.current === audio) setBufferingId(t.id);
-    };
-    audio.addEventListener("timeupdate", tick);
-    audio.addEventListener("playing", onPlaying);
-    audio.addEventListener("waiting", onWaiting);
-    audio.addEventListener("ended", stopPreview);
-    audio.addEventListener("error", stopPreview);
-    audio.play().catch(stopPreview);
+    playAttempt();
   };
 
   const previewMs = elapsed * 1000;

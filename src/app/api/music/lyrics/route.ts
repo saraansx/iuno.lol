@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false, error: "Missing song id" }, { status: 400 });
   }
 
+  const ctrl = new AbortController();
+  const timeout = setTimeout(() => ctrl.abort(), 20_000);
   try {
     const qs = new URLSearchParams({ id, title, artist, duration });
     const upstream = await fetch(`${EVI_BASE}/api/lyrics?${qs.toString()}`, {
@@ -39,6 +41,7 @@ export async function GET(req: NextRequest) {
         ...(process.env.EVI_COOKIE ? { Cookie: process.env.EVI_COOKIE } : {}),
       },
       cache: "no-store",
+      signal: ctrl.signal,
     });
 
     if (!upstream.ok) {
@@ -78,5 +81,7 @@ export async function GET(req: NextRequest) {
         headers: { "Cache-Control": "no-store, no-cache, must-revalidate" },
       },
     );
+  } finally {
+    clearTimeout(timeout);
   }
 }
