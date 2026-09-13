@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import NextImage from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
 export type SearchTrack = {
@@ -32,11 +33,13 @@ function Artwork({ src }: { src: string | null }) {
     );
   }
   return (
-    // ponytail: plain <img> over next/image. Remote art is unoptimized + no-store; upgrade to allowlisted remotePatterns only if caching wanted.
-    <img
+    // ponytail: unoptimized next/image keeps remote art no-store; add remotePatterns only if caching wanted.
+    <NextImage
       src={src}
       alt=""
-      loading="lazy"
+      width={48}
+      height={48}
+      unoptimized
       draggable={false}
       onError={() => setFailed(true)}
       className="w-full h-full object-cover"
@@ -60,7 +63,6 @@ export default function SearchTracksModal({
   const [searched, setSearched] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [bufferingId, setBufferingId] = useState<string | null>(null);
   const [elapsed, setElapsed] = useState(0);
@@ -71,8 +73,6 @@ export default function SearchTracksModal({
   const lyricsScrollRef = useRef<HTMLDivElement | null>(null);
 
   const stopPreview = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = null;
     audioRef.current?.pause();
     audioRef.current = null;
     setPlayingId(null);
@@ -97,7 +97,6 @@ export default function SearchTracksModal({
 
   useEffect(
     () => () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
       audioRef.current?.pause();
       audioRef.current = null;
     },
@@ -232,7 +231,6 @@ export default function SearchTracksModal({
     audio.addEventListener("waiting", onWaiting);
     audio.addEventListener("ended", stopPreview);
     audio.addEventListener("error", stopPreview);
-    timerRef.current = setTimeout(stopPreview, 30_000);
     audio.play().catch(stopPreview);
   };
 
@@ -394,9 +392,9 @@ export default function SearchTracksModal({
                         </button>
                       )}
                     </div>
-                    {playing && (
+                    {(playing || buffering) && typeof selectedTrack.duration === "number" && selectedTrack.duration > 0 && (
                       <div className="h-[2px] bg-white/5 shrink-0">
-                        <div className="h-full bg-[#609fda]" style={{ width: `${Math.min(100, (elapsed / 30) * 100)}%` }} />
+                        <div className="h-full bg-[#609fda]" style={{ width: `${Math.min(100, (elapsed / (selectedTrack.duration ?? 1)) * 100)}%` }} />
                       </div>
                     )}
 
@@ -422,10 +420,10 @@ export default function SearchTracksModal({
                                   isActive
                                     ? "text-white font-normal blur-0 opacity-100"
                                     : !isPreviewingSelected
-                                      ? "text-white/60 blur-0 opacity-80"
+                                      ? "text-white/50 blur-[2.5px] opacity-70 select-none"
                                       : isPast
-                                        ? "text-white/35 blur-[1.5px] opacity-70"
-                                        : "text-white/45 blur-[2px] opacity-60"
+                                        ? "text-white/35 blur-[3px] opacity-60 select-none"
+                                        : "text-white/45 blur-[3.5px] opacity-50 select-none"
                                 }`}
                               >
                                 {l.text}

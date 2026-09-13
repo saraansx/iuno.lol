@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import NextImage from "next/image";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import SaveBar from "@/components/dashboard/SaveBar";
 import SearchTracksModal, { type SearchTrack } from "@/components/dashboard/music/SearchTracksModal";
@@ -99,8 +100,8 @@ export default function Page() {
 
                     <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                       {track.artwork ? (
-                        // ponytail: plain <img>, no-store art. Upgrade to next/image allowlist only if caching wanted.
-                        <img src={track.artwork} alt="" loading="lazy" draggable={false} className="w-full h-full object-cover" />
+                        // ponytail: unoptimized next/image keeps remote art no-store; add remotePatterns only if caching wanted.
+                        <NextImage src={track.artwork} alt="" width={36} height={36} unoptimized draggable={false} className="w-full h-full object-cover" />
                       ) : (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50">
                           <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
