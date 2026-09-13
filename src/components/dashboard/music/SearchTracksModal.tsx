@@ -247,14 +247,27 @@ export default function SearchTracksModal({
       : -1;
 
   useEffect(() => {
+    if (activeLineIdx < 0) return;
     const container = lyricsScrollRef.current;
-    const active = activeLyricRef.current;
-    if (!container || !active) return;
-    container.scrollTo({
-      top: active.offsetTop - container.clientHeight / 2 + active.clientHeight / 2,
-      behavior: "smooth",
-    });
+    if (!container) return;
+    const active =
+      activeLyricRef.current ??
+      container.querySelector<HTMLElement>(`[data-lyric-idx="${activeLineIdx}"]`);
+    if (!active) return;
+    const cRect = container.getBoundingClientRect();
+    const aRect = active.getBoundingClientRect();
+    const top =
+      container.scrollTop +
+      (aRect.top - cRect.top) -
+      container.clientHeight / 2 +
+      aRect.height / 2;
+    container.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }, [activeLineIdx]);
+
+  // reset scroll on track switch so new lyrics animate in from top
+  useEffect(() => {
+    lyricsScrollRef.current?.scrollTo({ top: 0 });
+  }, [selectedId]);
 
   // block manual scroll (wheel/touch) — auto-scroll only
   useEffect(() => {
@@ -398,40 +411,56 @@ export default function SearchTracksModal({
                       </div>
                     )}
 
-                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 py-3">
-                      <div className="pointer-events-none absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[#0c0c0c] to-transparent z-10" />
-                      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0c0c0c] to-transparent z-10" />
-                      {lyricsLoading ? (
-                        <div className="flex items-center justify-center py-8">
-                          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
-                        </div>
-                      ) : lyricLines.length === 0 ? (
-                        <p className="text-[12.5px] text-white/40 text-center py-8">No lyrics found.</p>
-                      ) : (
-                        <div className="flex flex-col gap-2 py-1">
-                          {lyricLines.map((l, i) => {
-                            const isActive = i === activeLineIdx;
-                            const isPast = activeLineIdx >= 0 && i < activeLineIdx;
-                            return (
-                              <p
-                                key={`${l.start}-${i}`}
-                                ref={isActive ? activeLyricRef : undefined}
-                                className={`text-[13px] leading-relaxed transition-all duration-300 ${
-                                  isActive
-                                    ? "text-white font-normal blur-0 opacity-100"
-                                    : !isPreviewingSelected
-                                      ? "text-white/50 blur-[2.5px] opacity-70 select-none"
-                                      : isPast
-                                        ? "text-white/35 blur-[3px] opacity-60 select-none"
-                                        : "text-white/45 blur-[3.5px] opacity-50 select-none"
-                                }`}
-                              >
-                                {l.text}
-                              </p>
-                            );
-                          })}
-                        </div>
-                      )}
+                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-y-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                      <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                          key={`${selectedTrack.id}-${lyricsLoading ? "loading" : "loaded"}`}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                        >
+                          {lyricsLoading ? (
+                            <div className="flex items-center justify-center py-8">
+                              <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+                            </div>
+                          ) : lyricLines.length === 0 ? (
+                            <p className="text-[12.5px] text-white/40 text-center py-8">No lyrics found.</p>
+                          ) : (
+                            <div className="flex flex-col gap-2 py-1">
+                              {lyricLines.map((l, i) => {
+                                const isActive = i === activeLineIdx;
+                                const isPast = activeLineIdx >= 0 && i < activeLineIdx;
+                                return (
+                                  <motion.p
+                                    key={`${l.start}-${i}`}
+                                    data-lyric-idx={i}
+                                    ref={isActive ? activeLyricRef : undefined}
+                                    initial={{ opacity: 0, y: 8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                      delay: Math.min(i * 0.02, 0.4),
+                                      duration: 0.3,
+                                      ease: [0.22, 1, 0.36, 1],
+                                    }}
+                                    className={`text-[13px] leading-relaxed transition-all duration-300 ${
+                                      isActive
+                                        ? "text-white font-normal blur-0 opacity-100"
+                                        : !isPreviewingSelected
+                                          ? "text-white/50 blur-[2.5px] opacity-70 select-none"
+                                          : isPast
+                                            ? "text-white/35 blur-[3px] opacity-60 select-none"
+                                            : "text-white/45 blur-[3.5px] opacity-50 select-none"
+                                    }`}
+                                  >
+                                    {l.text}
+                                  </motion.p>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
                     <div className="px-4 py-3 border-t border-white/[0.06] shrink-0">
                       <button
