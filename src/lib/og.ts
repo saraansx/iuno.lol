@@ -31,15 +31,15 @@ export function isAllowedOgImage(url: string | null | undefined): boolean {
 }
 
 type OgInputs = {
-  avatarUrl?: string | null;
-  bannerBackgroundUrl?: string | null;
+  embedBackgroundUrl?: string | null;
+  embedIconUrl?: string | null;
   displayName?: string | null;
 };
 
 export function buildOgImagePath(username: string, inputs: OgInputs): string {
   const version = createHash("sha256")
     .update(
-      [inputs.avatarUrl ?? "", inputs.bannerBackgroundUrl ?? "", inputs.displayName ?? ""].join("|"),
+      [inputs.embedBackgroundUrl ?? "", inputs.embedIconUrl ?? "", inputs.displayName ?? ""].join("|"),
     )
     .digest("hex")
     .slice(0, 12);

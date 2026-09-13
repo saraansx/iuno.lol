@@ -13,9 +13,12 @@ interface EmbedContentSectionProps {
   setDescription: (val: string) => void;
   color: string;
   setColor: (val: string) => void;
-  embedImageUrl: string;
-  setEmbedImageModalOpen: (open: boolean) => void;
-  clearEmbedImage: () => void;
+  embedBackgroundUrl: string;
+  setEmbedBackgroundModalOpen: (open: boolean) => void;
+  clearEmbedBackground: () => void;
+  embedIconUrl: string;
+  setEmbedIconModalOpen: (open: boolean) => void;
+  clearEmbedIcon: () => void;
 }
 
 export default function EmbedContentSection({
@@ -26,9 +29,12 @@ export default function EmbedContentSection({
   setDescription,
   color,
   setColor,
-  embedImageUrl,
-  setEmbedImageModalOpen,
-  clearEmbedImage,
+  embedBackgroundUrl,
+  setEmbedBackgroundModalOpen,
+  clearEmbedBackground,
+  embedIconUrl,
+  setEmbedIconModalOpen,
+  clearEmbedIcon,
 }: EmbedContentSectionProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
@@ -85,44 +91,90 @@ export default function EmbedContentSection({
         <p className="text-[12px] text-white/35">The stripe down the side of the embed.</p>
       </div>
 
+      <div className="grid grid-cols-2 gap-4">
       <div className="flex flex-col gap-2">
-        <label className="text-[12.5px] font-medium text-white/90">Custom image</label>
-        {embedImageUrl ? (
-          <div className="relative w-full aspect-[1200/630] rounded-xl overflow-hidden bg-[#161616] border border-white/5 group">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={embedImageUrl} alt="Custom embed image" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                type="button"
-                onClick={() => setEmbedImageModalOpen(true)}
-                className="px-4 py-2 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white text-[13px] font-normal transition-all cursor-pointer"
-              >
-                Change
-              </button>
-              <button
-                type="button"
-                onClick={clearEmbedImage}
-                className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-white text-[13px] font-normal transition-all cursor-pointer"
-              >
-                Remove
-              </button>
+        <label className="text-[12.5px] font-medium text-white/90">Card background</label>
+        {embedBackgroundUrl ? (
+          <div className="flex items-center gap-3">
+            <div className="relative w-full max-w-64 aspect-[1200/630] rounded-xl overflow-hidden bg-[#161616] border border-white/5 group shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={embedBackgroundUrl} alt="Card background" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={() => setEmbedBackgroundModalOpen(true)}
+                  className="text-white text-[11px] font-normal cursor-pointer"
+                >
+                  Change
+                </button>
+              </div>
             </div>
+            <button
+              type="button"
+              onClick={clearEmbedBackground}
+              className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-white text-[13px] font-normal transition-all cursor-pointer"
+            >
+              Remove
+            </button>
           </div>
         ) : (
           <button
             type="button"
-            onClick={() => setEmbedImageModalOpen(true)}
-            className="w-full aspect-[1200/300] rounded-xl bg-[#161616] border border-white/5 hover:border-white/15 flex flex-col items-center justify-center gap-2 text-white/30 hover:text-white/60 transition-all cursor-pointer"
+            onClick={() => setEmbedBackgroundModalOpen(true)}
+            className="w-full max-w-64 aspect-[1200/630] rounded-xl bg-[#161616] border border-white/5 hover:border-white/15 flex flex-col items-center justify-center gap-1 text-white/30 hover:text-white/60 transition-all cursor-pointer shrink-0"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2" />
               <circle cx="9" cy="9" r="2" />
               <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
             </svg>
-            <span className="text-[13px] font-normal">Upload custom image</span>
+            <span className="text-[10px] font-normal">Upload</span>
           </button>
         )}
-        <p className="text-[12px] text-white/35">Images only (1200×630 recommended, max 5MB). Empty uses the auto card.</p>
+        <p className="text-[12px] text-white/35">Images only (1200×630 recommended, max 5MB). Empty uses the default background.</p>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className="text-[12.5px] font-medium text-white/90">Card icon</label>
+        {embedIconUrl ? (
+          <div className="flex items-center gap-3">
+            <div className="relative w-20 h-20 rounded-full overflow-hidden bg-[#161616] border border-white/5 group shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={embedIconUrl} alt="Card icon" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button
+                  type="button"
+                  onClick={() => setEmbedIconModalOpen(true)}
+                  className="text-white text-[11px] font-normal cursor-pointer"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={clearEmbedIcon}
+              className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-white text-[13px] font-normal transition-all cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setEmbedIconModalOpen(true)}
+            className="w-20 h-20 rounded-full bg-[#161616] border border-white/5 hover:border-white/15 flex flex-col items-center justify-center gap-1 text-white/30 hover:text-white/60 transition-all cursor-pointer"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </svg>
+            <span className="text-[10px] font-normal">Upload</span>
+          </button>
+        )}
+        <p className="text-[12px] text-white/35">Square image recommended (1:1, max 5MB). Shown as the circle in the middle. Empty uses the default icon.</p>
+      </div>
       </div>
 
       <div className="flex gap-3 bg-[#161616] border border-white/5 rounded-xl p-3.5">
@@ -132,9 +184,7 @@ export default function EmbedContentSection({
           <path d="M12 8h.01" />
         </svg>
         <p className="text-[12.5px] text-white/40">
-          {embedImageUrl
-            ? "Custom image is used for the card. Remove it to go back to the auto card."
-            : "The card uses your profile background, dimmed, with your avatar on top. Change either from General."}
+          The card uses your card background and icon above, dimmed, with your name on top. Leave both empty to use the defaults.
         </p>
       </div>
     </div>

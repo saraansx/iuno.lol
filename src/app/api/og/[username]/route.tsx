@@ -24,8 +24,8 @@ export async function GET(
     .select({
       username: users.username,
       displayName: userSettings.displayName,
-      avatarUrl: userSettings.avatarUrl,
-      bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      embedBackgroundUrl: userSettings.embedBackgroundUrl,
+      embedIconUrl: userSettings.embedIconUrl,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -49,14 +49,14 @@ export async function GET(
   }
 
   const ownBackground =
-    row.bannerBackgroundUrl &&
-    !isVideoUrl(row.bannerBackgroundUrl) &&
-    isAllowedOgImage(row.bannerBackgroundUrl)
-      ? row.bannerBackgroundUrl
+    row.embedBackgroundUrl &&
+    !isVideoUrl(row.embedBackgroundUrl) &&
+    isAllowedOgImage(row.embedBackgroundUrl)
+      ? row.embedBackgroundUrl
       : null;
   const ownAvatar =
-    row.avatarUrl && !isVideoUrl(row.avatarUrl) && isAllowedOgImage(row.avatarUrl)
-      ? row.avatarUrl
+    row.embedIconUrl && !isVideoUrl(row.embedIconUrl) && isAllowedOgImage(row.embedIconUrl)
+      ? row.embedIconUrl
       : null;
 
   const [background, avatar] = await Promise.all([

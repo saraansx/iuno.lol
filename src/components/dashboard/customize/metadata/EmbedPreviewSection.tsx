@@ -5,19 +5,35 @@ import { SITE_CONFIG } from "@/lib/config";
 
 interface EmbedPreviewSectionProps {
   username: string;
+  displayName: string | null;
   title: string;
   description: string;
   color: string;
+  embedBackgroundUrl: string;
+  embedIconUrl: string;
   ogImagePath: string | null;
 }
 
+const DEFAULT_BG = "/og%20banner.png";
+const DEFAULT_ICON = "/Og.png";
+
 export default function EmbedPreviewSection({
   username,
+  displayName,
   title,
   description,
   color,
+  embedBackgroundUrl,
+  embedIconUrl,
   ogImagePath,
 }: EmbedPreviewSectionProps) {
+  const name = (displayName?.trim() || username).slice(0, 32);
+  const bg = embedBackgroundUrl || DEFAULT_BG;
+  // Once saved, ogImagePath points at the generated card (?v= hash of
+  // background + icon + name). Before save, the local mock below shows
+  // the pending uploads instantly.
+  const savedAutoCard = ogImagePath;
+
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4 h-max">
       <div className="flex flex-col gap-1">
@@ -38,17 +54,27 @@ export default function EmbedPreviewSection({
               </p>
             )}
 
-            {/* Same URL the OG tag points at, so this is the actual card apps render. */}
+            {/* The live mock of the auto card (bg + icon + name). When
+                nothing custom is staged, show the saved generated card. */}
             <div className="mt-1.5 relative w-full aspect-[1200/630] rounded-lg overflow-hidden bg-[#0a0a0a] border border-white/5">
-              {ogImagePath ? (
-                <Image src={ogImagePath} alt="" fill className="object-cover" unoptimized priority />
+              {savedAutoCard && !embedBackgroundUrl && !embedIconUrl ? (
+                <Image src={savedAutoCard} alt="" fill className="object-cover" unoptimized priority />
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/15">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="9" cy="9" r="2" />
-                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                  </svg>
+                <div className="absolute inset-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={bg} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-[rgba(5,5,5,0.7)]" />
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={embedIconUrl || DEFAULT_ICON}
+                      alt=""
+                      className="w-[18%] aspect-square rounded-full object-cover"
+                    />
+                    <span className="mt-2 text-white text-[22px] leading-none truncate max-w-[80%]">
+                      {name}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

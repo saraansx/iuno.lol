@@ -41,7 +41,8 @@ export default function MetadataProfileClient({
   const initialTitle = user?.embedTitle ?? "";
   const initialDescription = user?.embedDescription ?? "";
   const initialColor = normalizeEmbedColor(user?.embedColor);
-  const initialEmbedImage = user?.embedImageUrl ?? "";
+  const initialEmbedBackground = user?.embedBackgroundUrl ?? "";
+  const initialEmbedIcon = user?.embedIconUrl ?? "";
   const initialFavicon = user?.faviconUrl ?? "";
   const initialCursor = user?.cursorUrl ?? "";
   const initialTabTitle = user?.tabTitle ?? "";
@@ -50,7 +51,8 @@ export default function MetadataProfileClient({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [color, setColor] = useState(initialColor);
-  const [embedImageUrl, setEmbedImageUrl] = useState(initialEmbedImage);
+  const [embedBackgroundUrl, setEmbedBackgroundUrl] = useState(initialEmbedBackground);
+  const [embedIconUrl, setEmbedIconUrl] = useState(initialEmbedIcon);
   const [faviconUrl, setFaviconUrl] = useState(initialFavicon);
   const [cursorUrl, setCursorUrl] = useState(initialCursor);
   const [tabTitle, setTabTitle] = useState(initialTabTitle);
@@ -59,17 +61,20 @@ export default function MetadataProfileClient({
   // Blob previews only become real URLs on save, so the raw files wait here.
   const [pendingFavicon, setPendingFavicon] = useState<File | null>(null);
   const [pendingCursor, setPendingCursor] = useState<File | null>(null);
-  const [pendingEmbedImage, setPendingEmbedImage] = useState<File | null>(null);
+  const [pendingEmbedBackground, setPendingEmbedBackground] = useState<File | null>(null);
+  const [pendingEmbedIcon, setPendingEmbedIcon] = useState<File | null>(null);
 
   const [faviconModalOpen, setFaviconModalOpen] = useState(false);
   const [cursorModalOpen, setCursorModalOpen] = useState(false);
-  const [embedImageModalOpen, setEmbedImageModalOpen] = useState(false);
+  const [embedBackgroundModalOpen, setEmbedBackgroundModalOpen] = useState(false);
+  const [embedIconModalOpen, setEmbedIconModalOpen] = useState(false);
 
   const hasChanges =
     title !== initialTitle ||
     description !== initialDescription ||
     color !== initialColor ||
-    embedImageUrl !== initialEmbedImage ||
+    embedBackgroundUrl !== initialEmbedBackground ||
+    embedIconUrl !== initialEmbedIcon ||
     faviconUrl !== initialFavicon ||
     cursorUrl !== initialCursor ||
     tabTitle !== initialTabTitle ||
@@ -88,20 +93,29 @@ export default function MetadataProfileClient({
           setDescription={setDescription}
           color={color}
           setColor={setColor}
-          embedImageUrl={embedImageUrl}
-          setEmbedImageModalOpen={setEmbedImageModalOpen}
-          clearEmbedImage={() => {
-            setEmbedImageUrl("");
-            setPendingEmbedImage(null);
+          embedBackgroundUrl={embedBackgroundUrl}
+          setEmbedBackgroundModalOpen={setEmbedBackgroundModalOpen}
+          clearEmbedBackground={() => {
+            setEmbedBackgroundUrl("");
+            setPendingEmbedBackground(null);
+          }}
+          embedIconUrl={embedIconUrl}
+          setEmbedIconModalOpen={setEmbedIconModalOpen}
+          clearEmbedIcon={() => {
+            setEmbedIconUrl("");
+            setPendingEmbedIcon(null);
           }}
         />
 
         <EmbedPreviewSection
           username={username}
+          displayName={user?.displayName ?? null}
           title={title}
           description={description}
           color={color}
-          ogImagePath={embedImageUrl || ogImagePath}
+          embedBackgroundUrl={embedBackgroundUrl}
+          embedIconUrl={embedIconUrl}
+          ogImagePath={ogImagePath}
         />
 
         <div className="lg:col-span-2">
@@ -146,11 +160,20 @@ export default function MetadataProfileClient({
       />
 
       <EmbedImageUpload
-        open={embedImageModalOpen}
-        onClose={() => setEmbedImageModalOpen(false)}
+        open={embedBackgroundModalOpen}
+        onClose={() => setEmbedBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {
-          setEmbedImageUrl(url);
-          setPendingEmbedImage(rawFile ?? null);
+          setEmbedBackgroundUrl(url);
+          setPendingEmbedBackground(rawFile ?? null);
+        }}
+      />
+
+      <EmbedImageUpload
+        open={embedIconModalOpen}
+        onClose={() => setEmbedIconModalOpen(false)}
+        onApply={(url, rawFile) => {
+          setEmbedIconUrl(url);
+          setPendingEmbedIcon(rawFile ?? null);
         }}
       />
 
@@ -164,19 +187,24 @@ export default function MetadataProfileClient({
             const cursor = pendingCursor
               ? await uploadAsset(pendingCursor, "cursor")
               : cursorUrl;
-            const embedImage = pendingEmbedImage
-              ? await uploadAsset(pendingEmbedImage, "embed")
-              : embedImageUrl;
+            const embedBackground = pendingEmbedBackground
+              ? await uploadAsset(pendingEmbedBackground, "embed")
+              : embedBackgroundUrl;
+            const embedIcon = pendingEmbedIcon
+              ? await uploadAsset(pendingEmbedIcon, "embed")
+              : embedIconUrl;
 
             setFaviconUrl(favicon);
             setCursorUrl(cursor);
-            setEmbedImageUrl(embedImage);
+            setEmbedBackgroundUrl(embedBackground);
+            setEmbedIconUrl(embedIcon);
 
             await updateMetadataProfile({
               embedTitle: title,
               embedDescription: description,
               embedColor: color,
-              embedImageUrl: embedImage || null,
+              embedBackgroundUrl: embedBackground || null,
+              embedIconUrl: embedIcon || null,
               faviconUrl: favicon || null,
               cursorUrl: cursor || null,
               tabTitle,
@@ -185,7 +213,8 @@ export default function MetadataProfileClient({
             toast.success("Profile Saved Sucessfully");
             setPendingFavicon(null);
             setPendingCursor(null);
-            setPendingEmbedImage(null);
+            setPendingEmbedBackground(null);
+            setPendingEmbedIcon(null);
             router.refresh();
           } catch (error) {
             toast.error(error instanceof Error ? error.message : "Failed to save profile");
@@ -195,14 +224,16 @@ export default function MetadataProfileClient({
           setTitle(initialTitle);
           setDescription(initialDescription);
           setColor(initialColor);
-          setEmbedImageUrl(initialEmbedImage);
+          setEmbedBackgroundUrl(initialEmbedBackground);
+          setEmbedIconUrl(initialEmbedIcon);
           setFaviconUrl(initialFavicon);
           setCursorUrl(initialCursor);
           setTabTitle(initialTabTitle);
           setTabTitleAnimated(initialTabTitleAnimated);
           setPendingFavicon(null);
           setPendingCursor(null);
-          setPendingEmbedImage(null);
+          setPendingEmbedBackground(null);
+          setPendingEmbedIcon(null);
         }}
       />
     </>

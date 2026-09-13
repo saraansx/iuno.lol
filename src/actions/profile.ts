@@ -497,7 +497,8 @@ export async function updateMetadataProfile(data: {
   embedTitle?: string;
   embedDescription?: string;
   embedColor?: string;
-  embedImageUrl?: string | null;
+  embedBackgroundUrl?: string | null;
+  embedIconUrl?: string | null;
   faviconUrl?: string | null;
   cursorUrl?: string | null;
   tabTitle?: string;
@@ -532,11 +533,18 @@ export async function updateMetadataProfile(data: {
     setData.embedColor = /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
   }
 
-  if (data.embedImageUrl !== undefined) {
-    if (data.embedImageUrl && (!isValidMediaUrl(data.embedImageUrl) || isVideoUrl(data.embedImageUrl))) {
-      throw new Error("Invalid embed image URL");
+  if (data.embedBackgroundUrl !== undefined) {
+    if (data.embedBackgroundUrl && (!isValidMediaUrl(data.embedBackgroundUrl) || isVideoUrl(data.embedBackgroundUrl))) {
+      throw new Error("Invalid card background URL");
     }
-    setData.embedImageUrl = data.embedImageUrl || null;
+    setData.embedBackgroundUrl = data.embedBackgroundUrl || null;
+  }
+
+  if (data.embedIconUrl !== undefined) {
+    if (data.embedIconUrl && (!isValidMediaUrl(data.embedIconUrl) || isVideoUrl(data.embedIconUrl))) {
+      throw new Error("Invalid card icon URL");
+    }
+    setData.embedIconUrl = data.embedIconUrl || null;
   }
 
   if (data.faviconUrl !== undefined) {
@@ -568,9 +576,13 @@ export async function updateMetadataProfile(data: {
     .onDuplicateKeyUpdate({ set: setData });
 
   const stale: (string | null | undefined)[] = [];
-  if (typeof setData.embedImageUrl === "string") {
-    if (!setData.embedImageUrl && prev?.embedImageUrl) stale.push(prev.embedImageUrl);
-    else if (setData.embedImageUrl !== prev?.embedImageUrl && prev?.embedImageUrl) stale.push(prev.embedImageUrl);
+  if (typeof setData.embedBackgroundUrl === "string") {
+    if (!setData.embedBackgroundUrl && prev?.embedBackgroundUrl) stale.push(prev.embedBackgroundUrl);
+    else if (setData.embedBackgroundUrl !== prev?.embedBackgroundUrl && prev?.embedBackgroundUrl) stale.push(prev.embedBackgroundUrl);
+  }
+  if (typeof setData.embedIconUrl === "string") {
+    if (!setData.embedIconUrl && prev?.embedIconUrl) stale.push(prev.embedIconUrl);
+    else if (setData.embedIconUrl !== prev?.embedIconUrl && prev?.embedIconUrl) stale.push(prev.embedIconUrl);
   }
   if (typeof setData.faviconUrl === "string") {
     if (!setData.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
