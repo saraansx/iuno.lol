@@ -11,6 +11,7 @@ import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
+import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 
@@ -496,6 +497,7 @@ export async function updateMetadataProfile(data: {
   embedTitle?: string;
   embedDescription?: string;
   embedColor?: string;
+  embedImageUrl?: string | null;
   faviconUrl?: string | null;
   cursorUrl?: string | null;
   tabTitle?: string;
@@ -530,6 +532,13 @@ export async function updateMetadataProfile(data: {
     setData.embedColor = /^#[0-9a-f]{6}$/.test(val) ? val : DEFAULT_EMBED_COLOR;
   }
 
+  if (data.embedImageUrl !== undefined) {
+    if (data.embedImageUrl && (!isValidMediaUrl(data.embedImageUrl) || isVideoUrl(data.embedImageUrl))) {
+      throw new Error("Invalid embed image URL");
+    }
+    setData.embedImageUrl = data.embedImageUrl || null;
+  }
+
   if (data.faviconUrl !== undefined) {
     if (!isValidMediaUrl(data.faviconUrl)) throw new Error("Invalid favicon URL");
     setData.faviconUrl = data.faviconUrl || null;
@@ -559,6 +568,10 @@ export async function updateMetadataProfile(data: {
     .onDuplicateKeyUpdate({ set: setData });
 
   const stale: (string | null | undefined)[] = [];
+  if (typeof setData.embedImageUrl === "string") {
+    if (!setData.embedImageUrl && prev?.embedImageUrl) stale.push(prev.embedImageUrl);
+    else if (setData.embedImageUrl !== prev?.embedImageUrl && prev?.embedImageUrl) stale.push(prev.embedImageUrl);
+  }
   if (typeof setData.faviconUrl === "string") {
     if (!setData.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
     else if (setData.faviconUrl !== prev?.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);

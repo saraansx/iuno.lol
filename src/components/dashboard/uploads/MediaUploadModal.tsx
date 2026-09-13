@@ -9,7 +9,7 @@ export interface MediaUploadModalProps {
   onClose: () => void;
   onApply?: (url: string, rawFile?: File) => void;
   /** /api/upload assetType; when set, videos upload to Catbox on Apply so Save stays fast. */
-  assetType?: "avatar" | "background" | "banner";
+  assetType?: "avatar" | "background" | "banner" | "embed";
 }
 
 interface Props extends MediaUploadModalProps {

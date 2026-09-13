@@ -11,6 +11,7 @@ import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
 import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle, isAllowedOgImage } from '@/lib/og'
+import { isVideoUrl } from '@/lib/utils/media'
 
 export const revalidate = 2592000;
 
@@ -49,6 +50,7 @@ export async function generateMetadata(
       displayName: userSettings.displayName,
       avatarUrl: userSettings.avatarUrl,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      embedImageUrl: userSettings.embedImageUrl,
       faviconUrl: userSettings.faviconUrl,
       tabTitle: userSettings.tabTitle,
     })
@@ -64,7 +66,13 @@ export async function generateMetadata(
   const row = rows[0]
   const title = row.embedTitle?.trim() || `@${row.username}`
   const description = row.embedDescription?.trim() || undefined
-  const image = buildOgImageUrl(row.username, row)
+  const customEmbedImage =
+    row.embedImageUrl &&
+    !isVideoUrl(row.embedImageUrl) &&
+    isAllowedOgImage(row.embedImageUrl)
+      ? row.embedImageUrl
+      : null;
+  const image = customEmbedImage ?? buildOgImageUrl(row.username, row)
   return {
     title: { absolute: formatTabTitle(row.tabTitle, row.username) },
     description,

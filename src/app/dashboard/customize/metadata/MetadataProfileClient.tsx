@@ -7,13 +7,14 @@ import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
 import FaviconUpload from "@/components/dashboard/uploads/FaviconUpload";
 import CursorUpload from "@/components/dashboard/uploads/CursorUpload";
+import EmbedImageUpload from "@/components/dashboard/uploads/EmbedImageUpload";
 import EmbedContentSection from "@/components/dashboard/customize/metadata/EmbedContentSection";
 import EmbedPreviewSection from "@/components/dashboard/customize/metadata/EmbedPreviewSection";
 import BrowserTabSection from "@/components/dashboard/customize/metadata/BrowserTabSection";
 import { type FullUser } from "@/lib/features/users/db";
 import { normalizeEmbedColor } from "@/lib/og";
 
-async function uploadAsset(file: File, type: "favicon" | "cursor"): Promise<string> {
+async function uploadAsset(file: File, type: "favicon" | "cursor" | "embed"): Promise<string> {
   const formData = new FormData();
   formData.append("reqtype", "fileupload");
   formData.append("fileToUpload", file);
@@ -40,6 +41,7 @@ export default function MetadataProfileClient({
   const initialTitle = user?.embedTitle ?? "";
   const initialDescription = user?.embedDescription ?? "";
   const initialColor = normalizeEmbedColor(user?.embedColor);
+  const initialEmbedImage = user?.embedImageUrl ?? "";
   const initialFavicon = user?.faviconUrl ?? "";
   const initialCursor = user?.cursorUrl ?? "";
   const initialTabTitle = user?.tabTitle ?? "";
@@ -48,6 +50,7 @@ export default function MetadataProfileClient({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription);
   const [color, setColor] = useState(initialColor);
+  const [embedImageUrl, setEmbedImageUrl] = useState(initialEmbedImage);
   const [faviconUrl, setFaviconUrl] = useState(initialFavicon);
   const [cursorUrl, setCursorUrl] = useState(initialCursor);
   const [tabTitle, setTabTitle] = useState(initialTabTitle);
@@ -56,14 +59,17 @@ export default function MetadataProfileClient({
   // Blob previews only become real URLs on save, so the raw files wait here.
   const [pendingFavicon, setPendingFavicon] = useState<File | null>(null);
   const [pendingCursor, setPendingCursor] = useState<File | null>(null);
+  const [pendingEmbedImage, setPendingEmbedImage] = useState<File | null>(null);
 
   const [faviconModalOpen, setFaviconModalOpen] = useState(false);
   const [cursorModalOpen, setCursorModalOpen] = useState(false);
+  const [embedImageModalOpen, setEmbedImageModalOpen] = useState(false);
 
   const hasChanges =
     title !== initialTitle ||
     description !== initialDescription ||
     color !== initialColor ||
+    embedImageUrl !== initialEmbedImage ||
     faviconUrl !== initialFavicon ||
     cursorUrl !== initialCursor ||
     tabTitle !== initialTabTitle ||
@@ -82,6 +88,12 @@ export default function MetadataProfileClient({
           setDescription={setDescription}
           color={color}
           setColor={setColor}
+          embedImageUrl={embedImageUrl}
+          setEmbedImageModalOpen={setEmbedImageModalOpen}
+          clearEmbedImage={() => {
+            setEmbedImageUrl("");
+            setPendingEmbedImage(null);
+          }}
         />
 
         <EmbedPreviewSection
@@ -89,7 +101,7 @@ export default function MetadataProfileClient({
           title={title}
           description={description}
           color={color}
-          ogImagePath={ogImagePath}
+          ogImagePath={embedImageUrl || ogImagePath}
         />
 
         <div className="lg:col-span-2">
@@ -133,6 +145,15 @@ export default function MetadataProfileClient({
         }}
       />
 
+      <EmbedImageUpload
+        open={embedImageModalOpen}
+        onClose={() => setEmbedImageModalOpen(false)}
+        onApply={(url, rawFile) => {
+          setEmbedImageUrl(url);
+          setPendingEmbedImage(rawFile ?? null);
+        }}
+      />
+
       <SaveBar
         show={hasChanges}
         onSave={async () => {
@@ -143,14 +164,19 @@ export default function MetadataProfileClient({
             const cursor = pendingCursor
               ? await uploadAsset(pendingCursor, "cursor")
               : cursorUrl;
+            const embedImage = pendingEmbedImage
+              ? await uploadAsset(pendingEmbedImage, "embed")
+              : embedImageUrl;
 
             setFaviconUrl(favicon);
             setCursorUrl(cursor);
+            setEmbedImageUrl(embedImage);
 
             await updateMetadataProfile({
               embedTitle: title,
               embedDescription: description,
               embedColor: color,
+              embedImageUrl: embedImage || null,
               faviconUrl: favicon || null,
               cursorUrl: cursor || null,
               tabTitle,
@@ -159,6 +185,7 @@ export default function MetadataProfileClient({
             toast.success("Profile Saved Sucessfully");
             setPendingFavicon(null);
             setPendingCursor(null);
+            setPendingEmbedImage(null);
             router.refresh();
           } catch (error) {
             toast.error(error instanceof Error ? error.message : "Failed to save profile");
@@ -168,12 +195,14 @@ export default function MetadataProfileClient({
           setTitle(initialTitle);
           setDescription(initialDescription);
           setColor(initialColor);
+          setEmbedImageUrl(initialEmbedImage);
           setFaviconUrl(initialFavicon);
           setCursorUrl(initialCursor);
           setTabTitle(initialTabTitle);
           setTabTitleAnimated(initialTabTitleAnimated);
           setPendingFavicon(null);
           setPendingCursor(null);
+          setPendingEmbedImage(null);
         }}
       />
     </>

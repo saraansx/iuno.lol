@@ -80,7 +80,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -108,7 +108,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });
     }
 
-    if (isTinyAsset && !detected.mime.startsWith("image/")) {
+    if ((isTinyAsset || assetType === "embed") && !detected.mime.startsWith("image/")) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 

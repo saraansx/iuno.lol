@@ -124,6 +124,7 @@ const userColumns = {
   embedTitle: schema.userSettings.embedTitle,
   embedDescription: schema.userSettings.embedDescription,
   embedColor: schema.userSettings.embedColor,
+  embedImageUrl: schema.userSettings.embedImageUrl,
   faviconUrl: schema.userSettings.faviconUrl,
   cursorUrl: schema.userSettings.cursorUrl,
   tabTitle: schema.userSettings.tabTitle,

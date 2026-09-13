@@ -142,6 +142,7 @@ export const userSettings = mysqlTable('user_settings', {
   embedTitle: varchar('embed_title', { length: 100 }),
   embedDescription: varchar('embed_description', { length: 250 }),
   embedColor: varchar('embed_color', { length: 7 }).default('#5b6cf5'),
+  embedImageUrl: varchar('embed_image_url', { length: 500 }),
   faviconUrl: varchar('favicon_url', { length: 500 }),
   cursorUrl: varchar('cursor_url', { length: 500 }),
   tabTitle: varchar('tab_title', { length: 60 }),
