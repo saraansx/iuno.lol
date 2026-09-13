@@ -12,6 +12,7 @@ import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
+import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_BASE = "https://files.catbox.moe/";
@@ -44,7 +45,10 @@ async function deleteCatboxFiles(urls: (string | null | undefined)[]) {
 
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
-  if (user?.username) revalidatePath(`/${user.username}`);
+  if (user?.username) {
+    revalidatePath(`/${user.username}`);
+    await purgeCloudflareProfileCache(user.username);
+  }
 }
 
 function isValidMediaUrl(url: string | null | undefined): boolean {
@@ -1106,6 +1110,7 @@ export async function updateProfileWidgets(data: {
   revalidatePath("/dashboard/customize/profile/widgets");
   revalidatePath("/dashboard", "layout");
   revalidatePath(`/${user.username}`);
+  await purgeCloudflareProfileCache(user.username);
 
   return { success: true };
 }
