@@ -10,7 +10,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-type FontGroupKey = "username" | "description" | "other" | "highlight" | "widgets";
+type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "other" | "highlight" | "widgets";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -43,6 +43,16 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const initialOtherFontSize = user?.otherFontSize ?? 13;
   const initialOtherFontWeight = user?.otherFontWeight ?? 400;
   const initialOtherLetterSpacing = user?.otherLetterSpacing ?? 0;
+
+  const initialSectionTitleFont = user?.sectionTitleFont ?? "Inter";
+  const initialSectionTitleFontSize = user?.sectionTitleFontSize ?? 15;
+  const initialSectionTitleFontWeight = user?.sectionTitleFontWeight ?? 500;
+  const initialSectionTitleLetterSpacing = user?.sectionTitleLetterSpacing ?? 0;
+
+  const initialSectionDescFont = user?.sectionDescFont ?? "Inter";
+  const initialSectionDescFontSize = user?.sectionDescFontSize ?? 12.5;
+  const initialSectionDescFontWeight = user?.sectionDescFontWeight ?? 400;
+  const initialSectionDescLetterSpacing = user?.sectionDescLetterSpacing ?? 0;
 
   const usernameFont = overrides.usernameFont ?? initialUsernameFont;
   const setUsernameFont = (val: string) => updateOverrides({ usernameFont: val === initialUsernameFont ? undefined : val });
@@ -88,6 +98,24 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const setOtherFontWeight = (val: number) => updateOverrides({ otherFontWeight: val === initialOtherFontWeight ? undefined : val });
   const otherLetterSpacing = overrides.otherLetterSpacing ?? initialOtherLetterSpacing;
   const setOtherLetterSpacing = (val: number) => updateOverrides({ otherLetterSpacing: val === initialOtherLetterSpacing ? undefined : val });
+
+  const sectionTitleFont = overrides.sectionTitleFont ?? initialSectionTitleFont;
+  const setSectionTitleFont = (val: string) => updateOverrides({ sectionTitleFont: val === initialSectionTitleFont ? undefined : val });
+  const sectionTitleFontSize = overrides.sectionTitleFontSize ?? initialSectionTitleFontSize;
+  const setSectionTitleFontSize = (val: number) => updateOverrides({ sectionTitleFontSize: val === initialSectionTitleFontSize ? undefined : val });
+  const sectionTitleFontWeight = overrides.sectionTitleFontWeight ?? initialSectionTitleFontWeight;
+  const setSectionTitleFontWeight = (val: number) => updateOverrides({ sectionTitleFontWeight: val === initialSectionTitleFontWeight ? undefined : val });
+  const sectionTitleLetterSpacing = overrides.sectionTitleLetterSpacing ?? initialSectionTitleLetterSpacing;
+  const setSectionTitleLetterSpacing = (val: number) => updateOverrides({ sectionTitleLetterSpacing: val === initialSectionTitleLetterSpacing ? undefined : val });
+
+  const sectionDescFont = overrides.sectionDescFont ?? initialSectionDescFont;
+  const setSectionDescFont = (val: string) => updateOverrides({ sectionDescFont: val === initialSectionDescFont ? undefined : val });
+  const sectionDescFontSize = overrides.sectionDescFontSize ?? initialSectionDescFontSize;
+  const setSectionDescFontSize = (val: number) => updateOverrides({ sectionDescFontSize: val === initialSectionDescFontSize ? undefined : val });
+  const sectionDescFontWeight = overrides.sectionDescFontWeight ?? initialSectionDescFontWeight;
+  const setSectionDescFontWeight = (val: number) => updateOverrides({ sectionDescFontWeight: val === initialSectionDescFontWeight ? undefined : val });
+  const sectionDescLetterSpacing = overrides.sectionDescLetterSpacing ?? initialSectionDescLetterSpacing;
+  const setSectionDescLetterSpacing = (val: number) => updateOverrides({ sectionDescLetterSpacing: val === initialSectionDescLetterSpacing ? undefined : val });
 
   return (
     <React.Fragment>
@@ -187,6 +215,51 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
             </div>
           </div>
         </div>
+
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M6 4v16M18 4v16M6 12h12" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <h2 className="text-white font-normal text-[16px] tracking-tight">Sections</h2>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <FontGroupSection
+                label="Section Title"
+                hint="Headings like About on your profile."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4v16M18 4v16M6 12h12" /></svg>}
+                isOpen={openGroup === "sectionTitle"}
+                onToggle={() => toggleGroup("sectionTitle")}
+                font={sectionTitleFont}
+                setFont={setSectionTitleFont}
+                size={sectionTitleFontSize}
+                setSize={setSectionTitleFontSize}
+                weight={sectionTitleFontWeight}
+                setWeight={setSectionTitleFontWeight}
+                spacing={sectionTitleLetterSpacing}
+                setSpacing={setSectionTitleLetterSpacing}
+              />
+
+              <FontGroupSection
+                label="Section Description"
+                hint="Subtitles under section headings."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg>}
+                isOpen={openGroup === "sectionDesc"}
+                onToggle={() => toggleGroup("sectionDesc")}
+                font={sectionDescFont}
+                setFont={setSectionDescFont}
+                size={sectionDescFontSize}
+                setSize={setSectionDescFontSize}
+                weight={sectionDescFontWeight}
+                setWeight={setSectionDescFontWeight}
+                spacing={sectionDescLetterSpacing}
+                setSpacing={setSectionDescLetterSpacing}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <DashboardProfilePreview
@@ -201,6 +274,14 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
           bioFontSize,
           bioFontWeight,
           bioLetterSpacing,
+          sectionTitleFont,
+          sectionTitleFontSize,
+          sectionTitleFontWeight,
+          sectionTitleLetterSpacing,
+          sectionDescFont,
+          sectionDescFontSize,
+          sectionDescFontWeight,
+          sectionDescLetterSpacing,
           otherFont,
           otherFontSize,
           otherFontWeight,

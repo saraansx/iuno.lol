@@ -17,6 +17,8 @@ import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
 import CompactMusicPlayer from "../music/CompactMusicPlayer";
+import LyricsMusicPlayer from "../music/LyricsMusicPlayer";
+import WaveformMusicPlayer from "../music/WaveformMusicPlayer";
 import {
   BADGE_CLASSES,
   DEFAULT_DETAILS,
@@ -154,6 +156,14 @@ interface Layout1Props {
   bioFontWeight?: number;
   bioLetterSpacing?: number;
   bioColor?: string;
+  sectionTitleFont?: string;
+  sectionTitleFontSize?: number;
+  sectionTitleFontWeight?: number;
+  sectionTitleLetterSpacing?: number;
+  sectionDescFont?: string;
+  sectionDescFontSize?: number;
+  sectionDescFontWeight?: number;
+  sectionDescLetterSpacing?: number;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -359,6 +369,14 @@ const Layout1 = ({
   bioFontWeight = 400,
   bioLetterSpacing = 0,
   bioColor = "#FFFFFF",
+  sectionTitleFont = "Inter",
+  sectionTitleFontSize = 15,
+  sectionTitleFontWeight = 500,
+  sectionTitleLetterSpacing = 0,
+  sectionDescFont = "Inter",
+  sectionDescFontSize = 12.5,
+  sectionDescFontWeight = 400,
+  sectionDescLetterSpacing = 0,
   otherFont = "Inter",
   otherFontSize = 14,
   otherFontWeight = 400,
@@ -802,11 +820,24 @@ useEffect(() => {
   );
 
   const showMusicPlayer =
-    !bannerBackgroundSound && musicPlayerStyle === "compact" && musicTracks.length > 0;
+    !bannerBackgroundSound &&
+    (musicPlayerStyle === "compact" ||
+      musicPlayerStyle === "lyrics" ||
+      musicPlayerStyle === "waveform") &&
+    musicTracks.length > 0;
+
+  const musicPlayerAutoPlay = musicAutoPlay && (!enterScreenEnabled || entered);
+  const musicPlayerArtBgOn = musicPlayerArtBg ?? true;
 
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
-      <CompactMusicPlayer tracks={musicTracks} autoPlay={musicAutoPlay && (!enterScreenEnabled || entered)} artBg={musicPlayerArtBg ?? true} />
+      {musicPlayerStyle === "lyrics" ? (
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+      ) : musicPlayerStyle === "waveform" ? (
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+      ) : (
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+      )}
     </div>
   ) : null;
 
@@ -1165,10 +1196,10 @@ const sectionSurface: React.CSSProperties = {
                   <div className="mb-3 text-left">
                     <h2
                       style={{
-                        fontFamily: fontClassMap[usernameFont] || "var(--font-inter)",
-                        fontSize: "15px",
-                        fontWeight: 500,
-                        letterSpacing: `${usernameLetterSpacing}px`,
+                        fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
+                        fontSize: `${sectionTitleFontSize}px`,
+                        fontWeight: sectionTitleFontWeight,
+                        letterSpacing: `${sectionTitleLetterSpacing}px`,
                         color: usernameColor,
                       }}
                     >
@@ -1178,9 +1209,10 @@ const sectionSurface: React.CSSProperties = {
                       <p
                         className="mt-0.5 opacity-50"
                         style={{
-                          fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
-                          fontSize: "12.5px",
-                          letterSpacing: `${bioLetterSpacing}px`,
+                          fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
+                          fontSize: `${sectionDescFontSize}px`,
+                          fontWeight: sectionDescFontWeight,
+                          letterSpacing: `${sectionDescLetterSpacing}px`,
                           color: bioColor,
                         }}
                       >

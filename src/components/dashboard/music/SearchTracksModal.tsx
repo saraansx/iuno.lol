@@ -429,7 +429,7 @@ export default function SearchTracksModal({
               ) : results.length > 0 && selectedTrack ? (
                 <div className="flex gap-4 py-3 min-h-0">
                   <div className="flex flex-col gap-1.5 flex-1 min-w-0 basis-0">
-                    {results.slice(0, 5).map((t) => {
+                    {results.slice(0, 4).map((t) => {
                       const rowDur = formatDuration(t.duration);
                       const isSelected = t.id === selectedTrack.id;
                       return (
@@ -460,7 +460,7 @@ export default function SearchTracksModal({
                     })}
                   </div>
 
-                  <div className="flex-1 min-w-0 basis-0 h-[324px] flex flex-col rounded-2xl border border-white/[0.07] bg-[#101010]/80 backdrop-blur-md overflow-hidden">
+                  <div className="flex-1 min-w-0 basis-0 self-start flex flex-col rounded-2xl border border-white/[0.07] bg-[#101010]/80 backdrop-blur-md overflow-hidden">
                     <div className="flex items-center gap-3 px-4 pt-3.5 pb-3 border-b border-white/[0.06] shrink-0">
                       <span className="w-11 h-11 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                         <Artwork src={selectedTrack.artwork} />
@@ -497,7 +497,7 @@ export default function SearchTracksModal({
                         </button>
                       )}
                     </div>
-                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[220px] overflow-hidden px-4 py-3">
+                    <div ref={lyricsScrollRef} className="relative flex-1 min-h-0 max-h-[118px] overflow-hidden px-4 py-3">
                       <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                           key={`${selectedTrack.id}-${lyricsLoading ? "loading" : "loaded"}`}
@@ -515,7 +515,7 @@ export default function SearchTracksModal({
                               ♪
                             </p>
                           ) : (
-                            <div className="flex flex-col gap-2 py-1">
+                            <div className="flex flex-col gap-2.5 py-1">
                               {displayItems.map((item, di) => {
                                 if (item.kind === "music") {
                                   const isActiveMusic =
@@ -532,12 +532,12 @@ export default function SearchTracksModal({
                                         duration: 0.3,
                                         ease: [0.22, 1, 0.36, 1],
                                       }}
-                                      className={`text-[13px] leading-relaxed transition-all duration-300 select-none ${
+                                      className={`leading-relaxed transition-all duration-300 select-none ${
                                         isActiveMusic
-                                          ? "text-white font-normal blur-0 opacity-100"
+                                          ? "text-[16px] text-white font-medium blur-0 opacity-100"
                                           : !isPreviewingSelected
-                                            ? "text-white/50 blur-[2.5px] opacity-70"
-                                            : "text-white/45 blur-[3px] opacity-50"
+                                            ? "text-[15px] text-white/50 blur-[2.5px] opacity-70"
+                                            : "text-[15px] text-white/45 blur-[3px] opacity-50"
                                       }`}
                                     >
                                       ♪
@@ -560,14 +560,14 @@ export default function SearchTracksModal({
                                       duration: 0.3,
                                       ease: [0.22, 1, 0.36, 1],
                                     }}
-                                    className={`text-[13px] leading-relaxed transition-all duration-300 ${
+                                    className={`leading-relaxed transition-all duration-300 ${
                                       isActive
-                                        ? "text-white font-normal blur-0 opacity-100"
+                                        ? "text-[16px] text-white font-medium blur-0 opacity-100"
                                         : !isPreviewingSelected
-                                          ? "text-white/50 blur-[2.5px] opacity-70 select-none"
+                                          ? "text-[15px] text-white/50 blur-[2.5px] opacity-70 select-none"
                                           : isPast
-                                            ? "text-white/35 blur-[3px] opacity-60 select-none"
-                                            : "text-white/45 blur-[3.5px] opacity-50 select-none"
+                                            ? "text-[15px] text-white/35 blur-[3px] opacity-60 select-none"
+                                            : "text-[15px] text-white/45 blur-[3.5px] opacity-50 select-none"
                                     }`}
                                   >
                                     {l.text}

@@ -195,6 +195,14 @@ export async function updateAppearanceProfile(data: {
   bioFontWeight?: number;
   bioLetterSpacing?: number;
   bioColor?: string;
+  sectionTitleFont?: string;
+  sectionTitleFontSize?: number;
+  sectionTitleFontWeight?: number;
+  sectionTitleLetterSpacing?: number;
+  sectionDescFont?: string;
+  sectionDescFontSize?: number;
+  sectionDescFontWeight?: number;
+  sectionDescLetterSpacing?: number;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -263,6 +271,14 @@ export async function updateAppearanceProfile(data: {
   if (data.bioFontWeight !== undefined) setData.bioFontWeight = data.bioFontWeight;
   if (data.bioLetterSpacing !== undefined) setData.bioLetterSpacing = data.bioLetterSpacing;
   if (data.bioColor !== undefined) setData.bioColor = data.bioColor.slice(0, 32);
+  if (data.sectionTitleFont !== undefined) setData.sectionTitleFont = data.sectionTitleFont.slice(0, 50);
+  if (data.sectionTitleFontSize !== undefined) setData.sectionTitleFontSize = data.sectionTitleFontSize;
+  if (data.sectionTitleFontWeight !== undefined) setData.sectionTitleFontWeight = data.sectionTitleFontWeight;
+  if (data.sectionTitleLetterSpacing !== undefined) setData.sectionTitleLetterSpacing = data.sectionTitleLetterSpacing;
+  if (data.sectionDescFont !== undefined) setData.sectionDescFont = data.sectionDescFont.slice(0, 50);
+  if (data.sectionDescFontSize !== undefined) setData.sectionDescFontSize = data.sectionDescFontSize;
+  if (data.sectionDescFontWeight !== undefined) setData.sectionDescFontWeight = data.sectionDescFontWeight;
+  if (data.sectionDescLetterSpacing !== undefined) setData.sectionDescLetterSpacing = data.sectionDescLetterSpacing;
   if (data.otherFont !== undefined) setData.otherFont = data.otherFont.slice(0, 50);
   if (data.otherFontSize !== undefined) setData.otherFontSize = data.otherFontSize;
   if (data.otherFontWeight !== undefined) setData.otherFontWeight = data.otherFontWeight;
@@ -1352,7 +1368,7 @@ export async function updateMusicProfile(data: {
   }
 
   const playerStyle =
-    data.playerStyle === "vinyl" || data.playerStyle === "lyrics" ? "compact" : "compact";
+    data.playerStyle === "lyrics" ? "lyrics" : data.playerStyle === "waveform" ? "waveform" : "compact";
 
   const setData: Record<string, unknown> = {
     musicTracks: sanitizedTracks.length > 0 ? sanitizedTracks : null,

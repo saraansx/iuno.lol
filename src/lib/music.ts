@@ -15,7 +15,7 @@ export interface MusicTrack {
   lyrics?: LyricLine[] | null;
 }
 
-export type MusicPlayerStyle = "compact" | "vinyl" | "lyrics";
+export type MusicPlayerStyle = "compact" | "waveform" | "lyrics";
 
 export function streamUrlForTrack(id: string): string {
   return `/api/music/stream/${encodeURIComponent(id)}?quality=320`;

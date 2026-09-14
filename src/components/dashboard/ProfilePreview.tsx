@@ -66,6 +66,14 @@ interface ProfilePreviewProps {
   bioFontWeight?: number;
   bioLetterSpacing?: number;
   bioColor?: string;
+  sectionTitleFont?: string;
+  sectionTitleFontSize?: number;
+  sectionTitleFontWeight?: number;
+  sectionTitleLetterSpacing?: number;
+  sectionDescFont?: string;
+  sectionDescFontSize?: number;
+  sectionDescFontWeight?: number;
+  sectionDescLetterSpacing?: number;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -124,7 +132,7 @@ interface ProfilePreviewProps {
   musicPlayerArtBg?: boolean | null;
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = true }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = true, sectionTitleFont = "Inter", sectionTitleFontSize = 15, sectionTitleFontWeight = 500, sectionTitleLetterSpacing = 0, sectionDescFont = "Inter", sectionDescFontSize = 12.5, sectionDescFontWeight = 400, sectionDescLetterSpacing = 0 }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -253,6 +261,14 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             bioFontWeight={bioFontWeight}
             bioLetterSpacing={bioLetterSpacing}
             bioColor={bioColor}
+            sectionTitleFont={sectionTitleFont}
+            sectionTitleFontSize={sectionTitleFontSize}
+            sectionTitleFontWeight={sectionTitleFontWeight}
+            sectionTitleLetterSpacing={sectionTitleLetterSpacing}
+            sectionDescFont={sectionDescFont}
+            sectionDescFontSize={sectionDescFontSize}
+            sectionDescFontWeight={sectionDescFontWeight}
+            sectionDescLetterSpacing={sectionDescLetterSpacing}
             otherFont={otherFont}
             otherFontSize={otherFontSize}
             otherFontWeight={otherFontWeight}

@@ -215,6 +215,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgets: userSettings.widgets,
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
+      sectionTitleFont: userSettings.sectionTitleFont,
+      sectionTitleFontSize: userSettings.sectionTitleFontSize,
+      sectionTitleFontWeight: userSettings.sectionTitleFontWeight,
+      sectionTitleLetterSpacing: userSettings.sectionTitleLetterSpacing,
+      sectionDescFont: userSettings.sectionDescFont,
+      sectionDescFontSize: userSettings.sectionDescFontSize,
+      sectionDescFontWeight: userSettings.sectionDescFontWeight,
+      sectionDescLetterSpacing: userSettings.sectionDescLetterSpacing,
       musicPlayerArtBg: userSettings.musicPlayerArtBg,
     })
     .from(users)
@@ -312,6 +320,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bioFontWeight={user.bioFontWeight ?? undefined}
         bioLetterSpacing={user.bioLetterSpacing ?? undefined}
         bioColor={user.bioColor ?? undefined}
+        sectionTitleFont={user.sectionTitleFont ?? undefined}
+        sectionTitleFontSize={user.sectionTitleFontSize ?? undefined}
+        sectionTitleFontWeight={user.sectionTitleFontWeight ?? undefined}
+        sectionTitleLetterSpacing={user.sectionTitleLetterSpacing ?? undefined}
+        sectionDescFont={user.sectionDescFont ?? undefined}
+        sectionDescFontSize={user.sectionDescFontSize ?? undefined}
+        sectionDescFontWeight={user.sectionDescFontWeight ?? undefined}
+        sectionDescLetterSpacing={user.sectionDescLetterSpacing ?? undefined}
         otherFont={user.otherFont ?? undefined}
         otherFontSize={user.otherFontSize ?? undefined}
         otherFontWeight={user.otherFontWeight ?? undefined}

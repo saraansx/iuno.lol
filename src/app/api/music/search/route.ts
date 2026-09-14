@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
         ? data.songs
         : [];
 
-    const results = list.slice(0, 5).map((t) => {
+    const results = list.slice(0, 4).map((t) => {
       const id = String(t.id);
       const artist = t.artist || "Unknown artist";
       const artwork =

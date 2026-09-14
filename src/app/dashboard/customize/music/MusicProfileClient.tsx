@@ -30,7 +30,7 @@ function toTrack(raw: NonNullable<FullUser["musicTracks"]>[number]): Track {
 }
 
 function sanitizeStyle(raw: string | null | undefined): MusicPlayerStyle {
-  return raw === "vinyl" || raw === "lyrics" ? "compact" : "compact";
+  return raw === "lyrics" ? "lyrics" : raw === "waveform" ? "waveform" : "compact";
 }
 
 export default function MusicProfileClient({ user }: { user: FullUser | null }) {
