@@ -1140,3 +1140,92 @@ export async function updateProfileWidgets(data: {
   return { success: true };
 }
 
+export type MusicTrackInput = {
+  id: string;
+  title: string;
+  artist: string;
+  artwork?: string | null;
+  album?: string | null;
+  duration?: number | null;
+  streamUrl?: string | null;
+};
+
+export async function updateMusicProfile(data: {
+  tracks: MusicTrackInput[];
+  playerStyle?: string;
+}) {
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  if ((data.tracks || []).length > 2) {
+    throw new Error("You can only add a maximum of 2 tracks.");
+  }
+
+  // Re-resolve every track server-side: id, stream URL and artwork come
+  // from the upstream search, never trusted from the client payload.
+  const sanitizedTracks = (data.tracks || []).slice(0, 2).map((t) => {
+    const id = String(t.id || "").trim().slice(0, 32);
+    if (!id || !/^[A-Za-z0-9_-]{1,32}$/.test(id)) {
+      throw new Error("Invalid track ID.");
+    }
+    return {
+      id,
+      title: String(t.title || "Untitled").trim().slice(0, 200) || "Untitled",
+      artist: String(t.artist || "Unknown artist").trim().slice(0, 200) || "Unknown artist",
+      artwork:
+        typeof t.artwork === "string" && t.artwork.startsWith("/api/music/artwork")
+          ? t.artwork.slice(0, 300)
+          : null,
+      album:
+        typeof t.album === "string" && t.album.trim()
+          ? t.album.trim().slice(0, 200)
+          : null,
+      duration:
+        typeof t.duration === "number" && Number.isFinite(t.duration) && t.duration > 0
+          ? Math.round(t.duration)
+          : null,
+      streamUrl: `/api/music/stream/${encodeURIComponent(id)}?quality=320`,
+    };
+  });
+
+  // Background video sound and the music player can't play at once.
+  if (sanitizedTracks.length > 0 && user.bannerBackgroundSound) {
+    throw new Error("Turn off background sound to use the music player.");
+  }
+
+  const playerStyle =
+    data.playerStyle === "vinyl" || data.playerStyle === "lyrics" ? "compact" : "compact";
+
+  const setData: Record<string, unknown> = {
+    musicTracks: sanitizedTracks.length > 0 ? sanitizedTracks : null,
+    musicPlayerStyle: playerStyle,
+  };
+
+  sanitizeProfileSettings(setData);
+
+  await db
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
+
+  revalidatePath("/dashboard/customize/music");
+  revalidatePath("/dashboard", "layout");
+  await revalidateOwnProfile(userId);
+
+  return { success: true };
+}
+

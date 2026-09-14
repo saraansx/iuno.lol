@@ -150,6 +150,16 @@ export const userSettings = mysqlTable('user_settings', {
   tabTitleAnimated: boolean('tab_title_animated').default(false),
   commentsEnabled: boolean('comments_enabled').default(true),
   showCommentsPublicly: boolean('show_comments_publicly').default(true),
+  musicTracks: json('music_tracks').$type<Array<{
+    id: string;
+    title: string;
+    artist: string;
+    artwork: string | null;
+    album?: string | null;
+    duration?: number | null;
+    streamUrl?: string | null;
+  }>>(),
+  musicPlayerStyle: varchar('music_player_style', { length: 20 }).default('compact'),
   allowNewComments: boolean('allow_new_comments').default(true),
   feedbackEnabled: boolean('feedback_enabled').default(true),
   showFeedbackPublicly: boolean('show_feedback_publicly').default(false),

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
-import { getSessionUserId } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,11 +11,6 @@ const UA =
 export async function GET(req: NextRequest) {
   const limited = await widgetRateLimit(req, "music_artwork", 120);
   if (limited) return limited;
-
-  const sessionUserId = await getSessionUserId();
-  if (!sessionUserId) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
-  }
 
   const id = (req.nextUrl.searchParams.get("id") || "").trim().slice(0, 32);
   const artist = (req.nextUrl.searchParams.get("artist") || "").trim().slice(0, 200);

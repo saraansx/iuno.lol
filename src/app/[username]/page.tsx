@@ -213,6 +213,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenBlur: userSettings.enterScreenBlur,
       enterScreenBlurColor: userSettings.enterScreenBlurColor,
       widgets: userSettings.widgets,
+      musicTracks: userSettings.musicTracks,
+      musicPlayerStyle: userSettings.musicPlayerStyle,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -367,6 +369,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         viewsPlacement={user.viewsPlacement ?? undefined}
         feedbackPlacement={user.feedbackPlacement ?? undefined}
         widgets={user.widgets ?? undefined}
+        musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
+        musicPlayerStyle={user.musicPlayerStyle ?? undefined}
       />
       <ProfileViewTracker profileId={user.id} />
       {user.tabTitleAnimated && (

@@ -16,6 +16,7 @@ import { CursorTrail } from "./CursorTrail";
 import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
+import CompactMusicPlayer from "../music/CompactMusicPlayer";
 import {
   BADGE_CLASSES,
   DEFAULT_DETAILS,
@@ -223,6 +224,9 @@ interface Layout1Props {
   initialDislikes?: number;
   createdAt?: string | Date;
   widgets?: WidgetItem[];
+  musicTracks?: import("@/lib/music").MusicTrack[];
+  musicPlayerStyle?: string | null;
+  musicAutoPlay?: boolean;
 }
 
 const hexToRgba = (hex: string | undefined, opacity: number) =>
@@ -411,6 +415,9 @@ const Layout1 = ({
   initialDislikes = 0,
   createdAt,
   widgets = [],
+  musicTracks = [],
+  musicPlayerStyle = "compact",
+  musicAutoPlay = true,
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -792,6 +799,15 @@ useEffect(() => {
     />
   );
 
+  const showMusicPlayer =
+    !bannerBackgroundSound && musicPlayerStyle === "compact" && musicTracks.length > 0;
+
+  const musicPlayer = showMusicPlayer ? (
+    <div className="w-full mt-3">
+      <CompactMusicPlayer tracks={musicTracks} autoPlay={musicAutoPlay && (!enterScreenEnabled || entered)} />
+    </div>
+  ) : null;
+
 const textBlock = (text: string, left: boolean) => (
     <div className={`w-full flex ${left ? "justify-start" : "justify-center"}`}>
       <DescriptionEffect effect={descriptionEffect}>
@@ -1129,6 +1145,7 @@ const sectionSurface: React.CSSProperties = {
         </CardEffect>
 
         {!sectioned && outsideWidgets}
+        {!sectioned && musicPlayer}
 
         {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
         {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
@@ -1176,6 +1193,7 @@ const sectionSurface: React.CSSProperties = {
                     </div>
                   )}
                   {aboutHasWidgets && outsideWidgets}
+                  {musicPlayer}
                 </>
               )}
             </div>

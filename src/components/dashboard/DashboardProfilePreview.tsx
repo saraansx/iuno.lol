@@ -134,6 +134,8 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
+      musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}
+      musicPlayerStyle={deferredOverrides.musicPlayerStyle ?? user?.musicPlayerStyle ?? "compact"}
     />
   );
 }

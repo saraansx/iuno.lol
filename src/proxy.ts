@@ -122,6 +122,8 @@ export default async function middleware(request: NextRequest) {
       path === '/api/track-view' ||
       path.startsWith('/api/profile/') ||
       path.startsWith('/api/widgets/') ||
+      path.startsWith('/api/music/stream/') ||
+      path.startsWith('/api/music/artwork') ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||

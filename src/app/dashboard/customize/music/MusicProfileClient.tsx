@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import SaveBar from "@/components/dashboard/SaveBar";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
+import PlayerStyleSection, { type MusicPlayerStyle } from "@/components/dashboard/music/PlayerStyleSection";
 import SearchTracksModal, { type SearchTrack } from "@/components/dashboard/music/SearchTracksModal";
+import { updateMusicProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -12,22 +16,45 @@ type Track = SearchTrack;
 
 const MAX_TRACKS = 2;
 
+function toTrack(raw: NonNullable<FullUser["musicTracks"]>[number]): Track {
+  return {
+    id: raw.id,
+    title: raw.title,
+    artist: raw.artist,
+    artwork: raw.artwork ?? null,
+    album: raw.album ?? undefined,
+    duration: raw.duration ?? undefined,
+    streamUrl: raw.streamUrl ?? undefined,
+  };
+}
+
+function sanitizeStyle(raw: string | null | undefined): MusicPlayerStyle {
+  return raw === "vinyl" || raw === "lyrics" ? "compact" : "compact";
+}
+
 export default function MusicProfileClient({ user }: { user: FullUser | null }) {
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const router = useRouter();
+  const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
+  const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
+
+  const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
+  const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
+
+  const hasChanges =
+    playerStyle !== initialPlayerStyle ||
+    JSON.stringify(tracks) !== JSON.stringify(initialTracks);
 
   const addTrack = (track: SearchTrack) => {
     setTracks((prev) => (prev.length >= MAX_TRACKS ? prev : [...prev, track]));
-    setHasChanges(true);
   };
 
   const removeTrack = (id: string) => {
     setTracks((prev) => prev.filter((t) => t.id !== id));
-    setHasChanges(true);
   };
 
   const count = tracks.length;
+  const backgroundSoundOn = user?.bannerBackgroundSound ?? false;
 
   return (
     <>
@@ -35,6 +62,31 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         className="flex flex-col gap-8 w-full"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
+        {backgroundSoundOn && (
+          <div className="flex gap-3.5 bg-[#e0a355]/[0.04] border border-[#e0a355]/15 rounded-[16px] px-4 py-3.5">
+            <svg className="text-[#e0a355]/70 shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+              <path d="M12 9v4" />
+              <path d="M12 17h.01" />
+            </svg>
+            <div className="flex flex-col gap-0.5 min-w-0">
+              <span className="text-[14px] font-normal text-white/90 tracking-tight">
+                Background sound is on
+              </span>
+              <p className="text-[12.5px] text-white/40">
+                Turn off background sound to use the music player — both can&apos;t play at once.
+              </p>
+              <Link
+                href="/dashboard/customize/profile/general"
+                className="mt-2.5 bg-white/[0.06] border border-white/10 hover:bg-white/[0.09] text-[12.5px] text-white/80 font-normal rounded-xl px-3.5 py-2 transition-colors w-fit"
+              >
+                Turn off background sound
+              </Link>
+            </div>
+          </div>
+        )}
+        {!backgroundSoundOn && (
+        <>
         <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
@@ -133,20 +185,34 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
             </div>
           )}
         </div>
+
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} />
+        </>
+        )}
       </div>
 
-      <DashboardProfilePreview user={user} />
+      <DashboardProfilePreview
+        user={user}
+        overrides={{
+          musicTracks: tracks,
+          musicPlayerStyle: playerStyle,
+        }}
+      />
 
       <SaveBar
         show={hasChanges}
-        onSave={() => {
-          // ponytail: UI-only, no DB column yet. Add user_settings JSON field + updateMusicProfile action when persistence needed.
-          toast.success("Tracks saved locally (persistence not wired yet)");
-          setHasChanges(false);
+        onSave={async () => {
+          try {
+            await updateMusicProfile({ tracks, playerStyle });
+            toast.success("Profile Saved Sucessfully");
+            router.refresh();
+          } catch (error) {
+            toast.error(error instanceof Error ? error.message : "Failed to save music");
+          }
         }}
         onRevert={() => {
-          setTracks([]);
-          setHasChanges(false);
+          setTracks(initialTracks);
+          setPlayerStyle(initialPlayerStyle);
         }}
       />
 

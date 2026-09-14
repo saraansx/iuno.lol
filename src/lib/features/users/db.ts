@@ -133,6 +133,8 @@ const userColumns = {
   viewsAnimationDuration: schema.userSettings.viewsAnimationDuration,
   commentsEnabled: schema.userSettings.commentsEnabled,
   showCommentsPublicly: schema.userSettings.showCommentsPublicly,
+  musicTracks: schema.userSettings.musicTracks,
+  musicPlayerStyle: schema.userSettings.musicPlayerStyle,
   allowNewComments: schema.userSettings.allowNewComments,
   feedbackEnabled: schema.userSettings.feedbackEnabled,
   showFeedbackPublicly: schema.userSettings.showFeedbackPublicly,

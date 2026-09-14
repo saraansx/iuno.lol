@@ -119,9 +119,11 @@ interface ProfilePreviewProps {
   showViewsTooltip?: boolean;
   createdAt?: string | Date;
   widgets?: import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[];
+  musicTracks?: import("@/lib/music").MusicTrack[];
+  musicPlayerStyle?: string | null;
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact" }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -302,6 +304,9 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             showViewsTooltip={showViewsTooltip}
             createdAt={createdAt}
             widgets={widgets}
+            musicTracks={musicTracks}
+            musicPlayerStyle={musicPlayerStyle}
+            musicAutoPlay={false}
             profileId={userId ?? -1}
             viewerId={-1}
           />
