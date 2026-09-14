@@ -41,6 +41,22 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropId, setDropId] = useState<string | null>(null);
+
+  const moveTrack = (fromId: string, toId: string) => {
+    if (fromId === toId) return;
+    setTracks((prev) => {
+      const from = prev.findIndex((t) => t.id === fromId);
+      const to = prev.findIndex((t) => t.id === toId);
+      if (from < 0 || to < 0 || from === to) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      if (!moved) return prev;
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
 
   // streamUrl/artwork/lyrics are server-cached to Catbox on save — compare
   // user-meaningful fields only, otherwise saved state never equals local
@@ -131,7 +147,38 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
               {tracks.map((track) => (
                 <div
                   key={track.id}
-                  className="group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border border-white/5 rounded-2xl transition-all duration-150"
+                  draggable
+                  onDragStart={(e) => {
+                    e.dataTransfer.effectAllowed = "move";
+                    e.dataTransfer.setData("text/plain", track.id);
+                    setDragId(track.id);
+                  }}
+                  onDragEnd={() => {
+                    setDragId(null);
+                    setDropId(null);
+                  }}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    if (dragId && dragId !== track.id) {
+                      setDropId(track.id);
+                      moveTrack(dragId, track.id);
+                    }
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const from = e.dataTransfer.getData("text/plain") || dragId;
+                    if (from) moveTrack(from, track.id);
+                    setDragId(null);
+                    setDropId(null);
+                  }}
+                  className={`group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 cursor-grab active:cursor-grabbing ${
+                    dragId === track.id
+                      ? "opacity-40 border-white/20"
+                      : dropId === track.id
+                        ? "border-[#609fda]/50"
+                        : "border-white/5"
+                  }`}
                 >
                   <div className="flex items-center gap-3.5">
                     <div className="text-white/20 group-hover:text-white/60 transition-colors">

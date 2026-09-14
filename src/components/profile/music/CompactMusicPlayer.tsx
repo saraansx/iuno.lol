@@ -113,19 +113,14 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
     };
     const onEnded = () => {
       stopLevels();
-      // auto-advance to next track and keep playing
-      if (index < tracks.length - 1) {
-        audioRef.current = null;
-        setElapsed(0);
-        setDuration(0);
-        setPlaying(false);
-        setLoading(false);
-        autoNextRef.current = true;
-        setIndex(index + 1);
-      } else {
-        setPlaying(false);
-        setElapsed(0);
-      }
+      // loop: single track repeats, playlist wraps to first after last
+      audioRef.current = null;
+      setElapsed(0);
+      setDuration(0);
+      setPlaying(false);
+      setLoading(false);
+      autoNextRef.current = true;
+      setIndex(index < tracks.length - 1 ? index + 1 : 0);
     };
     const onError = () => {
       stopLevels();
@@ -202,8 +197,9 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
       }
       return;
     }
-    const next = index + dir;
-    if (next < 0 || next >= tracks.length) return;
+    // wrap around both ends so prev/next never grey out
+    const next = (index + dir + tracks.length) % tracks.length;
+    const wasPlaying = !!audioRef.current && !audioRef.current.paused;
     audioRef.current?.pause();
     audioRef.current = null;
     stopLevels();
@@ -211,6 +207,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
     setLoading(false);
     setElapsed(0);
     setDuration(0);
+    if (wasPlaying) autoNextRef.current = true;
     setIndex(next);
   };
 
@@ -257,9 +254,8 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
         <button
           type="button"
           onClick={() => step(-1)}
-          disabled={index === 0}
           title="Previous track"
-          className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default"
+          className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path d="M6 5h2v14H6zM20 5v14L9 12z" />
@@ -302,9 +298,8 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
         <button
           type="button"
           onClick={() => step(1)}
-          disabled={index === tracks.length - 1}
           title="Next track"
-          className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default"
+          className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
             <path d="M16 5h2v14h-2zM4 5v14l11-7z" />
