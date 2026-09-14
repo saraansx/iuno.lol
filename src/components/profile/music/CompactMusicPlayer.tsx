@@ -11,7 +11,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function CompactMusicPlayer({ tracks, autoPlay = false }: { tracks: MusicTrack[]; autoPlay?: boolean }) {
+export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -218,7 +218,14 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
   if (!track) return null;
 
   return (
-    <div className="relative w-full rounded-2xl bg-[#101010]/80 border border-white/10 pl-4 pr-3 py-3.5 flex items-center gap-3.5 overflow-hidden">
+    <div className="relative w-full rounded-2xl bg-[#101010] border border-white/10 overflow-hidden">
+      {/* dynamic blurred artwork bg — changes with the song */}
+      {artBg && track.artwork ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={track.id} src={track.artwork} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-70" />
+      ) : null}
+      {artBg && track.artwork ? <div className="absolute inset-0 bg-black/55" aria-hidden="true" /> : null}
+      <div className="relative flex items-center gap-3.5 pl-4 pr-3 py-3.5">
       <div className="w-14 h-14 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
         {track.artwork ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -268,8 +275,8 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
           title="Restart song"
           className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 5V1L7 6l5 5V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M6 5h2v14H6zM20 5v14L9 12z" />
           </svg>
         </button>
       )}
@@ -312,11 +319,12 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
           title="Restart song"
           className="w-8 h-8 rounded-full text-white/60 hover:text-white hover:bg-white/10 flex items-center justify-center shrink-0 transition-all cursor-pointer"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 5V1L7 6l5 5V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16 5h2v14h-2zM4 5v14l11-7z" />
           </svg>
         </button>
       )}
+      </div>
       </div>
       {/* draggable seek bar at bottom */}
       <div

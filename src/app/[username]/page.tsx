@@ -215,6 +215,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgets: userSettings.widgets,
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
+      musicPlayerArtBg: userSettings.musicPlayerArtBg,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
@@ -371,6 +372,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         widgets={user.widgets ?? undefined}
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
+        musicPlayerArtBg={user.musicPlayerArtBg ?? true}
       />
       <ProfileViewTracker profileId={user.id} />
       {user.tabTitleAnimated && (

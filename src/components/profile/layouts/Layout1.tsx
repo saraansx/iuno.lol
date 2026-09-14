@@ -227,6 +227,7 @@ interface Layout1Props {
   musicTracks?: import("@/lib/music").MusicTrack[];
   musicPlayerStyle?: string | null;
   musicAutoPlay?: boolean;
+  musicPlayerArtBg?: boolean | null;
 }
 
 const hexToRgba = (hex: string | undefined, opacity: number) =>
@@ -418,6 +419,7 @@ const Layout1 = ({
   musicTracks = [],
   musicPlayerStyle = "compact",
   musicAutoPlay = true,
+  musicPlayerArtBg = true,
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -804,7 +806,7 @@ useEffect(() => {
 
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
-      <CompactMusicPlayer tracks={musicTracks} autoPlay={musicAutoPlay && (!enterScreenEnabled || entered)} />
+      <CompactMusicPlayer tracks={musicTracks} autoPlay={musicAutoPlay && (!enterScreenEnabled || entered)} artBg={musicPlayerArtBg ?? true} />
     </div>
   ) : null;
 

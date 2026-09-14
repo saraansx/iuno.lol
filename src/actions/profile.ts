@@ -1273,6 +1273,7 @@ async function fetchTrackLyrics(input: {
 export async function updateMusicProfile(data: {
   tracks: MusicTrackInput[];
   playerStyle?: string;
+  artBg?: boolean;
 }) {
   const userId = await getSessionUserId();
 
@@ -1356,6 +1357,7 @@ export async function updateMusicProfile(data: {
   const setData: Record<string, unknown> = {
     musicTracks: sanitizedTracks.length > 0 ? sanitizedTracks : null,
     musicPlayerStyle: playerStyle,
+    ...(typeof data.artBg === "boolean" ? { musicPlayerArtBg: data.artBg } : {}),
   };
 
   sanitizeProfileSettings(setData);
@@ -1374,6 +1376,10 @@ export async function updateMusicProfile(data: {
   revalidatePath("/dashboard", "layout");
   await revalidateOwnProfile(userId);
 
-  return { success: true, tracks: sanitizedTracks };
+  return {
+    success: true,
+    tracks: sanitizedTracks,
+    artBg: typeof data.artBg === "boolean" ? data.artBg : undefined,
+  };
 }
 

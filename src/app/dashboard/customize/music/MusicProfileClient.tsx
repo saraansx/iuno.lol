@@ -37,10 +37,12 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const router = useRouter();
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
+  const initialArtBg = user?.musicPlayerArtBg ?? true;
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
+  const [artBg, setArtBg] = useState<boolean>(initialArtBg);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -71,6 +73,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
 
   const hasChanges =
     playerStyle !== initialPlayerStyle ||
+    artBg !== initialArtBg ||
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const addTrack = (track: SearchTrack) => {
@@ -245,7 +248,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           )}
         </div>
 
-        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} />
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} />
         </>
         )}
       </div>
@@ -255,6 +258,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         overrides={{
           musicTracks: tracks,
           musicPlayerStyle: playerStyle,
+          musicPlayerArtBg: artBg,
         }}
       />
 
@@ -262,7 +266,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         show={hasChanges}
         onSave={async () => {
           try {
-            const res = await updateMusicProfile({ tracks, playerStyle });
+            const res = await updateMusicProfile({ tracks, playerStyle, artBg });
             // Sync local state with server-cached (Catbox) tracks so the
             // SaveBar clears immediately.
             if (res?.tracks) setTracks(res.tracks.map(toTrack));
@@ -275,6 +279,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         onRevert={() => {
           setTracks(initialTracks);
           setPlayerStyle(initialPlayerStyle);
+          setArtBg(initialArtBg);
         }}
       />
 

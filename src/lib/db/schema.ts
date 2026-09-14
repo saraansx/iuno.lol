@@ -161,6 +161,7 @@ export const userSettings = mysqlTable('user_settings', {
     lyrics?: Array<{ text: string; start: number; end: number }> | null;
   }>>(),
   musicPlayerStyle: varchar('music_player_style', { length: 20 }).default('compact'),
+  musicPlayerArtBg: boolean('music_player_art_bg').default(true),
   allowNewComments: boolean('allow_new_comments').default(true),
   feedbackEnabled: boolean('feedback_enabled').default(true),
   showFeedbackPublicly: boolean('show_feedback_publicly').default(false),

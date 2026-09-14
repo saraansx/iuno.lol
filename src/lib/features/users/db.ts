@@ -135,6 +135,7 @@ const userColumns = {
   showCommentsPublicly: schema.userSettings.showCommentsPublicly,
   musicTracks: schema.userSettings.musicTracks,
   musicPlayerStyle: schema.userSettings.musicPlayerStyle,
+  musicPlayerArtBg: schema.userSettings.musicPlayerArtBg,
   allowNewComments: schema.userSettings.allowNewComments,
   feedbackEnabled: schema.userSettings.feedbackEnabled,
   showFeedbackPublicly: schema.userSettings.showFeedbackPublicly,
