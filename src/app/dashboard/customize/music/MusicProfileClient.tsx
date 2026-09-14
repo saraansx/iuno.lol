@@ -41,9 +41,21 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
 
+  // Server rewrites streamUrl on save + returns nulls where client holds
+  // undefined — compare normalized user-meaningful fields only, otherwise
+  // saved state never equals local state and SaveBar stays stuck.
+  const normTrack = (t: Track) => ({
+    id: t.id,
+    title: t.title,
+    artist: t.artist,
+    artwork: t.artwork ?? null,
+    album: t.album ?? null,
+    duration: t.duration ?? null,
+  });
+
   const hasChanges =
     playerStyle !== initialPlayerStyle ||
-    JSON.stringify(tracks) !== JSON.stringify(initialTracks);
+    JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const addTrack = (track: SearchTrack) => {
     setTracks((prev) => (prev.length >= MAX_TRACKS ? prev : [...prev, track]));
