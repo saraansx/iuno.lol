@@ -238,6 +238,8 @@ interface Layout1Props {
   musicPlayerStyle?: string | null;
   musicAutoPlay?: boolean;
   musicPlayerArtBg?: boolean | null;
+  musicPlayerVolume?: boolean | null;
+  musicPlayerVolumeFixed?: boolean;
 }
 
 const hexToRgba = (hex: string | undefined, opacity: number) =>
@@ -438,6 +440,8 @@ const Layout1 = ({
   musicPlayerStyle = "compact",
   musicAutoPlay = true,
   musicPlayerArtBg = true,
+  musicPlayerVolume = false,
+  musicPlayerVolumeFixed = true,
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -828,15 +832,16 @@ useEffect(() => {
 
   const musicPlayerAutoPlay = musicAutoPlay && (!enterScreenEnabled || entered);
   const musicPlayerArtBgOn = musicPlayerArtBg ?? true;
+  const musicPlayerVolumeOn = musicPlayerVolume ?? false;
 
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
       {musicPlayerStyle === "lyrics" ? (
-        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
       ) : musicPlayerStyle === "waveform" ? (
-        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
       ) : (
-        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} />
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
       )}
     </div>
   ) : null;

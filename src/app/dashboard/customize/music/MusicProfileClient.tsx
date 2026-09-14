@@ -38,11 +38,13 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
   const initialArtBg = user?.musicPlayerArtBg ?? true;
+  const initialVolumeControl = user?.musicPlayerVolume ?? false;
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
   const [artBg, setArtBg] = useState<boolean>(initialArtBg);
+  const [volumeControl, setVolumeControl] = useState<boolean>(initialVolumeControl);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -74,6 +76,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const hasChanges =
     playerStyle !== initialPlayerStyle ||
     artBg !== initialArtBg ||
+    volumeControl !== initialVolumeControl ||
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const addTrack = (track: SearchTrack) => {
@@ -248,7 +251,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           )}
         </div>
 
-        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} />
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} />
         </>
         )}
       </div>
@@ -259,6 +262,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           musicTracks: tracks,
           musicPlayerStyle: playerStyle,
           musicPlayerArtBg: artBg,
+          musicPlayerVolume: volumeControl,
         }}
       />
 
@@ -266,7 +270,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         show={hasChanges}
         onSave={async () => {
           try {
-            const res = await updateMusicProfile({ tracks, playerStyle, artBg });
+            const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl });
             // Sync local state with server-cached (Catbox) tracks so the
             // SaveBar clears immediately.
             if (res?.tracks) setTracks(res.tracks.map(toTrack));
@@ -280,6 +284,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           setTracks(initialTracks);
           setPlayerStyle(initialPlayerStyle);
           setArtBg(initialArtBg);
+          setVolumeControl(initialVolumeControl);
         }}
       />
 

@@ -143,6 +143,7 @@ const userColumns = {
   sectionDescLetterSpacing: schema.userSettings.sectionDescLetterSpacing,
   musicTracks: schema.userSettings.musicTracks,
   musicPlayerStyle: schema.userSettings.musicPlayerStyle,
+  musicPlayerVolume: schema.userSettings.musicPlayerVolume,
   musicPlayerArtBg: schema.userSettings.musicPlayerArtBg,
   allowNewComments: schema.userSettings.allowNewComments,
   feedbackEnabled: schema.userSettings.feedbackEnabled,

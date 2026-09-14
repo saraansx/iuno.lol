@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type MusicTrack } from "@/lib/music";
 import { isCatboxUrl } from "@/lib/catbox";
+import { useVolume, VolumeButton } from "./volume";
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -40,7 +41,7 @@ export function seedHeights(key: string, n: number): number[] {
 
 const BAR_COUNT = 110;
 
-export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean }) {
+export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda" }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   const autoNextRef = useRef(false);
   const barRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
+  const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
 
   const seekFromClientX = (clientX: number) => {
     const el = barRef.current;
@@ -89,6 +91,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     const audio = new Audio(url);
     audio.preload = "auto";
     audioRef.current = audio;
+    applyVolume(audio);
     setLoading(true);
     setElapsed(0);
     const onTime = () => setElapsed(audio.currentTime);
@@ -210,6 +213,9 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
         <img key={track.id} src={track.artwork} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-60" />
       ) : null}
       {artBg && track.artwork ? <div className="absolute inset-0 bg-black/60" aria-hidden="true" /> : null}
+      {volumeControl ? (
+        <VolumeButton volume={volume} muted={muted} setVolume={setVolume} toggleMute={toggleMute} fixed={volumeFloating} color={volumeColor} />
+      ) : null}
 
       <div className="relative px-4 pt-3.5 pb-4">
         <div className="flex items-center gap-3">

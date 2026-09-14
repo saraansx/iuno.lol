@@ -215,6 +215,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgets: userSettings.widgets,
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
+      musicPlayerVolume: userSettings.musicPlayerVolume,
       sectionTitleFont: userSettings.sectionTitleFont,
       sectionTitleFontSize: userSettings.sectionTitleFontSize,
       sectionTitleFontWeight: userSettings.sectionTitleFontWeight,
@@ -389,6 +390,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? true}
+        musicPlayerVolume={user.musicPlayerVolume ?? false}
       />
       <ProfileViewTracker profileId={user.id} />
       {user.tabTitleAnimated && (

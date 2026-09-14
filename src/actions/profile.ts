@@ -1290,6 +1290,7 @@ export async function updateMusicProfile(data: {
   tracks: MusicTrackInput[];
   playerStyle?: string;
   artBg?: boolean;
+  volumeControl?: boolean;
 }) {
   const userId = await getSessionUserId();
 
@@ -1374,6 +1375,7 @@ export async function updateMusicProfile(data: {
     musicTracks: sanitizedTracks.length > 0 ? sanitizedTracks : null,
     musicPlayerStyle: playerStyle,
     ...(typeof data.artBg === "boolean" ? { musicPlayerArtBg: data.artBg } : {}),
+    ...(typeof data.volumeControl === "boolean" ? { musicPlayerVolume: data.volumeControl } : {}),
   };
 
   sanitizeProfileSettings(setData);
@@ -1396,6 +1398,7 @@ export async function updateMusicProfile(data: {
     success: true,
     tracks: sanitizedTracks,
     artBg: typeof data.artBg === "boolean" ? data.artBg : undefined,
+    volumeControl: typeof data.volumeControl === "boolean" ? data.volumeControl : undefined,
   };
 }
 
