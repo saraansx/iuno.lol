@@ -25,6 +25,7 @@ function toTrack(raw: NonNullable<FullUser["musicTracks"]>[number]): Track {
     album: raw.album ?? undefined,
     duration: raw.duration ?? undefined,
     streamUrl: raw.streamUrl ?? undefined,
+    lyrics: raw.lyrics ?? undefined,
   };
 }
 
@@ -41,11 +42,13 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
 
+  // streamUrl/artwork/lyrics are server-cached to Catbox on save — compare
+  // user-meaningful fields only, otherwise saved state never equals local
+  // state and SaveBar stays stuck.
   const normTrack = (t: Track) => ({
     id: t.id,
     title: t.title,
     artist: t.artist,
-    artwork: t.artwork ?? null,
     album: t.album ?? null,
     duration: t.duration ?? null,
   });
@@ -212,7 +215,10 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         show={hasChanges}
         onSave={async () => {
           try {
-            await updateMusicProfile({ tracks, playerStyle });
+            const res = await updateMusicProfile({ tracks, playerStyle });
+            // Sync local state with server-cached (Catbox) tracks so the
+            // SaveBar clears immediately.
+            if (res?.tracks) setTracks(res.tracks.map(toTrack));
             toast.success("Profile Saved Sucessfully");
             router.refresh();
           } catch (error) {

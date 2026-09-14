@@ -12,6 +12,7 @@ export type SearchTrack = {
   album?: string | null;
   duration?: number | null;
   streamUrl?: string | null;
+  lyrics?: Array<{ text: string; start: number; end: number }> | null;
 };
 
 type LyricLine = { text: string; start: number; end: number };

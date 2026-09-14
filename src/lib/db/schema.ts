@@ -158,6 +158,7 @@ export const userSettings = mysqlTable('user_settings', {
     album?: string | null;
     duration?: number | null;
     streamUrl?: string | null;
+    lyrics?: Array<{ text: string; start: number; end: number }> | null;
   }>>(),
   musicPlayerStyle: varchar('music_player_style', { length: 20 }).default('compact'),
   allowNewComments: boolean('allow_new_comments').default(true),

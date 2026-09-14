@@ -14,6 +14,7 @@ import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
+import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_BASE = "https://files.catbox.moe/";
@@ -1150,6 +1151,125 @@ export type MusicTrackInput = {
   streamUrl?: string | null;
 };
 
+type CachedTrackMedia = {
+  streamUrl: string;
+  artwork: string | null;
+  lyrics: Array<{ text: string; start: number; end: number }> | null;
+};
+
+const EVI_BASE = "https://evi.wtf";
+const EVI_UA =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+function eviHeaders(accept: string): Record<string, string> {
+  return {
+    "User-Agent": EVI_UA,
+    Accept: accept,
+    ...(process.env.EVI_COOKIE ? { Cookie: process.env.EVI_COOKIE } : {}),
+  };
+}
+
+/** Download the 320kbps mp3 from upstream and pin it to Catbox.
+ *  Returns null on failure — no upstream fallback, main page is Catbox-only. */
+async function cacheTrackAudio(id: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${EVI_BASE}/api/stream/${encodeURIComponent(id)}?quality=320`, {
+      headers: eviHeaders("audio/*,*/*"),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok || !res.body) {
+      await res.body?.cancel();
+      return null;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length === 0 || buf.length > 25 * 1024 * 1024) return null;
+    return await uploadToCatbox(buf, `track_${id}.mp3`, "audio/mpeg");
+  } catch (error) {
+    console.error("[Music Cache] audio failed:", error);
+    return null;
+  }
+}
+
+/** Download cover art from upstream and pin it to Catbox. Accepts the local
+ *  `/api/music/artwork?...` path or an already-cached Catbox URL. */
+async function cacheTrackArtwork(artwork: string | null | undefined): Promise<string | null> {
+  if (!artwork) return null;
+  if (isCatboxUrl(artwork)) return artwork;
+  let artId: string | null = null;
+  let artist = "";
+  try {
+    const u = new URL(artwork, "http://local");
+    artId = u.searchParams.get("id");
+    artist = u.searchParams.get("artist") ?? "";
+  } catch {
+    return null;
+  }
+  if (!artId) return null;
+  try {
+    const res = await fetch(
+      `${EVI_BASE}/api/artwork?id=${encodeURIComponent(artId)}&artist=${encodeURIComponent(artist)}`,
+      { headers: eviHeaders("image/*"), signal: AbortSignal.timeout(30000) },
+    );
+    if (!res.ok || !res.body) {
+      await res.body?.cancel();
+      return null;
+    }
+    const contentType = (res.headers.get("content-type") || "").split(";")[0].trim();
+    if (!contentType.startsWith("image/")) {
+      await res.body.cancel();
+      return null;
+    }
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length === 0 || buf.length > 5 * 1024 * 1024) return null;
+    const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
+    return await uploadToCatbox(buf, `art_${artId}.${ext}`, contentType);
+  } catch (error) {
+    console.error("[Music Cache] artwork failed:", error);
+    return null;
+  }
+}
+
+/** Fetch synced lyrics from upstream (stored as JSON, no file needed). */
+async function fetchTrackLyrics(input: {
+  id: string;
+  title: string;
+  artist: string;
+  duration: number | null;
+}): Promise<CachedTrackMedia["lyrics"]> {
+  try {
+    const qs = new URLSearchParams({
+      id: input.id,
+      title: input.title,
+      artist: input.artist,
+      duration: String(input.duration ?? ""),
+    });
+    const res = await fetch(`${EVI_BASE}/api/lyrics?${qs.toString()}`, {
+      headers: eviHeaders("application/json"),
+      signal: AbortSignal.timeout(30000),
+    });
+    if (!res.ok) {
+      await res.body?.cancel();
+      return null;
+    }
+    const data = await res.json().catch(() => null);
+    const raw = Array.isArray(data?.lines) ? data.lines : [];
+    const lines = raw
+      .map((l: { words?: Array<{ word?: string }>; startTime?: number; endTime?: number }) => ({
+        text: (Array.isArray(l.words)
+          ? l.words.map((w) => (typeof w.word === "string" ? w.word : "")).join("")
+          : ""
+        ).trim(),
+        start: typeof l.startTime === "number" ? l.startTime : 0,
+        end: typeof l.endTime === "number" ? l.endTime : 0,
+      }))
+      .filter((l: { text: string }) => l.text !== "");
+    return lines.length > 0 ? lines : null;
+  } catch (error) {
+    console.error("[Music Cache] lyrics failed:", error);
+    return null;
+  }
+}
+
 export async function updateMusicProfile(data: {
   tracks: MusicTrackInput[];
   playerStyle?: string;
@@ -1175,32 +1295,55 @@ export async function updateMusicProfile(data: {
     throw new Error("You can only add a maximum of 2 tracks.");
   }
 
-  // Re-resolve every track server-side: id, stream URL and artwork come
-  // from the upstream search, never trusted from the client payload.
-  const sanitizedTracks = (data.tracks || []).slice(0, 2).map((t) => {
-    const id = String(t.id || "").trim().slice(0, 32);
-    if (!id || !/^[A-Za-z0-9_-]{1,32}$/.test(id)) {
-      throw new Error("Invalid track ID.");
-    }
-    return {
-      id,
-      title: String(t.title || "Untitled").trim().slice(0, 200) || "Untitled",
-      artist: String(t.artist || "Unknown artist").trim().slice(0, 200) || "Unknown artist",
-      artwork:
-        typeof t.artwork === "string" && t.artwork.startsWith("/api/music/artwork")
-          ? t.artwork.slice(0, 300)
-          : null,
-      album:
+  // Re-resolve every track server-side and pin its media to Catbox, so the
+  // profile page plays from saved files instead of the upstream API.
+  // Tracks that are already cached (Catbox URLs) are reused as-is.
+  const prevTracks = Array.isArray(user?.musicTracks) ? user.musicTracks : [];
+  const sanitizedTracks = await Promise.all(
+    (data.tracks || []).slice(0, 2).map(async (t) => {
+      const id = String(t.id || "").trim().slice(0, 32);
+      if (!id || !/^[A-Za-z0-9_-]{1,32}$/.test(id)) {
+        throw new Error("Invalid track ID.");
+      }
+      const title = String(t.title || "Untitled").trim().slice(0, 200) || "Untitled";
+      const artist = String(t.artist || "Unknown artist").trim().slice(0, 200) || "Unknown artist";
+      const album =
         typeof t.album === "string" && t.album.trim()
           ? t.album.trim().slice(0, 200)
-          : null,
-      duration:
+          : null;
+      const duration =
         typeof t.duration === "number" && Number.isFinite(t.duration) && t.duration > 0
           ? Math.round(t.duration)
-          : null,
-      streamUrl: `/api/music/stream/${encodeURIComponent(id)}?quality=320`,
-    };
-  });
+          : null;
+
+      // Already cached (e.g. re-save without changes)? Reuse saved media.
+      const prev = prevTracks.find((p) => p.id === id);
+      if (prev && isCatboxUrl(t.streamUrl) && prev.streamUrl === t.streamUrl) {
+        return {
+          id,
+          title,
+          artist,
+          artwork: prev.artwork ?? null,
+          album,
+          duration,
+          streamUrl: prev.streamUrl ?? null,
+          lyrics: prev.lyrics ?? null,
+        };
+      }
+
+      const [cachedAudio, artwork, lyrics] = await Promise.all([
+        isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cacheTrackAudio(id),
+        cacheTrackArtwork(typeof t.artwork === "string" ? t.artwork.slice(0, 500) : null),
+        fetchTrackLyrics({ id, title, artist, duration }),
+      ]);
+      // No upstream fallback: a track without a Catbox file can't play on the main page.
+      const streamUrl = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cachedAudio;
+      if (!streamUrl) {
+        throw new Error(`Could not save "${title}" — audio upload failed. Try again.`);
+      }
+      return { id, title, artist, artwork, album, duration, streamUrl, lyrics };
+    }),
+  );
 
   // Background video sound and the music player can't play at once.
   if (sanitizedTracks.length > 0 && user.bannerBackgroundSound) {
@@ -1222,10 +1365,15 @@ export async function updateMusicProfile(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
+  // Delete orphaned Catbox files from tracks that were removed/replaced.
+  const kept = new Set(sanitizedTracks.flatMap((t) => [t.streamUrl, t.artwork]));
+  const orphaned = prevTracks.flatMap((p) => [p.streamUrl, p.artwork]).filter((u) => u && !kept.has(u));
+  if (orphaned.length > 0) await deleteCatboxFiles(orphaned);
+
   revalidatePath("/dashboard/customize/music");
   revalidatePath("/dashboard", "layout");
   await revalidateOwnProfile(userId);
 
-  return { success: true };
+  return { success: true, tracks: sanitizedTracks };
 }
 

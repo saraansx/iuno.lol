@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { type MusicTrack, streamUrlForTrack } from "@/lib/music";
+import { type MusicTrack } from "@/lib/music";
+import { isCatboxUrl } from "@/lib/catbox";
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -18,9 +19,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
   const [duration, setDuration] = useState(0);
   const [levels, setLevels] = useState<number[] | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const ctxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const srcNodeRef = useRef<{ el: HTMLAudioElement; node: MediaElementAudioSourceNode } | null>(null);
   const levelTimerRef = useRef<number | null>(null);
   const autoNextRef = useRef(false);
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -40,43 +38,14 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
   const track = tracks[Math.min(index, tracks.length - 1)] ?? null;
 
   // stop audio on unmount only
+  // NOTE: no Web Audio routing on purpose — routing the element through an
+  // AudioContext that starts suspended (autoplay, no gesture yet) swallows
+  // all sound while time keeps advancing. Plain <Audio> always sounds.
   useEffect(() => () => {
     if (levelTimerRef.current !== null) window.clearInterval(levelTimerRef.current);
     audioRef.current?.pause();
     audioRef.current = null;
-    try { ctxRef.current?.close(); } catch {}
-    ctxRef.current = null;
-    analyserRef.current = null;
-    srcNodeRef.current = null;
   }, []);
-
-  const analyserFor = (audio: HTMLAudioElement): AnalyserNode | null => {
-    try {
-      // Reuse one context; rebind the source node when the element changes.
-      let ctx = ctxRef.current;
-      if (!ctx) {
-        const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (!AC) return null;
-        ctx = new AC();
-        ctxRef.current = ctx;
-      }
-      if (ctx.state === "suspended") void ctx.resume().catch(() => {});
-      if (!srcNodeRef.current || srcNodeRef.current.el !== audio) {
-        try { srcNodeRef.current?.node.disconnect(); } catch {}
-        const node = ctx.createMediaElementSource(audio);
-        const analyser = ctx.createAnalyser();
-        analyser.fftSize = 128;
-        analyser.smoothingTimeConstant = 0.7;
-        node.connect(analyser);
-        analyser.connect(ctx.destination);
-        srcNodeRef.current = { el: audio, node };
-        analyserRef.current = analyser;
-      }
-      return analyserRef.current;
-    } catch {
-      return null;
-    }
-  };
 
   const bounceRef = useRef(0);
 
@@ -120,7 +89,12 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
     }
     const t = tracks[Math.min(index, tracks.length - 1)] ?? null;
     if (!t) return undefined;
-    const url = t.streamUrl || streamUrlForTrack(t.id);
+    // Main page plays ONLY from saved (Catbox) files — no upstream fallback.
+    const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
+    if (!url) {
+      setLoading(false);
+      return undefined;
+    }
     const audio = new Audio(url);
     audio.preload = "auto";
     audioRef.current = audio;
@@ -131,7 +105,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false }: { track
     const onPlaying = () => {
       setLoading(false);
       setPlaying(true);
-      analyserFor(audio);
       startLevels();
     };
     const onPause = () => {
