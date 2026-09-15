@@ -212,6 +212,18 @@ export async function updateAppearanceProfile(data: {
   highlightFontSize?: number;
   highlightFontWeight?: number;
   highlightLetterSpacing?: number;
+  musicPrimaryFont?: string;
+  musicPrimaryFontSize?: number;
+  musicPrimaryFontWeight?: number;
+  musicPrimaryLetterSpacing?: number;
+  musicSecondaryFont?: string;
+  musicSecondaryFontSize?: number;
+  musicSecondaryFontWeight?: number;
+  musicSecondaryLetterSpacing?: number;
+  musicLyricsFont?: string;
+  musicLyricsFontSize?: number;
+  musicLyricsFontWeight?: number;
+  musicLyricsLetterSpacing?: number;
   widgetFont?: string;
   widgetFontSize?: number;
   widgetFontWeight?: number;
@@ -288,6 +300,18 @@ export async function updateAppearanceProfile(data: {
   if (data.highlightFontSize !== undefined) setData.highlightFontSize = data.highlightFontSize;
   if (data.highlightFontWeight !== undefined) setData.highlightFontWeight = data.highlightFontWeight;
   if (data.highlightLetterSpacing !== undefined) setData.highlightLetterSpacing = data.highlightLetterSpacing;
+  if (data.musicPrimaryFont !== undefined) setData.musicPrimaryFont = data.musicPrimaryFont.slice(0, 50);
+  if (data.musicPrimaryFontSize !== undefined) setData.musicPrimaryFontSize = data.musicPrimaryFontSize;
+  if (data.musicPrimaryFontWeight !== undefined) setData.musicPrimaryFontWeight = data.musicPrimaryFontWeight;
+  if (data.musicPrimaryLetterSpacing !== undefined) setData.musicPrimaryLetterSpacing = data.musicPrimaryLetterSpacing;
+  if (data.musicSecondaryFont !== undefined) setData.musicSecondaryFont = data.musicSecondaryFont.slice(0, 50);
+  if (data.musicSecondaryFontSize !== undefined) setData.musicSecondaryFontSize = data.musicSecondaryFontSize;
+  if (data.musicSecondaryFontWeight !== undefined) setData.musicSecondaryFontWeight = data.musicSecondaryFontWeight;
+  if (data.musicSecondaryLetterSpacing !== undefined) setData.musicSecondaryLetterSpacing = data.musicSecondaryLetterSpacing;
+  if (data.musicLyricsFont !== undefined) setData.musicLyricsFont = data.musicLyricsFont.slice(0, 50);
+  if (data.musicLyricsFontSize !== undefined) setData.musicLyricsFontSize = data.musicLyricsFontSize;
+  if (data.musicLyricsFontWeight !== undefined) setData.musicLyricsFontWeight = data.musicLyricsFontWeight;
+  if (data.musicLyricsLetterSpacing !== undefined) setData.musicLyricsLetterSpacing = data.musicLyricsLetterSpacing;
   if (data.widgetFont !== undefined) setData.widgetFont = data.widgetFont.slice(0, 50);
   if (data.widgetFontSize !== undefined) setData.widgetFontSize = data.widgetFontSize;
   if (data.widgetFontWeight !== undefined) setData.widgetFontWeight = data.widgetFontWeight;
@@ -339,6 +363,9 @@ export async function updateColorsProfile(data: {
   widgetBorderColor?: string | null;
   sectionTitleColor?: string | null;
   sectionDescColor?: string | null;
+  musicPrimaryColor?: string | null;
+  musicSecondaryColor?: string | null;
+  musicLyricsColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -363,6 +390,9 @@ export async function updateColorsProfile(data: {
   if (data.widgetBorderColor !== undefined) setData.widgetBorderColor = data.widgetBorderColor?.slice(0, 32) ?? null;
   if (data.sectionTitleColor !== undefined) setData.sectionTitleColor = data.sectionTitleColor?.slice(0, 32) ?? null;
   if (data.sectionDescColor !== undefined) setData.sectionDescColor = data.sectionDescColor?.slice(0, 32) ?? null;
+  if (data.musicPrimaryColor !== undefined) setData.musicPrimaryColor = data.musicPrimaryColor?.slice(0, 32) ?? null;
+  if (data.musicSecondaryColor !== undefined) setData.musicSecondaryColor = data.musicSecondaryColor?.slice(0, 32) ?? null;
+  if (data.musicLyricsColor !== undefined) setData.musicLyricsColor = data.musicLyricsColor?.slice(0, 32) ?? null;
 
   sanitizeProfileSettings(setData);
 

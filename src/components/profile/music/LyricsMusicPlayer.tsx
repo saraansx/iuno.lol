@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { type MusicTrack } from "@/lib/music";
 import { isCatboxUrl } from "@/lib/catbox";
 import { useVolume, VolumeButton } from "./volume";
@@ -12,7 +12,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda" }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string }) {
+export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle, lyricStyle, lyricColor = "#FFFFFF" }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; lyricStyle?: CSSProperties; lyricColor?: string }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -246,8 +246,8 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
             )}
           </div>
           <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <span className="text-[15px] text-white truncate leading-tight">{track.title}</span>
-            <span className="text-[12.5px] text-white/50 truncate leading-tight">{track.artist}</span>
+            <span className="truncate leading-tight" style={titleStyle}>{track.title}</span>
+            <span className="truncate leading-tight opacity-60" style={artistStyle}>{track.artist}</span>
           </div>
         </div>
 
@@ -336,10 +336,11 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
             <p
               key={i}
               data-idx={i}
+              style={{ ...lyricStyle, color: lyricColor }}
               className={`leading-snug transition-all duration-300 ${
                 i === activeIdx
-                  ? "text-[15px] font-semibold text-white blur-0 opacity-100"
-                  : "text-[14px] font-normal text-white/25 blur-[1.5px] opacity-80"
+                  ? "font-semibold blur-0 opacity-100"
+                  : "font-normal blur-[1.5px] opacity-40"
               }`}
             >
               {l.text}

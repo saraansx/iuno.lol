@@ -76,6 +76,21 @@ interface ProfilePreviewProps {
   sectionDescLetterSpacing?: number;
   sectionTitleColor?: string;
   sectionDescColor?: string;
+  musicPrimaryFont?: string | null;
+  musicPrimaryFontSize?: number | null;
+  musicPrimaryFontWeight?: number | null;
+  musicPrimaryLetterSpacing?: number | null;
+  musicSecondaryFont?: string | null;
+  musicSecondaryFontSize?: number | null;
+  musicSecondaryFontWeight?: number | null;
+  musicSecondaryLetterSpacing?: number | null;
+  musicLyricsFont?: string | null;
+  musicLyricsFontSize?: number | null;
+  musicLyricsFontWeight?: number | null;
+  musicLyricsLetterSpacing?: number | null;
+  musicPrimaryColor?: string | null;
+  musicSecondaryColor?: string | null;
+  musicLyricsColor?: string | null;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -136,7 +151,7 @@ interface ProfilePreviewProps {
   musicPlayerVolumeFixed?: boolean;
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = true, musicPlayerVolume = false, musicPlayerVolumeFixed = true, sectionTitleFont = "Inter", sectionTitleFontSize = 15, sectionTitleFontWeight = 500, sectionTitleLetterSpacing = 0, sectionDescFont = "Inter", sectionDescFontSize = 12.5, sectionDescFontWeight = 400, sectionDescLetterSpacing = 0, sectionTitleColor = "#FFFFFF", sectionDescColor = "#FFFFFF" }: ProfilePreviewProps) => {
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = true, musicPlayerVolume = false, musicPlayerVolumeFixed = true, sectionTitleFont = "Inter", sectionTitleFontSize = 15, sectionTitleFontWeight = 500, sectionTitleLetterSpacing = 0, sectionDescFont = "Inter", sectionDescFontSize = 12.5, sectionDescFontWeight = 400, sectionDescLetterSpacing = 0, sectionTitleColor = "#FFFFFF", sectionDescColor = "#FFFFFF", musicPrimaryFont = "Inter", musicPrimaryFontSize = 15, musicPrimaryFontWeight = 400, musicPrimaryLetterSpacing = 0, musicSecondaryFont = "Inter", musicSecondaryFontSize = 12.5, musicSecondaryFontWeight = 400, musicSecondaryLetterSpacing = 0, musicLyricsFont = "Inter", musicLyricsFontSize = 14, musicLyricsFontWeight = 400, musicLyricsLetterSpacing = 0, musicPrimaryColor = "#FFFFFF", musicSecondaryColor = "#FFFFFF", musicLyricsColor = "#FFFFFF" }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -275,6 +290,21 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
             sectionDescLetterSpacing={sectionDescLetterSpacing}
             sectionTitleColor={sectionTitleColor}
             sectionDescColor={sectionDescColor}
+            musicPrimaryFont={musicPrimaryFont}
+            musicPrimaryFontSize={musicPrimaryFontSize}
+            musicPrimaryFontWeight={musicPrimaryFontWeight}
+            musicPrimaryLetterSpacing={musicPrimaryLetterSpacing}
+            musicSecondaryFont={musicSecondaryFont}
+            musicSecondaryFontSize={musicSecondaryFontSize}
+            musicSecondaryFontWeight={musicSecondaryFontWeight}
+            musicSecondaryLetterSpacing={musicSecondaryLetterSpacing}
+            musicLyricsFont={musicLyricsFont}
+            musicLyricsFontSize={musicLyricsFontSize}
+            musicLyricsFontWeight={musicLyricsFontWeight}
+            musicLyricsLetterSpacing={musicLyricsLetterSpacing}
+            musicPrimaryColor={musicPrimaryColor}
+            musicSecondaryColor={musicSecondaryColor}
+            musicLyricsColor={musicLyricsColor}
             otherFont={otherFont}
             otherFontSize={otherFontSize}
             otherFontWeight={otherFontWeight}

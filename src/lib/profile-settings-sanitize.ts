@@ -33,6 +33,15 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   sectionDescFontSize: { min: 10, max: 64 },
   sectionDescFontWeight: { min: 100, max: 900, int: true },
   sectionDescLetterSpacing: { min: -10, max: 50 },
+  musicPrimaryFontSize: { min: 10, max: 64, int: true },
+  musicPrimaryFontWeight: { min: 100, max: 900, int: true },
+  musicPrimaryLetterSpacing: { min: -10, max: 50 },
+  musicSecondaryFontSize: { min: 10, max: 64 },
+  musicSecondaryFontWeight: { min: 100, max: 900, int: true },
+  musicSecondaryLetterSpacing: { min: -10, max: 50 },
+  musicLyricsFontSize: { min: 10, max: 64, int: true },
+  musicLyricsFontWeight: { min: 100, max: 900, int: true },
+  musicLyricsLetterSpacing: { min: -10, max: 50 },
   widgetFontSize: { min: 10, max: 64 },
   widgetFontWeight: { min: 100, max: 900, int: true },
   widgetLetterSpacing: { min: -10, max: 50 },
@@ -69,6 +78,9 @@ const COLOR_FIELDS = new Set([
   "enterScreenBlurColor",
   "sectionTitleColor",
   "sectionDescColor",
+  "musicPrimaryColor",
+  "musicSecondaryColor",
+  "musicLyricsColor",
 ]);
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { type MusicTrack } from "@/lib/music";
 import { isCatboxUrl } from "@/lib/catbox";
 import { useVolume, VolumeButton } from "./volume";
@@ -41,7 +41,7 @@ export function seedHeights(key: string, n: number): number[] {
 
 const BAR_COUNT = 110;
 
-export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda" }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string }) {
+export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -256,8 +256,8 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
             )}
           </div>
           <div className="flex-1 min-w-0 flex flex-col justify-center">
-            <span className="text-[15px] text-white truncate leading-tight">{track.title}</span>
-            <span className="text-[12.5px] text-white/50 truncate leading-tight">{track.artist}</span>
+            <span className="truncate leading-tight" style={titleStyle}>{track.title}</span>
+            <span className="truncate leading-tight opacity-60" style={artistStyle}>{track.artist}</span>
           </div>
           <div className="flex items-center gap-1 shrink-0">
             <button

@@ -9,6 +9,7 @@ import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
 import WidgetStyleCustomization from "@/components/dashboard/customize/colors/WidgetStyleCustomization";
 import SectionStyleCustomization from "@/components/dashboard/customize/colors/SectionStyleCustomization";
+import MusicStyleCustomization from "@/components/dashboard/customize/colors/MusicStyleCustomization";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
@@ -48,6 +49,17 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const sectionDescColor = overrides.sectionDescColor ?? initialSectionDescColor;
   const setSectionDescColor = (val: string) => updateOverrides({ sectionDescColor: val === initialSectionDescColor ? undefined : val });
 
+  const initialMusicPrimaryColor = user?.musicPrimaryColor ?? "#FFFFFF";
+  const initialMusicSecondaryColor = user?.musicSecondaryColor ?? "#FFFFFF";
+  const initialMusicLyricsColor = user?.musicLyricsColor ?? "#FFFFFF";
+
+  const musicPrimaryColor = overrides.musicPrimaryColor ?? initialMusicPrimaryColor;
+  const setMusicPrimaryColor = (val: string) => updateOverrides({ musicPrimaryColor: val === initialMusicPrimaryColor ? undefined : val });
+  const musicSecondaryColor = overrides.musicSecondaryColor ?? initialMusicSecondaryColor;
+  const setMusicSecondaryColor = (val: string) => updateOverrides({ musicSecondaryColor: val === initialMusicSecondaryColor ? undefined : val });
+  const musicLyricsColor = overrides.musicLyricsColor ?? initialMusicLyricsColor;
+  const setMusicLyricsColor = (val: string) => updateOverrides({ musicLyricsColor: val === initialMusicLyricsColor ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -83,6 +95,15 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           descColor={sectionDescColor}
           setDescColor={setSectionDescColor}
         />
+
+        <MusicStyleCustomization
+          primaryColor={musicPrimaryColor}
+          setPrimaryColor={setMusicPrimaryColor}
+          secondaryColor={musicSecondaryColor}
+          setSecondaryColor={setMusicSecondaryColor}
+          lyricsColor={musicLyricsColor}
+          setLyricsColor={setMusicLyricsColor}
+        />
       </div>
 
       <DashboardProfilePreview
@@ -98,6 +119,9 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           widgetBorderColor,
           sectionTitleColor,
           sectionDescColor,
+          musicPrimaryColor,
+          musicSecondaryColor,
+          musicLyricsColor,
         }}
       />
 

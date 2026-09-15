@@ -10,7 +10,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "other" | "highlight" | "widgets";
+type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "widgets";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -53,6 +53,21 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const initialSectionDescFontSize = user?.sectionDescFontSize ?? 12.5;
   const initialSectionDescFontWeight = user?.sectionDescFontWeight ?? 400;
   const initialSectionDescLetterSpacing = user?.sectionDescLetterSpacing ?? 0;
+
+  const initialMusicPrimaryFont = user?.musicPrimaryFont ?? "Inter";
+  const initialMusicPrimaryFontSize = user?.musicPrimaryFontSize ?? 15;
+  const initialMusicPrimaryFontWeight = user?.musicPrimaryFontWeight ?? 400;
+  const initialMusicPrimaryLetterSpacing = user?.musicPrimaryLetterSpacing ?? 0;
+
+  const initialMusicSecondaryFont = user?.musicSecondaryFont ?? "Inter";
+  const initialMusicSecondaryFontSize = user?.musicSecondaryFontSize ?? 12.5;
+  const initialMusicSecondaryFontWeight = user?.musicSecondaryFontWeight ?? 400;
+  const initialMusicSecondaryLetterSpacing = user?.musicSecondaryLetterSpacing ?? 0;
+
+  const initialMusicLyricsFont = user?.musicLyricsFont ?? "Inter";
+  const initialMusicLyricsFontSize = user?.musicLyricsFontSize ?? 14;
+  const initialMusicLyricsFontWeight = user?.musicLyricsFontWeight ?? 400;
+  const initialMusicLyricsLetterSpacing = user?.musicLyricsLetterSpacing ?? 0;
 
   const usernameFont = overrides.usernameFont ?? initialUsernameFont;
   const setUsernameFont = (val: string) => updateOverrides({ usernameFont: val === initialUsernameFont ? undefined : val });
@@ -116,6 +131,33 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const setSectionDescFontWeight = (val: number) => updateOverrides({ sectionDescFontWeight: val === initialSectionDescFontWeight ? undefined : val });
   const sectionDescLetterSpacing = overrides.sectionDescLetterSpacing ?? initialSectionDescLetterSpacing;
   const setSectionDescLetterSpacing = (val: number) => updateOverrides({ sectionDescLetterSpacing: val === initialSectionDescLetterSpacing ? undefined : val });
+
+  const musicPrimaryFont = overrides.musicPrimaryFont ?? initialMusicPrimaryFont;
+  const setMusicPrimaryFont = (val: string) => updateOverrides({ musicPrimaryFont: val === initialMusicPrimaryFont ? undefined : val });
+  const musicPrimaryFontSize = overrides.musicPrimaryFontSize ?? initialMusicPrimaryFontSize;
+  const setMusicPrimaryFontSize = (val: number) => updateOverrides({ musicPrimaryFontSize: val === initialMusicPrimaryFontSize ? undefined : val });
+  const musicPrimaryFontWeight = overrides.musicPrimaryFontWeight ?? initialMusicPrimaryFontWeight;
+  const setMusicPrimaryFontWeight = (val: number) => updateOverrides({ musicPrimaryFontWeight: val === initialMusicPrimaryFontWeight ? undefined : val });
+  const musicPrimaryLetterSpacing = overrides.musicPrimaryLetterSpacing ?? initialMusicPrimaryLetterSpacing;
+  const setMusicPrimaryLetterSpacing = (val: number) => updateOverrides({ musicPrimaryLetterSpacing: val === initialMusicPrimaryLetterSpacing ? undefined : val });
+
+  const musicSecondaryFont = overrides.musicSecondaryFont ?? initialMusicSecondaryFont;
+  const setMusicSecondaryFont = (val: string) => updateOverrides({ musicSecondaryFont: val === initialMusicSecondaryFont ? undefined : val });
+  const musicSecondaryFontSize = overrides.musicSecondaryFontSize ?? initialMusicSecondaryFontSize;
+  const setMusicSecondaryFontSize = (val: number) => updateOverrides({ musicSecondaryFontSize: val === initialMusicSecondaryFontSize ? undefined : val });
+  const musicSecondaryFontWeight = overrides.musicSecondaryFontWeight ?? initialMusicSecondaryFontWeight;
+  const setMusicSecondaryFontWeight = (val: number) => updateOverrides({ musicSecondaryFontWeight: val === initialMusicSecondaryFontWeight ? undefined : val });
+  const musicSecondaryLetterSpacing = overrides.musicSecondaryLetterSpacing ?? initialMusicSecondaryLetterSpacing;
+  const setMusicSecondaryLetterSpacing = (val: number) => updateOverrides({ musicSecondaryLetterSpacing: val === initialMusicSecondaryLetterSpacing ? undefined : val });
+
+  const musicLyricsFont = overrides.musicLyricsFont ?? initialMusicLyricsFont;
+  const setMusicLyricsFont = (val: string) => updateOverrides({ musicLyricsFont: val === initialMusicLyricsFont ? undefined : val });
+  const musicLyricsFontSize = overrides.musicLyricsFontSize ?? initialMusicLyricsFontSize;
+  const setMusicLyricsFontSize = (val: number) => updateOverrides({ musicLyricsFontSize: val === initialMusicLyricsFontSize ? undefined : val });
+  const musicLyricsFontWeight = overrides.musicLyricsFontWeight ?? initialMusicLyricsFontWeight;
+  const setMusicLyricsFontWeight = (val: number) => updateOverrides({ musicLyricsFontWeight: val === initialMusicLyricsFontWeight ? undefined : val });
+  const musicLyricsLetterSpacing = overrides.musicLyricsLetterSpacing ?? initialMusicLyricsLetterSpacing;
+  const setMusicLyricsLetterSpacing = (val: number) => updateOverrides({ musicLyricsLetterSpacing: val === initialMusicLyricsLetterSpacing ? undefined : val });
 
   return (
     <React.Fragment>
@@ -260,6 +302,67 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
             </div>
           </div>
         </div>
+
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <path d="M9 18V5l12-2v13" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="6" cy="18" r="3" stroke="#5b6cf5" strokeWidth="1.5" /><circle cx="18" cy="16" r="3" stroke="#5b6cf5" strokeWidth="1.5" />
+              </svg>
+              <h2 className="text-white font-normal text-[16px] tracking-tight">Music</h2>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <FontGroupSection
+                label="Primary"
+                hint="Song titles in your music players."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>}
+                isOpen={openGroup === "musicPrimary"}
+                onToggle={() => toggleGroup("musicPrimary")}
+                font={musicPrimaryFont}
+                setFont={setMusicPrimaryFont}
+                size={musicPrimaryFontSize}
+                setSize={setMusicPrimaryFontSize}
+                weight={musicPrimaryFontWeight}
+                setWeight={setMusicPrimaryFontWeight}
+                spacing={musicPrimaryLetterSpacing}
+                setSpacing={setMusicPrimaryLetterSpacing}
+              />
+
+              <FontGroupSection
+                label="Secondary"
+                hint="Artist names in your music players."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>}
+                isOpen={openGroup === "musicSecondary"}
+                onToggle={() => toggleGroup("musicSecondary")}
+                font={musicSecondaryFont}
+                setFont={setMusicSecondaryFont}
+                size={musicSecondaryFontSize}
+                setSize={setMusicSecondaryFontSize}
+                weight={musicSecondaryFontWeight}
+                setWeight={setMusicSecondaryFontWeight}
+                spacing={musicSecondaryLetterSpacing}
+                setSpacing={setMusicSecondaryLetterSpacing}
+              />
+
+              <FontGroupSection
+                label="Lyrics"
+                hint="Synced lyrics lines in the lyrics player."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h10" /></svg>}
+                isOpen={openGroup === "musicLyrics"}
+                onToggle={() => toggleGroup("musicLyrics")}
+                font={musicLyricsFont}
+                setFont={setMusicLyricsFont}
+                size={musicLyricsFontSize}
+                setSize={setMusicLyricsFontSize}
+                weight={musicLyricsFontWeight}
+                setWeight={setMusicLyricsFontWeight}
+                spacing={musicLyricsLetterSpacing}
+                setSpacing={setMusicLyricsLetterSpacing}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <DashboardProfilePreview
@@ -282,6 +385,18 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
           sectionDescFontSize,
           sectionDescFontWeight,
           sectionDescLetterSpacing,
+          musicPrimaryFont,
+          musicPrimaryFontSize,
+          musicPrimaryFontWeight,
+          musicPrimaryLetterSpacing,
+          musicSecondaryFont,
+          musicSecondaryFontSize,
+          musicSecondaryFontWeight,
+          musicSecondaryLetterSpacing,
+          musicLyricsFont,
+          musicLyricsFontSize,
+          musicLyricsFontWeight,
+          musicLyricsLetterSpacing,
           otherFont,
           otherFontSize,
           otherFontWeight,

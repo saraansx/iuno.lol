@@ -166,6 +166,21 @@ interface Layout1Props {
   sectionDescLetterSpacing?: number;
   sectionTitleColor?: string;
   sectionDescColor?: string;
+  musicPrimaryFont?: string | null;
+  musicPrimaryFontSize?: number | null;
+  musicPrimaryFontWeight?: number | null;
+  musicPrimaryLetterSpacing?: number | null;
+  musicSecondaryFont?: string | null;
+  musicSecondaryFontSize?: number | null;
+  musicSecondaryFontWeight?: number | null;
+  musicSecondaryLetterSpacing?: number | null;
+  musicLyricsFont?: string | null;
+  musicLyricsFontSize?: number | null;
+  musicLyricsFontWeight?: number | null;
+  musicLyricsLetterSpacing?: number | null;
+  musicPrimaryColor?: string | null;
+  musicSecondaryColor?: string | null;
+  musicLyricsColor?: string | null;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -383,6 +398,21 @@ const Layout1 = ({
   sectionDescLetterSpacing = 0,
   sectionTitleColor = "#FFFFFF",
   sectionDescColor = "#FFFFFF",
+  musicPrimaryFont = "Inter",
+  musicPrimaryFontSize = 15,
+  musicPrimaryFontWeight = 400,
+  musicPrimaryLetterSpacing = 0,
+  musicSecondaryFont = "Inter",
+  musicSecondaryFontSize = 12.5,
+  musicSecondaryFontWeight = 400,
+  musicSecondaryLetterSpacing = 0,
+  musicLyricsFont = "Inter",
+  musicLyricsFontSize = 14,
+  musicLyricsFontWeight = 400,
+  musicLyricsLetterSpacing = 0,
+  musicPrimaryColor = "#FFFFFF",
+  musicSecondaryColor = "#FFFFFF",
+  musicLyricsColor = "#FFFFFF",
   otherFont = "Inter",
   otherFontSize = 14,
   otherFontWeight = 400,
@@ -838,14 +868,36 @@ useEffect(() => {
   const musicPlayerArtBgOn = musicPlayerArtBg ?? true;
   const musicPlayerVolumeOn = musicPlayerVolume ?? false;
 
+  const musicTitleStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[musicPrimaryFont ?? "Inter"] || "var(--font-inter)",
+    fontSize: `${musicPrimaryFontSize ?? 15}px`,
+    fontWeight: musicPrimaryFontWeight ?? 400,
+    letterSpacing: `${musicPrimaryLetterSpacing ?? 0}px`,
+    color: musicPrimaryColor ?? "#FFFFFF",
+  };
+  const musicArtistStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[musicSecondaryFont ?? "Inter"] || "var(--font-inter)",
+    fontSize: `${musicSecondaryFontSize ?? 12.5}px`,
+    fontWeight: musicSecondaryFontWeight ?? 400,
+    letterSpacing: `${musicSecondaryLetterSpacing ?? 0}px`,
+    color: musicSecondaryColor ?? "#FFFFFF",
+  };
+  const musicLyricStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[musicLyricsFont ?? "Inter"] || "var(--font-inter)",
+    fontSize: `${musicLyricsFontSize ?? 14}px`,
+    fontWeight: musicLyricsFontWeight ?? 400,
+    letterSpacing: `${musicLyricsLetterSpacing ?? 0}px`,
+  };
+  const musicLyricColor = musicLyricsColor ?? "#FFFFFF";
+
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
       {musicPlayerStyle === "lyrics" ? (
-        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} />
       ) : musicPlayerStyle === "waveform" ? (
-        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} />
       ) : (
-        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} />
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} />
       )}
     </div>
   ) : null;

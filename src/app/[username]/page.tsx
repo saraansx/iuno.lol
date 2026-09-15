@@ -215,6 +215,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgets: userSettings.widgets,
       sectionTitleColor: userSettings.sectionTitleColor,
       sectionDescColor: userSettings.sectionDescColor,
+      musicPrimaryFont: userSettings.musicPrimaryFont,
+      musicPrimaryFontSize: userSettings.musicPrimaryFontSize,
+      musicPrimaryFontWeight: userSettings.musicPrimaryFontWeight,
+      musicPrimaryLetterSpacing: userSettings.musicPrimaryLetterSpacing,
+      musicSecondaryFont: userSettings.musicSecondaryFont,
+      musicSecondaryFontSize: userSettings.musicSecondaryFontSize,
+      musicSecondaryFontWeight: userSettings.musicSecondaryFontWeight,
+      musicSecondaryLetterSpacing: userSettings.musicSecondaryLetterSpacing,
+      musicLyricsFont: userSettings.musicLyricsFont,
+      musicLyricsFontSize: userSettings.musicLyricsFontSize,
+      musicLyricsFontWeight: userSettings.musicLyricsFontWeight,
+      musicLyricsLetterSpacing: userSettings.musicLyricsLetterSpacing,
+      musicPrimaryColor: userSettings.musicPrimaryColor,
+      musicSecondaryColor: userSettings.musicSecondaryColor,
+      musicLyricsColor: userSettings.musicLyricsColor,
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
       musicPlayerVolume: userSettings.musicPlayerVolume,
@@ -325,6 +340,21 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bioColor={user.bioColor ?? undefined}
         sectionTitleColor={user.sectionTitleColor ?? undefined}
         sectionDescColor={user.sectionDescColor ?? undefined}
+        musicPrimaryFont={user.musicPrimaryFont ?? undefined}
+        musicPrimaryFontSize={user.musicPrimaryFontSize ?? undefined}
+        musicPrimaryFontWeight={user.musicPrimaryFontWeight ?? undefined}
+        musicPrimaryLetterSpacing={user.musicPrimaryLetterSpacing ?? undefined}
+        musicSecondaryFont={user.musicSecondaryFont ?? undefined}
+        musicSecondaryFontSize={user.musicSecondaryFontSize ?? undefined}
+        musicSecondaryFontWeight={user.musicSecondaryFontWeight ?? undefined}
+        musicSecondaryLetterSpacing={user.musicSecondaryLetterSpacing ?? undefined}
+        musicLyricsFont={user.musicLyricsFont ?? undefined}
+        musicLyricsFontSize={user.musicLyricsFontSize ?? undefined}
+        musicLyricsFontWeight={user.musicLyricsFontWeight ?? undefined}
+        musicLyricsLetterSpacing={user.musicLyricsLetterSpacing ?? undefined}
+        musicPrimaryColor={user.musicPrimaryColor ?? undefined}
+        musicSecondaryColor={user.musicSecondaryColor ?? undefined}
+        musicLyricsColor={user.musicLyricsColor ?? undefined}
         sectionTitleFont={user.sectionTitleFont ?? undefined}
         sectionTitleFontSize={user.sectionTitleFontSize ?? undefined}
         sectionTitleFontWeight={user.sectionTitleFontWeight ?? undefined}
