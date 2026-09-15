@@ -7,7 +7,7 @@ export function DitherEffect({ intensity = 50 }: { intensity?: number }) {
     <>
       <div className="absolute inset-0 pointer-events-none z-[5] overflow-hidden">
         {/* Fixed dark tint — baked in, not adjustable */}
-        <div className="absolute inset-0 bg-black/30" />
+        <div className="absolute inset-0 bg-black/25" />
 
         <div
           className="absolute inset-0"
