@@ -40,14 +40,4 @@ export function getCanonicalWidgetType(widget: {
   return type;
 }
 
-export function isPlatformFull(platform: string, usedTypes: string[]): boolean {
-  const types = PLATFORM_WIDGET_TYPES[platform];
-  if (!types?.length) return false;
-  return types.every((type) => usedTypes.includes(type));
-}
 
-export function areAllPlatformsFull(usedTypes: string[]): boolean {
-  return Object.keys(PLATFORM_WIDGET_TYPES).every((platform) =>
-    isPlatformFull(platform, usedTypes)
-  );
-}

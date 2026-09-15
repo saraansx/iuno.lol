@@ -8,7 +8,7 @@ import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
-import { PLATFORM_WIDGET_TYPES, isPlatformFull } from "@/lib/widget-types";
+import { PLATFORM_WIDGET_TYPES } from "@/lib/widget-types";
 
 interface AddWidgetModalProps {
   isOpen: boolean;
@@ -16,7 +16,6 @@ interface AddWidgetModalProps {
   onAdd: (widget: { platform: string; type: string; useLinked: boolean; customId: string }) => void;
   linkedDiscordId?: string | null;
   linkedDiscordUsername?: string | null;
-  usedTypes?: string[];
 }
 
 const PLATFORMS = [
@@ -50,9 +49,8 @@ export default function AddWidgetModal({
   onAdd,
   linkedDiscordId,
   linkedDiscordUsername,
-  usedTypes = [],
 }: AddWidgetModalProps) {
-  const isTypeUsed = (type: string) => usedTypes.includes(type);
+  // Any type can be added any number of times — only the total cap (4) applies.
 
   const [platformChoice, setPlatformChoice] = useState<string | null>(null);
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
@@ -80,14 +78,9 @@ export default function AddWidgetModal({
   const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   const firstOpenPlatform =
-    PLATFORMS.find(
-      (p) => PLATFORM_WIDGET_TYPES[p.id] && !isPlatformFull(p.id, usedTypes)
-    )?.id || "discord";
+    PLATFORMS.find((p) => PLATFORM_WIDGET_TYPES[p.id])?.id || "discord";
 
-  const selectedPlatform =
-    platformChoice && !isPlatformFull(platformChoice, usedTypes)
-      ? platformChoice
-      : firstOpenPlatform;
+  const selectedPlatform = platformChoice || firstOpenPlatform;
 
   const setSelectedPlatform = (platform: string) => {
     setPlatformChoice(platform);
@@ -96,13 +89,10 @@ export default function AddWidgetModal({
 
   const platformTypes = PLATFORM_WIDGET_TYPES[selectedPlatform] || [];
 
-  const defaultWidgetType =
-    platformTypes.find((type) => !isTypeUsed(type)) || platformTypes[0] || "presence";
+  const defaultWidgetType = platformTypes[0] || "presence";
 
   const widgetType =
-    customWidgetType &&
-    platformTypes.includes(customWidgetType) &&
-    !isTypeUsed(customWidgetType)
+    customWidgetType && platformTypes.includes(customWidgetType)
       ? customWidgetType
       : defaultWidgetType;
 

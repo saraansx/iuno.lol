@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import AddWidgetModal from "./AddWidgetModal";
 import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon, TikTokLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
-import { getCanonicalWidgetType, areAllPlatformsFull } from "@/lib/widget-types";
 
 export interface WidgetItem {
   id: string;
@@ -129,9 +128,6 @@ export default function WidgetsCustomization({
   useEffect(() => {
     setWidgets(initialWidgets);
   }, [initialWidgets]);
-
-  const usedTypes = widgets.map((w) => getCanonicalWidgetType(w));
-  const isEveryPlatformFull = areAllPlatformsFull(usedTypes);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDraggedIdx(index);
@@ -374,7 +370,7 @@ export default function WidgetsCustomization({
   };
 
   const count = widgets.length;
-  const isAddDisabled = count >= maxWidgets || isEveryPlatformFull;
+  const isAddDisabled = count >= maxWidgets;
 
   return (
     <>
@@ -393,11 +389,6 @@ export default function WidgetsCustomization({
             <button
               type="button"
               disabled={isAddDisabled}
-              title={
-                isEveryPlatformFull && count < maxWidgets
-                  ? "You've added every available widget"
-                  : undefined
-              }
               onClick={() => setIsModalOpen(true)}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
                 isAddDisabled
@@ -663,7 +654,6 @@ export default function WidgetsCustomization({
         onAdd={handleAddWidget}
         linkedDiscordId={linkedDiscordId}
         linkedDiscordUsername={linkedDiscordUsername}
-        usedTypes={usedTypes}
       />
     </>
   );
