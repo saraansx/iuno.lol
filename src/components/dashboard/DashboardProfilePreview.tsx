@@ -162,7 +162,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}
       musicPlayerStyle={deferredOverrides.musicPlayerStyle ?? user?.musicPlayerStyle ?? "compact"}
       musicPlayerArtBg={deferredOverrides.musicPlayerArtBg ?? user?.musicPlayerArtBg ?? true}
-      musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? false}
+      musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
       musicPlayerVolumeFixed={false}
     />
   );

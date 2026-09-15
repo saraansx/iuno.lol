@@ -424,7 +424,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? true}
-        musicPlayerVolume={user.musicPlayerVolume ?? false}
+        musicPlayerVolume={user.musicPlayerVolume ?? true}
       />
       <ProfileViewTracker profileId={user.id} />
       {user.tabTitleAnimated && (

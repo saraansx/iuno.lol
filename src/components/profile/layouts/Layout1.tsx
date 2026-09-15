@@ -475,7 +475,7 @@ const Layout1 = ({
   musicPlayerStyle = "compact",
   musicAutoPlay = true,
   musicPlayerArtBg = true,
-  musicPlayerVolume = false,
+  musicPlayerVolume = true,
   musicPlayerVolumeFixed = true,
   profileId,
   viewerId: viewerIdProp,
@@ -867,7 +867,7 @@ useEffect(() => {
 
   const musicPlayerAutoPlay = musicAutoPlay && (!enterScreenEnabled || entered);
   const musicPlayerArtBgOn = musicPlayerArtBg ?? true;
-  const musicPlayerVolumeOn = musicPlayerVolume ?? false;
+  const musicPlayerVolumeOn = musicPlayerVolume ?? true;
 
   const musicTitleStyle: React.CSSProperties = {
     fontFamily: fontClassMap[musicPrimaryFont ?? "Inter"] || "var(--font-inter)",

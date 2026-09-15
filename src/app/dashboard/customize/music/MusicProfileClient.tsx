@@ -38,7 +38,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
   const initialArtBg = user?.musicPlayerArtBg ?? true;
-  const initialVolumeControl = user?.musicPlayerVolume ?? false;
+  const initialVolumeControl = user?.musicPlayerVolume ?? true;
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
