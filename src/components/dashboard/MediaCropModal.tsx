@@ -62,8 +62,13 @@ export default function MediaCropModal({
       throw new Error("No 2d context");
     }
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    // Cap cropped output so banners stay <= 1920px and avatars stay small.
+    const longest = Math.max(pixelCrop.width, pixelCrop.height);
+    const scale = Math.min(1, 1920 / (longest || 1));
+    const outWidth = Math.max(1, Math.round(pixelCrop.width * scale));
+    const outHeight = Math.max(1, Math.round(pixelCrop.height * scale));
+    canvas.width = outWidth;
+    canvas.height = outHeight;
 
     ctx.drawImage(
       image,
@@ -73,8 +78,8 @@ export default function MediaCropModal({
       pixelCrop.height,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height
+      outWidth,
+      outHeight
     );
 
     return new Promise((resolve, reject) => {
@@ -83,9 +88,9 @@ export default function MediaCropModal({
           reject(new Error("Canvas is empty"));
           return;
         }
-        const file = new File([blob], "cropped-media.png", { type: "image/png" });
+        const file = new File([blob], "cropped-media.webp", { type: "image/webp" });
         resolve(file);
-      }, "image/png");
+      }, "image/webp", 0.85);
     });
   };
 

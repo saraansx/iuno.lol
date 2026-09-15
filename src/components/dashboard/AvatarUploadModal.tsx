@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
 
 import MediaCropModal from "./MediaCropModal";
+import { compressImageFile } from "@/lib/utils/compress-image";
 
 interface AvatarUploadModalProps {
   open: boolean;
@@ -106,14 +107,16 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
     setStatusText("Ready");
 
     try {
-      const localUrl = URL.createObjectURL(file);
-      setResolvedUrl(localUrl);
-      
       const isVid = file.type.startsWith("video");
       const isGif = file.type.includes("gif");
+      const optimizedFile =
+        !isVid && !isGif ? await compressImageFile(file, "avatar") : file;
+      const localUrl = URL.createObjectURL(optimizedFile);
+      setResolvedUrl(localUrl);
+
       setMediaType(isVid ? "video" : isGif ? "gif" : "image");
-      
-      setRawSelectedFile(file);
+
+      setRawSelectedFile(optimizedFile);
       
       setIsLoading(false);
     } catch (error) {
