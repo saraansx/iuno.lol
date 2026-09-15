@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Cropper, { Area } from "react-easy-crop";
+import dynamic from "next/dynamic";
+import type { Area } from "react-easy-crop";
 import { motion, AnimatePresence } from "framer-motion";
+
+const Cropper = dynamic(() => import("react-easy-crop").then((m) => m.default), {
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center bg-neutral-950 text-[12px] text-white/30">
+      Loading cropper…
+    </div>
+  ),
+}) as unknown as typeof import("react-easy-crop").default;
 
 interface MediaCropModalProps {
   open: boolean;

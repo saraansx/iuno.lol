@@ -6,7 +6,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), { ssr: false });
+const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), {
+  ssr: false,
+  loading: () => <div className="absolute inset-0 bg-transparent" aria-hidden />,
+});
 
 interface HomeProps {
   isAuthenticated?: boolean;
