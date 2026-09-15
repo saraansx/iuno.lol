@@ -44,14 +44,14 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     audioRef.current = null;
   }, []);
 
-  const ensureAndPlay = useCallback((): Promise<void> | undefined => {
+  const playAt = useCallback((target: number): Promise<void> | undefined => {
     const existing = audioRef.current;
     if (existing) {
       if (!existing.paused) return undefined;
       setLoading(true);
       return existing.play().catch(() => { setLoading(false); });
     }
-    const t = tracks[Math.min(index, tracks.length - 1)] ?? null;
+    const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
     // Main page plays ONLY from saved (Catbox) files — no upstream fallback.
     const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
@@ -76,13 +76,25 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     };
     const onEnded = () => {
       // loop: single track repeats, playlist wraps to first after last
-      audioRef.current = null;
-      setElapsed(0);
-      setDuration(0);
-      setPlaying(false);
-      setLoading(false);
-      autoNextRef.current = true;
-      setIndex(index < tracks.length - 1 ? index + 1 : 0);
+      const next = target < tracks.length - 1 ? target + 1 : 0;
+      if (next === target) {
+        // same index — setIndex would bail out, so restart the same element
+        try { audio.currentTime = 0; } catch {}
+        setElapsed(0);
+        setLoading(true);
+        audio.play().catch(() => {
+          setLoading(false);
+          setPlaying(false);
+        });
+      } else {
+        audioRef.current = null;
+        setElapsed(0);
+        setDuration(0);
+        setPlaying(false);
+        setLoading(false);
+        autoNextRef.current = true;
+        setIndex(next);
+      }
     };
     const onError = () => {
       audioRef.current = null;
@@ -96,7 +108,12 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     return audio.play().catch(() => { onError(); });
-  }, [index, tracks, applyVolume]);
+  }, [tracks, applyVolume]);
+
+  const ensureAndPlay = useCallback(
+    (): Promise<void> | undefined => playAt(index),
+    [playAt, index],
+  );
 
   // continue into the next track after auto-advance (deferred so the
   // effect body itself never sets state synchronously)
