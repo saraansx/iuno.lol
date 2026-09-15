@@ -59,6 +59,45 @@ function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | n
   return null;
 }
 
+function getAudioExtension(buffer: Buffer): { ext: string; mime: string } | null {
+  if (buffer.length < 12) return null;
+
+  // MP3: ID3 tag or frame sync
+  if (buffer[0] === 0x49 && buffer[1] === 0x44 && buffer[2] === 0x33) {
+    return { ext: "mp3", mime: "audio/mpeg" };
+  }
+  if (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0) {
+    return { ext: "mp3", mime: "audio/mpeg" };
+  }
+  // OGG
+  if (buffer[0] === 0x4f && buffer[1] === 0x67 && buffer[2] === 0x67 && buffer[3] === 0x53) {
+    return { ext: "ogg", mime: "audio/ogg" };
+  }
+  // FLAC
+  if (buffer[0] === 0x66 && buffer[1] === 0x4c && buffer[2] === 0x61 && buffer[3] === 0x43) {
+    return { ext: "flac", mime: "audio/flac" };
+  }
+  // WAV: RIFF....WAVE
+  if (
+    buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
+    buffer[8] === 0x57 && buffer[9] === 0x41 && buffer[10] === 0x56 && buffer[11] === 0x45
+  ) {
+    return { ext: "wav", mime: "audio/wav" };
+  }
+  // M4A: ftyp box
+  const hasFtyp = (offset: number) =>
+    buffer.length > offset + 3 &&
+    buffer[offset] === 0x66 &&
+    buffer[offset + 1] === 0x74 &&
+    buffer[offset + 2] === 0x79 &&
+    buffer[offset + 3] === 0x70;
+  if (hasFtyp(4) || hasFtyp(8) || hasFtyp(12) || hasFtyp(16)) {
+    return { ext: "m4a", mime: "audio/mp4" };
+  }
+
+  return null;
+}
+
 export async function POST(req: Request) {
   try {
     const userId = await getSessionUserId();
@@ -67,8 +106,8 @@ export async function POST(req: Request) {
     }
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-    if (contentLength > 12 * 1024 * 1024) {
-      return NextResponse.json({ error: "Payload too large. Maximum file size is 10MB." }, { status: 413 });
+    if (contentLength > 17 * 1024 * 1024) {
+      return NextResponse.json({ error: "Payload too large. Maximum file size is 15MB." }, { status: 413 });
     }
 
     const preRl = await uploadPreRateLimit(userId);
@@ -80,7 +119,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -92,6 +131,8 @@ export async function POST(req: Request) {
     const isTinyAsset = assetType === "favicon" || assetType === "cursor";
     const maxSize = assetType === "background"
       ? 10 * 1024 * 1024
+      : assetType === "track"
+      ? 15 * 1024 * 1024
       : isTinyAsset
       ? 1024 * 1024
       : 5 * 1024 * 1024;
@@ -103,12 +144,12 @@ export async function POST(req: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const detected = getRealFileExtension(buffer);
+    const detected = assetType === "track" ? getAudioExtension(buffer) : getRealFileExtension(buffer);
     if (!detected) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });
     }
 
-    if ((isTinyAsset || assetType === "embed") && !detected.mime.startsWith("image/")) {
+    if ((isTinyAsset || assetType === "embed" || assetType === "artwork") && !detected.mime.startsWith("image/")) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 

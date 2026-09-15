@@ -48,6 +48,180 @@ function Artwork({ src }: { src: string | null }) {
   );
 }
 
+function parseLRC(text: string): Array<{ text: string; start: number; end: number }> {
+  const lines: Array<{ text: string; start: number }> = [];
+  for (const raw of text.split("\n")) {
+    const m = raw.match(/\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]\s*(.*)/);
+    if (!m || !m[4]?.trim()) continue;
+    let ms = (parseInt(m[1]) * 60 + parseInt(m[2])) * 1000;
+    const frac = m[3] ?? "";
+    if (frac.length === 3) ms += parseInt(frac);
+    else if (frac.length === 2) ms += parseInt(frac) * 10;
+    else if (frac.length === 1) ms += parseInt(frac) * 100;
+    lines.push({ text: m[4].trim().slice(0, 300), start: ms });
+  }
+  lines.sort((a, b) => a.start - b.start);
+  return lines.slice(0, 300).map((l, i) => ({
+    text: l.text,
+    start: l.start,
+    end: lines[i + 1]?.start ?? l.start + 4000,
+  }));
+}
+
+function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [title, setTitle] = useState("");
+  const [artist, setArtist] = useState("");
+  const [lrc, setLrc] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const uploadOne = async (file: File, assetType: string) => {
+    const fd = new FormData();
+    fd.append("fileToUpload", file);
+    fd.append("assetType", assetType);
+    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const data = await res.json().catch(() => null);
+    if (!res.ok || !data?.url) throw new Error(data?.error || "Upload failed");
+    return data.url as string;
+  };
+
+  const probeDuration = (url: string) =>
+    new Promise<number | null>((resolve) => {
+      const a = new Audio(url);
+      const to = window.setTimeout(() => {
+        try { a.src = ""; } catch {}
+        resolve(null);
+      }, 15000);
+      a.preload = "metadata";
+      a.onloadedmetadata = () => {
+        window.clearTimeout(to);
+        resolve(Number.isFinite(a.duration) && a.duration > 0 ? Math.round(a.duration) : null);
+        try { a.src = ""; } catch {}
+      };
+      a.onerror = () => {
+        window.clearTimeout(to);
+        resolve(null);
+      };
+      a.src = url;
+    });
+
+  const submit = async () => {
+    if (!audioFile || !coverFile || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const streamUrl = await uploadOne(audioFile, "track");
+      const artwork = await uploadOne(coverFile, "artwork");
+      const duration = await probeDuration(streamUrl);
+      const lyrics = lrc.trim() ? parseLRC(lrc) : null;
+      onDone({
+        id: `custom-${Date.now().toString(36)}`,
+        title: title.trim() || audioFile.name.replace(/\.[^.]+$/, "") || "Untitled",
+        artist: artist.trim() || "Unknown artist",
+        artwork,
+        album: null,
+        duration,
+        streamUrl,
+        lyrics: lyrics && lyrics.length > 0 ? lyrics : null,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4 py-1">
+      <label className="w-full border border-dashed border-white/[0.12] hover:border-[#5b6cf5]/50 rounded-2xl bg-[#141414]/40 px-4 py-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors">
+        <input
+          type="file"
+          accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/ogg,audio/flac,audio/wav,audio/*"
+          className="hidden"
+          onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+        />
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 mb-2">
+          <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+        </svg>
+        <span className="text-[13px] text-white/80">
+          {audioFile ? audioFile.name : "Choose an audio file"}
+        </span>
+        <span className="text-[11.5px] text-white/35 mt-1">MP3, M4A, OGG, FLAC or WAV · up to 15MB</span>
+      </label>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[12.5px] text-white/40">Title</label>
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={200}
+          placeholder="Song title"
+          className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[12.5px] text-white/40">Artist</label>
+        <input
+          type="text"
+          value={artist}
+          onChange={(e) => setArtist(e.target.value)}
+          maxLength={200}
+          placeholder="Artist name"
+          className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
+        />
+      </div>
+
+      <label className="w-full border border-white/5 hover:border-white/15 rounded-2xl bg-[#141414]/40 px-4 py-3.5 flex items-center gap-3 cursor-pointer transition-colors">
+        <input
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+        />
+        <span className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
+            <rect x="3" y="3" width="18" height="18" rx="3" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.5-3.5a2 2 0 0 0-3 0L6 20" />
+          </svg>
+        </span>
+        <span className="flex flex-col">
+          <span className="text-[13px] text-white/80">{coverFile ? coverFile.name : "Cover art"}</span>
+          <span className="text-[11.5px] text-white/35">Square image works best · required</span>
+        </span>
+      </label>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[12.5px] text-white/40">Lyrics <span className="text-white/25">(optional, LRC format)</span></label>
+        <textarea
+          value={lrc}
+          onChange={(e) => setLrc(e.target.value)}
+          rows={3}
+          placeholder={"[00:12.00] First line\n[00:16.50] Second line"}
+          className="bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5 text-[13px] font-mono text-white placeholder:text-white/25 resize-y focus:outline-none focus:border-white/10"
+        />
+      </div>
+
+      {error ? <p className="text-[12.5px] text-red-400">{error}</p> : null}
+
+      <button
+        type="button"
+        onClick={submit}
+        disabled={!audioFile || !coverFile || busy}
+        className="w-full h-10 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white text-[13px] font-normal transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {busy ? (
+          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+        ) : (
+          "Upload track"
+        )}
+      </button>
+    </div>
+  );
+}
+
 export default function SearchTracksModal({
   open,
   onClose,
@@ -71,6 +245,7 @@ export default function SearchTracksModal({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [lyricLines, setLyricLines] = useState<LyricLine[]>([]);
   const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [view, setView] = useState<"choose" | "search" | "upload">("choose");
   const activeLyricRef = useRef<HTMLParagraphElement | null>(null);
   const lyricsScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -108,6 +283,7 @@ export default function SearchTracksModal({
       setSelectedId(null);
       setLyricLines([]);
       setLyricsLoading(false);
+      setView("choose");
     }
   }, [open ]);
 
@@ -404,6 +580,68 @@ export default function SearchTracksModal({
             </div>
 
             <div className="px-6 py-4 flex-1 min-h-0 overflow-y-auto">
+              {view === "choose" ? (
+                <div className="flex flex-col gap-3 py-1">
+                  <button
+                    type="button"
+                    onClick={() => setView("search")}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#5b6cf5]/[0.07] hover:bg-[#5b6cf5]/[0.12] border border-[#5b6cf5]/40 hover:border-[#5b6cf5]/60 text-left transition-all cursor-pointer"
+                  >
+                    <span className="w-10 h-10 rounded-xl bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 flex items-center justify-center shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b96ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                      </svg>
+                    </span>
+                    <span className="flex-1 min-w-0 flex flex-col">
+                      <span className="flex items-center gap-2">
+                        <span className="text-[13.5px] font-medium text-white">Search</span>
+                        <span className="text-[10px] font-medium text-white bg-[#2b3280] border border-[#5b6cf5]/50 rounded-full px-2 py-0.5">Recommended</span>
+                      </span>
+                      <span className="text-[12px] text-white/40 mt-0.5">Find any song with artwork and synced lyrics.</span>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setView("upload")}
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#141414]/70 hover:bg-[#161616] border border-white/5 hover:border-white/15 text-left transition-all cursor-pointer"
+                  >
+                    <span className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                    </span>
+                    <span className="flex-1 min-w-0 flex flex-col">
+                      <span className="text-[13.5px] font-medium text-white">Upload</span>
+                      <span className="text-[12px] text-white/40 mt-0.5">Upload your own MP3 file with custom cover art.</span>
+                    </span>
+                  </button>
+                </div>
+              ) : (
+              <>
+              {(
+                <button
+                  type="button"
+                  onClick={() => { stopPreview(); setView("choose"); }}
+                  className="flex items-center gap-1.5 text-[12px] text-white/40 hover:text-white/80 transition-colors cursor-pointer mb-3"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                  Back
+                </button>
+              )}
+              {view === "upload" ? (
+                <UploadTrackForm
+                  onDone={(t) => {
+                    stopPreview();
+                    onSelect(t);
+                    setQuery("");
+                    onClose();
+                  }}
+                />
+              ) : (
+              <>
               <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-10 focus-within:border-white/15 transition-colors">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/30 shrink-0 mr-2.5">
                   <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
@@ -618,6 +856,8 @@ export default function SearchTracksModal({
                   </p>
                 </div>
               ) : null}
+              </>)}
+              </>)}
             </div>
           </motion.div>
         </div>

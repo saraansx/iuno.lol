@@ -1191,6 +1191,12 @@ export async function updateProfileWidgets(data: {
   return { success: true };
 }
 
+export type LyricLineInput = {
+  text: string;
+  start: number;
+  end: number;
+};
+
 export type MusicTrackInput = {
   id: string;
   title: string;
@@ -1199,6 +1205,7 @@ export type MusicTrackInput = {
   album?: string | null;
   duration?: number | null;
   streamUrl?: string | null;
+  lyrics?: LyricLineInput[] | null;
 };
 
 type CachedTrackMedia = {
@@ -1367,6 +1374,36 @@ export async function updateMusicProfile(data: {
         typeof t.duration === "number" && Number.isFinite(t.duration) && t.duration > 0
           ? Math.round(t.duration)
           : null;
+
+      // User-uploaded track: audio + artwork are already on Catbox.
+      if (id.startsWith("custom-")) {
+        if (!isCatboxUrl(t.streamUrl)) {
+          throw new Error(`Could not save "${title}" — audio upload missing.`);
+        }
+        if (!isCatboxUrl(t.artwork)) {
+          throw new Error(`Could not save "${title}" — cover art is required.`);
+        }
+        const lyrics = Array.isArray(t.lyrics)
+          ? t.lyrics
+              .slice(0, 300)
+              .map((l) => ({
+                text: String(l?.text || "").trim().slice(0, 300),
+                start: Number.isFinite(l?.start) && (l?.start ?? 0) >= 0 ? Math.round(l.start) : 0,
+                end: Number.isFinite(l?.end) && (l?.end ?? 0) >= 0 ? Math.round(l.end) : 0,
+              }))
+              .filter((l) => l.text !== "")
+          : null;
+        return {
+          id,
+          title,
+          artist,
+          artwork: t.artwork as string,
+          album,
+          duration,
+          streamUrl: t.streamUrl as string,
+          lyrics: lyrics && lyrics.length > 0 ? lyrics : null,
+        };
+      }
 
       // Already cached (e.g. re-save without changes)? Reuse saved media.
       const prev = prevTracks.find((p) => p.id === id);
