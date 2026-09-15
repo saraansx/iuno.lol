@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
 import WidgetStyleCustomization from "@/components/dashboard/customize/colors/WidgetStyleCustomization";
+import SectionStyleCustomization from "@/components/dashboard/customize/colors/SectionStyleCustomization";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
@@ -39,6 +40,14 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const widgetBorderColor = overrides.widgetBorderColor ?? initialWidgetBorderColor;
   const setWidgetBorderColor = (val: string) => updateOverrides({ widgetBorderColor: val === initialWidgetBorderColor ? undefined : val });
 
+  const initialSectionTitleColor = user?.sectionTitleColor ?? "#FFFFFF";
+  const initialSectionDescColor = user?.sectionDescColor ?? "#FFFFFF";
+
+  const sectionTitleColor = overrides.sectionTitleColor ?? initialSectionTitleColor;
+  const setSectionTitleColor = (val: string) => updateOverrides({ sectionTitleColor: val === initialSectionTitleColor ? undefined : val });
+  const sectionDescColor = overrides.sectionDescColor ?? initialSectionDescColor;
+  const setSectionDescColor = (val: string) => updateOverrides({ sectionDescColor: val === initialSectionDescColor ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -67,6 +76,13 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           borderColor={widgetBorderColor}
           setBorderColor={setWidgetBorderColor}
         />
+
+        <SectionStyleCustomization
+          titleColor={sectionTitleColor}
+          setTitleColor={setSectionTitleColor}
+          descColor={sectionDescColor}
+          setDescColor={setSectionDescColor}
+        />
       </div>
 
       <DashboardProfilePreview
@@ -80,6 +96,8 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           widgetPrimaryTextColor,
           widgetSecondaryTextColor,
           widgetBorderColor,
+          sectionTitleColor,
+          sectionDescColor,
         }}
       />
 

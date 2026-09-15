@@ -141,6 +141,8 @@ const userColumns = {
   sectionDescFontSize: schema.userSettings.sectionDescFontSize,
   sectionDescFontWeight: schema.userSettings.sectionDescFontWeight,
   sectionDescLetterSpacing: schema.userSettings.sectionDescLetterSpacing,
+  sectionTitleColor: schema.userSettings.sectionTitleColor,
+  sectionDescColor: schema.userSettings.sectionDescColor,
   musicTracks: schema.userSettings.musicTracks,
   musicPlayerStyle: schema.userSettings.musicPlayerStyle,
   musicPlayerVolume: schema.userSettings.musicPlayerVolume,

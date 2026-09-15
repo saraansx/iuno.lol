@@ -164,6 +164,8 @@ interface Layout1Props {
   sectionDescFontSize?: number;
   sectionDescFontWeight?: number;
   sectionDescLetterSpacing?: number;
+  sectionTitleColor?: string;
+  sectionDescColor?: string;
   otherFont?: string;
   otherFontSize?: number;
   otherFontWeight?: number;
@@ -379,6 +381,8 @@ const Layout1 = ({
   sectionDescFontSize = 12.5,
   sectionDescFontWeight = 400,
   sectionDescLetterSpacing = 0,
+  sectionTitleColor = "#FFFFFF",
+  sectionDescColor = "#FFFFFF",
   otherFont = "Inter",
   otherFontSize = 14,
   otherFontWeight = 400,
@@ -1205,7 +1209,7 @@ const sectionSurface: React.CSSProperties = {
                         fontSize: `${sectionTitleFontSize}px`,
                         fontWeight: sectionTitleFontWeight,
                         letterSpacing: `${sectionTitleLetterSpacing}px`,
-                        color: usernameColor,
+                        color: sectionTitleColor,
                       }}
                     >
                       {aboutSectionTitle?.trim() || "About"}
@@ -1218,7 +1222,7 @@ const sectionSurface: React.CSSProperties = {
                           fontSize: `${sectionDescFontSize}px`,
                           fontWeight: sectionDescFontWeight,
                           letterSpacing: `${sectionDescLetterSpacing}px`,
-                          color: bioColor,
+                          color: sectionDescColor,
                         }}
                       >
                         {renderFormattedText(aboutSubtitle)}

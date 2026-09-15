@@ -117,12 +117,12 @@ export default function AboutSectionRow({ hidden, title, description }: AboutSec
               id="about-description"
               value={descValue}
               onChange={(e) => setDescValue(e.target.value)}
-              maxLength={120}
+              maxLength={200}
               rows={2}
               placeholder="A short line under the heading — the bio stays in the card"
               className="bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5 text-[13px] text-white placeholder:text-white/25 resize-y focus:outline-none focus:border-white/10"
             />
-            <span className="text-[11px] text-white/25 self-end">{descValue.length}/120</span>
+            <span className="text-[11px] text-white/25 self-end">{descValue.length}/200</span>
           </div>
 
           <div className="flex items-center justify-end gap-2">

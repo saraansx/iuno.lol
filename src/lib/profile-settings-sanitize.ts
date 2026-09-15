@@ -67,6 +67,8 @@ const COLOR_FIELDS = new Set([
   "cursorTrailColor",
   "enterScreenColor",
   "enterScreenBlurColor",
+  "sectionTitleColor",
+  "sectionDescColor",
 ]);
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;

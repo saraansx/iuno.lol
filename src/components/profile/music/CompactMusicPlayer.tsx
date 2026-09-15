@@ -138,14 +138,17 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     return audio.play().catch(() => { onError(); });
-  }, [index, tracks]);
+  }, [index, tracks, applyVolume]);
 
-  // continue into the next track after auto-advance
+  // continue into the next track after auto-advance (deferred so the
+  // effect body itself never sets state synchronously)
   useEffect(() => {
-    if (autoNextRef.current) {
-      autoNextRef.current = false;
+    if (!autoNextRef.current) return;
+    autoNextRef.current = false;
+    const t = window.setTimeout(() => {
       ensureAndPlay()?.catch(() => {});
-    }
+    }, 0);
+    return () => window.clearTimeout(t);
   }, [index, ensureAndPlay]);
 
   // autoplay: try immediately; if the browser blocks it, retry on first gesture
@@ -164,14 +167,20 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
         retry = null;
       }
     };
-    ensureAndPlay()?.catch(() => {
-      if (retry) return;
-      retry = () => { ensureAndPlay()?.then(cleanupRetry).catch(() => {}); };
-      window.addEventListener("pointerdown", retry);
-      window.addEventListener("keydown", retry);
-      window.addEventListener("touchstart", retry);
-    });
-    return cleanupRetry;
+    // deferred so the effect body itself never sets state synchronously
+    const t = window.setTimeout(() => {
+      ensureAndPlay()?.catch(() => {
+        if (retry) return;
+        retry = () => { ensureAndPlay()?.then(cleanupRetry).catch(() => {}); };
+        window.addEventListener("pointerdown", retry);
+        window.addEventListener("keydown", retry);
+        window.addEventListener("touchstart", retry);
+      });
+    }, 0);
+    return () => {
+      window.clearTimeout(t);
+      cleanupRetry();
+    };
   }, [autoPlay, index, ensureAndPlay]);
 
   const toggle = () => {

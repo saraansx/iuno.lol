@@ -213,6 +213,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenBlur: userSettings.enterScreenBlur,
       enterScreenBlurColor: userSettings.enterScreenBlurColor,
       widgets: userSettings.widgets,
+      sectionTitleColor: userSettings.sectionTitleColor,
+      sectionDescColor: userSettings.sectionDescColor,
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
       musicPlayerVolume: userSettings.musicPlayerVolume,
@@ -321,6 +323,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bioFontWeight={user.bioFontWeight ?? undefined}
         bioLetterSpacing={user.bioLetterSpacing ?? undefined}
         bioColor={user.bioColor ?? undefined}
+        sectionTitleColor={user.sectionTitleColor ?? undefined}
+        sectionDescColor={user.sectionDescColor ?? undefined}
         sectionTitleFont={user.sectionTitleFont ?? undefined}
         sectionTitleFontSize={user.sectionTitleFontSize ?? undefined}
         sectionTitleFontWeight={user.sectionTitleFontWeight ?? undefined}

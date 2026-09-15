@@ -337,6 +337,8 @@ export async function updateColorsProfile(data: {
   widgetPrimaryTextColor?: string | null;
   widgetSecondaryTextColor?: string | null;
   widgetBorderColor?: string | null;
+  sectionTitleColor?: string | null;
+  sectionDescColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -359,6 +361,8 @@ export async function updateColorsProfile(data: {
   if (data.widgetPrimaryTextColor !== undefined) setData.widgetPrimaryTextColor = data.widgetPrimaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetSecondaryTextColor !== undefined) setData.widgetSecondaryTextColor = data.widgetSecondaryTextColor?.slice(0, 32) ?? null;
   if (data.widgetBorderColor !== undefined) setData.widgetBorderColor = data.widgetBorderColor?.slice(0, 32) ?? null;
+  if (data.sectionTitleColor !== undefined) setData.sectionTitleColor = data.sectionTitleColor?.slice(0, 32) ?? null;
+  if (data.sectionDescColor !== undefined) setData.sectionDescColor = data.sectionDescColor?.slice(0, 32) ?? null;
 
   sanitizeProfileSettings(setData);
 

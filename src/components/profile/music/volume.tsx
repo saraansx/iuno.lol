@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useRef, useState, type CSSProperties, type RefObject } from "react";
 
 /** Volume state that survives track changes (refs) + applies to audio elements. */
 export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
@@ -9,13 +9,13 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
   const volumeRef = useRef(1);
   const mutedRef = useRef(false);
 
-  const applyVolume = (audio: HTMLAudioElement | null) => {
+  const applyVolume = useCallback((audio: HTMLAudioElement | null) => {
     if (!audio) return;
     try {
       audio.volume = Math.min(1, Math.max(0, volumeRef.current));
       audio.muted = mutedRef.current;
     } catch {}
-  };
+  }, []);
 
   const setVolume = (v: number) => {
     const c = Math.min(1, Math.max(0, v));
