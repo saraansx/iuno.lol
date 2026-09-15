@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
-import { compressImageFile } from "@/lib/utils/compress-image";
 
 export interface MediaUploadModalProps {
   open: boolean;
@@ -91,14 +90,11 @@ export default function MediaUploadModal({
     setStatusText("Ready");
 
     try {
+      const localUrl = URL.createObjectURL(file);
       const isVid = file.type.startsWith("video");
       const isGif = file.type.includes("gif");
-      const optimizedFile =
-        !isVid && !isGif ? await compressImageFile(file, assetType ?? "default") : file;
-      const localUrl = URL.createObjectURL(optimizedFile);
-      void file;
 
-      const rewritten = transform ? await transform(localUrl, optimizedFile) : null;
+      const rewritten = transform ? await transform(localUrl, file) : null;
       if (rewritten) {
         URL.revokeObjectURL(localUrl);
         setResolvedUrl(rewritten.url);
@@ -110,7 +106,7 @@ export default function MediaUploadModal({
 
       setResolvedUrl(localUrl);
       setMediaType(isVid ? "video" : isGif ? "gif" : "image");
-      setRawSelectedFile(optimizedFile);
+      setRawSelectedFile(file);
       setIsLoading(false);
     } catch {
       setErrorMsg("Failed to process local file");

@@ -275,7 +275,7 @@ const AvatarInner = ({
             playsInline
           />
         ) : (
-          <Image src={avatarUrl} alt="Avatar" fill sizes="88px" className="object-cover" priority />
+          <Image src={avatarUrl} alt="Avatar" fill sizes="88px" className="object-cover" unoptimized priority />
         )
       ) : (
         <svg
@@ -302,6 +302,7 @@ const AvatarInner = ({
           alt={selectedDecoration.name}
           fill
           sizes="104px"
+          unoptimized
           priority
           className="object-contain"
           style={{ filter: `hue-rotate(${decorationHue}deg)` }}
@@ -943,11 +944,12 @@ const sectionSurface: React.CSSProperties = {
                 src={bannerBackgroundUrl}
                 alt="Background"
                 fill
-                sizes="100vw"
                 className="object-cover"
                 style={{
                   filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
                 }}
+                unoptimized
+                priority
               />
             </div>
           )
@@ -1088,8 +1090,8 @@ const sectionSurface: React.CSSProperties = {
                     src={bannerImageUrl!}
                     alt="Banner"
                     fill
-                    sizes="(max-width: 700px) 100vw, 700px"
                     className="object-cover"
+                    unoptimized
                     priority
                   />
                 )}
