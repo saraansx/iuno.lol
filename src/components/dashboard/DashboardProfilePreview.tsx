@@ -164,6 +164,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       musicPlayerArtBg={deferredOverrides.musicPlayerArtBg ?? user?.musicPlayerArtBg ?? true}
       musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
       musicPlayerVolumeFixed={false}
+      musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
     />
   );
 }

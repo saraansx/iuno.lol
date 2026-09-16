@@ -190,6 +190,7 @@ export const userSettings = mysqlTable('user_settings', {
   musicPlayerStyle: varchar('music_player_style', { length: 20 }).default('compact'),
   musicPlayerArtBg: boolean('music_player_art_bg').default(true),
   musicPlayerVolume: boolean('music_player_volume').default(true),
+  musicPlayerShuffle: boolean('music_player_shuffle').default(false),
   allowNewComments: boolean('allow_new_comments').default(true),
   feedbackEnabled: boolean('feedback_enabled').default(true),
   showFeedbackPublicly: boolean('show_feedback_publicly').default(false),

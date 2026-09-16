@@ -68,7 +68,7 @@ export async function generateMetadata(
   return {
     title: { absolute: formatTabTitle(row.tabTitle, row.username) },
     description,
-    icons: { icon: row.faviconUrl || '/logo.png' },
+    icons: { icon: row.faviconUrl || '/Favicon.png' },
     openGraph: {
       title,
       description,
@@ -233,6 +233,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
       musicPlayerVolume: userSettings.musicPlayerVolume,
+      musicPlayerShuffle: userSettings.musicPlayerShuffle,
       sectionTitleFont: userSettings.sectionTitleFont,
       sectionTitleFontSize: userSettings.sectionTitleFontSize,
       sectionTitleFontWeight: userSettings.sectionTitleFontWeight,
@@ -425,6 +426,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? true}
         musicPlayerVolume={user.musicPlayerVolume ?? true}
+        musicPlayerShuffle={user.musicPlayerShuffle ?? false}
       />
       <ProfileViewTracker profileId={user.id} />
       {user.tabTitleAnimated && (

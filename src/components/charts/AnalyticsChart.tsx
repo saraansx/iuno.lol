@@ -93,7 +93,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
 
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <h2 className="text-white font-inter font-medium text-lg tracking-wide">Views</h2>
+          <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Views</h2>
           <div className="flex items-center gap-1.5 bg-[#609fda]/10 border border-[#609fda]/20 px-2.5 py-1 rounded-full">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>

@@ -12,7 +12,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle, lyricStyle, lyricColor = "#FFFFFF" }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; lyricStyle?: CSSProperties; lyricColor?: string }) {
+export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle, lyricStyle, lyricColor = "#FFFFFF", shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; lyricStyle?: CSSProperties; lyricColor?: string; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,6 +24,16 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
   const lyricsRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
+
+  const randomDifferent = useCallback(
+    (from: number) => {
+      if (tracks.length <= 1) return from;
+      let n = from;
+      while (n === from) n = Math.floor(Math.random() * tracks.length);
+      return n;
+    },
+    [tracks],
+  );
 
   const seekFromClientX = (clientX: number) => {
     const el = barRef.current;
@@ -75,8 +85,8 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
       setPlaying(false);
     };
     const onEnded = () => {
-      // loop: single track repeats, playlist wraps to first after last
-      const next = target < tracks.length - 1 ? target + 1 : 0;
+      // loop: single track repeats, playlist wraps (or shuffles) after last
+      const next = shuffle ? randomDifferent(target) : target < tracks.length - 1 ? target + 1 : 0;
       if (next === target) {
         // same index — setIndex would bail out, so restart the same element
         try { audio.currentTime = 0; } catch {}
@@ -108,7 +118,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     return audio.play().catch(() => { onError(); });
-  }, [tracks, applyVolume]);
+  }, [tracks, applyVolume, shuffle, randomDifferent]);
 
   const ensureAndPlay = useCallback(
     (): Promise<void> | undefined => playAt(index),
@@ -169,8 +179,10 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
   };
 
   const step = (dir: 1 | -1) => {
-    // single track: restart the same song from the start
-    if (tracks.length <= 1) {
+    // wrap around both ends so prev/next never grey out (random when shuffled)
+    const next = shuffle ? randomDifferent(index) : (index + dir + tracks.length) % tracks.length;
+    if (next === index) {
+      // same song: restart from the start
       const existing = audioRef.current;
       if (existing) {
         try { existing.currentTime = 0; } catch {}
@@ -184,8 +196,6 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
       }
       return;
     }
-    // wrap around both ends so prev/next never grey out
-    const next = (index + dir + tracks.length) % tracks.length;
     const wasPlaying = !!audioRef.current && !audioRef.current.paused;
     audioRef.current?.pause();
     audioRef.current = null;

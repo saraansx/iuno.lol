@@ -171,9 +171,11 @@ interface PlayerStyleSectionProps {
   setArtBg: (val: boolean) => void;
   volumeControl: boolean;
   setVolumeControl: (val: boolean) => void;
+  shuffle: boolean;
+  setShuffle: (val: boolean) => void;
 }
 
-export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg, setArtBg, volumeControl, setVolumeControl }: PlayerStyleSectionProps) {
+export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg, setArtBg, volumeControl, setVolumeControl, shuffle, setShuffle }: PlayerStyleSectionProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
@@ -252,6 +254,22 @@ export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg,
         </span>
         <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${volumeControl ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
           <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${volumeControl ? "left-[18px]" : "left-0.5"}`} />
+        </span>
+      </button>
+
+      <button
+        type="button"
+        role="switch"
+        aria-checked={shuffle}
+        onClick={() => setShuffle(!shuffle)}
+        className="flex items-center justify-between gap-3 rounded-2xl bg-[#141414]/70 border border-white/5 hover:border-white/15 px-4 py-3.5 text-left transition-all cursor-pointer"
+      >
+        <span className="flex flex-col">
+          <span className="text-[13px] font-normal text-white/90">Shuffle mode</span>
+          <span className="text-[11.5px] text-white/35 leading-snug">Play tracks in random order instead of sequence</span>
+        </span>
+        <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${shuffle ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+          <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${shuffle ? "left-[18px]" : "left-0.5"}`} />
         </span>
       </button>
     </div>

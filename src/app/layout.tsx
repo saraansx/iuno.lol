@@ -121,7 +121,7 @@ export const metadata: Metadata = {
   },
   description: SITE_CONFIG.description,
   icons: {
-    icon: "/logo.png",
+    icon: "/Favicon.png",
   },
 };
 

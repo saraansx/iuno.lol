@@ -56,10 +56,10 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
         <div className="py-4 relative flex transition-all shrink-0 items-center overflow-hidden h-[68px]">
           <Link 
             href="/" 
-            className={`absolute flex items-center hover:opacity-80 transition-all duration-300 whitespace-nowrap overflow-hidden ${open ? 'left-6 opacity-100' : 'left-6 opacity-0 pointer-events-none'}`}
+            className={`absolute flex items-center gap-1.5 hover:opacity-80 transition-all duration-300 whitespace-nowrap overflow-hidden ${open ? 'left-1/2 -translate-x-1/2 opacity-100' : 'left-1/2 -translate-x-1/2 opacity-0 pointer-events-none'}`}
           >
-            <Image src="/logo.png" alt="Iuno Logo" width={209} height={221} className="w-6 h-auto object-contain shrink-0" priority />
-            <span className="font-normal text-white tracking-tight text-base uppercase whitespace-nowrap ml-1 overflow-hidden">
+            <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-6 h-auto object-contain shrink-0 my-auto" priority />
+            <span className="font-normal text-white tracking-tight text-xl whitespace-nowrap overflow-hidden my-auto" style={{ fontFamily: "var(--font-comfortaa)" }}>
               Iuno<span className="text-[#609fda] lowercase">.lol</span>
             </span>
           </Link>

@@ -39,12 +39,14 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
   const initialArtBg = user?.musicPlayerArtBg ?? true;
   const initialVolumeControl = user?.musicPlayerVolume ?? true;
+  const initialShuffle = user?.musicPlayerShuffle ?? false;
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
   const [artBg, setArtBg] = useState<boolean>(initialArtBg);
   const [volumeControl, setVolumeControl] = useState<boolean>(initialVolumeControl);
+  const [shuffle, setShuffle] = useState<boolean>(initialShuffle);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -77,6 +79,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
     playerStyle !== initialPlayerStyle ||
     artBg !== initialArtBg ||
     volumeControl !== initialVolumeControl ||
+    shuffle !== initialShuffle ||
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const addTrack = (track: SearchTrack) => {
@@ -251,7 +254,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           )}
         </div>
 
-        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} />
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} shuffle={shuffle} setShuffle={setShuffle} />
         </>
         )}
       </div>
@@ -263,6 +266,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           musicPlayerStyle: playerStyle,
           musicPlayerArtBg: artBg,
           musicPlayerVolume: volumeControl,
+          musicPlayerShuffle: shuffle,
         }}
       />
 
@@ -270,7 +274,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         show={hasChanges}
         onSave={async () => {
           try {
-            const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl });
+            const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl, shuffle });
             // Sync local state with server-cached (Catbox) tracks so the
             // SaveBar clears immediately.
             if (res?.tracks) setTracks(res.tracks.map(toTrack));
@@ -285,6 +289,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           setPlayerStyle(initialPlayerStyle);
           setArtBg(initialArtBg);
           setVolumeControl(initialVolumeControl);
+          setShuffle(initialShuffle);
         }}
       />
 

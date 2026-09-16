@@ -41,7 +41,7 @@ export function seedHeights(key: string, n: number): number[] {
 
 const BAR_COUNT = 110;
 
-export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties }) {
+export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -52,6 +52,16 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   const barRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
+
+  const randomDifferent = useCallback(
+    (from: number) => {
+      if (tracks.length <= 1) return from;
+      let n = from;
+      while (n === from) n = Math.floor(Math.random() * tracks.length);
+      return n;
+    },
+    [tracks],
+  );
 
   const seekFromClientX = (clientX: number) => {
     const el = barRef.current;
@@ -104,8 +114,8 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
       setPlaying(false);
     };
     const onEnded = () => {
-      // loop: single track repeats, playlist wraps to first after last
-      const next = target < tracks.length - 1 ? target + 1 : 0;
+      // loop: single track repeats, playlist wraps (or shuffles) after last
+      const next = shuffle ? randomDifferent(target) : target < tracks.length - 1 ? target + 1 : 0;
       if (next === target) {
         // same index — setIndex would bail out, so restart the same element
         try { audio.currentTime = 0; } catch {}
@@ -137,7 +147,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     return audio.play().catch(() => { onError(); });
-  }, [tracks, applyVolume]);
+  }, [tracks, applyVolume, shuffle, randomDifferent]);
 
   const ensureAndPlay = useCallback(
     (): Promise<void> | undefined => playAt(index),
@@ -198,8 +208,10 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   };
 
   const step = (dir: 1 | -1) => {
-    // single track: restart the same song from the start
-    if (tracks.length <= 1) {
+    // wrap around both ends so prev/next never grey out (random when shuffled)
+    const next = shuffle ? randomDifferent(index) : (index + dir + tracks.length) % tracks.length;
+    if (next === index) {
+      // same song: restart from the start
       const existing = audioRef.current;
       if (existing) {
         try { existing.currentTime = 0; } catch {}
@@ -213,8 +225,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
       }
       return;
     }
-    // wrap around both ends so prev/next never grey out
-    const next = (index + dir + tracks.length) % tracks.length;
     const wasPlaying = !!audioRef.current && !audioRef.current.paused;
     audioRef.current?.pause();
     audioRef.current = null;

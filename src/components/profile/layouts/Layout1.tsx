@@ -258,6 +258,7 @@ interface Layout1Props {
   musicPlayerArtBg?: boolean | null;
   musicPlayerVolume?: boolean | null;
   musicPlayerVolumeFixed?: boolean;
+  musicPlayerShuffle?: boolean | null;
 }
 
 const hexToRgba = (hex: string | undefined, opacity: number) =>
@@ -477,6 +478,7 @@ const Layout1 = ({
   musicPlayerArtBg = true,
   musicPlayerVolume = true,
   musicPlayerVolumeFixed = true,
+  musicPlayerShuffle = false,
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -868,6 +870,7 @@ useEffect(() => {
   const musicPlayerAutoPlay = musicAutoPlay && (!enterScreenEnabled || entered);
   const musicPlayerArtBgOn = musicPlayerArtBg ?? true;
   const musicPlayerVolumeOn = musicPlayerVolume ?? true;
+  const musicPlayerShuffleOn = musicPlayerShuffle ?? false;
 
   const musicTitleStyle: React.CSSProperties = {
     fontFamily: fontClassMap[musicPrimaryFont ?? "Inter"] || "var(--font-inter)",
@@ -900,11 +903,11 @@ useEffect(() => {
         ) : null,
       )}
       {musicPlayerStyle === "lyrics" ? (
-        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} />
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} />
       ) : musicPlayerStyle === "waveform" ? (
-        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} />
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} />
       ) : (
-        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} />
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} />
       )}
     </div>
   ) : null;

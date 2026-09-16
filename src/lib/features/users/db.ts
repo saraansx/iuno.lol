@@ -161,6 +161,7 @@ const userColumns = {
   musicTracks: schema.userSettings.musicTracks,
   musicPlayerStyle: schema.userSettings.musicPlayerStyle,
   musicPlayerVolume: schema.userSettings.musicPlayerVolume,
+  musicPlayerShuffle: schema.userSettings.musicPlayerShuffle,
   musicPlayerArtBg: schema.userSettings.musicPlayerArtBg,
   allowNewComments: schema.userSettings.allowNewComments,
   feedbackEnabled: schema.userSettings.feedbackEnabled,

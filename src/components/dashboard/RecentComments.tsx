@@ -162,8 +162,8 @@ export default function RecentComments({
     <div className="h-[500px] bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full flex flex-col">
       <div className="flex items-start justify-between mb-4 shrink-0">
         <div>
-          <h2 className="text-white font-inter font-medium text-lg tracking-wide">Recent comments</h2>
-          <p className="text-white/40 text-[13px] mt-1 font-inter">Comments left on your profile and comments you wrote.</p>
+          <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Recent comments</h2>
+          <p className="text-white/40 text-[13px] mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>Comments left on your profile and comments you wrote.</p>
         </div>
         <div className="flex border border-white/5 rounded-full p-1 gap-1">
           <button

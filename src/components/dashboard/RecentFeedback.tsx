@@ -96,8 +96,8 @@ export default function RecentFeedback({
     <div className="h-[500px] bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full relative flex flex-col">
       <div className="flex items-center justify-between mb-4 shrink-0">
         <div>
-          <h2 className="text-white font-inter font-medium text-lg tracking-wide">Recent feedback</h2>
-          <p className="text-white/30 text-xs mt-1 font-inter">Likes and dislikes you received and gave.</p>
+          <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Recent feedback</h2>
+          <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>Likes and dislikes you received and gave.</p>
         </div>
 
         <div className="flex border border-white/5 rounded-full p-1 gap-1">

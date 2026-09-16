@@ -107,7 +107,7 @@ export default function ComingSoonPage() {
           transition={{ duration: 0.5 }}
           className="flex items-center gap-3 select-none"
         >
-          <Image src="/logo.png" alt="Iuno Logo" width={209} height={221} className="w-10 h-auto object-contain shrink-0" priority />
+          <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-10 h-auto object-contain shrink-0" priority />
           <div className="-translate-y-1">
             <Highlighter action="underline">
               <span className="font-light text-white tracking-tight text-2xl uppercase">

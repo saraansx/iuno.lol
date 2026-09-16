@@ -12,15 +12,15 @@ export default function BackToHome() {
     >
       <ArrowLeft className="w-4 h-4 text-[#609fda] group-hover:-translate-x-1 transition-transform duration-200" />
       <Image
-        src="/logo.png"
+        src="/Favicon.png"
         alt="Iuno Logo"
-        width={209}
-        height={221}
+        width={512}
+        height={512}
         className="w-[26px] h-auto object-contain group-hover:scale-105 transition-transform duration-200"
         priority
       />
-      <span className="font-light text-white tracking-tight text-base uppercase">
-        Iuno<span className="text-[#609fda] lowercase">.lol</span>
+      <span className="font-light text-white tracking-tight text-base uppercase" style={{ fontFamily: "var(--font-comfortaa)" }}>
+        uno<span className="text-[#609fda] lowercase text-lg">.lol</span>
       </span>
     </Link>
   );

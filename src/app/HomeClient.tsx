@@ -98,10 +98,10 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             transition={{ delay: 0.3 }}
             className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#609fda]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
           >
-            <div className="flex-1 px-4 py-2 flex items-center gap-1 text-sm">
+            <div className="flex-1 px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
               <span className="text-white/30 font-normal tracking-wide">iuno.lol/</span>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="username"
                 value={username}
                 onChange={(e) => {
@@ -110,11 +110,13 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && handleClaim()}
                 className="bg-transparent border-none outline-none text-white/90 font-normal tracking-wide placeholder:text-white/20 w-full"
+                style={{ fontFamily: "var(--font-comfortaa)" }}
               />
             </div>
-            <button 
+            <button
               onClick={handleClaim}
               className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+              style={{ fontFamily: "var(--font-comfortaa)" }}
             >
               Claim
             </button>

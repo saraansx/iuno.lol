@@ -37,20 +37,20 @@ export default async function DashboardPage() {
   const feedbackGiven = feedbackRes.success && feedbackRes.given ? feedbackRes.given : [];
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Dashboard</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#609fda] font-light tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Dashboard</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
       </div>
 
       <div>
-        <h1 className="text-2xl font-inter font-medium text-white tracking-tight">Welcome back, {user?.username || 'User'}</h1>
-        <p className="text-white/30 text-sm mt-1 font-inter">Here is an overview of your statistics.</p>
+        <h1 className="text-2xl font-light text-white tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Welcome back, {user?.username || 'User'}</h1>
+        <p className="text-white/30 text-sm mt-1">Here is an overview of your statistics.</p>
       </div>
 
       <div className="grid grid-cols-4 gap-4">
