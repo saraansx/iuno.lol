@@ -103,7 +103,7 @@ const NewVerificationForm = () => {
 
 export default function NewVerificationClient() {
   return (
-    <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 relative overflow-hidden font-['Outfit',sans-serif]">
+    <div className="min-h-screen w-full bg-black flex items-center justify-center p-4 relative overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <SharedBackground />
 
       <Suspense>

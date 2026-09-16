@@ -8,7 +8,7 @@ import BackToHome from "@/components/ui/BackToHome";
 
 export default function ForgotPasswordClient() {
   return (
-    <main className="min-h-screen bg-transparent flex items-center justify-center p-4 font-poppins relative overflow-hidden">
+    <main className="min-h-screen bg-transparent flex items-center justify-center p-4 relative overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
 
       <BackToHome />
       <motion.div 

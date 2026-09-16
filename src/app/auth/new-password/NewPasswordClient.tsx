@@ -7,7 +7,7 @@ import NewPasswordForm from "@/components/auth/NewPasswordForm";
 
 export default function NewPasswordClient() {
   return (
-    <main className="min-h-screen bg-transparent flex items-center justify-center p-4 font-poppins relative overflow-hidden">
+    <main className="min-h-screen bg-transparent flex items-center justify-center p-4 relative overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
