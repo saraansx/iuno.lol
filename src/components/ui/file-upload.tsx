@@ -86,7 +86,7 @@ export const FileUpload = ({
         />
         <div className="flex flex-col items-center justify-center">
           {!resolvedUrl && (
-            <p className="relative z-20 font-sans text-xs font-normal text-white/40">
+            <p className="relative z-20 text-xs font-normal text-white/40">
               Drag & drop your file here or click to browse
             </p>
           )}

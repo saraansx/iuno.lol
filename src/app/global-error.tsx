@@ -16,8 +16,8 @@ export default function GlobalError({
   return (
     <html lang="en" className="h-full antialiased">
       <body
-        className="min-h-full flex items-center justify-center bg-[#080808] text-white font-sans"
-        style={{ fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+        className="min-h-full flex items-center justify-center bg-[#080808] text-white"
+        style={{ fontFamily: "var(--font-comfortaa)" }}
       >
         <main className="flex flex-col items-center justify-center text-center max-w-md mx-auto w-full space-y-5 p-12 rounded-3xl bg-white/[0.02] backdrop-blur-[16px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]">
           <svg

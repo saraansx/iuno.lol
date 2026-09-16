@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="flex-1 flex items-center justify-center px-6 py-24 font-poppins">
+    <div className="flex-1 flex items-center justify-center px-6 py-24" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <main className="relative flex flex-col items-center text-center">
         <span
           aria-hidden="true"

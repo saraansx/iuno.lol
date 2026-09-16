@@ -135,7 +135,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${inter.variable} ${roboto.variable} ${outfit.variable} ${spaceGrotesk.variable} ${playfair.variable} ${montserrat.variable} ${dmSans.variable} ${syne.variable} ${oxanium.variable} ${pacifico.variable} ${caveat.variable} ${paperNotes.variable} ${chillax.variable} ${dancingScript.variable} ${comfortaa.variable} ${elegantBloom.variable} ${caviarDreams.variable} ${pixelify.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#080808] text-white font-poppins relative">
+      <body className="min-h-full flex flex-col bg-[#080808] text-white relative" style={{ fontFamily: "var(--font-comfortaa)" }}>
         <ConditionalBackground />
         <Toaster />
         <div className="relative z-10 flex-1 flex flex-col">
