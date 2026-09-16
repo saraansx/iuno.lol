@@ -160,6 +160,7 @@ export default function MetadataProfileClient({
       />
 
       <EmbedImageUpload
+        variant="background"
         open={embedBackgroundModalOpen}
         onClose={() => setEmbedBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {
@@ -169,6 +170,7 @@ export default function MetadataProfileClient({
       />
 
       <EmbedImageUpload
+        variant="icon"
         open={embedIconModalOpen}
         onClose={() => setEmbedIconModalOpen(false)}
         onApply={(url, rawFile) => {

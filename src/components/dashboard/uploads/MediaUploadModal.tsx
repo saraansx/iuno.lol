@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileUpload } from "@/components/ui/file-upload";
+import MediaCropModal from "../MediaCropModal";
 
 export interface MediaUploadModalProps {
   open: boolean;
@@ -10,6 +11,13 @@ export interface MediaUploadModalProps {
   onApply?: (url: string, rawFile?: File) => void;
   /** /api/upload assetType; when set, videos upload to Catbox on Apply so Save stays fast. */
   assetType?: "avatar" | "background" | "banner" | "embed";
+  /**
+   * When set, static images (not GIF/video) go through the crop step
+   * before preview. "round" also renders a circular preview like avatars.
+   */
+  cropShape?: "round" | "rect";
+  cropAspect?: number;
+  cropTitle?: string;
 }
 
 interface Props extends MediaUploadModalProps {
@@ -30,6 +38,9 @@ export default function MediaUploadModal({
   limitMB,
   transform,
   assetType,
+  cropShape,
+  cropAspect,
+  cropTitle,
 }: Props) {
   const appliedUrls = useRef<Set<string>>(new Set());
   const revokeIfUnused = (url: string | null) => {
@@ -45,6 +56,9 @@ export default function MediaUploadModal({
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [statusText, setStatusText] = useState<string>("");
 
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+
   useEffect(() => {
     if (!open && !isLoading) {
       const timer = setTimeout(() => {
@@ -58,6 +72,8 @@ export default function MediaUploadModal({
         setIsLoading(false);
         setUploadProgress(null);
         setStatusText("");
+        setCropModalOpen(false);
+        setCropImageSrc(null);
       }, 0);
       return () => clearTimeout(timer);
     }
@@ -72,6 +88,38 @@ export default function MediaUploadModal({
     setUploadProgress(null);
     setStatusText("");
     onClose();
+  };
+
+  const handleFileSelected = (file: File) => {
+    if (!file) return;
+
+    // GIFs and videos skip the crop step (same as the avatar flow).
+    if (!cropShape || file.type.startsWith("video") || file.type.includes("gif")) {
+      processFile(file);
+      return;
+    }
+
+    setRawSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (reader.result) {
+        setCropImageSrc(reader.result as string);
+        setCropModalOpen(true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropComplete = (croppedFile: File) => {
+    setCropModalOpen(false);
+    setCropImageSrc(null);
+    processFile(croppedFile);
+  };
+
+  const handleCropClose = () => {
+    setCropModalOpen(false);
+    setCropImageSrc(null);
+    setRawSelectedFile(null);
   };
 
   const processFile = async (file: File) => {
@@ -199,8 +247,22 @@ export default function MediaUploadModal({
   };
 
   return (
-    <AnimatePresence>
-      {open && (
+    <>
+      {cropImageSrc && cropShape && (
+        <MediaCropModal
+          open={cropModalOpen}
+          imageSrc={cropImageSrc}
+          rawFile={rawSelectedFile}
+          isVideo={false}
+          cropShape={cropShape}
+          aspect={cropAspect ?? 3 / 1}
+          title={cropTitle ?? "Crop your media"}
+          onClose={handleCropClose}
+          onCropComplete={handleCropComplete}
+        />
+      )}
+      <AnimatePresence>
+        {open && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
@@ -233,12 +295,13 @@ export default function MediaUploadModal({
             <div className="flex flex-col gap-4 px-5 py-5">
               <div className="flex flex-col gap-1.5">
                 <FileUpload
-                  onChange={(files) => files[0] && processFile(files[0])}
+                  onChange={(files) => files[0] && handleFileSelected(files[0])}
                   isLoading={isLoading}
                   uploadProgress={uploadProgress ?? 0}
                   statusText={statusText ?? undefined}
                   resolvedUrl={resolvedUrl}
                   mediaType={mediaType}
+                  isAvatar={cropShape === "round"}
                 />
                 <p className="text-[11px] text-white/28 px-1">Supports up to {limitMB}.00MB</p>
                 {errorMsg && (
@@ -263,8 +326,9 @@ export default function MediaUploadModal({
               </div>
             </div>
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

@@ -162,11 +162,11 @@ export const FileUpload = ({
                         </div>
                       </div>
                     ) : (
-                      <div className="relative w-full rounded-lg border border-white/10 overflow-hidden bg-black/40" style={{ aspectRatio: '3/1' }}>
+                      <div className="relative w-full rounded-lg border border-white/10 overflow-hidden bg-black/40 flex items-center justify-center">
                         {mediaType === "video" ? (
                           <video
                             src={resolvedUrl}
-                            className="w-full h-full object-cover"
+                            className="h-auto max-h-56 w-full object-contain"
                             autoPlay
                             muted
                             loop
@@ -177,7 +177,7 @@ export const FileUpload = ({
                           <img
                             src={resolvedUrl}
                             alt="Uploaded Preview"
-                            className="w-full h-full object-cover"
+                            className="h-auto max-h-56 w-full object-contain"
                           />
                         )}
                         <div className="absolute inset-0 bg-black/20 group-hover/file:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover/file:opacity-100">
