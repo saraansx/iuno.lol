@@ -173,7 +173,9 @@ const userColumns = {
   showDislikesTooltip: schema.userSettings.showDislikesTooltip,
   showJoinDateTooltip: schema.userSettings.showJoinDateTooltip,
   showViewsTooltip: schema.userSettings.showViewsTooltip,
+  showLinksTooltip: schema.userSettings.showLinksTooltip,
   widgets: schema.userSettings.widgets,
+  links: schema.userSettings.links,
 } as const
 
 type CreateUserInput = {

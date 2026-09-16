@@ -119,7 +119,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork", "link-icon"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${rl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
     }
 
-    const isTinyAsset = assetType === "favicon" || assetType === "cursor";
+    const isTinyAsset = assetType === "favicon" || assetType === "cursor" || assetType === "link-icon";
     const maxSize = assetType === "background"
       ? 10 * 1024 * 1024
       : assetType === "track"
@@ -151,6 +151,10 @@ export async function POST(req: Request) {
 
     if ((isTinyAsset || assetType === "embed" || assetType === "artwork") && !detected.mime.startsWith("image/")) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
+    }
+
+    if (assetType === "link-icon" && detected.mime !== "image/png" && detected.mime !== "image/jpeg" && detected.mime !== "image/webp") {
+      return NextResponse.json({ error: "A link-icon must be a static image (PNG, JPG or WebP)." }, { status: 400 });
     }
 
     const userhash = process.env.CATBOX_USERHASH;

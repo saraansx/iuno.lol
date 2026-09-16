@@ -15,6 +15,8 @@ interface TooltipsSectionProps {
   onToggleJoinDateTooltip: () => void;
   isViewsTooltipEnabled: boolean;
   onToggleViewsTooltip: () => void;
+  isLinksTooltipEnabled: boolean;
+  onToggleLinksTooltip: () => void;
 }
 
 export default function TooltipsSection({
@@ -32,6 +34,8 @@ export default function TooltipsSection({
   onToggleJoinDateTooltip,
   isViewsTooltipEnabled,
   onToggleViewsTooltip,
+  isLinksTooltipEnabled,
+  onToggleLinksTooltip,
 }: TooltipsSectionProps) {
   const items = [
     {
@@ -68,11 +72,17 @@ export default function TooltipsSection({
       active: isJoinDateTooltipEnabled, 
       toggle: onToggleJoinDateTooltip 
     },
-    { 
-      name: "Views", 
-      desc: "Show your exact view count when visitors hover it.", 
-      active: isViewsTooltipEnabled, 
-      toggle: onToggleViewsTooltip 
+    {
+      name: "Views",
+      desc: "Show your exact view count when visitors hover it.",
+      active: isViewsTooltipEnabled,
+      toggle: onToggleViewsTooltip
+    },
+    {
+      name: "Links",
+      desc: "Show link titles when visitors hover your links.",
+      active: isLinksTooltipEnabled,
+      toggle: onToggleLinksTooltip
     },
   ];
 

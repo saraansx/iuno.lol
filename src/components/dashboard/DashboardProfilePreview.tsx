@@ -157,6 +157,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       showDislikesTooltip={deferredOverrides.showDislikesTooltip ?? user?.showDislikesTooltip ?? true}
       showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? true}
       showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
+      showLinksTooltip={deferredOverrides.showLinksTooltip ?? user?.showLinksTooltip ?? true}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}
@@ -165,6 +166,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
       musicPlayerVolumeFixed={false}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
+      links={(deferredOverrides.links as import("@/lib/links").ProfileLink[] | undefined) ?? (user?.links as import("@/lib/links").ProfileLink[] | undefined) ?? []}
     />
   );
 }

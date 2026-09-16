@@ -152,6 +152,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       showDislikesTooltip: userSettings.showDislikesTooltip,
       showJoinDateTooltip: userSettings.showJoinDateTooltip,
       showViewsTooltip: userSettings.showViewsTooltip,
+      showLinksTooltip: userSettings.showLinksTooltip,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
@@ -213,6 +214,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenBlur: userSettings.enterScreenBlur,
       enterScreenBlurColor: userSettings.enterScreenBlurColor,
       widgets: userSettings.widgets,
+      links: userSettings.links,
       sectionTitleColor: userSettings.sectionTitleColor,
       sectionDescColor: userSettings.sectionDescColor,
       musicPrimaryFont: userSettings.musicPrimaryFont,
@@ -386,6 +388,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         showDislikesTooltip={user.showDislikesTooltip ?? true}
         showJoinDateTooltip={user.showJoinDateTooltip ?? true}
         showViewsTooltip={user.showViewsTooltip ?? true}
+        showLinksTooltip={user.showLinksTooltip ?? true}
         initialLikes={user.likesCount ?? 0}
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}
@@ -422,6 +425,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         viewsPlacement={user.viewsPlacement ?? undefined}
         feedbackPlacement={user.feedbackPlacement ?? undefined}
         widgets={user.widgets ?? undefined}
+        links={(user.links as import("@/lib/links").ProfileLink[] | null) ?? undefined}
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? true}

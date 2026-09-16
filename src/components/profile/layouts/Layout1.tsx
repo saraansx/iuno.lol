@@ -16,6 +16,7 @@ import { CursorTrail } from "./CursorTrail";
 import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
+import ProfileLinks from "../links/ProfileLinks";
 import { isCatboxUrl } from "@/lib/catbox";
 import CompactMusicPlayer from "../music/CompactMusicPlayer";
 import LyricsMusicPlayer from "../music/LyricsMusicPlayer";
@@ -248,10 +249,12 @@ interface Layout1Props {
   showDislikesTooltip?: boolean;
   showJoinDateTooltip?: boolean;
   showViewsTooltip?: boolean;
+  showLinksTooltip?: boolean;
   initialLikes?: number;
   initialDislikes?: number;
   createdAt?: string | Date;
   widgets?: WidgetItem[];
+  links?: import("@/lib/links").ProfileLink[];
   musicTracks?: import("@/lib/music").MusicTrack[];
   musicPlayerStyle?: string | null;
   musicAutoPlay?: boolean;
@@ -468,10 +471,12 @@ const Layout1 = ({
   showDislikesTooltip = true,
   showJoinDateTooltip = true,
   showViewsTooltip = true,
+  showLinksTooltip = true,
   initialLikes = 0,
   initialDislikes = 0,
   createdAt,
   widgets = [],
+  links = [],
   musicTracks = [],
   musicPlayerStyle = "compact",
   musicAutoPlay = true,
@@ -912,6 +917,27 @@ useEffect(() => {
     </div>
   ) : null;
 
+  const linkTitleStyle: React.CSSProperties = {
+    fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+  };
+
+  const smallLinks = (links ?? []).filter((l) => l && l.variant === "small");
+  const bigLinks = (links ?? []).filter((l) => l && l.variant !== "small");
+
+  // Small links live inside the card, centered above widgets.
+  const smallLinksSection = smallLinks.length > 0 ? (
+    <div className="w-full px-6 pt-2">
+      <ProfileLinks links={smallLinks} titleStyle={linkTitleStyle} className="justify-center" showTooltip={showLinksTooltip} />
+    </div>
+  ) : null;
+
+  // Big links live outside the card container.
+  const bigLinksSection = bigLinks.length > 0 ? (
+    <div className="w-full mt-3">
+      <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} />
+    </div>
+  ) : null;
+
 const textBlock = (text: string, left: boolean) => (
     <div className={`w-full flex ${left ? "justify-start" : "justify-center"}`}>
       <DescriptionEffect effect={descriptionEffect}>
@@ -1237,6 +1263,7 @@ const sectionSurface: React.CSSProperties = {
             </div>
             </div>
 
+            {smallLinksSection}
             {insideWidgets("w-full px-6 pb-16")}
           </div>
 
@@ -1248,6 +1275,7 @@ const sectionSurface: React.CSSProperties = {
         </CardTransition>
         </CardEffect>
 
+        {!sectioned && bigLinksSection}
         {!sectioned && outsideWidgets}
         {!sectioned && musicPlayer}
 
@@ -1297,6 +1325,7 @@ const sectionSurface: React.CSSProperties = {
                       {textBlock(aboutText, true)}
                     </div>
                   )}
+                  {bigLinksSection}
                   {aboutHasWidgets && outsideWidgets}
                   {musicPlayer}
                 </>

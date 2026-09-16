@@ -120,6 +120,7 @@ export default async function middleware(request: NextRequest) {
       path === '/coming-soon' ||
       path === '/api/health' ||
       path === '/api/track-view' ||
+      path.startsWith('/api/icons/') ||
       path.startsWith('/api/profile/') ||
       path.startsWith('/api/widgets/') ||
       path.startsWith('/api/music/stream/') ||

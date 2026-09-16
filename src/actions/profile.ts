@@ -15,6 +15,7 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
+import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_BASE = "https://files.catbox.moe/";
@@ -245,6 +246,7 @@ export async function updateAppearanceProfile(data: {
   showDislikesTooltip?: boolean;
   showJoinDateTooltip?: boolean;
   showViewsTooltip?: boolean;
+  showLinksTooltip?: boolean;
 }) {
   const userId = await getSessionUserId();
   
@@ -333,6 +335,7 @@ export async function updateAppearanceProfile(data: {
   if (data.showDislikesTooltip !== undefined) setData.showDislikesTooltip = data.showDislikesTooltip;
   if (data.showJoinDateTooltip !== undefined) setData.showJoinDateTooltip = data.showJoinDateTooltip;
   if (data.showViewsTooltip !== undefined) setData.showViewsTooltip = data.showViewsTooltip;
+  if (data.showLinksTooltip !== undefined) setData.showLinksTooltip = data.showLinksTooltip;
 
   sanitizeProfileSettings(setData);
 
@@ -1474,5 +1477,51 @@ export async function updateMusicProfile(data: {
     volumeControl: typeof data.volumeControl === "boolean" ? data.volumeControl : undefined,
     shuffle: typeof data.shuffle === "boolean" ? data.shuffle : undefined,
   };
+}
+
+export async function saveProfileLinks(data: { links: unknown[] }) {
+  const userId = await getSessionUserId();
+
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const user = await getUserById(userId);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const incoming = Array.isArray(data.links) ? data.links : [];
+  if (incoming.length > MAX_LINKS) {
+    throw new Error(`You can only add a maximum of ${MAX_LINKS} links.`);
+  }
+
+  const sanitizedLinks = incoming.slice(0, MAX_LINKS).map((l) => sanitizeProfileLink(l));
+  if (sanitizedLinks.some((l) => l === null)) {
+    throw new Error("Each link needs a title and a valid URL.");
+  }
+
+  const setData: Record<string, unknown> = {
+    links: (sanitizedLinks as ProfileLink[]).length > 0 ? sanitizedLinks : null,
+  };
+
+  sanitizeProfileSettings(setData);
+
+  await db
+    .insert(schema.userSettings)
+    .values({ userId, ...setData })
+    .onDuplicateKeyUpdate({ set: setData });
+
+  revalidatePath("/dashboard/customize/links");
+  revalidatePath("/dashboard", "layout");
+  await revalidateOwnProfile(userId);
+
+  return { success: true, links: sanitizedLinks as ProfileLink[] };
 }
 

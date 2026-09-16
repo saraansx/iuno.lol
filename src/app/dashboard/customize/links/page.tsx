@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
-import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
+import LinksProfileClient from "./LinksProfileClient";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -60,11 +60,11 @@ export default async function Page() {
             </svg>
             <h1 className="text-[20px] font-normal text-white tracking-tight">Links</h1>
           </div>
-          <p className="text-white/40 text-[13px] mt-0.5">Links on your profile</p>
+          <p className="text-white/40 text-[13px] mt-0.5">Add up to 10 links to your profile</p>
         </div>
       </div>
 
-      <DashboardProfilePreview user={user} />
+      <LinksProfileClient user={user} />
     </div>
   );
 }
