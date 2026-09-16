@@ -439,6 +439,10 @@ export async function updateLayoutProfile(data: {
   aboutSectionEnabled?: boolean;
   aboutSectionTitle?: string;
   aboutSectionDescription?: string;
+  linksSectionEnabled?: boolean;
+  linksSectionTitle?: string;
+  linksSectionDescription?: string;
+  linksSectionPosition?: string;
   widgetsSectionEnabled?: boolean;
   profilePreset?: string;
   wrapInCard?: boolean;
@@ -491,6 +495,25 @@ export async function updateLayoutProfile(data: {
 
   if (data.aboutSectionDescription !== undefined) {
     setData.aboutSectionDescription = data.aboutSectionDescription.trim().slice(0, 1000) || null;
+  }
+
+  if (data.linksSectionEnabled !== undefined) {
+    setData.linksSectionEnabled = data.linksSectionEnabled;
+  }
+
+  if (data.linksSectionTitle !== undefined) {
+    setData.linksSectionTitle = data.linksSectionTitle.trim().slice(0, 60) || "Links";
+  }
+
+  if (data.linksSectionDescription !== undefined) {
+    setData.linksSectionDescription = data.linksSectionDescription.trim().slice(0, 1000) || null;
+  }
+
+  if (data.linksSectionPosition !== undefined) {
+    if (data.linksSectionPosition !== "above" && data.linksSectionPosition !== "below") {
+      throw new Error("Invalid links section position");
+    }
+    setData.linksSectionPosition = data.linksSectionPosition;
   }
 
   if (data.widgetsSectionEnabled !== undefined) {
@@ -1518,10 +1541,37 @@ export async function saveProfileLinks(data: { links: unknown[] }) {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
+  // Delete orphaned Catbox icon files from links that were removed/replaced.
+  const prevLinks = Array.isArray(user?.links) ? user.links : [];
+  const keptIcons = new Set((sanitizedLinks as ProfileLink[]).map((l) => l.icon));
+  const orphanedIcons = prevLinks
+    .map((p) => (p && typeof p === "object" ? (p as { icon?: unknown }).icon : null))
+    .filter((u): u is string => typeof u === "string" && u.length > 0 && !keptIcons.has(u));
+  if (orphanedIcons.length > 0) await deleteCatboxFiles(orphanedIcons);
+
   revalidatePath("/dashboard/customize/links");
   revalidatePath("/dashboard", "layout");
   await revalidateOwnProfile(userId);
 
   return { success: true, links: sanitizedLinks as ProfileLink[] };
+}
+
+/** Best-effort cleanup of freshly uploaded link icons (e.g. user reverts). */
+export async function deleteLinkIconFiles(urls: string[]) {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const clean = [...new Set(Array.isArray(urls) ? urls.filter((u) => typeof u === "string") : [])].slice(0, 10);
+  if (clean.length === 0) return { success: true };
+  await deleteCatboxFiles(clean);
+  return { success: true };
 }
 

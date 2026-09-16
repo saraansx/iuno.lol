@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
-import { ICONIFY_API, brandColorFor } from "@/lib/links";
+import { ICONIFY_API, brandColorFor, normalizeColorParam } from "@/lib/links";
 
 const ICON_NAME_RE = /^[a-z0-9]+[a-z0-9-]*:[a-z0-9][a-z0-9-:]*$/i;
 const MAX_SVG_BYTES = 100_000;
@@ -46,7 +46,11 @@ export async function GET(req: Request) {
     return new NextResponse("Invalid icon", { status: 400 });
   }
 
-  const cached = cacheGet(name);
+  // Optional user tint (validated hex only) — overrides the brand color.
+  const tint = normalizeColorParam(searchParams.get("color"));
+  const cacheKey = tint ? `${name}|${tint}` : name;
+
+  const cached = cacheGet(cacheKey);
   if (cached) {
     return svgResponse(cached);
   }
@@ -74,11 +78,11 @@ export async function GET(req: Request) {
   }
 
   // <img> has no inherited text color, so currentColor renders black.
-  // Recolor to the brand color (or white fallback). Explicit fills like
-  // multicolor logos are untouched.
-  const svg = raw.replace(/currentColor/g, brandColorFor(name));
+  // Recolor to the user tint, else the brand color (or white fallback).
+  // Explicit fills like multicolor logos are untouched.
+  const svg = raw.replace(/currentColor/g, tint ? `#${tint}` : brandColorFor(name));
 
-  cacheSet(name, svg);
+  cacheSet(cacheKey, svg);
   return svgResponse(svg);
 }
 

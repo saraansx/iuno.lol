@@ -209,6 +209,10 @@ interface Layout1Props {
   aboutSectionEnabled?: boolean;
   aboutSectionTitle?: string;
   aboutSectionDescription?: string;
+  linksSectionEnabled?: boolean;
+  linksSectionTitle?: string;
+  linksSectionDescription?: string;
+  linksSectionPosition?: string;
   widgetsSectionEnabled?: boolean;
   contentAlignment?: string;
   avatarPlacement?: string;
@@ -444,6 +448,10 @@ const Layout1 = ({
   aboutSectionEnabled = true,
   aboutSectionTitle,
   aboutSectionDescription,
+  linksSectionEnabled = true,
+  linksSectionTitle,
+  linksSectionDescription,
+  linksSectionPosition,
   widgetsSectionEnabled = true,
   contentAlignment,
   avatarPlacement,
@@ -679,6 +687,8 @@ const Layout1 = ({
   const avatarBeside = avatarPos === "left" || avatarPos === "right";
 
   const sectioned = profileStructure === "sectioned";
+  const smallLinks = (links ?? []).filter((l) => l && l.variant === "small");
+  const bigLinks = (links ?? []).filter((l) => l && l.variant !== "small");
   const aboutText = bio?.trim() || "";
   const aboutSubtitle = aboutSectionDescription?.trim() || "";
   const hasOutsideWidgets = (widgets ?? []).some(
@@ -687,7 +697,12 @@ const Layout1 = ({
  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
   const aboutVisible =
     aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets);
-  const screenCount = sectioned && aboutVisible ? 2 : 1;
+  // Big links get their own screen in sectioned mode (above or below About).
+  const linksAboveAbout = linksSectionPosition === "above";
+  const linksScreenVisible = sectioned && linksSectionEnabled && bigLinks.length > 0;
+  const linksScreenTitle = linksSectionTitle?.trim() || "Links";
+  const linksScreenSubtitle = linksSectionDescription?.trim() || "";
+  const screenCount = sectioned ? 1 + (aboutVisible ? 1 : 0) + (linksScreenVisible ? 1 : 0) : 1;
   const paged = sectioned && screenCount > 1;
 
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -777,7 +792,7 @@ useEffect(() => {
     fontSize: `${otherFontSize}px`,
     fontWeight: otherFontWeight,
     letterSpacing: `${otherLetterSpacing}px`,
-    color: otherColor,
+    color: otherColor ?? "#5b6cf5",
   };
 
   const detailValues = {
@@ -921,9 +936,6 @@ useEffect(() => {
     fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
   };
 
-  const smallLinks = (links ?? []).filter((l) => l && l.variant === "small");
-  const bigLinks = (links ?? []).filter((l) => l && l.variant !== "small");
-
   // Small links live inside the card, centered above widgets.
   const smallLinksSection = smallLinks.length > 0 ? (
     <div className="w-full px-6 pt-2">
@@ -950,7 +962,7 @@ const textBlock = (text: string, left: boolean) => (
             fontSize: `${bioFontSize}px`,
             fontWeight: bioFontWeight,
             letterSpacing: `${bioLetterSpacing}px`,
-            color: bioColor,
+            color: bioColor ?? "#FFFFFF",
           }}
         >
           {renderFormattedText(text, left)}
@@ -1244,7 +1256,7 @@ const sectionSurface: React.CSSProperties = {
               {display && (
                 <div className="relative group/uid flex justify-center">
                   <UsernameEffect effect={usernameEffect}>
-                    <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor }}>
+                    <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF" }}>
                       {display}
                     </h1>
                   </UsernameEffect>
@@ -1284,6 +1296,44 @@ const sectionSurface: React.CSSProperties = {
         </div>
         </div>
 
+        {linksScreenVisible && linksAboveAbout && (
+          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+            <div
+              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              style={{ "--card-w": cardWidth } as React.CSSProperties}
+            >
+              <div className="mb-3 text-left">
+                <h2
+                  style={{
+                    fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
+                    fontSize: `${sectionTitleFontSize}px`,
+                    fontWeight: sectionTitleFontWeight,
+                    letterSpacing: `${sectionTitleLetterSpacing}px`,
+                    color: sectionTitleColor,
+                  }}
+                >
+                  {linksScreenTitle}
+                </h2>
+                {linksScreenSubtitle && (
+                  <p
+                    className="mt-0.5 opacity-50"
+                    style={{
+                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
+                      fontSize: `${sectionDescFontSize}px`,
+                      fontWeight: sectionDescFontWeight,
+                      letterSpacing: `${sectionDescLetterSpacing}px`,
+                      color: sectionDescColor,
+                    }}
+                  >
+                    {renderFormattedText(linksScreenSubtitle)}
+                  </p>
+                )}
+              </div>
+              {bigLinksSection}
+            </div>
+          </div>
+        )}
+
         {paged && (
           <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
             <div
@@ -1299,7 +1349,7 @@ const sectionSurface: React.CSSProperties = {
                         fontSize: `${sectionTitleFontSize}px`,
                         fontWeight: sectionTitleFontWeight,
                         letterSpacing: `${sectionTitleLetterSpacing}px`,
-                        color: sectionTitleColor,
+                        color: sectionTitleColor ?? "#FFFFFF",
                       }}
                     >
                       {aboutSectionTitle?.trim() || "About"}
@@ -1325,11 +1375,48 @@ const sectionSurface: React.CSSProperties = {
                       {textBlock(aboutText, true)}
                     </div>
                   )}
-                  {bigLinksSection}
                   {aboutHasWidgets && outsideWidgets}
                   {musicPlayer}
                 </>
               )}
+            </div>
+          </div>
+        )}
+
+        {linksScreenVisible && !linksAboveAbout && (
+          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+            <div
+              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              style={{ "--card-w": cardWidth } as React.CSSProperties}
+            >
+              <div className="mb-3 text-left">
+                <h2
+                  style={{
+                    fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
+                    fontSize: `${sectionTitleFontSize}px`,
+                    fontWeight: sectionTitleFontWeight,
+                    letterSpacing: `${sectionTitleLetterSpacing}px`,
+                    color: sectionTitleColor,
+                  }}
+                >
+                  {linksScreenTitle}
+                </h2>
+                {linksScreenSubtitle && (
+                  <p
+                    className="mt-0.5 opacity-50"
+                    style={{
+                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
+                      fontSize: `${sectionDescFontSize}px`,
+                      fontWeight: sectionDescFontWeight,
+                      letterSpacing: `${sectionDescLetterSpacing}px`,
+                      color: sectionDescColor,
+                    }}
+                  >
+                    {renderFormattedText(linksScreenSubtitle)}
+                  </p>
+                )}
+              </div>
+              {bigLinksSection}
             </div>
           </div>
         )}

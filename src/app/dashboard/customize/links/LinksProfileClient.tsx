@@ -19,7 +19,7 @@ import {
   type LinkVariant,
   type ProfileLink,
 } from "@/lib/links";
-import { saveProfileLinks } from "@/actions/profile";
+import { deleteLinkIconFiles, saveProfileLinks } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -660,7 +660,7 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center shrink-0 text-white/80">
-                      <LinkIcon icon={link.icon} size={17} />
+                      <LinkIcon icon={link.icon} size={17} color={link.color} />
                     </div>
 
                     <div className="flex flex-col min-w-0">
@@ -733,6 +733,18 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
           }
         }}
         onRevert={() => {
+          // Best-effort cleanup of icons uploaded this session but reverted.
+          const initialUrls = new Set(initialLinks.map((l) => l.icon));
+          const added = [
+            ...new Set(
+              links
+                .map((l) => l.icon)
+                .filter((u) => u && !initialUrls.has(u) && u.includes("files.catbox.moe"))
+            ),
+          ];
+          if (added.length > 0) {
+            deleteLinkIconFiles(added).catch(() => {});
+          }
           setLinks(initialLinks);
         }}
       />

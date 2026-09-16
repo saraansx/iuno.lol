@@ -174,6 +174,10 @@ const userColumns = {
   showJoinDateTooltip: schema.userSettings.showJoinDateTooltip,
   showViewsTooltip: schema.userSettings.showViewsTooltip,
   showLinksTooltip: schema.userSettings.showLinksTooltip,
+  linksSectionEnabled: schema.userSettings.linksSectionEnabled,
+  linksSectionTitle: schema.userSettings.linksSectionTitle,
+  linksSectionDescription: schema.userSettings.linksSectionDescription,
+  linksSectionPosition: schema.userSettings.linksSectionPosition,
   widgets: schema.userSettings.widgets,
   links: schema.userSettings.links,
 } as const

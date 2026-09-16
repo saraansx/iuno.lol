@@ -61,11 +61,19 @@ export function iconifySvgUrl(name: string): string {
 }
 
 /** Bump when the recolor logic changes — SVGs are cached immutable. */
-export const ICON_COLOR_VERSION = 2;
+export const ICON_COLOR_VERSION = 3;
+
+/** Normalize a user-picked color for URLs (bare lowercase hex or null). */
+export function normalizeColorParam(color: string | undefined | null): string | null {
+  if (!color) return null;
+  const clean = color.trim().replace(/^#/, "");
+  return /^[0-9a-f]{6}$/i.test(clean) ? clean.toLowerCase() : null;
+}
 
 /** Same-origin render URL for an Iconify icon (avoids third-party blocking). */
-export function iconifyProxyUrl(name: string): string {
-  return `/api/icons/svg?icon=${encodeURIComponent(name)}&v=${ICON_COLOR_VERSION}`;
+export function iconifyProxyUrl(name: string, color?: string | null): string {
+  const tint = normalizeColorParam(color ?? null);
+  return `/api/icons/svg?icon=${encodeURIComponent(name)}${tint ? `&color=${tint}` : ""}&v=${ICON_COLOR_VERSION}`;
 }
 
 /**

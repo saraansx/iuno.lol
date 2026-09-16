@@ -7,7 +7,7 @@ import { toast } from "@/components/ui/toast";
 
 interface SectionVisibilityButtonProps {
   name: string;
-  field: "aboutSectionEnabled" | "widgetsSectionEnabled";
+  field: "aboutSectionEnabled" | "widgetsSectionEnabled" | "linksSectionEnabled";
   hidden: boolean;
 }
 

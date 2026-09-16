@@ -180,6 +180,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       aboutSectionEnabled: userSettings.aboutSectionEnabled,
       aboutSectionTitle: userSettings.aboutSectionTitle,
       aboutSectionDescription: userSettings.aboutSectionDescription,
+      linksSectionEnabled: userSettings.linksSectionEnabled,
+      linksSectionTitle: userSettings.linksSectionTitle,
+      linksSectionDescription: userSettings.linksSectionDescription,
+      linksSectionPosition: userSettings.linksSectionPosition,
       widgetsSectionEnabled: userSettings.widgetsSectionEnabled,
       contentAlignment: userSettings.contentAlignment,
       avatarPlacement: userSettings.avatarPlacement,
@@ -415,6 +419,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         aboutSectionEnabled={user.aboutSectionEnabled ?? undefined}
         aboutSectionTitle={user.aboutSectionTitle ?? undefined}
         aboutSectionDescription={user.aboutSectionDescription ?? undefined}
+        linksSectionEnabled={user.linksSectionEnabled ?? undefined}
+        linksSectionTitle={user.linksSectionTitle ?? undefined}
+        linksSectionDescription={user.linksSectionDescription ?? undefined}
+        linksSectionPosition={user.linksSectionPosition ?? undefined}
         widgetsSectionEnabled={user.widgetsSectionEnabled ?? undefined}
         contentAlignment={user.contentAlignment ?? undefined}
         avatarPlacement={user.avatarPlacement ?? undefined}

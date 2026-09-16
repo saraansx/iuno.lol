@@ -31,6 +31,9 @@ interface LinkIconProps {
   icon: string;
   size?: number;
   className?: string;
+  /** User-picked tint. Applies to Iconify glyphs (via proxy) and
+   *  currentColor preset glyphs. Uploaded raster images keep own colors. */
+  color?: string | null;
 }
 
 function XLogoIcon({ size = 16, className }: { size?: number; className?: string }) {
@@ -122,20 +125,21 @@ export const LINK_ICON_OPTIONS = LINK_ICON_KEYS.map((key) => ({
   label: ICON_LABELS[key] ?? key,
 }));
 
-export default function LinkIcon({ icon, size = 16, className }: LinkIconProps) {
+export default function LinkIcon({ icon, size = 16, className, color }: LinkIconProps) {
   if (icon.startsWith(`${ICONIFY_API}/`)) {
     // Iconify library icon — render through the same-origin proxy so
-    // adblockers and CSP can never break it.
+    // adblockers and CSP can never break it. User tint via proxy param.
     const name = iconifyNameFromUrl(icon);
-    const src = name ? iconifyProxyUrl(name) : icon;
+    const src = name ? iconifyProxyUrl(name, color) : icon;
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={src} alt="" width={size} height={size} draggable={false} className={`shrink-0 ${className ?? ""}`} style={{ width: size, height: size }} />;
   }
   if (icon.startsWith("https://") || icon.startsWith("blob:")) {
     // Custom uploaded icon image (blob: = local preview before upload).
+    // Raster pixels can't be tinted — always keeps its own colors.
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={icon} alt="" width={size} height={size} draggable={false} className={`shrink-0 rounded-md object-cover ${className ?? ""}`} style={{ width: size, height: size }} />;
   }
   const render = REGISTRY[icon] ?? REGISTRY.link;
-  return <span className={`inline-flex shrink-0 items-center justify-center ${className ?? ""}`}>{render(size)}</span>;
+  return <span className={`inline-flex shrink-0 items-center justify-center ${className ?? ""}`} style={color ? { color } : undefined}>{render(size)}</span>;
 }

@@ -10,9 +10,16 @@ interface AboutSectionRowProps {
   hidden: boolean;
   title: string;
   description: string;
+  dragHandleProps?: {
+    onDragStart: (e: React.DragEvent) => void;
+    onDragEnd: () => void;
+  };
+  onDragOverRow?: (e: React.DragEvent) => void;
+  onDropRow?: (e: React.DragEvent) => void;
+  dropHighlight?: boolean;
 }
 
-export default function AboutSectionRow({ hidden, title, description }: AboutSectionRowProps) {
+export default function AboutSectionRow({ hidden, title, description, dragHandleProps, onDragOverRow, onDropRow, dropHighlight }: AboutSectionRowProps) {
   const [open, setOpen] = useState(false);
   const [titleValue, setTitleValue] = useState(title);
   const [descValue, setDescValue] = useState(description);
@@ -44,16 +51,27 @@ export default function AboutSectionRow({ hidden, title, description }: AboutSec
   };
 
   return (
-    <div className={`bg-[#0c0c0c] border border-white/5 rounded-[16px] ${hidden ? "opacity-40" : ""}`}>
+    <div
+      onDragOver={onDragOverRow}
+      onDrop={onDropRow}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#609fda]/60" : "border-white/5"}`}
+    >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
-        <svg className="text-white/20 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-          <circle cx="9" cy="5" r="1.6" />
-          <circle cx="15" cy="5" r="1.6" />
-          <circle cx="9" cy="12" r="1.6" />
-          <circle cx="15" cy="12" r="1.6" />
-          <circle cx="9" cy="19" r="1.6" />
-          <circle cx="15" cy="19" r="1.6" />
-        </svg>
+        <span
+          draggable={!!dragHandleProps}
+          onDragStart={dragHandleProps?.onDragStart}
+          onDragEnd={dragHandleProps?.onDragEnd}
+          className={dragHandleProps ? "cursor-grab active:cursor-grabbing flex shrink-0" : "flex shrink-0"}
+        >
+          <svg className="text-white/20 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="9" cy="5" r="1.6" />
+            <circle cx="15" cy="5" r="1.6" />
+            <circle cx="9" cy="12" r="1.6" />
+            <circle cx="15" cy="12" r="1.6" />
+            <circle cx="9" cy="19" r="1.6" />
+            <circle cx="15" cy="19" r="1.6" />
+          </svg>
+        </span>
 
         <span className="text-[#609fda] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
