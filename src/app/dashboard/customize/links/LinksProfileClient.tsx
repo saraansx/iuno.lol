@@ -510,40 +510,42 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <span className="text-[12.5px] font-medium text-white/90">Color</span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  {["#609fda", "#5b6cf5", "#a78bfa", "#f472b6", "#fb7185", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#ffffff"].map((swatch) => (
-                    <button
-                      key={swatch}
-                      type="button"
-                      title={swatch}
-                      onClick={() => setColor(swatch)}
-                      className={`w-8 h-8 rounded-full border transition-all cursor-pointer ${
-                        color.toLowerCase() === swatch
-                          ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.25)]"
-                          : "border-white/15 hover:scale-105 hover:border-white/40"
-                      }`}
-                      style={{ backgroundColor: swatch }}
-                    />
-                  ))}
-                  <label
-                    title="Custom color"
-                    className="relative w-8 h-8 rounded-full border border-dashed border-white/25 hover:border-white/50 transition-all cursor-pointer overflow-hidden flex items-center justify-center text-white/60 hover:text-white"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 5v14M5 12h14" />
-                    </svg>
-                    <input
-                      type="color"
-                      value={/^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_LINK_COLOR}
-                      onChange={(e) => setColor(e.target.value)}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                    />
-                  </label>
-                  <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{color}</span>
+              {iconSource === "iconify" && (
+                <div className="flex flex-col gap-2">
+                  <span className="text-[12.5px] font-medium text-white/90">Color</span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {["#609fda", "#5b6cf5", "#a78bfa", "#f472b6", "#fb7185", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#ffffff"].map((swatch) => (
+                      <button
+                        key={swatch}
+                        type="button"
+                        title={swatch}
+                        onClick={() => setColor(swatch)}
+                        className={`w-8 h-8 rounded-full border transition-all cursor-pointer ${
+                          color.toLowerCase() === swatch
+                            ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.25)]"
+                            : "border-white/15 hover:scale-105 hover:border-white/40"
+                        }`}
+                        style={{ backgroundColor: swatch }}
+                      />
+                    ))}
+                    <label
+                      title="Custom color"
+                      className="relative w-8 h-8 rounded-full border border-dashed border-white/25 hover:border-white/50 transition-all cursor-pointer overflow-hidden flex items-center justify-center text-white/60 hover:text-white"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 5v14M5 12h14" />
+                      </svg>
+                      <input
+                        type="color"
+                        value={/^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_LINK_COLOR}
+                        onChange={(e) => setColor(e.target.value)}
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                      />
+                    </label>
+                    <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{color}</span>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {error && <p className="text-[12px] text-red-400/80">{error}</p>}
 
