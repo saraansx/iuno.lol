@@ -120,7 +120,7 @@ export function LyricsPlayerMock() {
 }
 
 export function WaveformPlayerMock() {
-  const bars = useMemo(() => seedHeights("preview", 64), []);
+  const bars = useMemo(() => seedHeights("preview", 36), []);
   return (
     <div className="w-full my-auto rounded-xl bg-[#101010] border border-white/5 px-3 pt-2.5 pb-3 flex flex-col gap-2" aria-hidden="true">
       <div className="flex items-center gap-2">
@@ -149,12 +149,12 @@ export function WaveformPlayerMock() {
       </div>
       <div className="flex items-center gap-1.5">
         <span className="text-[8px] font-mono text-white/45 shrink-0">0:29</span>
-        <div className="flex-1 flex items-center gap-[2px] h-7">
+        <div className="flex-1 min-w-0 overflow-hidden flex items-center gap-[2px] h-7">
           {bars.map((h, i) => (
             <span
               key={i}
               style={{ height: `${h}%` }}
-              className={`flex-1 min-w-[1px] rounded-[1px] ${i < 22 ? "bg-[#609fda]" : "bg-white/20"}`}
+              className={`flex-1 min-w-0 rounded-[1px] ${i < 12 ? "bg-[#609fda]" : "bg-white/20"}`}
             />
           ))}
         </div>
