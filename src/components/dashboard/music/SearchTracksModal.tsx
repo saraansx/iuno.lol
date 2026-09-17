@@ -585,10 +585,10 @@ export default function SearchTracksModal({
                   <button
                     type="button"
                     onClick={() => setView("search")}
-                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#5b6cf5]/[0.07] hover:bg-[#5b6cf5]/[0.12] border border-[#5b6cf5]/40 hover:border-[#5b6cf5]/60 text-left transition-all cursor-pointer"
+                    className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#141414]/70 hover:bg-[#161616] border border-white/5 hover:border-white/15 text-left transition-all cursor-pointer"
                   >
-                    <span className="w-10 h-10 rounded-xl bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 flex items-center justify-center shrink-0">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b96ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <span className="w-10 h-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50">
                         <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
                       </svg>
                     </span>
