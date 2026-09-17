@@ -25,7 +25,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       location={deferredOverrides.location ?? user?.location ?? undefined}
       occupation={deferredOverrides.occupation ?? user?.occupation ?? undefined}
       avatarUrl={deferredOverrides.avatarUrl ?? user?.avatarUrl ?? undefined}
-      avatarShape={deferredOverrides.avatarShape ?? (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
+      avatarShape={deferredOverrides.avatarShape ?? (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "circle"}
       selectedDecoration={deferredOverrides.avatarDecorationUrl !== undefined
         ? (deferredOverrides.avatarDecorationUrl ? { id: "custom", name: "Custom Decoration", url: deferredOverrides.avatarDecorationUrl } as Decoration : null)
         : user?.avatarDecorationUrl

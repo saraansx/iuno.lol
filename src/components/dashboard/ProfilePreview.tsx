@@ -166,6 +166,8 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
   const [width, setWidth] = useState(380);
   const [isDragging, setIsDragging] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [scrollerW, setScrollerW] = useState(0);
 
   const MIN_WIDTH = 300;
   const MAX_WIDTH = 600;
@@ -208,6 +210,20 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
     };
   }, [width]);
 
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver((entries) => {
+      setScrollerW(entries[0]?.contentRect.width ?? 0);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Fit the profile card inside the panel (phone-like) instead of letting
+  // its 480px floor overflow and clip on both sides.
+  const forceCardWidth = scrollerW > 0 ? Math.max(260, Math.floor(scrollerW - 24)) : undefined;
+
   return (
     <div
       ref={panelRef}
@@ -236,10 +252,12 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
         style={{ backgroundColor: pageBgColor || '#0a0a0a' }}
       >
         <div
+          ref={scrollerRef}
           className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 [&::-webkit-scrollbar]:hidden"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
-          <Layout1 
+          <Layout1
+            forceCardWidth={forceCardWidth}
             username={username ?? undefined} 
             displayName={displayName}
             bio={bio}

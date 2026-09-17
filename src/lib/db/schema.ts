@@ -48,7 +48,7 @@ export const userSettings = mysqlTable('user_settings', {
   avatarDecorationHue: int('avatar_decoration_hue').default(0),
   profileEffectUrl: text('profile_effect_url'),
   profileEffectHue: int('profile_effect_hue').default(0),
-  avatarShape: mysqlEnum('avatar_shape', ['square', 'soft', 'rounded', 'circle']).default('rounded'),
+  avatarShape: mysqlEnum('avatar_shape', ['square', 'soft', 'rounded', 'circle']).default('circle'),
   bannerImageUrl: text('banner_image_url'),
   bannerBlend: boolean('banner_blend').default(false),
   bannerBackgroundUrl: text('banner_background_url'),

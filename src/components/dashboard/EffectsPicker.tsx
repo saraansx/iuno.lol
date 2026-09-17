@@ -48,7 +48,7 @@ const itemsPerPage = 8;
 export default function EffectsPicker({
   open,
   avatarUrl,
-  avatarShape = "rounded",
+  avatarShape = "circle",
   selectedEffect,
   effectHue,
   onClose,

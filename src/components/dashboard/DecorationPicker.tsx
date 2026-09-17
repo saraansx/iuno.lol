@@ -28,7 +28,7 @@ const itemsPerPage = 8;
 export default function DecorationPicker({
   open,
   avatarUrl,
-  avatarShape = "rounded",
+  avatarShape = "circle",
   selectedDecoration,
   decorationHue,
   onClose,

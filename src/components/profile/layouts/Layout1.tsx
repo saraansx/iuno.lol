@@ -204,6 +204,8 @@ interface Layout1Props {
   widgetLetterSpacing?: number;
   wrapInCard?: boolean;
   contentWidth?: number;
+  /** Dashboard preview: force the card to fit a narrow panel instead of the 480px floor. */
+  forceCardWidth?: number;
   profilePreset?: string;
   profileStructure?: string;
   aboutSectionEnabled?: boolean;
@@ -347,7 +349,7 @@ const Layout1 = ({
   location,
   occupation,
   avatarUrl,
-  avatarShape = "rounded",
+  avatarShape = "circle",
   selectedDecoration,
   decorationHue = 0,
   selectedEffect,
@@ -447,6 +449,7 @@ const Layout1 = ({
   widgetLetterSpacing,
   wrapInCard = DEFAULT_FRAME.wrapInCard,
   contentWidth = DEFAULT_FRAME.contentWidth,
+  forceCardWidth,
   profilePreset = DEFAULT_PRESET,
   profileStructure,
   aboutSectionEnabled = true,
@@ -681,7 +684,7 @@ const Layout1 = ({
 
   const fontClassMap = FONT_CLASS_MAP;
 
-  const cardWidthPx = Math.min(1000, Math.max(480, contentWidth));
+  const cardWidthPx = forceCardWidth ?? Math.min(1000, Math.max(480, contentWidth));
   const cardWidth = `${cardWidthPx}px`;
 
   const badgeClass = BADGE_CLASSES[getPresetLayout(profilePreset).badgePlacement];

@@ -295,7 +295,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         location={user.location ?? undefined}
         occupation={user.occupation ?? undefined}
         avatarUrl={user.avatarUrl ?? undefined}
-        avatarShape={(user.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded"}
+        avatarShape={(user.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "circle"}
         selectedDecoration={user.avatarDecorationUrl ? { id: "custom", name: "Decoration", url: user.avatarDecorationUrl } : null}
         selectedEffect={selectedEffect}
         decorationHue={user.avatarDecorationHue ?? 0}

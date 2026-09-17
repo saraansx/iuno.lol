@@ -30,7 +30,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialOccupation = user?.occupation ?? "";
   const initialBio = user?.bio ?? "";
   const initialAvatarUrl = user?.avatarUrl ?? "";
-  const initialAvatarShape = (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "rounded";
+  const initialAvatarShape = (user?.avatarShape as "square" | "soft" | "rounded" | "circle") ?? "circle";
   const initialDecorationUrl = user?.avatarDecorationUrl ?? null;
   const initialDecorationHue = user?.avatarDecorationHue ?? 0;
   const initialEffectUrl = user?.profileEffectUrl ?? null;
