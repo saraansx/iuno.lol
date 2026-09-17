@@ -10,7 +10,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "widgets";
+type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "widgets" | "links";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -38,6 +38,11 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const initialWidgetFontSize = user?.widgetFontSize ?? 12.5;
   const initialWidgetFontWeight = user?.widgetFontWeight ?? 400;
   const initialWidgetLetterSpacing = user?.widgetLetterSpacing ?? 0;
+
+  const initialLinksFont = user?.linksFont ?? "Inter";
+  const initialLinksFontSize = user?.linksFontSize ?? 13.5;
+  const initialLinksFontWeight = user?.linksFontWeight ?? 400;
+  const initialLinksLetterSpacing = user?.linksLetterSpacing ?? 0;
 
   const initialOtherFont = user?.otherFont ?? "Inter";
   const initialOtherFontSize = user?.otherFontSize ?? 13;
@@ -104,6 +109,15 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const setWidgetFontWeight = (val: number) => updateOverrides({ widgetFontWeight: val === initialWidgetFontWeight ? undefined : val });
   const widgetLetterSpacing = overrides.widgetLetterSpacing ?? initialWidgetLetterSpacing;
   const setWidgetLetterSpacing = (val: number) => updateOverrides({ widgetLetterSpacing: val === initialWidgetLetterSpacing ? undefined : val });
+
+  const linksFont = overrides.linksFont ?? initialLinksFont;
+  const setLinksFont = (val: string) => updateOverrides({ linksFont: val === initialLinksFont ? undefined : val });
+  const linksFontSize = overrides.linksFontSize ?? initialLinksFontSize;
+  const setLinksFontSize = (val: number) => updateOverrides({ linksFontSize: val === initialLinksFontSize ? undefined : val });
+  const linksFontWeight = overrides.linksFontWeight ?? initialLinksFontWeight;
+  const setLinksFontWeight = (val: number) => updateOverrides({ linksFontWeight: val === initialLinksFontWeight ? undefined : val });
+  const linksLetterSpacing = overrides.linksLetterSpacing ?? initialLinksLetterSpacing;
+  const setLinksLetterSpacing = (val: number) => updateOverrides({ linksLetterSpacing: val === initialLinksLetterSpacing ? undefined : val });
 
   const otherFont = overrides.otherFont ?? initialOtherFont;
   const setOtherFont = (val: string) => updateOverrides({ otherFont: val === initialOtherFont ? undefined : val });
@@ -253,6 +267,22 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
                 setWeight={setWidgetFontWeight}
                 spacing={widgetLetterSpacing}
                 setSpacing={setWidgetLetterSpacing}
+              />
+
+              <FontGroupSection
+                label="Links"
+                hint="Link titles on your profile."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>}
+                isOpen={openGroup === "links"}
+                onToggle={() => toggleGroup("links")}
+                font={linksFont}
+                setFont={setLinksFont}
+                size={linksFontSize}
+                setSize={setLinksFontSize}
+                weight={linksFontWeight}
+                setWeight={setLinksFontWeight}
+                spacing={linksLetterSpacing}
+                setSpacing={setLinksLetterSpacing}
               />
             </div>
           </div>
@@ -409,6 +439,10 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
           widgetFontSize,
           widgetFontWeight,
           widgetLetterSpacing,
+          linksFont,
+          linksFontSize,
+          linksFontWeight,
+          linksLetterSpacing,
         }}
       />
 

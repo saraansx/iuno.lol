@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useId, useRef, useState, type CSSProperties, type RefObject } from "react";
 
 /** Volume state that survives track changes (refs) + applies to audio elements. */
 export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
@@ -56,6 +56,7 @@ export function VolumeButton({
 }) {
   const barRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState(false);
+  const glowId = useId().replace(/:/g, "");
 
   const fromClientX = (clientX: number) => {
     const el = barRef.current;
@@ -68,30 +69,37 @@ export function VolumeButton({
 
   return (
     <div
-      className={`${fixed ? "fixed top-5 left-5 z-50" : "absolute top-2 left-2 z-20"} group/vol flex items-center gap-2`}
+      className={`${fixed ? "fixed top-5 left-5 z-50" : "absolute top-2 left-2 z-20"} group/vol flex items-center rounded-2xl border border-white/10 bg-transparent backdrop-blur-2xl transition-shadow duration-300 p-1.5`}
       style={{ "--volume-icon": color } as CSSProperties}
     >
       <button
         type="button"
         onClick={toggleMute}
         title={silent ? "Unmute" : "Mute"}
-        className={`${fixed ? "w-11 h-11" : "w-7 h-7"} rounded-2xl bg-[color-mix(in_srgb,var(--volume-icon)_12%,transparent)] backdrop-blur-2xl border border-[color-mix(in_srgb,var(--volume-icon)_25%,transparent)] text-[var(--volume-icon)] hover:bg-[color-mix(in_srgb,var(--volume-icon)_22%,transparent)] hover:border-[color-mix(in_srgb,var(--volume-icon)_45%,transparent)] ${fixed ? "hover:scale-105" : ""} flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95`}
+        className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--volume-icon)] transition-transform duration-200 cursor-pointer active:scale-95 shrink-0"
       >
-        {silent ? (
-          <svg width={fixed ? "18" : "13"} height={fixed ? "18" : "13"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" stroke="none" />
-            <line x1="23" y1="9" x2="17" y2="15" />
-            <line x1="17" y1="9" x2="23" y2="15" />
-          </svg>
-        ) : (
-          <svg width={fixed ? "18" : "13"} height={fixed ? "18" : "13"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" stroke="none" />
-            <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-            {volume > 0.5 ? <path d="M18.5 5.5a9.4 9.4 0 0 1 0 13" /> : null}
-          </svg>
-        )}
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" filter={`url(#vol-glow-${glowId})`}>
+          <defs>
+            <filter id={`vol-glow-${glowId}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="currentColor" floodOpacity="0.9" />
+            </filter>
+          </defs>
+          {silent ? (
+            <>
+              <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" stroke="none" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </>
+          ) : (
+            <>
+              <path d="M11 5 6 9H2v6h4l5 4V5z" fill="currentColor" stroke="none" />
+              <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+              {volume > 0.5 ? <path d="M18.5 5.5a9.4 9.4 0 0 1 0 13" /> : null}
+            </>
+          )}
+        </svg>
       </button>
-      <div className={`hidden group-hover/vol:flex focus-within:flex items-center ${fixed ? "w-28 h-9 px-3" : "w-20 h-7 px-2.5"} rounded-full bg-white/[0.06] backdrop-blur-xl border border-white/10`}>
+      <div className="overflow-hidden transition-all duration-300 ease-out w-0 opacity-0 group-hover/vol:w-[132px] group-hover/vol:opacity-100 group-hover/vol:mr-1.5 focus-within:w-[132px] focus-within:opacity-100 focus-within:mr-1.5 h-9 flex items-center">
         <div
           ref={barRef}
           role="slider"
@@ -112,11 +120,11 @@ export function VolumeButton({
             if (e.key === "ArrowRight" || e.key === "ArrowUp") setVolume(volume + 0.05);
             if (e.key === "ArrowLeft" || e.key === "ArrowDown") setVolume(volume - 0.05);
           }}
-          className="w-full h-4 flex items-center cursor-pointer outline-none"
+          className="w-28 h-4 flex items-center cursor-pointer outline-none"
         >
-          <div className={`relative w-full ${fixed ? "h-1.5" : "h-1"} rounded-full bg-white/15`}>
-            <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--volume-icon)]" style={{ width: `${(muted ? 0 : volume) * 100}%` }}>
-              <span className="absolute -right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white" />
+          <div className="relative w-full h-1.5 rounded-full bg-white/15">
+            <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--volume-icon)] shadow-[0_0_8px_var(--volume-icon)]" style={{ width: `${(muted ? 0 : volume) * 100}%` }}>
+              <span className="absolute -right-1 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white shadow-[0_0_8px_var(--volume-icon)]" />
             </div>
           </div>
         </div>

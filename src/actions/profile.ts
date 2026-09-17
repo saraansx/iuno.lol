@@ -229,6 +229,10 @@ export async function updateAppearanceProfile(data: {
   widgetFontSize?: number;
   widgetFontWeight?: number;
   widgetLetterSpacing?: number;
+  linksFont?: string;
+  linksFontSize?: number;
+  linksFontWeight?: number;
+  linksLetterSpacing?: number;
   joinDateEnabled?: boolean;
   joinDateFormat?: string;
   viewsEnabled?: boolean;
@@ -318,6 +322,10 @@ export async function updateAppearanceProfile(data: {
   if (data.widgetFontSize !== undefined) setData.widgetFontSize = data.widgetFontSize;
   if (data.widgetFontWeight !== undefined) setData.widgetFontWeight = data.widgetFontWeight;
   if (data.widgetLetterSpacing !== undefined) setData.widgetLetterSpacing = data.widgetLetterSpacing;
+  if (data.linksFont !== undefined) setData.linksFont = data.linksFont.slice(0, 50);
+  if (data.linksFontSize !== undefined) setData.linksFontSize = data.linksFontSize;
+  if (data.linksFontWeight !== undefined) setData.linksFontWeight = data.linksFontWeight;
+  if (data.linksLetterSpacing !== undefined) setData.linksLetterSpacing = data.linksLetterSpacing;
   if (data.joinDateEnabled !== undefined) setData.joinDateEnabled = data.joinDateEnabled;
   if (data.joinDateFormat !== undefined) setData.joinDateFormat = data.joinDateFormat.slice(0, 32);
   if (data.viewsEnabled !== undefined) setData.viewsEnabled = data.viewsEnabled;
