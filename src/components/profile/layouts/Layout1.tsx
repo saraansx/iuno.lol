@@ -1010,7 +1010,7 @@ const sectionSurface: React.CSSProperties = {
       }
       className={`w-full flex flex-col items-center relative ${
         sectioned
-          ? "h-screen overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          ? "h-screen overflow-y-auto overflow-x-hidden no-scrollbar"
           : "min-h-screen overflow-x-clip"
       }`}
     >

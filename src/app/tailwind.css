@@ -242,6 +242,19 @@
   height: 0 !important;
   background: transparent;
 }
+
+/* Viewport scrollbar hidden everywhere (profile pages, dashboard window).
+   Inner scroll areas keep their own styled/hidden bars. Scrolling still works. */
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+html::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent;
+}
 .no-scrollbar::-webkit-scrollbar-track,
 .no-scrollbar::-webkit-scrollbar-thumb {
   display: none;

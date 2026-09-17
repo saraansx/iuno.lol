@@ -100,23 +100,55 @@ export async function GET(
     const limited = await widgetRateLimit(req, "discord_presence");
     if (limited) return limited;
 
-    const memberData = await withWidgetCache<DiscordMemberData>(
-      widgetCacheKey("discord", "member", id),
-      async () => {
-        const res = await fetch(
-          `https://discord.com/api/v10/guilds/${guildId}/members/${id}`,
-          {
-            headers: {
-              Authorization: `Bot ${botToken}`,
-              "User-Agent": "iuno-presence-proxy/1.0",
-            },
+    // All three only need the Discord ID, so run them concurrently instead
+    // of sequentially. Presence stays realtime (fresh every load); the bot
+    // call is bounded to 1.5s so a slow bot never holds the page.
+    const redisBadgesKey = `discord:badges:v2:${id}`;
+    const [memberData, presenceData, cachedBadgesRaw] = await Promise.all([
+      withWidgetCache<DiscordMemberData>(
+        widgetCacheKey("discord", "member", id),
+        async () => {
+          const res = await fetch(
+            `https://discord.com/api/v10/guilds/${guildId}/members/${id}`,
+            {
+              headers: {
+                Authorization: `Bot ${botToken}`,
+                "User-Agent": "iuno-presence-proxy/1.0",
+              },
+              cache: "no-store",
+            }
+          );
+          if (!res.ok) return null;
+          return res.json();
+        }
+      ),
+      (async (): Promise<{
+        status?: "online" | "idle" | "dnd" | "offline";
+        last_seen?: number | null;
+        custom_status?: PresenceResponse["custom_status"];
+        spotify?: PresenceResponse["spotify"];
+        primary_activity?: PresenceResponse["primary_activity"];
+      } | null> => {
+        if (!botUrl) return null;
+        try {
+          const botRes = await fetch(`${botUrl}/presence/${id}`, {
             cache: "no-store",
-          }
-        );
-        if (!res.ok) return null;
-        return res.json();
-      }
-    );
+            signal: AbortSignal.timeout(1500),
+          });
+          if (!botRes.ok) return null;
+          return botRes.json();
+        } catch {
+          return null;
+        }
+      })(),
+      (async (): Promise<string | null> => {
+        try {
+          return await redis.get(redisBadgesKey);
+        } catch {
+          return null;
+        }
+      })(),
+    ]);
 
     if (!memberData) {
       return NextResponse.json<PresenceResponse>({
@@ -129,36 +161,12 @@ export async function GET(
     const discordUser = (memberData.user ||
       (memberData as unknown as DiscordUserFields)) as DiscordUserFields;
 
-    let presenceData: {
-      status?: "online" | "idle" | "dnd" | "offline";
-      last_seen?: number | null;
-      custom_status?: PresenceResponse["custom_status"];
-      spotify?: PresenceResponse["spotify"];
-      primary_activity?: PresenceResponse["primary_activity"];
-    } | null = null;
-
-    if (botUrl) {
-      try {
-        const botRes = await fetch(`${botUrl}/presence/${id}`, {
-          cache: "no-store",
-          signal: AbortSignal.timeout(4000),
-        });
-        if (botRes.ok) {
-          presenceData = await botRes.json();
-        }
-      } catch {
-      }
-    }
-
     const clan = discordUser.clan || memberData.clan || discordUser.primary_guild || null;
 
     let userProfileBadges: Array<{ id: string; description?: string; icon?: string }> = [];
-    const redisBadgesKey = `discord:badges:v2:${id}`;
-
     try {
-      const cached = await redis.get(redisBadgesKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
+      if (cachedBadgesRaw) {
+        const parsed = JSON.parse(cachedBadgesRaw);
         if (Array.isArray(parsed) && parsed.length > 0) {
           if (Array.isArray(parsed[0])) {
             userProfileBadges = (parsed as Array<[string, string, string?]>).map(([bId, bIcon, bDesc]) => ({
