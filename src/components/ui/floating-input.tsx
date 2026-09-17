@@ -46,7 +46,7 @@ const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
               "placeholder:text-white/30",
               error
                 ? "border-red-400/30 focus:border-red-400/50"
-                : "border-white/5 hover:border-white/10 focus:border-[#609fda]/40",
+                : "border-white/5 hover:border-white/10 focus:border-[#5b6cf5]/40",
               isPassword && "pr-11",
               className
             )}
@@ -57,7 +57,7 @@ const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(
             className={cn(
               "absolute left-4 top-3 text-sm text-white/40 transition-all duration-200 pointer-events-none select-none",
               floated && "-top-2.5 left-3 text-xs px-1 bg-[#121212] text-white/40",
-              focused && "text-[#609fda]",
+              focused && "text-[#5b6cf5]",
               error && (floated ? "text-red-400" : "text-red-400/70")
             )}
           >

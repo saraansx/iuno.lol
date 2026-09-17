@@ -209,7 +209,7 @@ export default function BadgesOrderCustomization({
                 type="button"
                 onClick={() => handleToggleBadge(badge.id)}
                 className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                  isEnabled ? "bg-[#609fda]" : "bg-white/10"
+                  isEnabled ? "bg-[#5b6cf5]" : "bg-white/10"
                 }`}
               >
                 <span
@@ -266,7 +266,7 @@ export default function BadgesOrderCustomization({
 
           <div
             className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent ${
-              !hiddenBadges.includes(activeDraggingBadge.id) ? "bg-[#609fda]" : "bg-white/10"
+              !hiddenBadges.includes(activeDraggingBadge.id) ? "bg-[#5b6cf5]" : "bg-white/10"
             }`}
           >
             <span

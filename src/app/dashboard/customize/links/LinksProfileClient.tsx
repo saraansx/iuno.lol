@@ -463,7 +463,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="h-10 px-6 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-10 px-6 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {saving ? "Uploading..." : initial ? "Save link" : "Add link"}
                 </button>
@@ -576,7 +576,7 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
                 count >= MAX_LINKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer active:scale-95"
+                  : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
               }`}
             >
               <span className={`text-[13px] leading-none font-normal ${count >= MAX_LINKS ? "text-white/30" : "text-white"}`}>+</span>
@@ -664,20 +664,27 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
           <div className="flex flex-col gap-2">
             <span className="text-[12.5px] font-medium text-white/90">Alignment</span>
             <div className="grid grid-cols-3 gap-2">
-              {(["left", "center", "right"] as const).map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setAlignment(a)}
-                  className={`rounded-xl border px-3 py-2 text-[12.5px] font-normal capitalize transition-all cursor-pointer ${
-                    alignment === a
-                      ? "bg-[#609fda]/20 border-[#609fda]/50 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
-                      : "bg-[#141414]/70 border-white/5 text-white/50 hover:text-white/80 hover:border-white/15"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
+              {(["left", "center", "right"] as const).map((a) => {
+                const isSelected = alignment === a;
+                return (
+                  <button
+                    key={a}
+                    type="button"
+                    onClick={() => setAlignment(a)}
+                    className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-2 text-[12.5px] transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
+                        : "bg-[#141414]/70 border-white/5 text-white/50 hover:text-white/80 hover:border-white/15 font-normal"
+                    }`}
+                  >
+                    <span className={`flex flex-col gap-[3px] ${a === "center" ? "items-center" : a === "right" ? "items-end" : ""}`}>
+                      <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                      <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
+                    </span>
+                    <span className="capitalize">{a}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -689,8 +696,8 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
             className="flex items-center justify-between gap-3 rounded-2xl bg-[#141414]/70 border border-white/5 hover:border-white/15 px-4 py-3.5 text-left transition-all cursor-pointer"
           >
             <span className="flex flex-col">
-              <span className="text-[13px] font-normal text-white/90">Social background</span>
-              <span className="text-[11.5px] text-white/35 leading-snug">Show the colored surface behind each social icon.</span>
+              <span className="text-[13px] font-normal text-white/90">Background container</span>
+              <span className="text-[11.5px] text-white/35 leading-snug">Show a background box behind each icon. Off means bare icons.</span>
             </span>
             <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${social ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
               <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${social ? "left-[18px]" : "left-0.5"}`} />

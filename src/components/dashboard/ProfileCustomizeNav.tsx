@@ -75,7 +75,7 @@ const ProfileCustomizeNav = () => {
             href={tab.href}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-normal transition-all ${
               isActive
-                ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+                ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                 : "text-white/40 hover:text-white/70 hover:bg-white/5 cursor-pointer"
             }`}
           >

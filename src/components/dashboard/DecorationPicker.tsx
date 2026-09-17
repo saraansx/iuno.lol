@@ -145,7 +145,7 @@ export default function DecorationPicker({
               max="360"
               value={decorationHue}
               onChange={(event) => onDecorationHueChange(Number(event.target.value))}
-              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#609fda]/50 [&::-webkit-slider-thumb]:bg-[#609fda] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(96,159,218,0.12)]"
+              className="mt-3 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/[0.08] outline-none [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border [&::-webkit-slider-thumb]:border-[#5b6cf5]/50 [&::-webkit-slider-thumb]:bg-[#5b6cf5] [&::-webkit-slider-thumb]:shadow-[0_0_0_4px_rgba(91,108,245,0.12)]"
             />
 
             <p className="mt-4 text-[13px] text-white/45 text-center">
@@ -174,7 +174,7 @@ export default function DecorationPicker({
                   value={search}
                   onChange={(event) => handleSearchChange(event.target.value)}
                   placeholder="Search decorations..."
-                  className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#609fda]/35"
+                  className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#5b6cf5]/35"
                 />
               </div>
               <p className="w-20 text-right text-[13px] text-white/45">{filteredItems.length} results</p>
@@ -197,7 +197,7 @@ export default function DecorationPicker({
                     }}
                     className={`group flex flex-col rounded-[14px] border bg-[#050505] p-2.5 text-left transition-colors ${
                       isSelected
-                        ? "border-[#609fda]/50 bg-[#609fda]/8"
+                        ? "border-[#5b6cf5]/50 bg-[#5b6cf5]/8"
                         : "border-white/[0.07] hover:border-white/15 hover:bg-white/[0.025]"
                     }`}
                   >

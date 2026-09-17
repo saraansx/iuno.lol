@@ -14,7 +14,7 @@ export function Highlighter({ children, action = "highlight" }: HighlighterProps
       <span className="relative inline-block z-10 text-inherit">
         {children}
         <svg
-          className="absolute -bottom-2 left-0 w-full h-4 -z-10 text-[#609fda] pointer-events-none"
+          className="absolute -bottom-2 left-0 w-full h-4 -z-10 text-[#5b6cf5] pointer-events-none"
           viewBox="0 0 100 20"
           preserveAspectRatio="none"
           fill="none"
@@ -54,7 +54,7 @@ export function Highlighter({ children, action = "highlight" }: HighlighterProps
           repeatType: "loop",
           repeatDelay: 5
         }}
-        className="absolute -inset-x-1.5 -inset-y-1 w-[calc(100%+12px)] h-[calc(100%+8px)] -z-10 text-[#609fda]/35 pointer-events-none origin-left"
+        className="absolute -inset-x-1.5 -inset-y-1 w-[calc(100%+12px)] h-[calc(100%+8px)] -z-10 text-[#5b6cf5]/35 pointer-events-none origin-left"
         viewBox="0 0 100 30"
         preserveAspectRatio="none"
       >

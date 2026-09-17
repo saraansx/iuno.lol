@@ -143,7 +143,7 @@ export default function GeneralInfoSection({
             <button
               type="button"
               onClick={() => setShowFormattingHelp(!showFormattingHelp)}
-              className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-[#609fda] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-[#5b6cf5] transition-colors cursor-pointer"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
@@ -163,27 +163,27 @@ export default function GeneralInfoSection({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="font-bold text-white">Bold</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">**text**</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">**text**</code>
               </div>
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="italic text-white">Italics</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">*text* or _text_</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">*text* or _text_</code>
               </div>
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="underline text-white">Underline</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">__text__</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">__text__</code>
               </div>
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="line-through text-white">Strikethrough</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">~~text~~</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">~~text~~</code>
               </div>
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="text-white flex items-center gap-1.5"><span className="text-[12px] opacity-70">•</span> Bullet List</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">- text or • text</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">- text or • text</code>
               </div>
               <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
                 <span className="text-white/60 text-[11px]">Subtext / Small Text</span>
-                <code className="text-[#609fda] bg-black/40 px-1.5 py-0.5 rounded font-mono">-# text</code>
+                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">-# text</code>
               </div>
             </div>
           </div>

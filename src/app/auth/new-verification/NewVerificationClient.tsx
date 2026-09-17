@@ -58,8 +58,8 @@ const NewVerificationForm = () => {
       <div className="bg-[#0a0a0a]/30 backdrop-blur-3xl border border-white/5 rounded-4xl p-12 shadow-2xl overflow-hidden relative">
         <div className="flex flex-col items-center text-center gap-8 relative z-10">
           <div className="w-16 h-16 bg-white/2 border border-white/5 rounded-2xl flex items-center justify-center relative group">
-            <div className="absolute inset-0 bg-[#609fda]/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-            <svg className="text-[#609fda] relative z-10" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <div className="absolute inset-0 bg-[#5b6cf5]/5 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+            <svg className="text-[#5b6cf5] relative z-10" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
               {success && <motion.path initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} d="m9 12 2 2 4-4" strokeWidth="2" />}
               {error && <motion.path initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} d="m15 9-6 6M9 9l6 6" strokeWidth="2" />}
@@ -81,9 +81,9 @@ const NewVerificationForm = () => {
 
           {!success && !error && (
             <div className="flex gap-1.5">
-              <div className="w-1 h-1 bg-[#609fda] rounded-full animate-pulse" />
-              <div className="w-1 h-1 bg-[#609fda] rounded-full animate-pulse [animation-delay:0.2s]" />
-              <div className="w-1 h-1 bg-[#609fda] rounded-full animate-pulse [animation-delay:0.4s]" />
+              <div className="w-1 h-1 bg-[#5b6cf5] rounded-full animate-pulse" />
+              <div className="w-1 h-1 bg-[#5b6cf5] rounded-full animate-pulse [animation-delay:0.2s]" />
+              <div className="w-1 h-1 bg-[#5b6cf5] rounded-full animate-pulse [animation-delay:0.4s]" />
             </div>
           )}
 

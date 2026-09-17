@@ -431,7 +431,7 @@ export default function AddWidgetModal({
                     <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
                   </svg>
                 ) : selectedPlatform === "genshin" ? (
-                  <GenshinLogoIcon size={18} className="w-[18px] h-[18px] text-[#609fda] shrink-0" />
+                  <GenshinLogoIcon size={18} className="w-[18px] h-[18px] text-[#5b6cf5] shrink-0" />
                 ) : null}
                 <span>{PLATFORMS.find((p) => p.id === selectedPlatform)?.name || "Select platform"}</span>
               </div>
@@ -515,12 +515,12 @@ export default function AddWidgetModal({
                             <path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.005.105.005.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 12-5.373 12-12s-5.373-12-12-12zM7.54 18.216l-1.464-.606c.263.568.736 1.015 1.328 1.246.885.344 1.875.05 2.434-.674-.326-.062-.644-.176-.932-.341-.607-.35-1.042-.907-1.226-1.562l-.14-.063zm8.4-11.455c-1.18 0-2.137.957-2.137 2.137 0 1.18.957 2.137 2.137 2.137 1.18 0 2.137-.957 2.137-2.137 0-1.18-.957-2.137-2.137-2.137zm0 .802c.737 0 1.335.598 1.335 1.335 0 .737-.598 1.335-1.335 1.335-.737 0-1.335-.598-1.335-1.335 0-.737.598-1.335 1.335-1.335z" />
                           </svg>
                         ) : platform.id === "genshin" ? (
-                          <GenshinLogoIcon size={16} className="w-4 h-4 text-[#609fda] shrink-0" />
+                          <GenshinLogoIcon size={16} className="w-4 h-4 text-[#5b6cf5] shrink-0" />
                         ) : null}
                         <span>{platform.name}</span>
                       </div>
                       {selectedPlatform === platform.id ? (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#609fda]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
                       ) : null}
                     </button>
                   );
@@ -701,7 +701,7 @@ export default function AddWidgetModal({
                         aria-checked={useLinkedAccount}
                         onClick={() => setUseLinkedAccount(!useLinkedAccount)}
                         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none ${
-                          useLinkedAccount ? "bg-[#609fda]" : "bg-white/10"
+                          useLinkedAccount ? "bg-[#5b6cf5]" : "bg-white/10"
                         }`}
                       >
                         <span
@@ -713,10 +713,10 @@ export default function AddWidgetModal({
                     ) : (
                       <Link
                         href="/api/auth/discord"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#609fda]/15 hover:bg-[#609fda]/25 border border-[#609fda]/20 text-[12px] font-normal text-white transition-all cursor-pointer active:scale-95"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#5b6cf5]/15 hover:bg-[#5b6cf5]/25 border border-[#5b6cf5]/20 text-[12px] font-normal text-white transition-all cursor-pointer active:scale-95"
                       >
                         <span>Link account</span>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#609fda] opacity-80">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] opacity-80">
                           <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />
                         </svg>
                       </Link>
@@ -1060,7 +1060,7 @@ export default function AddWidgetModal({
             onClick={handleSubmit}
             className={`px-5 py-2 rounded-xl text-[13px] font-normal transition-all cursor-pointer flex items-center justify-center gap-2 min-w-[95px] ${
               isFormatValid
-                ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 border border-[#609fda]/30 text-white"
+                ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white"
                 : "bg-white/5 border border-white/5 text-white/20 cursor-not-allowed"
             }`}
           >

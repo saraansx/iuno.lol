@@ -13,7 +13,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#609fda", titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
+export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -290,7 +290,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
           <span
             key={i}
             style={{ height: `${Math.max(15, h)}%` }}
-            className={`w-[2.5px] rounded-full shrink-0 transition-[height] duration-100 ease-in-out ${levels ? "bg-[#609fda]" : "bg-[#609fda]/25"}`}
+            className={`w-[2.5px] rounded-full shrink-0 transition-[height] duration-100 ease-in-out ${levels ? "bg-[#5b6cf5]" : "bg-[#5b6cf5]/25"}`}
           />
         ))}
       </div>
@@ -332,10 +332,10 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
         type="button"
         onClick={toggle}
         title={playing ? "Pause" : "Play"}
-        className="w-11 h-11 rounded-full bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white flex items-center justify-center shrink-0 transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+        className="w-11 h-11 rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white flex items-center justify-center shrink-0 transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
       >
         {loading ? (
-          <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+          <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin" />
         ) : playing ? (
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <rect x="6" y="5" width="4" height="14" rx="1" />
@@ -399,7 +399,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
         className="absolute bottom-0 left-0 right-0 h-4 flex items-end cursor-pointer group outline-none"
       >
         <div className="w-full bg-white/5 h-[2px] group-hover:h-[4px] transition-all">
-          <div className="h-full bg-[#609fda]/80" style={{ width: `${progress}%` }} />
+          <div className="h-full bg-[#5b6cf5]/80" style={{ width: `${progress}%` }} />
         </div>
       </div>
     </div>

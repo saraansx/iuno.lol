@@ -143,7 +143,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
                 count >= MAX_TRACKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                  : "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer active:scale-95"
+                  : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
               }`}
             >
               <span className={`text-[13px] leading-none font-normal ${count >= MAX_TRACKS ? "text-white/30" : "text-white"}`}>+</span>
@@ -185,7 +185,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
                     dragId === track.id
                       ? "opacity-40 border-white/20"
                       : dropId === track.id
-                        ? "border-[#609fda]/50"
+                        ? "border-[#5b6cf5]/50"
                         : "border-white/5"
                   }`}
                 >

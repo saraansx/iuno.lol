@@ -155,7 +155,7 @@ const LoginForm = () => {
       />
       <div className="w-full bg-white/2 border border-white/5 rounded-xl p-1 flex relative">
         <motion.div
-          className="absolute top-1 bottom-1 bg-[#609fda]/20 rounded-lg shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+          className="absolute top-1 bottom-1 bg-[#5b6cf5]/20 rounded-lg shadow-[0_0_15px_rgba(91,108,245,0.1)]"
           initial={false}
           animate={{
             left: method === "password" ? "4px" : "50%",
@@ -209,7 +209,7 @@ const LoginForm = () => {
             autoComplete="current-password"
           />
           <div className="flex justify-end px-1">
-            <Link href="/forgot-password" className="text-[11px] text-[#609fda] hover:text-[#609fda]/80 transition-colors font-medium">
+            <Link href="/forgot-password" className="text-[11px] text-[#5b6cf5] hover:text-[#5b6cf5]/80 transition-colors font-medium">
               Forgot password?
             </Link>
           </div>
@@ -226,10 +226,10 @@ const LoginForm = () => {
         >
           {otpSent && (
             <>
-              <div className="bg-[#609fda]/5 border border-[#609fda]/10 rounded-xl px-3.5 py-2.5 flex items-center gap-3">
-                <svg className="text-[#609fda]/60 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h12.5"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="m17 17 4 4"/><path d="m21 17-4 4"/></svg>
+              <div className="bg-[#5b6cf5]/5 border border-[#5b6cf5]/10 rounded-xl px-3.5 py-2.5 flex items-center gap-3">
+                <svg className="text-[#5b6cf5]/60 shrink-0" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10.5V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h12.5"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/><path d="m17 17 4 4"/><path d="m21 17-4 4"/></svg>
                 <p className="text-[11px] text-white/50 font-medium">
-                  We sent a code to <span className="text-[#609fda]">{email}</span>
+                  We sent a code to <span className="text-[#5b6cf5]">{email}</span>
                 </p>
               </div>
               <Input

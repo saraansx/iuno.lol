@@ -33,10 +33,10 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
         <div className="bg-white/2 backdrop-blur-xl border border-white/8 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-5 h-auto object-contain shrink-0" priority />
-            <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>Iuno<span className="text-[#609fda] lowercase">.lol</span></span>
+            <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>Iuno<span className="text-[#5b6cf5] lowercase">.lol</span></span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1 bg-[#609fda]/3 rounded-full p-1 border border-[#609fda]/10 relative">
+          <div className="hidden md:flex items-center gap-1 bg-[#5b6cf5]/3 rounded-full p-1 border border-[#5b6cf5]/10 relative">
             {tabs.map((tab) => (
               <button
                 key={tab}
@@ -57,7 +57,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                 {activeTab === tab && (
                   <motion.div
                     layoutId="navbar-bubble"
-                    className="absolute inset-0 bg-[#609fda]/20 shadow-[0_0_15px_rgba(96,159,218,0.1)] rounded-full z-0"
+                    className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
                     transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
                   />
                 )}
@@ -70,7 +70,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             {isAuthenticated ? (
               <button
                 onClick={() => router.push('/dashboard')}
-                className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer flex items-center gap-2"
+                className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -89,7 +89,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                 </button>
                 <button
                   onClick={handleGetStarted}
-                  className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+                  className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Get Started

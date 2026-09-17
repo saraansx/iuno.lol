@@ -19,7 +19,7 @@ npm run lint          # Run ESLint check
 - **Cards**: `bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm`
 - **Inputs & Dropdowns**: `bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white`
 - **Typography**: Header text should be clean and light (`text-[14px] font-normal text-white/90 tracking-tight`). Avoid bold weights on section headers.
-- **Accents**: Primary `#609fda` / `#5b6cf5`. Buttons use `bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal rounded-xl` or neutral dark glass `bg-white/[0.06] border border-white/10`.
+- **Accents**: Primary `#5b6cf5`. Buttons use `bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal rounded-xl` or neutral dark glass `bg-white/[0.06] border border-white/10`.
 - **Glows**: Avoid harsh neon box-shadows unless explicitly requested.
 
 ## Architecture & Layout Customization

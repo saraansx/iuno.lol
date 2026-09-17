@@ -44,8 +44,8 @@ const SaveBar = ({
           <div className="bg-[#111111] border border-white/[0.08] rounded-[14px] pl-5 pr-2 py-2 flex items-center gap-6 pointer-events-auto">
             <div className="flex items-center gap-2.5">
               <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#609fda] opacity-50" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#609fda]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5b6cf5] opacity-50" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5b6cf5]" />
               </div>
               <span className="text-[13px] text-white/80 font-medium tracking-wide">
                 Unsaved changes
@@ -64,7 +64,7 @@ const SaveBar = ({
               <button
                 onClick={handleSave}
                 disabled={isPending}
-                className="text-[13px] bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal px-5 py-2 rounded-[10px] active:scale-[0.97] transition-all duration-200 disabled:opacity-40 disabled:grayscale-[0.5] disabled:hover:scale-100 flex items-center justify-center gap-2 min-w-[70px] cursor-pointer"
+                className="text-[13px] bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal px-5 py-2 rounded-[10px] active:scale-[0.97] transition-all duration-200 disabled:opacity-40 disabled:grayscale-[0.5] disabled:hover:scale-100 flex items-center justify-center gap-2 min-w-[70px] cursor-pointer"
               >
                 {isPending ? (
                   <svg className="animate-spin -ml-1 h-3.5 w-3.5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

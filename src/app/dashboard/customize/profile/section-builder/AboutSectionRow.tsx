@@ -54,7 +54,7 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
     <div
       onDragOver={onDragOverRow}
       onDrop={onDropRow}
-      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#609fda]/60" : "border-white/5"}`}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#5b6cf5]/60" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
@@ -73,7 +73,7 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
           </svg>
         </span>
 
-        <span className="text-[#609fda] shrink-0">
+        <span className="text-[#5b6cf5] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
             <circle cx="12" cy="7" r="4" />
@@ -156,7 +156,7 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
               type="button"
               onClick={save}
               disabled={pending || !dirty}
-              className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-[13px] text-white font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-[13px] text-white font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {pending ? "Saving..." : "Save changes"}
             </button>

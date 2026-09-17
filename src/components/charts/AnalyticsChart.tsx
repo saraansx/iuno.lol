@@ -94,12 +94,12 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Views</h2>
-          <div className="flex items-center gap-1.5 bg-[#609fda]/10 border border-[#609fda]/20 px-2.5 py-1 rounded-full">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#609fda" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex items-center gap-1.5 bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 px-2.5 py-1 rounded-full">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span className="text-[#609fda] text-xs font-bold leading-none">{totalViews}</span>
+            <span className="text-[#5b6cf5] text-xs font-bold leading-none">{totalViews}</span>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
       <div ref={containerRef} className="h-80 w-full relative">
         {!isMounted || dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
           <AreaChart
@@ -124,8 +124,8 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
           >
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#609fda" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#609fda" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#5b6cf5" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#5b6cf5" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
@@ -152,7 +152,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
                       <div className="bg-[#111] border border-white/10 px-3 py-2 rounded-lg shadow-2xl backdrop-blur-md">
                         <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold mb-0.5">{label}</p>
                         <div className="flex items-center gap-1.5">
-                          <div className="w-1.5 h-1.5 rounded-full bg-[#609fda]" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
                           <p className="text-white text-xs font-semibold">
                             {payload[0].value} <span className="text-white/40 font-normal">views</span>
                           </p>
@@ -167,7 +167,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
                 type="monotone" 
                 dataKey="views" 
                 name="Views"
-                stroke="#609fda" 
+                stroke="#5b6cf5" 
                 strokeWidth={2}
                 fillOpacity={1} 
                 fill="url(#colorViews)" 

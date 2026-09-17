@@ -24,7 +24,7 @@ return (
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Badges</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Badges</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

@@ -91,13 +91,13 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           >
             <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-6 h-auto object-contain shrink-0 my-auto" priority />
             <span className="font-normal text-white tracking-tight text-xl whitespace-nowrap overflow-hidden my-auto" style={{ fontFamily: "var(--font-comfortaa)" }}>
-              Iuno<span className="text-[#609fda] lowercase">.lol</span>
+              Iuno<span className="text-[#5b6cf5] lowercase">.lol</span>
             </span>
           </Link>
 
           <button 
             onClick={() => setOpen(!open)}
-            className={`absolute transition-all duration-300 p-1.5 rounded-lg flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#609fda]/10 text-[#609fda] border border-[#609fda]/20 hover:bg-[#609fda]/20'}`}
+            className={`absolute transition-all duration-300 p-1.5 rounded-lg flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#5b6cf5]/10 text-[#5b6cf5] border border-[#5b6cf5]/20 hover:bg-[#5b6cf5]/20'}`}
             title="Toggle Sidebar"
           >
             {open ? (
@@ -143,12 +143,12 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                           }}
                           className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group overflow-hidden ${
                             isGroupActive
-                              ? (open ? "text-white" : "bg-[#609fda]/20 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]")
+                              ? (open ? "text-white" : "bg-[#5b6cf5]/20 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]")
                               : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
                           }`}
                         >
                           <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isGroupActive ? 'text-[#609fda]' : 'text-white/40 group-hover:text-white/80'}` })}
+                            {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isGroupActive ? 'text-[#5b6cf5]' : 'text-white/40 group-hover:text-white/80'}` })}
                             
                             <motion.span
                               animate={{
@@ -189,7 +189,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                                     href={subItem.href}
                                     className={`px-4 py-2 rounded-[10px] text-[13px] font-normal transition-all whitespace-nowrap ${
                                       isSubActive
-                                        ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                                        ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
                                         : "text-white/40 hover:text-white/80 hover:bg-white/[0.06]"
                                     }`}
                                   >
@@ -213,12 +213,12 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                       rel={item.external ? "noopener noreferrer" : undefined}
                       className={`relative flex items-center w-full transition-all duration-300 overflow-hidden ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group ${
                         isActive
-                          ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                          ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
                           : "text-white/30 hover:text-white/80 hover:bg-white/[0.06]"
                       }`}
                     >
                       <span className={`relative z-10 flex items-center ${open ? 'gap-3' : ''}`}>
-                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isActive ? 'text-[#609fda]' : 'text-white/40 group-hover:text-white/80'}` })}
+                        {React.cloneElement(item.icon as React.ReactElement<React.SVGProps<SVGSVGElement>>, { width: 18, height: 18, className: `shrink-0 transition-colors ${isActive ? 'text-[#5b6cf5]' : 'text-white/40 group-hover:text-white/80'}` })}
                         <motion.span
                           animate={{
                             width: animate ? (open ? "auto" : 0) : "auto",
@@ -248,7 +248,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
             rel="noopener noreferrer"
             className={`rounded-xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 flex items-center transition-colors ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group`}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/35 group-hover:text-[#609fda] transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/35 group-hover:text-[#5b6cf5] transition-colors">
               <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
               <polyline points="15 3 21 3 21 9" />
               <line x1="10" y1="14" x2="21" y2="3" />
@@ -268,7 +268,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 
         <div className={`rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
-            <div className="absolute inset-0 rounded-full bg-[#609fda]/10 border border-[#609fda]/20 flex items-center justify-center text-[#609fda] text-xs font-bold uppercase overflow-hidden shrink-0">
+            <div className="absolute inset-0 rounded-full bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] text-xs font-bold uppercase overflow-hidden shrink-0">
               {avatarUrl ? (
                 <Image src={avatarUrl} alt="Profile picture" fill sizes="32px" className="object-cover" />
               ) : (

@@ -42,7 +42,7 @@ export default async function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Discord Presence</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Discord Presence</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

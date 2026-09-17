@@ -35,7 +35,7 @@ export default function TwitchToggleSetting({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors cursor-pointer shrink-0 ${
-          checked ? "bg-[#609fda]" : "bg-white/10"
+          checked ? "bg-[#5b6cf5]" : "bg-white/10"
         }`}
       >
         <div

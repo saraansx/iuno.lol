@@ -58,7 +58,7 @@ export default function SectionedProfileSection({
       {enabled && (
         <div className="mt-2 flex items-center gap-2.5 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5">
           <svg
-            className="text-[#609fda] shrink-0"
+            className="text-[#5b6cf5] shrink-0"
             width="15"
             height="15"
             viewBox="0 0 24 24"
@@ -76,7 +76,7 @@ export default function SectionedProfileSection({
             Head to the{" "}
             <Link
               href="/dashboard/customize/profile/section-builder"
-              className="text-[#609fda] hover:underline"
+              className="text-[#5b6cf5] hover:underline"
             >
               section builder
             </Link>{" "}

@@ -96,7 +96,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
           <div className="flex items-center gap-2 min-w-0 overflow-hidden">
             <OverflowPingPong deps={[genshinData, genshinData.nickname]}>
               <div className="flex items-center gap-1.5 shrink-0">
-                <GenshinLogoIcon size={14} className="w-3.5 h-3.5 text-[#609fda] shrink-0" />
+                <GenshinLogoIcon size={14} className="w-3.5 h-3.5 text-[#5b6cf5] shrink-0" />
                 <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">
                   {genshinData.nickname}
                 </span>

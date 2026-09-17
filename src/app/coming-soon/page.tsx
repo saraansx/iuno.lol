@@ -48,7 +48,7 @@ function Countdown() {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="text-[#609fda] text-sm font-normal tracking-wide"
+        className="text-[#5b6cf5] text-sm font-normal tracking-wide"
       >
         We&apos;re live.
       </motion.p>
@@ -97,7 +97,7 @@ export default function ComingSoonPage() {
   };
 
   return (
-    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center relative z-10 px-4 py-12 selection:bg-[#609fda]/30 selection:text-white" style={{ fontFamily: "var(--font-comfortaa)" }}>
+    <div className="min-h-screen bg-transparent flex flex-col justify-center items-center relative z-10 px-4 py-12 selection:bg-[#5b6cf5]/30 selection:text-white" style={{ fontFamily: "var(--font-comfortaa)" }}>
       
       <main className="flex flex-col items-center justify-center text-center max-w-2xl mx-auto w-full space-y-5 p-12 rounded-3xl bg-white/[0.02] backdrop-blur-[16px] border border-white/[0.05] shadow-[0_8px_32px_0_rgba(0,0,0,0.4)]">
 
@@ -111,7 +111,7 @@ export default function ComingSoonPage() {
           <div className="-translate-y-1">
             <Highlighter action="underline">
               <span className="font-light text-white tracking-tight text-2xl uppercase">
-                Iuno<span className="text-[#609fda] lowercase">.lol</span>
+                Iuno<span className="text-[#5b6cf5] lowercase">.lol</span>
               </span>
             </Highlighter>
           </div>
@@ -144,7 +144,7 @@ export default function ComingSoonPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           onSubmit={handleReserve}
-          className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 hover:border-white/15 focus-within:border-[#609fda]/40 p-1.5 rounded-2xl transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex items-center gap-2 group"
+          className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 hover:border-white/15 focus-within:border-[#5b6cf5]/40 p-1.5 rounded-2xl transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex items-center gap-2 group"
         >
           <div className="flex-1 px-4 py-2 flex items-center gap-1 text-sm">
             <span className="text-white/30 font-normal tracking-wide select-none">iuno.lol/</span>
@@ -158,7 +158,7 @@ export default function ComingSoonPage() {
           </div>
           <button
             type="submit"
-            className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer flex items-center space-x-1.5 shrink-0"
+            className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center space-x-1.5 shrink-0"
           >
             <span>Reserve</span>
             <ArrowRight className="w-3.5 h-3.5 text-white/70" />

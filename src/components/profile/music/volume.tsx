@@ -45,7 +45,7 @@ export function VolumeButton({
   setVolume,
   toggleMute,
   fixed = false,
-  color = "#609fda",
+  color = "#5b6cf5",
 }: {
   volume: number;
   muted: boolean;

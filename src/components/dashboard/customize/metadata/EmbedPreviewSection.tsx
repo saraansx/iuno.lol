@@ -45,7 +45,7 @@ export default function EmbedPreviewSection({
         <div className="flex gap-3 border-l-[3px] pl-3" style={{ borderColor: color }}>
           <div className="flex flex-col gap-1 min-w-0 flex-1">
             <span className="text-[11.5px] text-white/40 truncate">{SITE_CONFIG.name}</span>
-            <span className="text-[13.5px] text-[#609fda] font-medium truncate">
+            <span className="text-[13.5px] text-[#5b6cf5] font-medium truncate">
               {title || username}
             </span>
             {description && (

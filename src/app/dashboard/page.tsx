@@ -42,7 +42,7 @@ export default async function DashboardPage() {
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#609fda] font-light tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Dashboard</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#5b6cf5] font-light tracking-tight" style={{ fontFamily: "var(--font-comfortaa)" }}>Dashboard</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -55,10 +55,10 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-4 gap-4">
         {[
-          { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#609fda" },
-          { label: "TOTAL VIEWS", value: user?.views != null ? String(user.views) : "0", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>, color: "#609fda" },
-          { label: "USERNAME", value: user?.username || "—", icon: <span className="font-normal text-lg">@</span>, color: "#609fda" },
-          { label: "PLAN", value: "Free", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>, color: "#609fda" },
+          { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#5b6cf5" },
+          { label: "TOTAL VIEWS", value: user?.views != null ? String(user.views) : "0", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>, color: "#5b6cf5" },
+          { label: "USERNAME", value: user?.username || "—", icon: <span className="font-normal text-lg">@</span>, color: "#5b6cf5" },
+          { label: "PLAN", value: "Free", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>, color: "#5b6cf5" },
         ].map((stat) => (
           <div
             key={stat.label}

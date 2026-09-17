@@ -37,7 +37,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
   const data = [
     { name: 'iOS', value: stats.ios, color: '#f472b6' },
     { name: 'Android', value: stats.android, color: '#4ade80' },
-    { name: 'Windows', value: stats.windows, color: '#60a5fa' },
+    { name: 'Windows', value: stats.windows, color: '#5b6cf5' },
     { name: 'Mac', value: stats.mac, color: '#94a3b8' },
     { name: 'Other', value: stats.other, color: '#52525b' },
   ].filter(item => item.value > 0);
@@ -54,7 +54,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
       <div ref={containerRef} className="h-48 w-full relative mt-4">
         {!isMounted || dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-5 h-5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
           <PieChart width={dimensions.width} height={dimensions.height}>

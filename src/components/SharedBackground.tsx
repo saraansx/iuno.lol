@@ -6,7 +6,7 @@ const SharedBackground = () => {
   return (
     <div className="fixed inset-0 w-full h-full z-0 blur-[3px] pointer-events-none">
       <ColorBends
-        colors={["#609fda", "#000000", "#90afcc"]}
+        colors={["#5b6cf5", "#000000", "#8b93e8"]}
         rotation={90}
         speed={0.15}
         scale={1}

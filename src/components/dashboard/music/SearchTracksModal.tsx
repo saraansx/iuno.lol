@@ -210,10 +210,10 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
         type="button"
         onClick={submit}
         disabled={!audioFile || !coverFile || busy}
-        className="w-full h-10 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white text-[13px] font-normal transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full h-10 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {busy ? (
-          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+          <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin" />
         ) : (
           "Upload track"
         )}
@@ -655,7 +655,7 @@ export default function SearchTracksModal({
                   className="w-full bg-transparent text-[13px] text-white placeholder:text-white/25 focus:outline-none"
                 />
                 {loading && (
-                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0 ml-2" />
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin shrink-0 ml-2" />
                 )}
               </div>
 
@@ -679,7 +679,7 @@ export default function SearchTracksModal({
                           }}
                           className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors text-left cursor-pointer ${
                             isSelected
-                              ? "bg-[#609fda]/10 border border-[#609fda]/25"
+                              ? "bg-[#5b6cf5]/10 border border-[#5b6cf5]/25"
                               : "border border-transparent hover:bg-white/[0.05]"
                           }`}
                         >
@@ -716,12 +716,12 @@ export default function SearchTracksModal({
                           title={previewActive ? "Stop preview" : "Play preview"}
                           className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-all cursor-pointer ${
                             previewActive
-                              ? "bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
-                              : "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                              ? "bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+                              : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
                           }`}
                         >
                           {buffering ? (
-                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin shrink-0" />
+                            <span className="w-3.5 h-3.5 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin shrink-0" />
                           ) : playing ? (
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                               <rect x="6" y="5" width="4" height="14" rx="1" />
@@ -746,7 +746,7 @@ export default function SearchTracksModal({
                         >
                           {lyricsLoading ? (
                             <div className="flex items-center justify-center py-8">
-                              <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#609fda] animate-spin" />
+                              <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-[#5b6cf5] animate-spin" />
                             </div>
                           ) : lyricLines.length === 0 ? (
                             <p className="text-[13px] text-white/50 blur-[2.5px] opacity-70 select-none text-center py-8">
@@ -826,7 +826,7 @@ export default function SearchTracksModal({
                           setQuery("");
                           onClose();
                         }}
-                        className="w-full h-9 rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white text-[13px] font-normal transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] cursor-pointer"
+                        className="w-full h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                       >
                         Add track
                       </button>
@@ -840,7 +840,7 @@ export default function SearchTracksModal({
                       <span
                         key={i}
                         style={{ height: `${h * 100}%`, animationDelay: `${i * 120}ms` }}
-                        className={`w-1 rounded-full bg-[#609fda]/70 ${emptyActive ? "" : "opacity-40"}`}
+                        className={`w-1 rounded-full bg-[#5b6cf5]/70 ${emptyActive ? "" : "opacity-40"}`}
                       />
                     ))}
                   </div>

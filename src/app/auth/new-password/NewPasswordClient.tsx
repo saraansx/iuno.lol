@@ -21,7 +21,7 @@ export default function NewPasswordClient() {
         <div className="mt-8 text-center">
           <p className="text-xs text-white/40 font-light">
             Remember your password?{" "}
-            <Link href="/signin" className="text-[#609fda] hover:text-[#609fda]/80 transition-colors font-medium">
+            <Link href="/signin" className="text-[#5b6cf5] hover:text-[#5b6cf5]/80 transition-colors font-medium">
               Back to Sign In
             </Link>
           </p>

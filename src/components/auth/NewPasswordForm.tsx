@@ -98,7 +98,7 @@ const NewPasswordForm = () => {
 
         <Link 
           href="/signin" 
-          className="text-xs font-medium text-[#609fda] hover:text-[#609fda]/80 transition-all flex items-center gap-2 group"
+          className="text-xs font-medium text-[#5b6cf5] hover:text-[#5b6cf5]/80 transition-all flex items-center gap-2 group"
         >
           <svg className="group-hover:-translate-x-0.5 transition-transform" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="m15 18-6-6 6-6"/>
@@ -155,14 +155,14 @@ const NewPasswordForm = () => {
               if (isActive) {
                 if (strength === 1) bgColor = "bg-red-400/60";
                 else if (strength <= 3) bgColor = "bg-yellow-500/60";
-                else bgColor = "bg-[#609fda]/60";
+                else bgColor = "bg-[#5b6cf5]/60";
               }
 
               return (
                 <div 
                   key={level}
                   className={`flex-1 rounded-full transition-all duration-500 ${bgColor} ${
-                    isActive && strength === 4 ? "shadow-[0_0_8px_rgba(96,159,218,0.3)]" : ""
+                    isActive && strength === 4 ? "shadow-[0_0_8px_rgba(91,108,245,0.3)]" : ""
                   }`}
                 />
               );
@@ -171,7 +171,7 @@ const NewPasswordForm = () => {
           <p className={`text-[11px] font-semibold uppercase tracking-tight transition-all duration-300 ${strength > 0 ? "opacity-100" : "opacity-0"}`}>
             {strength === 1 && <span className="text-red-400/60">Weak</span>}
             {strength <= 3 && strength > 1 && <span className="text-yellow-500/60">Medium</span>}
-            {strength === 4 && <span className="text-[#609fda]">Strong</span>}
+            {strength === 4 && <span className="text-[#5b6cf5]">Strong</span>}
           </p>
         </div>
 
@@ -185,7 +185,7 @@ const NewPasswordForm = () => {
             <div key={i} className="flex items-center gap-2.5 group/req">
               <div className={`flex items-center justify-center w-4 h-4 rounded-full border transition-all duration-300 ${
                 req.met 
-                  ? "bg-[#609fda]/10 border-[#609fda]/40 text-[#609fda]" 
+                  ? "bg-[#5b6cf5]/10 border-[#5b6cf5]/40 text-[#5b6cf5]" 
                   : "bg-white/2 border-white/5 text-white/10"
               }`}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>

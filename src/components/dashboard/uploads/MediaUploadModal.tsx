@@ -313,7 +313,7 @@ export default function MediaUploadModal({
                 <button
                   onClick={handleApply}
                   disabled={!resolvedUrl || isLoading}
-                  className="h-10 w-full cursor-pointer rounded-xl bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(96,159,218,0.1)] disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
+                  className="h-10 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] disabled:cursor-not-allowed disabled:opacity-35 disabled:grayscale-[0.5]"
                 >
                   {isLoading
                     ? "Uploading..."

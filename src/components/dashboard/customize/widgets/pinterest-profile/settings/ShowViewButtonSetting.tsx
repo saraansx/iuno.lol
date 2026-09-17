@@ -27,7 +27,7 @@ export default function ShowViewButtonSetting({
         aria-checked={value}
         onClick={() => onChange(!value)}
         className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-          value ? "bg-[#609fda]" : "bg-white/10"
+          value ? "bg-[#5b6cf5]" : "bg-white/10"
         }`}
       >
         <span

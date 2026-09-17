@@ -67,7 +67,7 @@ export default async function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Section builder</BreadcrumbPage>
+              <BreadcrumbPage className="text-[#5b6cf5] font-normal tracking-tight">Section builder</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -105,7 +105,7 @@ export default async function Page() {
         {isSectioned ? (
           <>
             <div className="flex gap-3.5 bg-[#0c0c0c] border border-white/5 rounded-[16px] p-5">
-              <svg className="text-[#609fda] shrink-0 mt-px" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <svg className="text-[#5b6cf5] shrink-0 mt-px" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 16v-4" />
                 <path d="M12 8h.01" />
@@ -134,7 +134,7 @@ export default async function Page() {
               <button
                 type="button"
                 disabled
-                className="flex items-center gap-2 bg-[#609fda]/20 text-white/40 text-[13px] font-normal rounded-xl px-3.5 py-2 shrink-0 cursor-not-allowed"
+                className="flex items-center gap-2 bg-[#5b6cf5]/20 text-white/40 text-[13px] font-normal rounded-xl px-3.5 py-2 shrink-0 cursor-not-allowed"
               >
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
@@ -166,7 +166,7 @@ export default async function Page() {
 
             <Link
               href={LAYOUT_HREF}
-              className="mt-6 flex items-center gap-2 bg-[#609fda]/20 hover:bg-[#609fda]/30 text-[13px] text-white font-normal rounded-xl px-4 py-2.5 transition-colors"
+              className="mt-6 flex items-center gap-2 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-[13px] text-white font-normal rounded-xl px-4 py-2.5 transition-colors"
             >
               Go to layout settings
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

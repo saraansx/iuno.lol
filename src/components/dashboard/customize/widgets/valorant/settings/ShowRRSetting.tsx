@@ -24,7 +24,7 @@ export default function ShowRRSetting({ value, onChange, disabled = false }: Sho
         disabled={disabled}
         onClick={() => !disabled && onChange(!value)}
         className={`relative inline-flex h-5 w-9 shrink-0 ${disabled ? "cursor-not-allowed" : "cursor-pointer"} rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-          value && !disabled ? "bg-[#609fda]" : "bg-white/10"
+          value && !disabled ? "bg-[#5b6cf5]" : "bg-white/10"
         }`}
       >
         <span

@@ -64,7 +64,7 @@ export default function LinksSectionRow({
     <div
       onDragOver={onDragOverRow}
       onDrop={onDropRow}
-      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#609fda]/60" : "border-white/5"}`}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#5b6cf5]/60" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
@@ -83,7 +83,7 @@ export default function LinksSectionRow({
           </svg>
         </span>
 
-        <span className="text-[#609fda] shrink-0">
+        <span className="text-[#5b6cf5] shrink-0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
@@ -166,7 +166,7 @@ export default function LinksSectionRow({
               type="button"
               onClick={save}
               disabled={pending || !dirty}
-              className="bg-[#609fda]/20 hover:bg-[#609fda]/30 text-[13px] text-white font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-[13px] text-white font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {pending ? "Saving..." : "Save changes"}
             </button>

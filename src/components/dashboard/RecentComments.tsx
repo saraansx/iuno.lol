@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import Image from "next/image";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
 import { getDashboardComments, deleteComment, toggleLikeComment, togglePinComment } from "@/actions/comments";
 
 type CommentData = {
@@ -166,24 +167,29 @@ export default function RecentComments({
           <p className="text-white/40 text-[13px] mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>Comments left on your profile and comments you wrote.</p>
         </div>
         <div className="flex border border-white/5 rounded-full p-1 gap-1">
-          <button
-            onClick={() => setActiveTab("received")}
-            className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all cursor-pointer ${activeTab === "received"
-              ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
-              : "text-white/40 hover:text-white/60 hover:bg-white/5"
+          {([
+            { id: "received" as const, label: `Received ${receivedTotal}` },
+            { id: "given" as const, label: `Given ${givenTotal}` },
+          ]).map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all relative z-10 cursor-pointer ${
+                activeTab === tab.id
+                  ? "text-white"
+                  : "text-white/40 hover:text-white/60"
               }`}
-          >
-            Received {receivedTotal}
-          </button>
-          <button
-            onClick={() => setActiveTab("given")}
-            className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all cursor-pointer ${activeTab === "given"
-              ? "bg-[#609fda]/20 hover:bg-[#609fda]/30 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
-              : "text-white/40 hover:text-white/60 hover:bg-white/5"
-              }`}
-          >
-            Given {givenTotal}
-          </button>
+            >
+              {activeTab === tab.id && (
+                <motion.div
+                  layoutId="comments-tab-bubble"
+                  className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
+                  transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
@@ -283,7 +289,7 @@ export default function RecentComments({
             </svg>
           </button>
           <div className="flex items-center gap-2">
-            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />}
+            {isLoading && <div className="w-3.5 h-3.5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />}
             <span className="text-[13px] text-white/40 tabular-nums">Page {page}</span>
           </div>
           <button

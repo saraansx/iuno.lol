@@ -27,7 +27,7 @@ export default function NotFound() {
 
           <Link
             href="/dashboard"
-            className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-[#609fda]/20 px-5 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(96,159,218,0.1)] backdrop-blur-sm transition-all hover:bg-[#609fda]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#609fda]/40"
+            className="group mt-8 inline-flex items-center gap-2 rounded-xl bg-[#5b6cf5]/20 px-5 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] backdrop-blur-sm transition-all hover:bg-[#5b6cf5]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/40"
           >
             <svg
               width="14"

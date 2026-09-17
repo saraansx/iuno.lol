@@ -178,7 +178,7 @@ export default function EmbedContentSection({
       </div>
 
       <div className="flex gap-3 bg-[#161616] border border-white/5 rounded-xl p-3.5">
-        <svg className="text-[#609fda] shrink-0 mt-px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <svg className="text-[#5b6cf5] shrink-0 mt-px" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />
           <path d="M12 16v-4" />
           <path d="M12 8h.01" />

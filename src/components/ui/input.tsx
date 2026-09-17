@@ -27,7 +27,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         </div>
         <div className="relative group">
           {icon && (
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#609fda]/50 transition-colors pointer-events-none">
+            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-[#5b6cf5]/50 transition-colors pointer-events-none">
               {icon}
             </div>
           )}
@@ -37,7 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             value={value}
             onChange={onChange}
             maxLength={maxLength}
-            className={`w-full bg-[#121212] border rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 transition-all shadow-inner ${error ? "border-red-400/30 focus:border-red-400/50 focus:ring-red-400/10" : "border-white/5 focus:border-[#609fda]/30 focus:ring-[#609fda]/30"} ${isPassword ? "pr-11" : ""} ${icon ? "pl-11" : ""} ${className}`}
+            className={`w-full bg-[#121212] border rounded-xl px-4 py-3.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 transition-all shadow-inner ${error ? "border-red-400/30 focus:border-red-400/50 focus:ring-red-400/10" : "border-white/5 focus:border-[#5b6cf5]/30 focus:ring-[#5b6cf5]/30"} ${isPassword ? "pr-11" : ""} ${icon ? "pl-11" : ""} ${className}`}
             {...props}
           />
           {isPassword && (

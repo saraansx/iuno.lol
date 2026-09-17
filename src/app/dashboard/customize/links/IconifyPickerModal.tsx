@@ -161,7 +161,7 @@ export default function IconifyPickerModal({
 
               {loading ? (
                 <div className="flex items-center justify-center py-6">
-                  <div className="w-5 h-5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
                 </div>
               ) : error ? (
                 <p className="text-[12px] text-red-400/80 text-center py-4">{error}</p>
@@ -180,7 +180,7 @@ export default function IconifyPickerModal({
                           onClick={() => onSelect(svgUrl)}
                           className={`flex h-10 items-center justify-center rounded-xl border transition-all cursor-pointer ${
                             selected
-                              ? "bg-[#609fda]/20 border-[#609fda]/50 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                              ? "bg-[#5b6cf5]/20 border-[#5b6cf5]/50 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)]"
                               : "bg-white/[0.03] border-white/5 text-white/60 hover:text-white hover:border-white/15"
                           }`}
                         >
