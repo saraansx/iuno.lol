@@ -7,8 +7,6 @@ import { ICONIFY_API, brandColorFor, normalizeColorParam } from "@/lib/links";
 const ICON_NAME_RE = /^[a-z0-9]+[a-z0-9-]*:[a-z0-9][a-z0-9-:]*$/i;
 const MAX_SVG_BYTES = 100_000;
 
-// In-memory cache so repeat views (and React re-renders) don't refetch
-// upstream. CDN immutable headers shield origin beyond a single instance.
 const svgCache = new Map<string, { svg: string; at: number }>();
 const SVG_CACHE_TTL = 24 * 60 * 60 * 1000;
 const SVG_CACHE_MAX = 1000;
@@ -46,7 +44,6 @@ export async function GET(req: Request) {
     return new NextResponse("Invalid icon", { status: 400 });
   }
 
-  // Optional user tint (validated hex only) — overrides the brand color.
   const tint = normalizeColorParam(searchParams.get("color"));
   const cacheKey = tint ? `${name}|${tint}` : name;
 
@@ -77,9 +74,6 @@ export async function GET(req: Request) {
     return new NextResponse("Invalid icon", { status: 502 });
   }
 
-  // <img> has no inherited text color, so currentColor renders black.
-  // Recolor to the user tint, else the brand color (or white fallback).
-  // Explicit fills like multicolor logos are untouched.
   const svg = raw.replace(/currentColor/g, tint ? `#${tint}` : brandColorFor(name));
 
   cacheSet(cacheKey, svg);
@@ -92,8 +86,6 @@ function svgResponse(svg: string) {
       "Content-Type": "image/svg+xml",
       "Cache-Control": "public, max-age=31536000, immutable",
       "X-Content-Type-Options": "nosniff",
-      // SVGs render inside <img> (no scripts run), this only hardens
-      // direct navigation to the URL.
       "Content-Security-Policy": "default-src 'none'",
     },
   });

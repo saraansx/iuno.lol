@@ -516,8 +516,6 @@ const Layout1 = ({
 
   const [bgSoundOn, setBgSoundOn] = useState(false);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
-  // While the enter screen is showing, nothing behind it runs — video stays
-  // paused and sound only starts after tap-to-enter (user gesture).
   const [entered, setEntered] = useState(!enterScreenEnabled);
   const handleEntered = () => {
     setEntered(true);
@@ -711,7 +709,6 @@ const Layout1 = ({
  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
   const aboutVisible =
     aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets);
-  // Big links get their own screen in sectioned mode (above or below About).
   const linksAboveAbout = linksSectionPosition === "above";
   const linksScreenVisible = sectioned && linksSectionEnabled && bigLinks.length > 0;
   const linksScreenTitle = linksSectionTitle?.trim() || "Links";
@@ -950,14 +947,12 @@ useEffect(() => {
     fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
   };
 
-  // Small links live inside the card, centered above widgets.
   const smallLinksSection = smallLinks.length > 0 ? (
     <div className="w-full px-6 pt-2">
       <ProfileLinks links={smallLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} />
     </div>
   ) : null;
 
-  // Big links live outside the card container.
   const bigLinksSection = bigLinks.length > 0 ? (
     <div className="w-full mt-3">
       <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} />

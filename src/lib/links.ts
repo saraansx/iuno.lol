@@ -43,7 +43,6 @@ export type LinkIconKey = (typeof LINK_ICON_KEYS)[number];
 
 const LINK_ICON_SET = new Set<string>(LINK_ICON_KEYS);
 
-// Hosts we trust for user-supplied icon images (mirrors media URL policy).
 const CUSTOM_ICON_HOSTS = new Set([
   "files.catbox.moe",
   "cdn.discordapp.com",

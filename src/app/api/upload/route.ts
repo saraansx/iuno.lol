@@ -62,29 +62,24 @@ function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | n
 function getAudioExtension(buffer: Buffer): { ext: string; mime: string } | null {
   if (buffer.length < 12) return null;
 
-  // MP3: ID3 tag or frame sync
   if (buffer[0] === 0x49 && buffer[1] === 0x44 && buffer[2] === 0x33) {
     return { ext: "mp3", mime: "audio/mpeg" };
   }
   if (buffer[0] === 0xff && (buffer[1] & 0xe0) === 0xe0) {
     return { ext: "mp3", mime: "audio/mpeg" };
   }
-  // OGG
   if (buffer[0] === 0x4f && buffer[1] === 0x67 && buffer[2] === 0x67 && buffer[3] === 0x53) {
     return { ext: "ogg", mime: "audio/ogg" };
   }
-  // FLAC
   if (buffer[0] === 0x66 && buffer[1] === 0x4c && buffer[2] === 0x61 && buffer[3] === 0x43) {
     return { ext: "flac", mime: "audio/flac" };
   }
-  // WAV: RIFF....WAVE
   if (
     buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
     buffer[8] === 0x57 && buffer[9] === 0x41 && buffer[10] === 0x56 && buffer[11] === 0x45
   ) {
     return { ext: "wav", mime: "audio/wav" };
   }
-  // M4A: ftyp box
   const hasFtyp = (offset: number) =>
     buffer.length > offset + 3 &&
     buffer[offset] === 0x66 &&
@@ -181,8 +176,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
     }
 
-    // Verify the stored file serves bytes — Catbox sometimes stores 0-byte files.
-    // NOTE: plain GET always reports Content-Length: 0, so use a Range request.
     try {
       const check = await fetch(body, { headers: { Range: "bytes=0-0" } });
       const sample = check.ok || check.status === 206 ? await check.arrayBuffer().catch(() => null) : null;

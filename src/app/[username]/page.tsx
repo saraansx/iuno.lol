@@ -269,11 +269,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
-  // Buttons and links carry their own `cursor-pointer`, which beats a cursor
-  // inherited from an ancestor, so the rule in tailwind.css has to match
-  // descendants too. It reads the URL from this variable rather than injected
-  // CSS, so a stored value can never escape into a stylesheet. The trailing
-  // coordinates are the hotspot — see CURSOR_HOTSPOT.
   const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
   const cursorValue = cursorUrl
     ? `url(${JSON.stringify(cursorUrl)}) ${CURSOR_HOTSPOT} ${CURSOR_HOTSPOT}`

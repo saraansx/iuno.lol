@@ -233,7 +233,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
               });
 
               if (!res.ok) {
-                // First attempt often hits a transient reset to Catbox — retry once
                 if (attempt === 0 && (res.status === 502 || res.status === 500)) {
                   await res.body?.cancel().catch(() => {});
                   await new Promise((r) => setTimeout(r, 1500));

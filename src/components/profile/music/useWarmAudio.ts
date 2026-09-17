@@ -24,15 +24,12 @@ export function useWarmAudio(urls: Array<string | null | undefined>) {
               audio.removeAttribute("src");
               audio.load();
             } catch {
-              // ignore cleanup errors
             }
           });
         } catch {
-          // ignore per-url warmup errors
         }
       }
     } catch {
-      // ignore warmup errors
     }
     return () => {
       cleaners.forEach((fn) => fn());

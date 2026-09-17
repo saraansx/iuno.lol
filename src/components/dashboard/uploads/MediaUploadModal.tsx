@@ -93,7 +93,6 @@ export default function MediaUploadModal({
   const handleFileSelected = (file: File) => {
     if (!file) return;
 
-    // GIFs and videos skip the crop step (same as the avatar flow).
     if (!cropShape || file.type.startsWith("video") || file.type.includes("gif")) {
       processFile(file);
       return;

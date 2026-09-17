@@ -34,7 +34,6 @@ function Artwork({ src }: { src: string | null }) {
     );
   }
   return (
-    // ponytail: unoptimized next/image keeps remote art no-store; add remotePatterns only if caching wanted.
     <NextImage
       src={src}
       alt=""
@@ -258,13 +257,11 @@ export default function SearchTracksModal({
     setElapsed(0);
   };
 
-  // replay from start: reset scroll to top
   const endPreview = () => {
     stopPreview();
     lyricsScrollRef.current?.scrollTo({ top: 0 });
   };
 
-  // pause only: keep audio + position for resume
   const pausePreview = () => {
     audioRef.current?.pause();
     setPlayingId(null);
@@ -325,7 +322,6 @@ export default function SearchTracksModal({
           throw new Error(data?.error || "Search failed");
         }
         const items: SearchTrack[] = Array.isArray(data.results) ? data.results : [];
-        // preload all artwork in bg, then paint rows together
         await Promise.allSettled(
           items
             .map((t) => t.artwork)
@@ -344,7 +340,6 @@ export default function SearchTracksModal({
         if (ctrl.signal.aborted) return;
         setResults(items);
         setSearched(true);
-        // default-select first track so lyrics panel shows immediately
         setSelectedId((prev) =>
           prev && items.some((i) => i.id === prev) ? prev : (items[0]?.id ?? null),
         );
@@ -363,7 +358,6 @@ export default function SearchTracksModal({
 
   const selectedTrack = results.find((t) => t.id === selectedId) ?? results[0] ?? null;
 
-  // fetch lyrics for selected track
   useEffect(() => {
     if (!selectedTrack) {
       setLyricLines([]);
@@ -400,7 +394,6 @@ export default function SearchTracksModal({
 
   const togglePreview = (t: SearchTrack) => {
     if (!t.streamUrl) return;
-    // same song paused mid-way: resume from position
     if (
       audioRef.current &&
       audioTrackIdRef.current === t.id &&
@@ -412,12 +405,10 @@ export default function SearchTracksModal({
       audio.play().catch(() => setBufferingId(null));
       return;
     }
-    // playing or buffering: pause (keep position)
     if (playingId === t.id || bufferingId === t.id) {
       pausePreview();
       return;
     }
-    // new song or replay after end: start from 0
     stopPreview();
     lyricsScrollRef.current?.scrollTo({ top: 0 });
     const audio = new Audio(t.streamUrl);
@@ -446,8 +437,6 @@ export default function SearchTracksModal({
   const isPreviewingSelected =
     selectedTrack !== null &&
     (playingId === selectedTrack.id || bufferingId === selectedTrack.id);
-  // ♪ rows are part of the lyrics flow: intro, instrumental gaps, outro.
-  // Thresholds in ms, matched 1:1 between row insertion and active detection.
   const GAP_MS = 3000;
   const EDGE_MS = 300;
   const LINE_EARLY_MS = 0;
@@ -456,7 +445,6 @@ export default function SearchTracksModal({
     | { kind: "music"; key: string };
   const displayItems: DisplayItem[] = [];
   {
-    // every song gets intro + outro ♪ rows; gaps only where timing proves one
     if (lyricLines.length > 0) {
       displayItems.push({ kind: "music", key: "intro" });
     }
@@ -528,12 +516,10 @@ export default function SearchTracksModal({
     container.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
   }, [activeLineIdx, activeMusicKey]);
 
-  // reset scroll on track switch so new lyrics animate in from top
   useEffect(() => {
     lyricsScrollRef.current?.scrollTo({ top: 0 });
   }, [selectedId]);
 
-  // block manual scroll (wheel/touch) — auto-scroll only
   useEffect(() => {
     const el = lyricsScrollRef.current;
     if (!el) return;

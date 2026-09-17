@@ -29,9 +29,6 @@ export default function EmbedPreviewSection({
 }: EmbedPreviewSectionProps) {
   const name = (displayName?.trim() || username).slice(0, 32);
   const bg = embedBackgroundUrl || DEFAULT_BG;
-  // Once saved, ogImagePath points at the generated card (?v= hash of
-  // background + icon + name). Before save, the local mock below shows
-  // the pending uploads instantly.
   const savedAutoCard = ogImagePath;
 
   return (

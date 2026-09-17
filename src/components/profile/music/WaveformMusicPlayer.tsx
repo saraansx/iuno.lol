@@ -29,10 +29,8 @@ export function seedHeights(key: string, n: number): number[] {
   const p3 = rnd() * Math.PI * 2;
   const out: number[] = [];
   for (let i = 0; i < n; i++) {
-    // beating lows = irregular loud/quiet sections (no repeating humps)
     const env = 0.62 + 0.38 * Math.sin(i * 0.083 + p1) * Math.sin(i * 0.057 + p2);
     const det = 0.8 + 0.2 * Math.sin(i * 0.83 + p3);
-    // tapered song ends
     const edge = Math.min(1, i / 10, (n - 1 - i) / 10);
     const v = (58 * env * det + (rnd() * 12 - 6)) * (0.35 + 0.65 * Math.max(0, edge));
     out.push(Math.min(96, Math.max(8, Math.round(v))));
@@ -54,8 +52,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
 
-  // Buffer tracks in the background while the page loads so the first
-  // click plays instantly (no autoplay — just bytes in cache).
   useWarmAudio(tracks.map((t) => (isCatboxUrl(t.streamUrl) ? t.streamUrl : null)));
 
   const randomDifferent = useCallback(
@@ -82,7 +78,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   const track = tracks[Math.min(index, tracks.length - 1)] ?? null;
   const heights = useMemo(() => seedHeights(track?.id ?? "x", BAR_COUNT), [track?.id]);
 
-  // stop audio on unmount only (plain <Audio>, no Web Audio routing — see CompactMusicPlayer)
   useEffect(() => () => {
     audioRef.current?.pause();
     audioRef.current = null;
@@ -97,7 +92,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
-    // Main page plays ONLY from saved (Catbox) files — no upstream fallback.
     const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
     if (!url) {
       setLoading(false);
@@ -119,10 +113,8 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
       setPlaying(false);
     };
     const onEnded = () => {
-      // loop: single track repeats, playlist wraps (or shuffles) after last
       const next = shuffle ? randomDifferent(target) : target < tracks.length - 1 ? target + 1 : 0;
       if (next === target) {
-        // same index — setIndex would bail out, so restart the same element
         try { audio.currentTime = 0; } catch {}
         setElapsed(0);
         setLoading(true);
@@ -159,8 +151,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     [playAt, index],
   );
 
-  // continue into the next track after auto-advance (deferred so the
-  // effect body itself never sets state synchronously)
   useEffect(() => {
     if (!autoNextRef.current) return;
     autoNextRef.current = false;
@@ -170,7 +160,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     return () => window.clearTimeout(t);
   }, [index, ensureAndPlay]);
 
-  // autoplay: try immediately; if the browser blocks it, retry on first gesture
   const autoTriedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoPlay) return;
@@ -186,7 +175,6 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
         retry = null;
       }
     };
-    // deferred so the effect body itself never sets state synchronously
     const t = window.setTimeout(() => {
       ensureAndPlay()?.catch(() => {
         if (retry) return;
@@ -213,10 +201,8 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
   };
 
   const step = (dir: 1 | -1) => {
-    // wrap around both ends so prev/next never grey out (random when shuffled)
     const next = shuffle ? randomDifferent(index) : (index + dir + tracks.length) % tracks.length;
     if (next === index) {
-      // same song: restart from the start
       const existing = audioRef.current;
       if (existing) {
         try { existing.currentTime = 0; } catch {}

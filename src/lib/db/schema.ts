@@ -69,8 +69,6 @@ export const userSettings = mysqlTable('user_settings', {
   cursorTrailColor: text('cursor_trail_color'),
   entryTransition: text('entry_transition'),
   enterScreenEnabled: boolean('enter_screen_enabled').default(false),
-  // TEXT to stay under MySQL's 8126-byte row-size limit (stored off-page, no default allowed).
-  // Default 'click to enter' is applied in code (Layout1, EffectsProfileClient, actions/profile).
   enterScreenText: text('enter_screen_text'),
   enterScreenFont: text('enter_screen_font'),
   enterScreenFontSize: int('enter_screen_font_size').default(14),
@@ -111,7 +109,6 @@ export const userSettings = mysqlTable('user_settings', {
   sectionDescFontWeight: int('section_desc_font_weight').default(400),
   sectionDescLetterSpacing: float('section_desc_letter_spacing').default(0),
   sectionTitleColor: text('section_title_color'),
-  // TEXT to stay under MySQL's 8126-byte row-size limit (stored off-page, no default allowed)
   sectionDescColor: text('section_desc_color'),
   musicPrimaryFont: text('music_primary_font'),
   musicPrimaryFontSize: int('music_primary_font_size').default(15),
@@ -205,7 +202,6 @@ export const userSettings = mysqlTable('user_settings', {
   showViewsTooltip: boolean('show_views_tooltip').default(true),
   showLinksTooltip: boolean('show_links_tooltip').default(true),
   linksSectionEnabled: boolean('links_section_enabled').default(true),
-  // TEXT to stay under MySQL's 8126-byte row-size limit (stored off-page, no default allowed)
   linksSectionTitle: text('links_section_title'),
   linksSectionDescription: text('links_section_description'),
   linksSectionPosition: mysqlEnum('links_section_position', ['above', 'below']).default('below'),

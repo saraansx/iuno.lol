@@ -27,8 +27,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
 
-  // Buffer tracks in the background while the page loads so the first
-  // click plays instantly (no autoplay — just bytes in cache).
   useWarmAudio(tracks.map((t) => (isCatboxUrl(t.streamUrl) ? t.streamUrl : null)));
 
   const randomDifferent = useCallback(
@@ -54,10 +52,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
 
   const track = tracks[Math.min(index, tracks.length - 1)] ?? null;
 
-  // stop audio on unmount only
-  // NOTE: no Web Audio routing on purpose — routing the element through an
-  // AudioContext that starts suspended (autoplay, no gesture yet) swallows
-  // all sound while time keeps advancing. Plain <Audio> always sounds.
   useEffect(() => () => {
     if (levelTimerRef.current !== null) window.clearInterval(levelTimerRef.current);
     audioRef.current?.pause();
@@ -68,8 +62,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
 
   const startLevels = () => {
     if (levelTimerRef.current !== null) return;
-    // staggered bounce: phases 120° apart so bars stay varied
-    // (one small, one big, one small) while playing
     const phases = [0, 2.1, 4.2];
     const speeds = [1.1, 1.45, 0.85];
     levelTimerRef.current = window.setInterval(() => {
@@ -106,7 +98,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
-    // Main page plays ONLY from saved (Catbox) files — no upstream fallback.
     const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
     if (!url) {
       setLoading(false);
@@ -131,10 +122,8 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     };
     const onEnded = () => {
       stopLevels();
-      // loop: single track repeats, playlist wraps (or shuffles) after last
       const next = shuffle ? randomDifferent(target) : target < tracks.length - 1 ? target + 1 : 0;
       if (next === target) {
-        // same index — setIndex would bail out, so restart the same element
         try { audio.currentTime = 0; } catch {}
         setElapsed(0);
         setLoading(true);
@@ -172,8 +161,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     [playAt, index],
   );
 
-  // continue into the next track after auto-advance (deferred so the
-  // effect body itself never sets state synchronously)
   useEffect(() => {
     if (!autoNextRef.current) return;
     autoNextRef.current = false;
@@ -183,7 +170,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     return () => window.clearTimeout(t);
   }, [index, ensureAndPlay]);
 
-  // autoplay: try immediately; if the browser blocks it, retry on first gesture
   const autoTriedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoPlay) return;
@@ -199,7 +185,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
         retry = null;
       }
     };
-    // deferred so the effect body itself never sets state synchronously
     const t = window.setTimeout(() => {
       ensureAndPlay()?.catch(() => {
         if (retry) return;
@@ -226,10 +211,8 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   };
 
   const step = (dir: 1 | -1) => {
-    // wrap around both ends so prev/next never grey out (random when shuffled)
     const next = shuffle ? randomDifferent(index) : (index + dir + tracks.length) % tracks.length;
     if (next === index) {
-      // same song: restart from the start
       const existing = audioRef.current;
       if (existing) {
         try { existing.currentTime = 0; } catch {}

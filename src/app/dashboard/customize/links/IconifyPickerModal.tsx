@@ -68,8 +68,6 @@ export default function IconifyPickerModal({
   const [batchSvgs, setBatchSvgs] = useState<Record<string, string>>({});
   const batchPrevRef = useRef<Record<string, string>>({});
 
-  // Batch-load grid SVGs (one upstream call per icon set) and render via
-  // blob URLs — avoids the request burst that gets throttled upstream.
   useEffect(() => {
     let cancelled = false;
     Object.values(batchPrevRef.current).forEach((u) => URL.revokeObjectURL(u));
@@ -97,7 +95,6 @@ export default function IconifyPickerModal({
         batchPrevRef.current = map;
         setBatchSvgs(map);
       } catch {
-        // Grid cells keep their skeleton placeholders.
       }
     })();
     return () => {

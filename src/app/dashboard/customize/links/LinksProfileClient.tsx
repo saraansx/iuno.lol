@@ -793,7 +793,6 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
           }
         }}
         onRevert={() => {
-          // Best-effort cleanup of icons uploaded this session but reverted.
           const initialUrls = new Set(initialLinks.map((l) => l.icon));
           const added = [
             ...new Set(

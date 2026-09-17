@@ -5,8 +5,6 @@ import { SignJWT, jwtVerify } from 'jose'
 const ADMIN_COOKIE = 'admin_session_v3'
 const GATE_ENABLED = process.env.COMING_SOON_MODE !== 'false'
 
-// Single-segment app routes. Anything else with one segment is a profile, which
-// stays public while the gate is up so shared links unfurl.
 const RESERVED_PATHS = new Set([
   '/',
   '/api',

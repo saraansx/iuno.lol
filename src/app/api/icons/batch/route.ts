@@ -17,9 +17,6 @@ function toSvg(
     typeof v === "number" && Number.isFinite(v) && v > 0 ? v : fallback;
   const w = num(icon.width, num(collection.width, 24));
   const h = num(icon.height, num(collection.height, 24));
-  // <img> has no inherited text color, so currentColor renders black.
-  // Recolor to the brand color (or white fallback). Explicit fills like
-  // multicolor logos are untouched.
   const body = icon.body.replace(/currentColor/g, brandColorFor(fullName));
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 ${w} ${h}">${body}</svg>`;
   if (svg.length > 100_000) return null;

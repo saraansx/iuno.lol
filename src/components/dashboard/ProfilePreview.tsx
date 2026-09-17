@@ -220,8 +220,6 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
     return () => ro.disconnect();
   }, []);
 
-  // Fit the profile card inside the panel (phone-like) instead of letting
-  // its 480px floor overflow and clip on both sides.
   const forceCardWidth = scrollerW > 0 ? Math.max(260, Math.floor(scrollerW - 24)) : undefined;
 
   return (

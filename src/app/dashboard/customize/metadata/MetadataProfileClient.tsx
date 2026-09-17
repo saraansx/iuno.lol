@@ -58,7 +58,6 @@ export default function MetadataProfileClient({
   const [tabTitle, setTabTitle] = useState(initialTabTitle);
   const [tabTitleAnimated, setTabTitleAnimated] = useState(initialTabTitleAnimated);
 
-  // Blob previews only become real URLs on save, so the raw files wait here.
   const [pendingFavicon, setPendingFavicon] = useState<File | null>(null);
   const [pendingCursor, setPendingCursor] = useState<File | null>(null);
   const [pendingEmbedBackground, setPendingEmbedBackground] = useState<File | null>(null);

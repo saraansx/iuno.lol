@@ -877,7 +877,6 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  // No per-type limits — any mix allowed, only the total cap applies.
   if ((data.widgets || []).length > MAX_WIDGETS) {
     throw new Error(`You can only add a maximum of ${MAX_WIDGETS} widgets.`);
   }
@@ -1381,9 +1380,6 @@ export async function updateMusicProfile(data: {
     throw new Error("You can only add a maximum of 2 tracks.");
   }
 
-  // Re-resolve every track server-side and pin its media to Catbox, so the
-  // profile page plays from saved files instead of the upstream API.
-  // Tracks that are already cached (Catbox URLs) are reused as-is.
   const prevTracks = Array.isArray(user?.musicTracks) ? user.musicTracks : [];
   const sanitizedTracks = await Promise.all(
     (data.tracks || []).slice(0, 2).map(async (t) => {
@@ -1402,7 +1398,6 @@ export async function updateMusicProfile(data: {
           ? Math.round(t.duration)
           : null;
 
-      // User-uploaded track: audio + artwork are already on Catbox.
       if (id.startsWith("custom-")) {
         if (!isCatboxUrl(t.streamUrl)) {
           throw new Error(`Could not save "${title}" — audio upload missing.`);
@@ -1432,7 +1427,6 @@ export async function updateMusicProfile(data: {
         };
       }
 
-      // Already cached (e.g. re-save without changes)? Reuse saved media.
       const prev = prevTracks.find((p) => p.id === id);
       if (prev && isCatboxUrl(t.streamUrl) && prev.streamUrl === t.streamUrl) {
         return {
@@ -1452,7 +1446,6 @@ export async function updateMusicProfile(data: {
         cacheTrackArtwork(typeof t.artwork === "string" ? t.artwork.slice(0, 500) : null),
         fetchTrackLyrics({ id, title, artist, duration }),
       ]);
-      // No upstream fallback: a track without a Catbox file can't play on the main page.
       const streamUrl = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cachedAudio;
       if (!streamUrl) {
         throw new Error(`Could not save "${title}" — audio upload failed. Try again.`);
@@ -1461,7 +1454,6 @@ export async function updateMusicProfile(data: {
     }),
   );
 
-  // Background video sound and the music player can't play at once.
   if (sanitizedTracks.length > 0 && user.bannerBackgroundSound) {
     throw new Error("Turn off background sound to use the music player.");
   }
@@ -1484,7 +1476,6 @@ export async function updateMusicProfile(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  // Delete orphaned Catbox files from tracks that were removed/replaced.
   const kept = new Set(sanitizedTracks.flatMap((t) => [t.streamUrl, t.artwork]));
   const orphaned = prevTracks.flatMap((p) => [p.streamUrl, p.artwork]).filter((u) => u && !kept.has(u));
   if (orphaned.length > 0) await deleteCatboxFiles(orphaned);
@@ -1567,7 +1558,6 @@ export async function saveProfileLinks(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  // Delete orphaned Catbox icon files from links that were removed/replaced.
   const prevLinks = Array.isArray(user?.links) ? user.links : [];
   const keptIcons = new Set((sanitizedLinks as ProfileLink[]).map((l) => l.icon));
   const orphanedIcons = prevLinks

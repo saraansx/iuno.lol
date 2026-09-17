@@ -50,7 +50,6 @@ export default function AddWidgetModal({
   linkedDiscordId,
   linkedDiscordUsername,
 }: AddWidgetModalProps) {
-  // Any type can be added any number of times — only the total cap (4) applies.
 
   const [platformChoice, setPlatformChoice] = useState<string | null>(null);
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);

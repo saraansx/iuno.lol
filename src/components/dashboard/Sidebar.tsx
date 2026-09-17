@@ -62,7 +62,6 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
   useEffect(() => {
     if (!isDragging) return;
     const handleMouseMove = (e: MouseEvent) => {
-      // Sidebar sits at the viewport's left edge, so width == cursor x.
       setWidth(Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, e.clientX)));
     };
     const handleMouseUp = () => {

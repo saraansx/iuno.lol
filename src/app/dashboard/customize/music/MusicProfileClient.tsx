@@ -64,9 +64,6 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
     });
   };
 
-  // streamUrl/artwork/lyrics are server-cached to Catbox on save — compare
-  // user-meaningful fields only, otherwise saved state never equals local
-  // state and SaveBar stays stuck.
   const normTrack = (t: Track) => ({
     id: t.id,
     title: t.title,
@@ -203,7 +200,6 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
 
                     <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                       {track.artwork ? (
-                        // ponytail: unoptimized next/image keeps remote art no-store; add remotePatterns only if caching wanted.
                         <NextImage src={track.artwork} alt="" width={36} height={36} unoptimized draggable={false} className="w-full h-full object-cover" />
                       ) : (
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/50">
@@ -275,8 +271,6 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         onSave={async () => {
           try {
             const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl, shuffle });
-            // Sync local state with server-cached (Catbox) tracks so the
-            // SaveBar clears immediately.
             if (res?.tracks) setTracks(res.tracks.map(toTrack));
             toast.success("Profile Saved Sucessfully");
             router.refresh();

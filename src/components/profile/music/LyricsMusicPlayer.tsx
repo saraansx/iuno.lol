@@ -26,8 +26,6 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
 
-  // Buffer tracks in the background while the page loads so the first
-  // click plays instantly (no autoplay — just bytes in cache).
   useWarmAudio(tracks.map((t) => (isCatboxUrl(t.streamUrl) ? t.streamUrl : null)));
 
   const randomDifferent = useCallback(
@@ -53,11 +51,32 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
 
   const track = tracks[Math.min(index, tracks.length - 1)] ?? null;
 
-  // stop audio on unmount only (plain <Audio>, no Web Audio routing — see CompactMusicPlayer)
+  const rafRef = useRef<number | null>(null);
+  const stopRaf = useCallback(() => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
+  const startRaf = useCallback(() => {
+    stopRaf();
+    const tick = () => {
+      const a = audioRef.current;
+      if (!a) {
+        rafRef.current = null;
+        return;
+      }
+      if (!a.paused) setElapsed(a.currentTime);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  }, [stopRaf]);
+
   useEffect(() => () => {
+    stopRaf();
     audioRef.current?.pause();
     audioRef.current = null;
-  }, []);
+  }, [stopRaf]);
 
   const playAt = useCallback((target: number): Promise<void> | undefined => {
     const existing = audioRef.current;
@@ -68,7 +87,6 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
-    // Main page plays ONLY from saved (Catbox) files — no upstream fallback.
     const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
     if (!url) {
       setLoading(false);
@@ -85,15 +103,15 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     const onPlaying = () => {
       setLoading(false);
       setPlaying(true);
+      startRaf();
     };
     const onPause = () => {
+      stopRaf();
       setPlaying(false);
     };
     const onEnded = () => {
-      // loop: single track repeats, playlist wraps (or shuffles) after last
       const next = shuffle ? randomDifferent(target) : target < tracks.length - 1 ? target + 1 : 0;
       if (next === target) {
-        // same index — setIndex would bail out, so restart the same element
         try { audio.currentTime = 0; } catch {}
         setElapsed(0);
         setLoading(true);
@@ -112,6 +130,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
       }
     };
     const onError = () => {
+      stopRaf();
       audioRef.current = null;
       setLoading(false);
       setPlaying(false);
@@ -123,15 +142,13 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
     return audio.play().catch(() => { onError(); });
-  }, [tracks, applyVolume, shuffle, randomDifferent]);
+  }, [tracks, applyVolume, shuffle, randomDifferent, startRaf, stopRaf]);
 
   const ensureAndPlay = useCallback(
     (): Promise<void> | undefined => playAt(index),
     [playAt, index],
   );
 
-  // continue into the next track after auto-advance (deferred so the
-  // effect body itself never sets state synchronously)
   useEffect(() => {
     if (!autoNextRef.current) return;
     autoNextRef.current = false;
@@ -141,7 +158,6 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     return () => window.clearTimeout(t);
   }, [index, ensureAndPlay]);
 
-  // autoplay: try immediately; if the browser blocks it, retry on first gesture
   const autoTriedRef = useRef<string | null>(null);
   useEffect(() => {
     if (!autoPlay) return;
@@ -157,7 +173,6 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
         retry = null;
       }
     };
-    // deferred so the effect body itself never sets state synchronously
     const t = window.setTimeout(() => {
       ensureAndPlay()?.catch(() => {
         if (retry) return;
@@ -184,10 +199,8 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
   };
 
   const step = (dir: 1 | -1) => {
-    // wrap around both ends so prev/next never grey out (random when shuffled)
     const next = shuffle ? randomDifferent(index) : (index + dir + tracks.length) % tracks.length;
     if (next === index) {
-      // same song: restart from the start
       const existing = audioRef.current;
       if (existing) {
         try { existing.currentTime = 0; } catch {}
@@ -214,7 +227,8 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
 
   const progress = duration > 0 ? Math.min(100, (elapsed / duration) * 100) : 0;
 
-  // synced lyrics (start/end are in ms) — active line follows playback
+  const GAP_MS = 3000;
+  const EDGE_MS = 300;
   const lines = track?.lyrics ?? [];
   const ms = elapsed * 1000;
   const activeIdx = lines.findIndex((l, i) => {
@@ -222,17 +236,67 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     return ms >= l.start && (next ? ms < next.start : ms <= l.end + 4000);
   });
 
+  type DisplayItem =
+    | { kind: "line"; line: { text: string; start: number; end: number }; idx: number }
+    | { kind: "music"; key: string };
+  const displayItems: DisplayItem[] = [];
+  if (lines.length > 0) {
+    displayItems.push({ kind: "music", key: "intro" });
+  }
+  lines.forEach((l, i) => {
+    displayItems.push({ kind: "line", line: l, idx: i });
+    const next = lines[i + 1];
+    if (next && next.start - l.end > GAP_MS) {
+      displayItems.push({ kind: "music", key: `gap-${i}` });
+    }
+  });
+  if (lines.length > 0) {
+    displayItems.push({ kind: "music", key: "outro" });
+  }
+
+  const activeMusicKey: string | null =
+    playing && lines.length > 0
+      ? (() => {
+          const first = lines[0];
+          if (ms < first.start) return "intro";
+          for (let i = 0; i < lines.length - 1; i++) {
+            const l = lines[i];
+            const next = lines[i + 1];
+            if (
+              next.start - l.end > GAP_MS &&
+              ms > l.end + EDGE_MS &&
+              ms < next.start
+            ) {
+              return `gap-${i}`;
+            }
+          }
+          const last = lines[lines.length - 1];
+          if (ms > last.end + EDGE_MS) {
+            return "outro";
+          }
+          return null;
+        })()
+      : null;
+
+  const scrollKey = activeMusicKey
+    ? `key:${activeMusicKey}`
+    : activeIdx >= 0
+      ? `idx:${activeIdx}`
+      : null;
+
   useEffect(() => {
-    if (activeIdx < 0) return;
-    // scroll ONLY inside the lyrics box — never the page/card header
+    if (!scrollKey) return;
     const box = lyricsRef.current;
-    const el = box?.querySelector<HTMLElement>(`[data-idx="${activeIdx}"]`);
+    const [kind, val] = scrollKey.split(":");
+    const el = box?.querySelector<HTMLElement>(
+      kind === "key" ? `[data-key="${val}"]` : `[data-idx="${val}"]`
+    );
     if (!box || !el) return;
     box.scrollTo({
       top: el.offsetTop - box.clientHeight / 2 + el.clientHeight / 2,
       behavior: "smooth",
     });
-  }, [activeIdx, index]);
+  }, [scrollKey, index]);
 
   if (!track) return null;
 
@@ -345,22 +409,39 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
 
       <div ref={lyricsRef} className="relative px-4 pt-2 pb-4 max-h-[112px] overflow-hidden flex flex-col gap-1.5">
         {lines.length === 0 ? (
-          <p className="text-[13px] text-white/30 py-3 text-center">No lyrics found</p>
+          <p className="text-[15px] text-white/50 blur-[1.5px] opacity-70 select-none text-center py-3" aria-hidden="true">
+            ♪
+          </p>
         ) : (
-          lines.map((l, i) => (
-            <p
-              key={i}
-              data-idx={i}
-              style={{ ...lyricStyle, color: lyricColor }}
-              className={`leading-snug transition-all duration-300 ${
-                i === activeIdx
-                  ? "font-semibold blur-0 opacity-100"
-                  : "font-normal blur-[1.5px] opacity-40"
-              }`}
-            >
-              {l.text}
-            </p>
-          ))
+          displayItems.map((item) =>
+            item.kind === "music" ? (
+              <p
+                key={item.key}
+                data-key={item.key}
+                style={{ ...lyricStyle, color: lyricColor }}
+                className={`leading-snug transition-all duration-300 ${
+                  item.key === activeMusicKey
+                    ? "font-semibold blur-0 opacity-100"
+                    : "font-normal blur-[1.5px] opacity-40"
+                }`}
+              >
+                ♪
+              </p>
+            ) : (
+              <p
+                key={`line-${item.idx}`}
+                data-idx={item.idx}
+                style={{ ...lyricStyle, color: lyricColor }}
+                className={`leading-snug transition-all duration-300 ${
+                  item.idx === activeIdx && !activeMusicKey
+                    ? "font-semibold blur-0 opacity-100"
+                    : "font-normal blur-[1.5px] opacity-40"
+                }`}
+              >
+                {item.line.text}
+              </p>
+            )
+          )
         )}
       </div>
     </div>

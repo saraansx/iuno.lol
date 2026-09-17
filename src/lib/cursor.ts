@@ -1,4 +1,3 @@
-// Matches the OS default cursor size.
 export const CURSOR_PX = 32;
 
 /**
