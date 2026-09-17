@@ -1,19 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import SaveBar from "@/components/dashboard/SaveBar";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import LinkIcon from "@/components/links/LinkIcon";
+import IconifyPickerModal from "./IconifyPickerModal";
 import {
-  CURATED_ICONIFY_ICONS,
   DEFAULT_LINK_COLOR,
   ICONIFY_API,
-  ICON_COLOR_VERSION,
   MAX_LINKS,
   iconifyNameFromUrl,
-  iconifySvgUrl,
   normalizeLinkUrl,
   sanitizeProfileLink,
   type LinkVariant,
@@ -82,18 +80,19 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
   const [iconSource, setIconSource] = useState<"custom" | "iconify">(
     !initial ? "iconify" : initial.icon.startsWith(`${ICONIFY_API}/`) ? "iconify" : "custom"
   );
-  const [iconifyQuery, setIconifyQuery] = useState("");
-  const [iconifyResults, setIconifyResults] = useState<string[]>([]);
-  const [iconifyLoading, setIconifyLoading] = useState(false);
-  const [iconifyError, setIconifyError] = useState<string | null>(null);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
   const [title, setTitle] = useState(initial?.title ?? "");
   const [url, setUrl] = useState(initial?.url ?? "");
-  const [color, setColor] = useState(initial?.color ?? DEFAULT_LINK_COLOR);
+  const [color, setColor] = useState<string | null>(initial?.color ?? null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const openPicker = () => {
+    setPickerOpen(true);
+  };
 
   const revokePreview = () => {
     setPendingPreview((prev) => {
@@ -102,101 +101,20 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
     });
   };
 
-  useEffect(() => {
-    const q = iconifyQuery.trim();
-    if (!q) {
-      setIconifyResults([]);
-      setIconifyError(null);
-      setIconifyLoading(false);
-      return;
-    }
-    setIconifyLoading(true);
-    const t = setTimeout(async () => {
-      try {
-        const res = await fetch(
-          `/api/icons/search?query=${encodeURIComponent(q)}&limit=48`
-        );
-        if (!res.ok) throw new Error("search failed");
-        const data = await res.json();
-        setIconifyResults(Array.isArray(data.icons) ? data.icons.slice(0, 48) : []);
-        setIconifyError(null);
-      } catch {
-        setIconifyError("Couldn't search icons. Try again.");
-        setIconifyResults([]);
-      } finally {
-        setIconifyLoading(false);
-      }
-    }, 400);
-    return () => clearTimeout(t);
-  }, [iconifyQuery]);
-
-  const displayNames = useMemo(
-    () => (iconifyQuery.trim() ? iconifyResults : CURATED_ICONIFY_ICONS),
-    [iconifyQuery, iconifyResults]
-  );
-  const [batchSvgs, setBatchSvgs] = useState<Record<string, string>>({});
-  const batchPrevRef = useRef<Record<string, string>>({});
-
-  // Batch-load grid SVGs (one upstream call per icon set) and render via
-  // blob URLs — avoids the request burst that gets throttled upstream.
-  useEffect(() => {
-    let cancelled = false;
-    Object.values(batchPrevRef.current).forEach((u) => URL.revokeObjectURL(u));
-    batchPrevRef.current = {};
-    setBatchSvgs({});
-    if (displayNames.length === 0) return;
-    (async () => {
-      try {
-        const res = await fetch(
-          `/api/icons/batch?icons=${encodeURIComponent(displayNames.join(","))}&v=${ICON_COLOR_VERSION}`
-        );
-        if (!res.ok) return;
-        const data = await res.json();
-        if (cancelled || !data || typeof data.icons !== "object") return;
-        const map: Record<string, string> = {};
-        for (const [iconName, svg] of Object.entries(data.icons)) {
-          if (typeof svg === "string" && svg.includes("<svg")) {
-            map[iconName] = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
-          }
-        }
-        if (cancelled) {
-          Object.values(map).forEach((u) => URL.revokeObjectURL(u));
-          return;
-        }
-        batchPrevRef.current = map;
-        setBatchSvgs(map);
-      } catch {
-        // Grid cells keep their skeleton placeholders.
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [displayNames]);
-
-  useEffect(
-    () => () => {
-      Object.values(batchPrevRef.current).forEach((u) => URL.revokeObjectURL(u));
-    },
-    []
-  );
-
   const reset = () => {
     setVariant(initial?.variant ?? "small");
     setIcon(initial?.icon ?? "");
     setIconSource(
       !initial ? "iconify" : initial.icon.startsWith(`${ICONIFY_API}/`) ? "iconify" : "custom"
     );
-    setIconifyQuery("");
-    setIconifyResults([]);
-    setIconifyError(null);
     setPendingFile(null);
     revokePreview();
     setTitle(initial?.title ?? "");
     setUrl(initial?.url ?? "");
-    setColor(initial?.color ?? DEFAULT_LINK_COLOR);
+    setColor(initial?.color ?? null);
     setError(null);
     setSaving(false);
+    setPickerOpen(false);
   };
 
   const handleFilePick = (file: File | undefined) => {
@@ -259,13 +177,14 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
       url: cleanUrl,
       icon: finalIcon,
       variant,
-      color: /^#[0-9a-f]{6}$/i.test(color.trim()) ? color.trim().toLowerCase() : DEFAULT_LINK_COLOR,
+      color: color && /^#[0-9a-f]{6}$/i.test(color.trim()) ? color.trim().toLowerCase() : null,
     });
     reset();
     onClose();
   };
 
   return (
+    <>
     <AnimatePresence>
       {open && (
         <>
@@ -417,70 +336,50 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                   </button>
                 )}
                   </>
-                ) : (
-                  <>
-                    <div className="relative">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 pointer-events-none">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                      <input
-                        type="text"
-                        value={iconifyQuery}
-                        onChange={(e) => setIconifyQuery(e.target.value)}
-                        placeholder="Search 200,000+ icons…"
-                        className="bg-[#161616] border border-white/5 rounded-xl h-10 pl-10 pr-3.5 text-[13px] text-white placeholder:text-white/20 focus:outline-none focus:border-white/15 transition-colors w-full"
-                      />
+                ) : icon && iconifyNameFromUrl(icon) ? (
+                  <div className="flex items-center gap-3 rounded-2xl border border-white/5 bg-[#141414]/70 p-3">
+                    <div className="w-11 h-11 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center shrink-0 text-white/85 overflow-hidden">
+                      <LinkIcon icon={icon} size={22} color={color} />
                     </div>
-                    {iconifyLoading ? (
-                      <div className="flex items-center justify-center py-6">
-                        <div className="w-5 h-5 border-2 border-white/10 border-t-[#609fda] rounded-full animate-spin" />
-                      </div>
-                    ) : iconifyError ? (
-                      <p className="text-[12px] text-red-400/80 text-center py-4">{iconifyError}</p>
-                    ) : (
-                      <>
-                        <div className="grid grid-cols-8 gap-1.5 max-h-44 overflow-y-auto custom-scrollbar pr-0.5">
-                          {displayNames.map((name) => {
-                            const svgUrl = iconifySvgUrl(name);
-                            const selected = icon === svgUrl;
-                            const blobSrc = batchSvgs[name];
-                            return (
-                              <button
-                                key={name}
-                                type="button"
-                                title={name}
-                                onClick={() => {
-                                  setIcon(svgUrl);
-                                  setError(null);
-                                }}
-                                className={`flex h-10 items-center justify-center rounded-xl border transition-all cursor-pointer ${
-                                  selected
-                                    ? "bg-[#609fda]/20 border-[#609fda]/50 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
-                                    : "bg-white/[0.03] border-white/5 text-white/60 hover:text-white hover:border-white/15"
-                                }`}
-                              >
-                                {blobSrc ? (
-                                  /* eslint-disable-next-line @next/next/no-img-element */
-                                  <img src={blobSrc} alt={name} width={18} height={18} draggable={false} className="w-[18px] h-[18px]" />
-                                ) : (
-                                  <span className="w-[18px] h-[18px] rounded-full bg-white/10 animate-pulse" />
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {iconifyQuery.trim() !== "" && iconifyResults.length === 0 && (
-                          <p className="text-[12px] text-white/30 text-center">No icons found.</p>
-                        )}
-                      </>
-                    )}
-                    {iconifyNameFromUrl(icon) && (
-                      <p className="text-[11.5px] text-white/40 px-1">
-                        Selected: <span className="text-[#609fda] font-mono">{iconifyNameFromUrl(icon)}</span>
-                      </p>
-                    )}
-                  </>
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="text-[13px] font-normal text-white/90 tracking-tight truncate font-mono">
+                        {iconifyNameFromUrl(icon)}
+                      </span>
+                      <span className="text-[11px] text-white/35">Iconify library</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={openPicker}
+                      className="px-3.5 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-white text-[12px] font-normal transition-all cursor-pointer shrink-0"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIcon("")}
+                      title="Remove icon"
+                      className="w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 flex items-center justify-center text-white/50 hover:text-red-400 transition-colors cursor-pointer shrink-0"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openPicker}
+                    className="w-full rounded-2xl border border-dashed border-white/10 hover:border-white/25 bg-white/[0.02] hover:bg-white/[0.04] px-4 py-5 flex items-center justify-center gap-2.5 text-white/40 hover:text-white/70 transition-all cursor-pointer"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    </svg>
+                    <span className="text-[12.5px] font-normal">Choose icon · 200,000+ icons</span>
+                  </button>
                 )}
               </div>
 
@@ -519,9 +418,9 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                         key={swatch}
                         type="button"
                         title={swatch}
-                        onClick={() => setColor(swatch)}
+                        onClick={() => setColor(color?.toLowerCase() === swatch ? null : swatch)}
                         className={`w-8 h-8 rounded-full border transition-all cursor-pointer ${
-                          color.toLowerCase() === swatch
+                          color?.toLowerCase() === swatch
                             ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.25)]"
                             : "border-white/15 hover:scale-105 hover:border-white/40"
                         }`}
@@ -537,12 +436,12 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                       </svg>
                       <input
                         type="color"
-                        value={/^#[0-9a-f]{6}$/i.test(color) ? color : DEFAULT_LINK_COLOR}
+                        value={color ?? DEFAULT_LINK_COLOR}
                         onChange={(e) => setColor(e.target.value)}
                         className="absolute inset-0 opacity-0 cursor-pointer"
                       />
                     </label>
-                    <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{color}</span>
+                    <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{color ?? "Default"}</span>
                   </div>
                 </div>
               )}
@@ -574,6 +473,17 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
         </>
       )}
     </AnimatePresence>
+    <IconifyPickerModal
+      open={pickerOpen}
+      onClose={() => setPickerOpen(false)}
+      selectedUrl={icon}
+      onSelect={(svgUrl) => {
+        setIcon(svgUrl);
+        setError(null);
+        setPickerOpen(false);
+      }}
+    />
+    </>
   );
 }
 
@@ -654,7 +564,7 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
           </div>
 
           {count > 0 ? (
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2.5 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
               {links.map((link) => (
                 <div
                   key={link.id}

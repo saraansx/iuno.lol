@@ -52,7 +52,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
   return (
     <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0">
       
-      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar pt-2">
+      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto pt-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]">
         <div className="py-4 relative flex transition-all shrink-0 items-center overflow-hidden h-[68px]">
           <Link 
             href="/" 
@@ -327,15 +327,15 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             { label: "Fonts", href: "/dashboard/customize/profile/fonts" },
             { label: "Colors", href: "/dashboard/customize/profile/colors" },
             { label: "Widgets", href: "/dashboard/customize/profile/widgets" },
+            { label: "Links", href: "/dashboard/customize/links" },
             { label: "Layout", href: "/dashboard/customize/profile/layout" },
             { label: "Section builder", href: "/dashboard/customize/profile/section-builder" },
           ]
         },
-        { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },
-        { label: "Links", href: "/dashboard/customize/links", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> },
-        { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
-        { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
         { label: "Music", href: "/dashboard/customize/music", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
+        { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },
+        { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
+        { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
       ]
     }
   ];

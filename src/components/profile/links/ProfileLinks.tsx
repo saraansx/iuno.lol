@@ -2,7 +2,6 @@
 
 import type { CSSProperties } from "react";
 import type { ProfileLink } from "@/lib/links";
-import { DEFAULT_LINK_COLOR } from "@/lib/links";
 import LinkIcon from "@/components/links/LinkIcon";
 
 interface ProfileLinksProps {
@@ -40,7 +39,7 @@ export default function ProfileLinks({ links, titleStyle, className, showTooltip
   return (
     <div className={`w-full flex flex-wrap items-stretch gap-2.5 ${className ?? ""}`}>
       {items.map((link) => {
-        const color = link.color || DEFAULT_LINK_COLOR;
+        const color = link.color ?? null;
         return link.variant === "small" ? (
           <a
             key={link.id}

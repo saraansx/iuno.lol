@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import LinksProfileClient from "./LinksProfileClient";
+import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -36,6 +37,12 @@ export default async function Page() {
             </BreadcrumbItem>
             <BreadcrumbSeparator className="text-white/10" />
             <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard/customize/profile/general" className="text-white/40 hover:text-white tracking-tight">Profile</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator className="text-white/10" />
+            <BreadcrumbItem>
               <BreadcrumbPage className="text-[#609fda] font-normal tracking-tight">Links</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -62,6 +69,8 @@ export default async function Page() {
           </div>
           <p className="text-white/40 text-[13px] mt-0.5">Add up to 10 links to your profile</p>
         </div>
+
+        <ProfileCustomizeNav />
       </div>
 
       <LinksProfileClient user={user} />

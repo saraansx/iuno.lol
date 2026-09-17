@@ -85,6 +85,7 @@ export const DesktopSidebar = ({
           "h-full hidden md:flex md:flex-col bg-transparent w-[260px] shrink-0",
           className
         )}
+        initial={false}
         animate={{
           width: animate ? (open ? "260px" : "60px") : "260px",
         }}

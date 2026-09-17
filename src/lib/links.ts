@@ -6,7 +6,8 @@ export interface ProfileLink {
   url: string;
   icon: string;
   variant: LinkVariant;
-  color: string;
+  /** User-picked tint. Null = natural look (brand colors / own colors). */
+  color: string | null;
 }
 
 export const MAX_LINKS = 10;
@@ -188,7 +189,7 @@ export function sanitizeProfileLink(raw: unknown): ProfileLink | null {
     LINK_ICON_SET.has(rawIcon) || isCustomIconUrl(rawIcon) ? rawIcon : "link";
   const variant: LinkVariant = record.variant === "small" ? "small" : "big";
   const rawColor = typeof record.color === "string" ? record.color.trim() : "";
-  const color = /^#[0-9a-f]{6}$/i.test(rawColor) ? rawColor.toLowerCase() : DEFAULT_LINK_COLOR;
+  const color = /^#[0-9a-f]{6}$/i.test(rawColor) ? rawColor.toLowerCase() : null;
   if (!id || !title || !url) return null;
   return { id, title, url, icon, variant, color };
 }

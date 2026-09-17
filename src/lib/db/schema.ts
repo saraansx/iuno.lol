@@ -296,7 +296,7 @@ export const userSettings = mysqlTable('user_settings', {
     url: string;
     icon: string;
     variant: 'small' | 'big';
-    color: string;
+    color: string | null;
   }>>().default([]),
 })
 
