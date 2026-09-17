@@ -13,6 +13,7 @@ import PresenceCustomization from "@/components/dashboard/customize/widgets/disc
 import BadgesOrderCustomization from "@/components/dashboard/customize/widgets/discord-presence/BadgesOrderCustomization";
 import { toast } from "sonner";
 import WidgetSkeleton from "@/components/profile/widgets/WidgetSkeleton";
+import { SITE_CONFIG } from "@/lib/config";
 
 function formatLastSeen(timestamp?: number | null, referenceNow: number = Date.now()) {
   if (!timestamp) return "last seen recently";
@@ -304,6 +305,30 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
               <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
                 Tell us which account this widget should fetch.
               </p>
+            </div>
+
+            <div className="flex gap-3.5 bg-[#e0a355]/[0.04] border border-[#e0a355]/15 rounded-[16px] px-4 py-3.5">
+              <svg className="text-[#e0a355]/70 shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+              </svg>
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[14px] font-normal text-white/90 tracking-tight">
+                  Join the official server first
+                </span>
+                <p className="text-[12.5px] text-white/40">
+                  If you are not in the official iuno.lol Discord server, presence data will not be shown.{" "}
+                  <a
+                    href={SITE_CONFIG.links.discord}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#5b6cf5] hover:underline font-medium"
+                  >
+                    Join here
+                  </a>
+                </p>
+              </div>
             </div>
 
             <div className="flex items-center justify-between p-4 bg-[#141414]/70 border border-white/5 rounded-2xl">
