@@ -104,11 +104,11 @@ export function getDetailDefaults(preset: string | undefined): DetailDefaults {
 
 export const DEFAULT_DETAILS = PRESET_DETAIL_DEFAULTS[DEFAULT_PRESET];
 
-export type ContentAlignment = "left" | "center";
+export type ContentAlignment = "left" | "center" | "right";
 
 export type AvatarPlacement = "top" | "left" | "right" | "floating";
 
-const CONTENT_ALIGNMENTS: ContentAlignment[] = ["left", "center"];
+const CONTENT_ALIGNMENTS: ContentAlignment[] = ["left", "center", "right"];
 const AVATAR_PLACEMENTS: AvatarPlacement[] = ["top", "left", "right", "floating"];
 
 export function normalizeAlignment(

@@ -204,10 +204,10 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
         <div className="flex items-center gap-4">
           <RowLabel
             text="Alignment"
-            hint="Whether the card's content is centred or aligned to the left."
+            hint="Whether the card's content is aligned left, centred or right."
           />
-          <div className="flex-1 grid grid-cols-2 gap-3">
-            {(["left", "center"] as const).map((option) => {
+          <div className="flex-1 grid grid-cols-3 gap-3">
+            {(["left", "center", "right"] as const).map((option) => {
               const isSelected = alignment === option;
               return (
                 <button
@@ -221,12 +221,12 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
                       : "bg-[#111111] border-white/5 hover:border-white/15"
                   }`}
                 >
-                  <span className={`flex flex-col gap-[3px] ${option === "center" ? "items-center" : ""}`}>
+                  <span className={`flex flex-col gap-[3px] ${option === "center" ? "items-center" : option === "right" ? "items-end" : ""}`}>
                     <span className={`block h-[2px] w-4 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
                     <span className={`block h-[2px] w-2.5 rounded-full ${isSelected ? "bg-[#5b6cf5]" : "bg-white/30"}`} />
                   </span>
                   <span className={`text-[13px] ${isSelected ? "text-[#5b6cf5] font-medium" : "text-white/70"}`}>
-                    {option === "left" ? "Left" : "Center"}
+                    {option === "left" ? "Left" : option === "right" ? "Right" : "Center"}
                   </span>
                 </button>
               );

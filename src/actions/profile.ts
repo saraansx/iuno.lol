@@ -415,7 +415,7 @@ export async function updateColorsProfile(data: {
 
 const PROFILE_STRUCTURES = ["standard", "sectioned"] as const;
 
-const CONTENT_ALIGNMENTS = ["left", "center"] as const;
+const CONTENT_ALIGNMENTS = ["left", "center", "right"] as const;
 
 const AVATAR_PLACEMENTS = ["top", "left", "right", "floating"] as const;
 

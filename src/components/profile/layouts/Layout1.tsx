@@ -49,7 +49,7 @@ const SHAPE_CLASSES: Record<string, string> = {
   circle: "rounded-full",
 };
 
-const renderFormattedText = (text: string, left = false) => {
+const renderFormattedText = (text: string, align: "left" | "center" | "right" = "center") => {
   if (!text) return null;
 
   const lines = text.split("\n");
@@ -79,7 +79,7 @@ const renderFormattedText = (text: string, left = false) => {
 
     if (isBullet) {
       return (
-        <span key={idx} className={`flex items-center gap-2 ${left ? "justify-start" : "justify-center"}`}>
+        <span key={idx} className={`flex items-center gap-2 ${align === "left" ? "justify-start" : align === "right" ? "justify-end flex-row-reverse" : "justify-center"}`}>
           <span className="text-[12px] opacity-70">•</span>
           <span>{formatted}</span>
         </span>
@@ -684,15 +684,18 @@ const Layout1 = ({
 
   const fontClassMap = FONT_CLASS_MAP;
 
-  const cardWidthPx = forceCardWidth ?? Math.min(1000, Math.max(480, contentWidth));
+  const naturalCardWidthPx = Math.min(1000, Math.max(480, contentWidth));
+  const cardWidthPx = forceCardWidth ?? naturalCardWidthPx;
   const cardWidth = `${cardWidthPx}px`;
 
   const badgeClass = BADGE_CLASSES[getPresetLayout(profilePreset).badgePlacement];
 
   const alignment = normalizeAlignment(contentAlignment);
   const isLeft = alignment === "left";
-  const alignClass = isLeft ? "items-start text-left" : "items-center text-center";
-  const justifyClass = isLeft ? "justify-start" : "justify-center";
+  const isRight = alignment === "right";
+  const alignClass = isLeft ? "items-start text-left" : isRight ? "items-end text-right" : "items-center text-center";
+  const justifyClass = isLeft ? "justify-start" : isRight ? "justify-end" : "justify-center";
+  const textAlignClass = isLeft ? "text-left" : isRight ? "text-right" : "text-center";
 
   const avatarPos = normalizeAvatarPlacement(avatarPlacement);
   const avatarBeside = avatarPos === "left" || avatarPos === "right";
@@ -858,7 +861,7 @@ useEffect(() => {
       <ProfileWidgets
         widgets={widgets}
         placement="inside"
-        cardWidth={cardWidthPx}
+        cardWidth={naturalCardWidthPx}
         widgetPrimaryTextColor={widgetPrimaryTextColor}
         widgetSecondaryTextColor={widgetSecondaryTextColor}
         widgetBorderColor={widgetBorderColor}
@@ -877,7 +880,7 @@ useEffect(() => {
     <ProfileWidgets
       widgets={widgets}
       placement="outside"
-      cardWidth={cardWidthPx}
+      cardWidth={naturalCardWidthPx}
       widgetPrimaryTextColor={widgetPrimaryTextColor}
       widgetSecondaryTextColor={widgetSecondaryTextColor}
       widgetBorderColor={widgetBorderColor}
@@ -961,12 +964,12 @@ useEffect(() => {
     </div>
   ) : null;
 
-const textBlock = (text: string, left: boolean) => (
-    <div className={`w-full flex ${left ? "justify-start" : "justify-center"}`}>
+const textBlock = (text: string, align: "left" | "center" | "right") => (
+    <div className={`w-full flex ${align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center"}`}>
       <DescriptionEffect effect={descriptionEffect}>
         <p
           className={`leading-relaxed max-w-[90%] break-words ${
-            left ? "text-left" : "text-center"
+            align === "left" ? "text-left" : align === "right" ? "text-right" : "text-center"
           }`}
           style={{
             fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
@@ -976,7 +979,7 @@ const textBlock = (text: string, left: boolean) => (
             color: bioColor ?? "#FFFFFF",
           }}
         >
-          {renderFormattedText(text, left)}
+          {renderFormattedText(text, align)}
         </p>
       </DescriptionEffect>
     </div>
@@ -1233,7 +1236,7 @@ const sectionSurface: React.CSSProperties = {
                 className={
                   avatarBeside
                     ? "shrink-0"
-                    : `relative w-full flex ${isLeft ? "justify-start px-6" : "justify-center"}`
+                    : `relative w-full flex ${isLeft ? "justify-start px-6" : isRight ? "justify-end px-6" : "justify-center"}`
                 }
                 style={
                   avatarBeside
@@ -1265,9 +1268,9 @@ const sectionSurface: React.CSSProperties = {
               style={avatarBeside && hasBanner ? { marginTop: "-6px" } : undefined}
             >
               {display && (
-                <div className="relative group/uid flex justify-center">
+                <div className={`relative group/uid flex ${justifyClass}`}>
                   <UsernameEffect effect={usernameEffect}>
-                    <h1 className="tracking-tight text-center mb-2 max-w-[200px] truncate" style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF" }}>
+                    <h1 className={`tracking-tight mb-2 max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF" }}>
                       {display}
                     </h1>
                   </UsernameEffect>
@@ -1280,8 +1283,8 @@ const sectionSurface: React.CSSProperties = {
                   )}
                 </div>
               )}
-              {detailSlot("beside", `mt-1 text-center ${justifyClass}`)}
-              {!sectioned && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), isLeft)}</div>}
+              {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}
+              {!sectioned && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), alignment)}</div>}
 
             </div>
             </div>
@@ -1383,7 +1386,7 @@ const sectionSurface: React.CSSProperties = {
 
                   {aboutText && (
                     <div className="relative w-full p-6" style={sectionSurface}>
-                      {textBlock(aboutText, true)}
+                      {textBlock(aboutText, "left")}
                     </div>
                   )}
                   {aboutHasWidgets && outsideWidgets}

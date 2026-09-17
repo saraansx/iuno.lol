@@ -1,7 +1,5 @@
 import { SITE_CONFIG } from "@/lib/config";
 
-// Purges Cloudflare edge cache for profile pages so saves show up instantly
-// without manual purges. Silently skips when credentials are not configured.
 export async function purgeCloudflareProfileCache(username: string): Promise<void> {
   const token = process.env.CLOUDFLARE_API_TOKEN;
   const zoneId = process.env.CLOUDFLARE_ZONE_ID;

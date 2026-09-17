@@ -75,7 +75,7 @@ export function VolumeButton({
         type="button"
         onClick={toggleMute}
         title={silent ? "Unmute" : "Mute"}
-        className={`${fixed ? "w-11 h-11" : "w-7 h-7"} rounded-2xl bg-[color-mix(in_srgb,var(--volume-icon)_12%,transparent)] backdrop-blur-xl border border-[color-mix(in_srgb,var(--volume-icon)_25%,transparent)] text-[var(--volume-icon)] hover:bg-[color-mix(in_srgb,var(--volume-icon)_22%,transparent)] hover:border-[color-mix(in_srgb,var(--volume-icon)_45%,transparent)] ${fixed ? "hover:scale-105" : ""} flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95`}
+        className={`${fixed ? "w-11 h-11" : "w-7 h-7"} rounded-2xl bg-[color-mix(in_srgb,var(--volume-icon)_12%,transparent)] backdrop-blur-2xl border border-[color-mix(in_srgb,var(--volume-icon)_25%,transparent)] text-[var(--volume-icon)] hover:bg-[color-mix(in_srgb,var(--volume-icon)_22%,transparent)] hover:border-[color-mix(in_srgb,var(--volume-icon)_45%,transparent)] ${fixed ? "hover:scale-105" : ""} flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95`}
       >
         {silent ? (
           <svg width={fixed ? "18" : "13"} height={fixed ? "18" : "13"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

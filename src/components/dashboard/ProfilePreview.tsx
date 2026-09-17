@@ -253,7 +253,7 @@ const ProfilePreview = ({ userId, username, displayName, bio, location, occupati
       >
         <div
           ref={scrollerRef}
-          className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 [&::-webkit-scrollbar]:hidden"
+          className="w-full h-full overflow-y-auto overflow-x-hidden relative z-10 [&::-webkit-scrollbar]:hidden [transform:translateZ(0)]"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           <Layout1
