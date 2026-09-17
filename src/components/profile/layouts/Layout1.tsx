@@ -259,6 +259,10 @@ interface Layout1Props {
   createdAt?: string | Date;
   widgets?: WidgetItem[];
   links?: import("@/lib/links").ProfileLink[];
+  linksAlignment?: string | null;
+  linksSocialBackground?: boolean | null;
+  linksBorderRadius?: number | null;
+  linksIconSize?: number | null;
   musicTracks?: import("@/lib/music").MusicTrack[];
   musicPlayerStyle?: string | null;
   musicAutoPlay?: boolean;
@@ -485,6 +489,10 @@ const Layout1 = ({
   createdAt,
   widgets = [],
   links = [],
+  linksAlignment,
+  linksSocialBackground,
+  linksBorderRadius,
+  linksIconSize,
   musicTracks = [],
   musicPlayerStyle = "compact",
   musicAutoPlay = true,
@@ -939,14 +947,14 @@ useEffect(() => {
   // Small links live inside the card, centered above widgets.
   const smallLinksSection = smallLinks.length > 0 ? (
     <div className="w-full px-6 pt-2">
-      <ProfileLinks links={smallLinks} titleStyle={linkTitleStyle} className="justify-center" showTooltip={showLinksTooltip} />
+      <ProfileLinks links={smallLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} />
     </div>
   ) : null;
 
   // Big links live outside the card container.
   const bigLinksSection = bigLinks.length > 0 ? (
     <div className="w-full mt-3">
-      <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} />
+      <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} />
     </div>
   ) : null;
 

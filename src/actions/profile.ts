@@ -1502,7 +1502,13 @@ export async function updateMusicProfile(data: {
   };
 }
 
-export async function saveProfileLinks(data: { links: unknown[] }) {
+export async function saveProfileLinks(data: {
+  links: unknown[];
+  alignment?: string;
+  socialBackground?: boolean;
+  borderRadius?: number;
+  iconSize?: number;
+}) {
   const userId = await getSessionUserId();
 
   if (!userId) {
@@ -1533,6 +1539,26 @@ export async function saveProfileLinks(data: { links: unknown[] }) {
   const setData: Record<string, unknown> = {
     links: (sanitizedLinks as ProfileLink[]).length > 0 ? sanitizedLinks : null,
   };
+
+  if (data.alignment !== undefined) {
+    if (data.alignment !== "left" && data.alignment !== "center" && data.alignment !== "right") {
+      throw new Error("Invalid links alignment.");
+    }
+    setData.linksAlignment = data.alignment;
+  }
+  if (data.socialBackground !== undefined) {
+    setData.linksSocialBackground = Boolean(data.socialBackground);
+  }
+  if (data.borderRadius !== undefined) {
+    const r = Number(data.borderRadius);
+    if (!Number.isFinite(r)) throw new Error("Invalid border radius.");
+    setData.linksBorderRadius = Math.min(32, Math.max(0, Math.round(r)));
+  }
+  if (data.iconSize !== undefined) {
+    const s = Number(data.iconSize);
+    if (!Number.isFinite(s)) throw new Error("Invalid icon size.");
+    setData.linksIconSize = Math.min(32, Math.max(12, Math.round(s)));
+  }
 
   sanitizeProfileSettings(setData);
 

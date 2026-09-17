@@ -178,6 +178,10 @@ const userColumns = {
   linksSectionTitle: schema.userSettings.linksSectionTitle,
   linksSectionDescription: schema.userSettings.linksSectionDescription,
   linksSectionPosition: schema.userSettings.linksSectionPosition,
+  linksAlignment: schema.userSettings.linksAlignment,
+  linksSocialBackground: schema.userSettings.linksSocialBackground,
+  linksBorderRadius: schema.userSettings.linksBorderRadius,
+  linksIconSize: schema.userSettings.linksIconSize,
   widgets: schema.userSettings.widgets,
   links: schema.userSettings.links,
 } as const

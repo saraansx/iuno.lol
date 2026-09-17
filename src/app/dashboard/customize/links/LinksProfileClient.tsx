@@ -497,8 +497,29 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<ProfileLink | null>(null);
 
+  const sanitizeAlign = (v: unknown): "left" | "center" | "right" =>
+    v === "left" || v === "right" ? v : "center";
+  const clampInt = (v: unknown, fallback: number, min: number, max: number) =>
+    typeof v === "number" && Number.isFinite(v)
+      ? Math.min(max, Math.max(min, Math.round(v)))
+      : fallback;
+
+  const initialAlignment = sanitizeAlign(user?.linksAlignment);
+  const initialSocial = user?.linksSocialBackground ?? true;
+  const initialRadius = clampInt(user?.linksBorderRadius, 16, 0, 32);
+  const initialIconSize = clampInt(user?.linksIconSize, 17, 12, 32);
+
+  const [alignment, setAlignment] = useState<"left" | "center" | "right">(initialAlignment);
+  const [social, setSocial] = useState<boolean>(initialSocial);
+  const [radius, setRadius] = useState<number>(initialRadius);
+  const [iconSize, setIconSize] = useState<number>(initialIconSize);
+
+  const normState = (l: ProfileLink[], a: string, s: boolean, r: number, i: number) =>
+    JSON.stringify({ links: l, alignment: a, social: s, radius: r, iconSize: i });
+
   const hasChanges =
-    JSON.stringify(links) !== JSON.stringify(initialLinks);
+    normState(links, alignment, social, radius, iconSize) !==
+    normState(initialLinks, initialAlignment, initialSocial, initialRadius, initialIconSize);
 
   const openAdd = () => {
     if (links.length >= MAX_LINKS) return;
@@ -629,15 +650,135 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
             </div>
           )}
         </div>
+
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+          <div className="flex flex-col">
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
+              Link appearance
+            </h2>
+            <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
+              How your links look on your profile.
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-[12.5px] font-medium text-white/90">Alignment</span>
+            <div className="grid grid-cols-3 gap-2">
+              {(["left", "center", "right"] as const).map((a) => (
+                <button
+                  key={a}
+                  type="button"
+                  onClick={() => setAlignment(a)}
+                  className={`rounded-xl border px-3 py-2 text-[12.5px] font-normal capitalize transition-all cursor-pointer ${
+                    alignment === a
+                      ? "bg-[#609fda]/20 border-[#609fda]/50 text-white shadow-[0_0_15px_rgba(96,159,218,0.1)]"
+                      : "bg-[#141414]/70 border-white/5 text-white/50 hover:text-white/80 hover:border-white/15"
+                  }`}
+                >
+                  {a}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={social}
+            onClick={() => setSocial(!social)}
+            className="flex items-center justify-between gap-3 rounded-2xl bg-[#141414]/70 border border-white/5 hover:border-white/15 px-4 py-3.5 text-left transition-all cursor-pointer"
+          >
+            <span className="flex flex-col">
+              <span className="text-[13px] font-normal text-white/90">Social background</span>
+              <span className="text-[11.5px] text-white/35 leading-snug">Show the colored surface behind each social icon.</span>
+            </span>
+            <span className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${social ? "bg-[#5b6cf5]" : "bg-white/10"}`}>
+              <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${social ? "left-[18px]" : "left-0.5"}`} />
+            </span>
+          </button>
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[12.5px] font-medium text-white/90">Border radius</label>
+              <span className="text-[12px] text-white/40 font-mono">{radius}px</span>
+            </div>
+            <div className="relative flex items-center h-5 group w-full">
+              <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="absolute h-full bg-[#5b6cf5]"
+                  style={{ width: `${(radius / 32) * 100}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={32}
+                step={1}
+                value={radius}
+                onChange={(e) => setRadius(Number(e.target.value))}
+                aria-label="Border radius"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              <div
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                style={{ left: `calc(${(radius / 32) * 100}% - 8px)` }}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[12.5px] font-medium text-white/90">Icon size</label>
+              <span className="text-[12px] text-white/40 font-mono">{iconSize}px</span>
+            </div>
+            <div className="relative flex items-center h-5 group w-full">
+              <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="absolute h-full bg-[#5b6cf5]"
+                  style={{ width: `${((iconSize - 12) / 20) * 100}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={12}
+                max={32}
+                step={1}
+                value={iconSize}
+                onChange={(e) => setIconSize(Number(e.target.value))}
+                aria-label="Icon size"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              <div
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                style={{ left: `calc(${((iconSize - 12) / 20) * 100}% - 8px)` }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <DashboardProfilePreview user={user} overrides={{ links }} />
+      <DashboardProfilePreview
+        user={user}
+        overrides={{
+          links,
+          linksAlignment: alignment,
+          linksSocialBackground: social,
+          linksBorderRadius: radius,
+          linksIconSize: iconSize,
+        }}
+      />
 
       <SaveBar
         show={hasChanges}
         onSave={async () => {
           try {
-            await saveProfileLinks({ links });
+            await saveProfileLinks({
+              links,
+              alignment,
+              socialBackground: social,
+              borderRadius: radius,
+              iconSize,
+            });
             toast.success("Profile Saved Sucessfully");
             router.refresh();
           } catch (error) {
@@ -658,6 +799,10 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
             deleteLinkIconFiles(added).catch(() => {});
           }
           setLinks(initialLinks);
+          setAlignment(initialAlignment);
+          setSocial(initialSocial);
+          setRadius(initialRadius);
+          setIconSize(initialIconSize);
         }}
       />
 

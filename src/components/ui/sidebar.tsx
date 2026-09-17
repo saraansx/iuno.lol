@@ -63,10 +63,13 @@ export const Sidebar = ({
   );
 };
 
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+export const SidebarBody = ({
+  openWidth,
+  ...props
+}: React.ComponentProps<typeof motion.div> & { openWidth?: number }) => {
   return (
     <>
-      <DesktopSidebar {...props} />
+      <DesktopSidebar openWidth={openWidth} {...props} />
       <MobileSidebar {...(props as React.ComponentProps<"div">)} />
     </>
   );
@@ -75,8 +78,9 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
 export const DesktopSidebar = ({
   className,
   children,
+  openWidth = 260,
   ...props
-}: React.ComponentProps<typeof motion.div>) => {
+}: React.ComponentProps<typeof motion.div> & { openWidth?: number }) => {
   const { open, animate } = useSidebar();
   return (
     <>
@@ -87,7 +91,7 @@ export const DesktopSidebar = ({
         )}
         initial={false}
         animate={{
-          width: animate ? (open ? "260px" : "60px") : "260px",
+          width: animate ? (open ? `${openWidth}px` : "60px") : "260px",
         }}
         {...props}
       >

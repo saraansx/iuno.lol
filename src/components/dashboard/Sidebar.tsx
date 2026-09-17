@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useState  } from "react";
+import React, {  useCallback, useEffect, useState  } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -46,13 +46,44 @@ interface SidebarContentProps {
   setProfileExpanded: (expanded: boolean) => void;
 }
 
+const SIDEBAR_MIN_WIDTH = 200;
+const SIDEBAR_MAX_WIDTH = 260;
+
 const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, profileExpanded, setProfileExpanded }: SidebarContentProps) => {
   const { open, setOpen, animate } = useSidebar();
-  
+  const [width, setWidth] = useState(SIDEBAR_MAX_WIDTH);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isDragging) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      // Sidebar sits at the viewport's left edge, so width == cursor x.
+      setWidth(Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, e.clientX)));
+    };
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [isDragging]);
+
   return (
-    <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0">
+    <SidebarBody className="bg-transparent border-r-0 justify-between gap-6 overflow-hidden w-full h-full p-0 relative" openWidth={width}>
       
-      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto pt-2 [&::-webkit-scrollbar]:hidden [scrollbar-width:none] [-ms-overflow-style:none]">
+      <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto pt-2 no-scrollbar">
         <div className="py-4 relative flex transition-all shrink-0 items-center overflow-hidden h-[68px]">
           <Link 
             href="/" 
@@ -290,6 +321,19 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
         </div>
         </div>
       </div>
+      {open && (
+        <div
+          onMouseDown={handleMouseDown}
+          title="Drag to resize sidebar"
+          className={`absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
+            isDragging ? "bg-white/5" : ""
+          }`}
+        >
+          <div className={`absolute right-0 top-1/2 -translate-y-1/2 w-0.5 h-12 rounded-full transition-all ${
+            isDragging ? "bg-white/40" : "bg-white/10 group-hover:bg-white/20"
+          }`} />
+        </div>
+      )}
     </SidebarBody>
   );
 };
@@ -297,7 +341,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0 }: SidebarProps) => {
   const pathname = usePathname();
   const [profileExpanded, setProfileExpanded] = useState(true);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const navItems = [
     {
@@ -326,7 +370,6 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
             { label: "Effects", href: "/dashboard/customize/profile/effects" },
             { label: "Fonts", href: "/dashboard/customize/profile/fonts" },
             { label: "Colors", href: "/dashboard/customize/profile/colors" },
-            { label: "Widgets", href: "/dashboard/customize/profile/widgets" },
             { label: "Links", href: "/dashboard/customize/links" },
             { label: "Layout", href: "/dashboard/customize/profile/layout" },
             { label: "Section builder", href: "/dashboard/customize/profile/section-builder" },
@@ -334,6 +377,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
         },
         { label: "Music", href: "/dashboard/customize/music", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg> },
         { label: "Metadata", href: "/dashboard/customize/metadata", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg> },
+        { label: "Widgets", href: "/dashboard/customize/profile/widgets", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="14" y="3" rx="1"/><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3"/></svg> },
         { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
         { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
       ]
@@ -342,7 +386,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
 
   return (
     <AceSidebar open={open} setOpen={setOpen}>
-      <SidebarContent 
+      <SidebarContent
         username={username}
         userId={userId}
         avatarUrl={avatarUrl}

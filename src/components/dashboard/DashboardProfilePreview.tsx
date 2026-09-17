@@ -171,6 +171,10 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       musicPlayerVolumeFixed={false}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
       links={(deferredOverrides.links as import("@/lib/links").ProfileLink[] | undefined) ?? (user?.links as import("@/lib/links").ProfileLink[] | undefined) ?? []}
+      linksAlignment={deferredOverrides.linksAlignment ?? user?.linksAlignment ?? "center"}
+      linksSocialBackground={deferredOverrides.linksSocialBackground ?? user?.linksSocialBackground ?? true}
+      linksBorderRadius={deferredOverrides.linksBorderRadius ?? user?.linksBorderRadius ?? 16}
+      linksIconSize={deferredOverrides.linksIconSize ?? user?.linksIconSize ?? 17}
     />
   );
 }

@@ -209,6 +209,10 @@ export const userSettings = mysqlTable('user_settings', {
   linksSectionTitle: text('links_section_title'),
   linksSectionDescription: text('links_section_description'),
   linksSectionPosition: mysqlEnum('links_section_position', ['above', 'below']).default('below'),
+  linksAlignment: mysqlEnum('links_alignment', ['left', 'center', 'right']).default('center'),
+  linksSocialBackground: boolean('links_social_background').default(true),
+  linksBorderRadius: int('links_border_radius').default(16),
+  linksIconSize: int('links_icon_size').default(17),
   widgets: json('widgets').$type<Array<{
     id: string;
     platform: string;

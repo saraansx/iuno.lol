@@ -219,6 +219,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       enterScreenBlurColor: userSettings.enterScreenBlurColor,
       widgets: userSettings.widgets,
       links: userSettings.links,
+      linksAlignment: userSettings.linksAlignment,
+      linksSocialBackground: userSettings.linksSocialBackground,
+      linksBorderRadius: userSettings.linksBorderRadius,
+      linksIconSize: userSettings.linksIconSize,
       sectionTitleColor: userSettings.sectionTitleColor,
       sectionDescColor: userSettings.sectionDescColor,
       musicPrimaryFont: userSettings.musicPrimaryFont,
@@ -434,6 +438,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         feedbackPlacement={user.feedbackPlacement ?? undefined}
         widgets={user.widgets ?? undefined}
         links={(user.links as import("@/lib/links").ProfileLink[] | null) ?? undefined}
+        linksAlignment={user.linksAlignment ?? undefined}
+        linksSocialBackground={user.linksSocialBackground ?? undefined}
+        linksBorderRadius={user.linksBorderRadius ?? undefined}
+        linksIconSize={user.linksIconSize ?? undefined}
         musicTracks={(user.musicTracks as import("@/lib/music").MusicTrack[] | null) ?? undefined}
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? true}
