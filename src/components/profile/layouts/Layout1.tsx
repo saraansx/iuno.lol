@@ -202,6 +202,10 @@ interface Layout1Props {
   widgetFontSize?: number;
   widgetFontWeight?: number;
   widgetLetterSpacing?: number;
+  widgetSecondaryFont?: string | null;
+  widgetSecondaryFontSize?: number | null;
+  widgetSecondaryFontWeight?: number | null;
+  widgetSecondaryLetterSpacing?: number | null;
   wrapInCard?: boolean;
   contentWidth?: number;
   /** Dashboard preview: force the card to fit a narrow panel instead of the 480px floor. */
@@ -451,6 +455,10 @@ const Layout1 = ({
   widgetFontSize,
   widgetFontWeight,
   widgetLetterSpacing,
+  widgetSecondaryFont,
+  widgetSecondaryFontSize,
+  widgetSecondaryFontWeight,
+  widgetSecondaryLetterSpacing,
   wrapInCard = DEFAULT_FRAME.wrapInCard,
   contentWidth = DEFAULT_FRAME.contentWidth,
   forceCardWidth,
@@ -877,6 +885,10 @@ useEffect(() => {
         widgetFontSize={widgetFontSize}
         widgetFontWeight={widgetFontWeight}
         widgetLetterSpacing={widgetLetterSpacing}
+        widgetSecondaryFont={widgetSecondaryFont}
+        widgetSecondaryFontSize={widgetSecondaryFontSize}
+        widgetSecondaryFontWeight={widgetSecondaryFontWeight}
+        widgetSecondaryLetterSpacing={widgetSecondaryLetterSpacing}
       />
     </div>
   );
@@ -896,6 +908,10 @@ useEffect(() => {
       widgetFontSize={widgetFontSize}
       widgetFontWeight={widgetFontWeight}
       widgetLetterSpacing={widgetLetterSpacing}
+      widgetSecondaryFont={widgetSecondaryFont}
+      widgetSecondaryFontSize={widgetSecondaryFontSize}
+      widgetSecondaryFontWeight={widgetSecondaryFontWeight}
+      widgetSecondaryLetterSpacing={widgetSecondaryLetterSpacing}
     />
   );
 

@@ -229,6 +229,10 @@ export async function updateAppearanceProfile(data: {
   widgetFontSize?: number;
   widgetFontWeight?: number;
   widgetLetterSpacing?: number;
+  widgetSecondaryFont?: string;
+  widgetSecondaryFontSize?: number;
+  widgetSecondaryFontWeight?: number;
+  widgetSecondaryLetterSpacing?: number;
   linksFont?: string;
   linksFontSize?: number;
   linksFontWeight?: number;
@@ -322,6 +326,10 @@ export async function updateAppearanceProfile(data: {
   if (data.widgetFontSize !== undefined) setData.widgetFontSize = data.widgetFontSize;
   if (data.widgetFontWeight !== undefined) setData.widgetFontWeight = data.widgetFontWeight;
   if (data.widgetLetterSpacing !== undefined) setData.widgetLetterSpacing = data.widgetLetterSpacing;
+  if (data.widgetSecondaryFont !== undefined) setData.widgetSecondaryFont = data.widgetSecondaryFont.slice(0, 50);
+  if (data.widgetSecondaryFontSize !== undefined) setData.widgetSecondaryFontSize = data.widgetSecondaryFontSize;
+  if (data.widgetSecondaryFontWeight !== undefined) setData.widgetSecondaryFontWeight = data.widgetSecondaryFontWeight;
+  if (data.widgetSecondaryLetterSpacing !== undefined) setData.widgetSecondaryLetterSpacing = data.widgetSecondaryLetterSpacing;
   if (data.linksFont !== undefined) setData.linksFont = data.linksFont.slice(0, 50);
   if (data.linksFontSize !== undefined) setData.linksFontSize = data.linksFontSize;
   if (data.linksFontWeight !== undefined) setData.linksFontWeight = data.linksFontWeight;

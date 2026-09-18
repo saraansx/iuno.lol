@@ -175,6 +175,30 @@
 .iuno-widgets .tracking-normal { letter-spacing: var(--widget-letter-spacing); }
 .iuno-widgets .tracking-wider { letter-spacing: calc(0.05em + var(--widget-letter-spacing)); }
 
+/* Secondary font group — the same small texts below widget titles use the
+   Secondary font settings. Family needs a direct property (it only inherits
+   otherwise, so a var override alone would do nothing); size/weight/tracking
+   keep working off the overridden vars, preserving their hierarchy. Unset
+   values fall back to the primary group, and widgets without secondary text
+   simply match nothing. Placed before the mono rule so handles/counts keep
+   their monospace face. */
+.iuno-widgets .text-white\/90,
+.iuno-widgets .text-white\/85,
+.iuno-widgets .text-white\/80,
+.iuno-widgets .text-white\/70,
+.iuno-widgets .text-white\/60,
+.iuno-widgets .text-white\/50,
+.iuno-widgets .text-white\/40,
+.iuno-widgets .text-white\/35,
+.iuno-widgets .text-white\/30,
+.iuno-widgets .text-white\/25,
+.iuno-widgets .text-white\/20 {
+  font-family: var(--widget-secondary-font, var(--widget-font));
+  --widget-font-scale: var(--widget-secondary-font-scale, var(--widget-font-scale));
+  --widget-font-weight: var(--widget-secondary-font-weight, var(--widget-font-weight));
+  --widget-letter-spacing: var(--widget-secondary-letter-spacing, var(--widget-letter-spacing));
+}
+
 /* The mono runs (handles, counts) keep their monospace face on purpose — swapping
    them to a display font breaks the column alignment they exist for. */
 .iuno-widgets .font-mono {
@@ -199,6 +223,8 @@
 .iuno-widgets .text-white\/30 { color: rgb(var(--widget-secondary) / 0.3); }
 .iuno-widgets .text-white\/25 { color: rgb(var(--widget-secondary) / 0.25); }
 .iuno-widgets .text-white\/20 { color: rgb(var(--widget-secondary) / 0.2); }
+
+
 
 /* Card outline. The user's opacity drives the shell border; the inner hairlines
    that separate avatars and badges scale with it so they never outweigh it. */

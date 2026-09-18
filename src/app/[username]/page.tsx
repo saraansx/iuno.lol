@@ -170,6 +170,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       widgetFontSize: userSettings.widgetFontSize,
       widgetFontWeight: userSettings.widgetFontWeight,
       widgetLetterSpacing: userSettings.widgetLetterSpacing,
+      widgetSecondaryFont: userSettings.widgetSecondaryFont,
+      widgetSecondaryFontSize: userSettings.widgetSecondaryFontSize,
+      widgetSecondaryFontWeight: userSettings.widgetSecondaryFontWeight,
+      widgetSecondaryLetterSpacing: userSettings.widgetSecondaryLetterSpacing,
       wrapInCard: userSettings.wrapInCard,
       contentWidth: userSettings.contentWidth,
       profilePreset: userSettings.profilePreset,
@@ -415,6 +419,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         widgetFontSize={user.widgetFontSize ?? undefined}
         widgetFontWeight={user.widgetFontWeight ?? undefined}
         widgetLetterSpacing={user.widgetLetterSpacing ?? undefined}
+        widgetSecondaryFont={user.widgetSecondaryFont ?? undefined}
+        widgetSecondaryFontSize={user.widgetSecondaryFontSize ?? undefined}
+        widgetSecondaryFontWeight={user.widgetSecondaryFontWeight ?? undefined}
+        widgetSecondaryLetterSpacing={user.widgetSecondaryLetterSpacing ?? undefined}
         wrapInCard={user.wrapInCard ?? undefined}
         contentWidth={user.contentWidth ?? undefined}
         profilePreset={user.profilePreset ?? undefined}

@@ -79,13 +79,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setPageBgColor={setPageBgColor}
         />
 
-        <WidgetStyleCustomization
-          primaryTextColor={widgetPrimaryTextColor}
-          setPrimaryTextColor={setWidgetPrimaryTextColor}
-          secondaryTextColor={widgetSecondaryTextColor}
-          setSecondaryTextColor={setWidgetSecondaryTextColor}
-        />
-
         <SectionStyleCustomization
           titleColor={sectionTitleColor}
           setTitleColor={setSectionTitleColor}
@@ -100,6 +93,13 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setSecondaryColor={setMusicSecondaryColor}
           lyricsColor={musicLyricsColor}
           setLyricsColor={setMusicLyricsColor}
+        />
+
+        <WidgetStyleCustomization
+          primaryTextColor={widgetPrimaryTextColor}
+          setPrimaryTextColor={setWidgetPrimaryTextColor}
+          secondaryTextColor={widgetSecondaryTextColor}
+          setSecondaryTextColor={setWidgetSecondaryTextColor}
         />
       </div>
 

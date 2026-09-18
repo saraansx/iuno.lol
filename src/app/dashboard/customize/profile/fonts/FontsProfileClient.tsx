@@ -10,7 +10,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
 
-type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "widgets" | "links";
+type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "links" | "widgetPrimary" | "widgetSecondary";
 
 export default function FontsProfileClient({ user }: { user: FullUser | null }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
@@ -109,6 +109,20 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
   const setWidgetFontWeight = (val: number) => updateOverrides({ widgetFontWeight: val === initialWidgetFontWeight ? undefined : val });
   const widgetLetterSpacing = overrides.widgetLetterSpacing ?? initialWidgetLetterSpacing;
   const setWidgetLetterSpacing = (val: number) => updateOverrides({ widgetLetterSpacing: val === initialWidgetLetterSpacing ? undefined : val });
+
+  const initialWidgetSecondaryFont = user?.widgetSecondaryFont ?? "Inter";
+  const initialWidgetSecondaryFontSize = user?.widgetSecondaryFontSize ?? 12.5;
+  const initialWidgetSecondaryFontWeight = user?.widgetSecondaryFontWeight ?? 400;
+  const initialWidgetSecondaryLetterSpacing = user?.widgetSecondaryLetterSpacing ?? 0;
+
+  const widgetSecondaryFont = overrides.widgetSecondaryFont ?? initialWidgetSecondaryFont;
+  const setWidgetSecondaryFont = (val: string) => updateOverrides({ widgetSecondaryFont: val === initialWidgetSecondaryFont ? undefined : val });
+  const widgetSecondaryFontSize = overrides.widgetSecondaryFontSize ?? initialWidgetSecondaryFontSize;
+  const setWidgetSecondaryFontSize = (val: number) => updateOverrides({ widgetSecondaryFontSize: val === initialWidgetSecondaryFontSize ? undefined : val });
+  const widgetSecondaryFontWeight = overrides.widgetSecondaryFontWeight ?? initialWidgetSecondaryFontWeight;
+  const setWidgetSecondaryFontWeight = (val: number) => updateOverrides({ widgetSecondaryFontWeight: val === initialWidgetSecondaryFontWeight ? undefined : val });
+  const widgetSecondaryLetterSpacing = overrides.widgetSecondaryLetterSpacing ?? initialWidgetSecondaryLetterSpacing;
+  const setWidgetSecondaryLetterSpacing = (val: number) => updateOverrides({ widgetSecondaryLetterSpacing: val === initialWidgetSecondaryLetterSpacing ? undefined : val });
 
   const linksFont = overrides.linksFont ?? initialLinksFont;
   const setLinksFont = (val: string) => updateOverrides({ linksFont: val === initialLinksFont ? undefined : val });
@@ -253,25 +267,23 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
                 setSpacing={setHighlightLetterSpacing}
               />
 
-              <FontGroupSection
-                label="Widgets"
-                hint="Text inside your widget cards."
-                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="14" y="3" rx="1" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" /></svg>}
-                isOpen={openGroup === "widgets"}
-                onToggle={() => toggleGroup("widgets")}
-                font={widgetFont}
-                setFont={setWidgetFont}
-                size={widgetFontSize}
-                setSize={setWidgetFontSize}
-                weight={widgetFontWeight}
-                setWeight={setWidgetFontWeight}
-                spacing={widgetLetterSpacing}
-                setSpacing={setWidgetLetterSpacing}
-              />
+            </div>
+          </div>
+        </div>
 
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5]">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              <h2 className="text-white font-normal text-[16px] tracking-tight">Links</h2>
+            </div>
+
+            <div className="flex flex-col gap-3">
               <FontGroupSection
-                label="Links"
-                hint="Link titles on your profile."
+                label="Link titles"
+                hint="Titles on your profile links."
                 icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>}
                 isOpen={openGroup === "links"}
                 onToggle={() => toggleGroup("links")}
@@ -393,6 +405,51 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
             </div>
           </div>
         </div>
+
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect width="7" height="7" x="14" y="3" rx="1" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <h2 className="text-white font-normal text-[16px] tracking-tight">Widgets</h2>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <FontGroupSection
+                label="Primary"
+                hint="Titles on top of each widget card."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16" /></svg>}
+                isOpen={openGroup === "widgetPrimary"}
+                onToggle={() => toggleGroup("widgetPrimary")}
+                font={widgetFont}
+                setFont={setWidgetFont}
+                size={widgetFontSize}
+                setSize={setWidgetFontSize}
+                weight={widgetFontWeight}
+                setWeight={setWidgetFontWeight}
+                spacing={widgetLetterSpacing}
+                setSpacing={setWidgetLetterSpacing}
+              />
+
+              <FontGroupSection
+                label="Secondary"
+                hint="Small texts below widget titles. Skipped where a widget has none."
+                icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h10" /></svg>}
+                isOpen={openGroup === "widgetSecondary"}
+                onToggle={() => toggleGroup("widgetSecondary")}
+                font={widgetSecondaryFont}
+                setFont={setWidgetSecondaryFont}
+                size={widgetSecondaryFontSize}
+                setSize={setWidgetSecondaryFontSize}
+                weight={widgetSecondaryFontWeight}
+                setWeight={setWidgetSecondaryFontWeight}
+                spacing={widgetSecondaryLetterSpacing}
+                setSpacing={setWidgetSecondaryLetterSpacing}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <DashboardProfilePreview
@@ -439,6 +496,10 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
           widgetFontSize,
           widgetFontWeight,
           widgetLetterSpacing,
+          widgetSecondaryFont,
+          widgetSecondaryFontSize,
+          widgetSecondaryFontWeight,
+          widgetSecondaryLetterSpacing,
           linksFont,
           linksFontSize,
           linksFontWeight,

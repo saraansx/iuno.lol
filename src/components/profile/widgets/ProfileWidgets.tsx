@@ -98,6 +98,10 @@ export interface WidgetStyleProps {
   widgetFontSize?: number | null;
   widgetFontWeight?: number | null;
   widgetLetterSpacing?: number | null;
+  widgetSecondaryFont?: string | null;
+  widgetSecondaryFontSize?: number | null;
+  widgetSecondaryFontWeight?: number | null;
+  widgetSecondaryLetterSpacing?: number | null;
 }
 
 const WIDGET_BASE_FONT_SIZE = 12.5;
@@ -145,6 +149,24 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   if (typeof style.widgetLetterSpacing === "number") {
     const clamped = Math.min(50, Math.max(-10, style.widgetLetterSpacing));
     vars["--widget-letter-spacing"] = `${clamped}px`;
+  }
+
+  const secondaryFont = style.widgetSecondaryFont ? FONT_FAMILY_VARS[style.widgetSecondaryFont] : undefined;
+  if (secondaryFont) vars["--widget-secondary-font"] = secondaryFont;
+
+  if (typeof style.widgetSecondaryFontSize === "number" && style.widgetSecondaryFontSize > 0) {
+    const clamped = Math.min(64, Math.max(8, style.widgetSecondaryFontSize));
+    vars["--widget-secondary-font-scale"] = String(clamped / WIDGET_BASE_FONT_SIZE);
+  }
+
+  if (typeof style.widgetSecondaryFontWeight === "number" && style.widgetSecondaryFontWeight > 0) {
+    const clamped = Math.min(900, Math.max(100, style.widgetSecondaryFontWeight));
+    vars["--widget-secondary-font-weight"] = String(clamped);
+  }
+
+  if (typeof style.widgetSecondaryLetterSpacing === "number") {
+    const clamped = Math.min(50, Math.max(-10, style.widgetSecondaryLetterSpacing));
+    vars["--widget-secondary-letter-spacing"] = `${clamped}px`;
   }
 
   return vars as React.CSSProperties;
