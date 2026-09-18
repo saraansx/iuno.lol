@@ -99,7 +99,6 @@ export const userSettings = mysqlTable('user_settings', {
   bioFontWeight: int('bio_font_weight').default(400),
   bioLetterSpacing: float('bio_letter_spacing').default(0),
   bioColor: text('bio_color'),
-  bioAlign: mysqlEnum('bio_align', ['left', 'center', 'right']).default('center'),
   sectionTitleFont: text('section_title_font'),
   sectionTitleFontSize: int('section_title_font_size').default(15),
   sectionTitleFontWeight: int('section_title_font_weight').default(500),
