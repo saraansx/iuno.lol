@@ -150,7 +150,8 @@ async function handler() {
 
   } catch (error) {
     console.error('[cron] Bulk flush failed:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    const detail = error instanceof Error ? error.message : String(error);
+    return NextResponse.json({ error: 'Internal Server Error', detail }, { status: 500 });
   }
 }
 
