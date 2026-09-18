@@ -67,6 +67,8 @@ export const userSettings = mysqlTable('user_settings', {
   descriptionEffect: text('description_effect'),
   cursorTrail: text('cursor_trail'),
   cursorTrailColor: text('cursor_trail_color'),
+  clickEffect: text('click_effect'),
+  clickSound: text('click_sound'),
   entryTransition: text('entry_transition'),
   enterScreenEnabled: boolean('enter_screen_enabled').default(false),
   enterScreenText: text('enter_screen_text'),

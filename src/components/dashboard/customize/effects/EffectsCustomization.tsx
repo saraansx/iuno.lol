@@ -5,6 +5,8 @@ import BorderEffectSection from "./BorderEffectSection";
 import CardTransitionSection from "./CardTransitionSection";
 import UsernameEffectSection from "./UsernameEffectSection";
 import DescriptionEffectSection from "./DescriptionEffectSection";
+import ClickEffectSection from "./ClickEffectSection";
+import ClickSoundSection from "./ClickSoundSection";
 import CursorTrailSection from "./CursorTrailSection";
 import EntryTransitionSection from "./EntryTransitionSection";
 import TapToEnterSection from "./TapToEnterSection";
@@ -30,6 +32,10 @@ interface EffectsCustomizationProps {
   setUsernameEffect: (val: string) => void;
   descriptionEffect: string;
   setDescriptionEffect: (val: string) => void;
+  clickEffect: string;
+  setClickEffect: (val: string) => void;
+  clickSound: string;
+  setClickSound: (val: string) => void;
   cursorTrail: string;
   setCursorTrail: (val: string) => void;
   cursorTrailColor: string;
@@ -79,6 +85,10 @@ export default function EffectsCustomization({
   setUsernameEffect,
   descriptionEffect,
   setDescriptionEffect,
+  clickEffect,
+  setClickEffect,
+  clickSound,
+  setClickSound,
   cursorTrail,
   setCursorTrail,
   cursorTrailColor,
@@ -140,6 +150,14 @@ export default function EffectsCustomization({
           <DescriptionEffectSection
             descriptionEffect={descriptionEffect}
             setDescriptionEffect={setDescriptionEffect}
+          />
+          <ClickEffectSection
+            clickEffect={clickEffect}
+            setClickEffect={setClickEffect}
+          />
+          <ClickSoundSection
+            clickSound={clickSound}
+            setClickSound={setClickSound}
           />
           <CursorTrailSection
             cursorTrail={cursorTrail}

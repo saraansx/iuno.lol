@@ -16,6 +16,7 @@ import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
+import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_BASE = "https://files.catbox.moe/";
@@ -707,6 +708,8 @@ export async function updateEffectsProfile(data: {
   descriptionEffect?: string | null;
   cursorTrail?: string | null;
   cursorTrailColor?: string | null;
+  clickEffect?: string | null;
+  clickSound?: string | null;
   entryTransition?: string | null;
   enterScreenEnabled?: boolean | null;
   enterScreenText?: string | null;
@@ -747,6 +750,14 @@ export async function updateEffectsProfile(data: {
   if (data.descriptionEffect !== undefined) setData.descriptionEffect = data.descriptionEffect?.slice(0, 50) ?? null;
   if (data.cursorTrail !== undefined) setData.cursorTrail = data.cursorTrail?.slice(0, 50) ?? null;
   if (data.cursorTrailColor !== undefined) setData.cursorTrailColor = data.cursorTrailColor?.slice(0, 32) ?? null;
+  if (data.clickEffect !== undefined) {
+    const id = data.clickEffect?.trim().slice(0, 50) ?? "none";
+    setData.clickEffect = CLICK_EFFECTS.some((e) => e.id === id) ? id : "none";
+  }
+  if (data.clickSound !== undefined) {
+    const id = data.clickSound?.trim().slice(0, 50) ?? "none";
+    setData.clickSound = CLICK_SOUNDS.some((s) => s.id === id) ? id : "none";
+  }
   if (data.entryTransition !== undefined) setData.entryTransition = data.entryTransition?.slice(0, 50) ?? null;
   if (data.enterScreenEnabled !== undefined) setData.enterScreenEnabled = data.enterScreenEnabled ?? false;
   if (data.enterScreenText !== undefined) setData.enterScreenText = data.enterScreenText?.slice(0, 100) ?? 'click to enter';

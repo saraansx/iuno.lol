@@ -13,6 +13,7 @@ import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
+import ClickEffects from "./ClickEffects";
 import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
@@ -125,6 +126,8 @@ interface Layout1Props {
   descriptionEffect?: string;
   cursorTrail?: string;
   cursorTrailColor?: string;
+  clickEffect?: string | null;
+  clickSound?: string | null;
   entryTransition?: string;
   enterScreenEnabled?: boolean;
   enterScreenText?: string;
@@ -378,6 +381,8 @@ const Layout1 = ({
   descriptionEffect = "none",
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
+  clickEffect,
+  clickSound,
   entryTransition = "none",
   enterScreenEnabled = false,
   enterScreenText = "click to enter",
@@ -1113,6 +1118,7 @@ const sectionSurface: React.CSSProperties = {
         )}
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
+        <ClickEffects effect={clickEffect} sound={clickSound} />
 
 
         {paged && (
