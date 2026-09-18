@@ -39,7 +39,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const widgetSecondaryTextColor = overrides.widgetSecondaryTextColor ?? initialWidgetSecondaryTextColor;
   const setWidgetSecondaryTextColor = (val: string) => updateOverrides({ widgetSecondaryTextColor: val === initialWidgetSecondaryTextColor ? undefined : val });
   const widgetBorderColor = overrides.widgetBorderColor ?? initialWidgetBorderColor;
-  const setWidgetBorderColor = (val: string) => updateOverrides({ widgetBorderColor: val === initialWidgetBorderColor ? undefined : val });
 
   const initialSectionTitleColor = user?.sectionTitleColor ?? "#FFFFFF";
   const initialSectionDescColor = user?.sectionDescColor ?? "#FFFFFF";
@@ -85,8 +84,6 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setPrimaryTextColor={setWidgetPrimaryTextColor}
           secondaryTextColor={widgetSecondaryTextColor}
           setSecondaryTextColor={setWidgetSecondaryTextColor}
-          borderColor={widgetBorderColor}
-          setBorderColor={setWidgetBorderColor}
         />
 
         <SectionStyleCustomization

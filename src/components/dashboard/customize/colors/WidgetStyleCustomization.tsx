@@ -8,8 +8,6 @@ interface WidgetStyleCustomizationProps {
   setPrimaryTextColor: (val: string) => void;
   secondaryTextColor: string;
   setSecondaryTextColor: (val: string) => void;
-  borderColor: string;
-  setBorderColor: (val: string) => void;
 }
 
 export default function WidgetStyleCustomization({
@@ -17,8 +15,6 @@ export default function WidgetStyleCustomization({
   setPrimaryTextColor,
   secondaryTextColor,
   setSecondaryTextColor,
-  borderColor,
-  setBorderColor,
 }: WidgetStyleCustomizationProps) {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -34,7 +30,6 @@ export default function WidgetStyleCustomization({
   const handleRandomize = () => {
     setPrimaryTextColor(getRandomHex());
     setSecondaryTextColor(getRandomHex());
-    setBorderColor(getRandomHex());
   };
 
   return (
@@ -136,39 +131,6 @@ export default function WidgetStyleCustomization({
                     onChange={setSecondaryTextColor}
                   />
                   <p className="text-[11px] text-white/40 mt-1">Stats, labels and icons — the supporting line under each title.</p>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="bg-[#111111] border border-white/5 rounded-xl flex flex-col transition-all duration-200">
-            <button
-              onClick={() => setOpenSection(openSection === 'border' ? null : 'border')}
-              className="w-full flex items-center gap-3 px-4 py-3.5 transition-colors cursor-pointer text-left focus:outline-none"
-            >
-              <div className="text-white/50">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="18" height="18" rx="3" />
-                </svg>
-              </div>
-              <span className="text-[13px] font-medium text-white/90 flex-1">Border Color</span>
-              <div className="flex items-center gap-2 mr-1">
-                <span className="text-[11px] font-mono text-white/40 uppercase">{borderColor || "#ffffff"}</span>
-                <div className="w-4 h-4 rounded-md border border-white/20 shadow-sm shrink-0" style={{ backgroundColor: borderColor || "#ffffff" }} />
-              </div>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${openSection === 'border' ? "rotate-180" : ""}`}>
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </button>
-            {openSection === 'border' && (
-              <div className="px-4 pb-4 pt-0.5">
-                <div className="flex flex-col gap-2">
-                  <label className="text-[12.5px] font-medium text-white/90">Color Hex</label>
-                  <ColorPickerInput
-                    value={borderColor}
-                    onChange={setBorderColor}
-                  />
-                  <p className="text-[11px] text-white/40 mt-1">The outline around each widget card. Set its width, radius and opacity in the Widgets section.</p>
                 </div>
               </div>
             )}
