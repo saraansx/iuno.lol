@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { updateLayoutProfile } from "@/actions/profile";
-import { toast } from "@/components/ui/toast";
+import { useState } from "react";
 import SectionVisibilityButton from "./SectionVisibilityButton";
 
-interface AboutSectionRowProps {
+export interface AboutSectionData {
   hidden: boolean;
   title: string;
   description: string;
+}
+
+interface AboutSectionRowProps {
+  data: AboutSectionData;
+  onChange: (patch: Partial<AboutSectionData>) => void;
   dragHandleProps?: {
     onDragStart: (e: React.DragEvent) => void;
     onDragEnd: () => void;
@@ -17,44 +19,18 @@ interface AboutSectionRowProps {
   onDragOverRow?: (e: React.DragEvent) => void;
   onDropRow?: (e: React.DragEvent) => void;
   dropHighlight?: boolean;
+  isDragging?: boolean;
 }
 
-export default function AboutSectionRow({ hidden, title, description, dragHandleProps, onDragOverRow, onDropRow, dropHighlight }: AboutSectionRowProps) {
+export default function AboutSectionRow({ data, onChange, dragHandleProps, onDragOverRow, onDropRow, dropHighlight, isDragging }: AboutSectionRowProps) {
   const [open, setOpen] = useState(false);
-  const [titleValue, setTitleValue] = useState(title);
-  const [descValue, setDescValue] = useState(description);
-  const [pending, startTransition] = useTransition();
-  const router = useRouter();
-
-  const dirty = titleValue !== title || descValue !== description;
-
-  const save = () =>
-    startTransition(async () => {
-      try {
-        await updateLayoutProfile({
-          aboutSectionTitle: titleValue,
-          aboutSectionDescription: descValue,
-        });
-        toast.success("About section updated");
-        setOpen(false);
-        router.refresh();
-      } catch (error) {
-        console.error(error);
-        toast.error(error instanceof Error ? error.message : "Failed to update section");
-      }
-    });
-
-  const cancel = () => {
-    setTitleValue(title);
-    setDescValue(description);
-    setOpen(false);
-  };
+  const { hidden, title, description } = data;
 
   return (
     <div
       onDragOver={onDragOverRow}
       onDrop={onDropRow}
-      className={`bg-[#0c0c0c] border rounded-[16px] transition-colors ${hidden ? "opacity-40" : ""} ${dropHighlight ? "border-[#5b6cf5]/60" : "border-white/5"}`}
+      className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]" : dropHighlight ? "border-[#5b6cf5] shadow-lg shadow-[#5b6cf5]/10" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
@@ -111,6 +87,7 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
             name="About"
             field="aboutSectionEnabled"
             hidden={hidden}
+            onToggle={() => onChange({ hidden: !hidden })}
           />
         </div>
       </div>
@@ -121,8 +98,8 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
             <label htmlFor="about-title" className="text-[12.5px] text-white/40">Title</label>
             <input
               id="about-title"
-              value={titleValue}
-              onChange={(e) => setTitleValue(e.target.value)}
+              value={title}
+              onChange={(e) => onChange({ title: e.target.value })}
               maxLength={60}
               placeholder="About"
               className="bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white placeholder:text-white/25 focus:outline-none focus:border-white/10"
@@ -133,33 +110,14 @@ export default function AboutSectionRow({ hidden, title, description, dragHandle
             <label htmlFor="about-description" className="text-[12.5px] text-white/40">Subtitle</label>
             <textarea
               id="about-description"
-              value={descValue}
-              onChange={(e) => setDescValue(e.target.value)}
+              value={description}
+              onChange={(e) => onChange({ description: e.target.value })}
               maxLength={200}
               rows={2}
               placeholder="A short line under the heading — the bio stays in the card"
               className="bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5 text-[13px] text-white placeholder:text-white/25 resize-y focus:outline-none focus:border-white/10"
             />
-            <span className="text-[11px] text-white/25 self-end">{descValue.length}/200</span>
-          </div>
-
-          <div className="flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={cancel}
-              disabled={pending}
-              className="bg-white/[0.06] border border-white/10 hover:bg-white/[0.09] text-[13px] text-white/80 font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={save}
-              disabled={pending || !dirty}
-              className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-[13px] text-white font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {pending ? "Saving..." : "Save changes"}
-            </button>
+            <span className="text-[11px] text-white/25 self-end">{description.length}/200</span>
           </div>
         </div>
       )}

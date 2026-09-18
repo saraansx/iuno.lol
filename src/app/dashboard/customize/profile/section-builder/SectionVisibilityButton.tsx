@@ -9,18 +9,25 @@ interface SectionVisibilityButtonProps {
   name: string;
   field: "aboutSectionEnabled" | "widgetsSectionEnabled" | "linksSectionEnabled";
   hidden: boolean;
+  /** Staged mode: call instead of saving immediately. */
+  onToggle?: () => void;
 }
 
 export default function SectionVisibilityButton({
   name,
   field,
   hidden,
+  onToggle,
 }: SectionVisibilityButtonProps) {
   const [pending, startTransition] = useTransition();
   const router = useRouter();
 
-  const toggle = () =>
-    startTransition(async () => {
+  const toggle = () => {
+    if (onToggle) {
+      onToggle();
+      return;
+    }
+    return startTransition(async () => {
       try {
         await updateLayoutProfile({ [field]: hidden });
         toast.success(hidden ? `${name} section shown` : `${name} section hidden`);
@@ -30,6 +37,7 @@ export default function SectionVisibilityButton({
         toast.error(error instanceof Error ? error.message : "Failed to update section");
       }
     });
+  };
 
   return (
     <button

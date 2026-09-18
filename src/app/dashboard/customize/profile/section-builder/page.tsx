@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
-import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
-import SectionRowsClient from "./SectionRowsClient";
+import SectionBuilderClient from "./SectionBuilderClient";
 import WidgetsNotice from "./WidgetsNotice";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
@@ -26,24 +25,6 @@ export default async function Page() {
   const user = await getUserById(userId);
   const isSectioned = user?.profileStructure === "sectioned";
   const bigLinksCount = (user?.links ?? []).filter((l) => l && l.variant !== "small").length;
-  const sectionRows = [
-    <SectionRowsClient
-      key="sections"
-      about={{
-        hidden: user?.aboutSectionEnabled === false,
-        title: user?.aboutSectionTitle ?? "About",
-        description: user?.aboutSectionDescription ?? "",
-      }}
-      links={{
-        hidden: user?.linksSectionEnabled === false,
-        title: user?.linksSectionTitle ?? "Links",
-        description: user?.linksSectionDescription ?? "",
-        bigCount: bigLinksCount,
-        aboveAbout: user?.linksSectionPosition === "above",
-      }}
-    />,
-    <WidgetsNotice key="widgets" />,
-  ];
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -128,7 +109,7 @@ export default async function Page() {
 
             <div className="flex items-center gap-4">
               <span className="text-[12.5px] font-normal text-white/40 tracking-tight shrink-0">
-                Profile sections ({sectionRows.length})
+                Profile sections (2)
               </span>
               <div className="h-px flex-1 bg-white/5" />
               <button
@@ -145,7 +126,22 @@ export default async function Page() {
               </button>
             </div>
 
-            <div className="flex flex-col gap-3">{sectionRows}</div>
+            <SectionBuilderClient
+              user={user}
+              initialAbout={{
+                hidden: user?.aboutSectionEnabled === false,
+                title: user?.aboutSectionTitle ?? "About",
+                description: user?.aboutSectionDescription ?? "",
+              }}
+              initialLinks={{
+                hidden: user?.linksSectionEnabled === false,
+                title: user?.linksSectionTitle ?? "Links",
+                description: user?.linksSectionDescription ?? "",
+                bigCount: bigLinksCount,
+                aboveAbout: user?.linksSectionPosition === "above",
+              }}
+            />
+            <WidgetsNotice />
           </>
         ) : (
           <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] py-20 px-8 flex flex-col items-center text-center shadow-sm">
@@ -177,8 +173,6 @@ export default async function Page() {
           </div>
         )}
       </div>
-
-      <DashboardProfilePreview user={user} />
     </div>
   );
 }
