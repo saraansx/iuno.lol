@@ -7,6 +7,7 @@ import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import effects from '@/effects.json'
+import { getEquippedBadgeIds } from '@/lib/features/users/db'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
@@ -279,6 +280,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
+  const equippedBadges = await getEquippedBadgeIds(user.id);
+
   const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
   const cursorValue = cursorUrl
     ? `url(${JSON.stringify(cursorUrl)}) ${CURSOR_HOTSPOT} ${CURSOR_HOTSPOT}`
@@ -318,6 +321,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         cardEffect={user.cardEffect ?? undefined}
         cardTransition={user.cardTransition ?? undefined}
         usernameEffect={user.usernameEffect ?? undefined}
+        equippedBadges={equippedBadges}
         descriptionEffect={user.descriptionEffect ?? undefined}
         cursorTrail={user.cursorTrail ?? undefined}
         cursorTrailColor={user.cursorTrailColor ?? undefined}

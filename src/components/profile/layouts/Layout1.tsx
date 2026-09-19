@@ -11,6 +11,7 @@ import { BorderEffect } from "./BorderEffect";
 import { CardEffect } from "./CardEffect";
 import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
+import ProfileBadges from "./ProfileBadges";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
 import ClickEffects from "./ClickEffects";
@@ -156,6 +157,7 @@ interface Layout1Props {
   usernameFontWeight?: number;
   usernameLetterSpacing?: number;
   usernameColor?: string;
+  equippedBadges?: string[];
   bioFont?: string;
   bioFontSize?: number;
   bioFontWeight?: number;
@@ -379,6 +381,7 @@ const Layout1 = ({
   cardTransition = "none",
   usernameEffect = "none",
   descriptionEffect = "none",
+  equippedBadges = [],
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
   clickEffect,
@@ -1302,6 +1305,7 @@ const sectionSurface: React.CSSProperties = {
                       {display}
                     </h1>
                   </UsernameEffect>
+                  <ProfileBadges badgeIds={equippedBadges} />
                   {showUidTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/uid:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/uid:translate-y-0">
                       <div className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap" style={tooltipTextStyle}>

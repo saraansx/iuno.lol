@@ -2,7 +2,7 @@ import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
 import { validateUsername } from '@/lib/server/security/validation'
 import { UserFacingError } from '@/lib/errors'
-import { eq, sql, and, lt } from 'drizzle-orm'
+import { eq, sql, and, lt, desc, asc } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
 
@@ -509,5 +509,35 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
     mac: Number(resultRows[0].mac) || 0,
     other: Number(resultRows[0].other) || 0
   }
+}
+
+export interface UserBadgeRow {
+  badgeId: string;
+  equipped: boolean;
+  equippedAt: Date | null;
+  createdAt: Date;
+}
+
+export async function getUserBadges(userId: number): Promise<UserBadgeRow[]> {
+  const rows = await db
+    .select({
+      badgeId: schema.userBadges.badgeId,
+      equipped: schema.userBadges.equipped,
+      equippedAt: schema.userBadges.equippedAt,
+      createdAt: schema.userBadges.createdAt,
+    })
+    .from(schema.userBadges)
+    .where(eq(schema.userBadges.userId, userId))
+    .orderBy(desc(schema.userBadges.equipped), asc(schema.userBadges.equippedAt), asc(schema.userBadges.createdAt))
+  return rows
+}
+
+export async function getEquippedBadgeIds(userId: number): Promise<string[]> {
+  const rows = await db
+    .select({ badgeId: schema.userBadges.badgeId })
+    .from(schema.userBadges)
+    .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.equipped, true)))
+    .orderBy(asc(schema.userBadges.equippedAt))
+  return rows.map((r) => r.badgeId)
 }
 

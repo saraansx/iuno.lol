@@ -1,5 +1,7 @@
 // Shared badge definitions (imported by both the server page and the client tabs).
 
+export const MAX_EQUIPPED_BADGES = 4;
+
 export const BADGES = [
   {
     id: "owner",

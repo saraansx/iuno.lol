@@ -455,6 +455,25 @@ export const profileFeedbackRelations = relations(profileFeedback, ({ one }) => 
   }),
 }))
 
+export const userBadges = mysqlTable('user_badges', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  badgeId: varchar('badge_id', { length: 50 }).notNull(),
+  equipped: boolean('equipped').default(false).notNull(),
+  equippedAt: timestamp('equipped_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userBadgeIdx: uniqueIndex('user_badge_idx').on(table.userId, table.badgeId),
+  userEquippedIdx: index('user_equipped_idx').on(table.userId, table.equipped),
+}))
+
+export const userBadgesRelations = relations(userBadges, ({ one }) => ({
+  user: one(users, {
+    fields: [userBadges.userId],
+    references: [users.id],
+  }),
+}))
+
 export const schema = {
   users,
   userSettings,
@@ -466,11 +485,13 @@ export const schema = {
   profileComments,
   commentLikes,
   profileFeedback,
+  userBadges,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,
   commentLikesRelations,
   profileFeedbackRelations,
+  userBadgesRelations,
 }
 
 export type User = typeof users.$inferSelect;
