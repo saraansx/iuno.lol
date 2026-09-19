@@ -167,9 +167,22 @@ export async function saveEquippedBadges(ids: string[]): Promise<{ owned: string
     if (id !== "early" && !ownedSet.has(id)) {
       throw new Error("Locked — sync your Discord roles to unlock this badge.");
     }
+    if (id === "early" && userId > EARLY_CUTOFF_UID) {
+      throw new Error("Only the first 100 members can earn this badge.");
+    }
   }
 
   const now = new Date();
+  for (const id of clean) {
+    if (!ownedSet.has(id)) {
+      await db.insert(schema.userBadges).values({
+        userId,
+        badgeId: id,
+        equipped: true,
+        equippedAt: now,
+      });
+    }
+  }
   for (const row of rows) {
     const shouldEquip = clean.includes(row.badgeId);
     if (shouldEquip && !row.equipped) {
