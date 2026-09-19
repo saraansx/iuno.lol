@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES } from "./badges-data";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
@@ -63,20 +63,47 @@ function BadgeIcon({ badge, size = 26 }: { badge: Badge; size?: number }) {
 function OwnedRow({
   badge,
   onAction,
+  dragging,
+  dropTarget,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  onDragEnd,
 }: {
   badge: Badge;
   onAction: () => void;
+  dragging: boolean;
+  dropTarget: boolean;
+  onDragStart: (e: DragEvent, id: string) => void;
+  onDragOver: (e: DragEvent, id: string) => void;
+  onDrop: (id: string) => void;
+  onDragEnd: () => void;
 }) {
   return (
-    <div className="px-4 py-3.5 flex items-center gap-3 bg-[#141414] border border-white/5 rounded-2xl">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/20 shrink-0">
-        <circle cx="9" cy="5" r="1.4" />
-        <circle cx="9" cy="12" r="1.4" />
-        <circle cx="9" cy="19" r="1.4" />
-        <circle cx="15" cy="5" r="1.4" />
-        <circle cx="15" cy="12" r="1.4" />
-        <circle cx="15" cy="19" r="1.4" />
-      </svg>
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, badge.id)}
+      onDragOver={(e) => onDragOver(e, badge.id)}
+      onDrop={() => onDrop(badge.id)}
+      onDragEnd={onDragEnd}
+      className={`group flex items-center gap-3 p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
+        dragging
+          ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
+          : dropTarget
+            ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
+            : "border-white/5"
+      }`}
+    >
+      <div className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors shrink-0">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="9" cy="12" r="1" />
+          <circle cx="9" cy="5" r="1" />
+          <circle cx="9" cy="19" r="1" />
+          <circle cx="15" cy="12" r="1" />
+          <circle cx="15" cy="5" r="1" />
+          <circle cx="15" cy="19" r="1" />
+        </svg>
+      </div>
       <BadgeIcon badge={badge} />
       <div className="flex flex-col gap-0.5 min-w-0 flex-1">
         <span className="text-[13.5px] font-normal text-white/90 truncate">{badge.name}</span>
@@ -210,6 +237,41 @@ export default function BadgesTabs({
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [applyFor, setApplyFor] = useState<Badge | null>(null);
+  const [dragId, setDragId] = useState<string | null>(null);
+  const [dropId, setDropId] = useState<string | null>(null);
+
+  function handleRowDragStart(e: DragEvent, id: string) {
+    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.effectAllowed = "move";
+    setDragId(id);
+  }
+
+  function handleRowDragOver(e: DragEvent, id: string) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (id !== dragId) setDropId(id);
+  }
+
+  function handleRowDrop(id: string) {
+    if (dragId && dragId !== id) {
+      const from = dragId;
+      setEquipped((prev) => {
+        const fromIdx = prev.indexOf(from);
+        const toIdx = prev.indexOf(id);
+        if (fromIdx < 0 || toIdx < 0) return prev;
+        const next = [...prev];
+        next.splice(toIdx, 0, ...next.splice(fromIdx, 1));
+        return next;
+      });
+    }
+    setDragId(null);
+    setDropId(null);
+  }
+
+  function handleRowDragEnd() {
+    setDragId(null);
+    setDropId(null);
+  }
 
   useEffect(() => {
     if (!applyFor) return;
@@ -265,10 +327,6 @@ export default function BadgesTabs({
     openDiscordLink();
     setApplyFor(null);
   }
-
-  const unequipped = owned.filter((id) => !equipped.includes(id));
-  const frontBadges = equipped.slice(0, 4);
-  const restBadges = equipped.slice(4);
 
   async function handleSync() {
     if (syncing) return;
@@ -372,8 +430,8 @@ export default function BadgesTabs({
             </div>
           ) : (
             <>
-              <div className="flex flex-col gap-3">
-              {frontBadges.map((id) => {
+              <div className={`flex flex-col gap-2.5 ${equipped.length > 4 ? "max-h-[310px] overflow-y-auto custom-scrollbar pr-1.5 -mr-1.5" : ""}`}>
+              {equipped.map((id) => {
                 const badge = badgeById(id);
                 if (!badge) return null;
                 return (
@@ -381,25 +439,16 @@ export default function BadgesTabs({
                     key={badge.id}
                     badge={badge}
                     onAction={() => toggleBadge(badge.id)}
+                    dragging={dragId === badge.id}
+                    dropTarget={dropId === badge.id}
+                    onDragStart={handleRowDragStart}
+                    onDragOver={handleRowDragOver}
+                    onDrop={handleRowDrop}
+                    onDragEnd={handleRowDragEnd}
                   />
                 );
               })}
               </div>
-              {restBadges.length > 0 && (
-                <div className="flex flex-col gap-3 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
-                  {restBadges.map((id) => {
-                    const badge = badgeById(id);
-                    if (!badge) return null;
-                    return (
-                      <OwnedRow
-                        key={badge.id}
-                        badge={badge}
-                        onAction={() => toggleBadge(badge.id)}
-                      />
-                    );
-                  })}
-                </div>
-              )}
             </>
           )}
         </div>

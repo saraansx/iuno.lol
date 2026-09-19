@@ -537,7 +537,7 @@ export async function getEquippedBadgeIds(userId: number): Promise<string[]> {
     .select({ badgeId: schema.userBadges.badgeId })
     .from(schema.userBadges)
     .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.equipped, true)))
-    .orderBy(asc(schema.userBadges.equippedAt))
+    .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt), asc(schema.userBadges.id))
   return rows.map((r) => r.badgeId)
 }
 

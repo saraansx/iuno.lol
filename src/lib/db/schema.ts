@@ -461,6 +461,7 @@ export const userBadges = mysqlTable('user_badges', {
   badgeId: varchar('badge_id', { length: 50 }).notNull(),
   equipped: boolean('equipped').default(false).notNull(),
   equippedAt: timestamp('equipped_at'),
+  sortOrder: int('sort_order').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   userBadgeIdx: uniqueIndex('user_badge_idx').on(table.userId, table.badgeId),

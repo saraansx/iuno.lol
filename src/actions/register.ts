@@ -56,7 +56,7 @@ export async function register(input: RegisterInput) {
 
     await deleteUnverifiedUserByEmail(email)
 
-    await createUser({ username, email, password, affiliateCode })
+    await createUser({ username, email, password, affiliateCode, ip: ip ?? undefined })
 
     try {
       const token = await createVerificationToken(email)

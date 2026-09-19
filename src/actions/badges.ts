@@ -6,7 +6,7 @@ import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { eq, and } from "drizzle-orm";
+import { eq, and, asc } from "drizzle-orm";
 import { BADGES, EARLY_CUTOFF_UID } from "@/app/dashboard/customize/badges/badges-data";
 
 type BadgeEntry = (typeof BADGES)[number];
@@ -56,7 +56,8 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
   const rows = await db
     .select({ badgeId: schema.userBadges.badgeId, equipped: schema.userBadges.equipped })
     .from(schema.userBadges)
-    .where(eq(schema.userBadges.userId, userId));
+    .where(eq(schema.userBadges.userId, userId))
+    .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
 
   return {
     owned: rows.map((r) => r.badgeId),
@@ -173,22 +174,29 @@ export async function saveEquippedBadges(ids: string[]): Promise<{ owned: string
   }
 
   const now = new Date();
-  for (const id of clean) {
+  for (const [index, id] of clean.entries()) {
     if (!ownedSet.has(id)) {
       await db.insert(schema.userBadges).values({
         userId,
         badgeId: id,
         equipped: true,
         equippedAt: now,
+        sortOrder: index,
       });
     }
   }
   for (const row of rows) {
-    const shouldEquip = clean.includes(row.badgeId);
+    const index = clean.indexOf(row.badgeId);
+    const shouldEquip = index !== -1;
     if (shouldEquip && !row.equipped) {
       await db
         .update(schema.userBadges)
-        .set({ equipped: true, equippedAt: now })
+        .set({ equipped: true, equippedAt: now, sortOrder: index })
+        .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId)));
+    } else if (shouldEquip && row.equipped && row.sortOrder !== index) {
+      await db
+        .update(schema.userBadges)
+        .set({ sortOrder: index })
         .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId)));
     } else if (!shouldEquip && row.equipped) {
       await db
