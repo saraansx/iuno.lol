@@ -1,5 +1,3 @@
-// Discord role ID -> badge ID. Used by manual Sync and the nightly cron.
-// NOTE: "Early" has no Discord role and is handled separately by UID.
 export const ROLE_BADGE_MAP: Record<string, string> = {
   "1550685500627488798": "owner",
   "1538628583726260234": "developer",
