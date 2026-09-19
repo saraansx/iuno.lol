@@ -253,11 +253,27 @@ export async function getUserByEmailWithPassword(email: string) {
     .select({
       id: schema.users.id,
       username: schema.users.username,
+      email: schema.users.email,
       password: schema.users.password,
       emailVerified: schema.users.emailVerified,
     })
     .from(schema.users)
     .where(eq(schema.users.email, email.toLowerCase().trim()))
+    .limit(1)
+  return result[0] || null
+}
+
+export async function getUserByUsernameWithPassword(username: string) {
+  const result = await db
+    .select({
+      id: schema.users.id,
+      username: schema.users.username,
+      email: schema.users.email,
+      password: schema.users.password,
+      emailVerified: schema.users.emailVerified,
+    })
+    .from(schema.users)
+    .where(eq(schema.users.username, username.toLowerCase().trim()))
     .limit(1)
   return result[0] || null
 }

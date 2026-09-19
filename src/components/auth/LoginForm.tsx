@@ -56,7 +56,11 @@ const LoginForm = () => {
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!email) newErrors.email = "Email cannot be empty.";
+    if (!email) {
+      newErrors.email = method === "otp" ? "Email cannot be empty." : "Email or username cannot be empty.";
+    } else if (method === "otp" && !email.includes("@")) {
+      newErrors.email = "Enter a valid email address.";
+    }
     if (method === "password") {
       if (!password) newErrors.password = "Password cannot be empty.";
     } else {
@@ -82,6 +86,10 @@ const LoginForm = () => {
     if (method === "otp" && !otpSent) {
       if (!email) {
         setErrors({ email: "Email cannot be empty." });
+        return;
+      }
+      if (!email.includes("@")) {
+        setErrors({ email: "Enter a valid email address." });
         return;
       }
       setError("");
@@ -121,7 +129,7 @@ const LoginForm = () => {
     }
 
     startTransition(() => {
-      login({ email, method, password, otpCode, turnstileToken: token })
+      login({ identifier: email, method, password, otpCode, turnstileToken: token })
         .then((data) => {
           if (data.error) {
             setError(data.error);
@@ -182,12 +190,12 @@ const LoginForm = () => {
 
       <FloatingInput
         id="email"
-        label="Email Address"
-        type="email"
+        label={method === "otp" ? "Email Address" : "Email or Username"}
+        type={method === "otp" ? "email" : "text"}
         value={email}
         onChange={(e) => handleInputChange("email", e.target.value, setEmail)}
         error={errors.email}
-        autoComplete="email"
+        autoComplete={method === "otp" ? "email" : "username"}
       />
 
       {method === "password" && (
