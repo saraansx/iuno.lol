@@ -12,6 +12,21 @@ type Badge = (typeof BADGES)[number];
 // Badges that can be applied for (modal with purchase + Discord options).
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
 
+// Show-only CTA buttons on locked rows.
+const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" }> = {
+  premium: { label: "Get premium", action: "soon" },
+  "image-host": { label: "Get image host", action: "soon" },
+  donator: { label: "Donate", action: "soon" },
+  "bug-hunter": { label: "Report a bug", action: "discord" },
+  booster: { label: "Join Discord", action: "discord" },
+  "guild-tag": { label: "Join Discord", action: "discord" },
+  domain: { label: "Add Domain", action: "soon" },
+  gifter: { label: "Send a gift", action: "soon" },
+  featured: { label: "Apply", action: "discord" },
+  suggestor: { label: "Suggest Ideas", action: "discord" },
+  "discord-recruiter": { label: "Invite", action: "discord" },
+};
+
 const ROWS: Array<{ slice: [number, number?]; cols: "md:grid-cols-3" | "md:grid-cols-2" }> = [
   { slice: [0, 3], cols: "md:grid-cols-3" },
   { slice: [3, 6], cols: "md:grid-cols-3" },
@@ -88,6 +103,7 @@ function BadgeCell({
   showApply,
   onToggle,
   onApply,
+  onDiscord,
 }: {
   badge: Badge;
   isEquipped: boolean;
@@ -95,34 +111,21 @@ function BadgeCell({
   showApply: boolean;
   onToggle: (id: string) => void;
   onApply: (id: string) => void;
+  onDiscord: () => void;
 }) {
-  const pillText = isEquipped ? "Equipped" : "pill" in badge ? badge.pill : null;
+  const pillText = "pill" in badge ? badge.pill : null;
   return (
     <div
-      onClick={() => onToggle(badge.id)}
-      title={
-        isLocked
-          ? badge.id === "early"
-            ? "Only the first 100 members can earn this badge"
-            : "Locked — sync your Discord roles to unlock"
-          : isEquipped
-            ? `Unequip ${badge.name}`
-            : `Equip ${badge.name}`
-      }
       className={`px-5 py-4 flex flex-col gap-1 transition-all ${
-        isLocked
-          ? "cursor-not-allowed saturate-50 opacity-70"
-          : "cursor-pointer hover:bg-white/[0.02]"
-      } ${
-        isEquipped ? "ring-1 ring-inset ring-[#5b6cf5]/40" : ""
-      }`}
+        isLocked ? "saturate-50 opacity-70" : ""
+      } ${isEquipped ? "ring-1 ring-inset ring-[#5b6cf5]/40" : ""}`}
     >
       <div className="flex items-center gap-3">
         <BadgeIcon badge={badge} />
         <span className="text-[14px] font-medium text-white tracking-tight min-w-0 truncate">{badge.name}</span>
         <span className="ml-auto shrink-0 flex items-center gap-2">
           {isLocked && (
-            <span className="text-white/30">
+            <span className="text-white/30" title={badge.id === "early" ? "Only the first 100 members can earn this badge" : "Locked — sync your Discord roles to unlock"}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -132,27 +135,47 @@ function BadgeCell({
           {showApply && (
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onApply(badge.id);
-              }}
+              onClick={() => onApply(badge.id)}
               className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
             >
               Apply
             </button>
           )}
-          {!isLocked && pillText && (
-            <span
-              className={`text-[12px] font-normal rounded-lg px-3 py-1 border ${
-                isEquipped
-                  ? "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30"
-                  : "pill" in badge
-                    ? "text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/20"
-                    : "text-white/70 bg-white/[0.03] border-white/15"
-              }`}
+          {!isLocked && isEquipped && (
+            <button
+              type="button"
+              onClick={() => onToggle(badge.id)}
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20 transition-colors cursor-pointer"
             >
+              Unequip
+            </button>
+          )}
+          {!isLocked && !isEquipped && pillText && (
+            <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-[#fbbf24] bg-[#fbbf24]/10 border-[#fbbf24]/20">
               {pillText}
             </span>
+          )}
+          {!isLocked && !isEquipped && !pillText && (
+            <button
+              type="button"
+              onClick={() => onToggle(badge.id)}
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+            >
+              Equip
+            </button>
+          )}
+          {isLocked && CTA_BUTTONS[badge.id] && (
+            <button
+              type="button"
+              onClick={() => {
+                const cta = CTA_BUTTONS[badge.id];
+                if (cta.action === "discord") onDiscord();
+                else toast.error("Coming soon.");
+              }}
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+            >
+              {CTA_BUTTONS[badge.id].label}
+            </button>
           )}
           {isLocked && (badge.id === "owner" || badge.id === "developer") && (
             <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
@@ -229,13 +252,17 @@ export default function BadgesTabs({
     setEquipped(savedEquipped);
   }
 
-  function openDiscordApply() {
+  function openDiscordLink() {
     const url = process.env.NEXT_PUBLIC_DISCORD_URL;
     if (!url) {
       toast.error("Discord link isn't set up yet.");
       return;
     }
     window.open(url, "_blank", "noopener,noreferrer");
+  }
+
+  function openDiscordApply() {
+    openDiscordLink();
     setApplyFor(null);
   }
 
@@ -419,6 +446,7 @@ export default function BadgesTabs({
                     isLocked={isBadgeLocked(badge.id)}
                     showApply={APPLY_BADGE_IDS.includes(badge.id) && !owned.includes(badge.id)}
                     onToggle={toggleBadge}
+                    onDiscord={openDiscordLink}
                     onApply={(id) => {
                       const b = badgeById(id);
                       if (b) setApplyFor(b);
