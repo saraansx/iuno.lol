@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES } from "./badges-data";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
@@ -8,6 +8,9 @@ import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
 
 type Badge = (typeof BADGES)[number];
+
+// Badges that can be applied for (modal with purchase + Discord options).
+const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
 
 const ROWS: Array<{ slice: [number, number?]; cols: "md:grid-cols-3" | "md:grid-cols-2" }> = [
   { slice: [0, 3], cols: "md:grid-cols-3" },
@@ -82,12 +85,16 @@ function BadgeCell({
   badge,
   isEquipped,
   isLocked,
+  showApply,
   onToggle,
+  onApply,
 }: {
   badge: Badge;
   isEquipped: boolean;
   isLocked: boolean;
+  showApply: boolean;
   onToggle: (id: string) => void;
+  onApply: (id: string) => void;
 }) {
   const pillText = isEquipped ? "Equipped" : "pill" in badge ? badge.pill : null;
   return (
@@ -113,17 +120,30 @@ function BadgeCell({
       <div className="flex items-center gap-3">
         <BadgeIcon badge={badge} />
         <span className="text-[14px] font-medium text-white tracking-tight min-w-0 truncate">{badge.name}</span>
-        {isLocked ? (
-          <span className="ml-auto shrink-0 text-white/30">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </span>
-        ) : (
-          pillText && (
+        <span className="ml-auto shrink-0 flex items-center gap-2">
+          {isLocked && (
+            <span className="text-white/30">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </span>
+          )}
+          {showApply && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onApply(badge.id);
+              }}
+              className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+            >
+              Apply
+            </button>
+          )}
+          {!isLocked && pillText && (
             <span
-              className={`ml-auto shrink-0 text-[12px] font-normal rounded-lg px-3 py-1 border ${
+              className={`text-[12px] font-normal rounded-lg px-3 py-1 border ${
                 isEquipped
                   ? "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30"
                   : "pill" in badge
@@ -133,8 +153,13 @@ function BadgeCell({
             >
               {pillText}
             </span>
-          )
-        )}
+          )}
+          {isLocked && (badge.id === "owner" || badge.id === "developer") && (
+            <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
+              Not available
+            </span>
+          )}
+        </span>
       </div>
       <p className="text-[12.5px] text-white/40 truncate">{badge.description}</p>
     </div>
@@ -161,6 +186,16 @@ export default function BadgesTabs({
   const [savedEquipped, setSavedEquipped] = useState<string[]>(initialEquipped);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [applyFor, setApplyFor] = useState<Badge | null>(null);
+
+  useEffect(() => {
+    if (!applyFor) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setApplyFor(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [applyFor]);
 
   const dirty = JSON.stringify(equipped) !== JSON.stringify(savedEquipped);
 
@@ -192,6 +227,16 @@ export default function BadgesTabs({
 
   function handleRevert() {
     setEquipped(savedEquipped);
+  }
+
+  function openDiscordApply() {
+    const url = process.env.NEXT_PUBLIC_DISCORD_URL;
+    if (!url) {
+      toast.error("Discord link isn't set up yet.");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
+    setApplyFor(null);
   }
 
   const unequipped = owned.filter((id) => !equipped.includes(id));
@@ -372,7 +417,12 @@ export default function BadgesTabs({
                     badge={badge}
                     isEquipped={equipped.includes(badge.id)}
                     isLocked={isBadgeLocked(badge.id)}
+                    showApply={APPLY_BADGE_IDS.includes(badge.id) && !owned.includes(badge.id)}
                     onToggle={toggleBadge}
+                    onApply={(id) => {
+                      const b = badgeById(id);
+                      if (b) setApplyFor(b);
+                    }}
                   />
                 ))}
               </div>
@@ -384,6 +434,75 @@ export default function BadgesTabs({
       </AnimatePresence>
 
       <SaveBar show={dirty} onSave={handleSave} onRevert={handleRevert} />
+
+      <AnimatePresence>
+        {applyFor && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setApplyFor(null)}
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-[min(420px,90vw)] bg-[#101010] border border-white/10 rounded-2xl p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4 mb-1">
+                <h3 className="text-[15px] font-medium text-white tracking-tight">
+                  Apply for {applyFor.name}
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setApplyFor(null)}
+                  aria-label="Close"
+                  className="shrink-0 w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <p className="text-[12.5px] text-white/40 mb-5">
+                Pick how you&apos;d like to get the {applyFor.name.toLowerCase()} badge.
+              </p>
+              <div className="flex flex-col gap-2.5">
+                {applyFor.id === "verified" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toast.error("Purchases open soon — please use Discord for now.");
+                    }}
+                    className="w-full flex items-center gap-3 rounded-xl border border-[#5b6cf5]/30 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/25 transition-colors px-4 py-3 cursor-pointer"
+                  >
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c7cdfb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <circle cx="9" cy="20" r="1.5" />
+                      <circle cx="17" cy="20" r="1.5" />
+                      <path d="M3 3h2l2.4 12.2a1 1 0 0 0 1 .8H17a1 1 0 0 0 1-.8L20 7H6" />
+                    </svg>
+                    <span className="text-[13.5px] font-normal text-white">Buy {applyFor.name}</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={openDiscordApply}
+                  className="w-full flex items-center gap-3 rounded-xl border border-[#5b6cf5]/25 bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/15 transition-colors px-4 py-3 cursor-pointer"
+                >
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="#8f9bf5" className="shrink-0">
+                    <path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.865-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.058a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.06.06 0 0 0-.031-.03ZM8.02 15.33c-1.182 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418Zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418Z" />
+                  </svg>
+                  <span className="text-[13.5px] font-normal text-[#8f9bf5]">Apply via Discord</span>
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
