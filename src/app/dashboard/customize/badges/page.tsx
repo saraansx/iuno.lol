@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import BadgesTabs from "./BadgesTabs";
+import { EARLY_CUTOFF_UID } from "./badges-data";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getMyBadges } from "@/actions/badges";
 
@@ -12,8 +13,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const userId = await getSessionUserId();
-  const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };
-  return (
+  const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };  return (
     <div className="flex flex-col gap-8 h-full">
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
@@ -55,7 +55,11 @@ export default async function Page() {
           <p className="text-white/40 text-[13px] mt-0.5">Special badges shown on profiles</p>
         </div>
 
-        <BadgesTabs initialOwned={initial.owned} initialEquipped={initial.equipped} />
+        <BadgesTabs
+          initialOwned={initial.owned}
+          initialEquipped={initial.equipped}
+          earlyEligible={userId != null && userId <= EARLY_CUTOFF_UID}
+        />
       </div>
     </div>
   );

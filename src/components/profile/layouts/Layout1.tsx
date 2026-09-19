@@ -1299,13 +1299,13 @@ const sectionSurface: React.CSSProperties = {
               style={avatarBeside && hasBanner ? { marginTop: "-6px" } : undefined}
             >
               {display && (
-                <div className={`relative group/uid flex ${justifyClass}`}>
+                <div className={`relative flex ${justifyClass}`}>
+                  <span className="relative group/uid flex">
                   <UsernameEffect effect={usernameEffect}>
                     <h1 className={`tracking-tight mb-2 max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF" }}>
                       {display}
                     </h1>
                   </UsernameEffect>
-                  <ProfileBadges badgeIds={equippedBadges} />
                   {showUidTooltip && (
                     <div className="absolute bottom-full mb-2 opacity-0 pointer-events-none group-hover/uid:opacity-100 transition-all duration-200 z-30 transform translate-y-1 group-hover/uid:translate-y-0">
                       <div className="bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white shadow-lg whitespace-nowrap" style={tooltipTextStyle}>
@@ -1313,6 +1313,8 @@ const sectionSurface: React.CSSProperties = {
                       </div>
                     </div>
                   )}
+                  </span>
+                  <ProfileBadges badgeIds={equippedBadges} />
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}
