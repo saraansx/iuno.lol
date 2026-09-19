@@ -154,6 +154,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       showJoinDateTooltip: userSettings.showJoinDateTooltip,
       showViewsTooltip: userSettings.showViewsTooltip,
       showLinksTooltip: userSettings.showLinksTooltip,
+      showBadgesTooltip: userSettings.showBadgesTooltip,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
@@ -408,6 +409,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         showJoinDateTooltip={user.showJoinDateTooltip ?? true}
         showViewsTooltip={user.showViewsTooltip ?? true}
         showLinksTooltip={user.showLinksTooltip ?? true}
+        showBadgesTooltip={user.showBadgesTooltip ?? true}
         initialLikes={user.likesCount ?? 0}
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}

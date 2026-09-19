@@ -17,6 +17,8 @@ interface TooltipsSectionProps {
   onToggleViewsTooltip: () => void;
   isLinksTooltipEnabled: boolean;
   onToggleLinksTooltip: () => void;
+  isBadgesTooltipEnabled: boolean;
+  onToggleBadgesTooltip: () => void;
 }
 
 export default function TooltipsSection({
@@ -36,6 +38,8 @@ export default function TooltipsSection({
   onToggleViewsTooltip,
   isLinksTooltipEnabled,
   onToggleLinksTooltip,
+  isBadgesTooltipEnabled,
+  onToggleBadgesTooltip,
 }: TooltipsSectionProps) {
   const items = [
     {
@@ -83,6 +87,12 @@ export default function TooltipsSection({
       desc: "Show link titles when visitors hover your links.",
       active: isLinksTooltipEnabled,
       toggle: onToggleLinksTooltip
+    },
+    {
+      name: "Badges",
+      desc: "Show badge names when visitors hover your badges.",
+      active: isBadgesTooltipEnabled,
+      toggle: onToggleBadgesTooltip
     },
   ];
 

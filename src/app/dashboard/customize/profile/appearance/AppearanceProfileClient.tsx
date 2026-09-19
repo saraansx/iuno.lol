@@ -133,6 +133,10 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const isLinksTooltipEnabled = overrides.showLinksTooltip ?? initialLinksTooltipEnabled;
   const setIsLinksTooltipEnabled = (val: boolean) => updateOverrides({ showLinksTooltip: val === initialLinksTooltipEnabled ? undefined : val });
 
+  const initialBadgesTooltipEnabled = user?.showBadgesTooltip ?? true;
+  const isBadgesTooltipEnabled = overrides.showBadgesTooltip ?? initialBadgesTooltipEnabled;
+  const setIsBadgesTooltipEnabled = (val: boolean) => updateOverrides({ showBadgesTooltip: val === initialBadgesTooltipEnabled ? undefined : val });
+
   const joinDateFormatOptions = [
     "Absolute",
     "Short",
@@ -497,6 +501,8 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
             onToggleViewsTooltip={() => setIsViewsTooltipEnabled(!isViewsTooltipEnabled)}
             isLinksTooltipEnabled={isLinksTooltipEnabled}
             onToggleLinksTooltip={() => setIsLinksTooltipEnabled(!isLinksTooltipEnabled)}
+            isBadgesTooltipEnabled={isBadgesTooltipEnabled}
+            onToggleBadgesTooltip={() => setIsBadgesTooltipEnabled(!isBadgesTooltipEnabled)}
           />
         </div>
 
@@ -531,6 +537,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           showJoinDateTooltip: isJoinDateTooltipEnabled,
           showViewsTooltip: isViewsTooltipEnabled,
           showLinksTooltip: isLinksTooltipEnabled,
+          showBadgesTooltip: isBadgesTooltipEnabled,
         }}
       />
 

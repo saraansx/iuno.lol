@@ -2,12 +2,14 @@
 
 import { useState, useEffect, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BADGES } from "./badges-data";
+import { BADGES, LEVELS } from "./badges-data";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
 
 type Badge = (typeof BADGES)[number];
+type LevelStage = (typeof LEVELS)[number];
+type AnyBadge = Badge | LevelStage;
 
 // Badges that can be applied for (modal with purchase + Discord options).
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
@@ -36,12 +38,16 @@ const ROWS: Array<{ slice: [number, number?]; cols: "md:grid-cols-3" | "md:grid-
   { slice: [15], cols: "md:grid-cols-2" },
 ];
 
-function badgeById(id: string): Badge | null {
-  return (BADGES as readonly Badge[]).find((b) => b.id === id) ?? null;
+function badgeById(id: string): AnyBadge | null {
+  return (
+    (BADGES as readonly Badge[]).find((b) => b.id === id) ??
+    (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
+    null
+  );
 }
 
-function BadgeIcon({ badge, size = 26 }: { badge: Badge; size?: number }) {
-  const isFilled = "filled" in badge;
+function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
+  const isFilled = "filled" in badge || "level" in badge;
   return (
     <svg
       width={size}
@@ -70,7 +76,7 @@ function OwnedRow({
   onDrop,
   onDragEnd,
 }: {
-  badge: Badge;
+  badge: AnyBadge;
   onAction: () => void;
   dragging: boolean;
   dropTarget: boolean;
@@ -221,6 +227,75 @@ const TABS = [
   { id: "available", label: "Available badges" },
 ] as const;
 
+function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: string[]; onToggle: (id: string) => void }) {
+  const reachedLevels = LEVELS.filter((s) => owned.includes(s.id)).map((s) => s.level);
+  const current = reachedLevels.length > 0 ? Math.max(...reachedLevels) : 0;
+  const next = LEVELS.find((s) => s.level > current);
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-3.5 py-2.5 flex items-center gap-2.5">
+        <div className="min-w-0">
+          <h3 className="text-[13px] font-medium text-white tracking-tight">Levels</h3>
+          <p className="text-[11.5px] text-white/40 mt-px truncate">Grow levels to unlock stronger level badges over time.</p>
+        </div>
+        <div className="ml-auto text-right shrink-0">
+          <p className="text-[12px] font-medium text-white">Level {current}</p>
+          <p className="text-[10.5px] text-white/40">{next ? `${next.level - current} to next` : "Max level"}</p>
+        </div>
+      </div>
+      <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
+        {LEVELS.map((stage, stageIdx) => {
+          const unlocked = owned.includes(stage.id);
+          const isEquipped = equipped.includes(stage.id);
+          return (
+            <div
+              key={stage.id}
+              className="px-3.5 py-2 flex items-center gap-2"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill={stage.accent}
+                stroke="none"
+                className="shrink-0"
+                style={{ filter: `drop-shadow(0 0 6px ${stage.accent}47)` }}
+              >
+                {stage.icon}
+              </svg>
+              <span className={`text-[12.5px] font-normal truncate min-w-0 ${unlocked ? "text-white/90" : "text-white/40"}`}>{stage.name}</span>
+              <span className="ml-auto shrink-0 flex items-center gap-1.5">
+                {!unlocked && (
+                  <span className="text-white/30">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
+                {unlocked && (
+                  <button
+                    type="button"
+                    onClick={() => onToggle(stage.id)}
+                    className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                      isEquipped
+                        ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                    }`}
+                  >
+                    {isEquipped ? "Unequip" : "Equip"}
+                  </button>
+                )}
+                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>Level {stage.level}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function BadgesTabs({
   initialOwned = [],
   initialEquipped = [],
@@ -236,7 +311,7 @@ export default function BadgesTabs({
   const [savedEquipped, setSavedEquipped] = useState<string[]>(initialEquipped);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
-  const [applyFor, setApplyFor] = useState<Badge | null>(null);
+  const [applyFor, setApplyFor] = useState<AnyBadge | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -504,6 +579,9 @@ export default function BadgesTabs({
                 ))}
               </div>
             ))}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <LevelsCard owned={owned} equipped={equipped} onToggle={toggleBadge} />
           </div>
         </div>
       )}

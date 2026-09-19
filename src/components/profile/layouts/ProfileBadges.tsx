@@ -1,14 +1,25 @@
 "use client";
 
-import { BADGES } from "@/app/dashboard/customize/badges/badges-data";
+import { BADGES, LEVELS } from "@/app/dashboard/customize/badges/badges-data";
 
 type Badge = (typeof BADGES)[number];
+type LevelStage = (typeof LEVELS)[number];
 
-function badgeById(id: string): Badge | null {
-  return (BADGES as readonly Badge[]).find((b) => b.id === id) ?? null;
+function badgeById(id: string): Badge | LevelStage | null {
+  return (
+    (BADGES as readonly Badge[]).find((b) => b.id === id) ??
+    (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
+    null
+  );
 }
 
-export default function ProfileBadges({ badgeIds }: { badgeIds: string[] }) {
+export default function ProfileBadges({
+  badgeIds,
+  showTooltip = true,
+}: {
+  badgeIds: string[];
+  showTooltip?: boolean;
+}) {
   const badges = badgeIds
     .map(badgeById)
     .filter((b): b is Badge => b !== null)
@@ -18,7 +29,7 @@ export default function ProfileBadges({ badgeIds }: { badgeIds: string[] }) {
   return (
     <div className="flex items-center gap-1.5 mb-2 ml-2 shrink-0">
       {badges.map((badge) => {
-        const isFilled = "filled" in badge;
+        const isFilled = "filled" in badge || "level" in badge;
         return (
           <span key={badge.id} className="relative group/pbadge inline-flex">
             <svg
@@ -35,11 +46,13 @@ export default function ProfileBadges({ badgeIds }: { badgeIds: string[] }) {
             >
               {badge.icon}
             </svg>
-            <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 pointer-events-none group-hover/pbadge:opacity-100 transition-all duration-200 z-30">
-              <span className="block bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2 py-0.5 rounded-md text-white text-[11px] shadow-lg whitespace-nowrap">
-                {badge.name}
+            {showTooltip && (
+              <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 pointer-events-none group-hover/pbadge:opacity-100 transition-all duration-200 z-30">
+                <span className="block bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white text-xs shadow-lg whitespace-nowrap leading-normal">
+                  {badge.name}
+                </span>
               </span>
-            </span>
+            )}
           </span>
         );
       })}

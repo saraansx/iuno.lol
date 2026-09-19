@@ -1,11 +1,12 @@
 "use client";
 
-import { useDeferredValue } from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 import ProfilePreview from "@/components/dashboard/ProfilePreview";
 import { DEFAULT_DETAILS, DEFAULT_FRAME, DEFAULT_PRESET } from "@/components/profile/layouts/ProfilePresetLayout";
 import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
+import { getMyBadges } from "@/actions/badges";
 import effects from "@/effects.json";
 
 interface DashboardProfilePreviewProps {
@@ -15,6 +16,19 @@ interface DashboardProfilePreviewProps {
 
 export default function DashboardProfilePreview({ user, overrides = {} }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
+  const [equippedBadges, setEquippedBadges] = useState<string[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getMyBadges()
+      .then((res) => {
+        if (!cancelled) setEquippedBadges(res.equipped);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <ProfilePreview
@@ -55,6 +69,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       cardEffect={deferredOverrides.cardEffect ?? user?.cardEffect ?? "none"}
       cardTransition={deferredOverrides.cardTransition ?? user?.cardTransition ?? "none"}
       usernameEffect={deferredOverrides.usernameEffect ?? user?.usernameEffect ?? "none"}
+      equippedBadges={equippedBadges}
       descriptionEffect={deferredOverrides.descriptionEffect ?? user?.descriptionEffect ?? "none"}
       cursorTrail={deferredOverrides.cursorTrail ?? user?.cursorTrail ?? "none"}
       cursorTrailColor={deferredOverrides.cursorTrailColor ?? user?.cursorTrailColor ?? "#ffffff"}
@@ -168,6 +183,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? true}
       showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
       showLinksTooltip={deferredOverrides.showLinksTooltip ?? user?.showLinksTooltip ?? true}
+      showBadgesTooltip={deferredOverrides.showBadgesTooltip ?? user?.showBadgesTooltip ?? true}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}

@@ -180,6 +180,7 @@ const userColumns = {
   showJoinDateTooltip: schema.userSettings.showJoinDateTooltip,
   showViewsTooltip: schema.userSettings.showViewsTooltip,
   showLinksTooltip: schema.userSettings.showLinksTooltip,
+  showBadgesTooltip: schema.userSettings.showBadgesTooltip,
   linksSectionEnabled: schema.userSettings.linksSectionEnabled,
   linksSectionTitle: schema.userSettings.linksSectionTitle,
   linksSectionDescription: schema.userSettings.linksSectionDescription,

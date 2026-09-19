@@ -15,6 +15,11 @@ export const ROLE_BADGE_MAP: Record<string, string> = {
   "1550687676007587950": "featured",
   "1550687470436225076": "suggestor",
   "1550687797046812763": "discord-recruiter",
+  "1549587322834526328": "level-10",
+  "1550934540824870912": "level-20",
+  "1550934747356598283": "level-30",
+  "1550934640385331230": "level-40",
+  "1550934783075553402": "level-50",
 };
 
 export const BADGE_ROLE_MAP: Record<string, string> = Object.fromEntries(

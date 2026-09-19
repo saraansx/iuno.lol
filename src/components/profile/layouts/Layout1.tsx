@@ -265,6 +265,7 @@ interface Layout1Props {
   showJoinDateTooltip?: boolean;
   showViewsTooltip?: boolean;
   showLinksTooltip?: boolean;
+  showBadgesTooltip?: boolean;
   initialLikes?: number;
   initialDislikes?: number;
   createdAt?: string | Date;
@@ -507,6 +508,7 @@ const Layout1 = ({
   showJoinDateTooltip = true,
   showViewsTooltip = true,
   showLinksTooltip = true,
+  showBadgesTooltip = true,
   initialLikes = 0,
   initialDislikes = 0,
   createdAt,
@@ -1314,7 +1316,7 @@ const sectionSurface: React.CSSProperties = {
                     </div>
                   )}
                   </span>
-                  <ProfileBadges badgeIds={equippedBadges} />
+                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} />
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}

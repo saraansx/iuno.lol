@@ -1,4 +1,5 @@
 // Shared badge definitions (imported by both the server page and the client tabs).
+import type { ReactNode } from "react";
 
 export const MAX_EQUIPPED_BADGES = 4;
 
@@ -209,3 +210,98 @@ export const BADGES = [
     ),
   },
 ] as const;
+
+export interface LevelStage {
+  id: string;
+  name: string;
+  description: string;
+  level: number;
+  roleId: string;
+  accent: string;
+  icon: ReactNode;
+}
+
+// Discord activity level milestones. Displayed as one milestone card
+// (not part of the BADGES grid). Unlocked via Sync / nightly cron.
+export const LEVELS: LevelStage[] = [
+  {
+    id: "level-10",
+    name: "Rookie",
+    description: "Reach level 10 on the iuno Discord server.",
+    level: 10,
+    roleId: "1549587322834526328",
+    accent: "#cd7f32",
+    icon: (
+      <>
+        <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
+        <circle cx="12" cy="15.5" r="5.5" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+      </>
+    ),
+  },
+  {
+    id: "level-20",
+    name: "Rising",
+    description: "Reach level 20 on the iuno Discord server.",
+    level: 20,
+    roleId: "1550934540824870912",
+    accent: "#c0c0c0",
+    icon: (
+      <>
+        <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
+        <circle cx="12" cy="15.5" r="5.5" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+      </>
+    ),
+  },
+  {
+    id: "level-30",
+    name: "Elite",
+    description: "Reach level 30 on the iuno Discord server.",
+    level: 30,
+    roleId: "1550934747356598283",
+    accent: "#ffd700",
+    icon: (
+      <>
+        <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
+        <circle cx="12" cy="15.5" r="5.5" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+      </>
+    ),
+  },
+  {
+    id: "level-40",
+    name: "Legend",
+    description: "Reach level 40 on the iuno Discord server.",
+    level: 40,
+    roleId: "1550934640385331230",
+    accent: "#e5e4e2",
+    icon: (
+      <>
+        <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
+        <circle cx="12" cy="15.5" r="5.5" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+      </>
+    ),
+  },
+  {
+    id: "level-50",
+    name: "Mythic",
+    description: "Reach level 50 on the iuno Discord server.",
+    level: 50,
+    roleId: "1550934783075553402",
+    accent: "#7dd3fc",
+    icon: (
+      <>
+        <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
+        <circle cx="12" cy="15.5" r="5.5" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+      </>
+    ),
+  },
+];

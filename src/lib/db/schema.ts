@@ -206,6 +206,7 @@ export const userSettings = mysqlTable('user_settings', {
   showJoinDateTooltip: boolean('show_join_date_tooltip').default(true),
   showViewsTooltip: boolean('show_views_tooltip').default(true),
   showLinksTooltip: boolean('show_links_tooltip').default(true),
+  showBadgesTooltip: boolean('show_badges_tooltip').default(true),
   linksSectionEnabled: boolean('links_section_enabled').default(true),
   linksSectionTitle: text('links_section_title'),
   linksSectionDescription: text('links_section_description'),

@@ -256,6 +256,7 @@ export async function updateAppearanceProfile(data: {
   showJoinDateTooltip?: boolean;
   showViewsTooltip?: boolean;
   showLinksTooltip?: boolean;
+  showBadgesTooltip?: boolean;
 }) {
   const userId = await getSessionUserId();
   
@@ -353,6 +354,7 @@ export async function updateAppearanceProfile(data: {
   if (data.showJoinDateTooltip !== undefined) setData.showJoinDateTooltip = data.showJoinDateTooltip;
   if (data.showViewsTooltip !== undefined) setData.showViewsTooltip = data.showViewsTooltip;
   if (data.showLinksTooltip !== undefined) setData.showLinksTooltip = data.showLinksTooltip;
+  if (data.showBadgesTooltip !== undefined) setData.showBadgesTooltip = data.showBadgesTooltip;
 
   sanitizeProfileSettings(setData);
 

@@ -7,17 +7,20 @@ import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { eq, and, asc } from "drizzle-orm";
-import { BADGES, EARLY_CUTOFF_UID } from "@/app/dashboard/customize/badges/badges-data";
+import { BADGES, EARLY_CUTOFF_UID, LEVELS } from "@/app/dashboard/customize/badges/badges-data";
 import { ROLE_BADGE_MAP } from "@/lib/badge-roles";
 
 type BadgeEntry = (typeof BADGES)[number];
+type LevelEntry = (typeof LEVELS)[number];
 
-function findBadge(badgeId: string): BadgeEntry | null {
-  const found = (BADGES as readonly BadgeEntry[]).find((b) => b.id === badgeId);
+function findBadge(badgeId: string): BadgeEntry | LevelEntry | null {
+  const found =
+    (BADGES as readonly BadgeEntry[]).find((b) => b.id === badgeId) ??
+    (LEVELS as readonly LevelEntry[]).find((b) => b.id === badgeId);
   return found ?? null;
 }
 
-function isLocked(badge: BadgeEntry): boolean {
+function isLocked(badge: BadgeEntry | LevelEntry): boolean {
   return "pill" in badge;
 }
 
@@ -236,7 +239,7 @@ export async function syncDiscordBadges(): Promise<{
   const removed: string[] = [];
 
   for (const [roleId, badgeId] of Object.entries(ROLE_BADGE_MAP)) {
-    const badge = findBadge(badgeId);
+    const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
     const existing = await db
