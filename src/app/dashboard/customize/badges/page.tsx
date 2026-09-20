@@ -69,6 +69,9 @@ export default async function Page() {
             mono: user?.badgeMonochromeEnabled ?? false,
             container: user?.badgeContainerStyle ?? "pill",
             spacing: user?.badgeSpacing ?? 6,
+            scroll: (user?.badgeScrollStyle as "none" | "pingpong" | "left" | "right") ?? "none",
+            speed: user?.badgeScrollSpeed ?? 40,
+            show: user?.badgeVisibleCount ?? 5,
           }}
         />
       </div>

@@ -16,6 +16,7 @@ type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 type AnyBadge = Badge | LevelStage;
 type ContainerStyle = "pill" | "none" | "separate";
+type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
 // Badges that can be applied for (modal with purchase + Discord options).
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
@@ -309,13 +310,13 @@ export default function BadgesTabs({
   initialOwned = [],
   initialEquipped = [],
   earlyEligible = false,
-  initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6 },
+  initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5 },
 }: {
   user: FullUser | null;
   initialOwned?: string[];
   initialEquipped?: string[];
   earlyEligible?: boolean;
-  initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number };
+  initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number };
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("available");
   const [owned, setOwned] = useState<string[]>(initialOwned);
@@ -329,6 +330,9 @@ export default function BadgesTabs({
   const [monoEnabled, setMonoEnabled] = useState(initialGlow.mono);
   const [containerStyle, setContainerStyle] = useState(initialGlow.container);
   const [badgeSpacing, setBadgeSpacing] = useState(initialGlow.spacing);
+  const [scrollStyle, setScrollStyle] = useState<ScrollStyle>(initialGlow.scroll ?? "none");
+  const [scrollSpeed, setScrollSpeed] = useState(initialGlow.speed ?? 40);
+  const [visibleCount, setVisibleCount] = useState(initialGlow.show ?? 5);
   const [savedGlow, setSavedGlow] = useState(initialGlow);
   const [applyFor, setApplyFor] = useState<AnyBadge | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -383,7 +387,10 @@ export default function BadgesTabs({
     badgeSize !== savedGlow.size ||
     monoEnabled !== savedGlow.mono ||
     containerStyle !== savedGlow.container ||
-    badgeSpacing !== savedGlow.spacing;
+    badgeSpacing !== savedGlow.spacing ||
+    scrollStyle !== savedGlow.scroll ||
+    scrollSpeed !== savedGlow.speed ||
+    visibleCount !== savedGlow.show;
   const showSaveBar = dirty || glowDirty;
 
   function isBadgeLocked(id: string): boolean {
@@ -414,8 +421,11 @@ export default function BadgesTabs({
           badgeMonochromeEnabled: monoEnabled,
           badgeContainerStyle: containerStyle,
           badgeSpacing,
+          badgeScrollStyle: scrollStyle,
+          badgeScrollSpeed: scrollSpeed,
+          badgeVisibleCount: visibleCount,
         });
-        setSavedGlow({ enabled: glowEnabled, strength: glowStrength, size: badgeSize, mono: monoEnabled, container: containerStyle, spacing: badgeSpacing });
+        setSavedGlow({ enabled: glowEnabled, strength: glowStrength, size: badgeSize, mono: monoEnabled, container: containerStyle, spacing: badgeSpacing, scroll: scrollStyle, speed: scrollSpeed, show: visibleCount });
       }
       toast.success("Badges saved");
     } catch (e) {
@@ -433,6 +443,9 @@ export default function BadgesTabs({
     setMonoEnabled(savedGlow.mono);
     setContainerStyle(savedGlow.container);
     setBadgeSpacing(savedGlow.spacing);
+    setScrollStyle(savedGlow.scroll ?? "none");
+    setScrollSpeed(savedGlow.speed ?? 40);
+    setVisibleCount(savedGlow.show ?? 5);
   }
 
   function openDiscordLink() {
@@ -804,11 +817,123 @@ export default function BadgesTabs({
                 {containerStyle === "none" && "Bare icons, no container."}
                 {containerStyle === "separate" && "Each badge in its own box."}
               </p>
-              <p className="text-[#fbbf24]/70 text-[11.5px]">
-                Badges spilling outside the container? Increase the Content width or decrease the badge spacing to fit them.{" "}
-                <Link href="/dashboard/customize/profile/layout" className="font-medium underline underline-offset-2 hover:text-[#fbbf24] transition-colors">
-                  Go to Layout settings →
-                </Link>
+              {scrollStyle === "none" && (
+                <p className="text-[#fbbf24]/70 text-[11.5px]">
+                  Badges spilling outside the container? Increase the Content width or decrease the badge spacing to fit them.{" "}
+                  <Link href="/dashboard/customize/profile/layout" className="font-medium underline underline-offset-2 hover:text-[#fbbf24] transition-colors">
+                    Go to Layout settings →
+                  </Link>
+                </p>
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="text-[12.5px] font-medium text-white/90">
+                Scroll style
+              </label>
+              <div className="flex items-center gap-1 bg-[#161616] border border-white/5 rounded-xl p-1 w-fit flex-wrap">
+                {(
+                  [
+                    { id: "none", label: "None" },
+                    { id: "pingpong", label: "Back & forth" },
+                    { id: "left", label: "Right to left" },
+                    { id: "right", label: "Left to right" },
+                  ] as const
+                ).map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setScrollStyle(opt.id)}
+                    className={`rounded-lg px-4 py-1.5 text-[12.5px] font-normal transition-colors cursor-pointer ${
+                      scrollStyle === opt.id
+                        ? "bg-[#5b6cf5]/20 text-white"
+                        : "text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/35">
+                {scrollStyle === "none" && "Badges stay still."}
+                {scrollStyle === "pingpong" && "Slides back and forth in a loop."}
+                {scrollStyle === "left" && "Loops endlessly right to left."}
+                {scrollStyle === "right" && "Loops endlessly left to right."}
+              </p>
+            </div>
+
+            <div className={`flex flex-col gap-3 transition-opacity duration-200 ${scrollStyle === "none" ? "opacity-40" : "opacity-100"}`}>
+              <div className="flex items-center justify-between">
+                <label className="text-[12.5px] font-medium text-white/90">
+                  Scroll speed
+                </label>
+                <span className="text-[12px] text-white/40 font-mono">
+                  {scrollSpeed}
+                </span>
+              </div>
+              <div className="relative flex items-center h-5 group w-full">
+                <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-[#5b6cf5]"
+                    style={{ width: `${scrollSpeed}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="100"
+                  step="1"
+                  disabled={scrollStyle === "none"}
+                  value={scrollSpeed}
+                  onChange={(e) => setScrollSpeed(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+                />
+                <div
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                    } rounded-full pointer-events-none transition-transform shadow-lg`}
+                  style={{
+                    left: `calc(${scrollSpeed}% - 8px)`
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className={`flex flex-col gap-3 transition-opacity duration-200 ${scrollStyle === "none" ? "opacity-40" : "opacity-100"}`}>
+              <div className="flex items-center justify-between">
+                <label className="text-[12.5px] font-medium text-white/90">
+                  Badges to show
+                </label>
+                <span className="text-[12px] text-white/40 font-mono">
+                  {visibleCount}
+                </span>
+              </div>
+              <div className="relative flex items-center h-5 group w-full">
+                <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-[#5b6cf5]"
+                    style={{ width: `${((visibleCount - 1) / 19) * 100}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="20"
+                  step="1"
+                  disabled={scrollStyle === "none"}
+                  value={visibleCount}
+                  onChange={(e) => setVisibleCount(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+                />
+                <div
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${scrollStyle === "none" ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                    } rounded-full pointer-events-none transition-transform shadow-lg`}
+                  style={{
+                    left: `calc(${((visibleCount - 1) / 19) * 100}% - 8px)`
+                  }}
+                />
+              </div>
+              <p className="text-[11px] text-white/35">
+                Fits {visibleCount} badge{visibleCount === 1 ? "" : "s"} in the window — the rest scroll through.
               </p>
             </div>
           </div>
@@ -829,6 +954,9 @@ export default function BadgesTabs({
             badgeMonochromeEnabled: monoEnabled,
             badgeContainerStyle: containerStyle,
             badgeSpacing,
+            badgeScrollStyle: scrollStyle,
+            badgeScrollSpeed: scrollSpeed,
+            badgeVisibleCount: visibleCount,
           }}
           equippedBadges={equipped}
         />

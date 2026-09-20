@@ -5,6 +5,8 @@ import { BADGES, LEVELS } from "@/app/dashboard/customize/badges/badges-data";
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 
+export type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
+
 function badgeById(id: string): Badge | LevelStage | null {
   return (
     (BADGES as readonly Badge[]).find((b) => b.id === id) ??
@@ -36,6 +38,9 @@ export default function ProfileBadges({
   monoColor = null,
   containerStyle = "pill",
   badgeSpacing = 6,
+  scrollStyle = "none",
+  scrollSpeed = 40,
+  visibleCount = 5,
 }: {
   badgeIds: string[];
   showTooltip?: boolean;
@@ -46,6 +51,9 @@ export default function ProfileBadges({
   monoColor?: string | null;
   containerStyle?: string | null;
   badgeSpacing?: number | null;
+  scrollStyle?: BadgeScrollStyle | string | null;
+  scrollSpeed?: number | null;
+  visibleCount?: number | null;
 }) {
   const badges = badgeIds
     .map(badgeById)
@@ -61,7 +69,7 @@ export default function ProfileBadges({
     : null;
   const separate = containerStyle === "separate";
 
-  const renderBadge = (badge: Badge | LevelStage) => {
+  const renderBadge = (badge: Badge | LevelStage, keyPrefix = "") => {
     const isFilled = "filled" in badge || "level" in badge;
     const color = mono ?? badge.accent;
     const glow = badgeGlowFilter(color, glowEnabled, glowStrength);
@@ -89,7 +97,7 @@ export default function ProfileBadges({
       icon
     );
     return (
-      <span key={badge.id} className="relative group/pbadge inline-flex">
+      <span key={`${keyPrefix}${badge.id}`} className="relative group/pbadge inline-flex shrink-0">
         {inner}
         {showTooltip && (
           <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 pointer-events-none group-hover/pbadge:opacity-100 transition-all duration-200 z-30">
@@ -102,16 +110,85 @@ export default function ProfileBadges({
     );
   };
 
+  const scrolling =
+    (scrollStyle === "pingpong" || scrollStyle === "left" || scrollStyle === "right") &&
+    badges.length > 1;
+
+  if (!scrolling) {
+    return (
+      <div
+        className={`flex flex-wrap items-center mb-2 ml-2 shrink-0 ${
+          containerStyle === "pill"
+            ? "rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 backdrop-blur-sm"
+            : ""
+        }`}
+        style={{ gap: `${gap}px` }}
+      >
+        {badges.map((b) => renderBadge(b))}
+      </div>
+    );
+  }
+
+  const style = scrollStyle as BadgeScrollStyle;
+  const speed = Math.min(100, Math.max(1, scrollSpeed ?? 40));
+  // Constant visual speed regardless of badge count. All modes loop forever.
+  const duration = Math.min(40, Math.max(2.5, (badges.length * 60) / speed));
+
+  const animation =
+    style === "pingpong"
+      ? `badge-scroll-pingpong ${duration}s ease-in-out infinite alternate`
+      : style === "right"
+        ? `badge-scroll-right ${duration}s linear infinite`
+        : `badge-scroll-left ${duration}s linear infinite`;
+
+  // Viewport fits exactly `visible` badges — e.g. 5 shows 5, the rest scroll through.
+  const visible = Math.min(Math.max(1, Math.min(20, visibleCount ?? 5)), Math.max(1, badges.length));
+  const boxExtra = separate ? 10 : 0; // separate boxes add padding + border
+  const containerPad = containerStyle === "pill" ? 20 : 0; // px-2.5 on both sides
+  const viewportWidth = visible * (size + boxExtra) + (visible - 1) * gap + containerPad;
+
   return (
     <div
-      className={`flex flex-wrap items-center mb-2 ml-2 shrink-0 ${
+      className={`flex items-center mb-2 ml-2 shrink-0 min-w-0 overflow-hidden ${
         containerStyle === "pill"
           ? "rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 backdrop-blur-sm"
           : ""
       }`}
-      style={{ gap: `${gap}px` }}
+      style={{
+        width: `${viewportWidth}px`,
+        // Soft edge fade so scrolling badges never hit a hard cut.
+        maskImage: "linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent)",
+        WebkitMaskImage: "linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent)",
+      }}
     >
-      {badges.map(renderBadge)}
+      <div
+        className="badge-scroll-track flex w-max items-center hover:[animation-play-state:paused]"
+        style={{ animation, willChange: "transform" }}
+      >
+        <div className="flex items-center" style={{ gap: `${gap}px`, paddingRight: `${gap}px` }}>
+          {badges.map((b) => renderBadge(b, "a-"))}
+        </div>
+        <div className="flex items-center" aria-hidden="true" style={{ gap: `${gap}px`, paddingRight: `${gap}px` }}>
+          {badges.map((b) => renderBadge(b, "b-"))}
+        </div>
+      </div>
+      <style>{`
+        @keyframes badge-scroll-left {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        @keyframes badge-scroll-right {
+          from { transform: translateX(-50%); }
+          to { transform: translateX(0); }
+        }
+        @keyframes badge-scroll-pingpong {
+          from { transform: translateX(0); }
+          to { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .badge-scroll-track { animation: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

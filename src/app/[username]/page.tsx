@@ -223,6 +223,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       badgeMonochromeColor: userSettings.badgeMonochromeColor,
       badgeContainerStyle: userSettings.badgeContainerStyle,
       badgeSpacing: userSettings.badgeSpacing,
+      badgeScrollStyle: userSettings.badgeScrollStyle,
+      badgeScrollSpeed: userSettings.badgeScrollSpeed,
+      badgeVisibleCount: userSettings.badgeVisibleCount,
       entryTransition: userSettings.entryTransition,
       enterScreenEnabled: userSettings.enterScreenEnabled,
       enterScreenText: userSettings.enterScreenText,
@@ -340,6 +343,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         badgeMonochromeColor={user.badgeMonochromeColor ?? undefined}
         badgeContainerStyle={user.badgeContainerStyle ?? undefined}
         badgeSpacing={user.badgeSpacing ?? undefined}
+        badgeScrollStyle={user.badgeScrollStyle ?? undefined}
+        badgeScrollSpeed={user.badgeScrollSpeed ?? undefined}
+        badgeVisibleCount={user.badgeVisibleCount ?? undefined}
         descriptionEffect={user.descriptionEffect ?? undefined}
         descriptionGlowEnabled={user.descriptionGlowEnabled ?? false}
         cursorTrail={user.cursorTrail ?? undefined}

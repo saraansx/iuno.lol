@@ -50,6 +50,8 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
 
   backgroundEffectIntensity: { min: 0, max: 100, int: true },
   badgeGlowStrength: { min: 0, max: 100, int: true },
+  badgeScrollSpeed: { min: 1, max: 100, int: true },
+  badgeVisibleCount: { min: 1, max: 20, int: true },
   badgeSize: { min: 12, max: 32, int: true },
   badgeSpacing: { min: 0, max: 24, int: true },
   enterScreenFontSize: { min: 10, max: 48, int: true },

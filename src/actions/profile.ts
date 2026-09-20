@@ -733,6 +733,9 @@ export async function updateEffectsProfile(data: {
   badgeMonochromeEnabled?: boolean | null;
   badgeContainerStyle?: string | null;
   badgeSpacing?: number | null;
+  badgeScrollStyle?: string | null;
+  badgeScrollSpeed?: number | null;
+  badgeVisibleCount?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -792,6 +795,12 @@ export async function updateEffectsProfile(data: {
     setData.badgeContainerStyle = ["pill", "none", "separate"].includes(style) ? style : "pill";
   }
   if (data.badgeSpacing !== undefined) setData.badgeSpacing = data.badgeSpacing;
+  if (data.badgeScrollStyle !== undefined) {
+    const style = data.badgeScrollStyle?.trim() ?? "none";
+    setData.badgeScrollStyle = ["none", "pingpong", "left", "right"].includes(style) ? style : "none";
+  }
+  if (data.badgeScrollSpeed !== undefined) setData.badgeScrollSpeed = data.badgeScrollSpeed;
+  if (data.badgeVisibleCount !== undefined) setData.badgeVisibleCount = data.badgeVisibleCount;
 
   sanitizeProfileSettings(setData);
 
