@@ -43,10 +43,16 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
   const initialUsernameEffect = user?.usernameEffect ?? "none";
   const usernameEffect = overrides.usernameEffect ?? initialUsernameEffect;
   const setUsernameEffect = (val: string) => updateOverrides({ usernameEffect: val === initialUsernameEffect ? undefined : val });
+  const initialUsernameGlowEnabled = user?.usernameGlowEnabled ?? false;
+  const usernameGlowEnabled = overrides.usernameGlowEnabled ?? initialUsernameGlowEnabled;
+  const setUsernameGlowEnabled = (val: boolean) => updateOverrides({ usernameGlowEnabled: val === initialUsernameGlowEnabled ? undefined : val });
 
   const initialDescriptionEffect = user?.descriptionEffect ?? "none";
   const descriptionEffect = overrides.descriptionEffect ?? initialDescriptionEffect;
   const setDescriptionEffect = (val: string) => updateOverrides({ descriptionEffect: val === initialDescriptionEffect ? undefined : val });
+  const initialDescriptionGlowEnabled = user?.descriptionGlowEnabled ?? false;
+  const descriptionGlowEnabled = overrides.descriptionGlowEnabled ?? initialDescriptionGlowEnabled;
+  const setDescriptionGlowEnabled = (val: boolean) => updateOverrides({ descriptionGlowEnabled: val === initialDescriptionGlowEnabled ? undefined : val });
 
   const initialClickEffect = user?.clickEffect ?? "none";
   const clickEffect = overrides.clickEffect ?? initialClickEffect;
@@ -127,8 +133,12 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           setCardTransition={setCardTransition}
           usernameEffect={usernameEffect}
           setUsernameEffect={setUsernameEffect}
+          usernameGlowEnabled={usernameGlowEnabled}
+          setUsernameGlowEnabled={setUsernameGlowEnabled}
           descriptionEffect={descriptionEffect}
           setDescriptionEffect={setDescriptionEffect}
+          descriptionGlowEnabled={descriptionGlowEnabled}
+          setDescriptionGlowEnabled={setDescriptionGlowEnabled}
           clickEffect={clickEffect}
           setClickEffect={setClickEffect}
           clickSound={clickSound}
@@ -176,6 +186,8 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           cardTransition,
           usernameEffect,
           descriptionEffect,
+          usernameGlowEnabled,
+          descriptionGlowEnabled,
           clickEffect,
           clickSound,
           cursorTrail,

@@ -709,7 +709,9 @@ export async function updateEffectsProfile(data: {
   cardEffect?: string | null;
   cardTransition?: string | null;
   usernameEffect?: string | null;
+  usernameGlowEnabled?: boolean | null;
   descriptionEffect?: string | null;
+  descriptionGlowEnabled?: boolean | null;
   cursorTrail?: string | null;
   cursorTrailColor?: string | null;
   clickEffect?: string | null;
@@ -757,7 +759,9 @@ export async function updateEffectsProfile(data: {
   if (data.cardEffect !== undefined) setData.cardEffect = data.cardEffect?.slice(0, 50) ?? null;
   if (data.cardTransition !== undefined) setData.cardTransition = data.cardTransition?.slice(0, 50) ?? null;
   if (data.usernameEffect !== undefined) setData.usernameEffect = data.usernameEffect?.slice(0, 50) ?? null;
+  if (data.usernameGlowEnabled !== undefined) setData.usernameGlowEnabled = data.usernameGlowEnabled ?? false;
   if (data.descriptionEffect !== undefined) setData.descriptionEffect = data.descriptionEffect?.slice(0, 50) ?? null;
+  if (data.descriptionGlowEnabled !== undefined) setData.descriptionGlowEnabled = data.descriptionGlowEnabled ?? false;
   if (data.cursorTrail !== undefined) setData.cursorTrail = data.cursorTrail?.slice(0, 50) ?? null;
   if (data.cursorTrailColor !== undefined) setData.cursorTrailColor = data.cursorTrailColor?.slice(0, 32) ?? null;
   if (data.clickEffect !== undefined) {

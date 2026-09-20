@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { textGlowShadow, textGlowWrapperStyle } from "./textGlow";
 
 const BlurUsernameEffect = dynamic(() => import("./username-effects/BlurUsernameEffect"));
 const SparkleUsernameEffect = dynamic(() => import("./username-effects/SparkleUsernameEffect"));
@@ -12,41 +13,43 @@ const FlipUsernameEffect = dynamic(() => import("./username-effects/FlipUsername
 
 interface UsernameEffectProps {
   effect?: string;
+  glow?: boolean | null;
+  glowColor?: string | null;
   children: React.ReactNode;
 }
 
-export function UsernameEffect({ effect = "none", children }: UsernameEffectProps) {
+export function UsernameEffect({ effect = "none", glow = false, glowColor, children }: UsernameEffectProps) {
+  let inner: React.ReactNode;
+
   if (!effect || effect === "none") {
-    return <>{children}</>;
+    inner = <>{children}</>;
+  } else if (effect === "blur") {
+    inner = <BlurUsernameEffect>{children}</BlurUsernameEffect>;
+  } else if (effect === "sparkle") {
+    inner = <SparkleUsernameEffect>{children}</SparkleUsernameEffect>;
+  } else if (effect === "shuffle") {
+    inner = <ShuffleUsernameEffect>{children}</ShuffleUsernameEffect>;
+  } else if (effect === "typewriter") {
+    inner = <TypewriterUsernameEffect>{children}</TypewriterUsernameEffect>;
+  } else if (effect === "float") {
+    inner = <FloatUsernameEffect>{children}</FloatUsernameEffect>;
+  } else if (effect === "pulse") {
+    inner = <PulseUsernameEffect>{children}</PulseUsernameEffect>;
+  } else if (effect === "flip") {
+    inner = <FlipUsernameEffect>{children}</FlipUsernameEffect>;
+  } else {
+    inner = <>{children}</>;
   }
 
-  if (effect === "blur") {
-    return <BlurUsernameEffect>{children}</BlurUsernameEffect>;
+  if (!glow) {
+    return <>{inner}</>;
   }
 
-  if (effect === "sparkle") {
-    return <SparkleUsernameEffect>{children}</SparkleUsernameEffect>;
-  }
-
-  if (effect === "shuffle") {
-    return <ShuffleUsernameEffect>{children}</ShuffleUsernameEffect>;
-  }
-
-  if (effect === "typewriter") {
-    return <TypewriterUsernameEffect>{children}</TypewriterUsernameEffect>;
-  }
-
-  if (effect === "float") {
-    return <FloatUsernameEffect>{children}</FloatUsernameEffect>;
-  }
-
-  if (effect === "pulse") {
-    return <PulseUsernameEffect>{children}</PulseUsernameEffect>;
-  }
-
-  if (effect === "flip") {
-    return <FlipUsernameEffect>{children}</FlipUsernameEffect>;
-  }
-
-  return <>{children}</>;
+  // Smooth outer glow: overflow visible + breathing room so there is
+  // no hard edge / hard mask cut. text-shadow layers are all blurred.
+  return (
+    <span style={{ ...textGlowWrapperStyle(true), textShadow: textGlowShadow(glowColor, true) }}>
+      {inner}
+    </span>
+  );
 }

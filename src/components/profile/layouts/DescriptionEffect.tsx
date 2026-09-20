@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { textGlowShadow, textGlowWrapperStyle } from "./textGlow";
 
 const BlurDescriptionEffect = dynamic(() => import("./description-effects/BlurDescriptionEffect"));
 const SparkleDescriptionEffect = dynamic(() => import("./description-effects/SparkleDescriptionEffect"));
@@ -12,41 +13,43 @@ const FlipDescriptionEffect = dynamic(() => import("./description-effects/FlipDe
 
 interface DescriptionEffectProps {
   effect?: string;
+  glow?: boolean | null;
+  glowColor?: string | null;
   children: React.ReactNode;
 }
 
-export function DescriptionEffect({ effect = "none", children }: DescriptionEffectProps) {
+export function DescriptionEffect({ effect = "none", glow = false, glowColor, children }: DescriptionEffectProps) {
+  let inner: React.ReactNode;
+
   if (!effect || effect === "none") {
-    return <>{children}</>;
+    inner = <>{children}</>;
+  } else if (effect === "blur") {
+    inner = <BlurDescriptionEffect>{children}</BlurDescriptionEffect>;
+  } else if (effect === "sparkle") {
+    inner = <SparkleDescriptionEffect>{children}</SparkleDescriptionEffect>;
+  } else if (effect === "shuffle") {
+    inner = <ShuffleDescriptionEffect>{children}</ShuffleDescriptionEffect>;
+  } else if (effect === "typewriter") {
+    inner = <TypewriterDescriptionEffect>{children}</TypewriterDescriptionEffect>;
+  } else if (effect === "float") {
+    inner = <FloatDescriptionEffect>{children}</FloatDescriptionEffect>;
+  } else if (effect === "pulse") {
+    inner = <PulseDescriptionEffect>{children}</PulseDescriptionEffect>;
+  } else if (effect === "flip") {
+    inner = <FlipDescriptionEffect>{children}</FlipDescriptionEffect>;
+  } else {
+    inner = <>{children}</>;
   }
 
-  if (effect === "blur") {
-    return <BlurDescriptionEffect>{children}</BlurDescriptionEffect>;
+  if (!glow) {
+    return <>{inner}</>;
   }
 
-  if (effect === "sparkle") {
-    return <SparkleDescriptionEffect>{children}</SparkleDescriptionEffect>;
-  }
-
-  if (effect === "shuffle") {
-    return <ShuffleDescriptionEffect>{children}</ShuffleDescriptionEffect>;
-  }
-
-  if (effect === "typewriter") {
-    return <TypewriterDescriptionEffect>{children}</TypewriterDescriptionEffect>;
-  }
-
-  if (effect === "float") {
-    return <FloatDescriptionEffect>{children}</FloatDescriptionEffect>;
-  }
-
-  if (effect === "pulse") {
-    return <PulseDescriptionEffect>{children}</PulseDescriptionEffect>;
-  }
-
-  if (effect === "flip") {
-    return <FlipDescriptionEffect>{children}</FlipDescriptionEffect>;
-  }
-
-  return <>{children}</>;
+  // Smooth outer glow: overflow visible + breathing room so there is
+  // no hard edge / hard mask cut. text-shadow layers are all blurred.
+  return (
+    <span style={{ ...textGlowWrapperStyle(true), textShadow: textGlowShadow(glowColor, true) }}>
+      {inner}
+    </span>
+  );
 }

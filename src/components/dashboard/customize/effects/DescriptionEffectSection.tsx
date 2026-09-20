@@ -5,6 +5,8 @@ import { useState, useRef, useEffect } from "react";
 interface DescriptionEffectSectionProps {
   descriptionEffect: string;
   setDescriptionEffect: (val: string) => void;
+  glowEnabled: boolean;
+  setGlowEnabled: (val: boolean) => void;
 }
 
 const DESCRIPTION_EFFECTS = [
@@ -21,6 +23,8 @@ const DESCRIPTION_EFFECTS = [
 export default function DescriptionEffectSection({
   descriptionEffect,
   setDescriptionEffect,
+  glowEnabled,
+  setGlowEnabled,
 }: DescriptionEffectSectionProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -112,6 +116,22 @@ export default function DescriptionEffectSection({
               </div>
             </div>
           )}
+        </div>
+
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
+          <div className="flex flex-col gap-0.5">
+            <span className="text-[13px] text-white/90">Glow</span>
+            <span className="text-[11px] text-white/40 leading-tight">Soft smooth glow, no hard edge.</span>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={glowEnabled}
+            onClick={() => setGlowEnabled(!glowEnabled)}
+            className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+          >
+            <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${glowEnabled ? "right-[3px]" : "left-[3px]"}`} />
+          </button>
         </div>
       </div>
     </div>

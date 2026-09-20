@@ -11,6 +11,7 @@ import { BorderEffect } from "./BorderEffect";
 import { CardEffect } from "./CardEffect";
 import { CardTransition } from "./CardTransition";
 import { UsernameEffect } from "./UsernameEffect";
+import { textGlowShadow } from "./textGlow";
 import ProfileBadges from "./ProfileBadges";
 import { DescriptionEffect } from "./DescriptionEffect";
 import { CursorTrail } from "./CursorTrail";
@@ -124,7 +125,9 @@ interface Layout1Props {
   cardEffect?: string;
   cardTransition?: string;
   usernameEffect?: string;
+  usernameGlowEnabled?: boolean | null;
   descriptionEffect?: string;
+  descriptionGlowEnabled?: boolean | null;
   cursorTrail?: string;
   cursorTrailColor?: string;
   clickEffect?: string | null;
@@ -388,7 +391,9 @@ const Layout1 = ({
   cardEffect = "none",
   cardTransition = "none",
   usernameEffect = "none",
+  usernameGlowEnabled = false,
   descriptionEffect = "none",
+  descriptionGlowEnabled = false,
   equippedBadges = [],
   badgeGlowEnabled = true,
   badgeGlowStrength = 50,
@@ -1011,8 +1016,8 @@ useEffect(() => {
   ) : null;
 
 const textBlock = (text: string, align: "left" | "center" | "right") => (
-    <div className={`w-full flex ${align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center"}`}>
-      <DescriptionEffect effect={descriptionEffect}>
+    <div className={`w-full flex ${align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center"}`} style={{ overflow: "visible" }}>
+      <DescriptionEffect effect={descriptionEffect} glow={descriptionGlowEnabled} glowColor={bioColor ?? "#FFFFFF"}>
         <p
           className={`leading-relaxed max-w-[90%] break-words ${
             align === "left" ? "text-left" : align === "right" ? "text-right" : "text-center"
@@ -1023,6 +1028,9 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
             fontWeight: bioFontWeight,
             letterSpacing: `${bioLetterSpacing}px`,
             color: bioColor ?? "#FFFFFF",
+            // Smooth glow directly on text (no hard edge): all layers blurred.
+            textShadow: textGlowShadow(bioColor ?? "#FFFFFF", descriptionGlowEnabled),
+            overflow: "visible",
           }}
         >
           {renderFormattedText(text, align)}
@@ -1315,10 +1323,10 @@ const sectionSurface: React.CSSProperties = {
               style={avatarBeside && hasBanner ? { marginTop: "-6px" } : undefined}
             >
               {display && (
-                <div className={`relative flex ${justifyClass}`}>
-                  <span className="relative group/uid flex">
-                  <UsernameEffect effect={usernameEffect}>
-                    <h1 className={`tracking-tight mb-2 max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF" }}>
+                <div className={`relative flex ${justifyClass}`} style={{ overflow: "visible" }}>
+                  <span className="relative group/uid flex" style={{ overflow: "visible" }}>
+                  <UsernameEffect effect={usernameEffect} glow={usernameGlowEnabled} glowColor={usernameColor ?? "#FFFFFF"}>
+                    <h1 className={usernameGlowEnabled ? `tracking-tight mb-2 max-w-[280px] ${textAlignClass}` : `tracking-tight mb-2 max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF", textShadow: textGlowShadow(usernameColor ?? "#FFFFFF", usernameGlowEnabled), overflow: "visible", whiteSpace: usernameGlowEnabled ? "nowrap" : undefined, textOverflow: usernameGlowEnabled ? "clip" : undefined }}>
                       {display}
                     </h1>
                   </UsernameEffect>

@@ -30,8 +30,12 @@ interface EffectsCustomizationProps {
   setCardTransition: (val: string) => void;
   usernameEffect: string;
   setUsernameEffect: (val: string) => void;
+  usernameGlowEnabled: boolean;
+  setUsernameGlowEnabled: (val: boolean) => void;
   descriptionEffect: string;
   setDescriptionEffect: (val: string) => void;
+  descriptionGlowEnabled: boolean;
+  setDescriptionGlowEnabled: (val: boolean) => void;
   clickEffect: string;
   setClickEffect: (val: string) => void;
   clickSound: string;
@@ -83,8 +87,12 @@ export default function EffectsCustomization({
   setCardTransition,
   usernameEffect,
   setUsernameEffect,
+  usernameGlowEnabled,
+  setUsernameGlowEnabled,
   descriptionEffect,
   setDescriptionEffect,
+  descriptionGlowEnabled,
+  setDescriptionGlowEnabled,
   clickEffect,
   setClickEffect,
   clickSound,
@@ -146,10 +154,14 @@ export default function EffectsCustomization({
           <UsernameEffectSection
             usernameEffect={usernameEffect}
             setUsernameEffect={setUsernameEffect}
+            glowEnabled={usernameGlowEnabled}
+            setGlowEnabled={setUsernameGlowEnabled}
           />
           <DescriptionEffectSection
             descriptionEffect={descriptionEffect}
             setDescriptionEffect={setDescriptionEffect}
+            glowEnabled={descriptionGlowEnabled}
+            setGlowEnabled={setDescriptionGlowEnabled}
           />
           <ClickEffectSection
             clickEffect={clickEffect}

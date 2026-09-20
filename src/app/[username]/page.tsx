@@ -209,7 +209,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       cardEffect: userSettings.cardEffect,
       cardTransition: userSettings.cardTransition,
       usernameEffect: userSettings.usernameEffect,
+      usernameGlowEnabled: userSettings.usernameGlowEnabled,
       descriptionEffect: userSettings.descriptionEffect,
+      descriptionGlowEnabled: userSettings.descriptionGlowEnabled,
       cursorTrail: userSettings.cursorTrail,
       cursorTrailColor: userSettings.cursorTrailColor,
       clickEffect: userSettings.clickEffect,
@@ -329,6 +331,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         cardEffect={user.cardEffect ?? undefined}
         cardTransition={user.cardTransition ?? undefined}
         usernameEffect={user.usernameEffect ?? undefined}
+        usernameGlowEnabled={user.usernameGlowEnabled ?? false}
         equippedBadges={equippedBadges}
         badgeGlowEnabled={user.badgeGlowEnabled ?? true}
         badgeGlowStrength={user.badgeGlowStrength ?? undefined}
@@ -338,6 +341,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         badgeContainerStyle={user.badgeContainerStyle ?? undefined}
         badgeSpacing={user.badgeSpacing ?? undefined}
         descriptionEffect={user.descriptionEffect ?? undefined}
+        descriptionGlowEnabled={user.descriptionGlowEnabled ?? false}
         cursorTrail={user.cursorTrail ?? undefined}
         cursorTrailColor={user.cursorTrailColor ?? undefined}
         clickEffect={user.clickEffect ?? undefined}
