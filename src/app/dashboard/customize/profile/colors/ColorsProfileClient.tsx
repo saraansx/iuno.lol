@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
 import ColorCustomization from "@/components/dashboard/customize/colors/ColorCustomization";
 import WidgetStyleCustomization from "@/components/dashboard/customize/colors/WidgetStyleCustomization";
+import BadgeStyleCustomization from "@/components/dashboard/customize/colors/BadgeStyleCustomization";
 import SectionStyleCustomization from "@/components/dashboard/customize/colors/SectionStyleCustomization";
 import MusicStyleCustomization from "@/components/dashboard/customize/colors/MusicStyleCustomization";
 
@@ -59,6 +60,12 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
   const musicLyricsColor = overrides.musicLyricsColor ?? initialMusicLyricsColor;
   const setMusicLyricsColor = (val: string) => updateOverrides({ musicLyricsColor: val === initialMusicLyricsColor ? undefined : val });
 
+  const initialMonochromeEnabled = user?.badgeMonochromeEnabled ?? false;
+  const monochromeEnabled = initialMonochromeEnabled;
+  const initialMonochromeColor = user?.badgeMonochromeColor ?? "#FFFFFF";
+  const monochromeColor = overrides.badgeMonochromeColor ?? initialMonochromeColor;
+  const setMonochromeColor = (val: string) => updateOverrides({ badgeMonochromeColor: val === initialMonochromeColor ? undefined : val });
+
   const hasChanges = Object.keys(overrides).length > 0;
 
   const handleRevert = () => {
@@ -101,6 +108,12 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           secondaryTextColor={widgetSecondaryTextColor}
           setSecondaryTextColor={setWidgetSecondaryTextColor}
         />
+
+        <BadgeStyleCustomization
+          monochromeColor={monochromeColor}
+          setMonochromeColor={setMonochromeColor}
+          monochromeEnabled={monochromeEnabled}
+        />
       </div>
 
       <DashboardProfilePreview
@@ -119,6 +132,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           musicPrimaryColor,
           musicSecondaryColor,
           musicLyricsColor,
+          badgeMonochromeColor: monochromeColor,
         }}
       />
 

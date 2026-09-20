@@ -3,13 +3,19 @@
 import { useState, useEffect, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS } from "./badges-data";
+import Link from "next/link";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
+import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
+import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
+import { badgeGlowFilter } from "@/components/profile/layouts/ProfileBadges";
+import { type FullUser } from "@/lib/features/users/db";
 
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 type AnyBadge = Badge | LevelStage;
+type ContainerStyle = "pill" | "none" | "separate";
 
 // Badges that can be applied for (modal with purchase + Discord options).
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
@@ -48,6 +54,7 @@ function badgeById(id: string): AnyBadge | null {
 
 function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
   const isFilled = "filled" in badge || "level" in badge;
+  const glow = badgeGlowFilter(badge.accent);
   return (
     <svg
       width={size}
@@ -59,7 +66,7 @@ function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className="shrink-0"
-      style={{ filter: `drop-shadow(0 0 6px ${badge.accent}47)` }}
+      style={glow ? { filter: glow } : undefined}
     >
       {badge.icon}
     </svg>
@@ -225,6 +232,7 @@ function BadgeCell({
 const TABS = [
   { id: "yours", label: "Your badges" },
   { id: "available", label: "Available badges" },
+  { id: "customize", label: "Badge Customization" },
 ] as const;
 
 function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: string[]; onToggle: (id: string) => void }) {
@@ -259,7 +267,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
                 fill={stage.accent}
                 stroke="none"
                 className="shrink-0"
-                style={{ filter: `drop-shadow(0 0 6px ${stage.accent}47)` }}
+                style={{ filter: badgeGlowFilter(stage.accent) }}
               >
                 {stage.icon}
               </svg>
@@ -297,13 +305,17 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
 }
 
 export default function BadgesTabs({
+  user,
   initialOwned = [],
   initialEquipped = [],
   earlyEligible = false,
+  initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6 },
 }: {
+  user: FullUser | null;
   initialOwned?: string[];
   initialEquipped?: string[];
   earlyEligible?: boolean;
+  initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number };
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("available");
   const [owned, setOwned] = useState<string[]>(initialOwned);
@@ -311,6 +323,13 @@ export default function BadgesTabs({
   const [savedEquipped, setSavedEquipped] = useState<string[]>(initialEquipped);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [glowEnabled, setGlowEnabled] = useState(initialGlow.enabled);
+  const [glowStrength, setGlowStrength] = useState(initialGlow.strength);
+  const [badgeSize, setBadgeSize] = useState(initialGlow.size);
+  const [monoEnabled, setMonoEnabled] = useState(initialGlow.mono);
+  const [containerStyle, setContainerStyle] = useState(initialGlow.container);
+  const [badgeSpacing, setBadgeSpacing] = useState(initialGlow.spacing);
+  const [savedGlow, setSavedGlow] = useState(initialGlow);
   const [applyFor, setApplyFor] = useState<AnyBadge | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
@@ -358,6 +377,14 @@ export default function BadgesTabs({
   }, [applyFor]);
 
   const dirty = JSON.stringify(equipped) !== JSON.stringify(savedEquipped);
+  const glowDirty =
+    glowEnabled !== savedGlow.enabled ||
+    glowStrength !== savedGlow.strength ||
+    badgeSize !== savedGlow.size ||
+    monoEnabled !== savedGlow.mono ||
+    containerStyle !== savedGlow.container ||
+    badgeSpacing !== savedGlow.spacing;
+  const showSaveBar = dirty || glowDirty;
 
   function isBadgeLocked(id: string): boolean {
     if (id === "early") return !earlyEligible && !owned.includes(id);
@@ -370,13 +397,26 @@ export default function BadgesTabs({
   }
 
   async function handleSave() {
-    if (saving || !dirty) return;
+    if (saving || !showSaveBar) return;
     setSaving(true);
     try {
-      const next = await saveEquippedBadges(equipped);
-      setOwned(next.owned);
-      setEquipped(next.equipped);
-      setSavedEquipped(next.equipped);
+      if (dirty) {
+        const next = await saveEquippedBadges(equipped);
+        setOwned(next.owned);
+        setEquipped(next.equipped);
+        setSavedEquipped(next.equipped);
+      }
+      if (glowDirty) {
+        await updateEffectsProfile({
+          badgeGlowEnabled: glowEnabled,
+          badgeGlowStrength: glowStrength,
+          badgeSize,
+          badgeMonochromeEnabled: monoEnabled,
+          badgeContainerStyle: containerStyle,
+          badgeSpacing,
+        });
+        setSavedGlow({ enabled: glowEnabled, strength: glowStrength, size: badgeSize, mono: monoEnabled, container: containerStyle, spacing: badgeSpacing });
+      }
       toast.success("Badges saved");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
@@ -387,6 +427,12 @@ export default function BadgesTabs({
 
   function handleRevert() {
     setEquipped(savedEquipped);
+    setGlowEnabled(savedGlow.enabled);
+    setGlowStrength(savedGlow.strength);
+    setBadgeSize(savedGlow.size);
+    setMonoEnabled(savedGlow.mono);
+    setContainerStyle(savedGlow.container);
+    setBadgeSpacing(savedGlow.spacing);
   }
 
   function openDiscordLink() {
@@ -423,7 +469,11 @@ export default function BadgesTabs({
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <>
+    <div
+      className="flex flex-col gap-6"
+      style={tab === "customize" ? { paddingRight: "calc(var(--preview-width,380px) + 2rem)" } : undefined}
+    >
       <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit">
         {TABS.map((t) => (
           <button
@@ -527,7 +577,7 @@ export default function BadgesTabs({
             </>
           )}
         </div>
-      ) : (
+      ) : tab === "available" ? (
         <div className="flex flex-col gap-3">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -584,11 +634,205 @@ export default function BadgesTabs({
             <LevelsCard owned={owned} equipped={equipped} onToggle={toggleBadge} />
           </div>
         </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Badge Customization</h2>
+            <p className="text-white/40 text-[12.5px] mt-0.5">Tune the glow behind your profile badges</p>
+          </div>
+          <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm p-6 flex flex-col gap-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-[13px] font-medium text-white/90">Glow</span>
+                <span className="text-[11px] text-white/40 leading-tight">Add a soft glow behind your badges on your profile.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGlowEnabled(!glowEnabled)}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${glowEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+              >
+                <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${glowEnabled ? "right-[3px]" : "left-[3px]"}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-[13px] font-medium text-white/90">Monochrome</span>
+                <span className="text-[11px] text-white/40 leading-tight">Show all badges in a single color. Pick it in color settings.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMonoEnabled(!monoEnabled)}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${monoEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+              >
+                <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${monoEnabled ? "right-[3px]" : "left-[3px]"}`} />
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3 transition-opacity duration-200 opacity-100">
+              <div className="flex items-center justify-between">
+                <label className="text-[12.5px] font-medium text-white/90">
+                  Glow strength
+                </label>
+                <span className="text-[12px] text-white/40 font-mono">
+                  {glowStrength}
+                </span>
+              </div>
+              <div className="relative flex items-center h-5 group w-full">
+                <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-[#5b6cf5]"
+                    style={{ width: `${glowStrength}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  disabled={!glowEnabled}
+                  value={glowStrength}
+                  onChange={(e) => setGlowStrength(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-20"
+                />
+                <div
+                  className={`absolute w-4 h-4 bg-[#050505] border-[2px] ${!glowEnabled ? "border-[#252a4a]" : "border-[#5b6cf5]"
+                    } rounded-full pointer-events-none transition-transform shadow-lg`}
+                  style={{
+                    left: `calc(${glowStrength}% - 8px)`
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[12.5px] font-medium text-white/90">
+                  Badge size
+                </label>
+                <span className="text-[12px] text-white/40 font-mono">
+                  {badgeSize}px
+                </span>
+              </div>
+              <div className="relative flex items-center h-5 group w-full">
+                <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-[#5b6cf5]"
+                    style={{ width: `${((badgeSize - 12) / (32 - 12)) * 100}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="12"
+                  max="32"
+                  step="1"
+                  value={badgeSize}
+                  onChange={(e) => setBadgeSize(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                />
+                <div
+                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                  style={{
+                    left: `calc(${((badgeSize - 12) / (32 - 12)) * 100}% - 8px)`
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[12.5px] font-medium text-white/90">
+                  Badges spacing
+                </label>
+                <span className="text-[12px] text-white/40 font-mono">
+                  {badgeSpacing}px
+                </span>
+              </div>
+              <div className="relative flex items-center h-5 group w-full">
+                <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="absolute h-full bg-[#5b6cf5]"
+                    style={{ width: `${(badgeSpacing / 24) * 100}%` }}
+                  />
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="24"
+                  step="1"
+                  value={badgeSpacing}
+                  onChange={(e) => setBadgeSpacing(Number(e.target.value))}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                />
+                <div
+                  className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                  style={{
+                    left: `calc(${(badgeSpacing / 24) * 100}% - 8px)`
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <label className="text-[12.5px] font-medium text-white/90">
+                Container
+              </label>
+              <div className="flex items-center gap-1 bg-[#161616] border border-white/5 rounded-xl p-1 w-fit">
+                {(
+                  [
+                    { id: "pill", label: "Pill" },
+                    { id: "none", label: "None" },
+                    { id: "separate", label: "Separate" },
+                  ] as const
+                ).map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setContainerStyle(opt.id)}
+                    className={`rounded-lg px-4 py-1.5 text-[12.5px] font-normal transition-colors cursor-pointer ${
+                      containerStyle === opt.id
+                        ? "bg-[#5b6cf5]/20 text-white"
+                        : "text-white/40 hover:text-white/70"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-white/35">
+                {containerStyle === "pill" && "One shared bar behind all badges."}
+                {containerStyle === "none" && "Bare icons, no container."}
+                {containerStyle === "separate" && "Each badge in its own box."}
+              </p>
+              <p className="text-[#fbbf24]/70 text-[11.5px]">
+                Badges spilling outside the container? Increase the Content width or decrease the badge spacing to fit them.{" "}
+                <Link href="/dashboard/customize/profile/layout" className="font-medium underline underline-offset-2 hover:text-[#fbbf24] transition-colors">
+                  Go to Layout settings →
+                </Link>
+              </p>
+            </div>
+          </div>
+        </div>
       )}
         </motion.div>
       </AnimatePresence>
 
-      <SaveBar show={dirty} onSave={handleSave} onRevert={handleRevert} />
+      <SaveBar show={showSaveBar} onSave={handleSave} onRevert={handleRevert} />
+
+      {tab === "customize" && (
+        <DashboardProfilePreview
+          user={user}
+          overrides={{
+            badgeGlowEnabled: glowEnabled,
+            badgeGlowStrength: glowStrength,
+            badgeSize,
+            badgeMonochromeEnabled: monoEnabled,
+            badgeContainerStyle: containerStyle,
+            badgeSpacing,
+          }}
+          equippedBadges={equipped}
+        />
+      )}
 
       <AnimatePresence>
         {applyFor && (
@@ -659,5 +903,6 @@ export default function BadgesTabs({
         )}
       </AnimatePresence>
     </div>
+    </>
   );
 }

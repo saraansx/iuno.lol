@@ -12,13 +12,18 @@ import effects from "@/effects.json";
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
   overrides?: Partial<FullUser>;
+  equippedBadges?: string[];
 }
 
-export default function DashboardProfilePreview({ user, overrides = {} }: DashboardProfilePreviewProps) {
+export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
-  const [equippedBadges, setEquippedBadges] = useState<string[]>([]);
+  const [equippedBadges, setEquippedBadges] = useState<string[]>(equippedBadgesProp ?? []);
 
   useEffect(() => {
+    if (equippedBadgesProp !== undefined) {
+      setEquippedBadges(equippedBadgesProp);
+      return;
+    }
     let cancelled = false;
     getMyBadges()
       .then((res) => {
@@ -28,7 +33,7 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [equippedBadgesProp]);
 
   return (
     <ProfilePreview
@@ -184,6 +189,13 @@ export default function DashboardProfilePreview({ user, overrides = {} }: Dashbo
       showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
       showLinksTooltip={deferredOverrides.showLinksTooltip ?? user?.showLinksTooltip ?? true}
       showBadgesTooltip={deferredOverrides.showBadgesTooltip ?? user?.showBadgesTooltip ?? true}
+      badgeGlowEnabled={deferredOverrides.badgeGlowEnabled ?? user?.badgeGlowEnabled ?? true}
+      badgeGlowStrength={deferredOverrides.badgeGlowStrength ?? user?.badgeGlowStrength ?? 50}
+      badgeSize={deferredOverrides.badgeSize ?? user?.badgeSize ?? 18}
+      badgeMonochromeEnabled={deferredOverrides.badgeMonochromeEnabled ?? user?.badgeMonochromeEnabled ?? false}
+      badgeMonochromeColor={deferredOverrides.badgeMonochromeColor ?? user?.badgeMonochromeColor ?? null}
+      badgeContainerStyle={deferredOverrides.badgeContainerStyle ?? user?.badgeContainerStyle ?? "pill"}
+      badgeSpacing={deferredOverrides.badgeSpacing ?? user?.badgeSpacing ?? 6}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import BadgesTabs from "./BadgesTabs";
 import { EARLY_CUTOFF_UID } from "./badges-data";
 import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
 import { getMyBadges } from "@/actions/badges";
 
 export const metadata: Metadata = {
@@ -13,7 +14,8 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const userId = await getSessionUserId();
-  const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };  return (
+  const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };
+  const user = userId ? await getUserById(userId) : null;  return (
     <div className="flex flex-col gap-8 h-full">
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
@@ -56,9 +58,18 @@ export default async function Page() {
         </div>
 
         <BadgesTabs
+          user={user}
           initialOwned={initial.owned}
           initialEquipped={initial.equipped}
           earlyEligible={userId != null && userId <= EARLY_CUTOFF_UID}
+          initialGlow={{
+            enabled: user?.badgeGlowEnabled ?? true,
+            strength: user?.badgeGlowStrength ?? 50,
+            size: user?.badgeSize ?? 18,
+            mono: user?.badgeMonochromeEnabled ?? false,
+            container: user?.badgeContainerStyle ?? "pill",
+            spacing: user?.badgeSpacing ?? 6,
+          }}
         />
       </div>
     </div>

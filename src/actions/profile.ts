@@ -388,6 +388,7 @@ export async function updateColorsProfile(data: {
   musicPrimaryColor?: string | null;
   musicSecondaryColor?: string | null;
   musicLyricsColor?: string | null;
+  badgeMonochromeColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -415,6 +416,7 @@ export async function updateColorsProfile(data: {
   if (data.musicPrimaryColor !== undefined) setData.musicPrimaryColor = data.musicPrimaryColor?.slice(0, 32) ?? null;
   if (data.musicSecondaryColor !== undefined) setData.musicSecondaryColor = data.musicSecondaryColor?.slice(0, 32) ?? null;
   if (data.musicLyricsColor !== undefined) setData.musicLyricsColor = data.musicLyricsColor?.slice(0, 32) ?? null;
+  if (data.badgeMonochromeColor !== undefined) setData.badgeMonochromeColor = data.badgeMonochromeColor?.slice(0, 32) ?? null;
 
   sanitizeProfileSettings(setData);
 
@@ -723,6 +725,12 @@ export async function updateEffectsProfile(data: {
   enterScreenOpacity?: number | null;
   enterScreenBlur?: number | null;
   enterScreenBlurColor?: string | null;
+  badgeGlowEnabled?: boolean | null;
+  badgeGlowStrength?: number | null;
+  badgeSize?: number | null;
+  badgeMonochromeEnabled?: boolean | null;
+  badgeContainerStyle?: string | null;
+  badgeSpacing?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -771,6 +779,15 @@ export async function updateEffectsProfile(data: {
   if (data.enterScreenOpacity !== undefined) setData.enterScreenOpacity = data.enterScreenOpacity;
   if (data.enterScreenBlur !== undefined) setData.enterScreenBlur = data.enterScreenBlur;
   if (data.enterScreenBlurColor !== undefined) setData.enterScreenBlurColor = data.enterScreenBlurColor?.slice(0, 32) ?? '#000000';
+  if (data.badgeGlowEnabled !== undefined) setData.badgeGlowEnabled = data.badgeGlowEnabled ?? true;
+  if (data.badgeGlowStrength !== undefined) setData.badgeGlowStrength = data.badgeGlowStrength;
+  if (data.badgeSize !== undefined) setData.badgeSize = data.badgeSize;
+  if (data.badgeMonochromeEnabled !== undefined) setData.badgeMonochromeEnabled = data.badgeMonochromeEnabled ?? false;
+  if (data.badgeContainerStyle !== undefined) {
+    const style = data.badgeContainerStyle?.trim() ?? "pill";
+    setData.badgeContainerStyle = ["pill", "none", "separate"].includes(style) ? style : "pill";
+  }
+  if (data.badgeSpacing !== undefined) setData.badgeSpacing = data.badgeSpacing;
 
   sanitizeProfileSettings(setData);
 

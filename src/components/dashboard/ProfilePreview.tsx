@@ -154,6 +154,13 @@ interface ProfilePreviewProps {
   showViewsTooltip?: boolean;
   showLinksTooltip?: boolean;
   showBadgesTooltip?: boolean;
+  badgeGlowEnabled?: boolean;
+  badgeGlowStrength?: number | null;
+  badgeSize?: number | null;
+  badgeMonochromeEnabled?: boolean;
+  badgeMonochromeColor?: string | null;
+  badgeContainerStyle?: string | null;
+  badgeSpacing?: number | null;
   createdAt?: string | Date;
   widgets?: import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[];
   links?: import("@/lib/links").ProfileLink[];
@@ -174,7 +181,7 @@ interface ProfilePreviewProps {
   equippedBadges?: string[];
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, clickEffect, clickSound, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, widgetSecondaryFont, widgetSecondaryFontSize, widgetSecondaryFontWeight, widgetSecondaryLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, linksSectionEnabled, linksSectionTitle, linksSectionDescription, linksSectionPosition, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, showLinksTooltip, showBadgesTooltip,
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, descriptionEffect, cursorTrail, cursorTrailColor, clickEffect, clickSound, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, widgetSecondaryFont, widgetSecondaryFontSize, widgetSecondaryFontWeight, widgetSecondaryLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, linksSectionEnabled, linksSectionTitle, linksSectionDescription, linksSectionPosition, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, showLinksTooltip, showBadgesTooltip, badgeGlowEnabled = true, badgeGlowStrength = 50, badgeSize = 18, badgeMonochromeEnabled = false, badgeMonochromeColor = null, badgeContainerStyle = "pill", badgeSpacing = 6,
 createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = true, musicPlayerVolume = true, musicPlayerVolumeFixed = true, musicPlayerShuffle = false, links = [], linksAlignment = "center", linksSocialBackground = true, linksBorderRadius = 16, linksIconSize = 17, linksFont = "Inter", linksFontSize = 13.5, linksFontWeight = 400, linksLetterSpacing = 0, sectionTitleFont = "Inter", sectionTitleFontSize = 15, sectionTitleFontWeight = 500, sectionTitleLetterSpacing = 0, sectionDescFont = "Inter", sectionDescFontSize = 12.5, sectionDescFontWeight = 400, sectionDescLetterSpacing = 0, sectionTitleColor = "#FFFFFF", sectionDescColor = "#FFFFFF", musicPrimaryFont = "Inter", musicPrimaryFontSize = 15, musicPrimaryFontWeight = 400, musicPrimaryLetterSpacing = 0, musicSecondaryFont = "Inter", musicSecondaryFontSize = 12.5, musicSecondaryFontWeight = 400, musicSecondaryLetterSpacing = 0, musicLyricsFont = "Inter", musicLyricsFontSize = 14, musicLyricsFontWeight = 400, musicLyricsLetterSpacing = 0, musicPrimaryColor = "#FFFFFF", musicSecondaryColor = "#FFFFFF", musicLyricsColor =
 "#FFFFFF", equippedBadges = [] }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
@@ -408,6 +415,13 @@ createdAt, widgets, musicTracks = [], musicPlayerStyle = "compact", musicPlayerA
             showViewsTooltip={showViewsTooltip}
             showLinksTooltip={showLinksTooltip}
             showBadgesTooltip={showBadgesTooltip}
+            badgeGlowEnabled={badgeGlowEnabled}
+            badgeGlowStrength={badgeGlowStrength}
+            badgeSize={badgeSize}
+            badgeMonochromeEnabled={badgeMonochromeEnabled}
+            badgeMonochromeColor={badgeMonochromeColor}
+            badgeContainerStyle={badgeContainerStyle}
+            badgeSpacing={badgeSpacing}
             createdAt={createdAt}
             widgets={widgets}
             links={links}

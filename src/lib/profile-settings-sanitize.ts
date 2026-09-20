@@ -49,6 +49,9 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   viewsAnimationDuration: { min: 0, max: 5000, int: true },
 
   backgroundEffectIntensity: { min: 0, max: 100, int: true },
+  badgeGlowStrength: { min: 0, max: 100, int: true },
+  badgeSize: { min: 12, max: 32, int: true },
+  badgeSpacing: { min: 0, max: 24, int: true },
   enterScreenFontSize: { min: 10, max: 48, int: true },
   enterScreenFontWeight: { min: 100, max: 900, int: true },
   enterScreenLetterSpacing: { min: -5, max: 20 },
@@ -78,6 +81,7 @@ const COLOR_FIELDS = new Set([
   "enterScreenBlurColor",
   "sectionTitleColor",
   "sectionDescColor",
+  "badgeMonochromeColor",
   "musicPrimaryColor",
   "musicSecondaryColor",
   "musicLyricsColor",

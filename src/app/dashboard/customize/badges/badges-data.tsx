@@ -1,8 +1,6 @@
 // Shared badge definitions (imported by both the server page and the client tabs).
 import type { ReactNode } from "react";
 
-export const MAX_EQUIPPED_BADGES = 4;
-
 // Only the first 100 registered users (by id) can earn the Early badge.
 export const EARLY_CUTOFF_UID = 100;
 

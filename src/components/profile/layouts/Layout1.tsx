@@ -158,6 +158,13 @@ interface Layout1Props {
   usernameLetterSpacing?: number;
   usernameColor?: string;
   equippedBadges?: string[];
+  badgeGlowEnabled?: boolean;
+  badgeGlowStrength?: number | null;
+  badgeSize?: number | null;
+  badgeMonochromeEnabled?: boolean;
+  badgeMonochromeColor?: string | null;
+  badgeContainerStyle?: string | null;
+  badgeSpacing?: number | null;
   bioFont?: string;
   bioFontSize?: number;
   bioFontWeight?: number;
@@ -383,6 +390,13 @@ const Layout1 = ({
   usernameEffect = "none",
   descriptionEffect = "none",
   equippedBadges = [],
+  badgeGlowEnabled = true,
+  badgeGlowStrength = 50,
+  badgeSize = 18,
+  badgeMonochromeEnabled = false,
+  badgeMonochromeColor = null,
+  badgeContainerStyle = "pill",
+  badgeSpacing = 6,
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
   clickEffect,
@@ -1316,7 +1330,7 @@ const sectionSurface: React.CSSProperties = {
                     </div>
                   )}
                   </span>
-                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} />
+                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} glowEnabled={badgeGlowEnabled} glowStrength={badgeGlowStrength} badgeSize={badgeSize} monoEnabled={badgeMonochromeEnabled} monoColor={badgeMonochromeColor} containerStyle={badgeContainerStyle} badgeSpacing={badgeSpacing} />
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}

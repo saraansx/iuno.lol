@@ -206,8 +206,8 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
 
                 {showMemberSince && steamData.member_since && (
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" className="text-white/50 shrink-0">
-                      <path fillRule="evenodd" clipRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a3 3 0 00-3 3v13a3 3 0 003 3h16a3 3 0 003-3V7a3 3 0 00-3-3h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm15 7H3v10a1 1 0 001 1h16a1 1 0 001-1V9zm-14 3a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2zm5-4a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2zm5-4a1 1 0 100 2 1 1 0 000-2zm0 4a1 1 0 100 2 1 1 0 000-2z" />
+                    <svg width="13" height="13" viewBox="0 0 512 512" fill="currentColor" stroke="none" className="text-white/50 shrink-0">
+                      <path d="M480 128a64 64 0 0 0-64-64h-16V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 368 48v16H144V48.45c0-8.61-6.62-16-15.23-16.43A16 16 0 0 0 112 48v16H96a64 64 0 0 0-64 64v12a4 4 0 0 0 4 4h440a4 4 0 0 0 4-4zM32 416a64 64 0 0 0 64 64h320a64 64 0 0 0 64-64V180a4 4 0 0 0-4-4H36a4 4 0 0 0-4 4z" />
                     </svg>
                     <span className="text-white/40">Since</span>
                     <span className="text-white/85">{steamData.member_since}</span>

@@ -214,6 +214,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       cursorTrailColor: userSettings.cursorTrailColor,
       clickEffect: userSettings.clickEffect,
       clickSound: userSettings.clickSound,
+      badgeGlowEnabled: userSettings.badgeGlowEnabled,
+      badgeGlowStrength: userSettings.badgeGlowStrength,
+      badgeSize: userSettings.badgeSize,
+      badgeMonochromeEnabled: userSettings.badgeMonochromeEnabled,
+      badgeMonochromeColor: userSettings.badgeMonochromeColor,
+      badgeContainerStyle: userSettings.badgeContainerStyle,
+      badgeSpacing: userSettings.badgeSpacing,
       entryTransition: userSettings.entryTransition,
       enterScreenEnabled: userSettings.enterScreenEnabled,
       enterScreenText: userSettings.enterScreenText,
@@ -323,6 +330,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         cardTransition={user.cardTransition ?? undefined}
         usernameEffect={user.usernameEffect ?? undefined}
         equippedBadges={equippedBadges}
+        badgeGlowEnabled={user.badgeGlowEnabled ?? true}
+        badgeGlowStrength={user.badgeGlowStrength ?? undefined}
+        badgeSize={user.badgeSize ?? undefined}
+        badgeMonochromeEnabled={user.badgeMonochromeEnabled ?? false}
+        badgeMonochromeColor={user.badgeMonochromeColor ?? undefined}
+        badgeContainerStyle={user.badgeContainerStyle ?? undefined}
+        badgeSpacing={user.badgeSpacing ?? undefined}
         descriptionEffect={user.descriptionEffect ?? undefined}
         cursorTrail={user.cursorTrail ?? undefined}
         cursorTrailColor={user.cursorTrailColor ?? undefined}
