@@ -7,11 +7,10 @@ import { revalidatePath } from "next/cache";
 import {
   RECRUITER_REQUIRED,
   getOrCreateInvite,
+  hasInvite,
   refreshRecruiter,
   type RecruiterState,
 } from "@/lib/recruiter";
-import { db, schema } from "@/lib/db";
-import { eq } from "drizzle-orm";
 
 async function requireLinkedUser(): Promise<{ userId: number; discordId: string }> {
   const userId = await getSessionUserId();
@@ -30,22 +29,18 @@ async function requireLinkedUser(): Promise<{ userId: number; discordId: string 
 
 // Fixed personal invite link + live use count (no grant — view only).
 export async function getMyInvite(): Promise<Omit<RecruiterState, "granted"> & { required: number }> {
-  const { userId } = await requireLinkedUser();
-  const { code, uses } = await getOrCreateInvite(userId);
+  const { discordId } = await requireLinkedUser();
+  const { code, uses } = await getOrCreateInvite(discordId);
   return { code, url: `https://discord.gg/${code}`, uses, required: RECRUITER_REQUIRED };
 }
 
-// Lightweight check: does the user already have a saved invite code?
-// Pure DB read — no Discord calls, no code creation.
+// Lightweight check: does the user already have a code? No error if not linked.
 export async function hasInviteCode(): Promise<boolean> {
   const userId = await getSessionUserId();
   if (!userId) return false;
-  const rows = await db
-    .select({ id: schema.discordInvites.id })
-    .from(schema.discordInvites)
-    .where(eq(schema.discordInvites.userId, userId))
-    .limit(1);
-  return rows.length > 0;
+  const user = await getUserById(userId);
+  if (!user?.discordId) return false;
+  return hasInvite(user.discordId);
 }
 
 // Poll uses; grant role + badge once the threshold is hit.

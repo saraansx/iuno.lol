@@ -498,18 +498,6 @@ export const donations = mysqlTable('donations', {
   donationUserIdx: index('donation_user_idx').on(table.userId),
 }))
 
-// Personal Discord invite links for the Discord Recruiter badge.
-// One fixed link per user; uses are polled from the Discord API.
-export const discordInvites = mysqlTable('discord_invites', {
-  id: int('id').primaryKey().autoincrement(),
-  userId: int('user_id').notNull().unique().references(() => users.id, { onDelete: 'cascade' }),
-  code: varchar('code', { length: 32 }).notNull().unique(),
-  channelId: varchar('channel_id', { length: 32 }).notNull(),
-  uses: int('uses').default(0).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-})
-
 export const schema = {
   users,
   userSettings,
@@ -523,7 +511,6 @@ export const schema = {
   profileFeedback,
   userBadges,
   donations,
-  discordInvites,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,
