@@ -8,6 +8,7 @@ import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
 import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
+import CustomBadgePromo from "@/components/dashboard/CustomBadgePromo";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { badgeGlowFilter } from "@/components/profile/layouts/ProfileBadges";
 import { type FullUser } from "@/lib/features/users/db";
@@ -714,6 +715,7 @@ export default function BadgesTabs({
       className="flex flex-col gap-6"
       style={tab === "customize" ? { paddingRight: "calc(var(--preview-width,380px) + 2rem)" } : undefined}
     >
+      <CustomBadgePromo />
       <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit">
         {TABS.map((t) => (
           <button
