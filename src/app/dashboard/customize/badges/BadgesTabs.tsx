@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
 import Link from "next/link";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
+import { checkRecruiterProgress, getMyInvite } from "@/actions/recruiter";
 import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -152,6 +153,7 @@ function BadgeCell({
   onToggle,
   onApply,
   onDiscord,
+  onInvite,
 }: {
   badge: Badge;
   isEquipped: boolean;
@@ -160,6 +162,7 @@ function BadgeCell({
   onToggle: (id: string) => void;
   onApply: (id: string) => void;
   onDiscord: () => void;
+  onInvite: () => void;
 }) {
   const pillText = "pill" in badge ? badge.pill : null;
   return (
@@ -216,6 +219,10 @@ function BadgeCell({
             <button
               type="button"
               onClick={() => {
+                if (badge.id === "discord-recruiter") {
+                  onInvite();
+                  return;
+                }
                 const cta = CTA_BUTTONS[badge.id];
                 if (cta.action === "discord") onDiscord();
                 else toast.error("Coming soon.");
@@ -270,7 +277,7 @@ function DonatorCard({ owned, equipped, totalDonated, onToggle }: { owned: strin
           return (
             <div
               key={milestone.id}
-              className="px-3.5 py-2 flex items-center gap-2"
+              className={`px-3.5 py-2 flex items-center gap-2 transition-all ${unlocked ? "" : "saturate-50 opacity-70"}`}
             >
               <svg
                 width="24"
@@ -339,7 +346,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
           return (
             <div
               key={stage.id}
-              className="px-3.5 py-2 flex items-center gap-2"
+              className={`px-3.5 py-2 flex items-center gap-2 transition-all ${unlocked ? "" : "saturate-50 opacity-70"}`}
             >
               <svg
                 width="24"
@@ -412,7 +419,7 @@ function ViewsCard({ owned, equipped, totalViews, onToggle }: { owned: string[];
           return (
             <div
               key={milestone.id}
-              className="px-3.5 py-2 flex items-center gap-2"
+              className={`px-3.5 py-2 flex items-center gap-2 transition-all ${unlocked ? "" : "saturate-50 opacity-70"}`}
             >
               <svg
                 width="24"
@@ -481,7 +488,7 @@ function LikesCard({ owned, equipped, totalLikes, onToggle }: { owned: string[];
           return (
             <div
               key={milestone.id}
-              className="px-3.5 py-2 flex items-center gap-2"
+              className={`px-3.5 py-2 flex items-center gap-2 transition-all ${unlocked ? "" : "saturate-50 opacity-70"}`}
             >
               <svg
                 width="24"
@@ -560,6 +567,10 @@ export default function BadgesTabs({
   const [shimmerEnabled, setShimmerEnabled] = useState(initialGlow.shimmer ?? false);
   const [savedGlow, setSavedGlow] = useState(initialGlow);
   const [applyFor, setApplyFor] = useState<AnyBadge | null>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [inviteData, setInviteData] = useState<{ code: string; url: string; uses: number; required: number } | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [inviteRefreshing, setInviteRefreshing] = useState(false);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -597,13 +608,16 @@ export default function BadgesTabs({
   }
 
   useEffect(() => {
-    if (!applyFor) return;
+    if (!applyFor && !inviteOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setApplyFor(null);
+      if (e.key === "Escape") {
+        setApplyFor(null);
+        setInviteOpen(false);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [applyFor]);
+  }, [applyFor, inviteOpen]);
 
   const dirty = JSON.stringify(equipped) !== JSON.stringify(savedEquipped);
   const glowDirty =
@@ -688,6 +702,50 @@ export default function BadgesTabs({
   function openDiscordApply() {
     openDiscordLink();
     setApplyFor(null);
+  }
+
+  async function openInviteModal() {
+    setInviteOpen(true);
+    setInviteLoading(true);
+    try {
+      const data = await getMyInvite();
+      setInviteData(data);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+      setInviteOpen(false);
+    } finally {
+      setInviteLoading(false);
+    }
+  }
+
+  async function handleInviteRefresh() {
+    if (inviteRefreshing) return;
+    setInviteRefreshing(true);
+    try {
+      const data = await checkRecruiterProgress();
+      setInviteData({ code: data.code, url: data.url, uses: data.uses, required: data.required });
+      if (data.granted) {
+        toast.success("Recruiter badge unlocked!");
+        setInviteOpen(false);
+        await handleSync();
+      } else {
+        toast.success(`Progress updated — ${data.uses}/${data.required} invites`);
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Something went wrong");
+    } finally {
+      setInviteRefreshing(false);
+    }
+  }
+
+  async function copyInviteLink() {
+    if (!inviteData) return;
+    try {
+      await navigator.clipboard.writeText(inviteData.url);
+      toast.success("Invite link copied");
+    } catch {
+      toast.error("Couldn't copy — select the link manually.");
+    }
   }
 
   async function handleSync() {
@@ -863,6 +921,7 @@ export default function BadgesTabs({
                     showApply={APPLY_BADGE_IDS.includes(badge.id) && !owned.includes(badge.id)}
                     onToggle={toggleBadge}
                     onDiscord={openDiscordLink}
+                    onInvite={openInviteModal}
                     onApply={(id) => {
                       const b = badgeById(id);
                       if (b) setApplyFor(b);
@@ -1276,6 +1335,97 @@ export default function BadgesTabs({
                   <span className="text-[13.5px] font-normal text-[#8f9bf5]">Apply via Discord</span>
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {inviteOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => setInviteOpen(false)}
+            className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-[min(420px,90vw)] bg-[#101010] border border-white/10 rounded-2xl p-6 shadow-2xl"
+            >
+              <div className="flex items-start justify-between gap-4 mb-1">
+                <h3 className="text-[15px] font-medium text-white tracking-tight">
+                  Discord Recruiter
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setInviteOpen(false)}
+                  aria-label="Close"
+                  className="shrink-0 w-7 h-7 rounded-lg hover:bg-white/5 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              {inviteLoading || !inviteData ? (
+                <div className="flex items-center gap-2.5 py-6 justify-center">
+                  <svg
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="animate-spin text-white/50"
+                  >
+                    <path d="M21 12a9 9 0 1 1-6.2-8.56" />
+                  </svg>
+                  <p className="text-[12.5px] text-white/40">Creating your personal link…</p>
+                </div>
+              ) : (
+                <>
+                  <p className="text-[12.5px] text-white/40 mb-4">
+                    Share this fixed link — {inviteData.required} members joining through it unlocks the badge.
+                  </p>
+                  <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#161616] pl-3.5 pr-1.5 py-1.5 mb-4">
+                    <span className="text-[13px] text-white/90 font-mono truncate flex-1">{inviteData.url}</span>
+                    <button
+                      type="button"
+                      onClick={copyInviteLink}
+                      className="shrink-0 text-[12px] font-normal rounded-lg px-3 py-1.5 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-2 mb-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[12.5px] font-medium text-white/90">Progress</span>
+                      <span className="text-[12px] text-white/40 font-mono">
+                        {inviteData.uses}/{inviteData.required} invites
+                      </span>
+                    </div>
+                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#5b6cf5] rounded-full transition-all"
+                        style={{ width: `${Math.min(100, (inviteData.uses / inviteData.required) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleInviteRefresh}
+                    disabled={inviteRefreshing}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#5b6cf5]/30 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 transition-colors px-4 py-2.5 text-[13px] font-normal text-white cursor-pointer disabled:opacity-50 disabled:cursor-default"
+                  >
+                    {inviteRefreshing ? "Checking…" : "Refresh progress"}
+                  </button>
+                </>
+              )}
             </motion.div>
           </motion.div>
         )}

@@ -6,6 +6,7 @@ import { isAuthorizedCron } from '@/lib/cron-auth'
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from '@/lib/badge-roles'
 import { BADGES, EARLY_CUTOFF_UID } from '@/app/dashboard/customize/badges/badges-data'
 import { SITE_CONFIG } from '@/lib/config'
+import { syncAllRecruiterInvites } from '@/lib/recruiter'
 
 export const maxDuration = 300;
 
@@ -202,11 +203,19 @@ async function handleSync(request: Request) {
     }
     await purgeProfiles([...changedUsernames]);
 
+    let recruiter: { checked: number; granted: number } | { error: string } = { checked: 0, granted: 0 };
+    try {
+      recruiter = await syncAllRecruiterInvites();
+    } catch (error) {
+      recruiter = { error: error instanceof Error ? error.message : "recruiter sync failed" };
+    }
+
     return NextResponse.json({
       success: true,
       membersChecked: memberRoles.size,
       added: toInsert.length,
       removed: toDeleteIds.length,
+      recruiter,
     });
   } catch (error) {
     console.error('[cron/sync-badges] failed:', error);

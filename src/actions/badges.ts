@@ -9,6 +9,7 @@ import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { eq, and, asc, sql } from "drizzle-orm";
 import { BADGES, EARLY_CUTOFF_UID, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 import { ROLE_BADGE_MAP } from "@/lib/badge-roles";
+import { RECRUITER_BADGE_ID, refreshRecruiter } from "@/lib/recruiter";
 
 type BadgeEntry = (typeof BADGES)[number];
 type LevelEntry = (typeof LEVELS)[number];
@@ -326,6 +327,20 @@ export async function syncDiscordBadges(): Promise<{
       .delete(schema.userBadges)
       .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, "early")));
     removed.push("early");
+  }
+
+  // Discord Recruiter: poll personal invite uses, grant at threshold.
+  // Never fails the whole sync — the modal refresh surfaces errors instead.
+  try {
+    const before = await db
+      .select({ id: schema.userBadges.id })
+      .from(schema.userBadges)
+      .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, RECRUITER_BADGE_ID)))
+      .limit(1);
+    const state = await refreshRecruiter(userId, discordId);
+    if (state.granted && before.length === 0) added.push(RECRUITER_BADGE_ID);
+  } catch {
+    // ignore — covered by nightly cron + manual refresh
   }
 
   await revalidateOwnProfile(userId);
