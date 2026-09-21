@@ -5,7 +5,7 @@ import BadgesTabs from "./BadgesTabs";
 import { EARLY_CUTOFF_UID } from "./badges-data";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
-import { getMyBadges } from "@/actions/badges";
+import { getMyBadges, getDonatedCents } from "@/actions/badges";
 
 export const metadata: Metadata = {
   title: "Badges",
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const userId = await getSessionUserId();
   const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };
+  const donatedCents = userId ? await getDonatedCents(userId) : 0;
   const user = userId ? await getUserById(userId) : null;  return (
     <div className="flex flex-col gap-8 h-full">
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
@@ -62,6 +63,7 @@ export default async function Page() {
           initialOwned={initial.owned}
           initialEquipped={initial.equipped}
           earlyEligible={userId != null && userId <= EARLY_CUTOFF_UID}
+          initialDonated={Math.floor(donatedCents / 100)}
           initialGlow={{
             enabled: user?.badgeGlowEnabled ?? true,
             strength: user?.badgeGlowStrength ?? 50,
@@ -72,6 +74,7 @@ export default async function Page() {
             scroll: (user?.badgeScrollStyle as "none" | "pingpong" | "left" | "right") ?? "none",
             speed: user?.badgeScrollSpeed ?? 40,
             show: user?.badgeVisibleCount ?? 5,
+            shimmer: user?.badgeShimmerEnabled ?? false,
           }}
         />
       </div>

@@ -226,6 +226,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       badgeScrollStyle: userSettings.badgeScrollStyle,
       badgeScrollSpeed: userSettings.badgeScrollSpeed,
       badgeVisibleCount: userSettings.badgeVisibleCount,
+      badgeShimmerEnabled: userSettings.badgeShimmerEnabled,
       entryTransition: userSettings.entryTransition,
       enterScreenEnabled: userSettings.enterScreenEnabled,
       enterScreenText: userSettings.enterScreenText,
@@ -346,6 +347,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         badgeScrollStyle={user.badgeScrollStyle ?? undefined}
         badgeScrollSpeed={user.badgeScrollSpeed ?? undefined}
         badgeVisibleCount={user.badgeVisibleCount ?? undefined}
+        badgeShimmerEnabled={user.badgeShimmerEnabled ?? false}
         descriptionEffect={user.descriptionEffect ?? undefined}
         descriptionGlowEnabled={user.descriptionGlowEnabled ?? false}
         cursorTrail={user.cursorTrail ?? undefined}

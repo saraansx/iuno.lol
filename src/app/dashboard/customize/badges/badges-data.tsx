@@ -233,8 +233,8 @@ export const LEVELS: LevelStage[] = [
       <>
         <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
         <circle cx="12" cy="15.5" r="5.5" />
-        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
-        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+        <circle cx="12" cy="15.5" r="3.6" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.4" />
+        <circle cx="12" cy="15.5" r="1.7" fill="rgba(0,0,0,0.45)" />
       </>
     ),
   },
@@ -249,8 +249,10 @@ export const LEVELS: LevelStage[] = [
       <>
         <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
         <circle cx="12" cy="15.5" r="5.5" />
-        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
-        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+        <circle cx="12" cy="15.5" r="3.6" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.4" />
+        <g transform="translate(12 14.75) scale(1.2) translate(-12 -14.75)">
+          <path d="M12 12.4l.65 1.71 1.82.09-1.43 1.14.48 1.76-1.52-1-1.52 1 .48-1.76-1.43-1.14 1.82-.09z" fill="rgba(0,0,0,0.45)" />
+        </g>
       </>
     ),
   },
@@ -264,9 +266,13 @@ export const LEVELS: LevelStage[] = [
     icon: (
       <>
         <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
-        <circle cx="12" cy="15.5" r="5.5" />
-        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
-        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+        <circle cx="12" cy="15.5" r="6" />
+        <circle cx="12" cy="15.5" r="4.9" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.3" />
+        <g transform="translate(12 14.75) scale(1.2) translate(-12 -14.75)">
+          <path d="M12 12.4l.65 1.71 1.82.09-1.43 1.14.48 1.76-1.52-1-1.52 1 .48-1.76-1.43-1.14 1.82-.09z" fill="rgba(0,0,0,0.45)" />
+        </g>
+        <circle cx="6.6" cy="15.5" r="0.8" fill="rgba(0,0,0,0.45)" />
+        <circle cx="17.4" cy="15.5" r="0.8" fill="rgba(0,0,0,0.45)" />
       </>
     ),
   },
@@ -280,9 +286,14 @@ export const LEVELS: LevelStage[] = [
     icon: (
       <>
         <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
-        <circle cx="12" cy="15.5" r="5.5" />
-        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
-        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+        <path d="M9.6 2.5l-.7 4.2 1 .2.7-4.1z" fill="rgba(0,0,0,0.45)" />
+        <path d="M14.4 2.5l.7 4.2-1 .2-.7-4.1z" fill="rgba(0,0,0,0.45)" />
+        <circle cx="12" cy="15.5" r="6" />
+        <circle cx="12" cy="15.5" r="4.9" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.3" />
+        <path d="M12 12l2.8 3-2.8 3-2.8-3z" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.2" />
+        <path d="M9.5 15h5" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.1" />
+        <path d="M5.5 7.3l1.1 1.7-1.1 1.7-1.1-1.7z" fill="rgba(0,0,0,0.45)" />
+        <path d="M18.5 7.3l1.1 1.7-1.1 1.7-1.1-1.7z" fill="rgba(0,0,0,0.45)" />
       </>
     ),
   },
@@ -296,9 +307,321 @@ export const LEVELS: LevelStage[] = [
     icon: (
       <>
         <path d="M9 2h6l-1.2 5.5h-3.6L9 2Z" opacity="0.7" />
-        <circle cx="12" cy="15.5" r="5.5" />
-        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
-        <circle cx="12" cy="15.5" r="1.1" fill="rgba(0,0,0,0.35)" />
+        <circle cx="12" cy="8.2" r="0.9" />
+        <circle cx="17.2" cy="10.3" r="0.9" />
+        <circle cx="19.3" cy="15.5" r="0.9" />
+        <circle cx="17.2" cy="20.7" r="0.9" />
+        <circle cx="12" cy="22.8" r="0.9" />
+        <circle cx="6.8" cy="20.7" r="0.9" />
+        <circle cx="4.7" cy="15.5" r="0.9" />
+        <circle cx="6.8" cy="10.3" r="0.9" />
+        <circle cx="12" cy="15.5" r="5.2" />
+        <circle cx="12" cy="15.5" r="3.4" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.3" />
+        <g transform="translate(12 14.9) scale(1.2) translate(-12 -14.9)">
+          <path d="M12 12.9l.55 1.45 1.55.07-1.21.97.41 1.49-1.3-.85-1.3.85.41-1.49-1.21-.97 1.55-.07z" fill="rgba(0,0,0,0.45)" />
+        </g>
+      </>
+    ),
+  },
+];
+
+export interface ViewMilestone {
+  id: string;
+  name: string;
+  description: string;
+  views: number;
+  accent: string;
+  icon: ReactNode;
+}
+
+// Profile view milestones. Displayed as one milestone card next to Levels
+// (not part of the BADGES grid). Auto-unlocked when profile views reach
+// the milestone — views only grow, so these are never revoked.
+export const VIEW_MILESTONES: ViewMilestone[] = [
+  {
+    id: "views-100",
+    name: "Rising",
+    description: "Reach 100 profile views.",
+    views: 100,
+    accent: "#4ade80",
+    icon: (
+      <>
+        <path d="M2.5 12C4.8 8.3 8 6.3 12 6.3s7.2 2 9.5 5.7c-2.3 3.7-5.5 5.7-9.5 5.7S4.8 15.7 2.5 12Z" />
+        <circle cx="12" cy="12" r="2.6" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "views-500",
+    name: "Trending",
+    description: "Reach 500 profile views.",
+    views: 500,
+    accent: "#38bdf8",
+    icon: (
+      <>
+        <path d="M3.84 7.15L17.34 3.15 16.66 0.85 3.16 4.85Z" />
+        <path d="M16.8 0.3l4.7.2-3.6 2.9z" />
+        <path d="M2.5 12C4.8 8.3 8 6.3 12 6.3s7.2 2 9.5 5.7c-2.3 3.7-5.5 5.7-9.5 5.7S4.8 15.7 2.5 12Z" />
+        <circle cx="12" cy="12" r="2.4" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "views-1000",
+    name: "Viral",
+    description: "Reach 1,000 profile views.",
+    views: 1000,
+    accent: "#f472b6",
+    icon: (
+      <>
+        <path d="M6.8 1.4l1 2.2-1 2.2-1-2.2z" />
+        <path d="M12 0.6l1 2.4-1 2.4-1-2.4z" />
+        <path d="M17.2 1.4l1 2.2-1 2.2-1-2.2z" />
+        <path d="M2.5 12C4.8 8.3 8 6.3 12 6.3s7.2 2 9.5 5.7c-2.3 3.7-5.5 5.7-9.5 5.7S4.8 15.7 2.5 12Z" />
+        <circle cx="12" cy="12" r="3.3" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+        <g transform="translate(12 11.9) scale(1.35) translate(-12 -11.9)">
+          <path d="M12 10.4l.42 1.05 1.1.06-.86.71.3 1.07-.96-.62-.96.62.3-1.07-.86-.71 1.1-.06z" fill="rgba(0,0,0,0.45)" />
+        </g>
+      </>
+    ),
+  },
+  {
+    id: "views-5000",
+    name: "Spotlight",
+    description: "Reach 5,000 profile views.",
+    views: 5000,
+    accent: "#ffd700",
+    icon: (
+      <>
+        <path d="M12 0.3l.8 1.2-.8 1.2-.8-1.2z" />
+        <path d="M22.5 10.8l.8 1.2-.8 1.2-.8-1.2z" />
+        <path d="M12 21.3l.8 1.2-.8 1.2-.8-1.2z" />
+        <path d="M1.5 10.8l.8 1.2-.8 1.2-.8-1.2z" />
+        <rect x="18.77" y="18.77" width="1.3" height="1.3" />
+        <rect x="3.93" y="18.77" width="1.3" height="1.3" />
+        <rect x="18.77" y="3.93" width="1.3" height="1.3" />
+        <rect x="3.93" y="3.93" width="1.3" height="1.3" />
+        <path d="M2.5 12C4.8 8.3 8 6.3 12 6.3s7.2 2 9.5 5.7c-2.3 3.7-5.5 5.7-9.5 5.7S4.8 15.7 2.5 12Z" />
+        <circle cx="12" cy="12" r="3.6" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+        <g transform="translate(12 12.3) scale(1.4) translate(-12 -12.3)">
+          <path d="M12 9.8l.56 1.43 1.53.09-1.19.97.4 1.5-1.3-.84-1.3.84.4-1.5-1.19-.97 1.53-.09z" fill="rgba(0,0,0,0.45)" />
+        </g>
+      </>
+    ),
+  },
+  {
+    id: "views-10000",
+    name: "Famous",
+    description: "Reach 10,000 profile views.",
+    views: 10000,
+    accent: "#c084fc",
+    icon: (
+      <>
+        <path d="M6.5 6L7.3 2.5 9.5 4.3 10.6 1.2 12 3.8 13.4 1.2 14.5 4.3 16.7 2.5 17.5 6Z" />
+        <circle cx="9" cy="4.8" r="0.55" fill="rgba(0,0,0,0.45)" />
+        <circle cx="12" cy="4.4" r="0.55" fill="rgba(0,0,0,0.45)" />
+        <circle cx="15" cy="4.8" r="0.55" fill="rgba(0,0,0,0.45)" />
+        <path d="M2.5 12C4.8 8.3 8 6.3 12 6.3s7.2 2 9.5 5.7c-2.3 3.7-5.5 5.7-9.5 5.7S4.8 15.7 2.5 12Z" />
+        <circle cx="12" cy="12" r="3.6" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+        <path d="M12 10l2 2-2 2-2-2z" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.3" />
+        <circle cx="12" cy="12" r="0.8" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+];
+
+export interface LikeMilestone {
+  id: string;
+  name: string;
+  description: string;
+  likes: number;
+  accent: string;
+  icon: ReactNode;
+}
+
+// Profile like milestones. Displayed as one milestone card next to Levels
+// and Views (not part of the BADGES grid). Auto-unlocked when profile likes
+// reach the milestone — likes only grow, so these are never revoked.
+export const LIKE_MILESTONES: LikeMilestone[] = [
+  {
+    id: "likes-10",
+    name: "Liked",
+    description: "Reach 10 profile likes.",
+    likes: 10,
+    accent: "#fb7185",
+    icon: (
+      <>
+        <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+      </>
+    ),
+  },
+  {
+    id: "likes-25",
+    name: "Charming",
+    description: "Reach 25 profile likes.",
+    likes: 25,
+    accent: "#f472b6",
+    icon: (
+      <>
+        <path d="M19.5 0.1l.62 1.65 1.76.08-1.38 1.09.47 1.7-1.47-.97-1.47.97.47-1.7-1.38-1.09 1.76-.08z" />
+        <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+      </>
+    ),
+  },
+  {
+    id: "likes-50",
+    name: "Beloved",
+    description: "Reach 50 profile likes.",
+    likes: 50,
+    accent: "#ef4444",
+    icon: (
+      <>
+        <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+        <g transform="translate(12 12.4) scale(0.5) translate(-12 -12.4)">
+          <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.6" />
+        </g>
+      </>
+    ),
+  },
+  {
+    id: "likes-150",
+    name: "Adored",
+    description: "Reach 150 profile likes.",
+    likes: 150,
+    accent: "#f59e0b",
+    icon: (
+      <>
+        <path d="M19.5 0.1l.62 1.65 1.76.08-1.38 1.09.47 1.7-1.47-.97-1.47.97.47-1.7-1.38-1.09 1.76-.08z" />
+        <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+        <g transform="translate(12 12.4) scale(0.5) translate(-12 -12.4)">
+          <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.6" />
+        </g>
+        <path d="M3.5 15.5l13-7.5.7 1.3-13 7.5z" fill="rgba(0,0,0,0.45)" />
+        <path d="M16.5 6.5l4-.5-.5 4z" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "likes-250",
+    name: "Cherished",
+    description: "Reach 250 profile likes.",
+    likes: 250,
+    accent: "#e879f9",
+    icon: (
+      <>
+        <ellipse cx="12" cy="13" rx="10.5" ry="3.6" transform="rotate(-18 12 13)" />
+        <g transform="translate(4.2 2.6) scale(0.3) translate(-12 -12.4)">
+          <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+        </g>
+        <g transform="translate(19.8 2.6) scale(0.3) translate(-12 -12.4)">
+          <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+        </g>
+        <path d="M12 0.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+        <path d="M5 18l.8 1.5-.8 1.5-.8-1.5z" />
+        <path d="M19 18l.8 1.5-.8 1.5-.8-1.5z" />
+        <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" />
+        <g transform="translate(12 12.4) scale(0.5) translate(-12 -12.4)">
+          <path d="M12 21C7 16.5 3 13.2 3 9.3 3 6.4 5.2 4.5 7.7 4.5c1.7 0 3.3.9 4.3 2.4 1-1.5 2.6-2.4 4.3-2.4 2.5 0 4.7 1.9 4.7 4.8 0 3.9-4 7.2-9 11.7z" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.6" />
+        </g>
+        <path d="M2.5 12.5C4 16.5 7.5 19.5 12 20.5" fill="none" stroke="#ffffff" strokeOpacity="0.5" strokeWidth="1.4" strokeLinecap="round" />
+      </>
+    ),
+  },
+];
+
+export interface DonationMilestone {
+  id: string;
+  name: string;
+  description: string;
+  amount: number;
+  accent: string;
+  icon: ReactNode;
+}
+
+// Donation milestones. Displayed as one milestone card first in the row
+// (not part of the BADGES grid). Auto-unlocked when total donations reach
+// the milestone — donations only grow, so these are never revoked.
+export const DONATION_MILESTONES: DonationMilestone[] = [
+  {
+    id: "donate-10",
+    name: "Donator",
+    description: "Donate $10 total.",
+    amount: 10,
+    accent: "#4ade80",
+    icon: (
+      <>
+        <rect x="3" y="8.5" width="18" height="8" rx="1.5" />
+        <circle cx="12" cy="12.5" r="2.8" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+        <circle cx="12" cy="12.5" r="1.2" fill="rgba(0,0,0,0.45)" />
+        <circle cx="6" cy="10.5" r="0.8" fill="rgba(0,0,0,0.45)" />
+        <circle cx="18" cy="14.5" r="0.8" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "donate-20",
+    name: "Fortune",
+    description: "Donate $20 total.",
+    amount: 20,
+    accent: "#38bdf8",
+    icon: (
+      <>
+        <rect x="4" y="7" width="16" height="5" rx="1" />
+        <rect x="4" y="10.5" width="16" height="5" rx="1" />
+        <rect x="4" y="14" width="16" height="5" rx="1" />
+        <rect x="4.5" y="9.6" width="15" height="0.9" rx="0.45" fill="rgba(0,0,0,0.45)" />
+        <rect x="4.5" y="13.1" width="15" height="0.9" rx="0.45" fill="rgba(0,0,0,0.45)" />
+        <rect x="11" y="7" width="2" height="12" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "donate-50",
+    name: "Prosper",
+    description: "Donate $50 total.",
+    amount: 50,
+    accent: "#facc15",
+    icon: (
+      <>
+        <path d="M3.5 6.5l.9 1.7-.9 1.7-.9-1.7z" />
+        <path d="M20.5 6.5l.9 1.7-.9 1.7-.9-1.7z" />
+        <path d="M8.5 4h7l1.5 3H7z" />
+        <path d="M7 7l5 12 5-12z" />
+        <path d="M12 4v3M9.5 7L12 19M14.5 7L12 19" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.1" />
+      </>
+    ),
+  },
+  {
+    id: "donate-100",
+    name: "Opulent",
+    description: "Donate $100 total.",
+    amount: 100,
+    accent: "#c084fc",
+    icon: (
+      <>
+        <rect x="6" y="19" width="3" height="2.5" rx="1" />
+        <rect x="15" y="19" width="3" height="2.5" rx="1" />
+        <rect x="5" y="5" width="14" height="14" rx="2.5" />
+        <rect x="7" y="7" width="10" height="10" rx="1.5" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.4" />
+        <circle cx="12" cy="12" r="2.6" fill="none" stroke="rgba(0,0,0,0.45)" strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="1" fill="rgba(0,0,0,0.45)" />
+      </>
+    ),
+  },
+  {
+    id: "donate-200",
+    name: "Rich",
+    description: "Donate $200 total.",
+    amount: 200,
+    accent: "#ffd700",
+    icon: (
+      <>
+        <path d="M3 4.5l.9 1.7-.9 1.7-.9-1.7z" />
+        <path d="M21 4.5l.9 1.7-.9 1.7-.9-1.7z" />
+        <path d="M7.5 9.5h9l1.2 3H6.3z" />
+        <path d="M6.3 12.5h11.4l1.8 6H4.5z" />
+        <path d="M9 12.5L7.8 18.5H6.6l1.2-6z" fill="rgba(0,0,0,0.45)" />
+        <path d="M14 14l.9 1.2-.9 1.2-.9-1.2z" fill="rgba(0,0,0,0.45)" />
       </>
     ),
   },

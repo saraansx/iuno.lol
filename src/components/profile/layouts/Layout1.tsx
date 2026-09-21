@@ -171,6 +171,7 @@ interface Layout1Props {
   badgeScrollStyle?: string | null;
   badgeScrollSpeed?: number | null;
   badgeVisibleCount?: number | null;
+  badgeShimmerEnabled?: boolean | null;
   bioFont?: string;
   bioFontSize?: number;
   bioFontWeight?: number;
@@ -408,6 +409,7 @@ const Layout1 = ({
   badgeScrollStyle = "none",
   badgeScrollSpeed = 40,
   badgeVisibleCount = 5,
+  badgeShimmerEnabled = false,
   cursorTrail = "none",
   cursorTrailColor = "#ffffff",
   clickEffect,
@@ -1344,7 +1346,7 @@ const sectionSurface: React.CSSProperties = {
                     </div>
                   )}
                   </span>
-                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} glowEnabled={badgeGlowEnabled} glowStrength={badgeGlowStrength} badgeSize={badgeSize} monoEnabled={badgeMonochromeEnabled} monoColor={badgeMonochromeColor} containerStyle={badgeContainerStyle} badgeSpacing={badgeSpacing} scrollStyle={badgeScrollStyle} scrollSpeed={badgeScrollSpeed} visibleCount={badgeVisibleCount} />
+                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} glowEnabled={badgeGlowEnabled} glowStrength={badgeGlowStrength} badgeSize={badgeSize} monoEnabled={badgeMonochromeEnabled} monoColor={badgeMonochromeColor} containerStyle={badgeContainerStyle} badgeSpacing={badgeSpacing} scrollStyle={badgeScrollStyle} scrollSpeed={badgeScrollSpeed} visibleCount={badgeVisibleCount} shimmerEnabled={badgeShimmerEnabled} />
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}

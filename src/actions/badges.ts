@@ -6,22 +6,36 @@ import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { eq, and, asc } from "drizzle-orm";
-import { BADGES, EARLY_CUTOFF_UID, LEVELS } from "@/app/dashboard/customize/badges/badges-data";
+import { eq, and, asc, sql } from "drizzle-orm";
+import { BADGES, EARLY_CUTOFF_UID, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 import { ROLE_BADGE_MAP } from "@/lib/badge-roles";
 
 type BadgeEntry = (typeof BADGES)[number];
 type LevelEntry = (typeof LEVELS)[number];
+type ViewEntry = (typeof VIEW_MILESTONES)[number];
+type LikeEntry = (typeof LIKE_MILESTONES)[number];
+type DonationEntry = (typeof DONATION_MILESTONES)[number];
 
-function findBadge(badgeId: string): BadgeEntry | LevelEntry | null {
+function findBadge(badgeId: string): BadgeEntry | LevelEntry | ViewEntry | LikeEntry | DonationEntry | null {
   const found =
     (BADGES as readonly BadgeEntry[]).find((b) => b.id === badgeId) ??
-    (LEVELS as readonly LevelEntry[]).find((b) => b.id === badgeId);
+    (LEVELS as readonly LevelEntry[]).find((b) => b.id === badgeId) ??
+    (VIEW_MILESTONES as readonly ViewEntry[]).find((b) => b.id === badgeId) ??
+    (LIKE_MILESTONES as readonly LikeEntry[]).find((b) => b.id === badgeId) ??
+    (DONATION_MILESTONES as readonly DonationEntry[]).find((b) => b.id === badgeId);
   return found ?? null;
 }
 
-function isLocked(badge: BadgeEntry | LevelEntry): boolean {
+function isLocked(badge: BadgeEntry | LevelEntry | ViewEntry | LikeEntry | DonationEntry): boolean {
   return "pill" in badge;
+}
+
+export async function getDonatedCents(userId: number): Promise<number> {
+  const rows = await db
+    .select({ total: sql<number>`coalesce(sum(${schema.donations.amountCents}), 0)` })
+    .from(schema.donations)
+    .where(eq(schema.donations.userId, userId));
+  return Number(rows[0]?.total ?? 0);
 }
 
 async function revalidateOwnProfile(userId: number) {
@@ -36,11 +50,36 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
+  // View + like milestones unlock purely from profile stats — grant any
+  // reached ones (stats only grow, so grants are never revoked).
+  const user = await getUserById(userId);
+  const totalViews = user?.views ?? 0;
+  const reachedViews = VIEW_MILESTONES.filter((m) => totalViews >= m.views).map((m) => m.id);
+  const totalLikes = user?.likesCount ?? 0;
+  const reachedLikes = LIKE_MILESTONES.filter((m) => totalLikes >= m.likes).map((m) => m.id);
+  const donatedCents = await getDonatedCents(userId);
+  const reachedDonations = DONATION_MILESTONES.filter((m) => donatedCents >= m.amount * 100).map((m) => m.id);
+  const reached = [...reachedViews, ...reachedLikes, ...reachedDonations];
+
   const rows = await db
     .select({ badgeId: schema.userBadges.badgeId, equipped: schema.userBadges.equipped })
     .from(schema.userBadges)
     .where(eq(schema.userBadges.userId, userId))
     .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
+
+  const ownedSet = new Set(rows.map((r) => r.badgeId));
+  for (const id of reached) {
+    if (!ownedSet.has(id)) {
+      await db.insert(schema.userBadges).values({
+        userId,
+        badgeId: id,
+        equipped: false,
+        equippedAt: null,
+      });
+      ownedSet.add(id);
+      rows.push({ badgeId: id, equipped: false });
+    }
+  }
 
   return {
     owned: rows.map((r) => r.badgeId),

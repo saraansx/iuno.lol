@@ -736,6 +736,7 @@ export async function updateEffectsProfile(data: {
   badgeScrollStyle?: string | null;
   badgeScrollSpeed?: number | null;
   badgeVisibleCount?: number | null;
+  badgeShimmerEnabled?: boolean | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -801,6 +802,7 @@ export async function updateEffectsProfile(data: {
   }
   if (data.badgeScrollSpeed !== undefined) setData.badgeScrollSpeed = data.badgeScrollSpeed;
   if (data.badgeVisibleCount !== undefined) setData.badgeVisibleCount = data.badgeVisibleCount;
+  if (data.badgeShimmerEnabled !== undefined) setData.badgeShimmerEnabled = data.badgeShimmerEnabled ?? false;
 
   sanitizeProfileSettings(setData);
 

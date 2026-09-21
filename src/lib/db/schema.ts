@@ -81,6 +81,7 @@ export const userSettings = mysqlTable('user_settings', {
   badgeScrollStyle: mysqlEnum('badge_scroll_style', ['none', 'pingpong', 'left', 'right']).default('none'),
   badgeScrollSpeed: int('badge_scroll_speed').default(40),
   badgeVisibleCount: int('badge_visible_count').default(5),
+  badgeShimmerEnabled: boolean('badge_shimmer_enabled').default(false),
   entryTransition: text('entry_transition'),
   enterScreenEnabled: boolean('enter_screen_enabled').default(false),
   enterScreenText: text('enter_screen_text'),
@@ -488,6 +489,15 @@ export const userBadgesRelations = relations(userBadges, ({ one }) => ({
   }),
 }))
 
+export const donations = mysqlTable('donations', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  amountCents: int('amount_cents').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  donationUserIdx: index('donation_user_idx').on(table.userId),
+}))
+
 export const schema = {
   users,
   userSettings,
@@ -500,6 +510,7 @@ export const schema = {
   commentLikes,
   profileFeedback,
   userBadges,
+  donations,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,

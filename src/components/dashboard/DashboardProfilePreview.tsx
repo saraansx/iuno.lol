@@ -201,6 +201,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       badgeScrollStyle={deferredOverrides.badgeScrollStyle ?? user?.badgeScrollStyle ?? "none"}
       badgeScrollSpeed={deferredOverrides.badgeScrollSpeed ?? user?.badgeScrollSpeed ?? 40}
       badgeVisibleCount={deferredOverrides.badgeVisibleCount ?? user?.badgeVisibleCount ?? 5}
+      badgeShimmerEnabled={deferredOverrides.badgeShimmerEnabled ?? user?.badgeShimmerEnabled ?? false}
       createdAt={deferredOverrides.createdAt ?? user?.createdAt}
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}

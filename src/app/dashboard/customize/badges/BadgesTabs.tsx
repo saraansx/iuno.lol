@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BADGES, LEVELS } from "./badges-data";
+import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
 import Link from "next/link";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
 import { updateEffectsProfile } from "@/actions/profile";
@@ -14,7 +14,10 @@ import { type FullUser } from "@/lib/features/users/db";
 
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
-type AnyBadge = Badge | LevelStage;
+type ViewMilestone = (typeof VIEW_MILESTONES)[number];
+type LikeMilestone = (typeof LIKE_MILESTONES)[number];
+type DonationMilestone = (typeof DONATION_MILESTONES)[number];
+type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone;
 type ContainerStyle = "pill" | "none" | "separate";
 type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
@@ -49,12 +52,15 @@ function badgeById(id: string): AnyBadge | null {
   return (
     (BADGES as readonly Badge[]).find((b) => b.id === id) ??
     (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
+    (VIEW_MILESTONES as readonly ViewMilestone[]).find((b) => b.id === id) ??
+    (LIKE_MILESTONES as readonly LikeMilestone[]).find((b) => b.id === id) ??
+    (DONATION_MILESTONES as readonly DonationMilestone[]).find((b) => b.id === id) ??
     null
   );
 }
 
 function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
-  const isFilled = "filled" in badge || "level" in badge;
+  const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge || "amount" in badge;
   const glow = badgeGlowFilter(badge.accent);
   return (
     <svg
@@ -121,7 +127,7 @@ function OwnedRow({
       <BadgeIcon badge={badge} />
       <div className="flex flex-col gap-0.5 min-w-0 flex-1">
         <span className="text-[13.5px] font-normal text-white/90 truncate">{badge.name}</span>
-        <span className="text-[11.5px] text-white/35 truncate">{badge.description}</span>
+        <span className="text-[10.5px] text-white/35 truncate">{badge.description}</span>
       </div>
       <button
         type="button"
@@ -225,7 +231,7 @@ function BadgeCell({
           )}
         </span>
       </div>
-      <p className="text-[12.5px] text-white/40 truncate">{badge.description}</p>
+      <p className="text-[11px] text-white/40 truncate">{badge.description}</p>
     </div>
   );
 }
@@ -236,6 +242,79 @@ const TABS = [
   { id: "customize", label: "Badge Customization" },
 ] as const;
 
+function formatMoney(n: number): string {
+  return `$${n}`;
+}
+
+function DonatorCard({ owned, equipped, totalDonated, onToggle }: { owned: string[]; equipped: string[]; totalDonated: number; onToggle: (id: string) => void }) {
+  const reached = DONATION_MILESTONES.filter((m) => owned.includes(m.id)).map((m) => m.amount);
+  const current = reached.length > 0 ? Math.max(...reached) : 0;
+  const next = DONATION_MILESTONES.find((m) => m.amount > current);
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-3.5 py-2.5 flex items-center gap-2.5">
+        <div className="min-w-0">
+          <h3 className="text-[13px] font-medium text-white tracking-tight">Donator</h3>
+          <p className="text-[10px] text-white/40 mt-px truncate">Donate to unlock donator badges.</p>
+        </div>
+        <div className="ml-auto text-right shrink-0">
+          <p className="text-[12px] font-medium text-white">{formatMoney(totalDonated)} donated</p>
+          <p className="text-[10.5px] text-white/40">{next ? `${formatMoney(next.amount - totalDonated)} to next` : "Max level"}</p>
+        </div>
+      </div>
+      <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
+        {DONATION_MILESTONES.map((milestone) => {
+          const unlocked = owned.includes(milestone.id);
+          const isEquipped = equipped.includes(milestone.id);
+          return (
+            <div
+              key={milestone.id}
+              className="px-3.5 py-2 flex items-center gap-2"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill={milestone.accent}
+                stroke="none"
+                className="shrink-0"
+                style={{ filter: badgeGlowFilter(milestone.accent) }}
+              >
+                {milestone.icon}
+              </svg>
+              <span className={`text-[12.5px] font-normal truncate min-w-0 ${unlocked ? "text-white/90" : "text-white/40"}`}>{milestone.name}</span>
+              <span className="ml-auto shrink-0 flex items-center gap-1.5">
+                {!unlocked && (
+                  <span className="text-white/30">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
+                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>{formatMoney(milestone.amount)}</span>
+                {unlocked && (
+                  <button
+                    type="button"
+                    onClick={() => onToggle(milestone.id)}
+                    className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                      isEquipped
+                        ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                    }`}
+                  >
+                    {isEquipped ? "Unequip" : "Equip"}
+                  </button>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: string[]; onToggle: (id: string) => void }) {
   const reachedLevels = LEVELS.filter((s) => owned.includes(s.id)).map((s) => s.level);
   const current = reachedLevels.length > 0 ? Math.max(...reachedLevels) : 0;
@@ -245,7 +324,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
       <div className="px-3.5 py-2.5 flex items-center gap-2.5">
         <div className="min-w-0">
           <h3 className="text-[13px] font-medium text-white tracking-tight">Levels</h3>
-          <p className="text-[11.5px] text-white/40 mt-px truncate">Grow levels to unlock stronger level badges over time.</p>
+          <p className="text-[10px] text-white/40 mt-px truncate">Level up to unlock stronger badges.</p>
         </div>
         <div className="ml-auto text-right shrink-0">
           <p className="text-[12px] font-medium text-white">Level {current}</p>
@@ -262,8 +341,8 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
               className="px-3.5 py-2 flex items-center gap-2"
             >
               <svg
-                width="18"
-                height="18"
+                width="24"
+                height="24"
                 viewBox="0 0 24 24"
                 fill={stage.accent}
                 stroke="none"
@@ -282,6 +361,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
                     </svg>
                   </span>
                 )}
+                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>Level {stage.level}</span>
                 {unlocked && (
                   <button
                     type="button"
@@ -295,7 +375,148 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
                     {isEquipped ? "Unequip" : "Equip"}
                   </button>
                 )}
-                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>Level {stage.level}</span>
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function formatViews(n: number): string {
+  return n >= 1000 ? `${(n / 1000).toString().replace(/\.0$/, "")}k` : `${n}`;
+}
+
+function ViewsCard({ owned, equipped, totalViews, onToggle }: { owned: string[]; equipped: string[]; totalViews: number; onToggle: (id: string) => void }) {
+  const reached = VIEW_MILESTONES.filter((m) => owned.includes(m.id)).map((m) => m.views);
+  const current = reached.length > 0 ? Math.max(...reached) : 0;
+  const next = VIEW_MILESTONES.find((m) => m.views > current);
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-3.5 py-2.5 flex items-center gap-2.5">
+        <div className="min-w-0">
+          <h3 className="text-[13px] font-medium text-white tracking-tight">Views</h3>
+          <p className="text-[10px] text-white/40 mt-px truncate">Hit view milestones to unlock badges.</p>
+        </div>
+        <div className="ml-auto text-right shrink-0">
+          <p className="text-[12px] font-medium text-white">{formatViews(totalViews)} views</p>
+          <p className="text-[10.5px] text-white/40">{next ? `${formatViews(next.views - totalViews)} to next` : "Max level"}</p>
+        </div>
+      </div>
+      <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
+        {VIEW_MILESTONES.map((milestone) => {
+          const unlocked = owned.includes(milestone.id);
+          const isEquipped = equipped.includes(milestone.id);
+          return (
+            <div
+              key={milestone.id}
+              className="px-3.5 py-2 flex items-center gap-2"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill={milestone.accent}
+                stroke="none"
+                className="shrink-0"
+                style={{ filter: badgeGlowFilter(milestone.accent) }}
+              >
+                {milestone.icon}
+              </svg>
+              <span className={`text-[12.5px] font-normal truncate min-w-0 ${unlocked ? "text-white/90" : "text-white/40"}`}>{milestone.name}</span>
+              <span className="ml-auto shrink-0 flex items-center gap-1.5">
+                {!unlocked && (
+                  <span className="text-white/30">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
+                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>{formatViews(milestone.views)}</span>
+                {unlocked && (
+                  <button
+                    type="button"
+                    onClick={() => onToggle(milestone.id)}
+                    className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                      isEquipped
+                        ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                    }`}
+                  >
+                    {isEquipped ? "Unequip" : "Equip"}
+                  </button>
+                )}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function LikesCard({ owned, equipped, totalLikes, onToggle }: { owned: string[]; equipped: string[]; totalLikes: number; onToggle: (id: string) => void }) {
+  const reached = LIKE_MILESTONES.filter((m) => owned.includes(m.id)).map((m) => m.likes);
+  const current = reached.length > 0 ? Math.max(...reached) : 0;
+  const next = LIKE_MILESTONES.find((m) => m.likes > current);
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden">
+      <div className="px-3.5 py-2.5 flex items-center gap-2.5">
+        <div className="min-w-0">
+          <h3 className="text-[13px] font-medium text-white tracking-tight">Likes</h3>
+          <p className="text-[10px] text-white/40 mt-px truncate">Hit like milestones to unlock badges.</p>
+        </div>
+        <div className="ml-auto text-right shrink-0">
+          <p className="text-[12px] font-medium text-white">{formatViews(totalLikes)} likes</p>
+          <p className="text-[10.5px] text-white/40">{next ? `${formatViews(next.likes - totalLikes)} to next` : "Max level"}</p>
+        </div>
+      </div>
+      <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
+        {LIKE_MILESTONES.map((milestone) => {
+          const unlocked = owned.includes(milestone.id);
+          const isEquipped = equipped.includes(milestone.id);
+          return (
+            <div
+              key={milestone.id}
+              className="px-3.5 py-2 flex items-center gap-2"
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill={milestone.accent}
+                stroke="none"
+                className="shrink-0"
+                style={{ filter: badgeGlowFilter(milestone.accent) }}
+              >
+                {milestone.icon}
+              </svg>
+              <span className={`text-[12.5px] font-normal truncate min-w-0 ${unlocked ? "text-white/90" : "text-white/40"}`}>{milestone.name}</span>
+              <span className="ml-auto shrink-0 flex items-center gap-1.5">
+                {!unlocked && (
+                  <span className="text-white/30">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                  </span>
+                )}
+                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>{formatViews(milestone.likes)}</span>
+                {unlocked && (
+                  <button
+                    type="button"
+                    onClick={() => onToggle(milestone.id)}
+                    className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
+                      isEquipped
+                        ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
+                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+                    }`}
+                  >
+                    {isEquipped ? "Unequip" : "Equip"}
+                  </button>
+                )}
               </span>
             </div>
           );
@@ -310,13 +531,15 @@ export default function BadgesTabs({
   initialOwned = [],
   initialEquipped = [],
   earlyEligible = false,
-  initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5 },
+  initialDonated = 0,
+  initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5, shimmer: false },
 }: {
   user: FullUser | null;
   initialOwned?: string[];
   initialEquipped?: string[];
   earlyEligible?: boolean;
-  initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number };
+  initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number; shimmer: boolean };
+  initialDonated?: number;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("available");
   const [owned, setOwned] = useState<string[]>(initialOwned);
@@ -333,6 +556,7 @@ export default function BadgesTabs({
   const [scrollStyle, setScrollStyle] = useState<ScrollStyle>(initialGlow.scroll ?? "none");
   const [scrollSpeed, setScrollSpeed] = useState(initialGlow.speed ?? 40);
   const [visibleCount, setVisibleCount] = useState(initialGlow.show ?? 5);
+  const [shimmerEnabled, setShimmerEnabled] = useState(initialGlow.shimmer ?? false);
   const [savedGlow, setSavedGlow] = useState(initialGlow);
   const [applyFor, setApplyFor] = useState<AnyBadge | null>(null);
   const [dragId, setDragId] = useState<string | null>(null);
@@ -390,7 +614,8 @@ export default function BadgesTabs({
     badgeSpacing !== savedGlow.spacing ||
     scrollStyle !== savedGlow.scroll ||
     scrollSpeed !== savedGlow.speed ||
-    visibleCount !== savedGlow.show;
+    visibleCount !== savedGlow.show ||
+    shimmerEnabled !== savedGlow.shimmer;
   const showSaveBar = dirty || glowDirty;
 
   function isBadgeLocked(id: string): boolean {
@@ -424,8 +649,9 @@ export default function BadgesTabs({
           badgeScrollStyle: scrollStyle,
           badgeScrollSpeed: scrollSpeed,
           badgeVisibleCount: visibleCount,
+          badgeShimmerEnabled: shimmerEnabled,
         });
-        setSavedGlow({ enabled: glowEnabled, strength: glowStrength, size: badgeSize, mono: monoEnabled, container: containerStyle, spacing: badgeSpacing, scroll: scrollStyle, speed: scrollSpeed, show: visibleCount });
+        setSavedGlow({ enabled: glowEnabled, strength: glowStrength, size: badgeSize, mono: monoEnabled, container: containerStyle, spacing: badgeSpacing, scroll: scrollStyle, speed: scrollSpeed, show: visibleCount, shimmer: shimmerEnabled });
       }
       toast.success("Badges saved");
     } catch (e) {
@@ -446,6 +672,7 @@ export default function BadgesTabs({
     setScrollStyle(savedGlow.scroll ?? "none");
     setScrollSpeed(savedGlow.speed ?? 40);
     setVisibleCount(savedGlow.show ?? 5);
+    setShimmerEnabled(savedGlow.shimmer ?? false);
   }
 
   function openDiscordLink() {
@@ -522,10 +749,10 @@ export default function BadgesTabs({
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Your badges ({equipped.length})</h2>
-              <p className="text-white/40 text-[12.5px] mt-0.5">
+              <p className="text-white/40 text-[11.5px] mt-0.5">
                 Drag to reorder. Disabled badges won&apos;t appear on your page.
               </p>
-              <p className="text-[#fbbf24]/70 text-[11.5px] mt-1">
+              <p className="text-[#fbbf24]/70 text-[10.5px] mt-1">
                 Got a new Discord role? Hit Sync in Available badges to unlock it.
               </p>
             </div>
@@ -557,7 +784,7 @@ export default function BadgesTabs({
                 </svg>
               </div>
               <p className="text-[13.5px] font-normal text-white/90 tracking-tight">No badges yet</p>
-              <p className="text-[12.5px] font-normal text-white/35 mt-1 max-w-xs leading-relaxed">Equip badges from the available list to show them off on your profile.</p>
+              <p className="text-[11.5px] font-normal text-white/35 mt-1 max-w-xs leading-relaxed">Equip badges from the available list to show them off on your profile.</p>
               <button
                 type="button"
                 onClick={() => setTab("available")}
@@ -595,7 +822,7 @@ export default function BadgesTabs({
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Available badges</h2>
-              <p className="text-white/40 text-[12.5px] mt-0.5">{BADGES.length} badges you can earn</p>
+              <p className="text-white/40 text-[11.5px] mt-0.5">{BADGES.length} badges you can earn</p>
             </div>
             <button
               type="button"
@@ -643,15 +870,18 @@ export default function BadgesTabs({
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <DonatorCard owned={owned} equipped={equipped} totalDonated={initialDonated} onToggle={toggleBadge} />
             <LevelsCard owned={owned} equipped={equipped} onToggle={toggleBadge} />
+            <ViewsCard owned={owned} equipped={equipped} totalViews={user?.views ?? 0} onToggle={toggleBadge} />
+            <LikesCard owned={owned} equipped={equipped} totalLikes={user?.likesCount ?? 0} onToggle={toggleBadge} />
           </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           <div>
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Badge Customization</h2>
-            <p className="text-white/40 text-[12.5px] mt-0.5">Tune the glow behind your profile badges</p>
+            <p className="text-white/40 text-[11.5px] mt-0.5">Tune the glow behind your profile badges</p>
           </div>
           <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm p-6 flex flex-col gap-6">
             <div className="flex items-center justify-between gap-4">
@@ -679,6 +909,20 @@ export default function BadgesTabs({
                 className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${monoEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
               >
                 <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${monoEnabled ? "right-[3px]" : "left-[3px]"}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-[13px] font-medium text-white/90">Shimmer</span>
+                <span className="text-[11px] text-white/40 leading-tight">Sweep a shine across your badges on your profile.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShimmerEnabled(!shimmerEnabled)}
+                className={`w-9 h-5 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${shimmerEnabled ? "bg-[#5b6cf5]" : "bg-white/10"}`}
+              >
+                <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm bg-white transition-all ${shimmerEnabled ? "right-[3px]" : "left-[3px]"}`} />
               </button>
             </div>
 
@@ -957,6 +1201,7 @@ export default function BadgesTabs({
             badgeScrollStyle: scrollStyle,
             badgeScrollSpeed: scrollSpeed,
             badgeVisibleCount: visibleCount,
+            badgeShimmerEnabled: shimmerEnabled,
           }}
           equippedBadges={equipped}
         />

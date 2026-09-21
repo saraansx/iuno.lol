@@ -1,16 +1,23 @@
 "use client";
 
-import { BADGES, LEVELS } from "@/app/dashboard/customize/badges/badges-data";
+import { useId } from "react";
+import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
+type ViewMilestone = (typeof VIEW_MILESTONES)[number];
+type LikeMilestone = (typeof LIKE_MILESTONES)[number];
+type DonationMilestone = (typeof DONATION_MILESTONES)[number];
 
 export type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
 
-function badgeById(id: string): Badge | LevelStage | null {
+function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone | null {
   return (
     (BADGES as readonly Badge[]).find((b) => b.id === id) ??
     (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
+    (VIEW_MILESTONES as readonly ViewMilestone[]).find((b) => b.id === id) ??
+    (LIKE_MILESTONES as readonly LikeMilestone[]).find((b) => b.id === id) ??
+    (DONATION_MILESTONES as readonly DonationMilestone[]).find((b) => b.id === id) ??
     null
   );
 }
@@ -41,6 +48,7 @@ export default function ProfileBadges({
   scrollStyle = "none",
   scrollSpeed = 40,
   visibleCount = 5,
+  shimmerEnabled = false,
 }: {
   badgeIds: string[];
   showTooltip?: boolean;
@@ -54,10 +62,11 @@ export default function ProfileBadges({
   scrollStyle?: BadgeScrollStyle | string | null;
   scrollSpeed?: number | null;
   visibleCount?: number | null;
+  shimmerEnabled?: boolean | null;
 }) {
   const badges = badgeIds
     .map(badgeById)
-    .filter((b): b is Badge | LevelStage => b !== null);
+    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone => b !== null);
   if (badges.length === 0) return null;
 
   const size = Math.min(32, Math.max(12, badgeSize ?? 18));
@@ -68,11 +77,20 @@ export default function ProfileBadges({
       : "#ffffff"
     : null;
   const separate = containerStyle === "separate";
+  const instanceId = useId().replace(/:/g, "");
 
-  const renderBadge = (badge: Badge | LevelStage, keyPrefix = "") => {
-    const isFilled = "filled" in badge || "level" in badge;
+  const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone, keyPrefix = "") => {
+    const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge || "amount" in badge;
     const color = mono ?? badge.accent;
     const glow = badgeGlowFilter(color, glowEnabled, glowStrength);
+    const vb = ("viewBox" in badge ? (badge.viewBox as string) : "0 0 24 24") || "0 0 24 24";
+    const [mvx, mvy, mvw, mvh] = vb.split(/\s+/).map(Number);
+    const vx = Number.isFinite(mvx) ? mvx : 0;
+    const vy = Number.isFinite(mvy) ? mvy : 0;
+    const vw = Number.isFinite(mvw) && mvw > 0 ? mvw : 24;
+    const vh = Number.isFinite(mvh) && mvh > 0 ? mvh : 24;
+    const pad = Math.max(vw, vh) * 0.08;
+    const uid = `bsh-${instanceId}-${keyPrefix}${badge.id}`;
     const icon = (
       <svg
         width={size}
@@ -87,6 +105,48 @@ export default function ProfileBadges({
         style={glow ? { filter: glow } : undefined}
       >
         {badge.icon}
+        {shimmerEnabled && (
+          <>
+            <defs>
+              <linearGradient id={`${uid}-g`} x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#fff" stopOpacity="0" />
+                <stop offset="0.36" stopColor="#fff" stopOpacity="0" />
+                <stop offset="0.5" stopColor="#fff" stopOpacity="0.9" />
+                <stop offset="0.64" stopColor="#fff" stopOpacity="0" />
+                <stop offset="1" stopColor="#fff" stopOpacity="0" />
+                <animateTransform
+                  attributeName="gradientTransform"
+                  type="translate"
+                  values="-1.4 0; 1.4 0"
+                  dur="4.5s"
+                  repeatCount="indefinite"
+                />
+              </linearGradient>
+              <mask
+                id={`${uid}-m`}
+                maskUnits="userSpaceOnUse"
+                x={vx - pad}
+                y={vy - pad}
+                width={vw + pad * 2}
+                height={vh + pad * 2}
+              >
+                <g fill="#fff" stroke="#fff">
+                  {badge.icon}
+                </g>
+              </mask>
+            </defs>
+            <rect
+              x={vx - pad}
+              y={vy - pad}
+              width={vw + pad * 2}
+              height={vh + pad * 2}
+              fill={`url(#${uid}-g)`}
+              mask={`url(#${uid}-m)`}
+              opacity={0.35}
+              pointerEvents="none"
+            />
+          </>
+        )}
       </svg>
     );
     const inner = separate ? (

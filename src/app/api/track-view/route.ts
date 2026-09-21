@@ -9,6 +9,9 @@ if redis.call('SET', KEYS[1], '1', 'NX') then
   if ARGV[3] == '1' and not redis.call('SET', KEYS[2], '1', 'NX') then
     return 0
   end
+  if ARGV[4] == '1' and not redis.call('SET', KEYS[5], '1', 'NX') then
+    return 0
+  end
   redis.call('HINCRBY', KEYS[3], 'total', 1)
   redis.call('HINCRBY', KEYS[3], ARGV[1], 1)
   redis.call('SADD', KEYS[4], ARGV[2])
@@ -36,11 +39,14 @@ export async function POST(request: NextRequest) {
     }
 
     const sessionCookie = request.cookies.get('iuno_session')?.value;
+    let viewerId: number | null = null;
     if (sessionCookie) {
       const payload = await decrypt(sessionCookie);
-      if (payload && Number(payload.userId) === profileId) {
-        return NextResponse.json({ success: true, message: 'Owner view ignored' });
-      }
+      const id = Number(payload?.userId);
+      if (Number.isInteger(id) && id > 0) viewerId = id;
+    }
+    if (viewerId !== null && viewerId === profileId) {
+      return NextResponse.json({ success: true, message: 'Owner view ignored' });
     }
 
     const userAgent = request.headers.get('user-agent') || '';
@@ -65,14 +71,16 @@ export async function POST(request: NextRequest) {
 
     const counted = (await redis.eval(
       TRACK_VIEW_SCRIPT,
-      4,
+      5,
       `v:${profileId}:${ipHash}`,
       `v:${profileId}:fp:${fingerprintHash ?? '-'}`,
       `views_pending:${profileId}`,
       'profiles_with_pending_views',
+      viewerId !== null ? `v:${profileId}:u:${viewerId}` : `v:${profileId}:u:-`,
       device,
       String(profileId),
       fingerprintHash ? '1' : '0',
+      viewerId !== null ? '1' : '0',
     )) as number;
 
     if (counted !== 1) {

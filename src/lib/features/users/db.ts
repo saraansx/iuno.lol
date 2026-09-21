@@ -61,6 +61,7 @@ const userColumns = {
   badgeScrollStyle: schema.userSettings.badgeScrollStyle,
   badgeScrollSpeed: schema.userSettings.badgeScrollSpeed,
   badgeVisibleCount: schema.userSettings.badgeVisibleCount,
+  badgeShimmerEnabled: schema.userSettings.badgeShimmerEnabled,
   entryTransition: schema.userSettings.entryTransition,
   enterScreenEnabled: schema.userSettings.enterScreenEnabled,
   enterScreenText: schema.userSettings.enterScreenText,
