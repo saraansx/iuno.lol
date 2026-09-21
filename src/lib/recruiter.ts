@@ -1,7 +1,7 @@
 import { db, schema } from "@/lib/db";
 import { and, eq, inArray } from "drizzle-orm";
 import { BADGE_ROLE_MAP } from "@/lib/badge-roles";
-import { DiscordError, grantGuildRole } from "@/lib/discord";
+import { DiscordError, fetchInvite, grantGuildRole } from "@/lib/discord";
 
 export const RECRUITER_BADGE_ID = "discord-recruiter";
 export const RECRUITER_REQUIRED = 5;
@@ -54,18 +54,28 @@ function inviteUrl(code: string): string {
   return `https://discord.gg/${code}`;
 }
 
-// Fixed personal invite, owned by the bot. Creates on first use.
+// Fixed personal invite, owned by the bot. Creates on first use,
+// recreates if the code was deleted on Discord.
 export async function getOrCreateInvite(discordId: string): Promise<{ code: string; uses: number }> {
-  const { guildId } = botConfig();
+  const { botToken, guildId } = botConfig();
 
   const found = (await botFetch(`/recruiter/owner/${discordId}`)) as
     | { code: string; uses: number }
     | { none: boolean };
-  if (!("none" in found)) return { code: found.code, uses: Number(found.uses ?? 0) };
+  if (!("none" in found)) {
+    // Dead on Discord? Recreate fresh instead of showing a dead link.
+    let alive = true;
+    try {
+      alive = (await fetchInvite(found.code, botToken)) !== null;
+    } catch {
+      alive = true; // REST hiccup — trust the bot's copy
+    }
+    if (alive) return { code: found.code, uses: Number(found.uses ?? 0) };
+  }
 
   const created = (await botFetch(`/recruiter/create`, {
     method: "POST",
-    body: JSON.stringify({ owner: discordId, guild_id: guildId }),
+    body: JSON.stringify({ owner: discordId, guild_id: guildId, fresh: true }),
   })) as { code: string; uses: number };
   return { code: created.code, uses: Number(created.uses ?? 0) };
 }

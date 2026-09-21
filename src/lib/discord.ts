@@ -29,6 +29,13 @@ async function botFetch(path: string, token: string, init?: RequestInit): Promis
   return res;
 }
 
+export async function fetchInvite(code: string, token: string): Promise<{ code: string } | null> {
+  const res = await botFetch(`/invites/${encodeURIComponent(code)}`, token);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new DiscordError(`Discord API error (${res.status})`, res.status);
+  return { code };
+}
+
 export async function grantGuildRole(
   guildId: string,
   discordId: string,
