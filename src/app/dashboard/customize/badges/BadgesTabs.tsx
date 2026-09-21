@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
 import Link from "next/link";
 import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
-import { checkRecruiterProgress, getMyInvite } from "@/actions/recruiter";
+import { checkRecruiterProgress, getMyInvite, hasInviteCode } from "@/actions/recruiter";
 import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
@@ -154,6 +154,7 @@ function BadgeCell({
   onApply,
   onDiscord,
   onInvite,
+  ctaLabel,
 }: {
   badge: Badge;
   isEquipped: boolean;
@@ -163,6 +164,7 @@ function BadgeCell({
   onApply: (id: string) => void;
   onDiscord: () => void;
   onInvite: () => void;
+  ctaLabel?: string;
 }) {
   const pillText = "pill" in badge ? badge.pill : null;
   return (
@@ -229,7 +231,7 @@ function BadgeCell({
               }}
               className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
             >
-              {CTA_BUTTONS[badge.id].label}
+              {ctaLabel ?? CTA_BUTTONS[badge.id].label}
             </button>
           )}
           {isLocked && (badge.id === "owner" || badge.id === "developer") && (
@@ -571,6 +573,19 @@ export default function BadgesTabs({
   const [inviteData, setInviteData] = useState<{ code: string; url: string; uses: number; required: number } | null>(null);
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteRefreshing, setInviteRefreshing] = useState(false);
+  const [hasInvite, setHasInvite] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    hasInviteCode()
+      .then((v) => {
+        if (!cancelled) setHasInvite(v);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -710,6 +725,7 @@ export default function BadgesTabs({
     try {
       const data = await getMyInvite();
       setInviteData(data);
+      setHasInvite(true);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
       setInviteOpen(false);
@@ -922,6 +938,7 @@ export default function BadgesTabs({
                     onToggle={toggleBadge}
                     onDiscord={openDiscordLink}
                     onInvite={openInviteModal}
+                    ctaLabel={badge.id === "discord-recruiter" && hasInvite ? "Copy Invite" : undefined}
                     onApply={(id) => {
                       const b = badgeById(id);
                       if (b) setApplyFor(b);

@@ -10,6 +10,8 @@ import {
   refreshRecruiter,
   type RecruiterState,
 } from "@/lib/recruiter";
+import { db, schema } from "@/lib/db";
+import { eq } from "drizzle-orm";
 
 async function requireLinkedUser(): Promise<{ userId: number; discordId: string }> {
   const userId = await getSessionUserId();
@@ -31,6 +33,19 @@ export async function getMyInvite(): Promise<Omit<RecruiterState, "granted"> & {
   const { userId } = await requireLinkedUser();
   const { code, uses } = await getOrCreateInvite(userId);
   return { code, url: `https://discord.gg/${code}`, uses, required: RECRUITER_REQUIRED };
+}
+
+// Lightweight check: does the user already have a saved invite code?
+// Pure DB read — no Discord calls, no code creation.
+export async function hasInviteCode(): Promise<boolean> {
+  const userId = await getSessionUserId();
+  if (!userId) return false;
+  const rows = await db
+    .select({ id: schema.discordInvites.id })
+    .from(schema.discordInvites)
+    .where(eq(schema.discordInvites.userId, userId))
+    .limit(1);
+  return rows.length > 0;
 }
 
 // Poll uses; grant role + badge once the threshold is hit.
