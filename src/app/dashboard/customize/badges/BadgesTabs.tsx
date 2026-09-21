@@ -715,7 +715,7 @@ export default function BadgesTabs({
       className="flex flex-col gap-6"
       style={tab === "customize" ? { paddingRight: "calc(var(--preview-width,380px) + 2rem)" } : undefined}
     >
-      <CustomBadgePromo />
+      {tab === "yours" && <CustomBadgePromo />}
       <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit">
         {TABS.map((t) => (
           <button
@@ -872,11 +872,14 @@ export default function BadgesTabs({
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
             <DonatorCard owned={owned} equipped={equipped} totalDonated={initialDonated} onToggle={toggleBadge} />
             <LevelsCard owned={owned} equipped={equipped} onToggle={toggleBadge} />
             <ViewsCard owned={owned} equipped={equipped} totalViews={user?.views ?? 0} onToggle={toggleBadge} />
             <LikesCard owned={owned} equipped={equipped} totalLikes={user?.likesCount ?? 0} onToggle={toggleBadge} />
+          </div>
+          <div className="pt-2">
+            <CustomBadgePromo />
           </div>
         </div>
       ) : (
