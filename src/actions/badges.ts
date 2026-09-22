@@ -92,7 +92,7 @@ export async function equipBadge(badgeId: string): Promise<{ owned: string[]; eq
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
-  const cleanId = badgeId.trim().slice(0, 50);
+  const cleanId = badgeId.trim().slice(0, 32);
   const badge = findBadge(cleanId);
   if (!badge) throw new Error("Unknown badge.");
   if (isLocked(badge)) throw new Error("This badge isn't available yet.");
@@ -143,7 +143,7 @@ export async function unequipBadge(badgeId: string): Promise<{ owned: string[]; 
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
-  const cleanId = badgeId.trim().slice(0, 50);
+  const cleanId = badgeId.trim().slice(0, 32);
 
   const rate = await profileUpdateRateLimit(userId);
   if (!rate.ok) {

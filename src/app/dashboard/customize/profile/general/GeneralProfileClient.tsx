@@ -14,6 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
+import { isAnimatedBackgroundUrl } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -251,7 +252,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
             if (pendingFiles.banner) {
               finalOverrides.bannerImageUrl = await uploadPendingFile(pendingFiles.banner, "banner");
             }
-            if (pendingFiles.background) {
+            if (pendingFiles.background && !isAnimatedBackgroundUrl(finalOverrides.bannerBackgroundUrl as string | undefined)) {
               finalOverrides.bannerBackgroundUrl = await uploadPendingFile(pendingFiles.background, "background");
             }
 

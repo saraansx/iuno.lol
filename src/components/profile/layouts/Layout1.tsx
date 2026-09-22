@@ -4,6 +4,8 @@ import React, {  useEffect, useRef, useState  } from "react";
 import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
+import { animatedBackgroundId } from "@/lib/animated-background";
+import AnimatedBackground from "./AnimatedBackground";
 import { CommentsModal } from "../comments/CommentsModal";
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
@@ -1099,7 +1101,11 @@ const sectionSurface: React.CSSProperties = {
 
         <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
         {bannerBackgroundUrl && (
-          isVideoUrl(bannerBackgroundUrl) ? (
+          animatedBackgroundId(bannerBackgroundUrl) ? (
+            <div className="absolute inset-0 z-0 pointer-events-none">
+              <AnimatedBackground id={animatedBackgroundId(bannerBackgroundUrl)!} />
+            </div>
+          ) : isVideoUrl(bannerBackgroundUrl) ? (
             <video
               key={bannerBackgroundUrl}
               src={bannerBackgroundUrl}
@@ -1141,7 +1147,7 @@ const sectionSurface: React.CSSProperties = {
         </div>
 
         {backgroundEffectAboveContainer && (
-        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-[110]">
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-[90]">
         <BackgroundEffect
           effect={backgroundEffect ?? "none"}
           intensity={backgroundEffectIntensity}

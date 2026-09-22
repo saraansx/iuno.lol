@@ -10,6 +10,12 @@ const RainEffect = dynamic(() => import("./background-effects/Rain").then((m) =>
 const ParticlesEffect = dynamic(() => import("./background-effects/Particles").then((m) => m.ParticlesEffect), { ssr: false });
 const ShootingStarsEffect = dynamic(() => import("./background-effects/ShootingStars").then((m) => m.ShootingStarsEffect), { ssr: false });
 const HeartsEffect = dynamic(() => import("./background-effects/Hearts").then((m) => m.HeartsEffect), { ssr: false });
+const FirefliesEffect = dynamic(() => import("./background-effects/Fireflies").then((m) => m.FirefliesEffect), { ssr: false });
+const LightningEffect = dynamic(() => import("./background-effects/Lightning").then((m) => m.LightningEffect), { ssr: false });
+const MeteorsEffect = dynamic(() => import("./background-effects/Meteors").then((m) => m.MeteorsEffect), { ssr: false });
+const LightRaysEffect = dynamic(() => import("./background-effects/LightRays").then((m) => m.LightRaysEffect), { ssr: false });
+const LightTunnelEffect = dynamic(() => import("./background-effects/LightTunnel").then((m) => m.LightTunnelEffect), { ssr: false });
+const AuroraEffect = dynamic(() => import("./background-effects/Aurora").then((m) => m.AuroraEffect), { ssr: false });
 
 export function BackgroundEffect({
   effect,
@@ -34,6 +40,12 @@ export function BackgroundEffect({
       {effect === "particles" && <ParticlesEffect intensity={intensity} color={color} />}
       {effect === "shootingstars" && <ShootingStarsEffect intensity={intensity} color={color} />}
       {effect === "hearts" && <HeartsEffect intensity={intensity} color={color} />}
+      {effect === "fireflies" && <FirefliesEffect intensity={intensity} color={color} />}
+      {effect === "lightning" && <LightningEffect intensity={intensity} color={color} />}
+      {effect === "meteors" && <MeteorsEffect intensity={intensity} color={color} />}
+      {effect === "lightrays" && <LightRaysEffect intensity={intensity} color={color} />}
+      {effect === "lighttunnel" && <LightTunnelEffect intensity={intensity} color={color} />}
+      {effect === "aurora" && <AuroraEffect intensity={intensity} color={color} />}
     </div>
   );
 }

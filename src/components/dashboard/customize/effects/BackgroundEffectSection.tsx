@@ -23,9 +23,15 @@ const BACKGROUND_EFFECTS = [
   { id: "nighttime", name: "Night Time" },
   { id: "oldtv", name: "Old TV" },
   { id: "dither", name: "Dither" },
+  { id: "fireflies", name: "Fireflies" },
+  { id: "lightning", name: "Lightning" },
+  { id: "meteors", name: "Meteors" },
+  { id: "lightrays", name: "Light Rays" },
+  { id: "lighttunnel", name: "Light Tunnel" },
+  { id: "aurora", name: "Aurora" },
 ];
 
-const EFFECTS_WITH_COLOR = ["snow", "rain", "particles", "shootingstars", "hearts"];
+const EFFECTS_WITH_COLOR = ["snow", "rain", "particles", "shootingstars", "hearts", "fireflies", "lightning", "meteors", "lightrays", "lighttunnel", "aurora"];
 
 export default function BackgroundEffectSection({
   backgroundEffect,
@@ -123,6 +129,12 @@ export default function BackgroundEffectSection({
                       else if (effect.id === "particles") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "shootingstars") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "hearts") setBackgroundEffectColor("#ffb6c1");
+                      else if (effect.id === "fireflies") setBackgroundEffectColor("#ffe97a");
+                      else if (effect.id === "lightning") setBackgroundEffectColor("#a8d8ff");
+                      else if (effect.id === "meteors") setBackgroundEffectColor("#ffffff");
+                      else if (effect.id === "lightrays") setBackgroundEffectColor("#ffffff");
+                      else if (effect.id === "lighttunnel") setBackgroundEffectColor("#5b6cf5");
+                      else if (effect.id === "aurora") setBackgroundEffectColor("#7dffa8");
                       setBgDropdownOpen(false);
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${backgroundEffect === effect.id

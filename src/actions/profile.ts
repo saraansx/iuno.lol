@@ -16,6 +16,7 @@ import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
 import { isStoredMediaUrl } from "@/lib/cdn";
+import { isAnimatedBackgroundUrl } from "@/lib/animated-background";
 import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
@@ -31,6 +32,7 @@ async function revalidateOwnProfile(userId: number) {
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
   return isStoredMediaUrl(url) ||
+          isAnimatedBackgroundUrl(url) ||
           url.startsWith("https://cdn.discordapp.com/") ||
           url.startsWith("https://discord-decoration.art/");
 }

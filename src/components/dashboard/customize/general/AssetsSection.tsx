@@ -2,6 +2,8 @@
 
 import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
+import { ANIMATED_BACKGROUNDS, animatedBackgroundId, animatedBackgroundUrl } from "@/lib/animated-background";
+import AnimatedBackground from "@/components/profile/layouts/AnimatedBackground";
 
 interface AssetsSectionProps {
   avatarUrl: string;
@@ -236,7 +238,9 @@ export default function AssetsSection({
                 </button>
               )}
               {bannerBackgroundUrl ? (
-                isVideoUrl(bannerBackgroundUrl) ? (
+                animatedBackgroundId(bannerBackgroundUrl) ? (
+                  <AnimatedBackground id={animatedBackgroundId(bannerBackgroundUrl)!} />
+                ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
                     <video
                       src={bannerBackgroundUrl}
@@ -265,10 +269,12 @@ export default function AssetsSection({
               ) : (
                 <div className="absolute inset-0 bg-[#161616]" />
               )}
-              <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                <span className="text-[13px] font-medium text-white/90">{bannerBackgroundUrl ? "Change" : "Upload"} Background</span>
-              </div>
+              {!animatedBackgroundId(bannerBackgroundUrl) && (
+                <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  <span className="text-[13px] font-medium text-white/90">{bannerBackgroundUrl ? "Change" : "Upload"} Background</span>
+                </div>
+              )}
             </div>
             <p className="text-[11px] text-white/30 leading-[1.6]">Supports images (JPG, PNG, GIF, WebP) and videos (MP4, WebM, OGG, MOV, max 50MB).<br/>Recommended size: 1920x1080.</p>
           </div>
@@ -347,6 +353,41 @@ export default function AssetsSection({
               </div>
             </div>
             <p className="text-[11px] text-white/30 leading-[1.6]">Recommended size: 1920x1080.</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[12.5px] font-medium text-white/90">Animated backgrounds</span>
+            <span className="text-[11px] text-white/30">Loop forever, no upload needed</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            {ANIMATED_BACKGROUNDS.map((preset) => {
+              const active = animatedBackgroundId(bannerBackgroundUrl) === preset.id;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  title={preset.name}
+                  onClick={() => setBannerBackgroundUrl(active ? "" : animatedBackgroundUrl(preset.id))}
+                    className={`relative h-20 rounded-xl overflow-hidden border transition-colors cursor-pointer focus:outline-none ${
+                      active
+                        ? "border-[#5b6cf5] ring-1 ring-[#5b6cf5]/60"
+                        : "border-white/10 hover:border-white/25"
+                    }`}
+                  >
+                    <AnimatedBackground id={preset.id} />
+                    <span className={`absolute bottom-1.5 left-2 text-[10.5px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] ${active ? "text-white" : "text-white/65"}`}>
+                      {preset.name}
+                    </span>
+                  {active && (
+                    <span className="absolute top-1.5 right-1.5 w-[18px] h-[18px] rounded-full bg-[#5b6cf5] flex items-center justify-center shadow-[0_0_8px_rgba(91,108,245,0.8)]">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
