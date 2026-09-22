@@ -14,7 +14,7 @@ import { type FullUser } from "@/lib/features/users/db";
 
 type Track = SearchTrack;
 
-const MAX_TRACKS = 2;
+const MAX_TRACKS = 1;
 
 function toTrack(raw: NonNullable<FullUser["musicTracks"]>[number]): Track {
   return {
@@ -136,7 +136,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
               type="button"
               disabled={count >= MAX_TRACKS}
               onClick={() => setModalOpen(true)}
-              title={count >= MAX_TRACKS ? "You can only add 2 tracks" : undefined}
+              title={count >= MAX_TRACKS ? "You can only add 1 track" : undefined}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
                 count >= MAX_TRACKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"

@@ -1430,13 +1430,13 @@ export async function updateMusicProfile(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  if ((data.tracks || []).length > 2) {
-    throw new Error("You can only add a maximum of 2 tracks.");
+  if ((data.tracks || []).length > 1) {
+    throw new Error("You can only add a maximum of 1 track.");
   }
 
   const prevTracks = Array.isArray(user?.musicTracks) ? user.musicTracks : [];
   const sanitizedTracks = await Promise.all(
-    (data.tracks || []).slice(0, 2).map(async (t) => {
+    (data.tracks || []).slice(0, 1).map(async (t) => {
       const id = String(t.id || "").trim().slice(0, 32);
       if (!id || !/^[A-Za-z0-9_-]{1,32}$/.test(id)) {
         throw new Error("Invalid track ID.");
