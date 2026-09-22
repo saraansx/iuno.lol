@@ -6,6 +6,7 @@ import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePrev
 import { updateAppearanceProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import FontGroupSection from "@/components/dashboard/customize/fonts/FontGroupSection";
+import ResetButton from "@/components/ui/reset-button";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { useCustomizeProfile } from "../CustomizeProfileProvider";
 import { type FullUser } from "@/lib/features/users/db";
@@ -18,6 +19,29 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
 
   const [openGroup, setOpenGroup] = useState<FontGroupKey | null>(null);
   const toggleGroup = (key: FontGroupKey) => setOpenGroup((prev) => (prev === key ? null : key));
+
+  const resetFontCard = () => {
+    setUsernameFont(initialUsernameFont); setUsernameFontSize(initialUsernameFontSize); setUsernameFontWeight(initialUsernameFontWeight); setUsernameLetterSpacing(initialUsernameLetterSpacing);
+    setBioFont(initialBioFont); setBioFontSize(initialBioFontSize); setBioFontWeight(initialBioFontWeight); setBioLetterSpacing(initialBioLetterSpacing);
+    setOtherFont(initialOtherFont); setOtherFontSize(initialOtherFontSize); setOtherFontWeight(initialOtherFontWeight); setOtherLetterSpacing(initialOtherLetterSpacing);
+    setHighlightFont(initialHighlightFont); setHighlightFontSize(initialHighlightFontSize); setHighlightFontWeight(initialHighlightFontWeight); setHighlightLetterSpacing(initialHighlightLetterSpacing);
+  };
+  const resetLinksCard = () => {
+    setLinksFont(initialLinksFont); setLinksFontSize(initialLinksFontSize); setLinksFontWeight(initialLinksFontWeight); setLinksLetterSpacing(initialLinksLetterSpacing);
+  };
+  const resetSectionsCard = () => {
+    setSectionTitleFont(initialSectionTitleFont); setSectionTitleFontSize(initialSectionTitleFontSize); setSectionTitleFontWeight(initialSectionTitleFontWeight); setSectionTitleLetterSpacing(initialSectionTitleLetterSpacing);
+    setSectionDescFont(initialSectionDescFont); setSectionDescFontSize(initialSectionDescFontSize); setSectionDescFontWeight(initialSectionDescFontWeight); setSectionDescLetterSpacing(initialSectionDescLetterSpacing);
+  };
+  const resetMusicCard = () => {
+    setMusicPrimaryFont(initialMusicPrimaryFont); setMusicPrimaryFontSize(initialMusicPrimaryFontSize); setMusicPrimaryFontWeight(initialMusicPrimaryFontWeight); setMusicPrimaryLetterSpacing(initialMusicPrimaryLetterSpacing);
+    setMusicSecondaryFont(initialMusicSecondaryFont); setMusicSecondaryFontSize(initialMusicSecondaryFontSize); setMusicSecondaryFontWeight(initialMusicSecondaryFontWeight); setMusicSecondaryLetterSpacing(initialMusicSecondaryLetterSpacing);
+    setMusicLyricsFont(initialMusicLyricsFont); setMusicLyricsFontSize(initialMusicLyricsFontSize); setMusicLyricsFontWeight(initialMusicLyricsFontWeight); setMusicLyricsLetterSpacing(initialMusicLyricsLetterSpacing);
+  };
+  const resetWidgetsCard = () => {
+    setWidgetFont(initialWidgetFont); setWidgetFontSize(initialWidgetFontSize); setWidgetFontWeight(initialWidgetFontWeight); setWidgetLetterSpacing(initialWidgetLetterSpacing);
+    setWidgetSecondaryFont(initialWidgetSecondaryFont); setWidgetSecondaryFontSize(initialWidgetSecondaryFontSize); setWidgetSecondaryFontWeight(initialWidgetSecondaryFontWeight); setWidgetSecondaryLetterSpacing(initialWidgetSecondaryLetterSpacing);
+  };
 
   const initialUsernameFont = user?.usernameFont ?? "Inter";
   const initialUsernameFontSize = user?.usernameFontSize ?? 24;
@@ -199,7 +223,8 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M4 7V4h16v3M9 20h6M12 4v16" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h2 className="text-white font-normal text-[16px] tracking-tight">Font</h2>
+              <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Font</h2>
+              <ResetButton onClick={resetFontCard} />
             </div>
 
             <div className="flex flex-col gap-3">
@@ -277,7 +302,8 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5]">
                 <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
-              <h2 className="text-white font-normal text-[16px] tracking-tight">Links</h2>
+              <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Links</h2>
+              <ResetButton onClick={resetLinksCard} />
             </div>
 
             <div className="flex flex-col gap-3">
@@ -306,7 +332,8 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M6 4v16M18 4v16M6 12h12" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h2 className="text-white font-normal text-[16px] tracking-tight">Sections</h2>
+              <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Sections</h2>
+              <ResetButton onClick={resetSectionsCard} />
             </div>
 
             <div className="flex flex-col gap-3">
@@ -351,7 +378,8 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M9 18V5l12-2v13" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><circle cx="6" cy="18" r="3" stroke="#5b6cf5" strokeWidth="1.5" /><circle cx="18" cy="16" r="3" stroke="#5b6cf5" strokeWidth="1.5" />
               </svg>
-              <h2 className="text-white font-normal text-[16px] tracking-tight">Music</h2>
+              <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Music</h2>
+              <ResetButton onClick={resetMusicCard} />
             </div>
 
             <div className="flex flex-col gap-3">
@@ -412,7 +440,8 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect width="7" height="7" x="14" y="3" rx="1" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
-              <h2 className="text-white font-normal text-[16px] tracking-tight">Widgets</h2>
+              <h2 className="text-white font-normal text-[16px] tracking-tight flex-1">Widgets</h2>
+              <ResetButton onClick={resetWidgetsCard} />
             </div>
 
             <div className="flex flex-col gap-3">

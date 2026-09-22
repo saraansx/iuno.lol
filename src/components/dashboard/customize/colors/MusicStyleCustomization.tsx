@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import ResetButton from "@/components/ui/reset-button";
 
 interface MusicStyleCustomizationProps {
   primaryColor: string;
@@ -10,6 +11,7 @@ interface MusicStyleCustomizationProps {
   setSecondaryColor: (val: string) => void;
   lyricsColor: string;
   setLyricsColor: (val: string) => void;
+  onReset?: () => void;
 }
 
 export default function MusicStyleCustomization({
@@ -19,6 +21,7 @@ export default function MusicStyleCustomization({
   setSecondaryColor,
   lyricsColor,
   setLyricsColor,
+  onReset,
 }: MusicStyleCustomizationProps) {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -87,16 +90,19 @@ export default function MusicStyleCustomization({
             <p className="text-white/40 text-[13px] mt-0.5">Colors for song titles, artists and lyrics</p>
           </div>
 
-          <button
-            type="button"
-            onClick={handleRandomize}
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white text-xs font-medium transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-            <span>Randomize Colors</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {onReset && <ResetButton onClick={onReset} />}
+            <button
+              type="button"
+              onClick={handleRandomize}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white text-xs font-medium transition-all duration-200 cursor-pointer shadow-sm active:scale-95 shrink-0"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              <span>Randomize Colors</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">

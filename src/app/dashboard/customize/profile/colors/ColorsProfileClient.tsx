@@ -84,6 +84,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setOtherColor={setOtherColor}
           pageBgColor={pageBgColor}
           setPageBgColor={setPageBgColor}
+          onReset={() => { setUsernameColor(initialUsernameColor); setBioColor(initialBioColor); setOtherColor(initialOtherColor); setPageBgColor(initialPageBgColor); }}
         />
 
         <SectionStyleCustomization
@@ -91,6 +92,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setTitleColor={setSectionTitleColor}
           descColor={sectionDescColor}
           setDescColor={setSectionDescColor}
+          onReset={() => { setSectionTitleColor(initialSectionTitleColor); setSectionDescColor(initialSectionDescColor); }}
         />
 
         <MusicStyleCustomization
@@ -100,6 +102,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setSecondaryColor={setMusicSecondaryColor}
           lyricsColor={musicLyricsColor}
           setLyricsColor={setMusicLyricsColor}
+          onReset={() => { setMusicPrimaryColor(initialMusicPrimaryColor); setMusicSecondaryColor(initialMusicSecondaryColor); setMusicLyricsColor(initialMusicLyricsColor); }}
         />
 
         <WidgetStyleCustomization
@@ -107,12 +110,14 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
           setPrimaryTextColor={setWidgetPrimaryTextColor}
           secondaryTextColor={widgetSecondaryTextColor}
           setSecondaryTextColor={setWidgetSecondaryTextColor}
+          onReset={() => { setWidgetPrimaryTextColor(initialWidgetPrimaryTextColor); setWidgetSecondaryTextColor(initialWidgetSecondaryTextColor); }}
         />
 
         <BadgeStyleCustomization
           monochromeColor={monochromeColor}
           setMonochromeColor={setMonochromeColor}
           monochromeEnabled={monochromeEnabled}
+          onReset={() => { setMonochromeColor(initialMonochromeColor); }}
         />
       </div>
 

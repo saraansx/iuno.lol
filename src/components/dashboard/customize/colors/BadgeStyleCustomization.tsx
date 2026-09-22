@@ -3,17 +3,20 @@
 import { useState } from "react";
 import Link from "next/link";
 import ColorPickerInput from "@/components/ui/color-picker";
+import ResetButton from "@/components/ui/reset-button";
 
 interface BadgeStyleCustomizationProps {
   monochromeColor: string;
   setMonochromeColor: (val: string) => void;
   monochromeEnabled: boolean;
+  onReset?: () => void;
 }
 
 export default function BadgeStyleCustomization({
   monochromeColor,
   setMonochromeColor,
   monochromeEnabled,
+  onReset,
 }: BadgeStyleCustomizationProps) {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -49,21 +52,24 @@ export default function BadgeStyleCustomization({
             <p className="text-white/40 text-[13px] mt-0.5">Single color for all your profile badges</p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setMonochromeColor(getRandomHex())}
-            disabled={!monochromeEnabled}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 ${
-              !monochromeEnabled
-                ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
-                : "bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white cursor-pointer shadow-sm active:scale-95"
-            }`}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-            <span>Randomize Colors</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {onReset && <ResetButton onClick={onReset} disabled={!monochromeEnabled} />}
+            <button
+              type="button"
+              onClick={() => setMonochromeColor(getRandomHex())}
+              disabled={!monochromeEnabled}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200 shrink-0 ${
+                !monochromeEnabled
+                  ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
+                  : "bg-[#5b6cf5]/10 hover:bg-[#5b6cf5]/20 border border-[#5b6cf5]/25 hover:border-[#5b6cf5]/45 text-[#5b6cf5] hover:text-white cursor-pointer shadow-sm active:scale-95"
+              }`}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+              <span>Randomize Colors</span>
+            </button>
+          </div>
         </div>
 
         {!monochromeEnabled ? (

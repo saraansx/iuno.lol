@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import ResetButton from "@/components/ui/reset-button";
 
 interface ColorCustomizationProps {
   usernameColor: string;
@@ -12,6 +13,7 @@ interface ColorCustomizationProps {
   setOtherColor: (val: string) => void;
   pageBgColor: string;
   setPageBgColor: (val: string) => void;
+  onReset?: () => void;
 }
 
 export default function ColorCustomization({
@@ -23,6 +25,7 @@ export default function ColorCustomization({
   setOtherColor,
   pageBgColor,
   setPageBgColor,
+  onReset,
 }: ColorCustomizationProps) {
   const [openSection, setOpenSection] = useState<string | null>(null);
 
@@ -65,6 +68,8 @@ export default function ColorCustomization({
             <p className="text-white/40 text-[13px] mt-0.5">Customize the colors for your profile text</p>
           </div>
 
+          <div className="flex items-center gap-2 shrink-0">
+          {onReset && <ResetButton onClick={onReset} />}
           <button
             type="button"
             onClick={handleRandomize}
@@ -75,6 +80,7 @@ export default function ColorCustomization({
             </svg>
             <span>Randomize Colors</span>
           </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-2">
