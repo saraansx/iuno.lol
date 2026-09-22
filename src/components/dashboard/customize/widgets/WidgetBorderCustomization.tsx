@@ -27,12 +27,18 @@ function PixelInput({
           value={draft ?? String(value)}
           onChange={(e) => {
             const raw = e.target.value;
-            setDraft(raw);
-            if (raw === "") return;
-            const parsed = Number(raw);
-            if (Number.isFinite(parsed)) {
-              onChange(Math.max(0, Math.min(max, parsed)));
+            if (raw === "") {
+              setDraft(raw);
+              return;
             }
+            const parsed = Number(raw);
+            if (!Number.isFinite(parsed)) {
+              setDraft(raw);
+              return;
+            }
+            const clamped = Math.max(0, Math.min(max, parsed));
+            setDraft(clamped === parsed ? raw : String(clamped));
+            onChange(clamped);
           }}
           onBlur={() => {
             if (draft !== null && !Number.isFinite(Number(draft || NaN))) {

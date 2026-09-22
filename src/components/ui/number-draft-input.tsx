@@ -47,13 +47,19 @@ export default function NumberDraftInput({
         value={draft ?? String(value)}
         onChange={(e) => {
           const raw = e.target.value;
-          setDraft(raw);
           if (raw === "") {
+            setDraft(raw);
             onCommit(min);
             return;
           }
           const parsed = Number(raw);
-          if (Number.isFinite(parsed)) onCommit(clamp(parsed));
+          if (!Number.isFinite(parsed)) {
+            setDraft(raw);
+            return;
+          }
+          const clamped = clamp(parsed);
+          setDraft(clamped === parsed ? raw : String(clamped));
+          onCommit(clamped);
         }}
         onBlur={() => {
           if (draft !== null && (draft === "" || !Number.isFinite(Number(draft)))) {

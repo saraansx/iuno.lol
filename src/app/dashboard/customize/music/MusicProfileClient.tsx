@@ -37,7 +37,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
   const router = useRouter();
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
-  const initialArtBg = user?.musicPlayerArtBg ?? true;
+  const initialArtBg = user?.musicPlayerArtBg ?? false;
   const initialVolumeControl = user?.musicPlayerVolume ?? true;
   const initialShuffle = user?.musicPlayerShuffle ?? false;
 

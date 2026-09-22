@@ -17,23 +17,22 @@ interface DashboardProfilePreviewProps {
 
 export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
-  const [equippedBadges, setEquippedBadges] = useState<string[]>(equippedBadgesProp ?? []);
+  const [fetchedBadges, setFetchedBadges] = useState<string[] | null>(null);
 
   useEffect(() => {
-    if (equippedBadgesProp !== undefined) {
-      setEquippedBadges(equippedBadgesProp);
-      return;
-    }
+    if (equippedBadgesProp !== undefined) return;
     let cancelled = false;
     getMyBadges()
       .then((res) => {
-        if (!cancelled) setEquippedBadges(res.equipped);
+        if (!cancelled) setFetchedBadges(res.equipped);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
   }, [equippedBadgesProp]);
+
+  const equippedBadges = equippedBadgesProp ?? fetchedBadges ?? [];
 
   return (
     <ProfilePreview
@@ -90,7 +89,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       profileBorderOpacity={deferredOverrides.profileBorderOpacity ?? user?.profileBorderOpacity ?? 10}
       profileBorderWidth={deferredOverrides.profileBorderWidth ?? user?.profileBorderWidth ?? 0}
       profileBorderRadius={deferredOverrides.profileBorderRadius ?? user?.profileBorderRadius ?? 24}
-      profileCardBlur={deferredOverrides.profileCardBlur ?? user?.profileCardBlur ?? 4}
+      profileCardBlur={deferredOverrides.profileCardBlur ?? user?.profileCardBlur ?? 0}
       profileBackgroundBlur={deferredOverrides.profileBackgroundBlur ?? user?.profileBackgroundBlur ?? 0}
       profileShadowColor={deferredOverrides.profileShadowColor ?? user?.profileShadowColor ?? "#000000"}
       profileShadowOpacity={deferredOverrides.profileShadowOpacity ?? user?.profileShadowOpacity ?? 0}
@@ -179,19 +178,19 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       viewsEnabled={deferredOverrides.viewsEnabled ?? user?.viewsEnabled ?? true}
       viewsAnimationEnabled={deferredOverrides.viewsAnimationEnabled ?? user?.viewsAnimationEnabled ?? true}
       viewsAnimationDuration={deferredOverrides.viewsAnimationDuration ?? user?.viewsAnimationDuration ?? 1000}
-      viewsAnimationStyle={deferredOverrides.viewsAnimationStyle ?? user?.viewsAnimationStyle ?? "countup"}
-      commentsEnabled={deferredOverrides.commentsEnabled ?? user?.commentsEnabled ?? true}
-      feedbackEnabled={deferredOverrides.feedbackEnabled ?? user?.feedbackEnabled ?? false}
-      showFeedbackPublicly={deferredOverrides.showFeedbackPublicly ?? user?.showFeedbackPublicly ?? false}
-      showUidTooltip={deferredOverrides.showUidTooltip ?? user?.showUidTooltip ?? true}
-      showLocationTooltip={deferredOverrides.showLocationTooltip ?? user?.showLocationTooltip ?? true}
-      showOccupationTooltip={deferredOverrides.showOccupationTooltip ?? user?.showOccupationTooltip ?? true}
-      showLikesTooltip={deferredOverrides.showLikesTooltip ?? user?.showLikesTooltip ?? true}
-      showDislikesTooltip={deferredOverrides.showDislikesTooltip ?? user?.showDislikesTooltip ?? true}
-      showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? true}
-      showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? true}
-      showLinksTooltip={deferredOverrides.showLinksTooltip ?? user?.showLinksTooltip ?? true}
-      showBadgesTooltip={deferredOverrides.showBadgesTooltip ?? user?.showBadgesTooltip ?? true}
+      viewsAnimationStyle={deferredOverrides.viewsAnimationStyle ?? user?.viewsAnimationStyle ?? "none"}
+      commentsEnabled={deferredOverrides.commentsEnabled ?? user?.commentsEnabled ?? false}
+      feedbackEnabled={deferredOverrides.feedbackEnabled ?? user?.feedbackEnabled ?? true}
+      showFeedbackPublicly={deferredOverrides.showFeedbackPublicly ?? user?.showFeedbackPublicly ?? true}
+      showUidTooltip={deferredOverrides.showUidTooltip ?? user?.showUidTooltip ?? false}
+      showLocationTooltip={deferredOverrides.showLocationTooltip ?? user?.showLocationTooltip ?? false}
+      showOccupationTooltip={deferredOverrides.showOccupationTooltip ?? user?.showOccupationTooltip ?? false}
+      showLikesTooltip={deferredOverrides.showLikesTooltip ?? user?.showLikesTooltip ?? false}
+      showDislikesTooltip={deferredOverrides.showDislikesTooltip ?? user?.showDislikesTooltip ?? false}
+      showJoinDateTooltip={deferredOverrides.showJoinDateTooltip ?? user?.showJoinDateTooltip ?? false}
+      showViewsTooltip={deferredOverrides.showViewsTooltip ?? user?.showViewsTooltip ?? false}
+      showLinksTooltip={deferredOverrides.showLinksTooltip ?? user?.showLinksTooltip ?? false}
+      showBadgesTooltip={deferredOverrides.showBadgesTooltip ?? user?.showBadgesTooltip ?? false}
       iconsGlowEnabled={deferredOverrides.iconsGlowEnabled ?? user?.iconsGlowEnabled ?? false}
       joinDateIconGlow={deferredOverrides.joinDateIconGlow ?? user?.joinDateIconGlow ?? false}
       locationIconGlow={deferredOverrides.locationIconGlow ?? user?.locationIconGlow ?? false}
@@ -214,7 +213,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       widgets={(deferredOverrides.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? (user?.widgets as import("@/components/dashboard/customize/widgets/WidgetsCustomization").WidgetItem[]) ?? []}
       musicTracks={(deferredOverrides.musicTracks as import("@/lib/music").MusicTrack[]) ?? (user?.musicTracks as import("@/lib/music").MusicTrack[] | undefined) ?? []}
       musicPlayerStyle={deferredOverrides.musicPlayerStyle ?? user?.musicPlayerStyle ?? "compact"}
-      musicPlayerArtBg={deferredOverrides.musicPlayerArtBg ?? user?.musicPlayerArtBg ?? true}
+      musicPlayerArtBg={deferredOverrides.musicPlayerArtBg ?? user?.musicPlayerArtBg ?? false}
       musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
       musicPlayerVolumeFixed={true}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}

@@ -47,7 +47,7 @@ export default function ViewsSection({
   }, []);
 
   const selectedStyleName =
-    VIEWS_ANIMATION_STYLES.find((s) => s.id === viewsAnimationStyle)?.name || "Countup";
+    VIEWS_ANIMATION_STYLES.find((s) => s.id === viewsAnimationStyle)?.name || "None";
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-5 shadow-sm">

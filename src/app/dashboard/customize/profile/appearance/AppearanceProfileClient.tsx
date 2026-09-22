@@ -32,12 +32,12 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const router = useRouter();
 
   const initialProfileBgColor = user?.profileBgColor ?? "#050505";
-  const initialProfileBgOpacity = user?.profileBgOpacity ?? 100;
+  const initialProfileBgOpacity = user?.profileBgOpacity ?? 10;
   const initialProfileBorderColor = user?.profileBorderColor ?? "#ffffff";
-  const initialProfileBorderOpacity = user?.profileBorderOpacity ?? 100;
+  const initialProfileBorderOpacity = user?.profileBorderOpacity ?? 10;
   const initialProfileBorderWidth = user?.profileBorderWidth ?? 0;
   const initialProfileBorderRadius = user?.profileBorderRadius ?? 24;
-  const initialProfileCardBlur = user?.profileCardBlur ?? 4;
+  const initialProfileCardBlur = user?.profileCardBlur ?? 0;
   const initialProfileBackgroundBlur = user?.profileBackgroundBlur ?? 0;
   const initialProfileShadowColor = user?.profileShadowColor ?? "#000000";
   const initialProfileShadowOpacity = user?.profileShadowOpacity ?? 0;
@@ -76,7 +76,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialViewsEnabled = user?.viewsEnabled ?? true;
   const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
   const initialViewsAnimationDuration = user?.viewsAnimationDuration ?? 1000;
-  const initialViewsAnimationStyle = (user?.viewsAnimationStyle ?? "countup") as "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
+  const initialViewsAnimationStyle = (user?.viewsAnimationStyle ?? "none") as "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
 
   const isViewsEnabled = overrides.viewsEnabled ?? initialViewsEnabled;
   const setIsViewsEnabled = (val: boolean) => updateOverrides({ viewsEnabled: val === initialViewsEnabled ? undefined : val });
@@ -88,9 +88,9 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const setViewsAnimationStyle = (val: "none" | "countup" | "digitalroll" | "slotroll" | "speeding") =>
     updateOverrides({ viewsAnimationStyle: val === initialViewsAnimationStyle ? undefined : val });
 
-  const initialCommentsEnabled = user?.commentsEnabled ?? true;
-  const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
-  const initialAllowNewComments = user?.allowNewComments ?? true;
+  const initialCommentsEnabled = user?.commentsEnabled ?? false;
+  const initialShowCommentsPublicly = user?.showCommentsPublicly ?? false;
+  const initialAllowNewComments = user?.allowNewComments ?? false;
 
   const isCommentsEnabled = overrides.commentsEnabled ?? initialCommentsEnabled;
   const setIsCommentsEnabled = (val: boolean) => updateOverrides({ commentsEnabled: val === initialCommentsEnabled ? undefined : val });
@@ -99,46 +99,46 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const isAllowNewComments = overrides.allowNewComments ?? initialAllowNewComments;
   const setIsAllowNewComments = (val: boolean) => updateOverrides({ allowNewComments: val === initialAllowNewComments ? undefined : val });
 
-  const initialFeedbackEnabled = user?.feedbackEnabled ?? false;
+  const initialFeedbackEnabled = user?.feedbackEnabled ?? true;
   const isFeedbackEnabled = overrides.feedbackEnabled ?? initialFeedbackEnabled;
   const setIsFeedbackEnabled = (val: boolean) => updateOverrides({ feedbackEnabled: val === initialFeedbackEnabled ? undefined : val });
-  const initialShowFeedbackPublicly = user?.showFeedbackPublicly ?? false;
+  const initialShowFeedbackPublicly = user?.showFeedbackPublicly ?? true;
   const isShowFeedbackPublicly = overrides.showFeedbackPublicly ?? initialShowFeedbackPublicly;
   const setIsShowFeedbackPublicly = (val: boolean) => updateOverrides({ showFeedbackPublicly: val === initialShowFeedbackPublicly ? undefined : val });
 
-  const initialUidTooltipEnabled = user?.showUidTooltip ?? true;
+  const initialUidTooltipEnabled = user?.showUidTooltip ?? false;
   const isUidTooltipEnabled = overrides.showUidTooltip ?? initialUidTooltipEnabled;
   const setIsUidTooltipEnabled = (val: boolean) => updateOverrides({ showUidTooltip: val === initialUidTooltipEnabled ? undefined : val });
 
-  const initialLocationTooltipEnabled = user?.showLocationTooltip ?? true;
+  const initialLocationTooltipEnabled = user?.showLocationTooltip ?? false;
   const isLocationTooltipEnabled = overrides.showLocationTooltip ?? initialLocationTooltipEnabled;
   const setIsLocationTooltipEnabled = (val: boolean) => updateOverrides({ showLocationTooltip: val === initialLocationTooltipEnabled ? undefined : val });
 
-  const initialOccupationTooltipEnabled = user?.showOccupationTooltip ?? true;
+  const initialOccupationTooltipEnabled = user?.showOccupationTooltip ?? false;
   const isOccupationTooltipEnabled = overrides.showOccupationTooltip ?? initialOccupationTooltipEnabled;
   const setIsOccupationTooltipEnabled = (val: boolean) => updateOverrides({ showOccupationTooltip: val === initialOccupationTooltipEnabled ? undefined : val });
 
-  const initialLikesTooltipEnabled = user?.showLikesTooltip ?? true;
+  const initialLikesTooltipEnabled = user?.showLikesTooltip ?? false;
   const isLikesTooltipEnabled = overrides.showLikesTooltip ?? initialLikesTooltipEnabled;
   const setIsLikesTooltipEnabled = (val: boolean) => updateOverrides({ showLikesTooltip: val === initialLikesTooltipEnabled ? undefined : val });
 
-  const initialDislikesTooltipEnabled = user?.showDislikesTooltip ?? true;
+  const initialDislikesTooltipEnabled = user?.showDislikesTooltip ?? false;
   const isDislikesTooltipEnabled = overrides.showDislikesTooltip ?? initialDislikesTooltipEnabled;
   const setIsDislikesTooltipEnabled = (val: boolean) => updateOverrides({ showDislikesTooltip: val === initialDislikesTooltipEnabled ? undefined : val });
 
-  const initialJoinDateTooltipEnabled = user?.showJoinDateTooltip ?? true;
+  const initialJoinDateTooltipEnabled = user?.showJoinDateTooltip ?? false;
   const isJoinDateTooltipEnabled = overrides.showJoinDateTooltip ?? initialJoinDateTooltipEnabled;
   const setIsJoinDateTooltipEnabled = (val: boolean) => updateOverrides({ showJoinDateTooltip: val === initialJoinDateTooltipEnabled ? undefined : val });
 
-  const initialViewsTooltipEnabled = user?.showViewsTooltip ?? true;
+  const initialViewsTooltipEnabled = user?.showViewsTooltip ?? false;
   const isViewsTooltipEnabled = overrides.showViewsTooltip ?? initialViewsTooltipEnabled;
   const setIsViewsTooltipEnabled = (val: boolean) => updateOverrides({ showViewsTooltip: val === initialViewsTooltipEnabled ? undefined : val });
 
-  const initialLinksTooltipEnabled = user?.showLinksTooltip ?? true;
+  const initialLinksTooltipEnabled = user?.showLinksTooltip ?? false;
   const isLinksTooltipEnabled = overrides.showLinksTooltip ?? initialLinksTooltipEnabled;
   const setIsLinksTooltipEnabled = (val: boolean) => updateOverrides({ showLinksTooltip: val === initialLinksTooltipEnabled ? undefined : val });
 
-  const initialBadgesTooltipEnabled = user?.showBadgesTooltip ?? true;
+  const initialBadgesTooltipEnabled = user?.showBadgesTooltip ?? false;
   const isBadgesTooltipEnabled = overrides.showBadgesTooltip ?? initialBadgesTooltipEnabled;
   const setIsBadgesTooltipEnabled = (val: boolean) => updateOverrides({ showBadgesTooltip: val === initialBadgesTooltipEnabled ? undefined : val });
 
