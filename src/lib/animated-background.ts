@@ -28,3 +28,12 @@ export function isAnimatedBackgroundUrl(url: string | null | undefined): boolean
 export function animatedBackgroundUrl(id: AnimatedBackgroundId): string {
   return `${ANIMATED_BACKGROUND_PREFIX}${id}`;
 }
+
+/** Default Aurora (animated preset) settings. */
+export const AURORA_DEFAULTS = {
+  color1: "#7cff67",
+  color2: "#b497cf",
+  color3: "#5227ff",
+  speed: 1,
+  blend: 0.5,
+} as const;

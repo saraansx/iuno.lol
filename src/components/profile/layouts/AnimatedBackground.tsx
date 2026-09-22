@@ -1,7 +1,13 @@
 "use client";
 
 import type { AnimatedBackgroundId } from "@/lib/animated-background";
-import { AuroraEffect } from "./background-effects/Aurora";
+import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
+
+export interface AuroraSettings {
+  colors?: AuroraColors;
+  speed?: number | null;
+  blend?: number | null;
+}
 
 /**
  * Preset animated page backgrounds. Pure CSS (no assets, no canvas),
@@ -10,7 +16,7 @@ import { AuroraEffect } from "./background-effects/Aurora";
  *
  * The `aurora` preset reuses the WebGL background effect.
  */
-export default function AnimatedBackground({ id }: { id: AnimatedBackgroundId }) {
+export default function AnimatedBackground({ id, aurora }: { id: AnimatedBackgroundId; aurora?: AuroraSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
       <style>{`
@@ -23,7 +29,7 @@ export default function AnimatedBackground({ id }: { id: AnimatedBackgroundId })
         @keyframes abg-pulse { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
       `}</style>
 
-      {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" />}
+      {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} />}
 
       {id === "ember" && (
         <>

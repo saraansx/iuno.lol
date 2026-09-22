@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -61,6 +61,21 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialBannerBackgroundSound = user?.bannerBackgroundSound ?? false;
   const bannerBackgroundSound = overrides.bannerBackgroundSound !== undefined ? Boolean(overrides.bannerBackgroundSound) : Boolean(initialBannerBackgroundSound);
   const setBannerBackgroundSound = (val: boolean) => updateOverrides({ bannerBackgroundSound: val === initialBannerBackgroundSound ? undefined : val });
+  const initialAuroraColor1 = user?.auroraColor1 ?? AURORA_DEFAULTS.color1;
+  const initialAuroraColor2 = user?.auroraColor2 ?? AURORA_DEFAULTS.color2;
+  const initialAuroraColor3 = user?.auroraColor3 ?? AURORA_DEFAULTS.color3;
+  const initialAuroraSpeed = user?.auroraSpeed ?? AURORA_DEFAULTS.speed;
+  const initialAuroraBlend = user?.auroraBlend ?? AURORA_DEFAULTS.blend;
+  const auroraColor1 = overrides.auroraColor1 ?? initialAuroraColor1;
+  const setAuroraColor1 = (val: string) => updateOverrides({ auroraColor1: val === initialAuroraColor1 ? undefined : val });
+  const auroraColor2 = overrides.auroraColor2 ?? initialAuroraColor2;
+  const setAuroraColor2 = (val: string) => updateOverrides({ auroraColor2: val === initialAuroraColor2 ? undefined : val });
+  const auroraColor3 = overrides.auroraColor3 ?? initialAuroraColor3;
+  const setAuroraColor3 = (val: string) => updateOverrides({ auroraColor3: val === initialAuroraColor3 ? undefined : val });
+  const auroraSpeed = overrides.auroraSpeed ?? initialAuroraSpeed;
+  const setAuroraSpeed = (val: number) => updateOverrides({ auroraSpeed: val === initialAuroraSpeed ? undefined : val });
+  const auroraBlend = overrides.auroraBlend ?? initialAuroraBlend;
+  const setAuroraBlend = (val: number) => updateOverrides({ auroraBlend: val === initialAuroraBlend ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -127,6 +142,16 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setBannerBackgroundUrl={setBannerBackgroundUrl}
           bannerBackgroundSound={bannerBackgroundSound}
           setBannerBackgroundSound={setBannerBackgroundSound}
+          auroraColor1={auroraColor1}
+          setAuroraColor1={setAuroraColor1}
+          auroraColor2={auroraColor2}
+          setAuroraColor2={setAuroraColor2}
+          auroraColor3={auroraColor3}
+          setAuroraColor3={setAuroraColor3}
+          auroraSpeed={auroraSpeed}
+          setAuroraSpeed={setAuroraSpeed}
+          auroraBlend={auroraBlend}
+          setAuroraBlend={setAuroraBlend}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -213,6 +238,11 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           bannerImageUrl,
           bannerBlend,
           bannerBackgroundUrl,
+          auroraColor1,
+          auroraColor2,
+          auroraColor3,
+          auroraSpeed,
+          auroraBlend,
         }}
       />
 

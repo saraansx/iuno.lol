@@ -53,6 +53,11 @@ export async function updateGeneralProfile(data: {
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
   bannerBackgroundSound?: boolean;
+  auroraColor1?: string | null;
+  auroraColor2?: string | null;
+  auroraColor3?: string | null;
+  auroraSpeed?: number | null;
+  auroraBlend?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -109,6 +114,11 @@ export async function updateGeneralProfile(data: {
   if (data.bannerBlend !== undefined) setData.bannerBlend = data.bannerBlend;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
   if (data.bannerBackgroundSound !== undefined) setData.bannerBackgroundSound = !!data.bannerBackgroundSound;
+  if (data.auroraColor1 !== undefined) setData.auroraColor1 = data.auroraColor1?.slice(0, 32) ?? null;
+  if (data.auroraColor2 !== undefined) setData.auroraColor2 = data.auroraColor2?.slice(0, 32) ?? null;
+  if (data.auroraColor3 !== undefined) setData.auroraColor3 = data.auroraColor3?.slice(0, 32) ?? null;
+  if (data.auroraSpeed !== undefined) setData.auroraSpeed = data.auroraSpeed;
+  if (data.auroraBlend !== undefined) setData.auroraBlend = data.auroraBlend;
 
   sanitizeProfileSettings(setData);
 

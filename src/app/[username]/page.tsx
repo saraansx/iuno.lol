@@ -212,6 +212,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
       backgroundEffectColor: userSettings.backgroundEffectColor,
       backgroundEffectAboveContainer: userSettings.backgroundEffectAboveContainer,
+      auroraColor1: userSettings.auroraColor1,
+      auroraColor2: userSettings.auroraColor2,
+      auroraColor3: userSettings.auroraColor3,
+      auroraSpeed: userSettings.auroraSpeed,
+      auroraBlend: userSettings.auroraBlend,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -334,6 +339,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bannerBlend={user.bannerBlend ?? false}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
         bannerBackgroundSound={user.bannerBackgroundSound ?? false}
+        auroraColor1={user.auroraColor1 ?? undefined}
+        auroraColor2={user.auroraColor2 ?? undefined}
+        auroraColor3={user.auroraColor3 ?? undefined}
+        auroraSpeed={user.auroraSpeed ?? undefined}
+        auroraBlend={user.auroraBlend ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

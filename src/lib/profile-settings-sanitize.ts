@@ -49,6 +49,8 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   viewsAnimationDuration: { min: 0, max: 5000, int: true },
 
   backgroundEffectIntensity: { min: 0, max: 100, int: true },
+  auroraSpeed: { min: 0, max: 3 },
+  auroraBlend: { min: 0, max: 1 },
   badgeGlowStrength: { min: 0, max: 100, int: true },
   badgeScrollSpeed: { min: 1, max: 100, int: true },
   badgeVisibleCount: { min: 1, max: 20, int: true },
@@ -77,6 +79,9 @@ const COLOR_FIELDS = new Set([
   "widgetSecondaryTextColor",
   "widgetBorderColor",
   "backgroundEffectColor",
+  "auroraColor1",
+  "auroraColor2",
+  "auroraColor3",
   "borderEffectColor",
   "cursorTrailColor",
   "enterScreenColor",

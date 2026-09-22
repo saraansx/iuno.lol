@@ -135,12 +135,37 @@ function stopsFor(hex: string): number[][] {
   ];
 }
 
-export function AuroraEffect({ intensity = 50, color = "#7dffa8" }: { intensity?: number; color?: string }) {
+export type AuroraColors = [string | null | undefined, string | null | undefined, string | null | undefined];
+
+function resolveStops(color: string, colors?: AuroraColors): number[][] {
+  const [c1, c2, c3] = colors ?? [];
+  if (c1 && c2 && c3) {
+    return [new Color(c1), new Color(c2), new Color(c3)].map((c) => [c.r, c.g, c.b]);
+  }
+  return stopsFor(color);
+}
+
+export function AuroraEffect({
+  intensity = 50,
+  color = "#7dffa8",
+  colors,
+  speed,
+  blend,
+}: {
+  intensity?: number;
+  color?: string;
+  /** Three explicit gradient stops (aurora preset settings). Falls back to `color` when incomplete. */
+  colors?: AuroraColors;
+  /** 0–3 animation speed multiplier. Falls back to intensity-derived speed when unset. */
+  speed?: number | null;
+  /** 0–1 edge softness. Falls back to 0.5 when unset. */
+  blend?: number | null;
+}) {
   const ctnDom = useRef<HTMLDivElement>(null);
-  const propsRef = useRef({ intensity, color });
+  const propsRef = useRef({ intensity, color, colors, speed, blend });
 
   useEffect(() => {
-    propsRef.current = { intensity, color };
+    propsRef.current = { intensity, color, colors, speed, blend };
     const ctn = ctnDom.current;
     if (!ctn) return;
     const mesh = (ctn as HTMLDivElement & { __auroraMesh?: Mesh }).__auroraMesh;
@@ -148,8 +173,9 @@ export function AuroraEffect({ intensity = 50, color = "#7dffa8" }: { intensity?
     const U = (mesh.program.uniforms as UniformsMap);
     const t = Math.min(1, Math.max(0, intensity / 100));
     (U.uAmplitude as NumUniform).value = 0.5 + t * 0.9;
-    U.uColorStops.value = stopsFor(color);
-  }, [intensity, color]);
+    U.uColorStops.value = resolveStops(color, colors);
+    (U.uBlend as NumUniform).value = blend ?? 0.5;
+  }, [intensity, color, colors, speed, blend]);
 
   useEffect(() => {
     const ctn = ctnDom.current;
@@ -183,9 +209,9 @@ export function AuroraEffect({ intensity = 50, color = "#7dffa8" }: { intensity?
       uniforms: {
         uTime: { value: 0 },
         uAmplitude: { value: 0.5 + t0 * 0.9 },
-        uColorStops: { value: stopsFor(propsRef.current.color) },
+        uColorStops: { value: resolveStops(propsRef.current.color, propsRef.current.colors) },
         uResolution: { value: [ctn.offsetWidth, ctn.offsetHeight] },
-        uBlend: { value: 0.5 },
+        uBlend: { value: propsRef.current.blend ?? 0.5 },
         uLightMode: { value: 0 },
       },
     });
@@ -208,8 +234,10 @@ export function AuroraEffect({ intensity = 50, color = "#7dffa8" }: { intensity?
     let animateId = 0;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
-      const speed = 0.2 + Math.min(1, Math.max(0, propsRef.current.intensity / 100)) * 1.3;
-      (U.uTime as NumUniform).value = t * 0.01 * speed * 0.1;
+      const p = propsRef.current;
+      const it = Math.min(1, Math.max(0, p.intensity / 100));
+      const speedFactor = p.speed ?? (0.2 + it * 1.3);
+      (U.uTime as NumUniform).value = t * 0.01 * speedFactor * 0.1;
       renderer.render({ scene: mesh });
     };
     animateId = requestAnimationFrame(update);

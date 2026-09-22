@@ -119,6 +119,11 @@ interface Layout1Props {
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
   bannerBackgroundSound?: boolean;
+  auroraColor1?: string | null;
+  auroraColor2?: string | null;
+  auroraColor3?: string | null;
+  auroraSpeed?: number | null;
+  auroraBlend?: number | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -398,6 +403,11 @@ const Layout1 = ({
   bannerBlend = false,
   bannerBackgroundUrl,
   bannerBackgroundSound = false,
+  auroraColor1,
+  auroraColor2,
+  auroraColor3,
+  auroraSpeed,
+  auroraBlend,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1103,7 +1113,10 @@ const sectionSurface: React.CSSProperties = {
         {bannerBackgroundUrl && (
           animatedBackgroundId(bannerBackgroundUrl) ? (
             <div className="absolute inset-0 z-0 pointer-events-none">
-              <AnimatedBackground id={animatedBackgroundId(bannerBackgroundUrl)!} />
+              <AnimatedBackground
+                id={animatedBackgroundId(bannerBackgroundUrl)!}
+                aurora={{ colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend }}
+              />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (
             <video

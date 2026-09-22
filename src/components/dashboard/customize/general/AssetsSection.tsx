@@ -4,6 +4,7 @@ import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { ANIMATED_BACKGROUNDS, animatedBackgroundId, animatedBackgroundUrl } from "@/lib/animated-background";
 import AnimatedBackground from "@/components/profile/layouts/AnimatedBackground";
+import ColorPickerInput from "@/components/ui/color-picker";
 
 interface AssetsSectionProps {
   avatarUrl: string;
@@ -21,6 +22,16 @@ interface AssetsSectionProps {
   setBannerBackgroundUrl: (url: string) => void;
   bannerBackgroundSound: boolean;
   setBannerBackgroundSound: (sound: boolean) => void;
+  auroraColor1: string;
+  setAuroraColor1: (val: string) => void;
+  auroraColor2: string;
+  setAuroraColor2: (val: string) => void;
+  auroraColor3: string;
+  setAuroraColor3: (val: string) => void;
+  auroraSpeed: number;
+  setAuroraSpeed: (val: number) => void;
+  auroraBlend: number;
+  setAuroraBlend: (val: number) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
@@ -45,6 +56,16 @@ export default function AssetsSection({
   setBannerBackgroundUrl,
   bannerBackgroundSound,
   setBannerBackgroundSound,
+  auroraColor1,
+  setAuroraColor1,
+  auroraColor2,
+  setAuroraColor2,
+  auroraColor3,
+  setAuroraColor3,
+  auroraSpeed,
+  setAuroraSpeed,
+  auroraBlend,
+  setAuroraBlend,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -238,9 +259,14 @@ export default function AssetsSection({
                 </button>
               )}
               {bannerBackgroundUrl ? (
-                animatedBackgroundId(bannerBackgroundUrl) ? (
-                  <AnimatedBackground id={animatedBackgroundId(bannerBackgroundUrl)!} />
-                ) : isVideoUrl(bannerBackgroundUrl) ? (
+                (() => {
+                  const animatedId = animatedBackgroundId(bannerBackgroundUrl);
+                  return animatedId ? (
+                    <AnimatedBackground
+                      id={animatedId}
+                      aurora={animatedId === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend } : undefined}
+                    />
+                  ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
                     <video
                       src={bannerBackgroundUrl}
@@ -266,6 +292,7 @@ export default function AssetsSection({
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
                   </>
                 )
+                })()
               ) : (
                 <div className="absolute inset-0 bg-[#161616]" />
               )}
@@ -390,6 +417,85 @@ export default function AssetsSection({
             })}
           </div>
         </div>
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "aurora" && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">Aurora settings</span>
+              <span className="text-[11px] text-white/30">Only for Aurora</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Color 1</label>
+                <ColorPickerInput value={auroraColor1} onChange={setAuroraColor1} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Color 2</label>
+                <ColorPickerInput value={auroraColor2} onChange={setAuroraColor2} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Color 3</label>
+                <ColorPickerInput value={auroraColor3} onChange={setAuroraColor3} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[12px] text-white/50">Speed</label>
+                  <span className="text-[12px] text-white/40 font-mono">{auroraSpeed}</span>
+                </div>
+                <div className="relative flex items-center h-5 group w-full">
+                  <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className="absolute h-full bg-[#5b6cf5]"
+                      style={{ width: `${(auroraSpeed / 3) * 100}%` }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="3"
+                    step="0.1"
+                    value={auroraSpeed}
+                    onChange={(e) => setAuroraSpeed(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                  />
+                  <div
+                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                    style={{ left: `calc(${(auroraSpeed / 3) * 100}% - 8px)` }}
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[12px] text-white/50">Blend</label>
+                  <span className="text-[12px] text-white/40 font-mono">{auroraBlend}</span>
+                </div>
+                <div className="relative flex items-center h-5 group w-full">
+                  <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div
+                      className="absolute h-full bg-[#5b6cf5]"
+                      style={{ width: `${auroraBlend * 100}%` }}
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.05"
+                    value={auroraBlend}
+                    onChange={(e) => setAuroraBlend(Number(e.target.value))}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+                  />
+                  <div
+                    className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+                    style={{ left: `calc(${auroraBlend * 100}% - 8px)` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
