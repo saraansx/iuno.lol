@@ -4,7 +4,7 @@ export const ANIMATED_BACKGROUNDS = [
   { id: "aurora", name: "Aurora" },
   { id: "darkveil", name: "Dark Veil" },
   { id: "pixelblast", name: "Pixel Blast" },
-  { id: "mist", name: "Mist Flow" },
+  { id: "colorbends", name: "Color Bends" },
   { id: "waves", name: "Wave Motion" },
   { id: "pulsegrid", name: "Pulse Grid" },
 ] as const;
@@ -17,9 +17,10 @@ const VALID_IDS = new Set<string>(ANIMATED_BACKGROUNDS.map((b) => b.id));
 export function animatedBackgroundId(url: string | null | undefined): AnimatedBackgroundId | null {
   if (!url || !url.startsWith(ANIMATED_BACKGROUND_PREFIX)) return null;
   const id = url.slice(ANIMATED_BACKGROUND_PREFIX.length).trim().toLowerCase();
-  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast.
+  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast, Mist Flow -> Color Bends.
   if (id === "ember") return "darkveil";
   if (id === "beams") return "pixelblast";
+  if (id === "mist") return "colorbends";
   return VALID_IDS.has(id) ? (id as AnimatedBackgroundId) : null;
 }
 
@@ -63,4 +64,21 @@ export const PIXELBLAST_DEFAULTS = {
   edgeFade: 0.25,
   ripples: true,
   liquid: false,
+} as const;
+
+/** Default Color Bends (animated preset) settings. */
+export const COLORBENDS_DEFAULTS = {
+  color: "#a855f7",
+  rotation: 90,
+  autoRotate: 0,
+  speed: 0.2,
+  scale: 1,
+  frequency: 1,
+  warpStrength: 1,
+  mouseInfluence: 1,
+  parallax: 0.5,
+  noise: 0.15,
+  iterations: 1,
+  intensity: 1.5,
+  bandWidth: 6,
 } as const;

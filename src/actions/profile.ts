@@ -74,6 +74,19 @@ export async function updateGeneralProfile(data: {
   pixelblastEdgeFade?: number | null;
   pixelblastRipples?: boolean | null;
   pixelblastLiquid?: boolean | null;
+  colorbendsColor?: string | null;
+  colorbendsRotation?: number | null;
+  colorbendsAutoRotate?: number | null;
+  colorbendsSpeed?: number | null;
+  colorbendsScale?: number | null;
+  colorbendsFrequency?: number | null;
+  colorbendsWarp?: number | null;
+  colorbendsMouse?: number | null;
+  colorbendsParallax?: number | null;
+  colorbendsNoise?: number | null;
+  colorbendsIterations?: number | null;
+  colorbendsIntensity?: number | null;
+  colorbendsBandWidth?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -154,6 +167,19 @@ export async function updateGeneralProfile(data: {
   if (data.pixelblastEdgeFade !== undefined) setData.pixelblastEdgeFade = data.pixelblastEdgeFade;
   if (data.pixelblastRipples !== undefined) setData.pixelblastRipples = !!data.pixelblastRipples;
   if (data.pixelblastLiquid !== undefined) setData.pixelblastLiquid = !!data.pixelblastLiquid;
+  if (data.colorbendsColor !== undefined) setData.colorbendsColor = data.colorbendsColor?.slice(0, 32) ?? null;
+  if (data.colorbendsRotation !== undefined) setData.colorbendsRotation = data.colorbendsRotation;
+  if (data.colorbendsAutoRotate !== undefined) setData.colorbendsAutoRotate = data.colorbendsAutoRotate;
+  if (data.colorbendsSpeed !== undefined) setData.colorbendsSpeed = data.colorbendsSpeed;
+  if (data.colorbendsScale !== undefined) setData.colorbendsScale = data.colorbendsScale;
+  if (data.colorbendsFrequency !== undefined) setData.colorbendsFrequency = data.colorbendsFrequency;
+  if (data.colorbendsWarp !== undefined) setData.colorbendsWarp = data.colorbendsWarp;
+  if (data.colorbendsMouse !== undefined) setData.colorbendsMouse = data.colorbendsMouse;
+  if (data.colorbendsParallax !== undefined) setData.colorbendsParallax = data.colorbendsParallax;
+  if (data.colorbendsNoise !== undefined) setData.colorbendsNoise = data.colorbendsNoise;
+  if (data.colorbendsIterations !== undefined) setData.colorbendsIterations = data.colorbendsIterations;
+  if (data.colorbendsIntensity !== undefined) setData.colorbendsIntensity = data.colorbendsIntensity;
+  if (data.colorbendsBandWidth !== undefined) setData.colorbendsBandWidth = data.colorbendsBandWidth;
 
   sanitizeProfileSettings(setData);
 

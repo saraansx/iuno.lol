@@ -4,6 +4,7 @@ import type { AnimatedBackgroundId } from "@/lib/animated-background";
 import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
 import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/DarkVeil";
 import { PixelBlastEffect, type PixelBlastSettings } from "./background-effects/PixelBlast";
+import { ColorBendsEffect, type ColorBendsSettings } from "./background-effects/ColorBends";
 
 export interface AuroraSettings {
   colors?: AuroraColors;
@@ -18,11 +19,10 @@ export interface AuroraSettings {
  *
  * The `aurora` preset reuses the WebGL background effect.
  */
-export default function AnimatedBackground({ id, aurora, darkveil, pixelblast }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
       <style>{`
-        @keyframes abg-mist-x { 0%,100% { transform: translateX(-10%); } 50% { transform: translateX(10%); } }
         @keyframes abg-wave-x { to { transform: translateX(-50%); } }
         @keyframes abg-pulse { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
       `}</style>
@@ -55,11 +55,22 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast }:
         />
       )}
 
-      {id === "mist" && (
-        <>
-          <div className="absolute inset-y-0 -left-[20%] w-[90%] opacity-50 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(91,108,245,0.55) 0%, transparent 70%)", animation: "abg-mist-x 16s ease-in-out infinite" }} />
-          <div className="absolute inset-y-0 -right-[20%] w-[90%] opacity-40 blur-3xl" style={{ background: "radial-gradient(ellipse, rgba(34,211,238,0.45) 0%, transparent 70%)", animation: "abg-mist-x 20s ease-in-out infinite reverse" }} />
-        </>
+      {id === "colorbends" && (
+        <ColorBendsEffect
+          color={colorbends?.color}
+          rotation={colorbends?.rotation}
+          autoRotate={colorbends?.autoRotate}
+          speed={colorbends?.speed}
+          scale={colorbends?.scale}
+          frequency={colorbends?.frequency}
+          warpStrength={colorbends?.warpStrength}
+          mouseInfluence={colorbends?.mouseInfluence}
+          parallax={colorbends?.parallax}
+          noise={colorbends?.noise}
+          iterations={colorbends?.iterations}
+          intensity={colorbends?.intensity}
+          bandWidth={colorbends?.bandWidth}
+        />
       )}
 
       {id === "waves" && (

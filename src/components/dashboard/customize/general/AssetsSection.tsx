@@ -64,6 +64,32 @@ interface AssetsSectionProps {
   setPixelblastRipples: (val: boolean) => void;
   pixelblastLiquid: boolean;
   setPixelblastLiquid: (val: boolean) => void;
+  colorbendsColor: string;
+  setColorbendsColor: (val: string) => void;
+  colorbendsRotation: number;
+  setColorbendsRotation: (val: number) => void;
+  colorbendsAutoRotate: number;
+  setColorbendsAutoRotate: (val: number) => void;
+  colorbendsSpeed: number;
+  setColorbendsSpeed: (val: number) => void;
+  colorbendsScale: number;
+  setColorbendsScale: (val: number) => void;
+  colorbendsFrequency: number;
+  setColorbendsFrequency: (val: number) => void;
+  colorbendsWarp: number;
+  setColorbendsWarp: (val: number) => void;
+  colorbendsMouse: number;
+  setColorbendsMouse: (val: number) => void;
+  colorbendsParallax: number;
+  setColorbendsParallax: (val: number) => void;
+  colorbendsNoise: number;
+  setColorbendsNoise: (val: number) => void;
+  colorbendsIterations: number;
+  setColorbendsIterations: (val: number) => void;
+  colorbendsIntensity: number;
+  setColorbendsIntensity: (val: number) => void;
+  colorbendsBandWidth: number;
+  setColorbendsBandWidth: (val: number) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
@@ -170,6 +196,32 @@ export default function AssetsSection({
   setPixelblastRipples,
   pixelblastLiquid,
   setPixelblastLiquid,
+  colorbendsColor,
+  setColorbendsColor,
+  colorbendsRotation,
+  setColorbendsRotation,
+  colorbendsAutoRotate,
+  setColorbendsAutoRotate,
+  colorbendsSpeed,
+  setColorbendsSpeed,
+  colorbendsScale,
+  setColorbendsScale,
+  colorbendsFrequency,
+  setColorbendsFrequency,
+  colorbendsWarp,
+  setColorbendsWarp,
+  colorbendsMouse,
+  setColorbendsMouse,
+  colorbendsParallax,
+  setColorbendsParallax,
+  colorbendsNoise,
+  setColorbendsNoise,
+  colorbendsIterations,
+  setColorbendsIterations,
+  colorbendsIntensity,
+  setColorbendsIntensity,
+  colorbendsBandWidth,
+  setColorbendsBandWidth,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -371,6 +423,7 @@ export default function AssetsSection({
                       aurora={animatedId === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend } : undefined}
                       darkveil={animatedId === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined}
                       pixelblast={animatedId === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined}
+                      colorbends={animatedId === "colorbends" ? { color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth } : undefined}
                     />
                   ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
@@ -618,6 +671,33 @@ export default function AssetsSection({
               <SettingSlider label="Scanline Frequency" value={darkveilScanFreq} min={0} max={100} step={1} onChange={setDarkveilScanFreq} />
               <SettingSlider label="Scanline Intensity" value={darkveilScan} min={0} max={1} step={0.05} onChange={setDarkveilScan} />
               <SettingSlider label="Warp Amount" value={darkveilWarp} min={0} max={10} step={0.1} onChange={setDarkveilWarp} />
+            </div>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "colorbends" && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">Color Bends settings</span>
+              <span className="text-[11px] text-white/30">Only for Color Bends</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Color</label>
+                <ColorPickerInput value={colorbendsColor} onChange={setColorbendsColor} />
+              </div>
+              <SettingSlider label="Rotation (deg)" value={colorbendsRotation} min={0} max={360} step={1} onChange={setColorbendsRotation} />
+              <SettingSlider label="Auto Rotate (deg/s)" value={colorbendsAutoRotate} min={0} max={360} step={1} onChange={setColorbendsAutoRotate} />
+              <SettingSlider label="Speed" value={colorbendsSpeed} min={0} max={2} step={0.05} onChange={setColorbendsSpeed} />
+              <SettingSlider label="Scale" value={colorbendsScale} min={0.1} max={5} step={0.1} onChange={setColorbendsScale} />
+              <SettingSlider label="Frequency" value={colorbendsFrequency} min={0} max={5} step={0.1} onChange={setColorbendsFrequency} />
+              <SettingSlider label="Warp Strength" value={colorbendsWarp} min={0} max={5} step={0.1} onChange={setColorbendsWarp} />
+              <SettingSlider label="Mouse Influence" value={colorbendsMouse} min={0} max={3} step={0.1} onChange={setColorbendsMouse} />
+              <SettingSlider label="Parallax" value={colorbendsParallax} min={0} max={2} step={0.05} onChange={setColorbendsParallax} />
+              <SettingSlider label="Noise" value={colorbendsNoise} min={0} max={1} step={0.01} onChange={setColorbendsNoise} />
+              <SettingSlider label="Iterations" value={colorbendsIterations} min={1} max={5} step={1} onChange={setColorbendsIterations} />
+              <SettingSlider label="Intensity" value={colorbendsIntensity} min={0} max={3} step={0.1} onChange={setColorbendsIntensity} />
+              <SettingSlider label="Band Width" value={colorbendsBandWidth} min={0} max={20} step={0.5} onChange={setColorbendsBandWidth} />
             </div>
           </div>
         )}

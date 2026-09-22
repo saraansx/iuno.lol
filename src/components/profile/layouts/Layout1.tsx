@@ -140,6 +140,19 @@ interface Layout1Props {
   pixelblastEdgeFade?: number | null;
   pixelblastRipples?: boolean | null;
   pixelblastLiquid?: boolean | null;
+  colorbendsColor?: string | null;
+  colorbendsRotation?: number | null;
+  colorbendsAutoRotate?: number | null;
+  colorbendsSpeed?: number | null;
+  colorbendsScale?: number | null;
+  colorbendsFrequency?: number | null;
+  colorbendsWarp?: number | null;
+  colorbendsMouse?: number | null;
+  colorbendsParallax?: number | null;
+  colorbendsNoise?: number | null;
+  colorbendsIterations?: number | null;
+  colorbendsIntensity?: number | null;
+  colorbendsBandWidth?: number | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -440,6 +453,19 @@ const Layout1 = ({
   pixelblastEdgeFade,
   pixelblastRipples,
   pixelblastLiquid,
+  colorbendsColor,
+  colorbendsRotation,
+  colorbendsAutoRotate,
+  colorbendsSpeed,
+  colorbendsScale,
+  colorbendsFrequency,
+  colorbendsWarp,
+  colorbendsMouse,
+  colorbendsParallax,
+  colorbendsNoise,
+  colorbendsIterations,
+  colorbendsIntensity,
+  colorbendsBandWidth,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1150,6 +1176,7 @@ const sectionSurface: React.CSSProperties = {
                 aurora={{ colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend }}
                 darkveil={{ speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp }}
                 pixelblast={{ variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid }}
+                colorbends={{ color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth }}
               />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (

@@ -233,6 +233,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       pixelblastEdgeFade: userSettings.pixelblastEdgeFade,
       pixelblastRipples: userSettings.pixelblastRipples,
       pixelblastLiquid: userSettings.pixelblastLiquid,
+      colorbendsColor: userSettings.colorbendsColor,
+      colorbendsRotation: userSettings.colorbendsRotation,
+      colorbendsAutoRotate: userSettings.colorbendsAutoRotate,
+      colorbendsSpeed: userSettings.colorbendsSpeed,
+      colorbendsScale: userSettings.colorbendsScale,
+      colorbendsFrequency: userSettings.colorbendsFrequency,
+      colorbendsWarp: userSettings.colorbendsWarp,
+      colorbendsMouse: userSettings.colorbendsMouse,
+      colorbendsParallax: userSettings.colorbendsParallax,
+      colorbendsNoise: userSettings.colorbendsNoise,
+      colorbendsIterations: userSettings.colorbendsIterations,
+      colorbendsIntensity: userSettings.colorbendsIntensity,
+      colorbendsBandWidth: userSettings.colorbendsBandWidth,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -376,6 +389,19 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         pixelblastEdgeFade={user.pixelblastEdgeFade ?? undefined}
         pixelblastRipples={user.pixelblastRipples ?? undefined}
         pixelblastLiquid={user.pixelblastLiquid ?? undefined}
+        colorbendsColor={user.colorbendsColor ?? undefined}
+        colorbendsRotation={user.colorbendsRotation ?? undefined}
+        colorbendsAutoRotate={user.colorbendsAutoRotate ?? undefined}
+        colorbendsSpeed={user.colorbendsSpeed ?? undefined}
+        colorbendsScale={user.colorbendsScale ?? undefined}
+        colorbendsFrequency={user.colorbendsFrequency ?? undefined}
+        colorbendsWarp={user.colorbendsWarp ?? undefined}
+        colorbendsMouse={user.colorbendsMouse ?? undefined}
+        colorbendsParallax={user.colorbendsParallax ?? undefined}
+        colorbendsNoise={user.colorbendsNoise ?? undefined}
+        colorbendsIterations={user.colorbendsIterations ?? undefined}
+        colorbendsIntensity={user.colorbendsIntensity ?? undefined}
+        colorbendsBandWidth={user.colorbendsBandWidth ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

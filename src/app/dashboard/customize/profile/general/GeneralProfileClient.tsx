@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -124,6 +124,45 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setPixelblastRipples = (val: boolean) => updateOverrides({ pixelblastRipples: val === initialPixelblastRipples ? undefined : val });
   const pixelblastLiquid = overrides.pixelblastLiquid !== undefined ? Boolean(overrides.pixelblastLiquid) : Boolean(initialPixelblastLiquid);
   const setPixelblastLiquid = (val: boolean) => updateOverrides({ pixelblastLiquid: val === initialPixelblastLiquid ? undefined : val });
+  const initialColorbendsColor = user?.colorbendsColor ?? COLORBENDS_DEFAULTS.color;
+  const initialColorbendsRotation = user?.colorbendsRotation ?? COLORBENDS_DEFAULTS.rotation;
+  const initialColorbendsAutoRotate = user?.colorbendsAutoRotate ?? COLORBENDS_DEFAULTS.autoRotate;
+  const initialColorbendsSpeed = user?.colorbendsSpeed ?? COLORBENDS_DEFAULTS.speed;
+  const initialColorbendsScale = user?.colorbendsScale ?? COLORBENDS_DEFAULTS.scale;
+  const initialColorbendsFrequency = user?.colorbendsFrequency ?? COLORBENDS_DEFAULTS.frequency;
+  const initialColorbendsWarp = user?.colorbendsWarp ?? COLORBENDS_DEFAULTS.warpStrength;
+  const initialColorbendsMouse = user?.colorbendsMouse ?? COLORBENDS_DEFAULTS.mouseInfluence;
+  const initialColorbendsParallax = user?.colorbendsParallax ?? COLORBENDS_DEFAULTS.parallax;
+  const initialColorbendsNoise = user?.colorbendsNoise ?? COLORBENDS_DEFAULTS.noise;
+  const initialColorbendsIterations = user?.colorbendsIterations ?? COLORBENDS_DEFAULTS.iterations;
+  const initialColorbendsIntensity = user?.colorbendsIntensity ?? COLORBENDS_DEFAULTS.intensity;
+  const initialColorbendsBandWidth = user?.colorbendsBandWidth ?? COLORBENDS_DEFAULTS.bandWidth;
+  const colorbendsColor = overrides.colorbendsColor ?? initialColorbendsColor;
+  const setColorbendsColor = (val: string) => updateOverrides({ colorbendsColor: val === initialColorbendsColor ? undefined : val });
+  const colorbendsRotation = overrides.colorbendsRotation ?? initialColorbendsRotation;
+  const setColorbendsRotation = (val: number) => updateOverrides({ colorbendsRotation: val === initialColorbendsRotation ? undefined : val });
+  const colorbendsAutoRotate = overrides.colorbendsAutoRotate ?? initialColorbendsAutoRotate;
+  const setColorbendsAutoRotate = (val: number) => updateOverrides({ colorbendsAutoRotate: val === initialColorbendsAutoRotate ? undefined : val });
+  const colorbendsSpeed = overrides.colorbendsSpeed ?? initialColorbendsSpeed;
+  const setColorbendsSpeed = (val: number) => updateOverrides({ colorbendsSpeed: val === initialColorbendsSpeed ? undefined : val });
+  const colorbendsScale = overrides.colorbendsScale ?? initialColorbendsScale;
+  const setColorbendsScale = (val: number) => updateOverrides({ colorbendsScale: val === initialColorbendsScale ? undefined : val });
+  const colorbendsFrequency = overrides.colorbendsFrequency ?? initialColorbendsFrequency;
+  const setColorbendsFrequency = (val: number) => updateOverrides({ colorbendsFrequency: val === initialColorbendsFrequency ? undefined : val });
+  const colorbendsWarp = overrides.colorbendsWarp ?? initialColorbendsWarp;
+  const setColorbendsWarp = (val: number) => updateOverrides({ colorbendsWarp: val === initialColorbendsWarp ? undefined : val });
+  const colorbendsMouse = overrides.colorbendsMouse ?? initialColorbendsMouse;
+  const setColorbendsMouse = (val: number) => updateOverrides({ colorbendsMouse: val === initialColorbendsMouse ? undefined : val });
+  const colorbendsParallax = overrides.colorbendsParallax ?? initialColorbendsParallax;
+  const setColorbendsParallax = (val: number) => updateOverrides({ colorbendsParallax: val === initialColorbendsParallax ? undefined : val });
+  const colorbendsNoise = overrides.colorbendsNoise ?? initialColorbendsNoise;
+  const setColorbendsNoise = (val: number) => updateOverrides({ colorbendsNoise: val === initialColorbendsNoise ? undefined : val });
+  const colorbendsIterations = overrides.colorbendsIterations ?? initialColorbendsIterations;
+  const setColorbendsIterations = (val: number) => updateOverrides({ colorbendsIterations: val === initialColorbendsIterations ? undefined : val });
+  const colorbendsIntensity = overrides.colorbendsIntensity ?? initialColorbendsIntensity;
+  const setColorbendsIntensity = (val: number) => updateOverrides({ colorbendsIntensity: val === initialColorbendsIntensity ? undefined : val });
+  const colorbendsBandWidth = overrides.colorbendsBandWidth ?? initialColorbendsBandWidth;
+  const setColorbendsBandWidth = (val: number) => updateOverrides({ colorbendsBandWidth: val === initialColorbendsBandWidth ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -232,6 +271,32 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setPixelblastRipples={setPixelblastRipples}
           pixelblastLiquid={pixelblastLiquid}
           setPixelblastLiquid={setPixelblastLiquid}
+          colorbendsColor={colorbendsColor}
+          setColorbendsColor={setColorbendsColor}
+          colorbendsRotation={colorbendsRotation}
+          setColorbendsRotation={setColorbendsRotation}
+          colorbendsAutoRotate={colorbendsAutoRotate}
+          setColorbendsAutoRotate={setColorbendsAutoRotate}
+          colorbendsSpeed={colorbendsSpeed}
+          setColorbendsSpeed={setColorbendsSpeed}
+          colorbendsScale={colorbendsScale}
+          setColorbendsScale={setColorbendsScale}
+          colorbendsFrequency={colorbendsFrequency}
+          setColorbendsFrequency={setColorbendsFrequency}
+          colorbendsWarp={colorbendsWarp}
+          setColorbendsWarp={setColorbendsWarp}
+          colorbendsMouse={colorbendsMouse}
+          setColorbendsMouse={setColorbendsMouse}
+          colorbendsParallax={colorbendsParallax}
+          setColorbendsParallax={setColorbendsParallax}
+          colorbendsNoise={colorbendsNoise}
+          setColorbendsNoise={setColorbendsNoise}
+          colorbendsIterations={colorbendsIterations}
+          setColorbendsIterations={setColorbendsIterations}
+          colorbendsIntensity={colorbendsIntensity}
+          setColorbendsIntensity={setColorbendsIntensity}
+          colorbendsBandWidth={colorbendsBandWidth}
+          setColorbendsBandWidth={setColorbendsBandWidth}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -339,6 +404,19 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           pixelblastEdgeFade,
           pixelblastRipples,
           pixelblastLiquid,
+          colorbendsColor,
+          colorbendsRotation,
+          colorbendsAutoRotate,
+          colorbendsSpeed,
+          colorbendsScale,
+          colorbendsFrequency,
+          colorbendsWarp,
+          colorbendsMouse,
+          colorbendsParallax,
+          colorbendsNoise,
+          colorbendsIterations,
+          colorbendsIntensity,
+          colorbendsBandWidth,
         }}
       />
 
