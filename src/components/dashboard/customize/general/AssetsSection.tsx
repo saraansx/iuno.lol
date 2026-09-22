@@ -32,12 +32,64 @@ interface AssetsSectionProps {
   setAuroraSpeed: (val: number) => void;
   auroraBlend: number;
   setAuroraBlend: (val: number) => void;
+  darkveilSpeed: number;
+  setDarkveilSpeed: (val: number) => void;
+  darkveilHueShift: number;
+  setDarkveilHueShift: (val: number) => void;
+  darkveilNoise: number;
+  setDarkveilNoise: (val: number) => void;
+  darkveilScanFreq: number;
+  setDarkveilScanFreq: (val: number) => void;
+  darkveilScan: number;
+  setDarkveilScan: (val: number) => void;
+  darkveilWarp: number;
+  setDarkveilWarp: (val: number) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
   setBannerImageModalOpen: (open: boolean) => void;
   setBannerBackgroundModalOpen: (open: boolean) => void;
   isVideoUrl: (url: string) => boolean;
+}
+
+function SettingSlider({ label, value, min, max, step, onChange }: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (val: number) => void;
+}) {
+  const pct = max === min ? 0 : ((value - min) / (max - min)) * 100;
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-between">
+        <label className="text-[12px] text-white/50">{label}</label>
+        <span className="text-[12px] text-white/40 font-mono">{value}</span>
+      </div>
+      <div className="relative flex items-center h-5 group w-full">
+        <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+          <div
+            className="absolute h-full bg-[#5b6cf5]"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+        />
+        <div
+          className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform shadow-lg"
+          style={{ left: `calc(${pct}% - 8px)` }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function AssetsSection({
@@ -66,6 +118,18 @@ export default function AssetsSection({
   setAuroraSpeed,
   auroraBlend,
   setAuroraBlend,
+  darkveilSpeed,
+  setDarkveilSpeed,
+  darkveilHueShift,
+  setDarkveilHueShift,
+  darkveilNoise,
+  setDarkveilNoise,
+  darkveilScanFreq,
+  setDarkveilScanFreq,
+  darkveilScan,
+  setDarkveilScan,
+  darkveilWarp,
+  setDarkveilWarp,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -265,6 +329,7 @@ export default function AssetsSection({
                     <AnimatedBackground
                       id={animatedId}
                       aurora={animatedId === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend } : undefined}
+                      darkveil={animatedId === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined}
                     />
                   ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
@@ -493,6 +558,23 @@ export default function AssetsSection({
                   />
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "darkveil" && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">Dark Veil settings</span>
+              <span className="text-[11px] text-white/30">Only for Dark Veil</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+              <SettingSlider label="Speed" value={darkveilSpeed} min={0} max={2} step={0.1} onChange={setDarkveilSpeed} />
+              <SettingSlider label="Hue Shift" value={darkveilHueShift} min={0} max={360} step={1} onChange={setDarkveilHueShift} />
+              <SettingSlider label="Noise Intensity" value={darkveilNoise} min={0} max={1} step={0.05} onChange={setDarkveilNoise} />
+              <SettingSlider label="Scanline Frequency" value={darkveilScanFreq} min={0} max={100} step={1} onChange={setDarkveilScanFreq} />
+              <SettingSlider label="Scanline Intensity" value={darkveilScan} min={0} max={1} step={0.05} onChange={setDarkveilScan} />
+              <SettingSlider label="Warp Amount" value={darkveilWarp} min={0} max={10} step={0.1} onChange={setDarkveilWarp} />
             </div>
           </div>
         )}

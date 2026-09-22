@@ -217,6 +217,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       auroraColor3: userSettings.auroraColor3,
       auroraSpeed: userSettings.auroraSpeed,
       auroraBlend: userSettings.auroraBlend,
+      darkveilSpeed: userSettings.darkveilSpeed,
+      darkveilHueShift: userSettings.darkveilHueShift,
+      darkveilNoise: userSettings.darkveilNoise,
+      darkveilScanFreq: userSettings.darkveilScanFreq,
+      darkveilScan: userSettings.darkveilScan,
+      darkveilWarp: userSettings.darkveilWarp,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -344,6 +350,12 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         auroraColor3={user.auroraColor3 ?? undefined}
         auroraSpeed={user.auroraSpeed ?? undefined}
         auroraBlend={user.auroraBlend ?? undefined}
+        darkveilSpeed={user.darkveilSpeed ?? undefined}
+        darkveilHueShift={user.darkveilHueShift ?? undefined}
+        darkveilNoise={user.darkveilNoise ?? undefined}
+        darkveilScanFreq={user.darkveilScanFreq ?? undefined}
+        darkveilScan={user.darkveilScan ?? undefined}
+        darkveilWarp={user.darkveilWarp ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

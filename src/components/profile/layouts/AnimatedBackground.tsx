@@ -2,6 +2,7 @@
 
 import type { AnimatedBackgroundId } from "@/lib/animated-background";
 import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
+import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/DarkVeil";
 
 export interface AuroraSettings {
   colors?: AuroraColors;
@@ -16,13 +17,12 @@ export interface AuroraSettings {
  *
  * The `aurora` preset reuses the WebGL background effect.
  */
-export default function AnimatedBackground({ id, aurora }: { id: AnimatedBackgroundId; aurora?: AuroraSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
       <style>{`
         @keyframes abg-drift-a { 0%,100% { transform: translate(-12%, -6%) scale(1); } 50% { transform: translate(14%, 10%) scale(1.25); } }
         @keyframes abg-drift-b { 0%,100% { transform: translate(10%, 12%) scale(1.15); } 50% { transform: translate(-14%, -8%) scale(0.9); } }
-        @keyframes abg-rise { 0% { transform: translateY(30%) scale(1); opacity: 0; } 15% { opacity: 0.9; } 85% { opacity: 0.5; } 100% { transform: translateY(-120%) scale(0.6); opacity: 0; } }
         @keyframes abg-spin { to { transform: rotate(360deg); } }
         @keyframes abg-mist-x { 0%,100% { transform: translateX(-10%); } 50% { transform: translateX(10%); } }
         @keyframes abg-wave-x { to { transform: translateX(-50%); } }
@@ -31,32 +31,15 @@ export default function AnimatedBackground({ id, aurora }: { id: AnimatedBackgro
 
       {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} />}
 
-      {id === "ember" && (
-        <>
-          {Array.from({ length: 18 }, (_, i) => {
-            const left = (i * 53) % 100;
-            const size = 2 + ((i * 7) % 4);
-            const duration = 5 + ((i * 13) % 7);
-            const delay = -((i * 17) % 9);
-            return (
-              <span
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  left: `${left}%`,
-                  bottom: "-4%",
-                  width: `${size}px`,
-                  height: `${size}px`,
-                  background: i % 3 === 0 ? "#ffb86b" : "#ff5f56",
-                  boxShadow: `0 0 ${size * 3}px ${i % 3 === 0 ? "#ffb86b" : "#ff5f56"}`,
-                  animation: `abg-rise ${duration}s linear infinite`,
-                  animationDelay: `${delay}s`,
-                }}
-              />
-            );
-          })}
-          <div className="absolute inset-x-0 bottom-0 h-1/3 opacity-40" style={{ background: "linear-gradient(to top, rgba(255,95,86,0.25), transparent)" }} />
-        </>
+      {id === "darkveil" && (
+        <DarkVeilEffect
+          speed={darkveil?.speed}
+          hueShift={darkveil?.hueShift}
+          noiseIntensity={darkveil?.noiseIntensity}
+          scanlineFrequency={darkveil?.scanlineFrequency}
+          scanlineIntensity={darkveil?.scanlineIntensity}
+          warpAmount={darkveil?.warpAmount}
+        />
       )}
 
       {id === "beams" && (

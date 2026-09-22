@@ -58,6 +58,12 @@ export async function updateGeneralProfile(data: {
   auroraColor3?: string | null;
   auroraSpeed?: number | null;
   auroraBlend?: number | null;
+  darkveilSpeed?: number | null;
+  darkveilHueShift?: number | null;
+  darkveilNoise?: number | null;
+  darkveilScanFreq?: number | null;
+  darkveilScan?: number | null;
+  darkveilWarp?: number | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -119,6 +125,12 @@ export async function updateGeneralProfile(data: {
   if (data.auroraColor3 !== undefined) setData.auroraColor3 = data.auroraColor3?.slice(0, 32) ?? null;
   if (data.auroraSpeed !== undefined) setData.auroraSpeed = data.auroraSpeed;
   if (data.auroraBlend !== undefined) setData.auroraBlend = data.auroraBlend;
+  if (data.darkveilSpeed !== undefined) setData.darkveilSpeed = data.darkveilSpeed;
+  if (data.darkveilHueShift !== undefined) setData.darkveilHueShift = data.darkveilHueShift;
+  if (data.darkveilNoise !== undefined) setData.darkveilNoise = data.darkveilNoise;
+  if (data.darkveilScanFreq !== undefined) setData.darkveilScanFreq = data.darkveilScanFreq;
+  if (data.darkveilScan !== undefined) setData.darkveilScan = data.darkveilScan;
+  if (data.darkveilWarp !== undefined) setData.darkveilWarp = data.darkveilWarp;
 
   sanitizeProfileSettings(setData);
 

@@ -124,6 +124,12 @@ interface Layout1Props {
   auroraColor3?: string | null;
   auroraSpeed?: number | null;
   auroraBlend?: number | null;
+  darkveilSpeed?: number | null;
+  darkveilHueShift?: number | null;
+  darkveilNoise?: number | null;
+  darkveilScanFreq?: number | null;
+  darkveilScan?: number | null;
+  darkveilWarp?: number | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -408,6 +414,12 @@ const Layout1 = ({
   auroraColor3,
   auroraSpeed,
   auroraBlend,
+  darkveilSpeed,
+  darkveilHueShift,
+  darkveilNoise,
+  darkveilScanFreq,
+  darkveilScan,
+  darkveilWarp,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1116,6 +1128,7 @@ const sectionSurface: React.CSSProperties = {
               <AnimatedBackground
                 id={animatedBackgroundId(bannerBackgroundUrl)!}
                 aurora={{ colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend }}
+                darkveil={{ speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp }}
               />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (

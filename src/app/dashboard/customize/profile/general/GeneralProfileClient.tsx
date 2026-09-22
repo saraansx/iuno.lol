@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -76,6 +76,24 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setAuroraSpeed = (val: number) => updateOverrides({ auroraSpeed: val === initialAuroraSpeed ? undefined : val });
   const auroraBlend = overrides.auroraBlend ?? initialAuroraBlend;
   const setAuroraBlend = (val: number) => updateOverrides({ auroraBlend: val === initialAuroraBlend ? undefined : val });
+  const initialDarkveilSpeed = user?.darkveilSpeed ?? DARKVEIL_DEFAULTS.speed;
+  const initialDarkveilHueShift = user?.darkveilHueShift ?? DARKVEIL_DEFAULTS.hueShift;
+  const initialDarkveilNoise = user?.darkveilNoise ?? DARKVEIL_DEFAULTS.noiseIntensity;
+  const initialDarkveilScanFreq = user?.darkveilScanFreq ?? DARKVEIL_DEFAULTS.scanlineFrequency;
+  const initialDarkveilScan = user?.darkveilScan ?? DARKVEIL_DEFAULTS.scanlineIntensity;
+  const initialDarkveilWarp = user?.darkveilWarp ?? DARKVEIL_DEFAULTS.warpAmount;
+  const darkveilSpeed = overrides.darkveilSpeed ?? initialDarkveilSpeed;
+  const setDarkveilSpeed = (val: number) => updateOverrides({ darkveilSpeed: val === initialDarkveilSpeed ? undefined : val });
+  const darkveilHueShift = overrides.darkveilHueShift ?? initialDarkveilHueShift;
+  const setDarkveilHueShift = (val: number) => updateOverrides({ darkveilHueShift: val === initialDarkveilHueShift ? undefined : val });
+  const darkveilNoise = overrides.darkveilNoise ?? initialDarkveilNoise;
+  const setDarkveilNoise = (val: number) => updateOverrides({ darkveilNoise: val === initialDarkveilNoise ? undefined : val });
+  const darkveilScanFreq = overrides.darkveilScanFreq ?? initialDarkveilScanFreq;
+  const setDarkveilScanFreq = (val: number) => updateOverrides({ darkveilScanFreq: val === initialDarkveilScanFreq ? undefined : val });
+  const darkveilScan = overrides.darkveilScan ?? initialDarkveilScan;
+  const setDarkveilScan = (val: number) => updateOverrides({ darkveilScan: val === initialDarkveilScan ? undefined : val });
+  const darkveilWarp = overrides.darkveilWarp ?? initialDarkveilWarp;
+  const setDarkveilWarp = (val: number) => updateOverrides({ darkveilWarp: val === initialDarkveilWarp ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -152,6 +170,18 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setAuroraSpeed={setAuroraSpeed}
           auroraBlend={auroraBlend}
           setAuroraBlend={setAuroraBlend}
+          darkveilSpeed={darkveilSpeed}
+          setDarkveilSpeed={setDarkveilSpeed}
+          darkveilHueShift={darkveilHueShift}
+          setDarkveilHueShift={setDarkveilHueShift}
+          darkveilNoise={darkveilNoise}
+          setDarkveilNoise={setDarkveilNoise}
+          darkveilScanFreq={darkveilScanFreq}
+          setDarkveilScanFreq={setDarkveilScanFreq}
+          darkveilScan={darkveilScan}
+          setDarkveilScan={setDarkveilScan}
+          darkveilWarp={darkveilWarp}
+          setDarkveilWarp={setDarkveilWarp}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -243,6 +273,12 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           auroraColor3,
           auroraSpeed,
           auroraBlend,
+          darkveilSpeed,
+          darkveilHueShift,
+          darkveilNoise,
+          darkveilScanFreq,
+          darkveilScan,
+          darkveilWarp,
         }}
       />
 
