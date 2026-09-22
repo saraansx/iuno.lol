@@ -392,6 +392,7 @@ export default function AssetsSection({
                       alt="Background preview"
                       fill
                       unoptimized
+                      loading="eager"
                       className="object-cover scale-105"
                       style={{ filter: "blur(4px)" }}
                     />
@@ -471,6 +472,7 @@ export default function AssetsSection({
                       alt="Banner preview"
                       fill
                       unoptimized
+                      loading="eager"
                       className="object-cover scale-105"
                       style={{ filter: "blur(4px)" }}
                     />

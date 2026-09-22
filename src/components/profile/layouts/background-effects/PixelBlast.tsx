@@ -386,7 +386,6 @@ export function PixelBlastEffect({
     scene: THREE.Scene;
     camera: THREE.OrthographicCamera;
     material: THREE.ShaderMaterial;
-    clock: THREE.Clock;
     clickIx: number;
     uniforms: {
       uResolution: { value: THREE.Vector2 };
@@ -479,7 +478,7 @@ export function PixelBlastEffect({
     const quadGeom = new THREE.PlaneGeometry(2, 2);
     const quad = new THREE.Mesh(quadGeom, material);
     scene.add(quad);
-    const clock = new THREE.Clock();
+    const startStamp = performance.now();
     const setSize = () => {
       const w = container.clientWidth || 1;
       const h = container.clientHeight || 1;
@@ -544,7 +543,7 @@ export function PixelBlastEffect({
         return;
       }
       const c = settingsRef.current;
-      uniforms.uTime.value = timeOffset + clock.getElapsedTime() * c.speed;
+      uniforms.uTime.value = timeOffset + ((performance.now() - startStamp) / 1000) * c.speed;
       uniforms.uShapeType.value = SHAPE_MAP[c.variant.toLowerCase()] ?? 0;
       uniforms.uColor.value.set(c.color);
       uniforms.uScale.value = c.patternScale;
@@ -560,7 +559,7 @@ export function PixelBlastEffect({
       raf = requestAnimationFrame(animate);
     };
     raf = requestAnimationFrame(animate);
-    threeRef.current = { renderer, scene, camera, material, clock, clickIx: 0, uniforms, resizeObserver: ro, raf, quad, timeOffset, composer, touch, liquidEffect };
+    threeRef.current = { renderer, scene, camera, material, clickIx: 0, uniforms, resizeObserver: ro, raf, quad, timeOffset, composer, touch, liquidEffect };
 
     return () => {
       io.disconnect();
