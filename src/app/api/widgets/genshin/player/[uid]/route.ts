@@ -6,7 +6,7 @@ import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const ENKA_STORE_BASE =
   "https://raw.githubusercontent.com/EnkaNetwork/API-docs/master/store";
-const MAP_TTL_MS = 1000 * 60 * 60 * 12;
+const MAP_REVALIDATE_SECONDS = 12 * 60 * 60;
 
 interface CharacterEntry {
   SideIconName?: string;
@@ -31,10 +31,6 @@ interface ProfilePicture {
   costumeId?: number;
 }
 
-let cachedMaps: EnkaMaps | null = null;
-let cachedAt = 0;
-let inflight: Promise<EnkaMaps | null> | null = null;
-
 async function fetchStoreJson<T>(name: string): Promise<T | null> {
   try {
     const res = await fetch(`${ENKA_STORE_BASE}/${name}.json`, {
@@ -43,7 +39,7 @@ async function fetchStoreJson<T>(name: string): Promise<T | null> {
         "User-Agent": "iuno-profile-widget/1.0",
         Accept: "application/json",
       },
-      cache: "no-store",
+      next: { revalidate: MAP_REVALIDATE_SECONDS },
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -53,24 +49,13 @@ async function fetchStoreJson<T>(name: string): Promise<T | null> {
 }
 
 async function loadEnkaMaps(): Promise<EnkaMaps | null> {
-  if (cachedMaps && Date.now() - cachedAt < MAP_TTL_MS) return cachedMaps;
-  if (inflight) return inflight;
-
-  inflight = (async () => {
-    const [characters, namecards, pfps] = await Promise.all([
-      fetchStoreJson<Record<string, CharacterEntry>>("characters"),
-      fetchStoreJson<Record<string, NamecardEntry>>("namecards"),
-      fetchStoreJson<Record<string, PfpEntry>>("pfps"),
-    ]);
-    if (characters && namecards && pfps) {
-      cachedMaps = { characters, namecards, pfps };
-      cachedAt = Date.now();
-    }
-    inflight = null;
-    return cachedMaps;
-  })();
-
-  return inflight;
+  const [characters, namecards, pfps] = await Promise.all([
+    fetchStoreJson<Record<string, CharacterEntry>>("characters"),
+    fetchStoreJson<Record<string, NamecardEntry>>("namecards"),
+    fetchStoreJson<Record<string, PfpEntry>>("pfps"),
+  ]);
+  if (!characters || !namecards || !pfps) return null;
+  return { characters, namecards, pfps };
 }
 
 function resolveAvatarAsset(

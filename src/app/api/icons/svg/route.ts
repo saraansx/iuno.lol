@@ -7,28 +7,6 @@ import { ICONIFY_API, brandColorFor, normalizeColorParam } from "@/lib/links";
 const ICON_NAME_RE = /^[a-z0-9]+[a-z0-9-]*:[a-z0-9][a-z0-9-:]*$/i;
 const MAX_SVG_BYTES = 100_000;
 
-const svgCache = new Map<string, { svg: string; at: number }>();
-const SVG_CACHE_TTL = 24 * 60 * 60 * 1000;
-const SVG_CACHE_MAX = 1000;
-
-function cacheGet(name: string): string | null {
-  const hit = svgCache.get(name);
-  if (!hit) return null;
-  if (Date.now() - hit.at > SVG_CACHE_TTL) {
-    svgCache.delete(name);
-    return null;
-  }
-  return hit.svg;
-}
-
-function cacheSet(name: string, svg: string) {
-  if (svgCache.size >= SVG_CACHE_MAX) {
-    const oldest = svgCache.keys().next();
-    if (!oldest.done) svgCache.delete(oldest.value);
-  }
-  svgCache.set(name, { svg, at: Date.now() });
-}
-
 export async function GET(req: Request) {
   const h = await headers();
   const ip = getClientIp(h);
@@ -45,17 +23,12 @@ export async function GET(req: Request) {
   }
 
   const tint = normalizeColorParam(searchParams.get("color"));
-  const cacheKey = tint ? `${name}|${tint}` : name;
-
-  const cached = cacheGet(cacheKey);
-  if (cached) {
-    return svgResponse(cached);
-  }
-
   const [prefix, ...rest] = name.split(":");
   let upstream: Response;
   try {
-    upstream = await fetch(`${ICONIFY_API}/${prefix}/${rest.join(":")}.svg`);
+    upstream = await fetch(`${ICONIFY_API}/${prefix}/${rest.join(":")}.svg`, {
+      next: { revalidate: 86400 },
+    });
   } catch (e) {
     console.error("[icons/svg] upstream fetch failed:", name, e);
     return new NextResponse("Not found", { status: 502 });
@@ -76,7 +49,6 @@ export async function GET(req: Request) {
 
   const svg = raw.replace(/currentColor/g, tint ? `#${tint}` : brandColorFor(name));
 
-  cacheSet(cacheKey, svg);
   return svgResponse(svg);
 }
 

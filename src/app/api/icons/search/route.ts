@@ -42,6 +42,6 @@ export async function GET(req: Request) {
 
   return NextResponse.json(
     { icons },
-    { headers: { "Cache-Control": "public, max-age=3600" } }
+    { headers: { "Cache-Control": "public, max-age=3600, s-maxage=3600" } }
   );
 }
