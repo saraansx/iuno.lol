@@ -4,16 +4,27 @@ import React from "react";
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/config';
 
 interface NavbarProps {
   isAuthenticated?: boolean;
 }
 
+const tabForPath = (pathname: string) => {
+  if (pathname === '/pricing') return 'Pricing';
+  if (pathname === '/dashboard/leaderboard') return 'Leaderboard';
+  return 'Features';
+};
+
 const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
-  const [activeTab, setActiveTab] = React.useState('Features');
+  const pathname = usePathname();
+  const [activeTab, setActiveTab] = React.useState(() => tabForPath(pathname));
   const router = useRouter();
+
+  React.useEffect(() => {
+    setActiveTab(tabForPath(pathname));
+  }, [pathname]);
   
   const tabs = ['Features', 'Leaderboard', 'Pricing', 'FAQ', 'Discord'];
 
@@ -43,6 +54,9 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                 onClick={() => {
                   if (tab === 'Discord') {
                     window.open(SITE_CONFIG.links.discord, '_blank');
+                  } else if (tab === 'Pricing') {
+                    setActiveTab(tab);
+                    router.push('/pricing');
                   } else {
                     setActiveTab(tab);
                   }

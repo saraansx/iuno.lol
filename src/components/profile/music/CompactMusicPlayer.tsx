@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { type MusicTrack } from "@/lib/music";
 import { isCatboxUrl } from "@/lib/catbox";
 import { useVolume, VolumeButton } from "./volume";
@@ -15,6 +15,11 @@ function formatTime(sec: number): string {
 
 export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
+
+  useLayoutEffect(() => {
+    if (shuffle && tracks.length > 1) setIndex(Math.floor(Math.random() * tracks.length));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [playing, setPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
