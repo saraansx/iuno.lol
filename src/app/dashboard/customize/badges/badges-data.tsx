@@ -187,7 +187,7 @@ export const BADGES = [
   {
     id: "discord-recruiter",
     name: "Discord Recruiter",
-    description: "Invite 5 members to the Discord.",
+    description: "Invite 10 members to the Discord.",
     accent: "#5865F2",
     filled: true,
     icon: (

@@ -4,7 +4,7 @@ import { BADGE_ROLE_MAP } from "@/lib/badge-roles";
 import { DiscordError, fetchInvite, grantGuildRole } from "@/lib/discord";
 
 export const RECRUITER_BADGE_ID = "discord-recruiter";
-export const RECRUITER_REQUIRED = 5;
+export const RECRUITER_REQUIRED = 10;
 
 const RECRUITER_ROLE_ID = BADGE_ROLE_MAP[RECRUITER_BADGE_ID];
 
