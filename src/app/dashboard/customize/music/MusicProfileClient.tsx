@@ -85,6 +85,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
 
   const removeTrack = (id: string) => {
     setTracks((prev) => prev.filter((t) => t.id !== id));
+    setShuffle((prevShuffle) => (tracks.length - 1 < 2 ? false : prevShuffle));
   };
 
   const count = tracks.length;
@@ -250,7 +251,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           )}
         </div>
 
-        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} shuffle={shuffle} setShuffle={setShuffle} />
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} shuffle={shuffle} setShuffle={setShuffle} trackCount={count} />
         </>
         )}
       </div>
