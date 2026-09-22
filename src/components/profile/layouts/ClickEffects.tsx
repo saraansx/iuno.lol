@@ -6,6 +6,7 @@ import { clickSoundUrl, isClickEffect } from "@/lib/click-effects";
 interface ClickEffectsProps {
   effect?: string | null;
   sound?: string | null;
+  scopeRef?: React.RefObject<HTMLElement | null>;
 }
 
 interface Particle {
@@ -202,15 +203,17 @@ function spawn(effect: string, x: number, y: number): Particle[] {
   return out;
 }
 
-export default function ClickEffects({ effect, sound }: ClickEffectsProps) {
+export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const particlesRef = useRef<Particle[]>([]);
   const rafRef = useRef<number | null>(null);
   const effectRef = useRef(effect);
   const soundRef = useRef(sound);
+  const scopeRefRef = useRef(scopeRef);
   useEffect(() => {
     effectRef.current = effect;
     soundRef.current = sound;
+    scopeRefRef.current = scopeRef;
   });
 
   useEffect(() => {
@@ -358,6 +361,8 @@ export default function ClickEffects({ effect, sound }: ClickEffectsProps) {
     };
 
     const onPointerDown = (e: PointerEvent) => {
+      const scope = scopeRefRef.current?.current;
+      if (scope && !(e.target instanceof Node && scope.contains(e.target))) return;
       const fx = effectRef.current;
       const url = clickSoundUrl(soundRef.current);
       if (url) {

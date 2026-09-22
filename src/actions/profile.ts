@@ -217,6 +217,7 @@ export async function updateAppearanceProfile(data: {
   viewsEnabled?: boolean;
   viewsAnimationEnabled?: boolean;
   viewsAnimationDuration?: number;
+  viewsAnimationStyle?: "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
   commentsEnabled?: boolean;
   showCommentsPublicly?: boolean;
   allowNewComments?: boolean;
@@ -315,6 +316,7 @@ export async function updateAppearanceProfile(data: {
   if (data.viewsEnabled !== undefined) setData.viewsEnabled = data.viewsEnabled;
   if (data.viewsAnimationEnabled !== undefined) setData.viewsAnimationEnabled = data.viewsAnimationEnabled;
   if (data.viewsAnimationDuration !== undefined) setData.viewsAnimationDuration = data.viewsAnimationDuration;
+  if (data.viewsAnimationStyle !== undefined) setData.viewsAnimationStyle = data.viewsAnimationStyle;
   if (data.commentsEnabled !== undefined) setData.commentsEnabled = data.commentsEnabled;
   if (data.showCommentsPublicly !== undefined) setData.showCommentsPublicly = data.showCommentsPublicly;
   if (data.allowNewComments !== undefined) setData.allowNewComments = data.allowNewComments;

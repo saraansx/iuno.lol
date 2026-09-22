@@ -62,10 +62,10 @@ export default function CommentsSection({
         </p>
       </div>
 
-      <div className={`flex flex-col gap-4 mt-2 transition-opacity duration-200 ${isCommentsEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+      <div className={`flex flex-col gap-4 transition-opacity duration-200 ${isCommentsEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
         <div className="w-full h-px bg-white/5" />
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1 pr-3">
             <label className="text-[13px] font-medium text-white/90">
               Show comments publicly
             </label>
@@ -82,7 +82,7 @@ export default function CommentsSection({
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 pr-3">
             <label className="text-[13px] font-medium text-white/90">
               Allow new comments
             </label>

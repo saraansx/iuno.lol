@@ -183,6 +183,7 @@ export const userSettings = mysqlTable('user_settings', {
   viewsEnabled: boolean('views_enabled').default(true),
   viewsAnimationEnabled: boolean('views_animation_enabled').default(false),
   viewsAnimationDuration: int('views_animation_duration').default(1000),
+  viewsAnimationStyle: mysqlEnum('views_animation_style', ['none', 'countup', 'digitalroll', 'slotroll', 'speeding']).default('countup'),
   embedTitle: text('embed_title'),
   embedDescription: text('embed_description'),
   embedColor: text('embed_color'),

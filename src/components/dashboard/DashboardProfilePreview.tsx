@@ -179,6 +179,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       viewsEnabled={deferredOverrides.viewsEnabled ?? user?.viewsEnabled ?? true}
       viewsAnimationEnabled={deferredOverrides.viewsAnimationEnabled ?? user?.viewsAnimationEnabled ?? true}
       viewsAnimationDuration={deferredOverrides.viewsAnimationDuration ?? user?.viewsAnimationDuration ?? 1000}
+      viewsAnimationStyle={deferredOverrides.viewsAnimationStyle ?? user?.viewsAnimationStyle ?? "countup"}
       commentsEnabled={deferredOverrides.commentsEnabled ?? user?.commentsEnabled ?? true}
       feedbackEnabled={deferredOverrides.feedbackEnabled ?? user?.feedbackEnabled ?? false}
       showFeedbackPublicly={deferredOverrides.showFeedbackPublicly ?? user?.showFeedbackPublicly ?? false}

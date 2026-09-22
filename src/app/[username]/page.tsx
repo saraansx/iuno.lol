@@ -141,6 +141,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       viewsEnabled: userSettings.viewsEnabled,
       viewsAnimationEnabled: userSettings.viewsAnimationEnabled,
       viewsAnimationDuration: userSettings.viewsAnimationDuration,
+      viewsAnimationStyle: userSettings.viewsAnimationStyle,
       commentsEnabled: userSettings.commentsEnabled,
       showCommentsPublicly: userSettings.showCommentsPublicly,
       allowNewComments: userSettings.allowNewComments,
@@ -422,6 +423,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         viewsEnabled={user.viewsEnabled ?? undefined}
         viewsAnimationEnabled={user.viewsAnimationEnabled ?? undefined}
         viewsAnimationDuration={user.viewsAnimationDuration ?? undefined}
+        viewsAnimationStyle={user.viewsAnimationStyle ?? undefined}
         commentsEnabled={user.commentsEnabled ?? undefined}
         showCommentsPublicly={user.showCommentsPublicly ?? true}
         allowNewComments={user.allowNewComments ?? true}

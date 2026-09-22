@@ -21,6 +21,7 @@ import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting
 import ProfileWidgets from "../widgets/ProfileWidgets";
 import ProfileLinks from "../links/ProfileLinks";
 import CompactMusicPlayer from "../music/CompactMusicPlayer";
+import ViewsCounterAnimation from "./ViewsCounterAnimation";
 import LyricsMusicPlayer from "../music/LyricsMusicPlayer";
 import WaveformMusicPlayer from "../music/WaveformMusicPlayer";
 import {
@@ -131,6 +132,7 @@ interface Layout1Props {
   cursorTrailColor?: string;
   clickEffect?: string | null;
   clickSound?: string | null;
+  clickScopeRef?: React.RefObject<HTMLElement | null>;
   entryTransition?: string;
   enterScreenEnabled?: boolean;
   enterScreenText?: string;
@@ -264,6 +266,7 @@ interface Layout1Props {
   viewsEnabled?: boolean;
   viewsAnimationEnabled?: boolean;
   viewsAnimationDuration?: number;
+  viewsAnimationStyle?: "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
   commentsEnabled?: boolean;
   showCommentsPublicly?: boolean;
   allowNewComments?: boolean;
@@ -413,6 +416,7 @@ const Layout1 = ({
   cursorTrailColor = "#ffffff",
   clickEffect,
   clickSound,
+  clickScopeRef,
   entryTransition = "none",
   enterScreenEnabled = false,
   enterScreenText = "click to enter",
@@ -520,6 +524,7 @@ const Layout1 = ({
   viewsEnabled = true,
   viewsAnimationEnabled = false,
   viewsAnimationDuration = 1000,
+  viewsAnimationStyle = "countup",
   commentsEnabled = true,
   showCommentsPublicly = true,
   allowNewComments = true,
@@ -561,7 +566,6 @@ const Layout1 = ({
   const display = displayName || username;
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
   const [liveViews, setLiveViews] = useState(views);
-  const [animatedViews, setAnimatedViews] = useState(viewsAnimationEnabled ? 0 : views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
@@ -671,39 +675,6 @@ const Layout1 = ({
       };
     }
   }, [username, views, initialLikes, initialDislikes, viewerId]);
-
-  useEffect(() => {
-    if (!viewsAnimationEnabled || liveViews === 0) {
-      setAnimatedViews(liveViews);
-      return;
-    }
-
-    let frameId: number;
-    const startTime = Date.now();
-    const duration = viewsAnimationDuration || 1000;
-    const startValue = 0;
-    const endValue = liveViews;
-
-    const animate = () => {
-      const now = Date.now();
-      const progress = Math.min((now - startTime) / duration, 1);
-
-      const easeOut = 1 - (1 - progress) * (1 - progress);
-      setAnimatedViews(Math.floor(startValue + (endValue - startValue) * easeOut));
-
-      if (progress < 1) {
-        frameId = requestAnimationFrame(animate);
-      } else {
-        setAnimatedViews(liveViews);
-      }
-    };
-
-    frameId = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-    };
-  }, [liveViews, viewsAnimationEnabled, viewsAnimationDuration]);
 
   const formattedJoinDate = React.useMemo(() => {
     if (!createdAt) return null;
@@ -868,7 +839,12 @@ useEffect(() => {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
           <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
         </svg>
-        <span>{viewsAnimationEnabled ? animatedViews : views}</span>
+        <ViewsCounterAnimation
+          value={liveViews}
+          style={viewsAnimationStyle}
+          duration={viewsAnimationDuration}
+          enabled={viewsAnimationEnabled}
+        />
       </>
     ),
     feedback: (
@@ -1146,7 +1122,7 @@ const sectionSurface: React.CSSProperties = {
         )}
 
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
-        <ClickEffects effect={clickEffect} sound={clickSound} />
+        <ClickEffects effect={clickEffect} sound={clickSound} scopeRef={clickScopeRef} />
 
 
         {paged && (

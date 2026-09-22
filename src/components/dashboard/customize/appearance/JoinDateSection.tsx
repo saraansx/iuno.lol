@@ -58,7 +58,7 @@ export default function JoinDateSection({
         </p>
       </div>
 
-      <div className={`flex flex-col gap-3 mt-2 relative transition-opacity duration-200 ${isJoinDateEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+      <div className={`flex flex-col gap-3 relative transition-opacity duration-200 ${isJoinDateEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
         <label className="text-[13px] font-medium text-white/90">
           Format
         </label>

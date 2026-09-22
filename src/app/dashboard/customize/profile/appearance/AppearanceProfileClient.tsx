@@ -75,6 +75,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialViewsEnabled = user?.viewsEnabled ?? true;
   const initialViewsAnimationEnabled = user?.viewsAnimationEnabled ?? false;
   const initialViewsAnimationDuration = user?.viewsAnimationDuration ?? 1000;
+  const initialViewsAnimationStyle = (user?.viewsAnimationStyle ?? "countup") as "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
 
   const isViewsEnabled = overrides.viewsEnabled ?? initialViewsEnabled;
   const setIsViewsEnabled = (val: boolean) => updateOverrides({ viewsEnabled: val === initialViewsEnabled ? undefined : val });
@@ -82,6 +83,9 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const setIsViewsAnimationEnabled = (val: boolean) => updateOverrides({ viewsAnimationEnabled: val === initialViewsAnimationEnabled ? undefined : val });
   const viewsAnimationDuration = overrides.viewsAnimationDuration ?? initialViewsAnimationDuration;
   const setViewsAnimationDuration = (val: number) => updateOverrides({ viewsAnimationDuration: val === initialViewsAnimationDuration ? undefined : val });
+  const viewsAnimationStyle = (overrides.viewsAnimationStyle ?? initialViewsAnimationStyle) as "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
+  const setViewsAnimationStyle = (val: "none" | "countup" | "digitalroll" | "slotroll" | "speeding") =>
+    updateOverrides({ viewsAnimationStyle: val === initialViewsAnimationStyle ? undefined : val });
 
   const initialCommentsEnabled = user?.commentsEnabled ?? true;
   const initialShowCommentsPublicly = user?.showCommentsPublicly ?? true;
@@ -448,7 +452,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
           <JoinDateSection
             isJoinDateEnabled={isJoinDateEnabled}
             setIsJoinDateEnabled={setIsJoinDateEnabled}
@@ -459,30 +463,36 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
             joinDateFormatOptions={joinDateFormatOptions}
           />
 
-          <ViewsSection
-            isViewsEnabled={isViewsEnabled}
-            setIsViewsEnabled={setIsViewsEnabled}
-            isViewsAnimationEnabled={isViewsAnimationEnabled}
-            setIsViewsAnimationEnabled={setIsViewsAnimationEnabled}
-            viewsAnimationDuration={viewsAnimationDuration}
-            setViewsAnimationDuration={setViewsAnimationDuration}
-          />
-
-          <CommentsSection
-            isCommentsEnabled={isCommentsEnabled}
-            setIsCommentsEnabled={setIsCommentsEnabled}
-            isShowCommentsPublicly={isShowCommentsPublicly}
-            setIsShowCommentsPublicly={setIsShowCommentsPublicly}
-            isAllowNewComments={isAllowNewComments}
-            setIsAllowNewComments={setIsAllowNewComments}
-          />
-
           <FeedbackSection
             isFeedbackEnabled={isFeedbackEnabled}
             setIsFeedbackEnabled={setIsFeedbackEnabled}
             isShowFeedbackPublicly={isShowFeedbackPublicly}
             setIsShowFeedbackPublicly={setIsShowFeedbackPublicly}
           />
+
+          <div className="col-span-1 xl:col-span-2">
+            <CommentsSection
+              isCommentsEnabled={isCommentsEnabled}
+              setIsCommentsEnabled={setIsCommentsEnabled}
+              isShowCommentsPublicly={isShowCommentsPublicly}
+              setIsShowCommentsPublicly={setIsShowCommentsPublicly}
+              isAllowNewComments={isAllowNewComments}
+              setIsAllowNewComments={setIsAllowNewComments}
+            />
+          </div>
+
+          <div className="col-span-1 xl:col-span-2">
+            <ViewsSection
+              isViewsEnabled={isViewsEnabled}
+              setIsViewsEnabled={setIsViewsEnabled}
+              isViewsAnimationEnabled={isViewsAnimationEnabled}
+              setIsViewsAnimationEnabled={setIsViewsAnimationEnabled}
+              viewsAnimationDuration={viewsAnimationDuration}
+              setViewsAnimationDuration={setViewsAnimationDuration}
+              viewsAnimationStyle={viewsAnimationStyle}
+              setViewsAnimationStyle={setViewsAnimationStyle}
+            />
+          </div>
 
           <TooltipsSection
             isUidTooltipEnabled={isUidTooltipEnabled}
@@ -527,6 +537,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           viewsEnabled: isViewsEnabled,
           viewsAnimationEnabled: isViewsAnimationEnabled,
           viewsAnimationDuration,
+          viewsAnimationStyle,
           commentsEnabled: isCommentsEnabled,
           feedbackEnabled: isFeedbackEnabled,
           showUidTooltip: isUidTooltipEnabled,

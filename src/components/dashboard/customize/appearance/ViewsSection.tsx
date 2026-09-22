@@ -1,5 +1,17 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+
+type ViewsAnimationStyle = "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
+
+const VIEWS_ANIMATION_STYLES: Array<{ id: ViewsAnimationStyle; name: string }> = [
+  { id: "none", name: "None" },
+  { id: "countup", name: "Countup" },
+  { id: "digitalroll", name: "Digital Roll" },
+  { id: "slotroll", name: "Slot Roll" },
+  { id: "speeding", name: "Speeding" },
+];
+
 interface ViewsSectionProps {
   isViewsEnabled: boolean;
   setIsViewsEnabled: (v: boolean) => void;
@@ -7,6 +19,8 @@ interface ViewsSectionProps {
   setIsViewsAnimationEnabled: (v: boolean) => void;
   viewsAnimationDuration: number | "";
   setViewsAnimationDuration: (v: number) => void;
+  viewsAnimationStyle: ViewsAnimationStyle;
+  setViewsAnimationStyle: (v: ViewsAnimationStyle) => void;
 }
 
 export default function ViewsSection({
@@ -16,9 +30,27 @@ export default function ViewsSection({
   setIsViewsAnimationEnabled,
   viewsAnimationDuration,
   setViewsAnimationDuration,
+  viewsAnimationStyle,
+  setViewsAnimationStyle,
 }: ViewsSectionProps) {
+  const [styleDropdownOpen, setStyleDropdownOpen] = useState(false);
+  const styleDropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (styleDropdownRef.current && !styleDropdownRef.current.contains(event.target as Node)) {
+        setStyleDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedStyleName =
+    VIEWS_ANIMATION_STYLES.find((s) => s.id === viewsAnimationStyle)?.name || "Countup";
+
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-5 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -61,15 +93,15 @@ export default function ViewsSection({
         </p>
       </div>
 
-      <div className={`flex flex-col gap-4 mt-2 transition-opacity duration-200 ${isViewsEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+      <div className={`flex flex-col gap-3 transition-opacity duration-200 ${isViewsEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
         <div className="w-full h-px bg-white/5" />
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex flex-col gap-1">
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1 pr-3">
             <label className="text-[13px] font-medium text-white/90">
               Counter animation
             </label>
             <p className="text-[12px] text-white/40">
-              Count views up with a short animation instead of showing the number instantly.
+              Animate the number when the profile loads.
             </p>
           </div>
           <button
@@ -81,8 +113,61 @@ export default function ViewsSection({
           </button>
         </div>
 
-        <div className={`flex flex-col gap-3 mt-1 transition-opacity duration-200 ${isViewsAnimationEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-          <div className="flex items-center justify-between">
+        <div className={`flex flex-col gap-3 transition-opacity duration-200 ${isViewsAnimationEnabled ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+          <label className="text-[13px] font-medium text-white/90">
+            Animation style
+          </label>
+          <div className="relative" ref={styleDropdownRef}>
+            <button
+              type="button"
+              onClick={() => setStyleDropdownOpen(!styleDropdownOpen)}
+              disabled={!isViewsEnabled || !isViewsAnimationEnabled}
+              className="w-full flex items-center justify-between gap-3 px-4 h-[42px] bg-[#161616] border border-white/5 rounded-xl transition-colors cursor-pointer text-left focus:outline-none hover:bg-white/[0.02] disabled:cursor-default"
+            >
+              <span className="text-[13px] text-white/90">{selectedStyleName}</span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className={`text-white/40 transition-transform duration-200 ${styleDropdownOpen ? "rotate-180" : ""}`}
+              >
+                <path d="m7 15 5 5 5-5" />
+                <path d="m7 9 5-5 5 5" />
+              </svg>
+            </button>
+
+            {styleDropdownOpen && (
+              <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#111111] border border-white/10 rounded-2xl p-2 z-50 shadow-xl overflow-hidden flex flex-col gap-0.5">
+                {VIEWS_ANIMATION_STYLES.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setViewsAnimationStyle(item.id);
+                      setStyleDropdownOpen(false);
+                    }}
+                    className={`flex items-center justify-between w-full px-4 py-3 rounded-[12px] text-left transition-colors text-[13px] hover:bg-white/5 ${
+                      viewsAnimationStyle === item.id ? "bg-white/5 text-white" : "text-white/80"
+                    }`}
+                  >
+                    <span>{item.name}</span>
+                    {viewsAnimationStyle === item.id && (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mt-1">
             <label className="text-[13px] font-medium text-white/90">
               Animation duration
             </label>

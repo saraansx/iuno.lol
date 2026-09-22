@@ -54,7 +54,7 @@ export default async function Page() {
         </Breadcrumb>
       </div>
 
-      <div className="flex flex-col gap-6 pb-2 w-full pt-2" style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}>
+      <div className="flex flex-col gap-6 pb-2 w-full pt-2" style={isSectioned ? { paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' } : undefined}>
         <div>
           <div className="flex items-center gap-3">
             <svg
@@ -81,7 +81,7 @@ export default async function Page() {
 
       <div
         className="flex flex-col gap-6 w-full pb-10"
-        style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
+        style={isSectioned ? { paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' } : undefined}
       >
         {isSectioned ? (
           <>

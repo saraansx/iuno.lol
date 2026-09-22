@@ -140,6 +140,7 @@ const userColumns = {
   joinDateFormat: schema.userSettings.joinDateFormat,
   viewsEnabled: schema.userSettings.viewsEnabled,
   viewsAnimationEnabled: schema.userSettings.viewsAnimationEnabled,
+  viewsAnimationStyle: schema.userSettings.viewsAnimationStyle,
   embedTitle: schema.userSettings.embedTitle,
   embedDescription: schema.userSettings.embedDescription,
   embedColor: schema.userSettings.embedColor,

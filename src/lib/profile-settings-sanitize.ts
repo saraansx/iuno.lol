@@ -91,6 +91,10 @@ const COLOR_FIELDS = new Set([
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;
 
+const STRING_ENUMS: Record<string, string[]> = {
+  viewsAnimationStyle: ["none", "countup", "digitalroll", "slotroll", "speeding"],
+};
+
 export function sanitizeProfileSettings(setData: Record<string, unknown>) {
   for (const key of Object.keys(setData)) {
     const value = setData[key];
@@ -104,6 +108,16 @@ export function sanitizeProfileSettings(setData: Record<string, unknown>) {
       }
       const clamped = Math.min(range.max, Math.max(range.min, value));
       setData[key] = range.int ? Math.round(clamped) : clamped;
+      continue;
+    }
+
+    const enumValues = STRING_ENUMS[key];
+    if (enumValues) {
+      if (typeof value !== "string" || !enumValues.includes(value)) {
+        delete setData[key];
+        continue;
+      }
+      setData[key] = value;
       continue;
     }
 
