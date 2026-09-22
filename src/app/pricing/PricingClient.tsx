@@ -24,19 +24,10 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
   const router = useRouter();
 
   return (
-    <main className="min-h-screen bg-transparent relative" style={{ fontFamily: "var(--font-comfortaa)" }}>
+    <main className="min-h-screen bg-black relative" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
 
       <div className="relative z-10 flex flex-col items-center justify-center pt-48 px-4 pb-24 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-[#5b6cf5]/10 backdrop-blur-md border border-[#5b6cf5]/20 px-4 py-1.5 rounded-full flex items-center gap-2 mb-8"
-        >
-          <span className="text-[#5b6cf5] font-medium text-xs">#</span>
-          <span className="text-[#5b6cf5]/80 text-xs font-normal tracking-wide">Pricing</span>
-        </motion.div>
-
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

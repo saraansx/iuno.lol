@@ -23,7 +23,6 @@ interface Particle {
 }
 
 const BUBBLE_COLORS = ["#bdeaff", "#ffffff", "#9be8ff"];
-const SPARK_COLORS = ["#fff3c4", "#ffd76a", "#ff9d3c"];
 const HEART_COLORS = ["#ff5b7f", "#ff8fab", "#ff2e63"];
 const STAR_COLORS = ["#ffc7e3", "#c4b5fd", "#a7f3d0", "#ffffff"];
 const CONFETTI_COLORS = ["#5b6cf5", "#f472b6", "#4ade80", "#facc15", "#ffffff"];
@@ -62,17 +61,18 @@ function drawStar(ctx: CanvasRenderingContext2D, size: number) {
 function spawn(effect: string, x: number, y: number): Particle[] {
   const out: Particle[] = [];
   if (effect === "spark") {
-    for (let i = 0; i < 8; i++) {
-      const a = Math.random() * Math.PI * 2;
-      const sp = 3 + Math.random() * 4;
+    // ClickSpark style: evenly spaced radial line bursts (reactbits)
+    const count = 8;
+    const radius = 15;
+    const duration = 400;
+    for (let i = 0; i < count; i++) {
       out.push({
         x, y,
-        vx: Math.cos(a) * sp,
-        vy: Math.sin(a) * sp,
-        life: 0, maxLife: 260 + Math.random() * 100,
-        size: 4 + Math.random() * 5,
-        color: pick(SPARK_COLORS),
-        rotation: a, spin: 0, kind: "spark",
+        vx: 0, vy: 0,
+        life: 0, maxLife: duration,
+        size: radius,
+        color: "#ffffff",
+        rotation: (2 * Math.PI * i) / count, spin: 0, kind: "spark",
       });
     }
   } else if (effect === "hearts") {
@@ -279,9 +279,11 @@ export default function ClickEffects({ effect, sound }: ClickEffectsProps) {
         if (p.kind === "snow" || p.kind === "petal") p.vx += Math.sin((p.life / 200) * Math.PI) * 0.03;
         if (p.kind === "petal") p.vy += 0.02;
         if (p.kind === "ember") { p.vx += Math.sin((p.life / 140) * Math.PI) * 0.04; p.vy -= 0.005; }
-        p.x += p.vx;
-        p.y += p.vy;
-        p.rotation += p.spin;
+        if (p.kind !== "spark") {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rotation += p.spin;
+        }
         ctx.save();
         ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.translate(p.x, p.y);
@@ -289,11 +291,15 @@ export default function ClickEffects({ effect, sound }: ClickEffectsProps) {
         ctx.fillStyle = p.color;
         ctx.strokeStyle = p.color;
         if (p.kind === "spark") {
+          // ClickSpark: ease-out travel + shrinking line length
+          const eased = t * (2 - t);
+          const distance = eased * p.size;
+          const lineLength = 10 * (1 - eased);
           ctx.lineWidth = 2;
           ctx.lineCap = "round";
           ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(p.size * (1 - t * 0.7), 0);
+          ctx.moveTo(distance, 0);
+          ctx.lineTo(distance + lineLength, 0);
           ctx.stroke();
         } else if (p.kind === "heart") {
           drawHeart(ctx, p.size * (1 - t * 0.3));

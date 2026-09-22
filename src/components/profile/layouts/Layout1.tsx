@@ -20,7 +20,6 @@ import { EntryTransition } from "./EntryTransition";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import ProfileWidgets from "../widgets/ProfileWidgets";
 import ProfileLinks from "../links/ProfileLinks";
-import { isCatboxUrl } from "@/lib/catbox";
 import CompactMusicPlayer from "../music/CompactMusicPlayer";
 import LyricsMusicPlayer from "../music/LyricsMusicPlayer";
 import WaveformMusicPlayer from "../music/WaveformMusicPlayer";
@@ -988,12 +987,6 @@ useEffect(() => {
 
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
-      {/* warm the audio cache on page load so play starts instantly (even behind tap-to-enter) */}
-      {musicTracks.map((t) =>
-        t.streamUrl && isCatboxUrl(t.streamUrl) ? (
-          <link key={t.id} rel="preload" as="audio" href={t.streamUrl} />
-        ) : null,
-      )}
       {musicPlayerStyle === "lyrics" ? (
         <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} />
       ) : musicPlayerStyle === "waveform" ? (
@@ -1142,7 +1135,7 @@ const sectionSurface: React.CSSProperties = {
         </div>
 
         {backgroundEffectAboveContainer && (
-        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-40">
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-[110]">
         <BackgroundEffect
           effect={backgroundEffect ?? "none"}
           intensity={backgroundEffectIntensity}

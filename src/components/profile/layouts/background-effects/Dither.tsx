@@ -1,7 +1,7 @@
 "use client";
 
 export function DitherEffect({ intensity = 50 }: { intensity?: number }) {
-  const dotOpacity = 0.05 + (intensity / 100) * 0.55;
+  const dotOpacity = 0.45 + (intensity / 100) * 0.55;
 
   return (
     <>

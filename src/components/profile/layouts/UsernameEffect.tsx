@@ -10,6 +10,13 @@ const TypewriterUsernameEffect = dynamic(() => import("./username-effects/Typewr
 const FloatUsernameEffect = dynamic(() => import("./username-effects/FloatUsernameEffect"));
 const PulseUsernameEffect = dynamic(() => import("./username-effects/PulseUsernameEffect"));
 const FlipUsernameEffect = dynamic(() => import("./username-effects/FlipUsernameEffect"));
+const SakuraUsernameEffect = dynamic(() => import("./username-effects/SakuraUsernameEffect"));
+const FlickerUsernameEffect = dynamic(() => import("./username-effects/FlickerUsernameEffect"));
+const FlamesUsernameEffect = dynamic(() => import("./username-effects/FlamesUsernameEffect"));
+const ShimmerUsernameEffect = dynamic(() => import("./username-effects/ShimmerUsernameEffect"));
+const GlitchUsernameEffect = dynamic(() => import("./username-effects/GlitchUsernameEffect"));
+const DistortUsernameEffect = dynamic(() => import("./username-effects/DistortUsernameEffect"));
+const LockonUsernameEffect = dynamic(() => import("./username-effects/LockonUsernameEffect"));
 
 interface UsernameEffectProps {
   effect?: string;
@@ -37,6 +44,20 @@ export function UsernameEffect({ effect = "none", glow = false, glowColor, child
     inner = <PulseUsernameEffect>{children}</PulseUsernameEffect>;
   } else if (effect === "flip") {
     inner = <FlipUsernameEffect>{children}</FlipUsernameEffect>;
+  } else if (effect === "sakura") {
+    inner = <SakuraUsernameEffect>{children}</SakuraUsernameEffect>;
+  } else if (effect === "flicker") {
+    inner = <FlickerUsernameEffect>{children}</FlickerUsernameEffect>;
+  } else if (effect === "flames") {
+    inner = <FlamesUsernameEffect>{children}</FlamesUsernameEffect>;
+  } else if (effect === "shimmer") {
+    inner = <ShimmerUsernameEffect baseColor={glowColor ?? "#ffffff"}>{children}</ShimmerUsernameEffect>;
+  } else if (effect === "glitch") {
+    inner = <GlitchUsernameEffect>{children}</GlitchUsernameEffect>;
+  } else if (effect === "distort") {
+    inner = <DistortUsernameEffect>{children}</DistortUsernameEffect>;
+  } else if (effect === "lockon") {
+    inner = <LockonUsernameEffect>{children}</LockonUsernameEffect>;
   } else {
     inner = <>{children}</>;
   }

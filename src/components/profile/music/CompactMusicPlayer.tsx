@@ -4,7 +4,6 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProp
 import { type MusicTrack } from "@/lib/music";
 import { isCatboxUrl } from "@/lib/catbox";
 import { useVolume, VolumeButton } from "./volume";
-import { useWarmAudio } from "./useWarmAudio";
 
 function formatTime(sec: number): string {
   if (!Number.isFinite(sec) || sec < 0) return "0:00";
@@ -31,8 +30,6 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   const barRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
   const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
-
-  useWarmAudio(tracks.map((t) => (isCatboxUrl(t.streamUrl) ? t.streamUrl : null)));
 
   const randomDifferent = useCallback(
     (from: number) => {
@@ -108,8 +105,9 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
       setLoading(false);
       return undefined;
     }
-    const audio = new Audio(url);
+    const audio = new Audio();
     audio.preload = "auto";
+    audio.src = url;
     audioRef.current = audio;
     applyVolume(audio);
     setLoading(true);

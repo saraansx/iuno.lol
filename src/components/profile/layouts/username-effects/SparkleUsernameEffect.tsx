@@ -11,9 +11,9 @@ interface Sparkle {
   hue: number;
 }
 
-const SPARKLE_COUNT = 8;
-const SPAWN_INTERVAL_MIN = 600;
-const SPAWN_INTERVAL_MAX = 1400;
+const SPARKLE_COUNT = 16;
+const SPAWN_INTERVAL_MIN = 300;
+const SPAWN_INTERVAL_MAX = 700;
 
 export default function SparkleUsernameEffect({ children }: { children: React.ReactNode }) {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
@@ -30,8 +30,8 @@ export default function SparkleUsernameEffect({ children }: { children: React.Re
         id: idRef.current,
         x: Math.random() * 100,
         y: -10 + Math.random() * 120,
-        size: 6 + Math.random() * 8,
-        duration: 900 + Math.random() * 700,
+        size: 6 + Math.random() * 6,
+        duration: 550 + Math.random() * 450,
         hue: Math.random() * 360,
       };
       setSparkles((prev) => [...prev.slice(-(SPARKLE_COUNT - 1)), next]);

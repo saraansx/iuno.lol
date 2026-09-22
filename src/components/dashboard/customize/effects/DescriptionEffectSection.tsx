@@ -18,6 +18,13 @@ const DESCRIPTION_EFFECTS = [
   { id: "sparkle", name: "Sparkle" },
   { id: "shuffle", name: "Shuffle" },
   { id: "typewriter", name: "Typewriter" },
+  { id: "sakura", name: "Sakura" },
+  { id: "flicker", name: "Flicker" },
+  { id: "flames", name: "Flames" },
+  { id: "shimmer", name: "Shimmer" },
+  { id: "glitch", name: "Glitch" },
+  { id: "distort", name: "Distort" },
+  { id: "lockon", name: "Lock-on" },
 ];
 
 export default function DescriptionEffectSection({
