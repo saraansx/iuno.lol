@@ -5,7 +5,7 @@ const SENDER = 'iuno.lol <noreply@iuno.lol>';
 export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/new-verification?token=${token}`;
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: SENDER,
     to: email,
     subject: 'Verify your account - iuno.lol',
@@ -39,10 +39,14 @@ export const sendVerificationEmail = async (email: string, token: string) => {
       </div>
     `
   });
+  if (error) {
+    console.error('[mail] send failed:', error.message);
+    throw new Error(error.message);
+  }
 };
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: SENDER,
     to: email,
     subject: 'Your Security Code - iuno.lol',
@@ -78,12 +82,16 @@ export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
       </div>
     `
   });
+  if (error) {
+    console.error('[mail] send failed:', error.message);
+    throw new Error(error.message);
+  }
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/new-password?token=${token}`;
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: SENDER,
     to: email,
     subject: 'Reset your password - iuno.lol',
@@ -117,5 +125,9 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
       </div>
     `
   });
+  if (error) {
+    console.error('[mail] send failed:', error.message);
+    throw new Error(error.message);
+  }
 };
 

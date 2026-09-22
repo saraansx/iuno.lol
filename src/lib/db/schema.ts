@@ -498,6 +498,15 @@ export const donations = mysqlTable('donations', {
   donationUserIdx: index('donation_user_idx').on(table.userId),
 }))
 
+export const uploadedFiles = mysqlTable('uploaded_files', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  url: varchar('url', { length: 255 }).notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('uploaded_files_user_idx').on(table.userId),
+}))
+
 export const schema = {
   users,
   userSettings,
@@ -511,6 +520,7 @@ export const schema = {
   profileFeedback,
   userBadges,
   donations,
+  uploadedFiles,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,

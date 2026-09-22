@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
+import { recordUploadedFile } from "@/lib/catbox-ownership";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
@@ -194,6 +195,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }
 
+    await recordUploadedFile(userId, body);
     return NextResponse.json({ url: body });
 
   } catch (error) {

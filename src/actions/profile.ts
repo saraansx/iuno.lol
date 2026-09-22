@@ -15,37 +15,11 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
+import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
 
-const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_BASE = "https://files.catbox.moe/";
-
-function catboxFileId(url: string): string | null {
-  try {
-    const u = new URL(url);
-    if (u.hostname !== "files.catbox.moe") return null;
-    const name = u.pathname.replace(/^\//, "");
-    return name || null;
-  } catch {
-    return null;
-  }
-}
-
-async function deleteCatboxFiles(urls: (string | null | undefined)[]) {
-  const userhash = process.env.CATBOX_USERHASH;
-  const files = urls.map((u) => (u ? catboxFileId(u) : null)).filter((f): f is string => Boolean(f));
-  if (!userhash || files.length === 0) return;
-  try {
-    const form = new FormData();
-    form.append("reqtype", "deletefiles");
-    form.append("userhash", userhash);
-    form.append("files", files.join(" "));
-    await fetch(CATBOX_API, { method: "POST", body: form });
-  } catch (error) {
-    console.error("Failed to delete Catbox files:", error);
-  }
-}
 
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
@@ -162,7 +136,7 @@ export async function updateGeneralProfile(data: {
   } else if (bannerBackgroundUrlVal && prev?.bannerBackgroundUrl && prev.bannerBackgroundUrl !== bannerBackgroundUrlVal) {
     stale.push(prev.bannerBackgroundUrl);
   }
-  if (stale.length > 0) await deleteCatboxFiles(stale);
+  if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 
   await invalidateLiveStatsCache(userId);
 
@@ -690,7 +664,7 @@ export async function updateMetadataProfile(data: {
     if (!setData.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
     else if (setData.cursorUrl !== prev?.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
   }
-  if (stale.length > 0) await deleteCatboxFiles(stale);
+  if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 
   revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");
@@ -1314,7 +1288,7 @@ function eviHeaders(accept: string): Record<string, string> {
 
 /** Download the 320kbps mp3 from upstream and pin it to Catbox.
  *  Returns null on failure — no upstream fallback, main page is Catbox-only. */
-async function cacheTrackAudio(id: string): Promise<string | null> {
+async function cacheTrackAudio(userId: number, id: string): Promise<string | null> {
   try {
     const res = await fetch(`${EVI_BASE}/api/stream/${encodeURIComponent(id)}?quality=320`, {
       headers: eviHeaders("audio/*,*/*"),
@@ -1326,7 +1300,9 @@ async function cacheTrackAudio(id: string): Promise<string | null> {
     }
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length === 0 || buf.length > 25 * 1024 * 1024) return null;
-    return await uploadToCatbox(buf, `track_${id}.mp3`, "audio/mpeg");
+    const url = await uploadToCatbox(buf, `track_${id}.mp3`, "audio/mpeg");
+    if (url) await recordUploadedFile(userId, url);
+    return url;
   } catch (error) {
     console.error("[Music Cache] audio failed:", error);
     return null;
@@ -1335,7 +1311,7 @@ async function cacheTrackAudio(id: string): Promise<string | null> {
 
 /** Download cover art from upstream and pin it to Catbox. Accepts the local
  *  `/api/music/artwork?...` path or an already-cached Catbox URL. */
-async function cacheTrackArtwork(artwork: string | null | undefined): Promise<string | null> {
+async function cacheTrackArtwork(userId: number, artwork: string | null | undefined): Promise<string | null> {
   if (!artwork) return null;
   if (isCatboxUrl(artwork)) return artwork;
   let artId: string | null = null;
@@ -1365,7 +1341,9 @@ async function cacheTrackArtwork(artwork: string | null | undefined): Promise<st
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length === 0 || buf.length > 5 * 1024 * 1024) return null;
     const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
-    return await uploadToCatbox(buf, `art_${artId}.${ext}`, contentType);
+    const url = await uploadToCatbox(buf, `art_${artId}.${ext}`, contentType);
+    if (url) await recordUploadedFile(userId, url);
+    return url;
   } catch (error) {
     console.error("[Music Cache] artwork failed:", error);
     return null;
@@ -1503,8 +1481,8 @@ export async function updateMusicProfile(data: {
       }
 
       const [cachedAudio, artwork, lyrics] = await Promise.all([
-        isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cacheTrackAudio(id),
-        cacheTrackArtwork(typeof t.artwork === "string" ? t.artwork.slice(0, 500) : null),
+        isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cacheTrackAudio(userId, id),
+        cacheTrackArtwork(userId, typeof t.artwork === "string" ? t.artwork.slice(0, 500) : null),
         fetchTrackLyrics({ id, title, artist, duration }),
       ]);
       const streamUrl = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cachedAudio;
@@ -1539,7 +1517,7 @@ export async function updateMusicProfile(data: {
 
   const kept = new Set(sanitizedTracks.flatMap((t) => [t.streamUrl, t.artwork]));
   const orphaned = prevTracks.flatMap((p) => [p.streamUrl, p.artwork]).filter((u) => u && !kept.has(u));
-  if (orphaned.length > 0) await deleteCatboxFiles(orphaned);
+  if (orphaned.length > 0) await deleteOwnedCatboxFiles(userId, orphaned);
 
   revalidatePath("/dashboard/customize/music");
   revalidatePath("/dashboard", "layout");
@@ -1624,7 +1602,7 @@ export async function saveProfileLinks(data: {
   const orphanedIcons = prevLinks
     .map((p) => (p && typeof p === "object" ? (p as { icon?: unknown }).icon : null))
     .filter((u): u is string => typeof u === "string" && u.length > 0 && !keptIcons.has(u));
-  if (orphanedIcons.length > 0) await deleteCatboxFiles(orphanedIcons);
+  if (orphanedIcons.length > 0) await deleteOwnedCatboxFiles(userId, orphanedIcons);
 
   revalidatePath("/dashboard/customize/links");
   revalidatePath("/dashboard", "layout");
@@ -1648,7 +1626,7 @@ export async function deleteLinkIconFiles(urls: string[]) {
 
   const clean = [...new Set(Array.isArray(urls) ? urls.filter((u) => typeof u === "string") : [])].slice(0, 10);
   if (clean.length === 0) return { success: true };
-  await deleteCatboxFiles(clean);
+  await deleteOwnedCatboxFiles(userId, clean);
   return { success: true };
 }
 
