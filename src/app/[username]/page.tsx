@@ -156,6 +156,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       showViewsTooltip: userSettings.showViewsTooltip,
       showLinksTooltip: userSettings.showLinksTooltip,
       showBadgesTooltip: userSettings.showBadgesTooltip,
+      iconsGlowEnabled: userSettings.iconsGlowEnabled,
+      joinDateIconGlow: userSettings.joinDateIconGlow,
+      locationIconGlow: userSettings.locationIconGlow,
+      occupationIconGlow: userSettings.occupationIconGlow,
+      uidIconGlow: userSettings.uidIconGlow,
+      viewsIconGlow: userSettings.viewsIconGlow,
+      feedbackIconGlow: userSettings.feedbackIconGlow,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
       createdAt: users.createdAt,
@@ -438,6 +445,13 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         showViewsTooltip={user.showViewsTooltip ?? true}
         showLinksTooltip={user.showLinksTooltip ?? true}
         showBadgesTooltip={user.showBadgesTooltip ?? true}
+        iconsGlowEnabled={user.iconsGlowEnabled ?? true}
+        joinDateIconGlow={user.joinDateIconGlow ?? false}
+        locationIconGlow={user.locationIconGlow ?? false}
+        occupationIconGlow={user.occupationIconGlow ?? false}
+        uidIconGlow={user.uidIconGlow ?? false}
+        viewsIconGlow={user.viewsIconGlow ?? false}
+        feedbackIconGlow={user.feedbackIconGlow ?? false}
         initialLikes={user.likesCount ?? 0}
         initialDislikes={user.dislikesCount ?? 0}
         createdAt={user.createdAt}

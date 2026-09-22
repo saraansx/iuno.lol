@@ -2,6 +2,7 @@
 
 import React from "react";
 import { type DetailKey, type DetailPlacement } from "./ProfilePresetLayout";
+import { iconGlowFilter } from "./textGlow";
 
 export interface DetailValues {
   location?: string;
@@ -29,6 +30,13 @@ export interface DetailTooltips {
   views?: boolean;
 }
 
+export interface DetailIconGlow {
+  location?: boolean | null;
+  occupation?: boolean | null;
+  uid?: boolean | null;
+  joinDate?: boolean | null;
+}
+
 interface ProfileDetailsProps {
   slot: Exclude<DetailPlacement, "hidden">;
   only?: DetailKey[];
@@ -39,6 +47,8 @@ interface ProfileDetailsProps {
   textStyle: React.CSSProperties;
   tooltipTextStyle: React.CSSProperties;
   className?: string;
+  iconGlow?: DetailIconGlow;
+  iconGlowColor?: string | null;
 }
 
 function Tooltip({ label, style }: { label: string; style: React.CSSProperties }) {
@@ -91,6 +101,8 @@ export default function ProfileDetails({
   textStyle,
   tooltipTextStyle,
   className = "",
+  iconGlow,
+  iconGlowColor,
 }: ProfileDetailsProps) {
   const inSlot = (key: DetailKey) => {
     if (placements[key] !== slot) return false;
@@ -101,10 +113,15 @@ export default function ProfileDetails({
 
   const chips: React.ReactNode[] = [];
 
+  const glowFor = (key: keyof DetailIconGlow): React.CSSProperties => {
+    const filter = iconGlowFilter(iconGlowColor, iconGlow?.[key]);
+    return filter ? { filter } : {};
+  };
+
   if (inSlot("location") && values.location) {
     chips.push(
       <span key="location" className="flex items-center gap-1.5 group relative">
-        {ICONS.location}
+        <span className="inline-flex shrink-0" style={glowFor("location")}>{ICONS.location}</span>
         {values.location}
         {tooltips.location && <Tooltip label="Location" style={tooltipTextStyle} />}
       </span>
@@ -114,7 +131,7 @@ export default function ProfileDetails({
   if (inSlot("occupation") && values.occupation) {
     chips.push(
       <span key="occupation" className="flex items-center gap-1.5 group relative">
-        {ICONS.occupation}
+        <span className="inline-flex shrink-0" style={glowFor("occupation")}>{ICONS.occupation}</span>
         {values.occupation}
         {tooltips.occupation && <Tooltip label="Occupation" style={tooltipTextStyle} />}
       </span>
@@ -124,7 +141,7 @@ export default function ProfileDetails({
   if (inSlot("uid") && values.uid) {
     chips.push(
       <span key="uid" className="flex items-center gap-1.5 group relative">
-        {ICONS.uid}
+        <span className="inline-flex shrink-0" style={glowFor("uid")}>{ICONS.uid}</span>
         {values.uid}
         {tooltips.uid && <Tooltip label="UID" style={tooltipTextStyle} />}
       </span>
@@ -134,7 +151,7 @@ export default function ProfileDetails({
   if (inSlot("joinDate") && values.joinDate) {
     chips.push(
       <span key="joinDate" className="flex items-center gap-1.5 group relative">
-        {ICONS.joinDate}
+        <span className="inline-flex shrink-0" style={glowFor("joinDate")}>{ICONS.joinDate}</span>
         {values.joinDate}
         {tooltips.joinDate && <Tooltip label="Join date" style={tooltipTextStyle} />}
       </span>

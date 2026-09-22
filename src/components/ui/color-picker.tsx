@@ -48,6 +48,7 @@ function hexToHsv(hex: string): { h: number; s: number; v: number } {
 }
 
 function hsvToHex(h: number, s: number, v: number): string {
+  h = ((h % 360) + 360) % 360;
   s = s / 100;
   v = v / 100;
   const i = Math.floor((h / 60) % 6);
@@ -171,7 +172,7 @@ export default function ColorPickerInput({
       if (!hueRef.current) return;
       const rect = hueRef.current.getBoundingClientRect();
       const x = Math.max(0, Math.min(rect.width, clientX - rect.left));
-      const nextHue = (x / rect.width) * 360;
+      const nextHue = Math.min((x / rect.width) * 360, 359.9);
       const currentS = sat === 0 && val === 100 ? 100 : sat;
       const currentV = val === 0 ? 100 : val;
       const nextColor = hsvToHex(nextHue, currentS, currentV);

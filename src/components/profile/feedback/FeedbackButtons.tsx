@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "@/components/ui/toast";
 import { submitFeedbackAction } from "@/actions/feedback";
 import { hexToRgba as toRgba } from "@/lib/utils/color";
+import { iconGlowFilter } from "@/components/profile/layouts/textGlow";
 
 const hexToRgba = (hex: string, opacity: number) =>
   toRgba(hex, opacity, "255, 255, 255");
@@ -20,6 +21,8 @@ interface FeedbackButtonsProps {
   showLikesTooltip?: boolean;
   showDislikesTooltip?: boolean;
   showFeedbackPublicly?: boolean;
+  glowEnabled?: boolean;
+  glowColor?: string | null;
 }
 
 export default function FeedbackButtons({
@@ -34,6 +37,8 @@ export default function FeedbackButtons({
   showLikesTooltip = true,
   showDislikesTooltip = true,
   showFeedbackPublicly = true,
+  glowEnabled = false,
+  glowColor = null,
 }: FeedbackButtonsProps) {
   const isDisabled = viewerId === -1;
   const [likesCount, setLikesCount] = useState(initialLikes);
@@ -129,6 +134,9 @@ export default function FeedbackButtons({
   const handleLike = () => handleVote("like");
   const handleDislike = () => handleVote("dislike");
 
+  const iconFilter = iconGlowFilter(glowColor, glowEnabled);
+  const iconGlowStyle = iconFilter ? { filter: iconFilter } : undefined;
+
   return (
     <div
       className={className}
@@ -160,6 +168,7 @@ export default function FeedbackButtons({
             strokeWidth={hasLiked ? "1" : "2"}
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={iconGlowStyle}
           >
             <path d="M16 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
           </svg>
@@ -192,6 +201,7 @@ export default function FeedbackButtons({
             strokeWidth={hasDisliked ? "1" : "2"}
             strokeLinecap="round"
             strokeLinejoin="round"
+            style={iconGlowStyle}
           >
             <path d="M8 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm9-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3"></path>
           </svg>

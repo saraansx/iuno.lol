@@ -39,6 +39,7 @@ import ProfileDetails, {
   type DetailPlacements,
   type DetailTooltips,
 } from "./ProfileDetails";
+import { iconGlowFilter } from "./textGlow";
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import { FONT_FAMILY_VARS } from "@/lib/fonts";
 import { hexToRgba as toRgba } from "@/lib/utils/color";
@@ -282,6 +283,13 @@ interface Layout1Props {
   showViewsTooltip?: boolean;
   showLinksTooltip?: boolean;
   showBadgesTooltip?: boolean;
+  iconsGlowEnabled?: boolean;
+  joinDateIconGlow?: boolean | null;
+  locationIconGlow?: boolean | null;
+  occupationIconGlow?: boolean | null;
+  uidIconGlow?: boolean | null;
+  viewsIconGlow?: boolean | null;
+  feedbackIconGlow?: boolean | null;
   initialLikes?: number;
   initialDislikes?: number;
   createdAt?: string | Date;
@@ -540,6 +548,13 @@ const Layout1 = ({
   showViewsTooltip = true,
   showLinksTooltip = true,
   showBadgesTooltip = true,
+  iconsGlowEnabled = true,
+  joinDateIconGlow = false,
+  locationIconGlow = false,
+  occupationIconGlow = false,
+  uidIconGlow = false,
+  viewsIconGlow = false,
+  feedbackIconGlow = false,
   initialLikes = 0,
   initialDislikes = 0,
   createdAt,
@@ -829,6 +844,15 @@ useEffect(() => {
     color: otherColor ?? "#5b6cf5",
   };
 
+  const detailGlowColor = otherColor ?? "#5b6cf5";
+  const detailIconGlow = {
+    location: iconsGlowEnabled && (locationIconGlow ?? false),
+    occupation: iconsGlowEnabled && (occupationIconGlow ?? false),
+    uid: iconsGlowEnabled && (uidIconGlow ?? false),
+    joinDate: iconsGlowEnabled && (joinDateIconGlow ?? false),
+  };
+  const viewsIconFilter = iconGlowFilter(detailGlowColor, iconsGlowEnabled && viewsIconGlow);
+
   const detailValues = {
     location,
     occupation,
@@ -836,9 +860,11 @@ useEffect(() => {
     joinDate: formattedJoinDate,
     views: (
       <>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
-          <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
-        </svg>
+        <span className="inline-flex shrink-0" style={viewsIconFilter ? { filter: viewsIconFilter } : undefined}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="shrink-0 opacity-80">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+          </svg>
+        </span>
         <ViewsCounterAnimation
           value={liveViews}
           style={viewsAnimationStyle}
@@ -859,6 +885,8 @@ useEffect(() => {
         showLikesTooltip={showLikesTooltip}
         showDislikesTooltip={showDislikesTooltip}
         showFeedbackPublicly={showFeedbackPublicly}
+        glowEnabled={iconsGlowEnabled && (feedbackIconGlow ?? false)}
+        glowColor={detailGlowColor}
       />
     ),
   };
@@ -878,6 +906,8 @@ useEffect(() => {
       textStyle={detailTextStyle}
       tooltipTextStyle={tooltipTextStyle}
       className={className}
+      iconGlow={detailIconGlow}
+      iconGlowColor={detailGlowColor}
     />
   );
 

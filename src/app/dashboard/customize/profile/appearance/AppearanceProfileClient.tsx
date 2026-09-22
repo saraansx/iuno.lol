@@ -9,6 +9,7 @@ import { toast } from "@/components/ui/toast";
 import JoinDateSection from "@/components/dashboard/customize/appearance/JoinDateSection";
 import ViewsSection from "@/components/dashboard/customize/appearance/ViewsSection";
 import CommentsSection from "@/components/dashboard/customize/appearance/CommentsSection";
+import IconsGlowSection from "@/components/dashboard/customize/appearance/IconsGlowSection";
 import FeedbackSection from "@/components/dashboard/customize/appearance/FeedbackSection";
 import TooltipsSection from "@/components/dashboard/customize/appearance/TooltipsSection";
 import ColorPickerInput from "@/components/ui/color-picker";
@@ -140,6 +141,28 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const initialBadgesTooltipEnabled = user?.showBadgesTooltip ?? true;
   const isBadgesTooltipEnabled = overrides.showBadgesTooltip ?? initialBadgesTooltipEnabled;
   const setIsBadgesTooltipEnabled = (val: boolean) => updateOverrides({ showBadgesTooltip: val === initialBadgesTooltipEnabled ? undefined : val });
+
+  const initialIconsGlowEnabled = user?.iconsGlowEnabled ?? true;
+  const isIconsGlowEnabled = overrides.iconsGlowEnabled ?? initialIconsGlowEnabled;
+  const setIsIconsGlowEnabled = (val: boolean) => updateOverrides({ iconsGlowEnabled: val === initialIconsGlowEnabled ? undefined : val });
+  const initialJoinDateIconGlow = user?.joinDateIconGlow ?? false;
+  const isJoinDateIconGlow = overrides.joinDateIconGlow ?? initialJoinDateIconGlow;
+  const setIsJoinDateIconGlow = (val: boolean) => updateOverrides({ joinDateIconGlow: val === initialJoinDateIconGlow ? undefined : val });
+  const initialLocationIconGlow = user?.locationIconGlow ?? false;
+  const isLocationIconGlow = overrides.locationIconGlow ?? initialLocationIconGlow;
+  const setIsLocationIconGlow = (val: boolean) => updateOverrides({ locationIconGlow: val === initialLocationIconGlow ? undefined : val });
+  const initialOccupationIconGlow = user?.occupationIconGlow ?? false;
+  const isOccupationIconGlow = overrides.occupationIconGlow ?? initialOccupationIconGlow;
+  const setIsOccupationIconGlow = (val: boolean) => updateOverrides({ occupationIconGlow: val === initialOccupationIconGlow ? undefined : val });
+  const initialUidIconGlow = user?.uidIconGlow ?? false;
+  const isUidIconGlow = overrides.uidIconGlow ?? initialUidIconGlow;
+  const setIsUidIconGlow = (val: boolean) => updateOverrides({ uidIconGlow: val === initialUidIconGlow ? undefined : val });
+  const initialViewsIconGlow = user?.viewsIconGlow ?? false;
+  const isViewsIconGlow = overrides.viewsIconGlow ?? initialViewsIconGlow;
+  const setIsViewsIconGlow = (val: boolean) => updateOverrides({ viewsIconGlow: val === initialViewsIconGlow ? undefined : val });
+  const initialFeedbackIconGlow = user?.feedbackIconGlow ?? false;
+  const isFeedbackIconGlow = overrides.feedbackIconGlow ?? initialFeedbackIconGlow;
+  const setIsFeedbackIconGlow = (val: boolean) => updateOverrides({ feedbackIconGlow: val === initialFeedbackIconGlow ? undefined : val });
 
   const joinDateFormatOptions = [
     "Absolute",
@@ -482,6 +505,25 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           </div>
 
           <div className="col-span-1 xl:col-span-2">
+            <IconsGlowSection
+              isIconsGlowEnabled={isIconsGlowEnabled}
+              setIsIconsGlowEnabled={setIsIconsGlowEnabled}
+              isJoinDateIconGlow={isJoinDateIconGlow}
+              setIsJoinDateIconGlow={setIsJoinDateIconGlow}
+              isLocationIconGlow={isLocationIconGlow}
+              setIsLocationIconGlow={setIsLocationIconGlow}
+              isOccupationIconGlow={isOccupationIconGlow}
+              setIsOccupationIconGlow={setIsOccupationIconGlow}
+              isUidIconGlow={isUidIconGlow}
+              setIsUidIconGlow={setIsUidIconGlow}
+              isViewsIconGlow={isViewsIconGlow}
+              setIsViewsIconGlow={setIsViewsIconGlow}
+              isFeedbackIconGlow={isFeedbackIconGlow}
+              setIsFeedbackIconGlow={setIsFeedbackIconGlow}
+            />
+          </div>
+
+          <div className="col-span-1 xl:col-span-2">
             <ViewsSection
               isViewsEnabled={isViewsEnabled}
               setIsViewsEnabled={setIsViewsEnabled}
@@ -549,6 +591,13 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           showViewsTooltip: isViewsTooltipEnabled,
           showLinksTooltip: isLinksTooltipEnabled,
           showBadgesTooltip: isBadgesTooltipEnabled,
+          iconsGlowEnabled: isIconsGlowEnabled,
+          joinDateIconGlow: isJoinDateIconGlow,
+          locationIconGlow: isLocationIconGlow,
+          occupationIconGlow: isOccupationIconGlow,
+          uidIconGlow: isUidIconGlow,
+          viewsIconGlow: isViewsIconGlow,
+          feedbackIconGlow: isFeedbackIconGlow,
         }}
       />
 

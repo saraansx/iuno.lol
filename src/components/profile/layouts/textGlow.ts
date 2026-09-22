@@ -27,8 +27,7 @@ export function textGlowShadow(
  * Wrapper that gives the glow breathing room so no ancestor clips it
  * with a hard edge. Padding + negative margin keeps layout size identical
  * while `overflow: visible` guarantees no hard mask cut.
- */
-export function textGlowWrapperStyle(enabled?: boolean | null): CSSProperties {
+ */export function textGlowWrapperStyle(enabled?: boolean | null): CSSProperties {
   if (!enabled) {
     return { display: "inline-block", overflow: "visible" };
   }
@@ -38,4 +37,18 @@ export function textGlowWrapperStyle(enabled?: boolean | null): CSSProperties {
     padding: "12px 18px",
     margin: "-12px -18px",
   };
+}
+
+/**
+ * Soft `drop-shadow` glow for small SVG icons (detail chips, feedback
+ * buttons). Uses the icon's own color so it matches `currentColor` icons.
+ */
+export function iconGlowFilter(
+  color: string | null | undefined,
+  enabled?: boolean | null
+): string | undefined {
+  if (!enabled) return undefined;
+  const raw = (color?.trim() || "#ffffff") as string;
+  const c = /^#[0-9a-f]{6}$/i.test(raw) ? raw : "#ffffff";
+  return `drop-shadow(0 0 5px ${c}) drop-shadow(0 0 12px ${hexToRgba(c, 55, "255, 255, 255")})`;
 }

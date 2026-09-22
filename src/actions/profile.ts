@@ -231,6 +231,13 @@ export async function updateAppearanceProfile(data: {
   showViewsTooltip?: boolean;
   showLinksTooltip?: boolean;
   showBadgesTooltip?: boolean;
+  iconsGlowEnabled?: boolean;
+  joinDateIconGlow?: boolean;
+  locationIconGlow?: boolean;
+  occupationIconGlow?: boolean;
+  uidIconGlow?: boolean;
+  viewsIconGlow?: boolean;
+  feedbackIconGlow?: boolean;
 }) {
   const userId = await getSessionUserId();
   
@@ -330,6 +337,13 @@ export async function updateAppearanceProfile(data: {
   if (data.showViewsTooltip !== undefined) setData.showViewsTooltip = data.showViewsTooltip;
   if (data.showLinksTooltip !== undefined) setData.showLinksTooltip = data.showLinksTooltip;
   if (data.showBadgesTooltip !== undefined) setData.showBadgesTooltip = data.showBadgesTooltip;
+  if (data.iconsGlowEnabled !== undefined) setData.iconsGlowEnabled = data.iconsGlowEnabled;
+  if (data.joinDateIconGlow !== undefined) setData.joinDateIconGlow = data.joinDateIconGlow;
+  if (data.locationIconGlow !== undefined) setData.locationIconGlow = data.locationIconGlow;
+  if (data.occupationIconGlow !== undefined) setData.occupationIconGlow = data.occupationIconGlow;
+  if (data.uidIconGlow !== undefined) setData.uidIconGlow = data.uidIconGlow;
+  if (data.viewsIconGlow !== undefined) setData.viewsIconGlow = data.viewsIconGlow;
+  if (data.feedbackIconGlow !== undefined) setData.feedbackIconGlow = data.feedbackIconGlow;
 
   sanitizeProfileSettings(setData);
 
