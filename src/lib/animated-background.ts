@@ -3,7 +3,7 @@ export const ANIMATED_BACKGROUND_PREFIX = "animated:";
 export const ANIMATED_BACKGROUNDS = [
   { id: "aurora", name: "Aurora" },
   { id: "darkveil", name: "Dark Veil" },
-  { id: "beams", name: "Neon Beams" },
+  { id: "pixelblast", name: "Pixel Blast" },
   { id: "mist", name: "Mist Flow" },
   { id: "waves", name: "Wave Motion" },
   { id: "pulsegrid", name: "Pulse Grid" },
@@ -17,8 +17,9 @@ const VALID_IDS = new Set<string>(ANIMATED_BACKGROUNDS.map((b) => b.id));
 export function animatedBackgroundId(url: string | null | undefined): AnimatedBackgroundId | null {
   if (!url || !url.startsWith(ANIMATED_BACKGROUND_PREFIX)) return null;
   const id = url.slice(ANIMATED_BACKGROUND_PREFIX.length).trim().toLowerCase();
-  // Legacy alias: Ember Rise was replaced by Dark Veil.
+  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast.
   if (id === "ember") return "darkveil";
+  if (id === "beams") return "pixelblast";
   return VALID_IDS.has(id) ? (id as AnimatedBackgroundId) : null;
 }
 
@@ -48,4 +49,18 @@ export const DARKVEIL_DEFAULTS = {
   scanlineFrequency: 0,
   scanlineIntensity: 0,
   warpAmount: 0,
+} as const;
+
+/** Default Pixel Blast (animated preset) settings. */
+export const PIXELBLAST_DEFAULTS = {
+  color: "#b497cf",
+  variant: "square",
+  pixelSize: 4,
+  patternScale: 2,
+  patternDensity: 1,
+  pixelJitter: 0,
+  speed: 0.5,
+  edgeFade: 0.25,
+  ripples: true,
+  liquid: false,
 } as const;

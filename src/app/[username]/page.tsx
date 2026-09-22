@@ -223,6 +223,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       darkveilScanFreq: userSettings.darkveilScanFreq,
       darkveilScan: userSettings.darkveilScan,
       darkveilWarp: userSettings.darkveilWarp,
+      pixelblastColor: userSettings.pixelblastColor,
+      pixelblastVariant: userSettings.pixelblastVariant,
+      pixelblastPixelSize: userSettings.pixelblastPixelSize,
+      pixelblastPatternScale: userSettings.pixelblastPatternScale,
+      pixelblastPatternDensity: userSettings.pixelblastPatternDensity,
+      pixelblastPixelJitter: userSettings.pixelblastPixelJitter,
+      pixelblastSpeed: userSettings.pixelblastSpeed,
+      pixelblastEdgeFade: userSettings.pixelblastEdgeFade,
+      pixelblastRipples: userSettings.pixelblastRipples,
+      pixelblastLiquid: userSettings.pixelblastLiquid,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -356,6 +366,16 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         darkveilScanFreq={user.darkveilScanFreq ?? undefined}
         darkveilScan={user.darkveilScan ?? undefined}
         darkveilWarp={user.darkveilWarp ?? undefined}
+        pixelblastColor={user.pixelblastColor ?? undefined}
+        pixelblastVariant={user.pixelblastVariant ?? undefined}
+        pixelblastPixelSize={user.pixelblastPixelSize ?? undefined}
+        pixelblastPatternScale={user.pixelblastPatternScale ?? undefined}
+        pixelblastPatternDensity={user.pixelblastPatternDensity ?? undefined}
+        pixelblastPixelJitter={user.pixelblastPixelJitter ?? undefined}
+        pixelblastSpeed={user.pixelblastSpeed ?? undefined}
+        pixelblastEdgeFade={user.pixelblastEdgeFade ?? undefined}
+        pixelblastRipples={user.pixelblastRipples ?? undefined}
+        pixelblastLiquid={user.pixelblastLiquid ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

@@ -130,6 +130,16 @@ interface Layout1Props {
   darkveilScanFreq?: number | null;
   darkveilScan?: number | null;
   darkveilWarp?: number | null;
+  pixelblastColor?: string | null;
+  pixelblastVariant?: string | null;
+  pixelblastPixelSize?: number | null;
+  pixelblastPatternScale?: number | null;
+  pixelblastPatternDensity?: number | null;
+  pixelblastPixelJitter?: number | null;
+  pixelblastSpeed?: number | null;
+  pixelblastEdgeFade?: number | null;
+  pixelblastRipples?: boolean | null;
+  pixelblastLiquid?: boolean | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -420,6 +430,16 @@ const Layout1 = ({
   darkveilScanFreq,
   darkveilScan,
   darkveilWarp,
+  pixelblastColor,
+  pixelblastVariant,
+  pixelblastPixelSize,
+  pixelblastPatternScale,
+  pixelblastPatternDensity,
+  pixelblastPixelJitter,
+  pixelblastSpeed,
+  pixelblastEdgeFade,
+  pixelblastRipples,
+  pixelblastLiquid,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1129,6 +1149,7 @@ const sectionSurface: React.CSSProperties = {
                 id={animatedBackgroundId(bannerBackgroundUrl)!}
                 aurora={{ colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend }}
                 darkveil={{ speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp }}
+                pixelblast={{ variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid }}
               />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (

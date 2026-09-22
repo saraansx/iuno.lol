@@ -44,6 +44,26 @@ interface AssetsSectionProps {
   setDarkveilScan: (val: number) => void;
   darkveilWarp: number;
   setDarkveilWarp: (val: number) => void;
+  pixelblastColor: string;
+  setPixelblastColor: (val: string) => void;
+  pixelblastVariant: string;
+  setPixelblastVariant: (val: string) => void;
+  pixelblastPixelSize: number;
+  setPixelblastPixelSize: (val: number) => void;
+  pixelblastPatternScale: number;
+  setPixelblastPatternScale: (val: number) => void;
+  pixelblastPatternDensity: number;
+  setPixelblastPatternDensity: (val: number) => void;
+  pixelblastPixelJitter: number;
+  setPixelblastPixelJitter: (val: number) => void;
+  pixelblastSpeed: number;
+  setPixelblastSpeed: (val: number) => void;
+  pixelblastEdgeFade: number;
+  setPixelblastEdgeFade: (val: number) => void;
+  pixelblastRipples: boolean;
+  setPixelblastRipples: (val: boolean) => void;
+  pixelblastLiquid: boolean;
+  setPixelblastLiquid: (val: boolean) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
@@ -130,6 +150,26 @@ export default function AssetsSection({
   setDarkveilScan,
   darkveilWarp,
   setDarkveilWarp,
+  pixelblastColor,
+  setPixelblastColor,
+  pixelblastVariant,
+  setPixelblastVariant,
+  pixelblastPixelSize,
+  setPixelblastPixelSize,
+  pixelblastPatternScale,
+  setPixelblastPatternScale,
+  pixelblastPatternDensity,
+  setPixelblastPatternDensity,
+  pixelblastPixelJitter,
+  setPixelblastPixelJitter,
+  pixelblastSpeed,
+  setPixelblastSpeed,
+  pixelblastEdgeFade,
+  setPixelblastEdgeFade,
+  pixelblastRipples,
+  setPixelblastRipples,
+  pixelblastLiquid,
+  setPixelblastLiquid,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -330,6 +370,7 @@ export default function AssetsSection({
                       id={animatedId}
                       aurora={animatedId === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend } : undefined}
                       darkveil={animatedId === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined}
+                      pixelblast={animatedId === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined}
                     />
                   ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
@@ -575,6 +616,69 @@ export default function AssetsSection({
               <SettingSlider label="Scanline Frequency" value={darkveilScanFreq} min={0} max={100} step={1} onChange={setDarkveilScanFreq} />
               <SettingSlider label="Scanline Intensity" value={darkveilScan} min={0} max={1} step={0.05} onChange={setDarkveilScan} />
               <SettingSlider label="Warp Amount" value={darkveilWarp} min={0} max={10} step={0.1} onChange={setDarkveilWarp} />
+            </div>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "pixelblast" && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">Pixel Blast settings</span>
+              <span className="text-[11px] text-white/30">Only for Pixel Blast</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Color</label>
+                <ColorPickerInput value={pixelblastColor} onChange={setPixelblastColor} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Variant</label>
+                <div className="relative">
+                  <select
+                    value={pixelblastVariant}
+                    onChange={(e) => setPixelblastVariant(e.target.value)}
+                    className="w-full appearance-none bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white focus:outline-none cursor-pointer"
+                  >
+                    <option value="square">Square</option>
+                    <option value="circle">Circle</option>
+                    <option value="triangle">Triangle</option>
+                    <option value="diamond">Diamond</option>
+                  </select>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none">
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </div>
+              </div>
+              <SettingSlider label="Pixel Size" value={pixelblastPixelSize} min={1} max={20} step={1} onChange={setPixelblastPixelSize} />
+              <SettingSlider label="Pattern Scale" value={pixelblastPatternScale} min={0.5} max={10} step={0.5} onChange={setPixelblastPatternScale} />
+              <SettingSlider label="Pattern Density" value={pixelblastPatternDensity} min={0} max={3} step={0.1} onChange={setPixelblastPatternDensity} />
+              <SettingSlider label="Pixel Jitter" value={pixelblastPixelJitter} min={0} max={2} step={0.1} onChange={setPixelblastPixelJitter} />
+              <SettingSlider label="Speed" value={pixelblastSpeed} min={0} max={2} step={0.1} onChange={setPixelblastSpeed} />
+              <SettingSlider label="Edge Fade" value={pixelblastEdgeFade} min={0} max={1} step={0.05} onChange={setPixelblastEdgeFade} />
+              <div className="flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5">
+                <span className="text-[13px] text-white/90">Ripples</span>
+                <button
+                  type="button"
+                  onClick={() => setPixelblastRipples(!pixelblastRipples)}
+                  className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                    pixelblastRipples ? "bg-[#5b6cf5]" : "bg-white/10"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${pixelblastRipples ? "right-[4px]" : "left-[4px]"}`} />
+                </button>
+              </div>
+              <div className="flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5">
+                <span className="text-[13px] text-white/90">Liquid</span>
+                <button
+                  type="button"
+                  onClick={() => setPixelblastLiquid(!pixelblastLiquid)}
+                  className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                    pixelblastLiquid ? "bg-[#5b6cf5]" : "bg-white/10"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${pixelblastLiquid ? "right-[4px]" : "left-[4px]"}`} />
+                </button>
+              </div>
             </div>
           </div>
         )}

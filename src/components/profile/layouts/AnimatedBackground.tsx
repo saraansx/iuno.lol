@@ -3,6 +3,7 @@
 import type { AnimatedBackgroundId } from "@/lib/animated-background";
 import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
 import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/DarkVeil";
+import { PixelBlastEffect, type PixelBlastSettings } from "./background-effects/PixelBlast";
 
 export interface AuroraSettings {
   colors?: AuroraColors;
@@ -17,13 +18,10 @@ export interface AuroraSettings {
  *
  * The `aurora` preset reuses the WebGL background effect.
  */
-export default function AnimatedBackground({ id, aurora, darkveil }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil, pixelblast }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
       <style>{`
-        @keyframes abg-drift-a { 0%,100% { transform: translate(-12%, -6%) scale(1); } 50% { transform: translate(14%, 10%) scale(1.25); } }
-        @keyframes abg-drift-b { 0%,100% { transform: translate(10%, 12%) scale(1.15); } 50% { transform: translate(-14%, -8%) scale(0.9); } }
-        @keyframes abg-spin { to { transform: rotate(360deg); } }
         @keyframes abg-mist-x { 0%,100% { transform: translateX(-10%); } 50% { transform: translateX(10%); } }
         @keyframes abg-wave-x { to { transform: translateX(-50%); } }
         @keyframes abg-pulse { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
@@ -42,11 +40,19 @@ export default function AnimatedBackground({ id, aurora, darkveil }: { id: Anima
         />
       )}
 
-      {id === "beams" && (
-        <>
-          <div className="absolute left-1/2 top-1/2 w-[160%] aspect-square -translate-x-1/2 -translate-y-1/2 opacity-50" style={{ background: "conic-gradient(from 0deg, transparent 0deg, rgba(91,108,245,0.5) 12deg, transparent 24deg, transparent 60deg, rgba(168,85,247,0.45) 72deg, transparent 84deg, transparent 140deg, rgba(34,211,238,0.4) 152deg, transparent 164deg, transparent 220deg, rgba(91,108,245,0.5) 232deg, transparent 244deg, transparent 360deg)", animation: "abg-spin 26s linear infinite" }} />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 50% 50%, transparent 30%, rgba(0,0,0,0.55) 75%)" }} />
-        </>
+      {id === "pixelblast" && (
+        <PixelBlastEffect
+          variant={pixelblast?.variant}
+          pixelSize={pixelblast?.pixelSize}
+          color={pixelblast?.color}
+          patternScale={pixelblast?.patternScale}
+          patternDensity={pixelblast?.patternDensity}
+          pixelJitter={pixelblast?.pixelJitter}
+          speed={pixelblast?.speed}
+          edgeFade={pixelblast?.edgeFade}
+          ripples={pixelblast?.ripples}
+          liquid={pixelblast?.liquid}
+        />
       )}
 
       {id === "mist" && (

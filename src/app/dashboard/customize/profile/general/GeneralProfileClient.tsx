@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -94,6 +94,36 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setDarkveilScan = (val: number) => updateOverrides({ darkveilScan: val === initialDarkveilScan ? undefined : val });
   const darkveilWarp = overrides.darkveilWarp ?? initialDarkveilWarp;
   const setDarkveilWarp = (val: number) => updateOverrides({ darkveilWarp: val === initialDarkveilWarp ? undefined : val });
+  const initialPixelblastColor = user?.pixelblastColor ?? PIXELBLAST_DEFAULTS.color;
+  const initialPixelblastVariant = user?.pixelblastVariant ?? PIXELBLAST_DEFAULTS.variant;
+  const initialPixelblastPixelSize = user?.pixelblastPixelSize ?? PIXELBLAST_DEFAULTS.pixelSize;
+  const initialPixelblastPatternScale = user?.pixelblastPatternScale ?? PIXELBLAST_DEFAULTS.patternScale;
+  const initialPixelblastPatternDensity = user?.pixelblastPatternDensity ?? PIXELBLAST_DEFAULTS.patternDensity;
+  const initialPixelblastPixelJitter = user?.pixelblastPixelJitter ?? PIXELBLAST_DEFAULTS.pixelJitter;
+  const initialPixelblastSpeed = user?.pixelblastSpeed ?? PIXELBLAST_DEFAULTS.speed;
+  const initialPixelblastEdgeFade = user?.pixelblastEdgeFade ?? PIXELBLAST_DEFAULTS.edgeFade;
+  const initialPixelblastRipples = user?.pixelblastRipples ?? PIXELBLAST_DEFAULTS.ripples;
+  const initialPixelblastLiquid = user?.pixelblastLiquid ?? PIXELBLAST_DEFAULTS.liquid;
+  const pixelblastColor = overrides.pixelblastColor ?? initialPixelblastColor;
+  const setPixelblastColor = (val: string) => updateOverrides({ pixelblastColor: val === initialPixelblastColor ? undefined : val });
+  const pixelblastVariant = overrides.pixelblastVariant ?? initialPixelblastVariant;
+  const setPixelblastVariant = (val: string) => updateOverrides({ pixelblastVariant: val === initialPixelblastVariant ? undefined : val });
+  const pixelblastPixelSize = overrides.pixelblastPixelSize ?? initialPixelblastPixelSize;
+  const setPixelblastPixelSize = (val: number) => updateOverrides({ pixelblastPixelSize: val === initialPixelblastPixelSize ? undefined : val });
+  const pixelblastPatternScale = overrides.pixelblastPatternScale ?? initialPixelblastPatternScale;
+  const setPixelblastPatternScale = (val: number) => updateOverrides({ pixelblastPatternScale: val === initialPixelblastPatternScale ? undefined : val });
+  const pixelblastPatternDensity = overrides.pixelblastPatternDensity ?? initialPixelblastPatternDensity;
+  const setPixelblastPatternDensity = (val: number) => updateOverrides({ pixelblastPatternDensity: val === initialPixelblastPatternDensity ? undefined : val });
+  const pixelblastPixelJitter = overrides.pixelblastPixelJitter ?? initialPixelblastPixelJitter;
+  const setPixelblastPixelJitter = (val: number) => updateOverrides({ pixelblastPixelJitter: val === initialPixelblastPixelJitter ? undefined : val });
+  const pixelblastSpeed = overrides.pixelblastSpeed ?? initialPixelblastSpeed;
+  const setPixelblastSpeed = (val: number) => updateOverrides({ pixelblastSpeed: val === initialPixelblastSpeed ? undefined : val });
+  const pixelblastEdgeFade = overrides.pixelblastEdgeFade ?? initialPixelblastEdgeFade;
+  const setPixelblastEdgeFade = (val: number) => updateOverrides({ pixelblastEdgeFade: val === initialPixelblastEdgeFade ? undefined : val });
+  const pixelblastRipples = overrides.pixelblastRipples !== undefined ? Boolean(overrides.pixelblastRipples) : Boolean(initialPixelblastRipples);
+  const setPixelblastRipples = (val: boolean) => updateOverrides({ pixelblastRipples: val === initialPixelblastRipples ? undefined : val });
+  const pixelblastLiquid = overrides.pixelblastLiquid !== undefined ? Boolean(overrides.pixelblastLiquid) : Boolean(initialPixelblastLiquid);
+  const setPixelblastLiquid = (val: boolean) => updateOverrides({ pixelblastLiquid: val === initialPixelblastLiquid ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -182,6 +212,26 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setDarkveilScan={setDarkveilScan}
           darkveilWarp={darkveilWarp}
           setDarkveilWarp={setDarkveilWarp}
+          pixelblastColor={pixelblastColor}
+          setPixelblastColor={setPixelblastColor}
+          pixelblastVariant={pixelblastVariant}
+          setPixelblastVariant={setPixelblastVariant}
+          pixelblastPixelSize={pixelblastPixelSize}
+          setPixelblastPixelSize={setPixelblastPixelSize}
+          pixelblastPatternScale={pixelblastPatternScale}
+          setPixelblastPatternScale={setPixelblastPatternScale}
+          pixelblastPatternDensity={pixelblastPatternDensity}
+          setPixelblastPatternDensity={setPixelblastPatternDensity}
+          pixelblastPixelJitter={pixelblastPixelJitter}
+          setPixelblastPixelJitter={setPixelblastPixelJitter}
+          pixelblastSpeed={pixelblastSpeed}
+          setPixelblastSpeed={setPixelblastSpeed}
+          pixelblastEdgeFade={pixelblastEdgeFade}
+          setPixelblastEdgeFade={setPixelblastEdgeFade}
+          pixelblastRipples={pixelblastRipples}
+          setPixelblastRipples={setPixelblastRipples}
+          pixelblastLiquid={pixelblastLiquid}
+          setPixelblastLiquid={setPixelblastLiquid}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -279,6 +329,16 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           darkveilScanFreq,
           darkveilScan,
           darkveilWarp,
+          pixelblastColor,
+          pixelblastVariant,
+          pixelblastPixelSize,
+          pixelblastPatternScale,
+          pixelblastPatternDensity,
+          pixelblastPixelJitter,
+          pixelblastSpeed,
+          pixelblastEdgeFade,
+          pixelblastRipples,
+          pixelblastLiquid,
         }}
       />
 

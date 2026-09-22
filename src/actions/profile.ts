@@ -64,6 +64,16 @@ export async function updateGeneralProfile(data: {
   darkveilScanFreq?: number | null;
   darkveilScan?: number | null;
   darkveilWarp?: number | null;
+  pixelblastColor?: string | null;
+  pixelblastVariant?: string | null;
+  pixelblastPixelSize?: number | null;
+  pixelblastPatternScale?: number | null;
+  pixelblastPatternDensity?: number | null;
+  pixelblastPixelJitter?: number | null;
+  pixelblastSpeed?: number | null;
+  pixelblastEdgeFade?: number | null;
+  pixelblastRipples?: boolean | null;
+  pixelblastLiquid?: boolean | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -131,6 +141,19 @@ export async function updateGeneralProfile(data: {
   if (data.darkveilScanFreq !== undefined) setData.darkveilScanFreq = data.darkveilScanFreq;
   if (data.darkveilScan !== undefined) setData.darkveilScan = data.darkveilScan;
   if (data.darkveilWarp !== undefined) setData.darkveilWarp = data.darkveilWarp;
+  if (data.pixelblastColor !== undefined) setData.pixelblastColor = data.pixelblastColor?.slice(0, 32) ?? null;
+  if (data.pixelblastVariant !== undefined) {
+    const v = data.pixelblastVariant?.trim().toLowerCase() ?? "square";
+    setData.pixelblastVariant = ["square", "circle", "triangle", "diamond"].includes(v) ? v : "square";
+  }
+  if (data.pixelblastPixelSize !== undefined) setData.pixelblastPixelSize = data.pixelblastPixelSize;
+  if (data.pixelblastPatternScale !== undefined) setData.pixelblastPatternScale = data.pixelblastPatternScale;
+  if (data.pixelblastPatternDensity !== undefined) setData.pixelblastPatternDensity = data.pixelblastPatternDensity;
+  if (data.pixelblastPixelJitter !== undefined) setData.pixelblastPixelJitter = data.pixelblastPixelJitter;
+  if (data.pixelblastSpeed !== undefined) setData.pixelblastSpeed = data.pixelblastSpeed;
+  if (data.pixelblastEdgeFade !== undefined) setData.pixelblastEdgeFade = data.pixelblastEdgeFade;
+  if (data.pixelblastRipples !== undefined) setData.pixelblastRipples = !!data.pixelblastRipples;
+  if (data.pixelblastLiquid !== undefined) setData.pixelblastLiquid = !!data.pixelblastLiquid;
 
   sanitizeProfileSettings(setData);
 
