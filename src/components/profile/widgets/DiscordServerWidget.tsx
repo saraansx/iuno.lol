@@ -61,6 +61,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
             fill
             sizes="(max-width: 600px) 100vw, 400px"
             className="object-cover opacity-60 filter blur-[0.5px]"
+            loading="eager"
             unoptimized
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#101010]/80 via-[#101010]/50 to-[#101010]/30" />
