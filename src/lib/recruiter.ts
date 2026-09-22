@@ -54,8 +54,6 @@ function inviteUrl(code: string): string {
   return `https://discord.gg/${code}`;
 }
 
-// Fixed personal invite, owned by the bot. Creates on first use,
-// recreates if the code was deleted on Discord.
 export async function getOrCreateInvite(discordId: string): Promise<{ code: string; uses: number }> {
   const { botToken, guildId } = botConfig();
 
@@ -63,7 +61,6 @@ export async function getOrCreateInvite(discordId: string): Promise<{ code: stri
     | { code?: string; uses?: number }
     | { none: boolean };
   if (!("none" in found) && typeof found.code === "string" && found.code) {
-    // Dead on Discord? Recreate fresh instead of showing a dead link.
     let alive = true;
     try {
       alive = (await fetchInvite(found.code, botToken)) !== null;
@@ -142,7 +139,6 @@ export async function refreshRecruiter(userId: number, discordId: string): Promi
   return { code, url: inviteUrl(code), uses, required: RECRUITER_REQUIRED, granted };
 }
 
-// Cron: grant everyone at threshold in one bot snapshot.
 export async function syncAllRecruiterInvites(): Promise<{ checked: number; granted: number }> {
   const owners = (await botFetch(`/recruiter/owners`)) as Record<
     string,

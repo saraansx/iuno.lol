@@ -27,14 +27,12 @@ async function requireLinkedUser(): Promise<{ userId: number; discordId: string 
   return { userId, discordId: user.discordId };
 }
 
-// Fixed personal invite link + live use count (no grant — view only).
 export async function getMyInvite(): Promise<Omit<RecruiterState, "granted"> & { required: number }> {
   const { discordId } = await requireLinkedUser();
   const { code, uses } = await getOrCreateInvite(discordId);
   return { code, url: `https://discord.gg/${code}`, uses, required: RECRUITER_REQUIRED };
 }
 
-// Lightweight check: does the user already have a code? No error if not linked.
 export async function hasInviteCode(): Promise<boolean> {
   const userId = await getSessionUserId();
   if (!userId) return false;
@@ -43,7 +41,6 @@ export async function hasInviteCode(): Promise<boolean> {
   return hasInvite(user.discordId);
 }
 
-// Poll uses; grant role + badge once the threshold is hit.
 export async function checkRecruiterProgress(): Promise<RecruiterState> {
   const { userId, discordId } = await requireLinkedUser();
   const state = await refreshRecruiter(userId, discordId);
