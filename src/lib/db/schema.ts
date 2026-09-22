@@ -221,7 +221,7 @@ export const userSettings = mysqlTable('user_settings', {
   showViewsTooltip: boolean('show_views_tooltip').default(true),
   showLinksTooltip: boolean('show_links_tooltip').default(true),
   showBadgesTooltip: boolean('show_badges_tooltip').default(true),
-  iconsGlowEnabled: boolean('icons_glow_enabled').default(true),
+  iconsGlowEnabled: boolean('icons_glow_enabled').default(false),
   joinDateIconGlow: boolean('join_date_icon_glow').default(false),
   locationIconGlow: boolean('location_icon_glow').default(false),
   occupationIconGlow: boolean('occupation_icon_glow').default(false),

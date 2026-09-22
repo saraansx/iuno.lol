@@ -445,7 +445,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         showViewsTooltip={user.showViewsTooltip ?? true}
         showLinksTooltip={user.showLinksTooltip ?? true}
         showBadgesTooltip={user.showBadgesTooltip ?? true}
-        iconsGlowEnabled={user.iconsGlowEnabled ?? true}
+        iconsGlowEnabled={user.iconsGlowEnabled ?? false}
         joinDateIconGlow={user.joinDateIconGlow ?? false}
         locationIconGlow={user.locationIconGlow ?? false}
         occupationIconGlow={user.occupationIconGlow ?? false}

@@ -142,7 +142,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
   const isBadgesTooltipEnabled = overrides.showBadgesTooltip ?? initialBadgesTooltipEnabled;
   const setIsBadgesTooltipEnabled = (val: boolean) => updateOverrides({ showBadgesTooltip: val === initialBadgesTooltipEnabled ? undefined : val });
 
-  const initialIconsGlowEnabled = user?.iconsGlowEnabled ?? true;
+  const initialIconsGlowEnabled = user?.iconsGlowEnabled ?? false;
   const isIconsGlowEnabled = overrides.iconsGlowEnabled ?? initialIconsGlowEnabled;
   const setIsIconsGlowEnabled = (val: boolean) => updateOverrides({ iconsGlowEnabled: val === initialIconsGlowEnabled ? undefined : val });
   const initialJoinDateIconGlow = user?.joinDateIconGlow ?? false;
