@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, type DragEvent } from "react";
+import { useState, useEffect, useRef, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
 import Link from "next/link";
@@ -574,6 +574,7 @@ export default function BadgesTabs({
   const [inviteLoading, setInviteLoading] = useState(false);
   const [inviteRefreshing, setInviteRefreshing] = useState(false);
   const [hasInvite, setHasInvite] = useState(false);
+  const inviteBusyRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -719,23 +720,35 @@ export default function BadgesTabs({
     setApplyFor(null);
   }
 
-  async function openInviteModal() {
+  async function openInviteModal(autoCopy = false) {
+    if (inviteBusyRef.current) return;
+    inviteBusyRef.current = true;
     setInviteOpen(true);
     setInviteLoading(true);
     try {
       const data = await getMyInvite();
       setInviteData(data);
       setHasInvite(true);
+      if (autoCopy) {
+        try {
+          await navigator.clipboard.writeText(data.url);
+          toast.success("Invite link copied");
+        } catch {
+          // clipboard blocked — modal is open, user can copy manually
+        }
+      }
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
       setInviteOpen(false);
     } finally {
+      inviteBusyRef.current = false;
       setInviteLoading(false);
     }
   }
 
   async function handleInviteRefresh() {
-    if (inviteRefreshing) return;
+    if (inviteBusyRef.current) return;
+    inviteBusyRef.current = true;
     setInviteRefreshing(true);
     try {
       const data = await checkRecruiterProgress();
@@ -750,6 +763,7 @@ export default function BadgesTabs({
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Something went wrong");
     } finally {
+      inviteBusyRef.current = false;
       setInviteRefreshing(false);
     }
   }
@@ -937,7 +951,7 @@ export default function BadgesTabs({
                     showApply={APPLY_BADGE_IDS.includes(badge.id) && !owned.includes(badge.id)}
                     onToggle={toggleBadge}
                     onDiscord={openDiscordLink}
-                    onInvite={openInviteModal}
+                    onInvite={() => openInviteModal(hasInvite)}
                     ctaLabel={badge.id === "discord-recruiter" && hasInvite ? "Copy Invite" : undefined}
                     onApply={(id) => {
                       const b = badgeById(id);

@@ -60,9 +60,9 @@ export async function getOrCreateInvite(discordId: string): Promise<{ code: stri
   const { botToken, guildId } = botConfig();
 
   const found = (await botFetch(`/recruiter/owner/${discordId}`)) as
-    | { code: string; uses: number }
+    | { code?: string; uses?: number }
     | { none: boolean };
-  if (!("none" in found)) {
+  if (!("none" in found) && typeof found.code === "string" && found.code) {
     // Dead on Discord? Recreate fresh instead of showing a dead link.
     let alive = true;
     try {
@@ -76,16 +76,19 @@ export async function getOrCreateInvite(discordId: string): Promise<{ code: stri
   const created = (await botFetch(`/recruiter/create`, {
     method: "POST",
     body: JSON.stringify({ owner: discordId, guild_id: guildId, fresh: true }),
-  })) as { code: string; uses: number };
+  })) as { code?: string; uses?: number };
+  if (typeof created.code !== "string" || !created.code) {
+    throw new Error("Bot didn't return a valid invite. Try again.");
+  }
   return { code: created.code, uses: Number(created.uses ?? 0) };
 }
 
 export async function hasInvite(discordId: string): Promise<boolean> {
   try {
     const found = (await botFetch(`/recruiter/owner/${discordId}`)) as
-      | { code: string }
+      | { code?: string }
       | { none: boolean };
-    return !("none" in found);
+    return !("none" in found) && typeof found.code === "string" && !!found.code;
   } catch {
     return false;
   }
@@ -124,12 +127,17 @@ export async function grantRecruiterBadge(userId: number, discordId: string): Pr
 }
 
 // Poll uses; grant role + badge once the threshold is hit.
+// Grant failure doesn't kill progress — user still sees their count.
 export async function refreshRecruiter(userId: number, discordId: string): Promise<RecruiterState> {
   const { code, uses } = await getOrCreateInvite(discordId);
   let granted = await hasBadge(userId);
   if (!granted && uses >= RECRUITER_REQUIRED) {
-    await grantRecruiterBadge(userId, discordId);
-    granted = true;
+    try {
+      await grantRecruiterBadge(userId, discordId);
+      granted = true;
+    } catch {
+      // Discord/DB hiccup — progress still returned below, cron will retry.
+    }
   }
   return { code, url: inviteUrl(code), uses, required: RECRUITER_REQUIRED, granted };
 }
