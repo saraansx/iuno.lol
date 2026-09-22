@@ -24,7 +24,6 @@ const USERNAME_EFFECTS = [
   { id: "shimmer", name: "Shimmer" },
   { id: "glitch", name: "Glitch" },
   { id: "distort", name: "Distort" },
-  { id: "lockon", name: "Lock-on" },
 ];
 
 export default function UsernameEffectSection({
