@@ -798,7 +798,7 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
             ...new Set(
               links
                 .map((l) => l.icon)
-                .filter((u) => u && !initialUrls.has(u) && u.includes("files.catbox.moe"))
+                .filter((u) => u && !initialUrls.has(u) && (u.includes("files.catbox.moe") || u.includes("cdn.iuno.lol")))
             ),
           ];
           if (added.length > 0) {

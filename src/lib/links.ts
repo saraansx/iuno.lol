@@ -45,6 +45,7 @@ const LINK_ICON_SET = new Set<string>(LINK_ICON_KEYS);
 
 const CUSTOM_ICON_HOSTS = new Set([
   "files.catbox.moe",
+  "cdn.iuno.lol",
   "cdn.discordapp.com",
   "discord-decoration.art",
   "api.iconify.design",

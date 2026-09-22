@@ -1,14 +1,7 @@
-const CATBOX_API = "https://catbox.moe/user/api.php";
-const CATBOX_BASE = "https://files.catbox.moe/";
+export { isStoredMediaUrl, isCatboxUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
 
-export function isCatboxUrl(url: string | null | undefined): boolean {
-  if (!url) return false;
-  try {
-    return new URL(url).hostname === "files.catbox.moe";
-  } catch {
-    return false;
-  }
-}
+const CATBOX_API = "https://catbox.moe/user/api.php";
+const CATBOX_URL_BASE = "https://files.catbox.moe/";
 
 /** Upload a buffer to Catbox. Returns the public file URL, or null on failure. */
 export async function uploadToCatbox(
@@ -32,7 +25,7 @@ export async function uploadToCatbox(
       signal: AbortSignal.timeout(90000),
     });
     const body = (await res.text()).trim();
-    if (!res.ok || !body.startsWith(CATBOX_BASE)) {
+    if (!res.ok || !body.startsWith(CATBOX_URL_BASE)) {
       console.error("[Catbox] upload error:", res.status, body.slice(0, 200));
       return null;
     }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 import { recordUploadedFile } from "@/lib/catbox-ownership";
+import { toCdnUrl } from "@/lib/cdn";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
@@ -196,7 +197,7 @@ export async function POST(req: Request) {
     }
 
     await recordUploadedFile(userId, body);
-    return NextResponse.json({ url: body });
+    return NextResponse.json({ url: toCdnUrl(body) });
 
   } catch (error) {
 

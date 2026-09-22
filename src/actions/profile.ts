@@ -15,11 +15,10 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
+import { isStoredMediaUrl } from "@/lib/cdn";
 import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
-
-const CATBOX_BASE = "https://files.catbox.moe/";
 
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
@@ -31,9 +30,9 @@ async function revalidateOwnProfile(userId: number) {
 
 function isValidMediaUrl(url: string | null | undefined): boolean {
   if (!url) return true;
-  return url.startsWith(CATBOX_BASE) ||
-         url.startsWith("https://cdn.discordapp.com/") ||
-         url.startsWith("https://discord-decoration.art/");
+  return isStoredMediaUrl(url) ||
+          url.startsWith("https://cdn.discordapp.com/") ||
+          url.startsWith("https://discord-decoration.art/");
 }
 
 export async function updateGeneralProfile(data: {

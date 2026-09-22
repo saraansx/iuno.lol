@@ -1,32 +1,16 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
+import { storedFileId, isStoredMediaUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
-const CATBOX_BASE = "https://files.catbox.moe/";
 
-export function catboxFileId(url: string): string | null {
-  try {
-    const u = new URL(url);
-    if (u.hostname !== "files.catbox.moe") return null;
-    const name = u.pathname.replace(/^\//, "");
-    return name || null;
-  } catch {
-    return null;
-  }
-}
-
-function isCatboxUrl(url: string | null | undefined): boolean {
-  if (!url) return false;
-  try {
-    return new URL(url).hostname === "files.catbox.moe";
-  } catch {
-    return false;
-  }
+export function catboxFileId(url: string | null | undefined): string | null {
+  return storedFileId(url);
 }
 
 /** Record that `userId` owns a Catbox file. Duplicate URLs are re-attributed to this user. */
 export async function recordUploadedFile(userId: number, url: string): Promise<void> {
-  if (!isCatboxUrl(url)) return;
+  if (!isStoredMediaUrl(url)) return;
   try {
     await db
       .insert(schema.uploadedFiles)
@@ -69,7 +53,7 @@ export async function deleteOwnedCatboxFiles(
   ];
   if (candidates.length === 0) return;
 
-  const fullUrls = candidates.map((f) => `${CATBOX_BASE}${f}`);
+  const fullUrls = candidates.flatMap((f) => [`${CATBOX_BASE}${f}`, `${CDN_BASE}${f}`]);
   const owned = await db
     .select({ url: schema.uploadedFiles.url })
     .from(schema.uploadedFiles)
