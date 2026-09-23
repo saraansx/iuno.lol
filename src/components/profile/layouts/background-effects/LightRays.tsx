@@ -125,10 +125,14 @@ float rayStrength(vec2 raySource, vec2 rayRefDirection, vec2 coord,
   float spreadFactor = pow(max(distortedAngle, 0.0), 1.0 / max(lightSpread, 0.001));
 
   float distance = length(sourceToCoord);
-  float maxDistance = iResolution.x * rayLength;
+  // Use the larger viewport dimension so rays reach equally far on wide
+  // pages and narrow (tall) preview panels. Width-only basis made rays
+  // die out right below the top in the dashboard preview.
+  float refDim = max(iResolution.x, iResolution.y);
+  float maxDistance = refDim * rayLength;
   float lengthFalloff = clamp((maxDistance - distance) / maxDistance, 0.0, 1.0);
 
-  float fadeFalloff = clamp((iResolution.x * fadeDistance - distance) / (iResolution.x * fadeDistance), 0.5, 1.0);
+  float fadeFalloff = clamp((refDim * fadeDistance - distance) / (refDim * fadeDistance), 0.5, 1.0);
   float pulse = pulsating > 0.5 ? (0.8 + 0.2 * sin(iTime * speed * 3.0)) : 1.0;
 
   float baseStrength = clamp(

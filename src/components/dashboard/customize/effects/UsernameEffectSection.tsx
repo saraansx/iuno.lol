@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import PremiumLock from "@/components/ui/premium-lock";
+import { PREMIUM_TEXT_EFFECTS, isPremiumOption } from "@/lib/premium";
 
 interface UsernameEffectSectionProps {
+  isPremium: boolean;
   usernameEffect: string;
   setUsernameEffect: (val: string) => void;
   glowEnabled: boolean;
@@ -11,7 +14,6 @@ interface UsernameEffectSectionProps {
 
 const USERNAME_EFFECTS = [
   { id: "none", name: "None" },
-  { id: "blur", name: "Blur" },
   { id: "float", name: "Float" },
   { id: "pulse", name: "Pulse" },
   { id: "flip", name: "Flip" },
@@ -19,6 +21,7 @@ const USERNAME_EFFECTS = [
   { id: "shuffle", name: "Shuffle" },
   { id: "typewriter", name: "Typewriter" },
   { id: "sakura", name: "Sakura" },
+  { id: "blur", name: "Blur" },
   { id: "flicker", name: "Flicker" },
   { id: "flames", name: "Flames" },
   { id: "shimmer", name: "Shimmer" },
@@ -27,6 +30,7 @@ const USERNAME_EFFECTS = [
 ];
 
 export default function UsernameEffectSection({
+  isPremium,
   usernameEffect,
   setUsernameEffect,
   glowEnabled,
@@ -96,28 +100,37 @@ export default function UsernameEffectSection({
           {dropdownOpen && (
             <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
               <div className="flex flex-col gap-0.5">
-                {usernameEffects.map((item) => (
+                {usernameEffects.map((item) => {
+                  const locked = isPremiumOption(PREMIUM_TEXT_EFFECTS, item.id) && !isPremium;
+                  return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => {
+                      if (locked) return;
                       setUsernameEffect(item.id);
                       setDropdownOpen(false);
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${
                       usernameEffect === item.id
                         ? "bg-white/10 text-white font-medium"
+                        : locked
+                        ? "text-white/35"
                         : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    <span className="text-[13px]">{item.name}</span>
+                    <span className="text-[13px] flex items-center gap-2">
+                      {item.name}
+                      {isPremiumOption(PREMIUM_TEXT_EFFECTS, item.id) && <PremiumLock size={12} />}
+                    </span>
                     {usernameEffect === item.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                     )}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -126,7 +139,7 @@ export default function UsernameEffectSection({
         <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/5">
           <div className="flex flex-col gap-0.5">
             <span className="text-[13px] text-white/90">Glow</span>
-            <span className="text-[11px] text-white/40 leading-tight">Soft smooth glow, no hard edge.</span>
+            <span className="text-[11px] text-white/40 leading-tight">Soft smooth glow over text.</span>
           </div>
           <button
             type="button"

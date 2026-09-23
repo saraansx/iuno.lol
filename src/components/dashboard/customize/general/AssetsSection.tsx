@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import { useState, useRef, useEffect, type DragEvent } from "react";
-import PremiumLogo from "@/components/ui/premium-logo";
-import { toast } from "@/components/ui/toast";
+import PremiumLock from "@/components/ui/premium-lock";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { ANIMATED_BACKGROUNDS, animatedBackgroundId, animatedBackgroundUrl } from "@/lib/animated-background";
 import AnimatedBackground from "@/components/profile/layouts/AnimatedBackground";
@@ -713,11 +712,10 @@ export default function AssetsSection({
                 {!isPremium && bgUrls.length >= MAX_BACKGROUNDS && (
                   <button
                     type="button"
-                    onClick={() => toast.error("Backgrounds 2–5 need Premium.")}
                     title="Premium feature"
                     className="shrink-0 flex items-center gap-1.5 bg-white/[0.04] hover:bg-white/[0.07] border border-dashed border-white/15 text-white/70 text-[13px] font-normal py-2 px-3.5 rounded-xl transition-all cursor-pointer"
                   >
-                    <PremiumLogo size={13} />
+                    <PremiumLock size={13} />
                     More backgrounds
                   </button>
                 )}
@@ -933,10 +931,7 @@ export default function AssetsSection({
                   type="button"
                   title={preset.premium && !isPremium ? `${preset.name} · Premium` : preset.name}
                   onClick={() => {
-                    if (locked) {
-                      toast.error(`${preset.name} needs Premium.`);
-                      return;
-                    }
+                      if (locked) return;
                     if (active) {
                       deleteAt(bgSelected);
                     } else {
@@ -949,11 +944,18 @@ export default function AssetsSection({
                         : "border-white/10 hover:border-white/25"
                     }`}
                   >
-                    <AnimatedBackground id={preset.id} />
-                    {preset.premium && (
-                      <span className="absolute top-1.5 left-1.5 flex items-center justify-center rounded-full bg-black/60 border border-white/10 p-[3px]">
-                        <PremiumLogo size={11} />
-                      </span>
+                    {locked ? (
+                      <>
+                        <div className="absolute -inset-2 overflow-hidden blur-[3px] brightness-[0.35]">
+                          <AnimatedBackground id={preset.id} />
+                        </div>
+                        <div className="absolute inset-0 bg-black/50 pointer-events-none" />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <PremiumLock size={22} />
+                        </div>
+                      </>
+                    ) : (
+                      <AnimatedBackground id={preset.id} />
                     )}
                     <span className={`absolute bottom-1.5 left-2 text-[10.5px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)] ${active ? "text-white" : "text-white/65"}`}>
                       {preset.name}

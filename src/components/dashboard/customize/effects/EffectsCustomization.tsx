@@ -12,6 +12,7 @@ import EntryTransitionSection from "./EntryTransitionSection";
 import TapToEnterSection from "./TapToEnterSection";
 
 interface EffectsCustomizationProps {
+  isPremium: boolean;
   backgroundEffect: string;
   setBackgroundEffect: (val: string) => void;
   backgroundEffectIntensity: number;
@@ -69,6 +70,7 @@ interface EffectsCustomizationProps {
 }
 
 export default function EffectsCustomization({
+  isPremium,
   backgroundEffect,
   setBackgroundEffect,
   backgroundEffectIntensity,
@@ -130,6 +132,7 @@ export default function EffectsCustomization({
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <BackgroundEffectSection
+            isPremium={isPremium}
             backgroundEffect={backgroundEffect}
             setBackgroundEffect={setBackgroundEffect}
             backgroundEffectIntensity={backgroundEffectIntensity}
@@ -140,44 +143,52 @@ export default function EffectsCustomization({
             setBackgroundEffectAboveContainer={setBackgroundEffectAboveContainer}
           />
           <BorderEffectSection
+            isPremium={isPremium}
             borderEffect={borderEffect}
             setBorderEffect={setBorderEffect}
             borderEffectColor={borderEffectColor}
             setBorderEffectColor={setBorderEffectColor}
           />
           <CardTransitionSection
+            isPremium={isPremium}
             cardEffect={cardEffect}
             setCardEffect={setCardEffect}
             cardTransition={cardTransition}
             setCardTransition={setCardTransition}
           />
           <UsernameEffectSection
+            isPremium={isPremium}
             usernameEffect={usernameEffect}
             setUsernameEffect={setUsernameEffect}
             glowEnabled={usernameGlowEnabled}
             setGlowEnabled={setUsernameGlowEnabled}
           />
           <DescriptionEffectSection
+            isPremium={isPremium}
             descriptionEffect={descriptionEffect}
             setDescriptionEffect={setDescriptionEffect}
             glowEnabled={descriptionGlowEnabled}
             setGlowEnabled={setDescriptionGlowEnabled}
           />
           <ClickEffectSection
+            isPremium={isPremium}
             clickEffect={clickEffect}
             setClickEffect={setClickEffect}
           />
           <ClickSoundSection
+            isPremium={isPremium}
             clickSound={clickSound}
             setClickSound={setClickSound}
           />
           <CursorTrailSection
+            isPremium={isPremium}
             cursorTrail={cursorTrail}
             setCursorTrail={setCursorTrail}
             cursorTrailColor={cursorTrailColor}
             setCursorTrailColor={setCursorTrailColor}
           />
           <EntryTransitionSection
+            isPremium={isPremium}
             entryTransition={entryTransition}
             setEntryTransition={setEntryTransition}
             disabled={!enterScreenEnabled}

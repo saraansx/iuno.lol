@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import PremiumLock from "@/components/ui/premium-lock";
 
 type ViewsAnimationStyle = "none" | "countup" | "digitalroll" | "slotroll" | "speeding";
 
-const VIEWS_ANIMATION_STYLES: Array<{ id: ViewsAnimationStyle; name: string }> = [
-  { id: "none", name: "None" },
-  { id: "countup", name: "Countup" },
-  { id: "digitalroll", name: "Digital Roll" },
-  { id: "slotroll", name: "Slot Roll" },
-  { id: "speeding", name: "Speeding" },
+const VIEWS_ANIMATION_STYLES: Array<{ id: ViewsAnimationStyle; name: string; premium: boolean }> = [
+  { id: "none", name: "None", premium: false },
+  { id: "countup", name: "Countup", premium: false },
+  { id: "digitalroll", name: "Digital Roll", premium: true },
+  { id: "slotroll", name: "Slot Roll", premium: true },
+  { id: "speeding", name: "Speeding", premium: true },
 ];
 
 interface ViewsSectionProps {
+  isPremium: boolean;
   isViewsEnabled: boolean;
   setIsViewsEnabled: (v: boolean) => void;
   isViewsAnimationEnabled: boolean;
@@ -24,6 +26,7 @@ interface ViewsSectionProps {
 }
 
 export default function ViewsSection({
+  isPremium,
   isViewsEnabled,
   setIsViewsEnabled,
   isViewsAnimationEnabled,
@@ -143,26 +146,37 @@ export default function ViewsSection({
 
             {styleDropdownOpen && (
               <div className="absolute top-[calc(100%+8px)] left-0 w-full bg-[#111111] border border-white/10 rounded-2xl p-2 z-50 shadow-xl overflow-hidden flex flex-col gap-0.5">
-                {VIEWS_ANIMATION_STYLES.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => {
-                      setViewsAnimationStyle(item.id);
-                      setStyleDropdownOpen(false);
-                    }}
-                    className={`flex items-center justify-between w-full px-4 py-3 rounded-[12px] text-left transition-colors text-[13px] hover:bg-white/5 ${
-                      viewsAnimationStyle === item.id ? "bg-white/5 text-white" : "text-white/80"
-                    }`}
-                  >
-                    <span>{item.name}</span>
-                    {viewsAnimationStyle === item.id && (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12"></polyline>
-                      </svg>
-                    )}
-                  </button>
-                ))}
+                {VIEWS_ANIMATION_STYLES.map((item) => {
+                  const locked = item.premium && !isPremium;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => {
+                        if (locked) return;
+                        setViewsAnimationStyle(item.id);
+                        setStyleDropdownOpen(false);
+                      }}
+                      className={`flex items-center justify-between w-full px-4 py-3 rounded-[12px] text-left transition-colors text-[13px] hover:bg-white/5 ${
+                        viewsAnimationStyle === item.id
+                          ? "bg-white/5 text-white"
+                          : locked
+                          ? "text-white/35"
+                          : "text-white/80"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2">
+                        {item.name}
+                        {item.premium && <PremiumLock size={12} />}
+                      </span>
+                      {viewsAnimationStyle === item.id && (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

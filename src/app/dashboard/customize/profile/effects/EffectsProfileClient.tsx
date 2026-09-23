@@ -8,6 +8,7 @@ import { type FullUser } from "@/lib/features/users/db";
 import EffectsCustomization from "@/components/dashboard/customize/effects/EffectsCustomization";
 import { toast } from "@/components/ui/toast";
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
+import { isPremiumActive } from "@/lib/premium";
 
 export default function EffectsProfileClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
@@ -115,6 +116,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
     <>
       <div className="flex-1 flex flex-col gap-6 pr-[calc(var(--preview-width,380px)+2rem)] pb-20">
         <EffectsCustomization
+          isPremium={isPremiumActive(user)}
           backgroundEffect={backgroundEffect}
           setBackgroundEffect={setBackgroundEffect}
           backgroundEffectIntensity={backgroundEffectIntensity}

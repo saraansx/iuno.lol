@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import PremiumLock from "@/components/ui/premium-lock";
+import { PREMIUM_BORDER_EFFECTS, isPremiumOption } from "@/lib/premium";
 interface BorderEffectSectionProps {
+  isPremium: boolean;
   borderEffect: string;
   setBorderEffect: (val: string) => void;
   borderEffectColor: string;
@@ -23,6 +26,7 @@ const BORDER_EFFECTS = [
 ];
 
 export default function BorderEffectSection({
+  isPremium,
   borderEffect,
   setBorderEffect,
   borderEffectColor,
@@ -108,27 +112,36 @@ export default function BorderEffectSection({
           {borderDropdownOpen && (
             <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto">
               <div className="flex flex-col gap-0.5">
-                {borderEffects.map((effect) => (
+                {borderEffects.map((effect) => {
+                  const locked = isPremiumOption(PREMIUM_BORDER_EFFECTS, effect.id) && !isPremium;
+                  return (
                   <button
                     key={effect.id}
                     type="button"
                     onClick={() => {
+                      if (locked) return;
                       setBorderEffect(effect.id);
                       setBorderDropdownOpen(false);
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${borderEffect === effect.id
                       ? "bg-white/10 text-white font-medium"
+                      : locked
+                      ? "text-white/35"
                       : "text-white/70 hover:bg-white/5 hover:text-white"
                       }`}
                   >
-                    <span className="text-[13px]">{effect.name}</span>
+                    <span className="text-[13px] flex items-center gap-2">
+                      {effect.name}
+                      {isPremiumOption(PREMIUM_BORDER_EFFECTS, effect.id) && <PremiumLock size={12} />}
+                    </span>
                     {borderEffect === effect.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                     )}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

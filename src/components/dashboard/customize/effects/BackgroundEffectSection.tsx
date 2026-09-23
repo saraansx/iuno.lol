@@ -2,7 +2,10 @@
 
 import { useState, useRef, useEffect } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import PremiumLock from "@/components/ui/premium-lock";
+import { isPremiumBackgroundEffect } from "@/lib/premium";
 interface BackgroundEffectSectionProps {
+  isPremium: boolean;
   backgroundEffect: string;
   setBackgroundEffect: (val: string) => void;
   backgroundEffectIntensity: number;
@@ -34,6 +37,7 @@ const BACKGROUND_EFFECTS = [
 const EFFECTS_WITH_COLOR = ["snow", "rain", "particles", "shootingstars", "hearts", "fireflies", "lightning", "meteors", "lightrays", "lighttunnel", "aurora"];
 
 export default function BackgroundEffectSection({
+  isPremium,
   backgroundEffect,
   setBackgroundEffect,
   backgroundEffectIntensity,
@@ -119,10 +123,13 @@ export default function BackgroundEffectSection({
           {bgDropdownOpen && (
             <div className="absolute top-full left-0 right-0 mt-1.5 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
               <div className="flex flex-col">
-                {effects.map((effect) => (
+                {effects.map((effect) => {
+                  const locked = isPremiumBackgroundEffect(effect.id) && !isPremium;
+                  return (
                   <button
                     key={effect.id}
                     onClick={() => {
+                      if (locked) return;
                       setBackgroundEffect(effect.id);
                       if (effect.id === "snow") setBackgroundEffectColor("#ffffff");
                       else if (effect.id === "rain") setBackgroundEffectColor("#7dd3fc");
@@ -139,17 +146,23 @@ export default function BackgroundEffectSection({
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${backgroundEffect === effect.id
                       ? "bg-white/10 text-white font-medium"
+                      : locked
+                      ? "bg-transparent text-white/35"
                       : "bg-transparent hover:bg-white/5 text-white/60"
                       }`}
                   >
-                    <span className="text-[13px]">{effect.name}</span>
+                    <span className="text-[13px] flex items-center gap-2">
+                      {effect.name}
+                      {isPremiumBackgroundEffect(effect.id) && <PremiumLock size={12} />}
+                    </span>
                     {backgroundEffect === effect.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     )}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

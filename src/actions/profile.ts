@@ -4,7 +4,19 @@ import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
-import { isPremiumActive } from "@/lib/premium";
+import {
+  isPremiumActive,
+  isPremiumOption,
+  PREMIUM_BACKGROUND_EFFECTS,
+  PREMIUM_BORDER_EFFECTS,
+  PREMIUM_CARD_EFFECTS,
+  PREMIUM_CARD_TRANSITIONS,
+  PREMIUM_TEXT_EFFECTS,
+  PREMIUM_CLICK_EFFECTS,
+  PREMIUM_CLICK_SOUNDS,
+  PREMIUM_CURSOR_TRAILS,
+  PREMIUM_ENTRY_TRANSITIONS,
+} from "@/lib/premium";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
@@ -493,7 +505,15 @@ export async function updateAppearanceProfile(data: {
   if (data.viewsEnabled !== undefined) setData.viewsEnabled = data.viewsEnabled;
   if (data.viewsAnimationEnabled !== undefined) setData.viewsAnimationEnabled = data.viewsAnimationEnabled;
   if (data.viewsAnimationDuration !== undefined) setData.viewsAnimationDuration = data.viewsAnimationDuration;
-  if (data.viewsAnimationStyle !== undefined) setData.viewsAnimationStyle = data.viewsAnimationStyle;
+  if (data.viewsAnimationStyle !== undefined) {
+    if (data.viewsAnimationStyle !== "countup" && data.viewsAnimationStyle !== "none") {
+      const viewer = await getUserById(userId);
+      if (!isPremiumActive(viewer)) {
+        throw new Error("That animation style needs Premium.");
+      }
+    }
+    setData.viewsAnimationStyle = data.viewsAnimationStyle;
+  }
   if (data.commentsEnabled !== undefined) setData.commentsEnabled = data.commentsEnabled;
   if (data.showCommentsPublicly !== undefined) setData.showCommentsPublicly = data.showCommentsPublicly;
   if (data.allowNewComments !== undefined) setData.allowNewComments = data.allowNewComments;
@@ -911,6 +931,29 @@ export async function updateEffectsProfile(data: {
   }
 
   const setData: Record<string, unknown> = {};
+
+  // Premium-gated effects: reject non-premium users up front so the
+  // dashboard lock can't be bypassed with direct action calls.
+  const gatedEffects: Array<[unknown, ReadonlySet<string>, string]> = [
+    [data.backgroundEffect, PREMIUM_BACKGROUND_EFFECTS, "That background effect needs Premium."],
+    [data.borderEffect, PREMIUM_BORDER_EFFECTS, "That border effect needs Premium."],
+    [data.cardEffect, PREMIUM_CARD_EFFECTS, "That card effect needs Premium."],
+    [data.cardTransition, PREMIUM_CARD_TRANSITIONS, "That card transition needs Premium."],
+    [data.usernameEffect, PREMIUM_TEXT_EFFECTS, "That username effect needs Premium."],
+    [data.descriptionEffect, PREMIUM_TEXT_EFFECTS, "That description effect needs Premium."],
+    [data.cursorTrail, PREMIUM_CURSOR_TRAILS, "That cursor trail needs Premium."],
+    [data.clickEffect, PREMIUM_CLICK_EFFECTS, "That click effect needs Premium."],
+    [data.clickSound, PREMIUM_CLICK_SOUNDS, "That click sound needs Premium."],
+    [data.entryTransition, PREMIUM_ENTRY_TRANSITIONS, "That entry transition needs Premium."],
+  ];
+  if (gatedEffects.some(([val, set]) => typeof val === "string" && isPremiumOption(set, val.trim()))) {
+    const prevUser = await getUserById(userId);
+    for (const [val, set, msg] of gatedEffects) {
+      if (typeof val === "string" && isPremiumOption(set, val.trim()) && !isPremiumActive(prevUser)) {
+        throw new Error(msg);
+      }
+    }
+  }
 
   if (data.backgroundEffect !== undefined) setData.backgroundEffect = data.backgroundEffect?.slice(0, 50) ?? null;
   if (data.backgroundEffectIntensity !== undefined) setData.backgroundEffectIntensity = data.backgroundEffectIntensity;

@@ -16,6 +16,7 @@ import ColorPickerInput from "@/components/ui/color-picker";
 import NumberDraftInput from "@/components/ui/number-draft-input";
 
 import { type FullUser } from "@/lib/features/users/db";
+import { isPremiumActive } from "@/lib/premium";
 
 type SectionKey =
   | "profile-bg"
@@ -525,6 +526,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
 
           <div className="col-span-1 xl:col-span-2">
             <ViewsSection
+              isPremium={isPremiumActive(user)}
               isViewsEnabled={isViewsEnabled}
               setIsViewsEnabled={setIsViewsEnabled}
               isViewsAnimationEnabled={isViewsAnimationEnabled}

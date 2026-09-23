@@ -2,8 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
+import PremiumLock from "@/components/ui/premium-lock";
+import { PREMIUM_CURSOR_TRAILS, isPremiumOption } from "@/lib/premium";
 
 interface CursorTrailSectionProps {
+  isPremium: boolean;
   cursorTrail: string;
   setCursorTrail: (val: string) => void;
   cursorTrailColor: string;
@@ -24,6 +27,7 @@ const CURSOR_TRAILS = [
 ];
 
 export default function CursorTrailSection({
+  isPremium,
   cursorTrail,
   setCursorTrail,
   cursorTrailColor,
@@ -93,28 +97,37 @@ export default function CursorTrailSection({
           {dropdownOpen && (
             <div className="absolute top-full left-0 w-full mt-1.5 bg-[#161616] border border-white/10 rounded-xl p-1.5 z-30 shadow-xl max-h-48 overflow-y-auto custom-scrollbar">
               <div className="flex flex-col gap-0.5">
-                {cursorTrails.map((item) => (
+                {cursorTrails.map((item) => {
+                  const locked = isPremiumOption(PREMIUM_CURSOR_TRAILS, item.id) && !isPremium;
+                  return (
                   <button
                     key={item.id}
                     type="button"
                     onClick={() => {
+                      if (locked) return;
                       setCursorTrail(item.id);
                       setDropdownOpen(false);
                     }}
                     className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 ${
                       cursorTrail === item.id
                         ? "bg-white/10 text-white font-medium"
+                        : locked
+                        ? "text-white/35"
                         : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                   >
-                    <span className="text-[13px]">{item.name}</span>
+                    <span className="text-[13px] flex items-center gap-2">
+                      {item.name}
+                      {isPremiumOption(PREMIUM_CURSOR_TRAILS, item.id) && <PremiumLock size={12} />}
+                    </span>
                     {cursorTrail === item.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
                     )}
                   </button>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
