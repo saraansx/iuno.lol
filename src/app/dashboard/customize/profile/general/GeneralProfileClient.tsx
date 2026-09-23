@@ -58,6 +58,15 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setBannerBlend = (val: boolean) => updateOverrides({ bannerBlend: val === initialBannerBlend ? undefined : val });
   const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
   const setBannerBackgroundUrl = (val: string) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
+  const initialBannerBackgroundUrl2 = user?.bannerBackgroundUrl2 ?? "";
+  const bannerBackgroundUrl2 = overrides.bannerBackgroundUrl2 ?? initialBannerBackgroundUrl2;
+  const setBannerBackgroundUrl2 = (val: string) => updateOverrides({ bannerBackgroundUrl2: val === initialBannerBackgroundUrl2 ? undefined : val });
+  const initialBannerBackgroundShuffle = user?.bannerBackgroundShuffle ?? false;
+  const bannerBackgroundShuffle = overrides.bannerBackgroundShuffle !== undefined ? Boolean(overrides.bannerBackgroundShuffle) : Boolean(initialBannerBackgroundShuffle);
+  const setBannerBackgroundShuffle = (val: boolean) => updateOverrides({ bannerBackgroundShuffle: val === initialBannerBackgroundShuffle ? undefined : val });
+  const initialBannerBackgroundAutoplay = user?.bannerBackgroundAutoplay ?? true;
+  const bannerBackgroundAutoplay = overrides.bannerBackgroundAutoplay !== undefined ? Boolean(overrides.bannerBackgroundAutoplay) : Boolean(initialBannerBackgroundAutoplay);
+  const setBannerBackgroundAutoplay = (val: boolean) => updateOverrides({ bannerBackgroundAutoplay: val === initialBannerBackgroundAutoplay ? undefined : val });
   const initialBannerBackgroundSound = user?.bannerBackgroundSound ?? false;
   const bannerBackgroundSound = overrides.bannerBackgroundSound !== undefined ? Boolean(overrides.bannerBackgroundSound) : Boolean(initialBannerBackgroundSound);
   const setBannerBackgroundSound = (val: boolean) => updateOverrides({ bannerBackgroundSound: val === initialBannerBackgroundSound ? undefined : val });
@@ -237,6 +246,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setCrtwarpPaused = (val: boolean) => updateOverrides({ crtwarpPaused: val === initialCrtwarpPaused ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
+  const [bgSlot, setBgSlot] = useState<1 | 2>(1);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
   const [effectsPickerOpen, setEffectsPickerOpen] = useState(false);
 
@@ -299,6 +309,14 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setBannerBlend={setBannerBlend}
           bannerBackgroundUrl={bannerBackgroundUrl}
           setBannerBackgroundUrl={setBannerBackgroundUrl}
+          bannerBackgroundUrl2={bannerBackgroundUrl2}
+          setBannerBackgroundUrl2={setBannerBackgroundUrl2}
+          bannerBackgroundShuffle={bannerBackgroundShuffle}
+          setBannerBackgroundShuffle={setBannerBackgroundShuffle}
+          bannerBackgroundAutoplay={bannerBackgroundAutoplay}
+          setBannerBackgroundAutoplay={setBannerBackgroundAutoplay}
+          bgSlot={bgSlot}
+          setBgSlot={setBgSlot}
           bannerBackgroundSound={bannerBackgroundSound}
           setBannerBackgroundSound={setBannerBackgroundSound}
           auroraColor1={auroraColor1}
@@ -460,8 +478,13 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         open={bannerBackgroundModalOpen}
         onClose={() => setBannerBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {
-          setBannerBackgroundUrl(url);
-          if (rawFile) setPendingFile("background", rawFile);
+          if (bgSlot === 2) {
+            setBannerBackgroundUrl2(url);
+            if (rawFile) setPendingFile("background2", rawFile);
+          } else {
+            setBannerBackgroundUrl(url);
+            if (rawFile) setPendingFile("background", rawFile);
+          }
         }}
       />
 
@@ -492,6 +515,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
 
       <DashboardProfilePreview
         user={user}
+        bgPreviewIdx={bgSlot === 2 ? 1 : 0}
         overrides={{
           ...overrides,
           displayName,
@@ -503,6 +527,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           bannerImageUrl,
           bannerBlend,
           bannerBackgroundUrl,
+          bannerBackgroundUrl2,
+          bannerBackgroundShuffle,
+          bannerBackgroundAutoplay,
           auroraColor1,
           auroraColor2,
           auroraColor3,
@@ -602,6 +629,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
             }
             if (pendingFiles.background && !isAnimatedBackgroundUrl(finalOverrides.bannerBackgroundUrl as string | undefined)) {
               finalOverrides.bannerBackgroundUrl = await uploadPendingFile(pendingFiles.background, "background");
+            }
+            if (pendingFiles.background2 && !isAnimatedBackgroundUrl(finalOverrides.bannerBackgroundUrl2 as string | undefined)) {
+              finalOverrides.bannerBackgroundUrl2 = await uploadPendingFile(pendingFiles.background2, "background");
             }
 
             await updateGeneralProfile(

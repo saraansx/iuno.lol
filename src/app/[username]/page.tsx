@@ -108,6 +108,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       bannerImageUrl: userSettings.bannerImageUrl,
       bannerBlend: userSettings.bannerBlend,
       bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
+      bannerBackgroundUrl2: userSettings.bannerBackgroundUrl2,
+      bannerBackgroundShuffle: userSettings.bannerBackgroundShuffle,
+      bannerBackgroundAutoplay: userSettings.bannerBackgroundAutoplay,
       bannerBackgroundSound: userSettings.bannerBackgroundSound,
       profileBgColor: userSettings.profileBgColor,
       profileBgOpacity: userSettings.profileBgOpacity,
@@ -391,6 +394,9 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBlend={user.bannerBlend ?? false}
         bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
+        bannerBackgroundUrl2={user.bannerBackgroundUrl2 ?? undefined}
+        bannerBackgroundShuffle={user.bannerBackgroundShuffle ?? undefined}
+        bannerBackgroundAutoplay={user.bannerBackgroundAutoplay ?? undefined}
         bannerBackgroundSound={user.bannerBackgroundSound ?? false}
         auroraColor1={user.auroraColor1 ?? undefined}
         auroraColor2={user.auroraColor2 ?? undefined}

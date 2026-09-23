@@ -9,6 +9,7 @@ export default function CursorUpload(props: MediaUploadModalProps) {
       {...props}
       title="Import Cursor"
       limitMB={1}
+      imagesOnly
       transform={(objectUrl) => shrinkToCursorSize(objectUrl)}
     />
   );

@@ -118,6 +118,10 @@ interface Layout1Props {
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
+  bannerBackgroundUrl2?: string | null;
+  bannerBackgroundShuffle?: boolean | null;
+  bannerBackgroundAutoplay?: boolean | null;
+  bgPreviewIdx?: 0 | 1 | null;
   bannerBackgroundSound?: boolean;
   auroraColor1?: string | null;
   auroraColor2?: string | null;
@@ -454,7 +458,11 @@ const Layout1 = ({
   effectHue = 0,
   bannerImageUrl,
   bannerBlend = false,
-  bannerBackgroundUrl,
+  bannerBackgroundUrl: bannerBackgroundUrlProp,
+  bannerBackgroundUrl2: bannerBackgroundUrl2Prop,
+  bannerBackgroundShuffle,
+  bannerBackgroundAutoplay,
+  bgPreviewIdx,
   bannerBackgroundSound = false,
   auroraColor1,
   auroraColor2,
@@ -706,6 +714,21 @@ const Layout1 = ({
   const [bgSoundOn, setBgSoundOn] = useState(false);
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const [entered, setEntered] = useState(!enterScreenEnabled);
+
+  // Single-background playlist: one shows at a time. Shuffle picks a random
+  // one on load; a video hands over to the other slot only if it is a video
+  // (video+image keeps looping the video, images/presets stay put).
+  // bgPreviewIdx locks the preview to the selected slot (dashboard only).
+  const [bgIdx, setBgIdx] = useState<0 | 1>(() => {
+    if (bannerBackgroundUrlProp && bannerBackgroundUrl2Prop && bannerBackgroundShuffle && Math.random() < 0.5) return 1;
+    return bannerBackgroundUrlProp ? 0 : 1;
+  });
+  const locked = bgPreviewIdx === 0 || bgPreviewIdx === 1;
+  const effectiveIdx = locked ? bgPreviewIdx : bgIdx;
+  const bannerBackgroundUrl = (effectiveIdx === 0 ? bannerBackgroundUrlProp : bannerBackgroundUrl2Prop) || null;
+  const otherBgUrl = effectiveIdx === 0 ? bannerBackgroundUrl2Prop : bannerBackgroundUrlProp;
+  const autoplay = bannerBackgroundAutoplay ?? true;
+  const otherIsVideo = !locked && autoplay && Boolean(otherBgUrl) && isVideoUrl(otherBgUrl);
   const handleEntered = () => {
     setEntered(true);
     const el = bgVideoRef.current;
@@ -1231,7 +1254,7 @@ const sectionSurface: React.CSSProperties = {
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (
             <video
-              key={bannerBackgroundUrl}
+              key={`front-${bannerBackgroundUrl}`}
               src={bannerBackgroundUrl}
               className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
               style={{
@@ -1240,8 +1263,9 @@ const sectionSurface: React.CSSProperties = {
               autoPlay={entered}
               muted={!bgSoundOn}
               ref={bgVideoRef}
-              loop
+              loop={!otherIsVideo}
               playsInline
+              onEnded={otherIsVideo ? () => setBgIdx((i) => (i === 0 ? 1 : 0)) : undefined}
             />
           ) : (
           <div className="absolute inset-0 z-0 pointer-events-none">

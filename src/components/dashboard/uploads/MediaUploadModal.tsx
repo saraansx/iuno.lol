@@ -18,6 +18,8 @@ export interface MediaUploadModalProps {
   cropShape?: "round" | "rect";
   cropAspect?: number;
   cropTitle?: string;
+  /** When true, video files are rejected up front (images only). */
+  imagesOnly?: boolean;
 }
 
 interface Props extends MediaUploadModalProps {
@@ -41,6 +43,7 @@ export default function MediaUploadModal({
   cropShape,
   cropAspect,
   cropTitle,
+  imagesOnly,
 }: Props) {
   const appliedUrls = useRef<Set<string>>(new Set());
   const revokeIfUnused = (url: string | null) => {
@@ -93,6 +96,12 @@ export default function MediaUploadModal({
   const handleFileSelected = (file: File) => {
     if (!file) return;
 
+    const looksLikeVideo =
+      file.type.startsWith("video") || /\.(mp4|webm|ogg|ogv|mov|mkv|avi|gifv)$/i.test(file.name);
+    if (imagesOnly && looksLikeVideo) {
+      setErrorMsg("Videos aren't supported here. Please choose an image.");
+      return;
+    }
     if (!cropShape || file.type.startsWith("video") || file.type.includes("gif")) {
       processFile(file);
       return;
@@ -295,6 +304,7 @@ export default function MediaUploadModal({
               <div className="flex flex-col gap-1.5">
                 <FileUpload
                   onChange={(files) => files[0] && handleFileSelected(files[0])}
+                  accept={imagesOnly ? "image/*" : undefined}
                   isLoading={isLoading}
                   uploadProgress={uploadProgress ?? 0}
                   statusText={statusText ?? undefined}

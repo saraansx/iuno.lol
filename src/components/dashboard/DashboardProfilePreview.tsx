@@ -13,9 +13,10 @@ interface DashboardProfilePreviewProps {
   user: FullUser | null;
   overrides?: Partial<FullUser>;
   equippedBadges?: string[];
+  bgPreviewIdx?: 0 | 1 | null;
 }
 
-export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp }: DashboardProfilePreviewProps) {
+export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp, bgPreviewIdx }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
   const [fetchedBadges, setFetchedBadges] = useState<string[] | null>(null);
 
@@ -64,6 +65,10 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}
       bannerBlend={deferredOverrides.bannerBlend ?? user?.bannerBlend ?? false}
       bannerBackgroundUrl={deferredOverrides.bannerBackgroundUrl ?? user?.bannerBackgroundUrl ?? undefined}
+      bannerBackgroundUrl2={deferredOverrides.bannerBackgroundUrl2 ?? user?.bannerBackgroundUrl2 ?? undefined}
+      bannerBackgroundShuffle={deferredOverrides.bannerBackgroundShuffle ?? user?.bannerBackgroundShuffle ?? undefined}
+      bannerBackgroundAutoplay={deferredOverrides.bannerBackgroundAutoplay ?? user?.bannerBackgroundAutoplay ?? undefined}
+      bgPreviewIdx={bgPreviewIdx}
       auroraColor1={deferredOverrides.auroraColor1 ?? user?.auroraColor1 ?? undefined}
       auroraColor2={deferredOverrides.auroraColor2 ?? user?.auroraColor2 ?? undefined}
       auroraColor3={deferredOverrides.auroraColor3 ?? user?.auroraColor3 ?? undefined}

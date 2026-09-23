@@ -16,6 +16,7 @@ export default function EmbedImageUpload(
         {...rest}
         title="Import Embed Image"
         limitMB={5}
+        imagesOnly
         assetType="embed"
         cropShape="round"
         cropAspect={1}
@@ -29,6 +30,7 @@ export default function EmbedImageUpload(
       {...rest}
       title="Import Embed Image"
       limitMB={5}
+      imagesOnly
       assetType="embed"
       cropShape="rect"
       cropAspect={1200 / 630}

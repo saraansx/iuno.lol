@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type DragEvent } from "react";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { ANIMATED_BACKGROUNDS, animatedBackgroundId, animatedBackgroundUrl } from "@/lib/animated-background";
 import AnimatedBackground from "@/components/profile/layouts/AnimatedBackground";
@@ -21,6 +21,14 @@ interface AssetsSectionProps {
   setBannerBlend: (blend: boolean) => void;
   bannerBackgroundUrl: string;
   setBannerBackgroundUrl: (url: string) => void;
+  bannerBackgroundUrl2: string;
+  setBannerBackgroundUrl2: (url: string) => void;
+  bgSlot: 1 | 2;
+  setBgSlot: (slot: 1 | 2) => void;
+  bannerBackgroundShuffle: boolean;
+  setBannerBackgroundShuffle: (val: boolean) => void;
+  bannerBackgroundAutoplay: boolean;
+  setBannerBackgroundAutoplay: (val: boolean) => void;
   bannerBackgroundSound: boolean;
   setBannerBackgroundSound: (sound: boolean) => void;
   auroraColor1: string;
@@ -216,6 +224,15 @@ function SettingSelect<T extends string | number>({ label, value, options, onCha
   );
 }
 
+function fileNameOf(url: string): string {
+  try {
+    const name = decodeURIComponent(new URL(url).pathname.split("/").pop() || "");
+    return name || url;
+  } catch {
+    return url;
+  }
+}
+
 function SettingSlider({ label, value, min, max, step, onChange }: {
   label: string;
   value: number;
@@ -270,6 +287,14 @@ export default function AssetsSection({
   setBannerBlend,
   bannerBackgroundUrl,
   setBannerBackgroundUrl,
+  bannerBackgroundUrl2,
+  setBannerBackgroundUrl2,
+  bgSlot,
+  setBgSlot,
+  bannerBackgroundShuffle,
+  setBannerBackgroundShuffle,
+  bannerBackgroundAutoplay,
+  setBannerBackgroundAutoplay,
   bannerBackgroundSound,
   setBannerBackgroundSound,
   auroraColor1,
@@ -395,7 +420,76 @@ export default function AssetsSection({
   setBannerBackgroundModalOpen,
   isVideoUrl,
 }: AssetsSectionProps) {
-  const activeAnimatedId = animatedBackgroundId(bannerBackgroundUrl);
+  const activeUrl = bgSlot === 2 ? bannerBackgroundUrl2 : bannerBackgroundUrl;
+  const setActiveUrl = bgSlot === 2 ? setBannerBackgroundUrl2 : setBannerBackgroundUrl;
+  const activeAnimatedId = animatedBackgroundId(activeUrl);
+  const [openMenu, setOpenMenu] = useState<1 | 2 | "banner" | null>(null);
+  const [bgHeaderMenu, setBgHeaderMenu] = useState(false);
+
+  const bgList = (
+    [
+      { slot: 1 as const, url: bannerBackgroundUrl },
+      { slot: 2 as const, url: bannerBackgroundUrl2 },
+    ]
+  ).filter((r) => r.url);
+  const firstEmptySlot = (bannerBackgroundUrl ? 2 : 1) as 1 | 2;
+
+  const bgSettingsFor = (id: string | null) => ({
+    aurora: id === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3] as [string, string, string], speed: auroraSpeed, blend: auroraBlend } : undefined,
+    darkveil: id === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined,
+    pixelblast: id === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined,
+    colorbends: id === "colorbends" ? { color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth } : undefined,
+    liquidchrome: id === "liquidchrome" ? { color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive } : undefined,
+    crtwarp: id === "crtwarp" ? { color: crtwarpColor, background: crtwarpBackground, speed: crtwarpSpeed, curvature: crtwarpCurvature, waveAmount: crtwarpWaveAmount, waveDensity: crtwarpWaveDensity, scanStrength: crtwarpScanStrength, scanDensity: crtwarpScanDensity, bloom: crtwarpBloom, bloomRadius: crtwarpBloomRadius, noise: crtwarpNoise, vignette: crtwarpVignette, brightness: crtwarpBrightness, rgbShift: crtwarpRgbShift, pixelSize: crtwarpPixelSize, renderQuality: crtwarpRenderQuality, frameRate: crtwarpFrameRate, pointerWarp: crtwarpPointerWarp, pointerStrength: crtwarpPointerStrength, paused: crtwarpPaused } : undefined,
+  });
+
+  const swapBackgrounds = () => {
+    setBannerBackgroundUrl(bannerBackgroundUrl2);
+    setBannerBackgroundUrl2(bannerBackgroundUrl);
+    setBgSlot(bgSlot === 1 ? 2 : 1);
+    setOpenMenu(null);
+  };
+
+  const [draggedSlot, setDraggedSlot] = useState<1 | 2 | null>(null);
+  const [dragOverSlot, setDragOverSlot] = useState<1 | 2 | null>(null);
+
+  const handleDragStart = (e: DragEvent, s: 1 | 2) => {
+    setDraggedSlot(s);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOver = (e: DragEvent, s: 1 | 2) => {
+    e.preventDefault();
+    if (draggedSlot === null || draggedSlot === s) return;
+    setDragOverSlot(s);
+  };
+
+  const handleDrop = (e: DragEvent, s: 1 | 2) => {
+    e.preventDefault();
+    if (draggedSlot === null || draggedSlot === s) {
+      setDraggedSlot(null);
+      setDragOverSlot(null);
+      return;
+    }
+    swapBackgrounds();
+    setDraggedSlot(null);
+    setDragOverSlot(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedSlot(null);
+    setDragOverSlot(null);
+  };
+
+  const deleteBackground = (s: 1 | 2) => {
+    if (s === 2) setBannerBackgroundUrl2("");
+    else setBannerBackgroundUrl("");
+    if (bgSlot === s) {
+      const other = s === 1 ? bannerBackgroundUrl2 : bannerBackgroundUrl;
+      setBgSlot(other ? (s === 1 ? 2 : 1) : 1);
+    }
+    setOpenMenu(null);
+  };
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [prevAnimatedId, setPrevAnimatedId] = useState<string | null>(null);
 
@@ -548,106 +642,191 @@ export default function AssetsSection({
 
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[12.5px] font-medium text-white/90">Background</label>
-              {bannerBackgroundUrl && isVideoUrl(bannerBackgroundUrl) && (
-                <div className="flex items-center gap-2">
-                  <span className="text-[12px] text-white/50">
-                    {bannerBackgroundSound ? "Sound · live page only" : "Sound"}
-                  </span>
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col">
+                <h3 className="text-white font-normal text-[16px] tracking-tight">Backgrounds</h3>
+                <p className="text-white/40 text-[13px] mt-0.5">Images or videos that play behind your page.</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="relative shrink-0">
                   <button
                     type="button"
-                    onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
-                    title={bannerBackgroundSound ? "Mute background video" : "Play background video with sound"}
-                    className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
-                      bannerBackgroundSound ? "bg-[#5b6cf5]" : "bg-white/10"
-                    }`}
+                    onClick={() => setBgHeaderMenu(!bgHeaderMenu)}
+                    title="Backgrounds settings"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
                   >
-                    <div
-                      className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${
-                        bannerBackgroundSound ? "right-[4px]" : "left-[4px]"
-                      }`}
-                    />
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                   </button>
+                  {bgHeaderMenu && (
+                    <>
+                      <button type="button" aria-label="Close menu" onClick={() => setBgHeaderMenu(false)} className="fixed inset-0 z-30 cursor-default" />
+                      <div className="absolute right-0 top-full mt-1.5 z-40 w-56 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
+                        <div className="flex items-center justify-between px-3 py-2 rounded-md">
+                          <div className="flex flex-col">
+                            <span className="text-[13px] text-white/90">Shuffle</span>
+                            <span className="text-[11px] text-white/35">Random background on load</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setBannerBackgroundShuffle(!bannerBackgroundShuffle)}
+                            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                              bannerBackgroundShuffle ? "bg-[#5b6cf5]" : "bg-white/10"
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundShuffle ? "right-[4px]" : "left-[4px]"}`} />
+                          </button>
+                        </div>
+                        <div className="flex items-center justify-between px-3 py-2 rounded-md">
+                          <div className="flex flex-col">
+                            <span className="text-[13px] text-white/90">Autoplay</span>
+                            <span className="text-[11px] text-white/35">Play next video automatically</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setBannerBackgroundAutoplay(!bannerBackgroundAutoplay)}
+                            className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                              bannerBackgroundAutoplay ? "bg-[#5b6cf5]" : "bg-white/10"
+                            }`}
+                          >
+                            <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundAutoplay ? "right-[4px]" : "left-[4px]"}`} />
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              )}
+                {bgList.length < 2 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgSlot(firstEmptySlot);
+                      setBannerBackgroundModalOpen(true);
+                    }}
+                    className="shrink-0 flex items-center gap-1.5 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white text-[13px] font-normal py-2 px-3.5 rounded-xl transition-all cursor-pointer"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                    Add background
+                  </button>
+                )}
+              </div>
             </div>
-            <div
-              onClick={() => setBannerBackgroundModalOpen(true)}
-              className="relative h-32 rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
-            >
-              {bannerBackgroundUrl && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setBannerBackgroundUrl("");
-                  }}
-                  className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-lg border border-dashed border-red-400/80 text-red-400 bg-black/40 hover:bg-red-400/20 hover:border-red-400 hover:text-red-300 transition-all"
-                  title="Remove background"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
-                </button>
-              )}
-              {bannerBackgroundUrl ? (
-                (() => {
-                  const animatedId = animatedBackgroundId(bannerBackgroundUrl);
-                  return animatedId ? (
-                    <AnimatedBackground
-                      id={animatedId}
-                      aurora={animatedId === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend } : undefined}
-                      darkveil={animatedId === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined}
-                      pixelblast={animatedId === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined}
-                      colorbends={animatedId === "colorbends" ? { color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth } : undefined}
-                      liquidchrome={animatedId === "liquidchrome" ? { color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive } : undefined}
-                      crtwarp={animatedId === "crtwarp" ? { color: crtwarpColor, background: crtwarpBackground, speed: crtwarpSpeed, curvature: crtwarpCurvature, waveAmount: crtwarpWaveAmount, waveDensity: crtwarpWaveDensity, scanStrength: crtwarpScanStrength, scanDensity: crtwarpScanDensity, bloom: crtwarpBloom, bloomRadius: crtwarpBloomRadius, noise: crtwarpNoise, vignette: crtwarpVignette, brightness: crtwarpBrightness, rgbShift: crtwarpRgbShift, pixelSize: crtwarpPixelSize, renderQuality: crtwarpRenderQuality, frameRate: crtwarpFrameRate, pointerWarp: crtwarpPointerWarp, pointerStrength: crtwarpPointerStrength, paused: crtwarpPaused } : undefined}
-                    />
-                  ) : isVideoUrl(bannerBackgroundUrl) ? (
-                  <>
-                    <video
-                      src={bannerBackgroundUrl}
-                      className="absolute inset-0 w-full h-full object-cover scale-105"
-                      style={{ filter: "blur(4px)" }}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                  </>
-                ) : (
-                  <>
-                    <Image
-                      src={bannerBackgroundUrl}
-                      alt="Background preview"
-                      fill
-                      unoptimized
-                      loading="eager"
-                      className="object-cover scale-105"
-                      style={{ filter: "blur(4px)" }}
-                    />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                  </>
-                )
-                })()
+            <div className="flex flex-col gap-2 h-full">
+              {bgList.length === 0 ? (
+                <div className="flex-1 min-h-[190px] flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-10 px-4 text-center">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                  <p className="text-[13px] font-medium text-white/90 mt-1">No backgrounds yet.</p>
+                  <p className="text-[12px] text-white/35">Add an image or video to bring your page to life.</p>
+                </div>
               ) : (
-                <div className="absolute inset-0 bg-[#161616]" />
-              )}
-              {!animatedBackgroundId(bannerBackgroundUrl) && (
-                <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                  <span className="text-[13px] font-medium text-white/90">{bannerBackgroundUrl ? "Change" : "Upload"} Background</span>
+                <div className="flex-1 rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
+                {bgList.map(({ slot: s, url }) => {
+                  const pid = animatedBackgroundId(url!);
+                  const preset = pid ? ANIMATED_BACKGROUNDS.find((p) => p.id === pid) : null;
+                  const title = preset ? preset.name : fileNameOf(url!);
+                  const sub = preset ? `animated:${pid}` : (isVideoUrl(url!) ? "Video" : "Image");
+                  return (
+                    <div
+                      key={s}
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, s)}
+                      onDragOver={(e) => handleDragOver(e, s)}
+                      onDrop={(e) => handleDrop(e, s)}
+                      onDragEnd={handleDragEnd}
+                      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors select-none ${draggedSlot === s
+                        ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
+                        : dragOverSlot === s
+                        ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
+                        : bgSlot === s
+                        ? "bg-white/[0.04] border-[#5b6cf5]/60"
+                        : "bg-[#161616] border-white/5"
+                      }`}
+                    >
+                      <span
+                        draggable
+                        onDragStart={(e) => {
+                          e.stopPropagation();
+                          handleDragStart(e, s);
+                        }}
+                        onDragEnd={handleDragEnd}
+                        title="Drag to reorder"
+                        className="cursor-grab active:cursor-grabbing text-white/20 hover:text-white/60 transition-colors shrink-0"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+                      </span>
+                      <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
+                        {pid ? (
+                          <AnimatedBackground id={pid} {...bgSettingsFor(pid)} />
+                        ) : isVideoUrl(url!) ? (
+                          <video src={url!} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
+                        ) : (
+                          <Image src={url!} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <button type="button" onClick={() => setBgSlot(s)} className="flex-1 min-w-0 text-left cursor-pointer">
+                        <p className="text-[13px] text-white truncate">{title}</p>
+                        <p className="text-[11px] text-white/35 truncate">{sub}</p>
+                      </button>
+                      {isVideoUrl(url!) && (
+                        <button
+                          type="button"
+                          onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
+                          title={bannerBackgroundSound ? "Mute background video" : "Play background video with sound"}
+                          className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                            bannerBackgroundSound ? "bg-[#5b6cf5]" : "bg-white/10"
+                          }`}
+                        >
+                          <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${bannerBackgroundSound ? "right-[4px]" : "left-[4px]"}`} />
+                        </button>
+                      )}
+                      <div className="relative shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setOpenMenu(openMenu === s ? null : s)}
+                          className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                          title="Background options"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+                        </button>
+                        {openMenu === s && (
+                          <>
+                            <button type="button" aria-label="Close menu" onClick={() => setOpenMenu(null)} className="fixed inset-0 z-30 cursor-default" />
+                            <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
+                              {bgList.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={swapBackgrounds}
+                                  className="flex items-center px-3 py-2 rounded-md text-[13px] text-white/70 hover:bg-white/5 hover:text-white transition-all text-left cursor-pointer"
+                                >
+                                  Swap order
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => deleteBackground(s)}
+                                className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
                 </div>
               )}
             </div>
-            <p className="text-[11px] text-white/30 leading-[1.6]">Supports images (JPG, PNG, GIF, WebP) and videos (MP4, WebM, OGG, MOV, max 50MB).<br/>Recommended size: 1920x1080.</p>
+            <p className="text-[11px] text-white/30 leading-[1.6]">Supports images (JPG, PNG, GIF, WebP) and videos (MP4, WebM, OGG, MOV, max 50MB). Recommended size: 1920x1080.</p>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[12.5px] font-medium text-white/90">Banner</label>
-              <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-2 h-full">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col">
+                <h3 className="text-white font-normal text-[16px] tracking-tight">Banner</h3>
+                <p className="text-white/40 text-[13px] mt-0.5">Wide image shown at the top of your page.</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0 pt-1">
                 <span className="text-[12px] text-white/50">Blend</span>
                 <button
                   type="button"
@@ -664,60 +843,65 @@ export default function AssetsSection({
                 </button>
               </div>
             </div>
-            <div
-              onClick={() => setBannerImageModalOpen(true)}
-              className="relative h-32 rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
-            >
-              {bannerImageUrl && (
+            {bannerImageUrl ? (
+              <div className="flex-1 rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
+              <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/25 shrink-0"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
+                <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
+                  {isVideoUrl(bannerImageUrl) ? (
+                    <video src={bannerImageUrl} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
+                  ) : (
+                    <Image src={bannerImageUrl} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
+                  )}
+                </div>
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setBannerImageUrl("");
-                  }}
-                  className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-lg border border-dashed border-red-500/80 text-red-500 bg-black/40 hover:bg-red-500/20 hover:border-red-500 hover:text-red-400 transition-all"
-                  title="Remove banner"
+                  type="button"
+                  onClick={() => setBannerImageModalOpen(true)}
+                  className="flex-1 min-w-0 text-left cursor-pointer"
+                  title="Change banner"
                 >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-                  </svg>
+                  <p className="text-[13px] text-white truncate">{fileNameOf(bannerImageUrl)}</p>
+                  <p className="text-[11px] text-white/35 truncate">Banner image</p>
                 </button>
-              )}
-              {bannerImageUrl ? (
-                isVideoUrl(bannerImageUrl) ? (
-                  <>
-                    <video
-                      src={bannerImageUrl}
-                      className="absolute inset-0 w-full h-full object-cover scale-105"
-                      style={{ filter: "blur(4px)" }}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                  </>
-                ) : (
-                  <>
-                    <Image
-                      src={bannerImageUrl}
-                      alt="Banner preview"
-                      fill
-                      unoptimized
-                      loading="eager"
-                      className="object-cover scale-105"
-                      style={{ filter: "blur(4px)" }}
-                    />
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-                  </>
-                )
-              ) : (
-                <div className="absolute inset-0 bg-[#161616]" />
-              )}
-              <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-                <span className="text-[13px] font-medium text-white/90">{bannerImageUrl ? "Change" : "Upload"} Banner</span>
+                <div className="relative shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setOpenMenu(openMenu === "banner" ? null : "banner")}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                    title="Banner options"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+                  </button>
+                  {openMenu === "banner" && (
+                    <>
+                      <button type="button" aria-label="Close menu" onClick={() => setOpenMenu(null)} className="fixed inset-0 z-30 cursor-default" />
+                      <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBannerImageUrl("");
+                            setOpenMenu(null);
+                          }}
+                          className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+              </div>
+            ) : (
+              <div
+                onClick={() => setBannerImageModalOpen(true)}
+                className="flex-1 min-h-[190px] flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-10 px-4 text-center cursor-pointer hover:border-white/20 transition-colors"
+              >
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+                <p className="text-[13px] font-medium text-white/90 mt-1">No banner yet.</p>
+                <p className="text-[12px] text-white/35">Add an image to top your page off.</p>
+              </div>
+            )}
             <p className="text-[11px] text-white/30 leading-[1.6]">Recommended size: 1920x1080.</p>
           </div>
         </div>
@@ -729,13 +913,13 @@ export default function AssetsSection({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {ANIMATED_BACKGROUNDS.map((preset) => {
-              const active = animatedBackgroundId(bannerBackgroundUrl) === preset.id;
+              const active = activeAnimatedId === preset.id;
               return (
                 <button
                   key={preset.id}
                   type="button"
                   title={preset.name}
-                  onClick={() => setBannerBackgroundUrl(active ? "" : animatedBackgroundUrl(preset.id))}
+                  onClick={() => setActiveUrl(active ? "" : animatedBackgroundUrl(preset.id))}
                     className={`relative h-20 rounded-xl overflow-hidden border transition-colors cursor-pointer focus:outline-none ${
                       active
                         ? "border-[#5b6cf5] ring-1 ring-[#5b6cf5]/60"
@@ -772,7 +956,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "aurora" && showAdvanced && (
+        {activeAnimatedId === "aurora" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Aurora settings</span>
@@ -851,7 +1035,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "darkveil" && showAdvanced && (
+        {activeAnimatedId === "darkveil" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Dark Veil settings</span>
@@ -868,7 +1052,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "colorbends" && showAdvanced && (
+        {activeAnimatedId === "colorbends" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Color Bends settings</span>
@@ -895,7 +1079,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "crtwarp" && showAdvanced && (
+        {activeAnimatedId === "crtwarp" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">CRT Warp settings</span>
@@ -982,7 +1166,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "liquidchrome" && showAdvanced && (
+        {activeAnimatedId === "liquidchrome" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Liquid Chrome settings</span>
@@ -1011,7 +1195,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "pixelblast" && showAdvanced && (
+        {activeAnimatedId === "pixelblast" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Pixel Blast settings</span>

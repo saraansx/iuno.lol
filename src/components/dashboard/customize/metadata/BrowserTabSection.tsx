@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 
 import { formatTabTitle } from "@/lib/og";
@@ -20,6 +21,15 @@ interface BrowserTabSectionProps {
   clearCursor: () => void;
 }
 
+function fileNameOf(url: string): string {
+  try {
+    const name = decodeURIComponent(new URL(url).pathname.split("/").pop() || "");
+    return name || url;
+  } catch {
+    return url;
+  }
+}
+
 function AssetTile({
   label,
   hint,
@@ -33,44 +43,70 @@ function AssetTile({
   onPick: () => void;
   onClear: () => void;
 }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[12.5px] font-medium text-white/90">{label}</label>
 
-      <div
-        onClick={onPick}
-        className="relative h-32 rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
-      >
-        {url && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClear();
-            }}
-            className="absolute top-3 right-3 z-20 w-8 h-8 flex items-center justify-center rounded-lg border border-dashed border-red-500/80 text-red-500 bg-black/40 hover:bg-red-500/20 hover:border-red-500 hover:text-red-400 transition-all"
-            title={`Remove ${label.toLowerCase()}`}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-            </svg>
-          </button>
-        )}
-
-        {url ? (
-          <Image src={url} alt="" fill unoptimized className="object-contain p-8" />
-        ) : (
-          <div className="absolute inset-0 bg-[#161616]" />
-        )}
-
-        <div className="relative z-10 h-full flex flex-col items-center justify-center gap-3 group-hover:opacity-80 transition-opacity">
-          {!url && (
-            <>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" className="opacity-80 group-hover:opacity-100 transition-opacity" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-              <span className="text-[13px] font-medium text-white/90">Upload {label}</span>
-            </>
-          )}
+      {url ? (
+        <div className="rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
+          <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
+              <Image src={url} alt="" fill unoptimized className="object-contain p-1.5" />
+            </div>
+            <button type="button" onClick={onPick} title={`Change ${label.toLowerCase()}`} className="flex-1 min-w-0 text-left cursor-pointer">
+              <p className="text-[13px] text-white truncate">{fileNameOf(url)}</p>
+              <p className="text-[11px] text-white/35 truncate">{label}</p>
+            </button>
+            <div className="relative shrink-0">
+              <button
+                type="button"
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
+                title={`${label} options`}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+              </button>
+              {menuOpen && (
+                <>
+                  <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-30 cursor-default" />
+                  <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuOpen(false);
+                        onPick();
+                      }}
+                      className="flex items-center px-3 py-2 rounded-md text-[13px] text-white/70 hover:bg-white/5 hover:text-white transition-all text-left cursor-pointer"
+                    >
+                      Change
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClear();
+                        setMenuOpen(false);
+                      }}
+                      className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <button
+          type="button"
+          onClick={onPick}
+          className="flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-8 px-4 text-center cursor-pointer hover:border-white/20 transition-colors"
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+          <span className="text-[13px] font-medium text-white/90">Upload {label}</span>
+        </button>
+      )}
 
       <p className="text-[11px] text-white/30 leading-[1.6]">{hint}</p>
     </div>

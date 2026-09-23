@@ -52,6 +52,9 @@ export async function updateGeneralProfile(data: {
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
   bannerBackgroundUrl?: string | null;
+  bannerBackgroundUrl2?: string | null;
+  bannerBackgroundShuffle?: boolean | null;
+  bannerBackgroundAutoplay?: boolean | null;
   bannerBackgroundSound?: boolean;
   auroraColor1?: string | null;
   auroraColor2?: string | null;
@@ -124,7 +127,7 @@ export async function updateGeneralProfile(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.avatarDecorationUrl];
+  const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.bannerBackgroundUrl2, data.avatarDecorationUrl];
   if (data.profileEffectUrl && !data.profileEffectUrl.startsWith("effect:")) {
     urlFields.push(data.profileEffectUrl);
   }
@@ -135,6 +138,7 @@ export async function updateGeneralProfile(data: {
   const avatarUrlVal = data.avatarUrl === "" ? null : data.avatarUrl;
   const bannerImageUrlVal = data.bannerImageUrl === "" ? null : data.bannerImageUrl;
   const bannerBackgroundUrlVal = data.bannerBackgroundUrl === "" ? null : data.bannerBackgroundUrl;
+  const bannerBackgroundUrl2Val = data.bannerBackgroundUrl2 === "" ? null : data.bannerBackgroundUrl2;
 
   const setData: Record<string, unknown> = {};
 
@@ -166,6 +170,9 @@ export async function updateGeneralProfile(data: {
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
   if (data.bannerBlend !== undefined) setData.bannerBlend = data.bannerBlend;
   if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
+  if (bannerBackgroundUrl2Val !== undefined) setData.bannerBackgroundUrl2 = bannerBackgroundUrl2Val;
+  if (data.bannerBackgroundShuffle !== undefined) setData.bannerBackgroundShuffle = !!data.bannerBackgroundShuffle;
+  if (data.bannerBackgroundAutoplay !== undefined) setData.bannerBackgroundAutoplay = !!data.bannerBackgroundAutoplay;
   if (data.bannerBackgroundSound !== undefined) setData.bannerBackgroundSound = !!data.bannerBackgroundSound;
   if (data.auroraColor1 !== undefined) setData.auroraColor1 = data.auroraColor1?.slice(0, 32) ?? null;
   if (data.auroraColor2 !== undefined) setData.auroraColor2 = data.auroraColor2?.slice(0, 32) ?? null;
@@ -255,6 +262,11 @@ export async function updateGeneralProfile(data: {
     if (prev?.bannerBackgroundUrl) stale.push(prev.bannerBackgroundUrl);
   } else if (bannerBackgroundUrlVal && prev?.bannerBackgroundUrl && prev.bannerBackgroundUrl !== bannerBackgroundUrlVal) {
     stale.push(prev.bannerBackgroundUrl);
+  }
+  if (bannerBackgroundUrl2Val === null) {
+    if (prev?.bannerBackgroundUrl2) stale.push(prev.bannerBackgroundUrl2);
+  } else if (bannerBackgroundUrl2Val && prev?.bannerBackgroundUrl2 && prev.bannerBackgroundUrl2 !== bannerBackgroundUrl2Val) {
+    stale.push(prev.bannerBackgroundUrl2);
   }
   if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 

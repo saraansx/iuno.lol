@@ -38,6 +38,7 @@ export const FileUpload = ({
   resolvedUrl,
   mediaType,
   isAvatar = false,
+  accept,
 }: {
   onChange?: (files: File[]) => void;
   isLoading?: boolean;
@@ -46,6 +47,7 @@ export const FileUpload = ({
   resolvedUrl?: string | null;
   mediaType?: string | null;
   isAvatar?: boolean;
+  accept?: string;
 }) => {
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -64,6 +66,7 @@ export const FileUpload = ({
   const { getRootProps, isDragActive } = useDropzone({
     multiple: false,
     noClick: true,
+    accept: accept ? { [accept]: [] } : undefined,
     onDrop: handleFileChange,
     onDropRejected: (error) => {
       console.log(error);
@@ -81,6 +84,7 @@ export const FileUpload = ({
           ref={fileInputRef}
           id="file-upload-handle"
           type="file"
+          accept={accept}
           onChange={(e) => handleFileChange(Array.from(e.target.files || []))}
           className="hidden"
         />
