@@ -153,6 +153,10 @@ interface Layout1Props {
   colorbendsIterations?: number | null;
   colorbendsIntensity?: number | null;
   colorbendsBandWidth?: number | null;
+  liquidchromeColor?: string | null;
+  liquidchromeSpeed?: number | null;
+  liquidchromeAmplitude?: number | null;
+  liquidchromeInteractive?: boolean | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -466,6 +470,10 @@ const Layout1 = ({
   colorbendsIterations,
   colorbendsIntensity,
   colorbendsBandWidth,
+  liquidchromeColor,
+  liquidchromeSpeed,
+  liquidchromeAmplitude,
+  liquidchromeInteractive,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1177,6 +1185,7 @@ const sectionSurface: React.CSSProperties = {
                 darkveil={{ speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp }}
                 pixelblast={{ variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid }}
                 colorbends={{ color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth }}
+                liquidchrome={{ color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive }}
               />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (

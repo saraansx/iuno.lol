@@ -246,6 +246,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       colorbendsIterations: userSettings.colorbendsIterations,
       colorbendsIntensity: userSettings.colorbendsIntensity,
       colorbendsBandWidth: userSettings.colorbendsBandWidth,
+      liquidchromeColor: userSettings.liquidchromeColor,
+      liquidchromeSpeed: userSettings.liquidchromeSpeed,
+      liquidchromeAmplitude: userSettings.liquidchromeAmplitude,
+      liquidchromeInteractive: userSettings.liquidchromeInteractive,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -402,6 +406,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         colorbendsIterations={user.colorbendsIterations ?? undefined}
         colorbendsIntensity={user.colorbendsIntensity ?? undefined}
         colorbendsBandWidth={user.colorbendsBandWidth ?? undefined}
+        liquidchromeColor={user.liquidchromeColor ?? undefined}
+        liquidchromeSpeed={user.liquidchromeSpeed ?? undefined}
+        liquidchromeAmplitude={user.liquidchromeAmplitude ?? undefined}
+        liquidchromeInteractive={user.liquidchromeInteractive ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

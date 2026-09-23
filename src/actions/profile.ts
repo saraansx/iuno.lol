@@ -87,6 +87,10 @@ export async function updateGeneralProfile(data: {
   colorbendsIterations?: number | null;
   colorbendsIntensity?: number | null;
   colorbendsBandWidth?: number | null;
+  liquidchromeColor?: string | null;
+  liquidchromeSpeed?: number | null;
+  liquidchromeAmplitude?: number | null;
+  liquidchromeInteractive?: boolean | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -180,6 +184,10 @@ export async function updateGeneralProfile(data: {
   if (data.colorbendsIterations !== undefined) setData.colorbendsIterations = data.colorbendsIterations;
   if (data.colorbendsIntensity !== undefined) setData.colorbendsIntensity = data.colorbendsIntensity;
   if (data.colorbendsBandWidth !== undefined) setData.colorbendsBandWidth = data.colorbendsBandWidth;
+  if (data.liquidchromeColor !== undefined) setData.liquidchromeColor = data.liquidchromeColor?.slice(0, 32) ?? null;
+  if (data.liquidchromeSpeed !== undefined) setData.liquidchromeSpeed = data.liquidchromeSpeed;
+  if (data.liquidchromeAmplitude !== undefined) setData.liquidchromeAmplitude = data.liquidchromeAmplitude;
+  if (data.liquidchromeInteractive !== undefined) setData.liquidchromeInteractive = !!data.liquidchromeInteractive;
 
   sanitizeProfileSettings(setData);
 

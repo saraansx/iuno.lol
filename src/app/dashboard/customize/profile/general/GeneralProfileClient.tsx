@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -163,6 +163,18 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setColorbendsIntensity = (val: number) => updateOverrides({ colorbendsIntensity: val === initialColorbendsIntensity ? undefined : val });
   const colorbendsBandWidth = overrides.colorbendsBandWidth ?? initialColorbendsBandWidth;
   const setColorbendsBandWidth = (val: number) => updateOverrides({ colorbendsBandWidth: val === initialColorbendsBandWidth ? undefined : val });
+  const initialLiquidchromeColor = user?.liquidchromeColor ?? LIQUIDCHROME_DEFAULTS.color;
+  const initialLiquidchromeSpeed = user?.liquidchromeSpeed ?? LIQUIDCHROME_DEFAULTS.speed;
+  const initialLiquidchromeAmplitude = user?.liquidchromeAmplitude ?? LIQUIDCHROME_DEFAULTS.amplitude;
+  const initialLiquidchromeInteractive = user?.liquidchromeInteractive ?? LIQUIDCHROME_DEFAULTS.interactive;
+  const liquidchromeColor = overrides.liquidchromeColor ?? initialLiquidchromeColor;
+  const setLiquidchromeColor = (val: string) => updateOverrides({ liquidchromeColor: val === initialLiquidchromeColor ? undefined : val });
+  const liquidchromeSpeed = overrides.liquidchromeSpeed ?? initialLiquidchromeSpeed;
+  const setLiquidchromeSpeed = (val: number) => updateOverrides({ liquidchromeSpeed: val === initialLiquidchromeSpeed ? undefined : val });
+  const liquidchromeAmplitude = overrides.liquidchromeAmplitude ?? initialLiquidchromeAmplitude;
+  const setLiquidchromeAmplitude = (val: number) => updateOverrides({ liquidchromeAmplitude: val === initialLiquidchromeAmplitude ? undefined : val });
+  const liquidchromeInteractive = overrides.liquidchromeInteractive !== undefined ? Boolean(overrides.liquidchromeInteractive) : Boolean(initialLiquidchromeInteractive);
+  const setLiquidchromeInteractive = (val: boolean) => updateOverrides({ liquidchromeInteractive: val === initialLiquidchromeInteractive ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -297,6 +309,14 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setColorbendsIntensity={setColorbendsIntensity}
           colorbendsBandWidth={colorbendsBandWidth}
           setColorbendsBandWidth={setColorbendsBandWidth}
+          liquidchromeColor={liquidchromeColor}
+          setLiquidchromeColor={setLiquidchromeColor}
+          liquidchromeSpeed={liquidchromeSpeed}
+          setLiquidchromeSpeed={setLiquidchromeSpeed}
+          liquidchromeAmplitude={liquidchromeAmplitude}
+          setLiquidchromeAmplitude={setLiquidchromeAmplitude}
+          liquidchromeInteractive={liquidchromeInteractive}
+          setLiquidchromeInteractive={setLiquidchromeInteractive}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -417,6 +437,10 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           colorbendsIterations,
           colorbendsIntensity,
           colorbendsBandWidth,
+          liquidchromeColor,
+          liquidchromeSpeed,
+          liquidchromeAmplitude,
+          liquidchromeInteractive,
         }}
       />
 

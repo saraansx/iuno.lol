@@ -5,7 +5,7 @@ export const ANIMATED_BACKGROUNDS = [
   { id: "darkveil", name: "Dark Veil" },
   { id: "pixelblast", name: "Pixel Blast" },
   { id: "colorbends", name: "Color Bends" },
-  { id: "waves", name: "Wave Motion" },
+  { id: "liquidchrome", name: "Liquid Chrome" },
   { id: "pulsegrid", name: "Pulse Grid" },
 ] as const;
 
@@ -17,10 +17,12 @@ const VALID_IDS = new Set<string>(ANIMATED_BACKGROUNDS.map((b) => b.id));
 export function animatedBackgroundId(url: string | null | undefined): AnimatedBackgroundId | null {
   if (!url || !url.startsWith(ANIMATED_BACKGROUND_PREFIX)) return null;
   const id = url.slice(ANIMATED_BACKGROUND_PREFIX.length).trim().toLowerCase();
-  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast, Mist Flow -> Color Bends.
+  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast,
+  // Mist Flow -> Color Bends, Wave Motion -> Liquid Chrome.
   if (id === "ember") return "darkveil";
   if (id === "beams") return "pixelblast";
   if (id === "mist") return "colorbends";
+  if (id === "waves") return "liquidchrome";
   return VALID_IDS.has(id) ? (id as AnimatedBackgroundId) : null;
 }
 
@@ -81,4 +83,12 @@ export const COLORBENDS_DEFAULTS = {
   iterations: 1,
   intensity: 1.5,
   bandWidth: 6,
+} as const;
+
+/** Default Liquid Chrome (animated preset) settings. */
+export const LIQUIDCHROME_DEFAULTS = {
+  color: "#1a1a1a",
+  speed: 0.3,
+  amplitude: 0.3,
+  interactive: true,
 } as const;

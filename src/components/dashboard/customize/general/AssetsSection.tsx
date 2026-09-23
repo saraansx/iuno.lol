@@ -90,6 +90,14 @@ interface AssetsSectionProps {
   setColorbendsIntensity: (val: number) => void;
   colorbendsBandWidth: number;
   setColorbendsBandWidth: (val: number) => void;
+  liquidchromeColor: string;
+  setLiquidchromeColor: (val: string) => void;
+  liquidchromeSpeed: number;
+  setLiquidchromeSpeed: (val: number) => void;
+  liquidchromeAmplitude: number;
+  setLiquidchromeAmplitude: (val: number) => void;
+  liquidchromeInteractive: boolean;
+  setLiquidchromeInteractive: (val: boolean) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
@@ -222,6 +230,14 @@ export default function AssetsSection({
   setColorbendsIntensity,
   colorbendsBandWidth,
   setColorbendsBandWidth,
+  liquidchromeColor,
+  setLiquidchromeColor,
+  liquidchromeSpeed,
+  setLiquidchromeSpeed,
+  liquidchromeAmplitude,
+  setLiquidchromeAmplitude,
+  liquidchromeInteractive,
+  setLiquidchromeInteractive,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -424,6 +440,7 @@ export default function AssetsSection({
                       darkveil={animatedId === "darkveil" ? { speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp } : undefined}
                       pixelblast={animatedId === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined}
                       colorbends={animatedId === "colorbends" ? { color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth } : undefined}
+                      liquidchrome={animatedId === "liquidchrome" ? { color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive } : undefined}
                     />
                   ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
@@ -698,6 +715,35 @@ export default function AssetsSection({
               <SettingSlider label="Iterations" value={colorbendsIterations} min={1} max={5} step={1} onChange={setColorbendsIterations} />
               <SettingSlider label="Intensity" value={colorbendsIntensity} min={0} max={3} step={0.1} onChange={setColorbendsIntensity} />
               <SettingSlider label="Band Width" value={colorbendsBandWidth} min={0} max={20} step={0.5} onChange={setColorbendsBandWidth} />
+            </div>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "liquidchrome" && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">Liquid Chrome settings</span>
+              <span className="text-[11px] text-white/30">Only for Liquid Chrome</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Base Color</label>
+                <ColorPickerInput value={liquidchromeColor} onChange={setLiquidchromeColor} />
+              </div>
+              <SettingSlider label="Speed" value={liquidchromeSpeed} min={0} max={2} step={0.05} onChange={setLiquidchromeSpeed} />
+              <SettingSlider label="Amplitude" value={liquidchromeAmplitude} min={0} max={2} step={0.05} onChange={setLiquidchromeAmplitude} />
+              <div className="flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5">
+                <span className="text-[13px] text-white/90">Enable Interaction</span>
+                <button
+                  type="button"
+                  onClick={() => setLiquidchromeInteractive(!liquidchromeInteractive)}
+                  className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                    liquidchromeInteractive ? "bg-[#5b6cf5]" : "bg-white/10"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${liquidchromeInteractive ? "right-[4px]" : "left-[4px]"}`} />
+                </button>
+              </div>
             </div>
           </div>
         )}

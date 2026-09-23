@@ -5,6 +5,7 @@ import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
 import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/DarkVeil";
 import { PixelBlastEffect, type PixelBlastSettings } from "./background-effects/PixelBlast";
 import { ColorBendsEffect, type ColorBendsSettings } from "./background-effects/ColorBends";
+import { LiquidChromeEffect, type LiquidChromeSettings } from "./background-effects/LiquidChrome";
 
 export interface AuroraSettings {
   colors?: AuroraColors;
@@ -19,11 +20,10 @@ export interface AuroraSettings {
  *
  * The `aurora` preset reuses the WebGL background effect.
  */
-export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
       <style>{`
-        @keyframes abg-wave-x { to { transform: translateX(-50%); } }
         @keyframes abg-pulse { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
       `}</style>
 
@@ -73,21 +73,13 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
         />
       )}
 
-      {id === "waves" && (
-        <>
-          {[0, 1, 2].map((layer) => (
-            <div
-              key={layer}
-              className="absolute inset-y-0 w-[200%]"
-              style={{
-                background: `repeating-linear-gradient(${115 + layer * 12}deg, transparent 0px, transparent 46px, ${layer === 1 ? "rgba(168,85,247,0.28)" : "rgba(91,108,245,0.28)"} 48px, transparent 52px)`,
-                animation: `abg-wave-x ${14 + layer * 6}s linear infinite${layer === 2 ? " reverse" : ""}`,
-                opacity: 0.7,
-              }}
-            />
-          ))}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.5))" }} />
-        </>
+      {id === "liquidchrome" && (
+        <LiquidChromeEffect
+          color={liquidchrome?.color}
+          speed={liquidchrome?.speed}
+          amplitude={liquidchrome?.amplitude}
+          interactive={liquidchrome?.interactive}
+        />
       )}
 
       {id === "pulsegrid" && (
