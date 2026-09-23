@@ -6,6 +6,11 @@ import { toCdnUrl } from "@/lib/cdn";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
+// Video uploads proxy through us to Catbox + verify, so allow extra time.
+// Otherwise the function can be killed while the file is already stored,
+// leaving the client stuck on "Uploading..." for a file that exists.
+export const maxDuration = 60;
+
 function getRealFileExtension(buffer: Buffer): { ext: string; mime: string } | null {
   if (buffer.length < 12) return null;
 
@@ -167,7 +172,12 @@ export async function POST(req: Request) {
     let catboxRes: Response;
     let body: string;
     try {
-      catboxRes = await fetch(CATBOX_API, { method: "POST", body: catboxForm });
+      catboxRes = await fetch(CATBOX_API, {
+        method: "POST",
+        body: catboxForm,
+        // Don't hang forever if Catbox is slow — client XHR has a 120s timeout.
+        signal: AbortSignal.timeout(55000),
+      });
       body = (await catboxRes.text()).trim();
     } catch (e) {
       console.error("Catbox upload network error:", e);
@@ -178,14 +188,30 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
     }
 
-    try {
-      const check = await fetch(body, { headers: { Range: "bytes=0-0" } });
-      const sample = check.ok || check.status === 206 ? await check.arrayBuffer().catch(() => null) : null;
-      if (!sample || sample.byteLength === 0) {
-        throw new Error(`verify failed: ${check.status} ${sample?.byteLength ?? -1}b`);
+    // Catbox CDN can take a moment to serve a just-uploaded file. Retry the
+    // range check a few times before declaring the upload corrupted —
+    // otherwise the client sees a failure for a file that is already there.
+    let verified = false;
+    let lastVerifyStatus = -1;
+    for (let attempt = 0; attempt < 3 && !verified; attempt++) {
+      if (attempt > 0) await new Promise((r) => setTimeout(r, 1500));
+      try {
+        const check = await fetch(body, {
+          headers: { Range: "bytes=0-0" },
+          signal: AbortSignal.timeout(10000),
+        });
+        lastVerifyStatus = check.status;
+        const sample =
+          check.ok || check.status === 206 ? await check.arrayBuffer().catch(() => null) : null;
+        if (sample && sample.byteLength > 0) {
+          verified = true;
+        }
+      } catch (e) {
+        console.error(`Catbox upload verify attempt ${attempt + 1} error:`, body, e);
       }
-    } catch (e) {
-      console.error("Catbox upload verify error:", body, e);
+    }
+    if (!verified) {
+      console.error("Catbox upload verify error:", body, `lastStatus=${lastVerifyStatus}`);
       try {
         const del = new FormData();
         del.append("reqtype", "deletefiles");

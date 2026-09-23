@@ -15,6 +15,7 @@ import DecorationPicker, { type Decoration } from "@/components/dashboard/Decora
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS, CRTWARP_DEFAULTS } from "@/lib/animated-background";
+import { isPremiumActive } from "@/lib/premium";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -302,6 +303,7 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
         <AssetsSection
+          isPremium={isPremiumActive(user)}
           avatarUrl={avatarUrl}
           setAvatarUrl={setAvatarUrl}
           avatarShape={avatarShape}

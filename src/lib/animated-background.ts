@@ -1,12 +1,12 @@
 export const ANIMATED_BACKGROUND_PREFIX = "animated:";
 
 export const ANIMATED_BACKGROUNDS = [
-  { id: "aurora", name: "Aurora" },
-  { id: "darkveil", name: "Dark Veil" },
-  { id: "pixelblast", name: "Pixel Blast" },
-  { id: "colorbends", name: "Color Bends" },
-  { id: "liquidchrome", name: "Liquid Chrome" },
-  { id: "crtwarp", name: "CRT Warp" },
+  { id: "aurora", name: "Aurora", premium: false },
+  { id: "darkveil", name: "Dark Veil", premium: false },
+  { id: "pixelblast", name: "Pixel Blast", premium: false },
+  { id: "colorbends", name: "Color Bends", premium: true },
+  { id: "liquidchrome", name: "Liquid Chrome", premium: true },
+  { id: "crtwarp", name: "CRT Warp", premium: true },
 ] as const;
 
 export type AnimatedBackgroundId = (typeof ANIMATED_BACKGROUNDS)[number]["id"];
@@ -34,6 +34,12 @@ export function isAnimatedBackgroundUrl(url: string | null | undefined): boolean
 /** Full stored value for a preset, e.g. `animated:aurora`. */
 export function animatedBackgroundUrl(id: AnimatedBackgroundId): string {
   return `${ANIMATED_BACKGROUND_PREFIX}${id}`;
+}
+
+/** True for premium-only animated presets. */
+export function isPremiumBackgroundId(id: string | null | undefined): boolean {
+  if (!id) return false;
+  return (ANIMATED_BACKGROUNDS as readonly { id: string; premium: boolean }[]).some((b) => b.id === id && b.premium);
 }
 
 /** Default Aurora (animated preset) settings. */

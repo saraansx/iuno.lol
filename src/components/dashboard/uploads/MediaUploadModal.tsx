@@ -196,18 +196,35 @@ export default function MediaUploadModal({
         const url: string = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open("POST", "/api/upload");
+          // Server still uploads to Catbox + verifies after the browser
+          // finishes sending, which can take a while with no further
+          // upload-progress events. Give it room before timing out.
+          xhr.timeout = 120000;
           const uploadStart = Date.now();
           xhr.upload.onprogress = (e) => {
             const elapsed = Math.max(0.5, (Date.now() - uploadStart) / 1000);
             const mbps = ((e.loaded * 8) / elapsed / 1e6).toFixed(1);
             if (e.lengthComputable && e.total > 0) {
               const pct = Math.round((e.loaded / e.total) * 100);
-              const eta = Math.max(1, Math.round((e.total - e.loaded) / (e.loaded / elapsed)));
-              setUploadProgress(Math.min(99, pct));
-              setStatusText(`Uploading ${pct}% · ${mbps} Mbps · ~${eta}s left`);
+              if (pct >= 100) {
+                // Browser -> server done, but server -> storage still
+                // running. Stop showing a misleading ETA/countdown.
+                setUploadProgress(99);
+                setStatusText("Processing… saving to storage");
+              } else {
+                const eta = Math.max(1, Math.round((e.total - e.loaded) / (e.loaded / elapsed)));
+                setUploadProgress(Math.min(99, pct));
+                setStatusText(`Uploading ${pct}% · ${mbps} Mbps · ~${eta}s left`);
+              }
             } else {
               setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB · ${mbps} Mbps`);
             }
+          };
+          // Fired when the request body is fully sent but the server
+          // hasn't responded yet (Catbox upload + verify in progress).
+          xhr.upload.onload = () => {
+            setUploadProgress(99);
+            setStatusText("Processing… saving to storage");
           };
           xhr.onload = () => {
             if (xhr.status >= 200 && xhr.status < 300) {
@@ -228,10 +245,12 @@ export default function MediaUploadModal({
             }
           };
           xhr.onerror = () => reject(new Error("Upload failed"));
+          xhr.ontimeout = () =>
+            reject(new Error("Upload timed out. The file may already be in storage — wait a bit, then try again."));
           xhr.send(form);
         });
         setUploadProgress(100);
-        setStatusText("Uploading 100%");
+        setStatusText("Done");
         appliedUrls.current.add(resolvedUrl);
         onApply?.(url);
         closeAndReset();

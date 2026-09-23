@@ -190,8 +190,17 @@ export const FileUpload = ({
                       </div>
                     )}
                     <div className="flex justify-between items-center text-[11px] w-full">
-                      <span className="text-emerald-400 font-normal">Ready to apply</span>
-                      <span className="text-emerald-400 font-normal">100%</span>
+                      {isLoading ? (
+                        <>
+                          <span className="text-white/50 font-normal">{statusText || "Uploading..."}</span>
+                          <span className="text-[#5b6cf5] font-normal">{uploadProgress}%</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-emerald-400 font-normal">Ready to apply</span>
+                          <span className="text-emerald-400 font-normal">100%</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}

@@ -24,6 +24,8 @@ export const users = mysqlTable('users', {
   ip: varchar('ip', { length: 45 }),
   role: mysqlEnum('role', ['user', 'admin', 'moderator']).default('user').notNull(),
   emailVerified: boolean('email_verified').default(false).notNull(),
+  isPremium: boolean('is_premium').default(false).notNull(),
+  premiumExpiresAt: timestamp('premium_expires_at'),
   discordId: varchar('discord_id', { length: 32 }).unique(),
   discordUsername: varchar('discord_username', { length: 32 }),
   views: int('views').default(0).notNull(),

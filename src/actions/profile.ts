@@ -4,6 +4,7 @@ import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
+import { isPremiumActive } from "@/lib/premium";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
@@ -17,7 +18,7 @@ import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
 import { isStoredMediaUrl } from "@/lib/cdn";
-import { isAnimatedBackgroundUrl } from "@/lib/animated-background";
+import { animatedBackgroundId, isAnimatedBackgroundUrl, isPremiumBackgroundId } from "@/lib/animated-background";
 import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
@@ -277,7 +278,20 @@ export async function updateBackgrounds(urls: string[]) {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  const clean = [...new Set(urls.map((u) => u.trim()).filter(Boolean))].slice(0, 5);
+  const cleanAll = [...new Set(urls.map((u) => u.trim()).filter(Boolean))];
+  const prevUser = await getUserById(userId);
+  const premium = isPremiumActive(prevUser);
+  const allowed = premium ? 5 : 1;
+  if (cleanAll.length > allowed) {
+    throw new Error("Additional backgrounds need Premium.");
+  }
+  for (const url of cleanAll) {
+    const pid = animatedBackgroundId(url);
+    if (pid && isPremiumBackgroundId(pid) && !premium) {
+      throw new Error("That background needs Premium.");
+    }
+  }
+  const clean = cleanAll.slice(0, allowed);
   if (clean.some((url) => !isValidMediaUrl(url))) {
     throw new Error("Invalid media URL.");
   }

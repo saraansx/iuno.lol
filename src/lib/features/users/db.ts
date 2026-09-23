@@ -13,6 +13,8 @@ const userColumns = {
   ip: schema.users.ip,
   role: schema.users.role,
   emailVerified: schema.users.emailVerified,
+  isPremium: schema.users.isPremium,
+  premiumExpiresAt: schema.users.premiumExpiresAt,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,
