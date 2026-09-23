@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
+import PremiumLock from "@/components/ui/premium-lock";
 
 import { formatTabTitle } from "@/lib/og";
 
 export const TAB_TITLE_MAX = 60;
 
 interface BrowserTabSectionProps {
+  isPremium: boolean;
   username: string;
   faviconUrl: string;
   cursorUrl: string;
@@ -102,6 +104,7 @@ function AssetTile({
 }
 
 export default function BrowserTabSection({
+  isPremium,
   username,
   faviconUrl,
   cursorUrl,
@@ -115,6 +118,7 @@ export default function BrowserTabSection({
   clearCursor,
 }: BrowserTabSectionProps) {
   const previewTitle = formatTabTitle(tabTitle, username);
+  const locked = !isPremium;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
@@ -125,11 +129,15 @@ export default function BrowserTabSection({
           <path d="M7 6h.01" />
         </svg>
         <div className="flex flex-col">
-          <span className="text-[14px] font-normal text-white/90 tracking-tight">Browser tab</span>
+          <span className="text-[14px] font-normal text-white/90 tracking-tight flex items-center gap-2">
+            Browser tab
+            {locked && <PremiumLock size={15} />}
+          </span>
           <p className="text-[12.5px] text-white/40">How your page looks in the browser itself</p>
         </div>
       </div>
 
+      <div className={`flex flex-col gap-5 transition-opacity duration-200 ${locked ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <AssetTile
           label="Custom favicon"
@@ -190,6 +198,7 @@ export default function BrowserTabSection({
             />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

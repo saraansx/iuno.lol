@@ -633,8 +633,6 @@ const DETAIL_PLACEMENT_FIELDS = [
 
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
-const MAX_WIDGETS = 4;
-
 export async function updateLayoutProfile(data: {
   profileStructure?: string;
   aboutSectionEnabled?: boolean;
@@ -795,6 +793,20 @@ export async function updateMetadataProfile(data: {
   }
 
   const setData: Record<string, unknown> = {};
+
+  // Browser tab (title, animation, favicon, cursor) is premium-only.
+  // Clearing a value is always allowed so expired users can remove theirs.
+  const wantsTabPremium =
+    (typeof data.faviconUrl === "string" && data.faviconUrl !== "") ||
+    (typeof data.cursorUrl === "string" && data.cursorUrl !== "") ||
+    (typeof data.tabTitle === "string" && data.tabTitle.trim() !== "") ||
+    data.tabTitleAnimated === true;
+  if (wantsTabPremium) {
+    const me = await getUserById(userId);
+    if (!isPremiumActive(me)) {
+      throw new Error("Browser tab customization needs Premium.");
+    }
+  }
 
   if (data.embedTitle !== undefined) {
     const val = data.embedTitle.trim().slice(0, 100);
@@ -1141,11 +1153,13 @@ export async function updateProfileWidgets(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  if ((data.widgets || []).length > MAX_WIDGETS) {
-    throw new Error(`You can only add a maximum of ${MAX_WIDGETS} widgets.`);
+  const premium = isPremiumActive(user);
+  const maxWidgets = premium ? 10 : 3;
+  if ((data.widgets || []).length > maxWidgets) {
+    throw new Error(`You can only add a maximum of ${maxWidgets} widgets.`);
   }
 
-  const sanitizedWidgets = (data.widgets || []).slice(0, MAX_WIDGETS).map((w) => {
+  const sanitizedWidgets = (data.widgets || []).slice(0, maxWidgets).map((w) => {
     const platform =
       w.platform === "github"
         ? "github"
@@ -1644,13 +1658,15 @@ export async function updateMusicProfile(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  if ((data.tracks || []).length > 1) {
-    throw new Error("You can only add a maximum of 1 track.");
+  const premium = isPremiumActive(user);
+  const maxTracks = premium ? 10 : 1;
+  if ((data.tracks || []).length > maxTracks) {
+    throw new Error(`You can only add a maximum of ${maxTracks} track${maxTracks === 1 ? "" : "s"}.`);
   }
 
   const prevTracks = Array.isArray(user?.musicTracks) ? user.musicTracks : [];
   const sanitizedTracks = await Promise.all(
-    (data.tracks || []).slice(0, 1).map(async (t) => {
+    (data.tracks || []).slice(0, maxTracks).map(async (t) => {
       const id = String(t.id || "").trim().slice(0, 32);
       if (!id || !/^[A-Za-z0-9_-]{1,32}$/.test(id)) {
         throw new Error("Invalid track ID.");

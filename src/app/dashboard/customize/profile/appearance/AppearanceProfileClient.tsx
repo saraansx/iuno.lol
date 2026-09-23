@@ -26,6 +26,7 @@ type SectionKey =
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
+import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
 
 export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
@@ -560,6 +561,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
           />
         </div>
 
+        {!isPremiumActive(user) && <PremiumUpsellCard />}
       </div>
 
       <DashboardProfilePreview

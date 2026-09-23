@@ -41,7 +41,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
   return (
     <>
       <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl" style={{ fontFamily: "var(--font-comfortaa)" }}>
-        <div className="bg-white/2 backdrop-blur-xl border border-white/8 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+        <div className="bg-[#0c0c0c]/85 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-5 h-auto object-contain shrink-0" priority />
             <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>Iuno<span className="text-[#5b6cf5] lowercase">.lol</span></span>

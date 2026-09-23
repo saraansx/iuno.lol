@@ -10,11 +10,14 @@ import PlayerStyleSection, { type MusicPlayerStyle } from "@/components/dashboar
 import SearchTracksModal, { type SearchTrack } from "@/components/dashboard/music/SearchTracksModal";
 import { updateMusicProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
+import PremiumLock from "@/components/ui/premium-lock";
+import { isPremiumActive } from "@/lib/premium";
 import { type FullUser } from "@/lib/features/users/db";
 
 type Track = SearchTrack;
 
-const MAX_TRACKS = 1;
+const FREE_TRACKS = 1;
+const PREMIUM_TRACKS = 10;
 
 function toTrack(raw: NonNullable<FullUser["musicTracks"]>[number]): Track {
   return {
@@ -79,8 +82,13 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
     shuffle !== initialShuffle ||
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
+  const count = tracks.length;
+  const backgroundSoundOn = user?.bannerBackgroundSound ?? false;
+  const isPremium = isPremiumActive(user);
+  const maxTracks = isPremium ? PREMIUM_TRACKS : FREE_TRACKS;
+
   const addTrack = (track: SearchTrack) => {
-    setTracks((prev) => (prev.length >= MAX_TRACKS ? prev : [...prev, track]));
+    setTracks((prev) => (prev.length >= maxTracks ? prev : [...prev, track]));
   };
 
   const removeTrack = (id: string) => {
@@ -88,13 +96,10 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
     setShuffle((prevShuffle) => (tracks.length - 1 < 2 ? false : prevShuffle));
   };
 
-  const count = tracks.length;
-  const backgroundSoundOn = user?.bannerBackgroundSound ?? false;
-
   return (
     <>
       <div
-        className="flex flex-col gap-8 w-full"
+        className="flex flex-col gap-8 w-full pb-20"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
         {backgroundSoundOn && (
@@ -126,7 +131,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
           <div className="flex items-center justify-between">
             <div className="flex flex-col">
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
-                Your tracks ({count}/{MAX_TRACKS})
+                Your tracks ({count}/{maxTracks})
               </h2>
               <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
                 Search and add songs to your profile playlist.
@@ -135,16 +140,16 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
 
             <button
               type="button"
-              disabled={count >= MAX_TRACKS}
+              disabled={count >= maxTracks}
               onClick={() => setModalOpen(true)}
-              title={count >= MAX_TRACKS ? "You can only add 1 track" : undefined}
+              title={count >= maxTracks ? `You can only add ${maxTracks} track${maxTracks === 1 ? "" : "s"}` : undefined}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
-                count >= MAX_TRACKS
+                count >= maxTracks
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
                   : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
               }`}
             >
-              <span className={`text-[13px] leading-none font-normal ${count >= MAX_TRACKS ? "text-white/30" : "text-white"}`}>+</span>
+              <span className={`text-[13px] leading-none font-normal ${count >= maxTracks ? "text-white/30" : "text-white"}`}>+</span>
               <span>Add track</span>
             </button>
           </div>
@@ -252,6 +257,34 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
         </div>
 
         <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} shuffle={shuffle} setShuffle={setShuffle} trackCount={count} />
+        {!isPremium && (
+          <div className="flex gap-3 bg-[#0c0c0c] border border-white/5 rounded-[16px] px-4 py-3.5 relative overflow-hidden">
+            <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#5b6cf5]/70" />
+            <PremiumLock size={16} className="mt-0.5" />
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <span className="text-[14px] font-medium text-white/90 tracking-tight">
+                Need more audio tracks?
+              </span>
+              <p className="text-[12.5px] text-white/40">
+                Get{" "}
+                <span className="inline-flex items-center gap-1 text-white font-medium">
+                  <svg width="11" height="11" viewBox="0 0 512 512" fill="#c084fc" aria-hidden="true">
+                    <path d="M396.31 32H264l84.19 112.26L396.31 32Zm-280.62 0 48.12 112.26L248 32H115.69ZM256 74.67 192 160h128l-64-85.33Zm166.95-23.61L376.26 160H488L422.95 51.06Zm-333.9 0L23 160h112.74L89.05 51.06ZM146.68 192H24l222.8 288h.53L146.68 192Zm218.64 0L264.67 480h.53L488 192H365.32Zm-35.93 0H182.61L256 400l73.39-208Z" />
+                  </svg>
+                  Premium
+                </span>{" "}
+                to add {PREMIUM_TRACKS - count} more.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push("/pricing")}
+              className="shrink-0 self-center bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer"
+            >
+              Get Premium
+            </button>
+          </div>
+        )}
         </>
         )}
       </div>

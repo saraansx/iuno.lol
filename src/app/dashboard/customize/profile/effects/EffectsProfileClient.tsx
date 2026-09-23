@@ -9,6 +9,7 @@ import EffectsCustomization from "@/components/dashboard/customize/effects/Effec
 import { toast } from "@/components/ui/toast";
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import { isPremiumActive } from "@/lib/premium";
+import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
 export default function EffectsProfileClient({ user }: { user: FullUser | null }) {
   const router = useRouter();
@@ -172,6 +173,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
           enterScreenBlurColor={enterScreenBlurColor}
           setEnterScreenBlurColor={setEnterScreenBlurColor}
         />
+        {!isPremiumActive(user) && <PremiumUpsellCard />}
       </div>
 
       <DashboardProfilePreview

@@ -23,6 +23,7 @@ import { type FullUser } from "@/lib/features/users/db";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
+import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
 export default function GeneralProfileClient({ user, backgrounds = [] }: { user: FullUser | null; backgrounds?: string[] }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear, pendingFiles, setPendingFile, clearPendingFiles } = useCustomizeProfile();
@@ -473,6 +474,8 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
           bio={bio}
           setBio={setBio}
         />
+
+        {!isPremiumActive(user) && <PremiumUpsellCard />}
       </div>
 
 

@@ -13,6 +13,8 @@ import EmbedPreviewSection from "@/components/dashboard/customize/metadata/Embed
 import BrowserTabSection from "@/components/dashboard/customize/metadata/BrowserTabSection";
 import { type FullUser } from "@/lib/features/users/db";
 import { normalizeEmbedColor } from "@/lib/og";
+import { isPremiumActive } from "@/lib/premium";
+import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
 async function uploadAsset(file: File, type: "favicon" | "cursor" | "embed"): Promise<string> {
   const formData = new FormData();
@@ -119,6 +121,7 @@ export default function MetadataProfileClient({
 
         <div className="lg:col-span-2">
           <BrowserTabSection
+            isPremium={isPremiumActive(user)}
             username={username}
             faviconUrl={faviconUrl}
             cursorUrl={cursorUrl}
@@ -138,6 +141,12 @@ export default function MetadataProfileClient({
             }}
           />
         </div>
+
+        {!isPremiumActive(user) && (
+          <div className="lg:col-span-2">
+            <PremiumUpsellCard />
+          </div>
+        )}
       </div>
 
       <FaviconUpload
