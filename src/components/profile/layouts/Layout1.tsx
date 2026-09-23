@@ -117,11 +117,10 @@ interface Layout1Props {
   decorationHue?: number;
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
-  bannerBackgroundUrl?: string | null;
-  bannerBackgroundUrl2?: string | null;
+  backgrounds?: string[];
   bannerBackgroundShuffle?: boolean | null;
   bannerBackgroundAutoplay?: boolean | null;
-  bgPreviewIdx?: 0 | 1 | null;
+  bgPreviewUrl?: string | null;
   bannerBackgroundSound?: boolean;
   auroraColor1?: string | null;
   auroraColor2?: string | null;
@@ -458,11 +457,10 @@ const Layout1 = ({
   effectHue = 0,
   bannerImageUrl,
   bannerBlend = false,
-  bannerBackgroundUrl: bannerBackgroundUrlProp,
-  bannerBackgroundUrl2: bannerBackgroundUrl2Prop,
+  backgrounds,
   bannerBackgroundShuffle,
   bannerBackgroundAutoplay,
-  bgPreviewIdx,
+  bgPreviewUrl,
   bannerBackgroundSound = false,
   auroraColor1,
   auroraColor2,
@@ -716,19 +714,32 @@ const Layout1 = ({
   const [entered, setEntered] = useState(!enterScreenEnabled);
 
   // Single-background playlist: one shows at a time. Shuffle picks a random
-  // one on load; a video hands over to the other slot only if it is a video
-  // (video+image keeps looping the video, images/presets stay put).
-  // bgPreviewIdx locks the preview to the selected slot (dashboard only).
-  const [bgIdx, setBgIdx] = useState<0 | 1>(() => {
-    if (bannerBackgroundUrlProp && bannerBackgroundUrl2Prop && bannerBackgroundShuffle && Math.random() < 0.5) return 1;
-    return bannerBackgroundUrlProp ? 0 : 1;
+  // one on load; a video hands over to the next video in line (cyclically),
+  // otherwise it loops. Images/presets stay put. bgPreviewUrl locks the
+  // dashboard preview to the selected background.
+  const locked = bgPreviewUrl !== undefined && bgPreviewUrl !== null;
+  const [bgIdx, setBgIdx] = useState<number>(() => {
+    if (!backgrounds || backgrounds.length === 0) return 0;
+    if (locked) {
+      const i = backgrounds.indexOf(bgPreviewUrl as string);
+      return i >= 0 ? i : 0;
+    }
+    if (bannerBackgroundShuffle && backgrounds.length > 1) {
+      return Math.floor(Math.random() * backgrounds.length);
+    }
+    return 0;
   });
-  const locked = bgPreviewIdx === 0 || bgPreviewIdx === 1;
-  const effectiveIdx = locked ? bgPreviewIdx : bgIdx;
-  const bannerBackgroundUrl = (effectiveIdx === 0 ? bannerBackgroundUrlProp : bannerBackgroundUrl2Prop) || null;
-  const otherBgUrl = effectiveIdx === 0 ? bannerBackgroundUrl2Prop : bannerBackgroundUrlProp;
+  const bannerBackgroundUrl = (locked ? bgPreviewUrl : backgrounds?.[bgIdx]) || null;
   const autoplay = bannerBackgroundAutoplay ?? true;
-  const otherIsVideo = !locked && autoplay && Boolean(otherBgUrl) && isVideoUrl(otherBgUrl);
+  const nextVideoIdx = (() => {
+    if (locked || !autoplay || !backgrounds || backgrounds.length < 2) return null;
+    for (let k = 1; k <= backgrounds.length; k++) {
+      const j = (bgIdx + k) % backgrounds.length;
+      if (isVideoUrl(backgrounds[j])) return j;
+    }
+    return null;
+  })();
+  const advanceOnEnded = nextVideoIdx !== null;
   const handleEntered = () => {
     setEntered(true);
     const el = bgVideoRef.current;
@@ -1263,9 +1274,9 @@ const sectionSurface: React.CSSProperties = {
               autoPlay={entered}
               muted={!bgSoundOn}
               ref={bgVideoRef}
-              loop={!otherIsVideo}
+              loop={!advanceOnEnded}
               playsInline
-              onEnded={otherIsVideo ? () => setBgIdx((i) => (i === 0 ? 1 : 0)) : undefined}
+              onEnded={advanceOnEnded && nextVideoIdx !== null ? () => setBgIdx(nextVideoIdx) : undefined}
             />
           ) : (
           <div className="absolute inset-0 z-0 pointer-events-none">

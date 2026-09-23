@@ -34,8 +34,6 @@ const userColumns = {
   avatarShape: schema.userSettings.avatarShape,
   bannerImageUrl: schema.userSettings.bannerImageUrl,
   bannerBlend: schema.userSettings.bannerBlend,
-  bannerBackgroundUrl: schema.userSettings.bannerBackgroundUrl,
-  bannerBackgroundUrl2: schema.userSettings.bannerBackgroundUrl2,
   bannerBackgroundShuffle: schema.userSettings.bannerBackgroundShuffle,
   bannerBackgroundAutoplay: schema.userSettings.bannerBackgroundAutoplay,
   bannerBackgroundSound: schema.userSettings.bannerBackgroundSound,
@@ -393,6 +391,16 @@ export async function getUserForSession(id: number) {
     .limit(1)
 
   return result[0] || null
+}
+
+/** Ordered page-background urls (max 5), oldest position first. */
+export async function getUserBackgrounds(userId: number): Promise<string[]> {
+  const rows = await db
+    .select({ url: schema.userBackgrounds.url })
+    .from(schema.userBackgrounds)
+    .where(eq(schema.userBackgrounds.userId, userId))
+    .orderBy(asc(schema.userBackgrounds.position), asc(schema.userBackgrounds.id))
+  return rows.map((r) => r.url)
 }
 
 export type FullUser = NonNullable<Awaited<ReturnType<typeof getUserById>>>;

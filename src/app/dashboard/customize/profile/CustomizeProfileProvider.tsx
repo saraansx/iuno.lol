@@ -9,8 +9,8 @@ type CustomizeProfileContextType = {
   updateOverrides: (newOverrides: Partial<FullUser>) => void;
   clearOverrides: () => void;
   scheduleClear: () => void;
-  pendingFiles: { avatar?: File; background?: File; background2?: File; banner?: File };
-  setPendingFile: (type: "avatar" | "background" | "background2" | "banner", file?: File) => void;
+  pendingFiles: { avatar?: File; background?: File; banner?: File };
+  setPendingFile: (type: "avatar" | "background" | "banner", file?: File) => void;
   clearPendingFiles: () => void;
 };
 
@@ -24,7 +24,7 @@ export function CustomizeProfileProvider({
   children: ReactNode;
 }) {
   const [overrides, setOverrides] = useState<Partial<FullUser>>({});
-  const [pendingFiles, setPendingFiles] = useState<{ avatar?: File; background?: File; background2?: File; banner?: File }>({});
+  const [pendingFiles, setPendingFiles] = useState<{ avatar?: File; background?: File; banner?: File }>({});
   const pendingClearRef = useRef(false);
   const hasMounted = useRef(false);
 
@@ -59,7 +59,7 @@ export function CustomizeProfileProvider({
     pendingClearRef.current = true;
   }, []);
 
-  const setPendingFile = useCallback((type: "avatar" | "background" | "background2" | "banner", file?: File) => {
+  const setPendingFile = useCallback((type: "avatar" | "background" | "banner", file?: File) => {
     setPendingFiles((prev) => ({ ...prev, [type]: file }));
   }, []);
 

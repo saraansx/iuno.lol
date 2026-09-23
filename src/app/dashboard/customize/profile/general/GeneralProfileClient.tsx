@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
-import { updateGeneralProfile } from "@/actions/profile";
+import { updateGeneralProfile, updateBackgrounds } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 
 import AssetsSection from "@/components/dashboard/customize/general/AssetsSection";
@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS, CRTWARP_DEFAULTS } from "@/lib/animated-background";
+import { AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS, CRTWARP_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -23,7 +23,7 @@ import { type FullUser } from "@/lib/features/users/db";
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import SaveBar from "@/components/dashboard/SaveBar";
 
-export default function GeneralProfileClient({ user }: { user: FullUser | null }) {
+export default function GeneralProfileClient({ user, backgrounds = [] }: { user: FullUser | null; backgrounds?: string[] }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear, pendingFiles, setPendingFile, clearPendingFiles } = useCustomizeProfile();
   const router = useRouter();
   const initialDisplayName = user?.displayName ?? "";
@@ -38,7 +38,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const initialEffectHue = user?.profileEffectHue ?? 0;
   const initialBannerImageUrl = user?.bannerImageUrl ?? "";
   const initialBannerBlend = user?.bannerBlend ?? false;
-  const initialBannerBackgroundUrl = user?.bannerBackgroundUrl ?? "";
   const displayName = overrides.displayName ?? initialDisplayName;
   const setDisplayName = (val: string) => updateOverrides({ displayName: val === initialDisplayName ? undefined : val });
   const location = overrides.location ?? initialLocation;
@@ -56,11 +55,19 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setBannerImageUrl = (val: string) => updateOverrides({ bannerImageUrl: val === initialBannerImageUrl ? undefined : val });
   const bannerBlend = overrides.bannerBlend !== undefined ? Boolean(overrides.bannerBlend) : Boolean(initialBannerBlend);
   const setBannerBlend = (val: boolean) => updateOverrides({ bannerBlend: val === initialBannerBlend ? undefined : val });
-  const bannerBackgroundUrl = overrides.bannerBackgroundUrl ?? initialBannerBackgroundUrl;
-  const setBannerBackgroundUrl = (val: string) => updateOverrides({ bannerBackgroundUrl: val === initialBannerBackgroundUrl ? undefined : val });
-  const initialBannerBackgroundUrl2 = user?.bannerBackgroundUrl2 ?? "";
-  const bannerBackgroundUrl2 = overrides.bannerBackgroundUrl2 ?? initialBannerBackgroundUrl2;
-  const setBannerBackgroundUrl2 = (val: string) => updateOverrides({ bannerBackgroundUrl2: val === initialBannerBackgroundUrl2 ? undefined : val });
+  // Page-background playlist (max 5), local state synced from server on refresh.
+  const [bgUrls, setBgUrls] = useState<string[]>(backgrounds);
+  const [bgSelected, setBgSelected] = useState(0);
+  const [pendingBgIndex, setPendingBgIndex] = useState<number | null>(null);
+  const [prevBackgrounds, setPrevBackgrounds] = useState<string[]>(backgrounds);
+  // Sync from server after save/refresh.
+  if (JSON.stringify(prevBackgrounds) !== JSON.stringify(backgrounds)) {
+    setPrevBackgrounds(backgrounds);
+    setBgUrls(backgrounds);
+    setBgSelected(0);
+    setPendingBgIndex(null);
+  }
+  const bgDirty = JSON.stringify(bgUrls) !== JSON.stringify(backgrounds);
   const initialBannerBackgroundShuffle = user?.bannerBackgroundShuffle ?? false;
   const bannerBackgroundShuffle = overrides.bannerBackgroundShuffle !== undefined ? Boolean(overrides.bannerBackgroundShuffle) : Boolean(initialBannerBackgroundShuffle);
   const setBannerBackgroundShuffle = (val: boolean) => updateOverrides({ bannerBackgroundShuffle: val === initialBannerBackgroundShuffle ? undefined : val });
@@ -246,7 +253,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setCrtwarpPaused = (val: boolean) => updateOverrides({ crtwarpPaused: val === initialCrtwarpPaused ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
-  const [bgSlot, setBgSlot] = useState<1 | 2>(1);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
   const [effectsPickerOpen, setEffectsPickerOpen] = useState(false);
 
@@ -307,16 +313,29 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setBannerImageUrl={setBannerImageUrl}
           bannerBlend={bannerBlend}
           setBannerBlend={setBannerBlend}
-          bannerBackgroundUrl={bannerBackgroundUrl}
-          setBannerBackgroundUrl={setBannerBackgroundUrl}
-          bannerBackgroundUrl2={bannerBackgroundUrl2}
-          setBannerBackgroundUrl2={setBannerBackgroundUrl2}
+          bgUrls={bgUrls}
+          setBgUrls={(urls: string[]) => {
+            setBgUrls(urls);
+            setBgSelected((sel) => Math.min(sel, Math.max(0, urls.length - 1)));
+          }}
+          bgSelected={bgSelected}
+          setBgSelected={setBgSelected}
+          onAddBackground={(index?: number) => {
+            let at: number;
+            if (index !== undefined) {
+              at = index;
+            } else {
+              const empty = bgUrls.findIndex((u) => !u);
+              at = empty >= 0 ? empty : Math.min(bgUrls.length, 4);
+            }
+            setPendingBgIndex(at);
+            setBgSelected(Math.min(at, 4));
+            setBannerBackgroundModalOpen(true);
+          }}
           bannerBackgroundShuffle={bannerBackgroundShuffle}
           setBannerBackgroundShuffle={setBannerBackgroundShuffle}
           bannerBackgroundAutoplay={bannerBackgroundAutoplay}
           setBannerBackgroundAutoplay={setBannerBackgroundAutoplay}
-          bgSlot={bgSlot}
-          setBgSlot={setBgSlot}
           bannerBackgroundSound={bannerBackgroundSound}
           setBannerBackgroundSound={setBannerBackgroundSound}
           auroraColor1={auroraColor1}
@@ -439,7 +458,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
           setBannerImageModalOpen={setBannerImageModalOpen}
-          setBannerBackgroundModalOpen={setBannerBackgroundModalOpen}
           isVideoUrl={isVideoUrl}
         />
 
@@ -478,12 +496,17 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         open={bannerBackgroundModalOpen}
         onClose={() => setBannerBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {
-          if (bgSlot === 2) {
-            setBannerBackgroundUrl2(url);
-            if (rawFile) setPendingFile("background2", rawFile);
-          } else {
-            setBannerBackgroundUrl(url);
-            if (rawFile) setPendingFile("background", rawFile);
+          const at = pendingBgIndex ?? bgSelected;
+          setBgUrls((prev) => {
+            const next = [...prev];
+            if (at >= next.length) next.push(url);
+            else next[at] = url;
+            return next.filter(Boolean).slice(0, 5);
+          });
+          setBgSelected(at);
+          if (rawFile) {
+            setPendingFile("background", rawFile);
+            setPendingBgIndex(at);
           }
         }}
       />
@@ -515,7 +538,8 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
 
       <DashboardProfilePreview
         user={user}
-        bgPreviewIdx={bgSlot === 2 ? 1 : 0}
+        backgrounds={bgUrls}
+        bgPreviewUrl={bgUrls[bgSelected] ?? null}
         overrides={{
           ...overrides,
           displayName,
@@ -526,8 +550,6 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           avatarShape,
           bannerImageUrl,
           bannerBlend,
-          bannerBackgroundUrl,
-          bannerBackgroundUrl2,
           bannerBackgroundShuffle,
           bannerBackgroundAutoplay,
           auroraColor1,
@@ -592,7 +614,7 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
       />
 
       <SaveBar
-        show={Object.keys(overrides).length > 0}
+        show={Object.keys(overrides).length > 0 || bgDirty}
         onSave={async () => {
           try {
             const finalOverrides = { ...overrides };
@@ -627,18 +649,21 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
             if (pendingFiles.banner) {
               finalOverrides.bannerImageUrl = await uploadPendingFile(pendingFiles.banner, "banner");
             }
-            if (pendingFiles.background && !isAnimatedBackgroundUrl(finalOverrides.bannerBackgroundUrl as string | undefined)) {
-              finalOverrides.bannerBackgroundUrl = await uploadPendingFile(pendingFiles.background, "background");
-            }
-            if (pendingFiles.background2 && !isAnimatedBackgroundUrl(finalOverrides.bannerBackgroundUrl2 as string | undefined)) {
-              finalOverrides.bannerBackgroundUrl2 = await uploadPendingFile(pendingFiles.background2, "background");
+            let finalBgUrls = bgUrls;
+            if (pendingFiles.background && pendingBgIndex !== null) {
+              const uploaded = await uploadPendingFile(pendingFiles.background, "background");
+              finalBgUrls = bgUrls.map((u, i) => (i === pendingBgIndex ? uploaded : u));
             }
 
             await updateGeneralProfile(
               finalOverrides as Parameters<typeof updateGeneralProfile>[0]
             );
+            if (JSON.stringify(finalBgUrls) !== JSON.stringify(backgrounds)) {
+              await updateBackgrounds(finalBgUrls);
+            }
             toast.success("Profile Saved Sucessfully");
             clearPendingFiles();
+            setPendingBgIndex(null);
             scheduleClear();
             router.refresh();
           } catch (error) {
@@ -649,6 +674,9 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
         onRevert={() => {
           clearOverrides();
           clearPendingFiles();
+          setPendingBgIndex(null);
+          setBgUrls(backgrounds);
+          setBgSelected(0);
         }}
       />
     </>

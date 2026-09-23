@@ -1,8 +1,9 @@
 "use server";
 
 import { db, schema } from "@/lib/db";
+import { eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
@@ -51,8 +52,6 @@ export async function updateGeneralProfile(data: {
   profileEffectHue?: number;
   bannerImageUrl?: string | null;
   bannerBlend?: boolean;
-  bannerBackgroundUrl?: string | null;
-  bannerBackgroundUrl2?: string | null;
   bannerBackgroundShuffle?: boolean | null;
   bannerBackgroundAutoplay?: boolean | null;
   bannerBackgroundSound?: boolean;
@@ -127,7 +126,7 @@ export async function updateGeneralProfile(data: {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
   }
 
-  const urlFields = [data.avatarUrl, data.bannerImageUrl, data.bannerBackgroundUrl, data.bannerBackgroundUrl2, data.avatarDecorationUrl];
+  const urlFields = [data.avatarUrl, data.bannerImageUrl, data.avatarDecorationUrl];
   if (data.profileEffectUrl && !data.profileEffectUrl.startsWith("effect:")) {
     urlFields.push(data.profileEffectUrl);
   }
@@ -137,8 +136,6 @@ export async function updateGeneralProfile(data: {
 
   const avatarUrlVal = data.avatarUrl === "" ? null : data.avatarUrl;
   const bannerImageUrlVal = data.bannerImageUrl === "" ? null : data.bannerImageUrl;
-  const bannerBackgroundUrlVal = data.bannerBackgroundUrl === "" ? null : data.bannerBackgroundUrl;
-  const bannerBackgroundUrl2Val = data.bannerBackgroundUrl2 === "" ? null : data.bannerBackgroundUrl2;
 
   const setData: Record<string, unknown> = {};
 
@@ -169,8 +166,6 @@ export async function updateGeneralProfile(data: {
 
   if (bannerImageUrlVal !== undefined) setData.bannerImageUrl = bannerImageUrlVal;
   if (data.bannerBlend !== undefined) setData.bannerBlend = data.bannerBlend;
-  if (bannerBackgroundUrlVal !== undefined) setData.bannerBackgroundUrl = bannerBackgroundUrlVal;
-  if (bannerBackgroundUrl2Val !== undefined) setData.bannerBackgroundUrl2 = bannerBackgroundUrl2Val;
   if (data.bannerBackgroundShuffle !== undefined) setData.bannerBackgroundShuffle = !!data.bannerBackgroundShuffle;
   if (data.bannerBackgroundAutoplay !== undefined) setData.bannerBackgroundAutoplay = !!data.bannerBackgroundAutoplay;
   if (data.bannerBackgroundSound !== undefined) setData.bannerBackgroundSound = !!data.bannerBackgroundSound;
@@ -258,17 +253,46 @@ export async function updateGeneralProfile(data: {
   } else if (bannerImageUrlVal && prev?.bannerImageUrl && prev.bannerImageUrl !== bannerImageUrlVal) {
     stale.push(prev.bannerImageUrl);
   }
-  if (bannerBackgroundUrlVal === null) {
-    if (prev?.bannerBackgroundUrl) stale.push(prev.bannerBackgroundUrl);
-  } else if (bannerBackgroundUrlVal && prev?.bannerBackgroundUrl && prev.bannerBackgroundUrl !== bannerBackgroundUrlVal) {
-    stale.push(prev.bannerBackgroundUrl);
-  }
-  if (bannerBackgroundUrl2Val === null) {
-    if (prev?.bannerBackgroundUrl2) stale.push(prev.bannerBackgroundUrl2);
-  } else if (bannerBackgroundUrl2Val && prev?.bannerBackgroundUrl2 && prev.bannerBackgroundUrl2 !== bannerBackgroundUrl2Val) {
-    stale.push(prev.bannerBackgroundUrl2);
-  }
   if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
+
+  await invalidateLiveStatsCache(userId);
+
+  revalidatePath("/dashboard/customize/profile/general");
+  revalidatePath("/dashboard", "layout");
+  await revalidateOwnProfile(userId);
+
+  return { success: true };
+}
+
+/** Replace the user's page-background playlist (ordered, max 5). */
+export async function updateBackgrounds(urls: string[]) {
+  const userId = await getSessionUserId();
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+  }
+
+  const clean = [...new Set(urls.map((u) => u.trim()).filter(Boolean))].slice(0, 5);
+  if (clean.some((url) => !isValidMediaUrl(url))) {
+    throw new Error("Invalid media URL.");
+  }
+
+  const prev = await getUserBackgrounds(userId);
+
+  await db.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
+  if (clean.length > 0) {
+    await db.insert(schema.userBackgrounds).values(
+      clean.map((url, i) => ({ userId, url, position: i }))
+    );
+  }
+
+  const removed = prev.filter((u) => !clean.includes(u));
+  if (removed.length > 0) await deleteOwnedCatboxFiles(userId, removed);
 
   await invalidateLiveStatsCache(userId);
 

@@ -51,8 +51,6 @@ export const userSettings = mysqlTable('user_settings', {
   avatarShape: mysqlEnum('avatar_shape', ['square', 'soft', 'rounded', 'circle']).default('circle'),
   bannerImageUrl: text('banner_image_url'),
   bannerBlend: boolean('banner_blend').default(false),
-  bannerBackgroundUrl: text('banner_background_url'),
-  bannerBackgroundUrl2: text('banner_background_url2'),
   bannerBackgroundShuffle: boolean('banner_background_shuffle').default(false),
   bannerBackgroundAutoplay: boolean('banner_background_autoplay').default(true),
   bannerBackgroundSound: boolean('banner_background_sound').default(false),
@@ -397,6 +395,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     fields: [users.id],
     references: [userSettings.userId],
   }),
+  backgrounds: many(userBackgrounds),
   commentsAuthored: many(profileComments, { relationName: 'comment_author' }),
   profileComments: many(profileComments, { relationName: 'profile_comments' }),
   likes: many(commentLikes),
@@ -576,6 +575,23 @@ export const uploadedFiles = mysqlTable('uploaded_files', {
   userIdx: index('uploaded_files_user_idx').on(table.userId),
 }))
 
+export const userBackgrounds = mysqlTable('user_backgrounds', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  url: text('url').notNull(),
+  position: int('position').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userPositionIdx: index('user_position_idx').on(table.userId, table.position),
+}))
+
+export const userBackgroundsRelations = relations(userBackgrounds, ({ one }) => ({
+  user: one(users, {
+    fields: [userBackgrounds.userId],
+    references: [users.id],
+  }),
+}))
+
 export const schema = {
   users,
   userSettings,
@@ -590,12 +606,14 @@ export const schema = {
   userBadges,
   donations,
   uploadedFiles,
+  userBackgrounds,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,
   commentLikesRelations,
   profileFeedbackRelations,
   userBadgesRelations,
+  userBackgroundsRelations,
 }
 
 export type User = typeof users.$inferSelect;

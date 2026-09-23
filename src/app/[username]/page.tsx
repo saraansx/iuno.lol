@@ -7,7 +7,7 @@ import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import effects from '@/effects.json'
-import { getEquippedBadgeIds } from '@/lib/features/users/db'
+import { getEquippedBadgeIds, getUserBackgrounds } from '@/lib/features/users/db'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
@@ -107,8 +107,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       profileEffectHue: userSettings.profileEffectHue,
       bannerImageUrl: userSettings.bannerImageUrl,
       bannerBlend: userSettings.bannerBlend,
-      bannerBackgroundUrl: userSettings.bannerBackgroundUrl,
-      bannerBackgroundUrl2: userSettings.bannerBackgroundUrl2,
       bannerBackgroundShuffle: userSettings.bannerBackgroundShuffle,
       bannerBackgroundAutoplay: userSettings.bannerBackgroundAutoplay,
       bannerBackgroundSound: userSettings.bannerBackgroundSound,
@@ -365,6 +363,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const equippedBadges = await getEquippedBadgeIds(user.id);
 
+  const backgrounds = await getUserBackgrounds(user.id);
+
   const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
   const cursorValue = cursorUrl
     ? `url(${JSON.stringify(cursorUrl)}) ${CURSOR_HOTSPOT} ${CURSOR_HOTSPOT}`
@@ -393,8 +393,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         effectHue={user.profileEffectHue ?? 0}
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBlend={user.bannerBlend ?? false}
-        bannerBackgroundUrl={user.bannerBackgroundUrl ?? undefined}
-        bannerBackgroundUrl2={user.bannerBackgroundUrl2 ?? undefined}
+        backgrounds={backgrounds}
         bannerBackgroundShuffle={user.bannerBackgroundShuffle ?? undefined}
         bannerBackgroundAutoplay={user.bannerBackgroundAutoplay ?? undefined}
         bannerBackgroundSound={user.bannerBackgroundSound ?? false}

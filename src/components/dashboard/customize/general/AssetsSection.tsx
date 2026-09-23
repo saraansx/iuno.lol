@@ -19,16 +19,15 @@ interface AssetsSectionProps {
   setBannerImageUrl: (url: string) => void;
   bannerBlend: boolean;
   setBannerBlend: (blend: boolean) => void;
-  bannerBackgroundUrl: string;
-  setBannerBackgroundUrl: (url: string) => void;
-  bannerBackgroundUrl2: string;
-  setBannerBackgroundUrl2: (url: string) => void;
-  bgSlot: 1 | 2;
-  setBgSlot: (slot: 1 | 2) => void;
   bannerBackgroundShuffle: boolean;
   setBannerBackgroundShuffle: (val: boolean) => void;
   bannerBackgroundAutoplay: boolean;
   setBannerBackgroundAutoplay: (val: boolean) => void;
+  bgUrls: string[];
+  setBgUrls: (urls: string[]) => void;
+  bgSelected: number;
+  setBgSelected: (index: number) => void;
+  onAddBackground: (index?: number) => void;
   bannerBackgroundSound: boolean;
   setBannerBackgroundSound: (sound: boolean) => void;
   auroraColor1: string;
@@ -151,7 +150,6 @@ interface AssetsSectionProps {
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
   setBannerImageModalOpen: (open: boolean) => void;
-  setBannerBackgroundModalOpen: (open: boolean) => void;
   isVideoUrl: (url: string) => boolean;
 }
 
@@ -285,16 +283,15 @@ export default function AssetsSection({
   setBannerImageUrl,
   bannerBlend,
   setBannerBlend,
-  bannerBackgroundUrl,
-  setBannerBackgroundUrl,
-  bannerBackgroundUrl2,
-  setBannerBackgroundUrl2,
-  bgSlot,
-  setBgSlot,
   bannerBackgroundShuffle,
   setBannerBackgroundShuffle,
   bannerBackgroundAutoplay,
   setBannerBackgroundAutoplay,
+  bgUrls,
+  setBgUrls,
+  bgSelected,
+  setBgSelected,
+  onAddBackground,
   bannerBackgroundSound,
   setBannerBackgroundSound,
   auroraColor1,
@@ -417,22 +414,32 @@ export default function AssetsSection({
   setDecorationPickerOpen,
   setEffectsPickerOpen,
   setBannerImageModalOpen,
-  setBannerBackgroundModalOpen,
   isVideoUrl,
 }: AssetsSectionProps) {
-  const activeUrl = bgSlot === 2 ? bannerBackgroundUrl2 : bannerBackgroundUrl;
-  const setActiveUrl = bgSlot === 2 ? setBannerBackgroundUrl2 : setBannerBackgroundUrl;
-  const activeAnimatedId = animatedBackgroundId(activeUrl);
-  const [openMenu, setOpenMenu] = useState<1 | 2 | "banner" | null>(null);
+  const MAX_BACKGROUNDS = 5;
+  const selectedUrl = bgUrls[bgSelected] ?? "";
+  const activeAnimatedId = animatedBackgroundId(selectedUrl);
+  const [openMenu, setOpenMenu] = useState<number | "banner" | null>(null);
   const [bgHeaderMenu, setBgHeaderMenu] = useState(false);
 
-  const bgList = (
-    [
-      { slot: 1 as const, url: bannerBackgroundUrl },
-      { slot: 2 as const, url: bannerBackgroundUrl2 },
-    ]
-  ).filter((r) => r.url);
-  const firstEmptySlot = (bannerBackgroundUrl ? 2 : 1) as 1 | 2;
+  const setUrlAt = (index: number, url: string) => {
+    setBgUrls(bgUrls.map((u, i) => (i === index ? url : u)).filter(Boolean));
+  };
+
+  // Preset grid pick: select existing, append (<5), or replace selected.
+  const applyPreset = (url: string) => {
+    const existing = bgUrls.indexOf(url);
+    if (existing >= 0) {
+      setBgSelected(existing);
+      return;
+    }
+    if (bgUrls.length >= MAX_BACKGROUNDS) {
+      setUrlAt(bgSelected, url);
+      return;
+    }
+    setBgUrls([...bgUrls, url]);
+    setBgSelected(bgUrls.length);
+  };
 
   const bgSettingsFor = (id: string | null) => ({
     aurora: id === "aurora" ? { colors: [auroraColor1, auroraColor2, auroraColor3] as [string, string, string], speed: auroraSpeed, blend: auroraBlend } : undefined,
@@ -443,52 +450,46 @@ export default function AssetsSection({
     crtwarp: id === "crtwarp" ? { color: crtwarpColor, background: crtwarpBackground, speed: crtwarpSpeed, curvature: crtwarpCurvature, waveAmount: crtwarpWaveAmount, waveDensity: crtwarpWaveDensity, scanStrength: crtwarpScanStrength, scanDensity: crtwarpScanDensity, bloom: crtwarpBloom, bloomRadius: crtwarpBloomRadius, noise: crtwarpNoise, vignette: crtwarpVignette, brightness: crtwarpBrightness, rgbShift: crtwarpRgbShift, pixelSize: crtwarpPixelSize, renderQuality: crtwarpRenderQuality, frameRate: crtwarpFrameRate, pointerWarp: crtwarpPointerWarp, pointerStrength: crtwarpPointerStrength, paused: crtwarpPaused } : undefined,
   });
 
-  const swapBackgrounds = () => {
-    setBannerBackgroundUrl(bannerBackgroundUrl2);
-    setBannerBackgroundUrl2(bannerBackgroundUrl);
-    setBgSlot(bgSlot === 1 ? 2 : 1);
+  const deleteAt = (index: number) => {
+    const next = bgUrls.filter((_, i) => i !== index);
+    setBgUrls(next);
+    setBgSelected(Math.min(bgSelected, Math.max(0, next.length - 1)));
     setOpenMenu(null);
   };
 
-  const [draggedSlot, setDraggedSlot] = useState<1 | 2 | null>(null);
-  const [dragOverSlot, setDragOverSlot] = useState<1 | 2 | null>(null);
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
 
-  const handleDragStart = (e: DragEvent, s: 1 | 2) => {
-    setDraggedSlot(s);
+  const handleDragStart = (e: DragEvent, i: number) => {
+    setDraggedIdx(i);
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOver = (e: DragEvent, s: 1 | 2) => {
+  const handleDragOver = (e: DragEvent, i: number) => {
     e.preventDefault();
-    if (draggedSlot === null || draggedSlot === s) return;
-    setDragOverSlot(s);
+    if (draggedIdx === null || draggedIdx === i) return;
+    setDragOverIdx(i);
   };
 
-  const handleDrop = (e: DragEvent, s: 1 | 2) => {
+  const handleDrop = (e: DragEvent, i: number) => {
     e.preventDefault();
-    if (draggedSlot === null || draggedSlot === s) {
-      setDraggedSlot(null);
-      setDragOverSlot(null);
+    if (draggedIdx === null || draggedIdx === i) {
+      setDraggedIdx(null);
+      setDragOverIdx(null);
       return;
     }
-    swapBackgrounds();
-    setDraggedSlot(null);
-    setDragOverSlot(null);
+    const next = [...bgUrls];
+    const [moved] = next.splice(draggedIdx, 1);
+    next.splice(i, 0, moved);
+    setBgUrls(next);
+    setBgSelected(i);
+    setDraggedIdx(null);
+    setDragOverIdx(null);
   };
 
   const handleDragEnd = () => {
-    setDraggedSlot(null);
-    setDragOverSlot(null);
-  };
-
-  const deleteBackground = (s: 1 | 2) => {
-    if (s === 2) setBannerBackgroundUrl2("");
-    else setBannerBackgroundUrl("");
-    if (bgSlot === s) {
-      const other = s === 1 ? bannerBackgroundUrl2 : bannerBackgroundUrl;
-      setBgSlot(other ? (s === 1 ? 2 : 1) : 1);
-    }
-    setOpenMenu(null);
+    setDraggedIdx(null);
+    setDragOverIdx(null);
   };
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [prevAnimatedId, setPrevAnimatedId] = useState<string | null>(null);
@@ -695,13 +696,10 @@ export default function AssetsSection({
                     </>
                   )}
                 </div>
-                {bgList.length < 2 && (
+                {bgUrls.length < MAX_BACKGROUNDS && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setBgSlot(firstEmptySlot);
-                      setBannerBackgroundModalOpen(true);
-                    }}
+                    onClick={() => onAddBackground()}
                     className="shrink-0 flex items-center gap-1.5 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/30 text-white text-[13px] font-normal py-2 px-3.5 rounded-xl transition-all cursor-pointer"
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
@@ -711,32 +709,32 @@ export default function AssetsSection({
               </div>
             </div>
             <div className="flex flex-col gap-2 h-full">
-              {bgList.length === 0 ? (
-                <div className="flex-1 min-h-[190px] flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-10 px-4 text-center">
+              {bgUrls.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-8 px-4 text-center">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                   <p className="text-[13px] font-medium text-white/90 mt-1">No backgrounds yet.</p>
                   <p className="text-[12px] text-white/35">Add an image or video to bring your page to life.</p>
                 </div>
               ) : (
-                <div className="flex-1 rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
-                {bgList.map(({ slot: s, url }) => {
-                  const pid = animatedBackgroundId(url!);
+                <div className={`flex-1 rounded-[14px] border border-white/5 p-2 flex flex-col gap-2 ${bgUrls.length > 2 ? "max-h-[172px] overflow-y-auto custom-scrollbar" : ""}`}>
+                {bgUrls.map((url, i) => {
+                  const pid = animatedBackgroundId(url);
                   const preset = pid ? ANIMATED_BACKGROUNDS.find((p) => p.id === pid) : null;
-                  const title = preset ? preset.name : fileNameOf(url!);
-                  const sub = preset ? `animated:${pid}` : (isVideoUrl(url!) ? "Video" : "Image");
+                  const title = preset ? preset.name : fileNameOf(url);
+                  const sub = preset ? `animated:${pid}` : (isVideoUrl(url) ? "Video" : "Image");
                   return (
                     <div
-                      key={s}
+                      key={`${i}-${url}`}
                       draggable
-                      onDragStart={(e) => handleDragStart(e, s)}
-                      onDragOver={(e) => handleDragOver(e, s)}
-                      onDrop={(e) => handleDrop(e, s)}
+                      onDragStart={(e) => handleDragStart(e, i)}
+                      onDragOver={(e) => handleDragOver(e, i)}
+                      onDrop={(e) => handleDrop(e, i)}
                       onDragEnd={handleDragEnd}
-                      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors select-none ${draggedSlot === s
+                      className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 transition-colors select-none ${draggedIdx === i
                         ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
-                        : dragOverSlot === s
+                        : dragOverIdx === i
                         ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
-                        : bgSlot === s
+                        : bgSelected === i
                         ? "bg-white/[0.04] border-[#5b6cf5]/60"
                         : "bg-[#161616] border-white/5"
                       }`}
@@ -745,7 +743,7 @@ export default function AssetsSection({
                         draggable
                         onDragStart={(e) => {
                           e.stopPropagation();
-                          handleDragStart(e, s);
+                          handleDragStart(e, i);
                         }}
                         onDragEnd={handleDragEnd}
                         title="Drag to reorder"
@@ -756,17 +754,17 @@ export default function AssetsSection({
                       <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
                         {pid ? (
                           <AnimatedBackground id={pid} {...bgSettingsFor(pid)} />
-                        ) : isVideoUrl(url!) ? (
-                          <video src={url!} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
+                        ) : isVideoUrl(url) ? (
+                          <video src={url} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
                         ) : (
-                          <Image src={url!} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
+                          <Image src={url} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
                         )}
                       </div>
-                      <button type="button" onClick={() => setBgSlot(s)} className="flex-1 min-w-0 text-left cursor-pointer">
+                      <button type="button" onClick={() => setBgSelected(i)} className="flex-1 min-w-0 text-left cursor-pointer">
                         <p className="text-[13px] text-white truncate">{title}</p>
                         <p className="text-[11px] text-white/35 truncate">{sub}</p>
                       </button>
-                      {isVideoUrl(url!) && (
+                      {isVideoUrl(url) && (
                         <button
                           type="button"
                           onClick={() => setBannerBackgroundSound(!bannerBackgroundSound)}
@@ -781,28 +779,19 @@ export default function AssetsSection({
                       <div className="relative shrink-0">
                         <button
                           type="button"
-                          onClick={() => setOpenMenu(openMenu === s ? null : s)}
+                          onClick={() => setOpenMenu(openMenu === i ? null : i)}
                           className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
                           title="Background options"
                         >
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
                         </button>
-                        {openMenu === s && (
+                        {openMenu === i && (
                           <>
                             <button type="button" aria-label="Close menu" onClick={() => setOpenMenu(null)} className="fixed inset-0 z-30 cursor-default" />
                             <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
-                              {bgList.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={swapBackgrounds}
-                                  className="flex items-center px-3 py-2 rounded-md text-[13px] text-white/70 hover:bg-white/5 hover:text-white transition-all text-left cursor-pointer"
-                                >
-                                  Swap order
-                                </button>
-                              )}
                               <button
                                 type="button"
-                                onClick={() => deleteBackground(s)}
+                                onClick={() => deleteAt(i)}
                                 className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
                               >
                                 Delete
@@ -895,7 +884,7 @@ export default function AssetsSection({
             ) : (
               <div
                 onClick={() => setBannerImageModalOpen(true)}
-                className="flex-1 min-h-[190px] flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-10 px-4 text-center cursor-pointer hover:border-white/20 transition-colors"
+                className="flex flex-col items-center justify-center gap-2 rounded-[14px] border border-dashed border-white/10 py-8 px-4 text-center cursor-pointer hover:border-white/20 transition-colors"
               >
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeOpacity="0.3" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
                 <p className="text-[13px] font-medium text-white/90 mt-1">No banner yet.</p>
@@ -913,13 +902,20 @@ export default function AssetsSection({
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
             {ANIMATED_BACKGROUNDS.map((preset) => {
-              const active = activeAnimatedId === preset.id;
+              const presetUrl = animatedBackgroundUrl(preset.id);
+              const active = selectedUrl === presetUrl;
               return (
                 <button
                   key={preset.id}
                   type="button"
                   title={preset.name}
-                  onClick={() => setActiveUrl(active ? "" : animatedBackgroundUrl(preset.id))}
+                  onClick={() => {
+                    if (active) {
+                      deleteAt(bgSelected);
+                    } else {
+                      applyPreset(presetUrl);
+                    }
+                  }}
                     className={`relative h-20 rounded-xl overflow-hidden border transition-colors cursor-pointer focus:outline-none ${
                       active
                         ? "border-[#5b6cf5] ring-1 ring-[#5b6cf5]/60"
