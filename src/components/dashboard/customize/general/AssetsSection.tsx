@@ -419,7 +419,7 @@ export default function AssetsSection({
   const MAX_BACKGROUNDS = 5;
   const selectedUrl = bgUrls[bgSelected] ?? "";
   const activeAnimatedId = animatedBackgroundId(selectedUrl);
-  const [openMenu, setOpenMenu] = useState<number | "banner" | null>(null);
+  const [openMenu, setOpenMenu] = useState<number | null>(null);
   const [bgHeaderMenu, setBgHeaderMenu] = useState(false);
 
   const setUrlAt = (index: number, url: string) => {
@@ -833,53 +833,60 @@ export default function AssetsSection({
               </div>
             </div>
             {bannerImageUrl ? (
-              <div className="flex-1 rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
-              <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-white/25 shrink-0"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
-                <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
-                  {isVideoUrl(bannerImageUrl) ? (
-                    <video src={bannerImageUrl} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
-                  ) : (
-                    <Image src={bannerImageUrl} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
-                  )}
+              <div
+                onClick={() => setBannerImageModalOpen(true)}
+                className="relative rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
+              >
+                {isVideoUrl(bannerImageUrl) ? (
+                  <video
+                    src={bannerImageUrl}
+                    className="w-full h-28 object-cover"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <Image
+                    src={bannerImageUrl}
+                    alt="Banner"
+                    width={1200}
+                    height={180}
+                    unoptimized
+                    loading="eager"
+                    className="w-full h-28 object-cover"
+                  />
+                )}
+                <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <span className="text-[13px] font-medium text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">Change banner</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setBannerImageModalOpen(true)}
-                  className="flex-1 min-w-0 text-left cursor-pointer"
-                  title="Change banner"
-                >
-                  <p className="text-[13px] text-white truncate">{fileNameOf(bannerImageUrl)}</p>
-                  <p className="text-[11px] text-white/35 truncate">Banner image</p>
-                </button>
-                <div className="relative shrink-0">
+                <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
+                  <span className="h-7 px-2 flex items-center rounded-md bg-black/60 text-[10px] font-medium text-white/80 tracking-wide">
+                    {(() => {
+                      try {
+                        const n = fileNameOf(bannerImageUrl);
+                        const i = n.lastIndexOf(".");
+                        return (i >= 0 ? n.slice(i + 1) : "IMG").toUpperCase().slice(0, 4);
+                      } catch {
+                        return "IMG";
+                      }
+                    })()}
+                  </span>
                   <button
                     type="button"
-                    onClick={() => setOpenMenu(openMenu === "banner" ? null : "banner")}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-                    title="Banner options"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setBannerImageUrl("");
+                    }}
+                    title="Remove banner"
+                    className="w-7 h-7 flex items-center justify-center rounded-md bg-black/60 text-red-400 hover:text-red-300 hover:bg-black/80 transition-all cursor-pointer"
                   >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
                   </button>
-                  {openMenu === "banner" && (
-                    <>
-                      <button type="button" aria-label="Close menu" onClick={() => setOpenMenu(null)} className="fixed inset-0 z-30 cursor-default" />
-                      <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBannerImageUrl("");
-                            setOpenMenu(null);
-                          }}
-                          className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </>
-                  )}
                 </div>
-              </div>
               </div>
             ) : (
               <div

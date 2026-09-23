@@ -64,8 +64,10 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
   const handleFileSelected = (file: File) => {
     if (!file) return;
 
-    if (file.type.startsWith("video/")) {
-      setErrorMsg("Video uploads are not supported for avatars");
+    const looksLikeVideo =
+      file.type.startsWith("video") || /\.(mp4|webm|ogg|ogv|mov|mkv|avi|gifv)$/i.test(file.name);
+    if (looksLikeVideo) {
+      setErrorMsg("Video uploads are not supported for avatars. Images and GIFs only.");
       return;
     }
 
@@ -180,6 +182,7 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
                 <div className="flex flex-col gap-1.5">
                   <FileUpload
                     onChange={(files) => files[0] && handleFileSelected(files[0])}
+                    accept="image/*"
                     isLoading={isLoading}
                     uploadProgress={uploadProgress ?? 0}
                     statusText={statusText ?? undefined}

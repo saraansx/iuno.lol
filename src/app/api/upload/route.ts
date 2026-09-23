@@ -146,7 +146,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });
     }
 
-    if ((isTinyAsset || assetType === "embed" || assetType === "artwork") && !detected.mime.startsWith("image/")) {
+    if ((isTinyAsset || assetType === "embed" || assetType === "artwork" || assetType === "avatar") && !detected.mime.startsWith("image/")) {
       return NextResponse.json({ error: `A ${assetType} must be an image.` }, { status: 400 });
     }
 

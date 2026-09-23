@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 
 import { formatTabTitle } from "@/lib/og";
@@ -43,58 +42,47 @@ function AssetTile({
   onPick: () => void;
   onClear: () => void;
 }) {
-  const [menuOpen, setMenuOpen] = useState(false);
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[12.5px] font-medium text-white/90">{label}</label>
 
       {url ? (
-        <div className="rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
-          <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
-              <Image src={url} alt="" fill unoptimized className="object-contain p-1.5" />
-            </div>
-            <button type="button" onClick={onPick} title={`Change ${label.toLowerCase()}`} className="flex-1 min-w-0 text-left cursor-pointer">
-              <p className="text-[13px] text-white truncate">{fileNameOf(url)}</p>
-              <p className="text-[11px] text-white/35 truncate">{label}</p>
+        <div
+          onClick={onPick}
+          className="relative rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group bg-[#161616]"
+        >
+          <div className="h-24 flex items-center justify-center">
+            <Image src={url} alt="" width={64} height={64} unoptimized className="w-16 h-16 object-contain" />
+          </div>
+          <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            <span className="text-[13px] font-medium text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">Change {label.toLowerCase()}</span>
+          </div>
+          <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
+            <span className="h-7 px-2 flex items-center rounded-md bg-black/60 text-[10px] font-medium text-white/80 tracking-wide">
+              {(() => {
+                try {
+                  const n = fileNameOf(url);
+                  const i = n.lastIndexOf(".");
+                  return (i >= 0 ? n.slice(i + 1) : "IMG").toUpperCase().slice(0, 4);
+                } catch {
+                  return "IMG";
+                }
+              })()}
+            </span>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClear();
+              }}
+              title={`Remove ${label.toLowerCase()}`}
+              className="w-7 h-7 flex items-center justify-center rounded-md bg-black/60 text-red-400 hover:text-red-300 hover:bg-black/80 transition-all cursor-pointer"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
             </button>
-            <div className="relative shrink-0">
-              <button
-                type="button"
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-                title={`${label} options`}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
-              </button>
-              {menuOpen && (
-                <>
-                  <button type="button" aria-label="Close menu" onClick={() => setMenuOpen(false)} className="fixed inset-0 z-30 cursor-default" />
-                  <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onPick();
-                      }}
-                      className="flex items-center px-3 py-2 rounded-md text-[13px] text-white/70 hover:bg-white/5 hover:text-white transition-all text-left cursor-pointer"
-                    >
-                      Change
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onClear();
-                        setMenuOpen(false);
-                      }}
-                      className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
           </div>
         </div>
       ) : (

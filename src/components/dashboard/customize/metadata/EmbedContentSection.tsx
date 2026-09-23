@@ -1,19 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import ColorPickerInput from "@/components/ui/color-picker";
 
 export const TITLE_MAX = 100;
 export const DESCRIPTION_MAX = 250;
-
-function fileNameOf(url: string): string {
-  try {
-    const name = decodeURIComponent(new URL(url).pathname.split("/").pop() || "");
-    return name || url;
-  } catch {
-    return url;
-  }
-}
 
 interface EmbedContentSectionProps {
   username: string;
@@ -46,48 +36,6 @@ export default function EmbedContentSection({
   setEmbedIconModalOpen,
   clearEmbedIcon,
 }: EmbedContentSectionProps) {
-  const [openMenu, setOpenMenu] = useState<"bg" | "icon" | null>(null);
-
-  const menuFor = (key: "bg" | "icon", onPick: () => void, onDelete: () => void) => (
-    <div className="relative shrink-0">
-      <button
-        type="button"
-        onClick={() => setOpenMenu(openMenu === key ? null : key)}
-        className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
-        title="Options"
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="19" r="1.6"/></svg>
-      </button>
-      {openMenu === key && (
-        <>
-          <button type="button" aria-label="Close menu" onClick={() => setOpenMenu(null)} className="fixed inset-0 z-30 cursor-default" />
-          <div className="absolute right-0 top-full mt-1.5 z-40 w-44 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl flex flex-col">
-            <button
-              type="button"
-              onClick={() => {
-                setOpenMenu(null);
-                onPick();
-              }}
-              className="flex items-center px-3 py-2 rounded-md text-[13px] text-white/70 hover:bg-white/5 hover:text-white transition-all text-left cursor-pointer"
-            >
-              Change
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onDelete();
-                setOpenMenu(null);
-              }}
-              className="flex items-center px-3 py-2 rounded-md text-[13px] text-red-400 hover:bg-red-400/10 transition-all text-left cursor-pointer"
-            >
-              Delete
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
-
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
@@ -147,17 +95,30 @@ export default function EmbedContentSection({
       <div className="flex flex-col gap-2">
         <label className="text-[12.5px] font-medium text-white/90">Card background</label>
         {embedBackgroundUrl ? (
-          <div className="rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
-            <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
-              <div className="relative w-14 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={embedBackgroundUrl} alt="Card background" className="absolute inset-0 w-full h-full object-cover" />
-              </div>
-              <button type="button" onClick={() => setEmbedBackgroundModalOpen(true)} title="Change card background" className="flex-1 min-w-0 text-left cursor-pointer">
-                <p className="text-[13px] text-white truncate">{fileNameOf(embedBackgroundUrl)}</p>
-                <p className="text-[11px] text-white/35 truncate">Card background</p>
+          <div
+            onClick={() => setEmbedBackgroundModalOpen(true)}
+            className="relative rounded-[14px] border border-white/5 overflow-hidden cursor-pointer group"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={embedBackgroundUrl} alt="Card background" className="w-full h-28 object-cover" />
+            <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              <span className="text-[13px] font-medium text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">Change background</span>
+            </div>
+            <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearEmbedBackground();
+                }}
+                title="Remove background"
+                className="w-7 h-7 flex items-center justify-center rounded-md bg-black/60 text-red-400 hover:text-red-300 hover:bg-black/80 transition-all cursor-pointer"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
               </button>
-              {menuFor("bg", () => setEmbedBackgroundModalOpen(true), clearEmbedBackground)}
             </div>
           </div>
         ) : (
@@ -180,17 +141,33 @@ export default function EmbedContentSection({
       <div className="flex flex-col gap-2">
         <label className="text-[12.5px] font-medium text-white/90">Card icon</label>
         {embedIconUrl ? (
-          <div className="rounded-[14px] border border-white/5 p-2 flex flex-col gap-2">
-            <div className="flex items-center gap-3 rounded-xl border border-white/5 bg-[#161616] px-3 py-2.5 transition-colors">
-              <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-black">
+          <div className="flex items-center gap-3">
+            <div className="relative shrink-0 p-1.5 -m-1.5">
+              <div
+                onClick={() => setEmbedIconModalOpen(true)}
+                className="relative w-20 h-20 rounded-full overflow-hidden bg-[#161616] border border-white/5 cursor-pointer group"
+                title="Change card icon"
+              >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={embedIconUrl} alt="Card icon" className="absolute inset-0 w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-black/20 pointer-events-none" />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
               </div>
-              <button type="button" onClick={() => setEmbedIconModalOpen(true)} title="Change card icon" className="flex-1 min-w-0 text-left cursor-pointer">
-                <p className="text-[13px] text-white truncate">{fileNameOf(embedIconUrl)}</p>
-                <p className="text-[11px] text-white/35 truncate">Card icon</p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clearEmbedIcon();
+                }}
+                title="Remove icon"
+                className="absolute top-0 right-0 z-10 w-6 h-6 flex items-center justify-center rounded-full bg-[#1a1a1a] border border-white/10 text-red-400 hover:text-red-300 hover:border-red-400/50 transition-all cursor-pointer"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
               </button>
-              {menuFor("icon", () => setEmbedIconModalOpen(true), clearEmbedIcon)}
             </div>
           </div>
         ) : (
