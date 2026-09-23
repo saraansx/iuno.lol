@@ -250,6 +250,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       liquidchromeSpeed: userSettings.liquidchromeSpeed,
       liquidchromeAmplitude: userSettings.liquidchromeAmplitude,
       liquidchromeInteractive: userSettings.liquidchromeInteractive,
+      crtwarpColor: userSettings.crtwarpColor,
+      crtwarpBackground: userSettings.crtwarpBackground,
+      crtwarpSpeed: userSettings.crtwarpSpeed,
+      crtwarpCurvature: userSettings.crtwarpCurvature,
+      crtwarpWaveAmount: userSettings.crtwarpWaveAmount,
+      crtwarpWaveDensity: userSettings.crtwarpWaveDensity,
+      crtwarpScanStrength: userSettings.crtwarpScanStrength,
+      crtwarpScanDensity: userSettings.crtwarpScanDensity,
+      crtwarpBloom: userSettings.crtwarpBloom,
+      crtwarpBloomRadius: userSettings.crtwarpBloomRadius,
+      crtwarpNoise: userSettings.crtwarpNoise,
+      crtwarpVignette: userSettings.crtwarpVignette,
+      crtwarpBrightness: userSettings.crtwarpBrightness,
+      crtwarpRgbShift: userSettings.crtwarpRgbShift,
+      crtwarpPixelSize: userSettings.crtwarpPixelSize,
+      crtwarpRenderQuality: userSettings.crtwarpRenderQuality,
+      crtwarpFrameRate: userSettings.crtwarpFrameRate,
+      crtwarpPointerWarp: userSettings.crtwarpPointerWarp,
+      crtwarpPointerStrength: userSettings.crtwarpPointerStrength,
+      crtwarpPaused: userSettings.crtwarpPaused,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -410,6 +430,26 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         liquidchromeSpeed={user.liquidchromeSpeed ?? undefined}
         liquidchromeAmplitude={user.liquidchromeAmplitude ?? undefined}
         liquidchromeInteractive={user.liquidchromeInteractive ?? undefined}
+        crtwarpColor={user.crtwarpColor ?? undefined}
+        crtwarpBackground={user.crtwarpBackground ?? undefined}
+        crtwarpSpeed={user.crtwarpSpeed ?? undefined}
+        crtwarpCurvature={user.crtwarpCurvature ?? undefined}
+        crtwarpWaveAmount={user.crtwarpWaveAmount ?? undefined}
+        crtwarpWaveDensity={user.crtwarpWaveDensity ?? undefined}
+        crtwarpScanStrength={user.crtwarpScanStrength ?? undefined}
+        crtwarpScanDensity={user.crtwarpScanDensity ?? undefined}
+        crtwarpBloom={user.crtwarpBloom ?? undefined}
+        crtwarpBloomRadius={user.crtwarpBloomRadius ?? undefined}
+        crtwarpNoise={user.crtwarpNoise ?? undefined}
+        crtwarpVignette={user.crtwarpVignette ?? undefined}
+        crtwarpBrightness={user.crtwarpBrightness ?? undefined}
+        crtwarpRgbShift={user.crtwarpRgbShift ?? undefined}
+        crtwarpPixelSize={user.crtwarpPixelSize ?? undefined}
+        crtwarpRenderQuality={user.crtwarpRenderQuality ?? undefined}
+        crtwarpFrameRate={user.crtwarpFrameRate ?? undefined}
+        crtwarpPointerWarp={user.crtwarpPointerWarp ?? undefined}
+        crtwarpPointerStrength={user.crtwarpPointerStrength ?? undefined}
+        crtwarpPaused={user.crtwarpPaused ?? undefined}
         backgroundEffect={user.backgroundEffect ?? undefined}
         backgroundEffectIntensity={user.backgroundEffectIntensity ?? undefined}
         backgroundEffectColor={user.backgroundEffectColor ?? undefined}

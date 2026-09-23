@@ -91,6 +91,26 @@ export async function updateGeneralProfile(data: {
   liquidchromeSpeed?: number | null;
   liquidchromeAmplitude?: number | null;
   liquidchromeInteractive?: boolean | null;
+  crtwarpColor?: string | null;
+  crtwarpBackground?: string | null;
+  crtwarpSpeed?: number | null;
+  crtwarpCurvature?: number | null;
+  crtwarpWaveAmount?: number | null;
+  crtwarpWaveDensity?: number | null;
+  crtwarpScanStrength?: number | null;
+  crtwarpScanDensity?: number | null;
+  crtwarpBloom?: number | null;
+  crtwarpBloomRadius?: number | null;
+  crtwarpNoise?: number | null;
+  crtwarpVignette?: number | null;
+  crtwarpBrightness?: number | null;
+  crtwarpRgbShift?: number | null;
+  crtwarpPixelSize?: number | null;
+  crtwarpRenderQuality?: number | null;
+  crtwarpFrameRate?: number | null;
+  crtwarpPointerWarp?: boolean | null;
+  crtwarpPointerStrength?: number | null;
+  crtwarpPaused?: boolean | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -188,6 +208,26 @@ export async function updateGeneralProfile(data: {
   if (data.liquidchromeSpeed !== undefined) setData.liquidchromeSpeed = data.liquidchromeSpeed;
   if (data.liquidchromeAmplitude !== undefined) setData.liquidchromeAmplitude = data.liquidchromeAmplitude;
   if (data.liquidchromeInteractive !== undefined) setData.liquidchromeInteractive = !!data.liquidchromeInteractive;
+  if (data.crtwarpColor !== undefined) setData.crtwarpColor = data.crtwarpColor?.slice(0, 32) ?? null;
+  if (data.crtwarpBackground !== undefined) setData.crtwarpBackground = data.crtwarpBackground?.slice(0, 32) ?? null;
+  if (data.crtwarpSpeed !== undefined) setData.crtwarpSpeed = data.crtwarpSpeed;
+  if (data.crtwarpCurvature !== undefined) setData.crtwarpCurvature = data.crtwarpCurvature;
+  if (data.crtwarpWaveAmount !== undefined) setData.crtwarpWaveAmount = data.crtwarpWaveAmount;
+  if (data.crtwarpWaveDensity !== undefined) setData.crtwarpWaveDensity = data.crtwarpWaveDensity;
+  if (data.crtwarpScanStrength !== undefined) setData.crtwarpScanStrength = data.crtwarpScanStrength;
+  if (data.crtwarpScanDensity !== undefined) setData.crtwarpScanDensity = data.crtwarpScanDensity;
+  if (data.crtwarpBloom !== undefined) setData.crtwarpBloom = data.crtwarpBloom;
+  if (data.crtwarpBloomRadius !== undefined) setData.crtwarpBloomRadius = data.crtwarpBloomRadius;
+  if (data.crtwarpNoise !== undefined) setData.crtwarpNoise = data.crtwarpNoise;
+  if (data.crtwarpVignette !== undefined) setData.crtwarpVignette = data.crtwarpVignette;
+  if (data.crtwarpBrightness !== undefined) setData.crtwarpBrightness = data.crtwarpBrightness;
+  if (data.crtwarpRgbShift !== undefined) setData.crtwarpRgbShift = data.crtwarpRgbShift;
+  if (data.crtwarpPixelSize !== undefined) setData.crtwarpPixelSize = data.crtwarpPixelSize;
+  if (data.crtwarpRenderQuality !== undefined) setData.crtwarpRenderQuality = data.crtwarpRenderQuality;
+  if (data.crtwarpFrameRate !== undefined) setData.crtwarpFrameRate = data.crtwarpFrameRate;
+  if (data.crtwarpPointerWarp !== undefined) setData.crtwarpPointerWarp = !!data.crtwarpPointerWarp;
+  if (data.crtwarpPointerStrength !== undefined) setData.crtwarpPointerStrength = data.crtwarpPointerStrength;
+  if (data.crtwarpPaused !== undefined) setData.crtwarpPaused = !!data.crtwarpPaused;
 
   sanitizeProfileSettings(setData);
 

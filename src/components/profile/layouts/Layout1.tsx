@@ -157,6 +157,26 @@ interface Layout1Props {
   liquidchromeSpeed?: number | null;
   liquidchromeAmplitude?: number | null;
   liquidchromeInteractive?: boolean | null;
+  crtwarpColor?: string | null;
+  crtwarpBackground?: string | null;
+  crtwarpSpeed?: number | null;
+  crtwarpCurvature?: number | null;
+  crtwarpWaveAmount?: number | null;
+  crtwarpWaveDensity?: number | null;
+  crtwarpScanStrength?: number | null;
+  crtwarpScanDensity?: number | null;
+  crtwarpBloom?: number | null;
+  crtwarpBloomRadius?: number | null;
+  crtwarpNoise?: number | null;
+  crtwarpVignette?: number | null;
+  crtwarpBrightness?: number | null;
+  crtwarpRgbShift?: number | null;
+  crtwarpPixelSize?: number | null;
+  crtwarpRenderQuality?: number | null;
+  crtwarpFrameRate?: number | null;
+  crtwarpPointerWarp?: boolean | null;
+  crtwarpPointerStrength?: number | null;
+  crtwarpPaused?: boolean | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -474,6 +494,26 @@ const Layout1 = ({
   liquidchromeSpeed,
   liquidchromeAmplitude,
   liquidchromeInteractive,
+  crtwarpColor,
+  crtwarpBackground,
+  crtwarpSpeed,
+  crtwarpCurvature,
+  crtwarpWaveAmount,
+  crtwarpWaveDensity,
+  crtwarpScanStrength,
+  crtwarpScanDensity,
+  crtwarpBloom,
+  crtwarpBloomRadius,
+  crtwarpNoise,
+  crtwarpVignette,
+  crtwarpBrightness,
+  crtwarpRgbShift,
+  crtwarpPixelSize,
+  crtwarpRenderQuality,
+  crtwarpFrameRate,
+  crtwarpPointerWarp,
+  crtwarpPointerStrength,
+  crtwarpPaused,
   backgroundEffect,
   backgroundEffectIntensity = 50,
   backgroundEffectColor = "#ffffff",
@@ -1186,6 +1226,7 @@ const sectionSurface: React.CSSProperties = {
                 pixelblast={{ variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid }}
                 colorbends={{ color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth }}
                 liquidchrome={{ color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive }}
+                crtwarp={{ color: crtwarpColor, background: crtwarpBackground, speed: crtwarpSpeed, curvature: crtwarpCurvature, waveAmount: crtwarpWaveAmount, waveDensity: crtwarpWaveDensity, scanStrength: crtwarpScanStrength, scanDensity: crtwarpScanDensity, bloom: crtwarpBloom, bloomRadius: crtwarpBloomRadius, noise: crtwarpNoise, vignette: crtwarpVignette, brightness: crtwarpBrightness, rgbShift: crtwarpRgbShift, pixelSize: crtwarpPixelSize, renderQuality: crtwarpRenderQuality, frameRate: crtwarpFrameRate, pointerWarp: crtwarpPointerWarp, pointerStrength: crtwarpPointerStrength, paused: crtwarpPaused }}
               />
             </div>
           ) : isVideoUrl(bannerBackgroundUrl) ? (

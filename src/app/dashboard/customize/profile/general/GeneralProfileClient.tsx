@@ -14,7 +14,7 @@ import BackgroundUpload from "@/components/dashboard/uploads/BackgroundUpload";
 import DecorationPicker, { type Decoration } from "@/components/dashboard/DecorationPicker";
 import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
-import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS } from "@/lib/animated-background";
+import { isAnimatedBackgroundUrl, AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS, CRTWARP_DEFAULTS } from "@/lib/animated-background";
 import decorations from "@/Deco.json";
 import effects from "@/effects.json";
 
@@ -175,6 +175,66 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
   const setLiquidchromeAmplitude = (val: number) => updateOverrides({ liquidchromeAmplitude: val === initialLiquidchromeAmplitude ? undefined : val });
   const liquidchromeInteractive = overrides.liquidchromeInteractive !== undefined ? Boolean(overrides.liquidchromeInteractive) : Boolean(initialLiquidchromeInteractive);
   const setLiquidchromeInteractive = (val: boolean) => updateOverrides({ liquidchromeInteractive: val === initialLiquidchromeInteractive ? undefined : val });
+  const initialCrtwarpColor = user?.crtwarpColor ?? CRTWARP_DEFAULTS.color;
+  const initialCrtwarpBackground = user?.crtwarpBackground ?? CRTWARP_DEFAULTS.background;
+  const initialCrtwarpSpeed = user?.crtwarpSpeed ?? CRTWARP_DEFAULTS.speed;
+  const initialCrtwarpCurvature = user?.crtwarpCurvature ?? CRTWARP_DEFAULTS.curvature;
+  const initialCrtwarpWaveAmount = user?.crtwarpWaveAmount ?? CRTWARP_DEFAULTS.waveAmount;
+  const initialCrtwarpWaveDensity = user?.crtwarpWaveDensity ?? CRTWARP_DEFAULTS.waveDensity;
+  const initialCrtwarpScanStrength = user?.crtwarpScanStrength ?? CRTWARP_DEFAULTS.scanStrength;
+  const initialCrtwarpScanDensity = user?.crtwarpScanDensity ?? CRTWARP_DEFAULTS.scanDensity;
+  const initialCrtwarpBloom = user?.crtwarpBloom ?? CRTWARP_DEFAULTS.bloom;
+  const initialCrtwarpBloomRadius = user?.crtwarpBloomRadius ?? CRTWARP_DEFAULTS.bloomRadius;
+  const initialCrtwarpNoise = user?.crtwarpNoise ?? CRTWARP_DEFAULTS.noise;
+  const initialCrtwarpVignette = user?.crtwarpVignette ?? CRTWARP_DEFAULTS.vignette;
+  const initialCrtwarpBrightness = user?.crtwarpBrightness ?? CRTWARP_DEFAULTS.brightness;
+  const initialCrtwarpRgbShift = user?.crtwarpRgbShift ?? CRTWARP_DEFAULTS.rgbShift;
+  const initialCrtwarpPixelSize = user?.crtwarpPixelSize ?? CRTWARP_DEFAULTS.pixelSize;
+  const initialCrtwarpRenderQuality = user?.crtwarpRenderQuality ?? CRTWARP_DEFAULTS.renderQuality;
+  const initialCrtwarpFrameRate = user?.crtwarpFrameRate ?? CRTWARP_DEFAULTS.frameRate;
+  const initialCrtwarpPointerWarp = user?.crtwarpPointerWarp ?? CRTWARP_DEFAULTS.pointerWarp;
+  const initialCrtwarpPointerStrength = user?.crtwarpPointerStrength ?? CRTWARP_DEFAULTS.pointerStrength;
+  const initialCrtwarpPaused = user?.crtwarpPaused ?? CRTWARP_DEFAULTS.paused;
+  const crtwarpColor = overrides.crtwarpColor ?? initialCrtwarpColor;
+  const setCrtwarpColor = (val: string) => updateOverrides({ crtwarpColor: val === initialCrtwarpColor ? undefined : val });
+  const crtwarpBackground = overrides.crtwarpBackground ?? initialCrtwarpBackground;
+  const setCrtwarpBackground = (val: string) => updateOverrides({ crtwarpBackground: val === initialCrtwarpBackground ? undefined : val });
+  const crtwarpSpeed = overrides.crtwarpSpeed ?? initialCrtwarpSpeed;
+  const setCrtwarpSpeed = (val: number) => updateOverrides({ crtwarpSpeed: val === initialCrtwarpSpeed ? undefined : val });
+  const crtwarpCurvature = overrides.crtwarpCurvature ?? initialCrtwarpCurvature;
+  const setCrtwarpCurvature = (val: number) => updateOverrides({ crtwarpCurvature: val === initialCrtwarpCurvature ? undefined : val });
+  const crtwarpWaveAmount = overrides.crtwarpWaveAmount ?? initialCrtwarpWaveAmount;
+  const setCrtwarpWaveAmount = (val: number) => updateOverrides({ crtwarpWaveAmount: val === initialCrtwarpWaveAmount ? undefined : val });
+  const crtwarpWaveDensity = overrides.crtwarpWaveDensity ?? initialCrtwarpWaveDensity;
+  const setCrtwarpWaveDensity = (val: number) => updateOverrides({ crtwarpWaveDensity: val === initialCrtwarpWaveDensity ? undefined : val });
+  const crtwarpScanStrength = overrides.crtwarpScanStrength ?? initialCrtwarpScanStrength;
+  const setCrtwarpScanStrength = (val: number) => updateOverrides({ crtwarpScanStrength: val === initialCrtwarpScanStrength ? undefined : val });
+  const crtwarpScanDensity = overrides.crtwarpScanDensity ?? initialCrtwarpScanDensity;
+  const setCrtwarpScanDensity = (val: number) => updateOverrides({ crtwarpScanDensity: val === initialCrtwarpScanDensity ? undefined : val });
+  const crtwarpBloom = overrides.crtwarpBloom ?? initialCrtwarpBloom;
+  const setCrtwarpBloom = (val: number) => updateOverrides({ crtwarpBloom: val === initialCrtwarpBloom ? undefined : val });
+  const crtwarpBloomRadius = overrides.crtwarpBloomRadius ?? initialCrtwarpBloomRadius;
+  const setCrtwarpBloomRadius = (val: number) => updateOverrides({ crtwarpBloomRadius: val === initialCrtwarpBloomRadius ? undefined : val });
+  const crtwarpNoise = overrides.crtwarpNoise ?? initialCrtwarpNoise;
+  const setCrtwarpNoise = (val: number) => updateOverrides({ crtwarpNoise: val === initialCrtwarpNoise ? undefined : val });
+  const crtwarpVignette = overrides.crtwarpVignette ?? initialCrtwarpVignette;
+  const setCrtwarpVignette = (val: number) => updateOverrides({ crtwarpVignette: val === initialCrtwarpVignette ? undefined : val });
+  const crtwarpBrightness = overrides.crtwarpBrightness ?? initialCrtwarpBrightness;
+  const setCrtwarpBrightness = (val: number) => updateOverrides({ crtwarpBrightness: val === initialCrtwarpBrightness ? undefined : val });
+  const crtwarpRgbShift = overrides.crtwarpRgbShift ?? initialCrtwarpRgbShift;
+  const setCrtwarpRgbShift = (val: number) => updateOverrides({ crtwarpRgbShift: val === initialCrtwarpRgbShift ? undefined : val });
+  const crtwarpPixelSize = overrides.crtwarpPixelSize ?? initialCrtwarpPixelSize;
+  const setCrtwarpPixelSize = (val: number) => updateOverrides({ crtwarpPixelSize: val === initialCrtwarpPixelSize ? undefined : val });
+  const crtwarpRenderQuality = overrides.crtwarpRenderQuality ?? initialCrtwarpRenderQuality;
+  const setCrtwarpRenderQuality = (val: number) => updateOverrides({ crtwarpRenderQuality: val === initialCrtwarpRenderQuality ? undefined : val });
+  const crtwarpFrameRate = overrides.crtwarpFrameRate ?? initialCrtwarpFrameRate;
+  const setCrtwarpFrameRate = (val: number) => updateOverrides({ crtwarpFrameRate: val === initialCrtwarpFrameRate ? undefined : val });
+  const crtwarpPointerWarp = overrides.crtwarpPointerWarp !== undefined ? Boolean(overrides.crtwarpPointerWarp) : Boolean(initialCrtwarpPointerWarp);
+  const setCrtwarpPointerWarp = (val: boolean) => updateOverrides({ crtwarpPointerWarp: val === initialCrtwarpPointerWarp ? undefined : val });
+  const crtwarpPointerStrength = overrides.crtwarpPointerStrength ?? initialCrtwarpPointerStrength;
+  const setCrtwarpPointerStrength = (val: number) => updateOverrides({ crtwarpPointerStrength: val === initialCrtwarpPointerStrength ? undefined : val });
+  const crtwarpPaused = overrides.crtwarpPaused !== undefined ? Boolean(overrides.crtwarpPaused) : Boolean(initialCrtwarpPaused);
+  const setCrtwarpPaused = (val: boolean) => updateOverrides({ crtwarpPaused: val === initialCrtwarpPaused ? undefined : val });
   const [bannerImageModalOpen, setBannerImageModalOpen] = useState(false);
   const [bannerBackgroundModalOpen, setBannerBackgroundModalOpen] = useState(false);
   const [decorationPickerOpen, setDecorationPickerOpen] = useState(false);
@@ -317,6 +377,46 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           setLiquidchromeAmplitude={setLiquidchromeAmplitude}
           liquidchromeInteractive={liquidchromeInteractive}
           setLiquidchromeInteractive={setLiquidchromeInteractive}
+          crtwarpColor={crtwarpColor}
+          setCrtwarpColor={setCrtwarpColor}
+          crtwarpBackground={crtwarpBackground}
+          setCrtwarpBackground={setCrtwarpBackground}
+          crtwarpSpeed={crtwarpSpeed}
+          setCrtwarpSpeed={setCrtwarpSpeed}
+          crtwarpCurvature={crtwarpCurvature}
+          setCrtwarpCurvature={setCrtwarpCurvature}
+          crtwarpWaveAmount={crtwarpWaveAmount}
+          setCrtwarpWaveAmount={setCrtwarpWaveAmount}
+          crtwarpWaveDensity={crtwarpWaveDensity}
+          setCrtwarpWaveDensity={setCrtwarpWaveDensity}
+          crtwarpScanStrength={crtwarpScanStrength}
+          setCrtwarpScanStrength={setCrtwarpScanStrength}
+          crtwarpScanDensity={crtwarpScanDensity}
+          setCrtwarpScanDensity={setCrtwarpScanDensity}
+          crtwarpBloom={crtwarpBloom}
+          setCrtwarpBloom={setCrtwarpBloom}
+          crtwarpBloomRadius={crtwarpBloomRadius}
+          setCrtwarpBloomRadius={setCrtwarpBloomRadius}
+          crtwarpNoise={crtwarpNoise}
+          setCrtwarpNoise={setCrtwarpNoise}
+          crtwarpVignette={crtwarpVignette}
+          setCrtwarpVignette={setCrtwarpVignette}
+          crtwarpBrightness={crtwarpBrightness}
+          setCrtwarpBrightness={setCrtwarpBrightness}
+          crtwarpRgbShift={crtwarpRgbShift}
+          setCrtwarpRgbShift={setCrtwarpRgbShift}
+          crtwarpPixelSize={crtwarpPixelSize}
+          setCrtwarpPixelSize={setCrtwarpPixelSize}
+          crtwarpRenderQuality={crtwarpRenderQuality}
+          setCrtwarpRenderQuality={setCrtwarpRenderQuality}
+          crtwarpFrameRate={crtwarpFrameRate}
+          setCrtwarpFrameRate={setCrtwarpFrameRate}
+          crtwarpPointerWarp={crtwarpPointerWarp}
+          setCrtwarpPointerWarp={setCrtwarpPointerWarp}
+          crtwarpPointerStrength={crtwarpPointerStrength}
+          setCrtwarpPointerStrength={setCrtwarpPointerStrength}
+          crtwarpPaused={crtwarpPaused}
+          setCrtwarpPaused={setCrtwarpPaused}
           setAvatarModalOpen={setAvatarModalOpen}
           setDecorationPickerOpen={setDecorationPickerOpen}
           setEffectsPickerOpen={setEffectsPickerOpen}
@@ -441,6 +541,26 @@ export default function GeneralProfileClient({ user }: { user: FullUser | null }
           liquidchromeSpeed,
           liquidchromeAmplitude,
           liquidchromeInteractive,
+          crtwarpColor,
+          crtwarpBackground,
+          crtwarpSpeed,
+          crtwarpCurvature,
+          crtwarpWaveAmount,
+          crtwarpWaveDensity,
+          crtwarpScanStrength,
+          crtwarpScanDensity,
+          crtwarpBloom,
+          crtwarpBloomRadius,
+          crtwarpNoise,
+          crtwarpVignette,
+          crtwarpBrightness,
+          crtwarpRgbShift,
+          crtwarpPixelSize,
+          crtwarpRenderQuality,
+          crtwarpFrameRate,
+          crtwarpPointerWarp,
+          crtwarpPointerStrength,
+          crtwarpPaused,
         }}
       />
 

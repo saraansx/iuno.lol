@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { ANIMATED_BACKGROUNDS, animatedBackgroundId, animatedBackgroundUrl } from "@/lib/animated-background";
 import AnimatedBackground from "@/components/profile/layouts/AnimatedBackground";
@@ -98,12 +99,121 @@ interface AssetsSectionProps {
   setLiquidchromeAmplitude: (val: number) => void;
   liquidchromeInteractive: boolean;
   setLiquidchromeInteractive: (val: boolean) => void;
+  crtwarpColor: string;
+  setCrtwarpColor: (val: string) => void;
+  crtwarpBackground: string;
+  setCrtwarpBackground: (val: string) => void;
+  crtwarpSpeed: number;
+  setCrtwarpSpeed: (val: number) => void;
+  crtwarpCurvature: number;
+  setCrtwarpCurvature: (val: number) => void;
+  crtwarpWaveAmount: number;
+  setCrtwarpWaveAmount: (val: number) => void;
+  crtwarpWaveDensity: number;
+  setCrtwarpWaveDensity: (val: number) => void;
+  crtwarpScanStrength: number;
+  setCrtwarpScanStrength: (val: number) => void;
+  crtwarpScanDensity: number;
+  setCrtwarpScanDensity: (val: number) => void;
+  crtwarpBloom: number;
+  setCrtwarpBloom: (val: number) => void;
+  crtwarpBloomRadius: number;
+  setCrtwarpBloomRadius: (val: number) => void;
+  crtwarpNoise: number;
+  setCrtwarpNoise: (val: number) => void;
+  crtwarpVignette: number;
+  setCrtwarpVignette: (val: number) => void;
+  crtwarpBrightness: number;
+  setCrtwarpBrightness: (val: number) => void;
+  crtwarpRgbShift: number;
+  setCrtwarpRgbShift: (val: number) => void;
+  crtwarpPixelSize: number;
+  setCrtwarpPixelSize: (val: number) => void;
+  crtwarpRenderQuality: number;
+  setCrtwarpRenderQuality: (val: number) => void;
+  crtwarpFrameRate: number;
+  setCrtwarpFrameRate: (val: number) => void;
+  crtwarpPointerWarp: boolean;
+  setCrtwarpPointerWarp: (val: boolean) => void;
+  crtwarpPointerStrength: number;
+  setCrtwarpPointerStrength: (val: number) => void;
+  crtwarpPaused: boolean;
+  setCrtwarpPaused: (val: boolean) => void;
   setAvatarModalOpen: (open: boolean) => void;
   setDecorationPickerOpen: (open: boolean) => void;
   setEffectsPickerOpen?: (open: boolean) => void;
   setBannerImageModalOpen: (open: boolean) => void;
   setBannerBackgroundModalOpen: (open: boolean) => void;
   isVideoUrl: (url: string) => boolean;
+}
+
+function SettingSelect<T extends string | number>({ label, value, options, onChange }: {
+  label: string;
+  value: T;
+  options: { value: T; label: string }[];
+  onChange: (val: T) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (ref.current && !ref.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const active = options.find((o) => o.value === value);
+  return (
+    <div className="flex flex-col gap-2">
+      <label className="text-[12px] text-white/50">{label}</label>
+      <div className="relative" ref={ref}>
+        <button
+          type="button"
+          onClick={() => setOpen(!open)}
+          className="w-full flex items-center justify-between px-3.5 h-10 rounded-xl border bg-[#161616] border-white/5 transition-all duration-200 focus:outline-none cursor-pointer"
+        >
+          <span className="text-[13px] text-white font-normal">
+            {active?.label ?? String(value)}
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </button>
+
+        {open && (
+          <div className="absolute top-full left-0 right-0 mt-1.5 p-1 bg-[#161616] border border-white/10 rounded-lg shadow-xl z-50 max-h-60 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-white/20">
+            <div className="flex flex-col">
+              {options.map((opt) => (
+                <button
+                  key={String(opt.value)}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setOpen(false);
+                  }}
+                  className={`flex items-center justify-between px-3 py-2 rounded-md transition-all duration-200 cursor-pointer ${opt.value === value
+                    ? "bg-white/10 text-white font-medium"
+                    : "bg-transparent hover:bg-white/5 text-white/60"
+                    }`}
+                >
+                  <span className="text-[13px]">{opt.label}</span>
+                  {opt.value === value && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 function SettingSlider({ label, value, min, max, step, onChange }: {
@@ -238,6 +348,46 @@ export default function AssetsSection({
   setLiquidchromeAmplitude,
   liquidchromeInteractive,
   setLiquidchromeInteractive,
+  crtwarpColor,
+  setCrtwarpColor,
+  crtwarpBackground,
+  setCrtwarpBackground,
+  crtwarpSpeed,
+  setCrtwarpSpeed,
+  crtwarpCurvature,
+  setCrtwarpCurvature,
+  crtwarpWaveAmount,
+  setCrtwarpWaveAmount,
+  crtwarpWaveDensity,
+  setCrtwarpWaveDensity,
+  crtwarpScanStrength,
+  setCrtwarpScanStrength,
+  crtwarpScanDensity,
+  setCrtwarpScanDensity,
+  crtwarpBloom,
+  setCrtwarpBloom,
+  crtwarpBloomRadius,
+  setCrtwarpBloomRadius,
+  crtwarpNoise,
+  setCrtwarpNoise,
+  crtwarpVignette,
+  setCrtwarpVignette,
+  crtwarpBrightness,
+  setCrtwarpBrightness,
+  crtwarpRgbShift,
+  setCrtwarpRgbShift,
+  crtwarpPixelSize,
+  setCrtwarpPixelSize,
+  crtwarpRenderQuality,
+  setCrtwarpRenderQuality,
+  crtwarpFrameRate,
+  setCrtwarpFrameRate,
+  crtwarpPointerWarp,
+  setCrtwarpPointerWarp,
+  crtwarpPointerStrength,
+  setCrtwarpPointerStrength,
+  crtwarpPaused,
+  setCrtwarpPaused,
   setAvatarModalOpen,
   setDecorationPickerOpen,
   setEffectsPickerOpen,
@@ -245,6 +395,16 @@ export default function AssetsSection({
   setBannerBackgroundModalOpen,
   isVideoUrl,
 }: AssetsSectionProps) {
+  const activeAnimatedId = animatedBackgroundId(bannerBackgroundUrl);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [prevAnimatedId, setPrevAnimatedId] = useState<string | null>(null);
+
+  // Collapse settings whenever a different preset is picked.
+  if (prevAnimatedId !== activeAnimatedId) {
+    setPrevAnimatedId(activeAnimatedId);
+    setShowAdvanced(false);
+  }
+
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex items-center gap-3">
@@ -441,6 +601,7 @@ export default function AssetsSection({
                       pixelblast={animatedId === "pixelblast" ? { variant: pixelblastVariant, pixelSize: pixelblastPixelSize, color: pixelblastColor, patternScale: pixelblastPatternScale, patternDensity: pixelblastPatternDensity, pixelJitter: pixelblastPixelJitter, speed: pixelblastSpeed, edgeFade: pixelblastEdgeFade, ripples: pixelblastRipples, liquid: pixelblastLiquid } : undefined}
                       colorbends={animatedId === "colorbends" ? { color: colorbendsColor, rotation: colorbendsRotation, autoRotate: colorbendsAutoRotate, speed: colorbendsSpeed, scale: colorbendsScale, frequency: colorbendsFrequency, warpStrength: colorbendsWarp, mouseInfluence: colorbendsMouse, parallax: colorbendsParallax, noise: colorbendsNoise, iterations: colorbendsIterations, intensity: colorbendsIntensity, bandWidth: colorbendsBandWidth } : undefined}
                       liquidchrome={animatedId === "liquidchrome" ? { color: liquidchromeColor, speed: liquidchromeSpeed, amplitude: liquidchromeAmplitude, interactive: liquidchromeInteractive } : undefined}
+                      crtwarp={animatedId === "crtwarp" ? { color: crtwarpColor, background: crtwarpBackground, speed: crtwarpSpeed, curvature: crtwarpCurvature, waveAmount: crtwarpWaveAmount, waveDensity: crtwarpWaveDensity, scanStrength: crtwarpScanStrength, scanDensity: crtwarpScanDensity, bloom: crtwarpBloom, bloomRadius: crtwarpBloomRadius, noise: crtwarpNoise, vignette: crtwarpVignette, brightness: crtwarpBrightness, rgbShift: crtwarpRgbShift, pixelSize: crtwarpPixelSize, renderQuality: crtwarpRenderQuality, frameRate: crtwarpFrameRate, pointerWarp: crtwarpPointerWarp, pointerStrength: crtwarpPointerStrength, paused: crtwarpPaused } : undefined}
                     />
                   ) : isVideoUrl(bannerBackgroundUrl) ? (
                   <>
@@ -596,7 +757,22 @@ export default function AssetsSection({
           </div>
         </div>
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "aurora" && (
+        {activeAnimatedId && (
+          <div className="flex flex-col pt-1">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center justify-between bg-[#161616] border border-white/5 hover:border-white/10 rounded-xl h-11 px-3.5 transition-all cursor-pointer"
+            >
+              <span className="text-[13px] text-white/90">Advanced settings</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`text-white/40 transition-transform duration-200 ${showAdvanced ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "aurora" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Aurora settings</span>
@@ -675,7 +851,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "darkveil" && (
+        {animatedBackgroundId(bannerBackgroundUrl) === "darkveil" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Dark Veil settings</span>
@@ -692,7 +868,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "colorbends" && (
+        {animatedBackgroundId(bannerBackgroundUrl) === "colorbends" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Color Bends settings</span>
@@ -719,7 +895,94 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "liquidchrome" && (
+        {animatedBackgroundId(bannerBackgroundUrl) === "crtwarp" && showAdvanced && (
+          <div className="flex flex-col gap-4 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[12.5px] font-medium text-white/90">CRT Warp settings</span>
+              <span className="text-[11px] text-white/30">Only for CRT Warp</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-5">
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Phosphor Color</label>
+                <ColorPickerInput value={crtwarpColor} onChange={setCrtwarpColor} />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-[12px] text-white/50">Background</label>
+                <ColorPickerInput value={crtwarpBackground} onChange={setCrtwarpBackground} />
+              </div>
+              <SettingSlider label="Speed" value={crtwarpSpeed} min={0} max={2} step={0.05} onChange={setCrtwarpSpeed} />
+              <SettingSlider label="Curvature" value={crtwarpCurvature} min={0} max={1} step={0.01} onChange={setCrtwarpCurvature} />
+              <SettingSlider label="Wave Amount" value={crtwarpWaveAmount} min={0} max={1} step={0.01} onChange={setCrtwarpWaveAmount} />
+              <SettingSlider label="Wave Density" value={crtwarpWaveDensity} min={0} max={5} step={0.1} onChange={setCrtwarpWaveDensity} />
+              <SettingSlider label="Scanline Strength" value={crtwarpScanStrength} min={0} max={1} step={0.01} onChange={setCrtwarpScanStrength} />
+              <SettingSlider label="Scanline Density" value={crtwarpScanDensity} min={0} max={400} step={1} onChange={setCrtwarpScanDensity} />
+              <SettingSlider label="Bloom" value={crtwarpBloom} min={0} max={3} step={0.1} onChange={setCrtwarpBloom} />
+              <SettingSlider label="Bloom Radius" value={crtwarpBloomRadius} min={0} max={3} step={0.1} onChange={setCrtwarpBloomRadius} />
+              <SettingSlider label="Noise" value={crtwarpNoise} min={0} max={1} step={0.01} onChange={setCrtwarpNoise} />
+              <SettingSlider label="Vignette" value={crtwarpVignette} min={0} max={1} step={0.05} onChange={setCrtwarpVignette} />
+              <SettingSlider label="Brightness" value={crtwarpBrightness} min={0} max={2.5} step={0.05} onChange={setCrtwarpBrightness} />
+              <SettingSlider label="RGB Shift" value={crtwarpRgbShift} min={0} max={0.1} step={0.001} onChange={setCrtwarpRgbShift} />
+              <SettingSelect
+                label="Pixel Size"
+                value={crtwarpPixelSize}
+                onChange={setCrtwarpPixelSize}
+                options={[
+                  { value: 1, label: "Smooth" },
+                  { value: 2, label: "Pixel 2" },
+                  { value: 3, label: "Pixel 3" },
+                  { value: 4, label: "Pixel 4" },
+                ]}
+              />
+              <SettingSelect
+                label="Render Quality"
+                value={crtwarpRenderQuality}
+                onChange={setCrtwarpRenderQuality}
+                options={[
+                  { value: 1, label: "Performance" },
+                  { value: 1.5, label: "Balanced" },
+                  { value: 2, label: "Ultra" },
+                ]}
+              />
+              <SettingSelect
+                label="Frame Rate"
+                value={crtwarpFrameRate}
+                onChange={setCrtwarpFrameRate}
+                options={[
+                  { value: 15, label: "15 FPS" },
+                  { value: 30, label: "30 FPS" },
+                  { value: 60, label: "60 FPS" },
+                ]}
+              />
+              <div className="flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5">
+                <span className="text-[13px] text-white/90">Pointer Warp</span>
+                <button
+                  type="button"
+                  onClick={() => setCrtwarpPointerWarp(!crtwarpPointerWarp)}
+                  className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                    crtwarpPointerWarp ? "bg-[#5b6cf5]" : "bg-white/10"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${crtwarpPointerWarp ? "right-[4px]" : "left-[4px]"}`} />
+                </button>
+              </div>
+              <SettingSlider label="Pointer Strength" value={crtwarpPointerStrength} min={0} max={2} step={0.05} onChange={setCrtwarpPointerStrength} />
+              <div className="flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5">
+                <span className="text-[13px] text-white/90">Pause</span>
+                <button
+                  type="button"
+                  onClick={() => setCrtwarpPaused(!crtwarpPaused)}
+                  className={`w-10 h-6 rounded-full relative flex items-center transition-colors shrink-0 focus:outline-none cursor-pointer ${
+                    crtwarpPaused ? "bg-[#5b6cf5]" : "bg-white/10"
+                  }`}
+                >
+                  <div className={`w-4 h-4 rounded-full absolute shadow-sm transition-all bg-white ${crtwarpPaused ? "right-[4px]" : "left-[4px]"}`} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {animatedBackgroundId(bannerBackgroundUrl) === "liquidchrome" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Liquid Chrome settings</span>
@@ -748,7 +1011,7 @@ export default function AssetsSection({
           </div>
         )}
 
-        {animatedBackgroundId(bannerBackgroundUrl) === "pixelblast" && (
+        {animatedBackgroundId(bannerBackgroundUrl) === "pixelblast" && showAdvanced && (
           <div className="flex flex-col gap-4 pt-1">
             <div className="flex items-center justify-between">
               <span className="text-[12.5px] font-medium text-white/90">Pixel Blast settings</span>
@@ -759,24 +1022,17 @@ export default function AssetsSection({
                 <label className="text-[12px] text-white/50">Color</label>
                 <ColorPickerInput value={pixelblastColor} onChange={setPixelblastColor} />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-white/50">Variant</label>
-                <div className="relative">
-                  <select
-                    value={pixelblastVariant}
-                    onChange={(e) => setPixelblastVariant(e.target.value)}
-                    className="w-full appearance-none bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white focus:outline-none cursor-pointer"
-                  >
-                    <option value="square">Square</option>
-                    <option value="circle">Circle</option>
-                    <option value="triangle">Triangle</option>
-                    <option value="diamond">Diamond</option>
-                  </select>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none">
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </div>
-              </div>
+              <SettingSelect
+                label="Variant"
+                value={pixelblastVariant}
+                onChange={setPixelblastVariant}
+                options={[
+                  { value: "square", label: "Square" },
+                  { value: "circle", label: "Circle" },
+                  { value: "triangle", label: "Triangle" },
+                  { value: "diamond", label: "Diamond" },
+                ]}
+              />
               <SettingSlider label="Pixel Size" value={pixelblastPixelSize} min={1} max={20} step={1} onChange={setPixelblastPixelSize} />
               <SettingSlider label="Pattern Scale" value={pixelblastPatternScale} min={0.5} max={10} step={0.5} onChange={setPixelblastPatternScale} />
               <SettingSlider label="Pattern Density" value={pixelblastPatternDensity} min={0} max={3} step={0.1} onChange={setPixelblastPatternDensity} />

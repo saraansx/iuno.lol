@@ -68,6 +68,26 @@ interface ProfilePreviewProps {
   liquidchromeSpeed?: number | null;
   liquidchromeAmplitude?: number | null;
   liquidchromeInteractive?: boolean | null;
+  crtwarpColor?: string | null;
+  crtwarpBackground?: string | null;
+  crtwarpSpeed?: number | null;
+  crtwarpCurvature?: number | null;
+  crtwarpWaveAmount?: number | null;
+  crtwarpWaveDensity?: number | null;
+  crtwarpScanStrength?: number | null;
+  crtwarpScanDensity?: number | null;
+  crtwarpBloom?: number | null;
+  crtwarpBloomRadius?: number | null;
+  crtwarpNoise?: number | null;
+  crtwarpVignette?: number | null;
+  crtwarpBrightness?: number | null;
+  crtwarpRgbShift?: number | null;
+  crtwarpPixelSize?: number | null;
+  crtwarpRenderQuality?: number | null;
+  crtwarpFrameRate?: number | null;
+  crtwarpPointerWarp?: boolean | null;
+  crtwarpPointerStrength?: number | null;
+  crtwarpPaused?: boolean | null;
   backgroundEffect?: string;
   backgroundEffectIntensity?: number;
   backgroundEffectColor?: string;
@@ -233,7 +253,7 @@ interface ProfilePreviewProps {
   equippedBadges?: string[];
 }
 
-const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, auroraColor1, auroraColor2, auroraColor3, auroraSpeed, auroraBlend, darkveilSpeed, darkveilHueShift, darkveilNoise, darkveilScanFreq, darkveilScan, darkveilWarp, pixelblastColor, pixelblastVariant, pixelblastPixelSize, pixelblastPatternScale, pixelblastPatternDensity, pixelblastPixelJitter, pixelblastSpeed, pixelblastEdgeFade, pixelblastRipples, pixelblastLiquid, colorbendsColor, colorbendsRotation, colorbendsAutoRotate, colorbendsSpeed, colorbendsScale, colorbendsFrequency, colorbendsWarp, colorbendsMouse, colorbendsParallax, colorbendsNoise, colorbendsIterations, colorbendsIntensity, colorbendsBandWidth, liquidchromeColor, liquidchromeSpeed, liquidchromeAmplitude, liquidchromeInteractive, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, usernameGlowEnabled = false, descriptionEffect, descriptionGlowEnabled = false, cursorTrail, cursorTrailColor, clickEffect, clickSound, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, widgetSecondaryFont, widgetSecondaryFontSize, widgetSecondaryFontWeight, widgetSecondaryLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, linksSectionEnabled, linksSectionTitle, linksSectionDescription, linksSectionPosition, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, viewsAnimationStyle, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, showLinksTooltip, showBadgesTooltip, iconsGlowEnabled, joinDateIconGlow, locationIconGlow, occupationIconGlow, uidIconGlow, viewsIconGlow, feedbackIconGlow, badgeGlowEnabled = true, badgeGlowStrength = 50, badgeSize = 18, badgeMonochromeEnabled = false, badgeMonochromeColor = null, badgeContainerStyle = "pill", badgeSpacing = 6, badgeScrollStyle = "none", badgeScrollSpeed = 40, badgeVisibleCount = 5, badgeShimmerEnabled = false,
+const ProfilePreview = ({ userId, username, displayName, bio, location, occupation, avatarUrl, avatarShape, selectedDecoration, selectedEffect, decorationHue, effectHue, bannerImageUrl, bannerBlend, bannerBackgroundUrl, auroraColor1, auroraColor2, auroraColor3, auroraSpeed, auroraBlend, darkveilSpeed, darkveilHueShift, darkveilNoise, darkveilScanFreq, darkveilScan, darkveilWarp, pixelblastColor, pixelblastVariant, pixelblastPixelSize, pixelblastPatternScale, pixelblastPatternDensity, pixelblastPixelJitter, pixelblastSpeed, pixelblastEdgeFade, pixelblastRipples, pixelblastLiquid, colorbendsColor, colorbendsRotation, colorbendsAutoRotate, colorbendsSpeed, colorbendsScale, colorbendsFrequency, colorbendsWarp, colorbendsMouse, colorbendsParallax, colorbendsNoise, colorbendsIterations, colorbendsIntensity, colorbendsBandWidth, liquidchromeColor, liquidchromeSpeed, liquidchromeAmplitude, liquidchromeInteractive, crtwarpColor, crtwarpBackground, crtwarpSpeed, crtwarpCurvature, crtwarpWaveAmount, crtwarpWaveDensity, crtwarpScanStrength, crtwarpScanDensity, crtwarpBloom, crtwarpBloomRadius, crtwarpNoise, crtwarpVignette, crtwarpBrightness, crtwarpRgbShift, crtwarpPixelSize, crtwarpRenderQuality, crtwarpFrameRate, crtwarpPointerWarp, crtwarpPointerStrength, crtwarpPaused, backgroundEffect, backgroundEffectIntensity, backgroundEffectColor, backgroundEffectAboveContainer, borderEffect, borderEffectColor, cardEffect, cardTransition, usernameEffect, usernameGlowEnabled = false, descriptionEffect, descriptionGlowEnabled = false, cursorTrail, cursorTrailColor, clickEffect, clickSound, entryTransition, pageBgColor, profileBgColor, profileBgOpacity, profileBorderColor, profileBorderOpacity, profileBorderWidth, profileBorderRadius, profileCardBlur, profileBackgroundBlur, profileShadowColor, profileShadowOpacity, profileOpacity, views, usernameFont, usernameFontSize, usernameFontWeight, usernameLetterSpacing, usernameColor, bioFont, bioFontSize, bioFontWeight, bioLetterSpacing, bioColor, otherFont, otherFontSize, otherFontWeight, otherLetterSpacing, otherColor, highlightFont, highlightFontSize, highlightFontWeight, highlightLetterSpacing, widgetPrimaryTextColor, widgetSecondaryTextColor, widgetBorderColor, widgetBorderOpacity, widgetBorderWidth, widgetBorderRadius, widgetFont, widgetFontSize, widgetFontWeight, widgetLetterSpacing, widgetSecondaryFont, widgetSecondaryFontSize, widgetSecondaryFontWeight, widgetSecondaryLetterSpacing, wrapInCard, contentWidth, profilePreset, profileStructure, aboutSectionEnabled, aboutSectionTitle, aboutSectionDescription, linksSectionEnabled, linksSectionTitle, linksSectionDescription, linksSectionPosition, widgetsSectionEnabled, contentAlignment, avatarPlacement, joinDatePlacement, locationPlacement, occupationPlacement, uidPlacement, viewsPlacement, feedbackPlacement, joinDateEnabled, joinDateFormat, viewsEnabled, viewsAnimationEnabled, viewsAnimationDuration, viewsAnimationStyle, commentsEnabled, feedbackEnabled, showFeedbackPublicly, showUidTooltip, showLocationTooltip, showOccupationTooltip, showLikesTooltip, showDislikesTooltip, showJoinDateTooltip, showViewsTooltip, showLinksTooltip, showBadgesTooltip, iconsGlowEnabled, joinDateIconGlow, locationIconGlow, occupationIconGlow, uidIconGlow, viewsIconGlow, feedbackIconGlow, badgeGlowEnabled = true, badgeGlowStrength = 50, badgeSize = 18, badgeMonochromeEnabled = false, badgeMonochromeColor = null, badgeContainerStyle = "pill", badgeSpacing = 6, badgeScrollStyle = "none", badgeScrollSpeed = 40, badgeVisibleCount = 5, badgeShimmerEnabled = false,
 createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPlayerArtBg = false, musicPlayerVolume = true, musicPlayerVolumeFixed = true, musicPlayerShuffle = false, links = [], linksAlignment = "center", linksSocialBackground = true, linksBorderRadius = 16, linksIconSize = 17, linksFont = "Inter", linksFontSize = 13.5, linksFontWeight = 400, linksLetterSpacing = 0, sectionTitleFont = "Inter", sectionTitleFontSize = 15, sectionTitleFontWeight = 500, sectionTitleLetterSpacing = 0, sectionDescFont = "Inter", sectionDescFontSize = 12.5, sectionDescFontWeight = 400, sectionDescLetterSpacing = 0, sectionTitleColor = "#FFFFFF", sectionDescColor = "#FFFFFF", musicPrimaryFont = "Inter", musicPrimaryFontSize = 15, musicPrimaryFontWeight = 400, musicPrimaryLetterSpacing = 0, musicSecondaryFont = "Inter", musicSecondaryFontSize = 12.5, musicSecondaryFontWeight = 400, musicSecondaryLetterSpacing = 0, musicLyricsFont = "Inter", musicLyricsFontSize = 14, musicLyricsFontWeight = 400, musicLyricsLetterSpacing = 0, musicPrimaryColor = "#FFFFFF", musicSecondaryColor = "#FFFFFF", musicLyricsColor =
 "#FFFFFF", equippedBadges = [] }: ProfilePreviewProps) => {
   const [width, setWidth] = useState(380);
@@ -381,6 +401,26 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
             liquidchromeSpeed={liquidchromeSpeed}
             liquidchromeAmplitude={liquidchromeAmplitude}
             liquidchromeInteractive={liquidchromeInteractive}
+            crtwarpColor={crtwarpColor}
+            crtwarpBackground={crtwarpBackground}
+            crtwarpSpeed={crtwarpSpeed}
+            crtwarpCurvature={crtwarpCurvature}
+            crtwarpWaveAmount={crtwarpWaveAmount}
+            crtwarpWaveDensity={crtwarpWaveDensity}
+            crtwarpScanStrength={crtwarpScanStrength}
+            crtwarpScanDensity={crtwarpScanDensity}
+            crtwarpBloom={crtwarpBloom}
+            crtwarpBloomRadius={crtwarpBloomRadius}
+            crtwarpNoise={crtwarpNoise}
+            crtwarpVignette={crtwarpVignette}
+            crtwarpBrightness={crtwarpBrightness}
+            crtwarpRgbShift={crtwarpRgbShift}
+            crtwarpPixelSize={crtwarpPixelSize}
+            crtwarpRenderQuality={crtwarpRenderQuality}
+            crtwarpFrameRate={crtwarpFrameRate}
+            crtwarpPointerWarp={crtwarpPointerWarp}
+            crtwarpPointerStrength={crtwarpPointerStrength}
+            crtwarpPaused={crtwarpPaused}
             backgroundEffect={backgroundEffect}
             backgroundEffectIntensity={backgroundEffectIntensity}
             backgroundEffectColor={backgroundEffectColor}

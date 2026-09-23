@@ -6,6 +6,7 @@ import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/Dark
 import { PixelBlastEffect, type PixelBlastSettings } from "./background-effects/PixelBlast";
 import { ColorBendsEffect, type ColorBendsSettings } from "./background-effects/ColorBends";
 import { LiquidChromeEffect, type LiquidChromeSettings } from "./background-effects/LiquidChrome";
+import { CRTWarpEffect, type CRTWarpSettings } from "./background-effects/CRTWarp";
 
 export interface AuroraSettings {
   colors?: AuroraColors;
@@ -14,19 +15,12 @@ export interface AuroraSettings {
 }
 
 /**
- * Preset animated page backgrounds. Pure CSS (no assets, no canvas),
- * so they work in the live profile, the dashboard preview and the
- * picker thumbnails with zero extra cost.
- *
- * The `aurora` preset reuses the WebGL background effect.
+ * Preset animated page backgrounds, rendered in the live profile,
+ * the dashboard preview and the picker thumbnails.
  */
-export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome, crtwarp }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings; crtwarp?: CRTWarpSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
-      <style>{`
-        @keyframes abg-pulse { 0%,100% { opacity: 0.35; transform: scale(1); } 50% { opacity: 0.9; transform: scale(1.06); } }
-      `}</style>
-
       {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} />}
 
       {id === "darkveil" && (
@@ -82,16 +76,28 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
         />
       )}
 
-      {id === "pulsegrid" && (
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "radial-gradient(rgba(91,108,245,0.7) 1.2px, transparent 1.2px)",
-            backgroundSize: "26px 26px",
-            animation: "abg-pulse 4s ease-in-out infinite",
-            maskImage: "radial-gradient(circle at 50% 45%, black 20%, transparent 78%)",
-            WebkitMaskImage: "radial-gradient(circle at 50% 45%, black 20%, transparent 78%)",
-          }}
+      {id === "crtwarp" && (
+        <CRTWarpEffect
+          color={crtwarp?.color}
+          background={crtwarp?.background}
+          speed={crtwarp?.speed}
+          curvature={crtwarp?.curvature}
+          waveAmount={crtwarp?.waveAmount}
+          waveDensity={crtwarp?.waveDensity}
+          scanStrength={crtwarp?.scanStrength}
+          scanDensity={crtwarp?.scanDensity}
+          bloom={crtwarp?.bloom}
+          bloomRadius={crtwarp?.bloomRadius}
+          noise={crtwarp?.noise}
+          vignette={crtwarp?.vignette}
+          brightness={crtwarp?.brightness}
+          rgbShift={crtwarp?.rgbShift}
+          pixelSize={crtwarp?.pixelSize}
+          renderQuality={crtwarp?.renderQuality}
+          frameRate={crtwarp?.frameRate}
+          pointerWarp={crtwarp?.pointerWarp}
+          pointerStrength={crtwarp?.pointerStrength}
+          paused={crtwarp?.paused}
         />
       )}
     </div>
