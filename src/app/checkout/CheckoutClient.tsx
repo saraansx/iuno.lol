@@ -148,6 +148,7 @@ export default function CheckoutClient({
   const [currency, setCurrency] = useState<Currency>("USD");
   const [buyFor, setBuyFor] = useState<BuyFor>("personal");
   const [paying, setPaying] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
 
   const plan = PREMIUM_PLAN[currency];
@@ -195,6 +196,7 @@ export default function CheckoutClient({
           return data.orderId as string;
         },
         onApprove: async (data) => {
+          setVerifying(true);
           const res = await fetch("/api/checkout/paypal/capture", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -202,8 +204,10 @@ export default function CheckoutClient({
           });
           const verifyData = await res.json().catch(() => ({}));
           if (res.ok && verifyData.success) {
+            setVerifying(false);
             setSucceeded(true);
           } else {
+            setVerifying(false);
             toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
           }
         },
@@ -260,6 +264,7 @@ export default function CheckoutClient({
         prefill: { email: email || undefined },
         theme: { color: "#5b6cf5" },
         handler: async (response) => {
+          setVerifying(true);
           try {
             const verifyRes = await fetch("/api/checkout/verify", {
               method: "POST",
@@ -269,12 +274,15 @@ export default function CheckoutClient({
             const verifyData = await verifyRes.json().catch(() => ({}));
             if (verifyRes.ok && verifyData.success) {
               setPaying(false);
+              setVerifying(false);
               setSucceeded(true);
             } else {
+              setVerifying(false);
               toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
               setPaying(false);
             }
           } catch {
+            setVerifying(false);
             toast.error("We couldn't confirm your payment. If you were charged, contact support.");
             setPaying(false);
           }
@@ -358,6 +366,27 @@ export default function CheckoutClient({
     <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
       {Backdrop}
+
+      {/* Verifying overlay — shown while we confirm the payment server-side so the
+          user waits instead of refreshing and thinking it failed. */}
+      <AnimatePresence>
+        {verifying && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-black/80 px-6 text-center backdrop-blur-md"
+          >
+            <span className="h-11 w-11 animate-spin rounded-full border-2 border-white/15 border-t-[#5b6cf5]" />
+            <div>
+              <p className="text-[15px] font-normal text-white">Confirming your payment…</p>
+              <p className="mt-1.5 text-[12.5px] font-light text-white/45">
+                This only takes a moment. Please don&apos;t close or refresh this page.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-28 lg:pt-36">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-start">
@@ -491,9 +520,6 @@ export default function CheckoutClient({
                   </p>
                 ) : (
                   <>
-                    {paypalState === "loading" && (
-                      <p className="mb-2 text-center text-[12.5px] font-light text-white/40">Loading PayPal…</p>
-                    )}
                     <div ref={paypalRef} className="[color-scheme:none]" />
                   </>
                 )}

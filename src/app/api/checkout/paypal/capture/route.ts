@@ -5,6 +5,7 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { PREMIUM_PLAN } from "@/lib/payments/plans";
 import { capturePaypalOrder } from "@/lib/payments/paypal";
+import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 // Captures an approved PayPal order and upgrades the account to Premium. The
 // capture is done server-side (the browser only hands us an order id), and we
@@ -52,6 +53,25 @@ export async function POST(request: NextRequest) {
       { error: "Payment succeeded but we couldn't update your account. Contact support." },
       { status: 500 },
     );
+  }
+
+  // Best-effort Discord notification — never blocks or fails the upgrade.
+  try {
+    const [row] = await db
+      .select({ username: schema.users.username, email: schema.users.email })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+    await notifyPremiumPurchase({
+      gateway: "paypal",
+      userId,
+      username: row?.username,
+      email: row?.email,
+      amount: `${PREMIUM_PLAN.USD.symbol}${PREMIUM_PLAN.USD.display}`,
+      currency: "USD",
+    });
+  } catch (err) {
+    console.error("[checkout/paypal/capture] notify failed:", err);
   }
 
   return NextResponse.json({ success: true });

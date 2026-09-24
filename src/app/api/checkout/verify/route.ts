@@ -5,6 +5,7 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { PREMIUM_PLAN, isCurrency, type Currency } from "@/lib/payments/plans";
 import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razorpay";
+import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 // Confirms a Razorpay payment and upgrades the account to Premium. Security
 // rests on the signature check (only Razorpay can produce a valid signature for
@@ -68,6 +69,25 @@ export async function POST(request: NextRequest) {
       { error: "Payment succeeded but we couldn't update your account. Contact support." },
       { status: 500 },
     );
+  }
+
+  // Best-effort Discord notification — never blocks or fails the upgrade.
+  try {
+    const [row] = await db
+      .select({ username: schema.users.username, email: schema.users.email })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+    await notifyPremiumPurchase({
+      gateway: "razorpay",
+      userId,
+      username: row?.username,
+      email: row?.email,
+      amount: `${PREMIUM_PLAN[currency as Currency].symbol}${PREMIUM_PLAN[currency as Currency].display}`,
+      currency,
+    });
+  } catch (err) {
+    console.error("[checkout/verify] notify failed:", err);
   }
 
   return NextResponse.json({ success: true });
