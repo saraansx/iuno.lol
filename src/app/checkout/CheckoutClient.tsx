@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
-import { PREMIUM_PLAN, PAYMENT_METHODS, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
+import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
@@ -60,63 +61,72 @@ function loadRazorpay(): Promise<boolean> {
   });
 }
 
-const iconProps = {
-  width: 18,
-  height: 18,
-  viewBox: "0 0 24 24",
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.8,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
+// Everything unlocked with Premium — the full list shown on the left.
+const PREMIUM_FEATURES = [
+  "Everything in Free",
+  "Premium badge on your profile",
+  "5 backgrounds",
+  "10 audio tracks",
+  "10 widgets",
+  "Every background effect unlocked",
+  "Every username & description text effect",
+  "Electric border & card effects",
+  "Every entry transition & profile animation",
+  "Every click effect, sound & cursor trail",
+  "Custom browser tab: title, favicon & cursor",
+  "Higher upload limits",
+  "Save up to 10 of your own templates + access to Premium templates",
+  "Priority support in Discord",
+];
 
-const METHOD_META: Record<string, { label: string; sub: string; icon: React.ReactNode }> = {
-  upi: {
-    label: "UPI",
-    sub: "GPay, PhonePe, Paytm & more",
-    icon: (<svg {...iconProps}><rect x="5" y="2" width="14" height="20" rx="2.5" /><path d="M12 18h.01" /></svg>),
+type BuyFor = "personal" | "gift" | "giftlink";
+
+const BUY_OPTIONS: { id: BuyFor; label: string; sub: string; icon: React.ReactNode }[] = [
+  {
+    id: "personal",
+    label: "Personal",
+    sub: "Unlock Premium on your own account",
+    icon: (<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" /></svg>),
   },
-  card: {
-    label: "Card",
-    sub: "Credit or debit card",
-    icon: (<svg {...iconProps}><rect x="2" y="5" width="20" height="14" rx="2.5" /><path d="M2 10h20" /></svg>),
+  {
+    id: "gift",
+    label: "Gift",
+    sub: "Send Premium to another user",
+    icon: (<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" /><path d="M12 8S10 3 7.5 3 5 6 5 6s2 2 7 2Zm0 0s2-5 4.5-5S19 6 19 6s-2 2-7 2Z" /></svg>),
   },
-  netbanking: {
-    label: "Net Banking",
-    sub: "All major banks",
-    icon: (<svg {...iconProps}><path d="M3 21h18" /><path d="M5 21V9.5L12 5l7 4.5V21" /><path d="M9.5 21v-5h5v5" /></svg>),
+  {
+    id: "giftlink",
+    label: "Gift Link",
+    sub: "Generate a redeemable link",
+    icon: (<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" /><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" /></svg>),
   },
-};
+];
 
 export default function CheckoutClient({
   isAuthenticated = true,
   email = null,
 }: CheckoutClientProps) {
   const router = useRouter();
-  const [step, setStep] = useState<1 | 2>(1);
   const [currency, setCurrency] = useState<Currency>("USD");
-  const [method, setMethod] = useState<string | null>(null);
+  const [buyFor, setBuyFor] = useState<BuyFor>("personal");
   const [paying, setPaying] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
 
   const plan = PREMIUM_PLAN[currency];
-  const methods = PAYMENT_METHODS[currency];
-
-  const selectCurrency = (c: Currency) => {
-    setCurrency(c);
-    setMethod(null); // available methods differ per currency
-  };
 
   const handlePay = async () => {
     if (paying) return;
-    if (methods.length > 0 && !method) return; // INR needs a method; USD opens Razorpay's international checkout
+    // Gifting isn't wired up server-side yet — only the personal purchase is live.
+    if (buyFor !== "personal") {
+      toast.error("Gifting is coming soon. Choose Personal for now.");
+      return;
+    }
     setPaying(true);
     try {
       const orderRes = await fetch("/api/checkout/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency, method: method ?? undefined }),
+        body: JSON.stringify({ currency }),
       });
       const orderData = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok) {
@@ -137,7 +147,7 @@ export default function CheckoutClient({
         currency: orderData.currency,
         name: "iuno.lol",
         description: "Premium — lifetime access",
-        prefill: { email: email || undefined, method: method ?? undefined },
+        prefill: { email: email || undefined },
         theme: { color: "#5b6cf5" },
         handler: async (response) => {
           try {
@@ -172,22 +182,34 @@ export default function CheckoutClient({
     }
   };
 
+  // Soft aurora backdrop shared by both states.
+  const Backdrop = (
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
+      <div className="absolute inset-0 bg-black" />
+      <div
+        className="absolute inset-0 opacity-[0.55]"
+        style={{
+          WebkitMaskImage: "radial-gradient(90% 70% at 50% 25%, #000 0%, rgba(0,0,0,0.55) 55%, transparent 85%)",
+          maskImage: "radial-gradient(90% 70% at 50% 25%, #000 0%, rgba(0,0,0,0.55) 55%, transparent 85%)",
+        }}
+      >
+        <AuroraEffect colors={["#5b6cf5", "#5b6cf5", "#5b6cf5"]} intensity={48} blend={0.7} />
+      </div>
+    </div>
+  );
+
   // Payment just completed — confirm it before sending them to the dashboard.
   if (succeeded) {
     return (
       <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
         <Navbar isAuthenticated={isAuthenticated} />
-        <div
-          aria-hidden="true"
-          className="pointer-events-none fixed inset-0"
-          style={{ background: "radial-gradient(60% 40% at 50% 30%, rgba(91,108,245,0.16) 0%, transparent 70%)" }}
-        />
+        {Backdrop}
         <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 pb-16 pt-28">
           <motion.div
             initial={{ opacity: 0, y: 10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.35, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/5 bg-[#0c0c0c] p-8 text-center shadow-sm"
+            className="rounded-[20px] border border-white/5 bg-[#0c0c0c]/80 p-8 text-center shadow-sm backdrop-blur-xl"
           >
             <motion.div
               initial={{ scale: 0.4, opacity: 0 }}
@@ -225,155 +247,140 @@ export default function CheckoutClient({
   return (
     <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
+      {Backdrop}
 
-      {/* soft indigo glow behind the card */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0"
-        style={{ background: "radial-gradient(60% 40% at 50% 30%, rgba(91,108,245,0.16) 0%, transparent 70%)" }}
-      />
-
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 pb-16 pt-28">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#5b6cf5]">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" /></svg>
-          </div>
-          <h1 className="text-2xl font-medium tracking-tight text-white">Upgrade to Premium</h1>
-          <p className="mt-1 text-[13px] font-light text-white/40">Unlock everything, forever — one payment.</p>
-        </div>
-
-        <div className="rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 shadow-sm">
-          {/* order summary */}
-          <div className="flex items-center justify-between border-b border-white/5 pb-5">
-            <div>
-              <p className="text-[14px] font-normal tracking-tight text-white/90">Premium</p>
-              <p className="text-[12px] font-light text-white/40">Lifetime access</p>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-medium text-white">{plan.symbol}{plan.display}</p>
-              <p className="text-[11px] font-light text-white/40">one-time</p>
-            </div>
-          </div>
-
-          {/* step indicator */}
-          <div className="flex items-center gap-3 py-5 text-[11px] font-light">
-            <span className={`flex items-center gap-1.5 ${step >= 1 ? "text-white/80" : "text-white/30"}`}>
-              <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${step >= 1 ? "bg-[#5b6cf5] text-white" : "bg-white/10 text-white/40"}`}>1</span>
-              Currency
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-28 lg:pt-36">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-start">
+          {/* LEFT — what Premium unlocks */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b6cf5]/30 bg-[#5b6cf5]/10 px-3 py-1 text-[11.5px] font-normal text-[#a5aef9]">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="#5b6cf5" aria-hidden="true"><path d="M12 2l2.9 6.9L22 9.6l-5.3 4.7L18.2 22 12 18.3 5.8 22l1.5-7.7L2 9.6l7.1-.7L12 2z" /></svg>
+              Lifetime upgrade
             </span>
-            <span className="h-px flex-1 bg-white/10" />
-            <span className={`flex items-center gap-1.5 ${step >= 2 ? "text-white/80" : "text-white/30"}`}>
-              <span className={`flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${step >= 2 ? "bg-[#5b6cf5] text-white" : "bg-white/10 text-white/40"}`}>2</span>
-              Payment
-            </span>
-          </div>
+            <h1 className="mt-5 text-4xl font-medium tracking-tight text-white sm:text-5xl">
+              iuno.lol <span className="text-[#5b6cf5]">Premium</span>
+            </h1>
+            <p className="mt-3 max-w-md text-[14px] font-light leading-relaxed text-white/45">
+              A single, one-time payment unlocks every Premium feature on your account. No renewals, no surprises — yours forever.
+            </p>
+            <div className="mt-5 flex items-baseline gap-1.5">
+              <span className="text-3xl font-medium text-white">{plan.symbol}{plan.display}</span>
+              <span className="text-[13px] font-light text-white/40">one-time</span>
+            </div>
 
-          <AnimatePresence mode="wait" initial={false}>
-            {step === 1 ? (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <p className="mb-2 text-[12.5px] font-light text-white/50">Choose your currency</p>
-                <div className="grid grid-cols-2 gap-1 rounded-full border border-[#5b6cf5]/10 bg-[#5b6cf5]/3 p-1">
-                  {CURRENCIES.map((c) => (
-                    <button
-                      key={c}
-                      type="button"
-                      onClick={() => selectCurrency(c)}
-                      aria-pressed={currency === c}
-                      className={`relative rounded-full py-2 text-[13px] font-light transition-colors cursor-pointer ${currency === c ? "text-white" : "text-white/60 hover:text-white"}`}
-                    >
-                      {currency === c && (
-                        <motion.div
-                          layoutId="checkout-currency-bubble"
-                          className="absolute inset-0 z-0 rounded-full bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
-                          transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
-                        />
-                      )}
-                      <span className="relative z-10">{PREMIUM_PLAN[c].label}</span>
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setStep(2)}
-                  className="mt-6 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30"
-                >
-                  Continue
-                </button>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                transition={{ duration: 0.2 }}
-              >
-                <>
-                {methods.length === 0 ? (
-                  <p className="rounded-xl border border-white/5 bg-[#161616] p-4 text-[12.5px] font-light leading-relaxed text-white/50">
-                    You&apos;ll pay through Razorpay&apos;s secure checkout — card or PayPal, whatever works for you.
-                  </p>
-                ) : (
-                  <>
-                <p className="mb-2 text-[12.5px] font-light text-white/50">Select a payment method</p>
-                <div className="flex flex-col gap-2">
-                  {methods.map((m) => {
-                    const meta = METHOD_META[m];
-                    const selected = method === m;
-                    return (
-                      <button
-                        key={m}
-                        type="button"
-                        onClick={() => setMethod(m)}
-                        aria-pressed={selected}
-                        className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-all cursor-pointer ${selected ? "border-[#5b6cf5]/50 bg-[#5b6cf5]/10" : "border-white/5 bg-[#161616] hover:border-white/10"}`}
-                      >
-                        <span aria-hidden="true" className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.06] text-white/70">
-                          {meta.icon}
-                        </span>
-                        <span className="flex-1">
-                          <span className="block text-[13px] font-normal text-white/90">{meta.label}</span>
-                          <span className="block text-[11.5px] font-light text-white/40">{meta.sub}</span>
-                        </span>
-                        <span className={`flex h-4 w-4 items-center justify-center rounded-full border ${selected ? "border-[#5b6cf5]" : "border-white/20"}`}>
-                          {selected && <span className="h-2 w-2 rounded-full bg-[#5b6cf5]" />}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-                  </>
-                )}
-                <div className="mt-6 flex gap-2">
+            <div className="my-7 h-px w-full bg-white/5" />
+
+            <p className="mb-4 text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">What&apos;s included</p>
+            <ul className="flex flex-col gap-3">
+              {PREMIUM_FEATURES.map((feature) => (
+                <li key={feature} className="flex items-start gap-2.5 text-[13px] font-light text-white/70">
+                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#5b6cf5]/15 text-[#5b6cf5]">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+                  </span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+
+          {/* RIGHT — order summary */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
+            className="rounded-[20px] border border-white/5 bg-[#0c0c0c]/80 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:sticky lg:top-28"
+          >
+            <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
+
+            {/* Buy for */}
+            <p className="mt-5 mb-2 text-[13px] font-normal text-white/90">Buy for</p>
+            <div className="grid grid-cols-2 gap-2">
+              {BUY_OPTIONS.map((opt) => {
+                const selected = buyFor === opt.id;
+                return (
                   <button
-                    onClick={() => setStep(1)}
-                    className="cursor-pointer rounded-xl border border-white/10 bg-white/[0.06] px-5 py-2.5 text-sm font-normal text-white/70 transition-all hover:text-white"
+                    key={opt.id}
+                    type="button"
+                    onClick={() => setBuyFor(opt.id)}
+                    aria-pressed={selected}
+                    title={opt.sub}
+                    className={`flex items-center gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${opt.id === "giftlink" ? "col-span-2" : ""} ${selected ? "border-[#5b6cf5]/50 bg-[#5b6cf5]/10 text-white" : "border-white/5 bg-[#161616] text-white/70 hover:border-white/10"}`}
                   >
-                    Back
+                    <span className={selected ? "text-[#5b6cf5]" : "text-white/50"}>{opt.icon}</span>
+                    <span className="text-[13px] font-normal">{opt.label}</span>
                   </button>
-                  <button
-                    onClick={handlePay}
-                    disabled={(methods.length > 0 && !method) || paying}
-                    className="flex-1 cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {paying ? "Processing…" : `Pay ${plan.symbol}${plan.display}`}
-                  </button>
-                </div>
-                </>
-              </motion.div>
+                );
+              })}
+            </div>
+            {buyFor !== "personal" && (
+              <p className="mt-2 text-[11.5px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
-          </AnimatePresence>
-        </div>
 
-        <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-          Payments secured by Razorpay
-        </p>
+            {/* Currency */}
+            <p className="mt-5 mb-2 text-[13px] font-normal text-white/90">Currency</p>
+            <div className="grid grid-cols-2 gap-1 rounded-full border border-[#5b6cf5]/10 bg-[#5b6cf5]/[0.03] p-1">
+              {CURRENCIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setCurrency(c)}
+                  aria-pressed={currency === c}
+                  className={`relative rounded-full py-2 text-[13px] font-light transition-colors cursor-pointer ${currency === c ? "text-white" : "text-white/60 hover:text-white"}`}
+                >
+                  {currency === c && (
+                    <motion.div
+                      layoutId="checkout-currency-bubble"
+                      className="absolute inset-0 z-0 rounded-full bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+                      transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{PREMIUM_PLAN[c].label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="my-5 h-px w-full bg-white/5" />
+
+            {/* Total */}
+            <div className="flex items-center justify-between">
+              <span className="text-[13px] font-light text-white/50">Total</span>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={`${currency}-${plan.display}`}
+                  initial={{ opacity: 0, y: 4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18 }}
+                  className="text-2xl font-medium text-white"
+                >
+                  {plan.symbol}{plan.display}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+
+            <button
+              onClick={handlePay}
+              disabled={paying || buyFor !== "personal"}
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {paying ? "Processing…" : (
+                <>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                  Buy now — {plan.symbol}{plan.display}
+                </>
+              )}
+            </button>
+
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              Secure payment, encrypted end-to-end · Razorpay
+            </p>
+          </motion.div>
+        </div>
       </div>
     </main>
   );

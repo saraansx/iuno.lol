@@ -120,7 +120,7 @@ export default function ComingSoonPage() {
         <div className="h-14 sm:h-16 flex items-center justify-center w-full overflow-hidden">
           <MorphingText
             texts={MORPH_WORDS}
-            className="!h-14 sm:!h-16 !text-2xl sm:!text-3xl !font-normal text-gray-400 tracking-tight whitespace-nowrap"
+            className="!h-14 sm:!h-16 !text-2xl sm:!text-3xl lg:!text-3xl !font-normal !leading-none text-gray-400 tracking-tight whitespace-nowrap"
           />
         </div>
 
