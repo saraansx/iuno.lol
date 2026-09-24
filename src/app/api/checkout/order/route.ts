@@ -32,8 +32,8 @@ export async function POST(request: NextRequest) {
   }
   const currency = parsed.data.currency as Currency;
   const { method } = parsed.data;
-  // This route is Razorpay-only. USD is charged through PayPal
-  // (/api/checkout/paypal/*), so reject any currency that isn't Razorpay's.
+  // Everything is charged through Razorpay now (USD uses Razorpay's
+  // international checkout). This guard stays as defence-in-depth.
   if (PROVIDER[currency] !== "razorpay") {
     return NextResponse.json({ error: "Unsupported currency for this gateway." }, { status: 400 });
   }

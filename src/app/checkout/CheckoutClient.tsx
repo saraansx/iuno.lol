@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
-import { PREMIUM_PLAN, PAYMENT_METHODS, CURRENCIES, PROVIDER, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, PAYMENT_METHODS, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
@@ -34,26 +34,9 @@ interface RazorpayInstance {
   open: () => void;
   on: (event: string, handler: (payload: unknown) => void) => void;
 }
-
-// PayPal JS SDK (USD). Only the button-rendering surface we actually use is typed.
-interface PaypalButtonsConfig {
-  style?: Record<string, string | number>;
-  createOrder: () => Promise<string>;
-  onApprove: (data: { orderID: string }) => Promise<void> | void;
-  onError?: (err: unknown) => void;
-  onCancel?: () => void;
-}
-interface PaypalButtonsInstance {
-  render: (container: HTMLElement) => Promise<void>;
-  close: () => Promise<void>;
-}
-interface PaypalNamespace {
-  Buttons: (config: PaypalButtonsConfig) => PaypalButtonsInstance;
-}
 declare global {
   interface Window {
     Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
-    paypal?: PaypalNamespace;
   }
 }
 
@@ -71,27 +54,6 @@ function loadRazorpay(): Promise<boolean> {
     }
     const script = document.createElement("script");
     script.src = RAZORPAY_SCRIPT;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
-
-// PayPal JS SDK loader. The SDK is keyed by the client id in its URL, so once
-// window.paypal exists we reuse it.
-function loadPaypal(clientId: string): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === "undefined") return resolve(false);
-    if (window.paypal) return resolve(true);
-    const existing = document.querySelector<HTMLScriptElement>("script[data-paypal-sdk]");
-    if (existing) {
-      existing.addEventListener("load", () => resolve(true), { once: true });
-      existing.addEventListener("error", () => resolve(false), { once: true });
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons`;
-    script.dataset.paypalSdk = "true";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -125,11 +87,6 @@ const METHOD_META: Record<string, { label: string; sub: string; icon: React.Reac
     sub: "All major banks",
     icon: (<svg {...iconProps}><path d="M3 21h18" /><path d="M5 21V9.5L12 5l7 4.5V21" /><path d="M9.5 21v-5h5v5" /></svg>),
   },
-  paypal: {
-    label: "PayPal",
-    sub: "Pay with your PayPal account",
-    icon: (<svg {...iconProps}><path d="M19 7V5a1 1 0 0 0-1-1H6a2 2 0 0 0 0 4h13a1 1 0 0 1 1 1v3h-3a2 2 0 0 0 0 4h3v1a1 1 0 0 1-1 1H6a2 2 0 0 1-2-2V6" /></svg>),
-  },
 };
 
 export default function CheckoutClient({
@@ -142,10 +99,6 @@ export default function CheckoutClient({
   const [method, setMethod] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
-  const paypalRef = useRef<HTMLDivElement>(null);
-  const [paypalState, setPaypalState] = useState<
-    "idle" | "loading" | "ready" | "error" | "unconfigured"
-  >("idle");
 
   const plan = PREMIUM_PLAN[currency];
   const methods = PAYMENT_METHODS[currency];
@@ -156,13 +109,14 @@ export default function CheckoutClient({
   };
 
   const handlePay = async () => {
-    if (!method || paying) return;
+    if (paying) return;
+    if (methods.length > 0 && !method) return; // INR needs a method; USD opens Razorpay's international checkout
     setPaying(true);
     try {
       const orderRes = await fetch("/api/checkout/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency, method }),
+        body: JSON.stringify({ currency, method: method ?? undefined }),
       });
       const orderData = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok) {
@@ -183,7 +137,7 @@ export default function CheckoutClient({
         currency: orderData.currency,
         name: "iuno.lol",
         description: "Premium — lifetime access",
-        prefill: { email: email || undefined, method: method === "paypal" ? undefined : method },
+        prefill: { email: email || undefined, method: method ?? undefined },
         theme: { color: "#5b6cf5" },
         handler: async (response) => {
           try {
@@ -217,70 +171,6 @@ export default function CheckoutClient({
       setPaying(false);
     }
   };
-
-  // USD is paid via PayPal Smart Buttons. Render them when the user reaches the
-  // payment step with USD selected; tear them down when they leave.
-  useEffect(() => {
-    if (step !== 2 || PROVIDER[currency] !== "paypal") return;
-    let cancelled = false;
-    let buttons: PaypalButtonsInstance | null = null;
-    (async () => {
-      setPaypalState("loading");
-      const cfgRes = await fetch("/api/checkout/paypal/config").catch(() => null);
-      const cfg = cfgRes && cfgRes.ok ? await cfgRes.json().catch(() => null) : null;
-      if (cancelled) return;
-      if (!cfg?.configured || !cfg.clientId) {
-        setPaypalState("unconfigured");
-        return;
-      }
-      const ok = await loadPaypal(cfg.clientId);
-      if (cancelled) return;
-      const container = paypalRef.current;
-      if (!ok || !window.paypal || !container) {
-        setPaypalState("error");
-        return;
-      }
-      container.innerHTML = "";
-      buttons = window.paypal.Buttons({
-        style: { color: "blue", shape: "rect", label: "pay", height: 44 },
-        createOrder: async () => {
-          const res = await fetch("/api/checkout/paypal/order", { method: "POST" });
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            toast.error(data.error || "Could not start PayPal checkout.");
-            throw new Error("paypal order failed");
-          }
-          return data.orderId as string;
-        },
-        onApprove: async (data) => {
-          const res = await fetch("/api/checkout/paypal/capture", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: data.orderID }),
-          });
-          const result = await res.json().catch(() => ({}));
-          if (res.ok && result.success) {
-            setSucceeded(true);
-          } else {
-            toast.error(result.error || "We couldn't confirm your payment. If you were charged, contact support.");
-          }
-        },
-        onError: () => {
-          toast.error("PayPal ran into a problem. Please try again.");
-        },
-      });
-      try {
-        await buttons.render(container);
-        if (!cancelled) setPaypalState("ready");
-      } catch {
-        if (!cancelled) setPaypalState("error");
-      }
-    })();
-    return () => {
-      cancelled = true;
-      if (buttons) buttons.close().catch(() => {});
-    };
-  }, [step, currency, router]);
 
   // Payment just completed — confirm it before sending them to the dashboard.
   if (succeeded) {
@@ -423,32 +313,11 @@ export default function CheckoutClient({
                 exit={{ opacity: 0, x: 8 }}
                 transition={{ duration: 0.2 }}
               >
-                {PROVIDER[currency] === "paypal" ? (
-                  <>
-                    <p className="mb-3 text-[12.5px] font-light text-white/50">Pay securely with PayPal</p>
-                    {paypalState === "unconfigured" ? (
-                      <p className="rounded-xl border border-white/5 bg-[#161616] p-4 text-[12.5px] font-light leading-relaxed text-white/50">
-                        PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments.
-                      </p>
-                    ) : paypalState === "error" ? (
-                      <p className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-[12.5px] font-light leading-relaxed text-red-300/80">
-                        Couldn&apos;t load PayPal. This is usually an ad blocker or VPN — turn it off for this site and try again.
-                      </p>
-                    ) : (
-                      <div className="min-h-[52px]">
-                        {paypalState === "loading" && (
-                          <p className="text-[12.5px] font-light text-white/40">Loading PayPal…</p>
-                        )}
-                        <div ref={paypalRef} />
-                      </div>
-                    )}
-                    <button
-                      onClick={() => setStep(1)}
-                      className="mt-4 w-full cursor-pointer rounded-xl border border-white/10 bg-white/[0.06] px-5 py-2.5 text-sm font-normal text-white/70 transition-all hover:text-white"
-                    >
-                      Back
-                    </button>
-                  </>
+                <>
+                {methods.length === 0 ? (
+                  <p className="rounded-xl border border-white/5 bg-[#161616] p-4 text-[12.5px] font-light leading-relaxed text-white/50">
+                    You&apos;ll pay through Razorpay&apos;s secure checkout — card or PayPal, whatever works for you.
+                  </p>
                 ) : (
                   <>
                 <p className="mb-2 text-[12.5px] font-light text-white/50">Select a payment method</p>
@@ -478,6 +347,8 @@ export default function CheckoutClient({
                     );
                   })}
                 </div>
+                  </>
+                )}
                 <div className="mt-6 flex gap-2">
                   <button
                     onClick={() => setStep(1)}
@@ -487,14 +358,13 @@ export default function CheckoutClient({
                   </button>
                   <button
                     onClick={handlePay}
-                    disabled={!method || paying}
+                    disabled={(methods.length > 0 && !method) || paying}
                     className="flex-1 cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {paying ? "Processing…" : `Pay ${plan.symbol}${plan.display}`}
                   </button>
                 </div>
-                  </>
-                )}
+                </>
               </motion.div>
             )}
           </AnimatePresence>
@@ -502,7 +372,7 @@ export default function CheckoutClient({
 
         <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-          Payments secured by {PROVIDER[currency] === "paypal" ? "PayPal" : "Razorpay"}
+          Payments secured by Razorpay
         </p>
       </div>
     </main>
