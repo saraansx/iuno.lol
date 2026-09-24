@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import PricingClient from "./PricingClient";
-import { isAuthenticated } from "@/lib/auth/session";
+import { getSessionUserId } from "@/lib/auth/session";
+import { getUserById } from "@/lib/features/users/db";
 
 export const metadata: Metadata = {
   title: "Pricing",
@@ -8,6 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PricingPage() {
-  const isAuth = await isAuthenticated();
-  return <PricingClient isAuthenticated={isAuth} />;
+  const userId = await getSessionUserId();
+  const user = userId ? await getUserById(userId) : null;
+  return <PricingClient isAuthenticated={!!userId} isPremium={!!user?.isPremium} />;
 }

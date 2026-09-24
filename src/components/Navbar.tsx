@@ -14,7 +14,7 @@ interface NavbarProps {
 const tabForPath = (pathname: string) => {
   if (pathname === '/pricing') return 'Pricing';
   if (pathname === '/dashboard/leaderboard') return 'Leaderboard';
-  return 'Helpcenter';
+  return ''; // no tab is highlighted on pages that aren't a nav destination (e.g. /checkout)
 };
 
 const Navbar = ({ isAuthenticated = false }: NavbarProps) => {

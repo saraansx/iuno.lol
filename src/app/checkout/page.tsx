@@ -17,10 +17,14 @@ export default async function CheckoutPage() {
 
   const user = await getUserById(userId);
 
+  // Premium users have nothing to buy — the pricing page already shows their status.
+  if (user?.isPremium) {
+    redirect("/dashboard");
+  }
+
   return (
     <CheckoutClient
       isAuthenticated
-      isPremium={!!user?.isPremium}
       email={user?.email ?? null}
     />
   );

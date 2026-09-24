@@ -9,6 +9,7 @@ import { AuroraEffect } from "@/components/profile/layouts/background-effects/Au
 
 interface PricingProps {
   isAuthenticated?: boolean;
+  isPremium?: boolean;
 }
 
 const FREE_FEATURES = [
@@ -39,7 +40,7 @@ function CheckIcon() {
   );
 }
 
-export default function PricingClient({ isAuthenticated = false }: PricingProps) {
+export default function PricingClient({ isAuthenticated = false, isPremium = false }: PricingProps) {
   const router = useRouter();
 
   // "See plans" (the portal's enter link) should fly through the word instead of jumping.
@@ -234,7 +235,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                     Premium
                   </p>
                   <span className="text-[11px] font-medium text-white bg-[#5b6cf5] rounded-full px-2.5 py-0.5">
-                    Popular
+                    {isPremium ? "Active" : "Popular"}
                   </span>
                 </div>
                 <p className="text-[12.5px] font-light text-white/40 mb-4">Unlock everything, no limits.</p>
@@ -256,12 +257,21 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                   </li>
                 </ul>
 
-                <button
-                  onClick={() => router.push(isAuthenticated ? "/checkout" : "/register")}
-                  className="mt-auto w-full bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.25)] cursor-pointer"
-                >
-                  Get Premium
-                </button>
+                {isPremium ? (
+                  <div className="mt-auto flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-sm font-normal text-white ring-1 ring-inset ring-[#5b6cf5]/30">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                    You already have Premium
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => router.push(isAuthenticated ? "/checkout" : "/register")}
+                    className="mt-auto w-full bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.25)] cursor-pointer"
+                  >
+                    Get Premium
+                  </button>
+                )}
               </div>
             </div>
           </div>
