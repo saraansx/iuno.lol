@@ -13,14 +13,13 @@ export type Currency = keyof typeof PREMIUM_PLAN;
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
-// Which payment gateway handles each currency. Everything is charged through
-// Razorpay — INR domestically (UPI/card/net banking) and USD internationally,
-// where Razorpay's own checkout offers card and PayPal. This is enforced
+// Which payment gateway handles each currency. INR is charged through Razorpay
+// (UPI/card/net banking); USD is charged through PayPal. This is enforced
 // server-side so it can't be bypassed from the browser.
 export const PROVIDER = {
   INR: "razorpay",
-  USD: "razorpay",
-} as const satisfies Record<Currency, "razorpay">;
+  USD: "paypal",
+} as const satisfies Record<Currency, "razorpay" | "paypal">;
 
 export type Provider = (typeof PROVIDER)[Currency];
 

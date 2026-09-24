@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
 import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
-import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, PROVIDER, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
@@ -35,13 +35,51 @@ interface RazorpayInstance {
   open: () => void;
   on: (event: string, handler: (payload: unknown) => void) => void;
 }
+
+// PayPal JS SDK (USD). Only the button-rendering surface we actually use is typed.
+interface PaypalButtonsConfig {
+  style?: Record<string, string | number>;
+  createOrder: () => Promise<string>;
+  onApprove: (data: { orderID: string }) => Promise<void> | void;
+  onError?: (err: unknown) => void;
+  onCancel?: () => void;
+}
+interface PaypalButtonsInstance {
+  render: (container: HTMLElement) => Promise<void>;
+  close: () => void;
+}
+interface PaypalNamespace {
+  Buttons: (config: PaypalButtonsConfig) => PaypalButtonsInstance;
+}
 declare global {
   interface Window {
     Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
+    paypal?: PaypalNamespace;
   }
 }
 
 const RAZORPAY_SCRIPT = "https://checkout.razorpay.com/v1/checkout.js";
+
+// PayPal JS SDK loader. The SDK is keyed by the client id in its URL, so once
+// window.paypal exists we reuse it.
+function loadPaypal(clientId: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.paypal) return resolve(true);
+    const existing = document.querySelector<HTMLScriptElement>("script[data-paypal-sdk]");
+    if (existing) {
+      existing.addEventListener("load", () => resolve(true), { once: true });
+      existing.addEventListener("error", () => resolve(false), { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons`;
+    script.dataset.paypalSdk = "true";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 function loadRazorpay(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -113,9 +151,81 @@ export default function CheckoutClient({
   const [succeeded, setSucceeded] = useState(false);
 
   const plan = PREMIUM_PLAN[currency];
+  const provider = PROVIDER[currency];
+  const canBuy = buyFor === "personal";
+
+  // USD is paid with PayPal Smart Buttons. Render them when USD + personal is the
+  // active selection; tear them down when the user switches away.
+  const paypalRef = useRef<HTMLDivElement>(null);
+  const [paypalState, setPaypalState] = useState<"idle" | "loading" | "ready" | "unconfigured" | "error">("idle");
+
+  useEffect(() => {
+    // Only relevant for the USD/PayPal + personal path; otherwise the buttons
+    // aren't rendered and the state is ignored, so there's nothing to reset.
+    if (provider !== "paypal" || !canBuy || succeeded) {
+      return;
+    }
+    let cancelled = false;
+    let buttons: PaypalButtonsInstance | null = null;
+    (async () => {
+      setPaypalState("loading");
+      const cfgRes = await fetch("/api/checkout/paypal/config").catch(() => null);
+      const cfg = cfgRes && cfgRes.ok ? await cfgRes.json().catch(() => null) : null;
+      if (!cfg?.configured || !cfg.clientId) {
+        if (!cancelled) setPaypalState("unconfigured");
+        return;
+      }
+      const ok = await loadPaypal(cfg.clientId);
+      const container = paypalRef.current;
+      if (cancelled) return;
+      if (!ok || !window.paypal || !container) {
+        setPaypalState("error");
+        return;
+      }
+      container.innerHTML = "";
+      buttons = window.paypal.Buttons({
+        style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 46 },
+        createOrder: async () => {
+          const res = await fetch("/api/checkout/paypal/order", { method: "POST" });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.orderId) {
+            toast.error(data.error || "Could not start PayPal checkout.");
+            throw new Error("paypal order failed");
+          }
+          return data.orderId as string;
+        },
+        onApprove: async (data) => {
+          const res = await fetch("/api/checkout/paypal/capture", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId: data.orderID }),
+          });
+          const verifyData = await res.json().catch(() => ({}));
+          if (res.ok && verifyData.success) {
+            setSucceeded(true);
+          } else {
+            toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
+          }
+        },
+        onError: () => toast.error("PayPal ran into a problem. Please try again."),
+      });
+      try {
+        await buttons.render(container);
+        if (!cancelled) setPaypalState("ready");
+      } catch {
+        if (!cancelled) setPaypalState("error");
+      }
+    })();
+    return () => {
+      cancelled = true;
+      try { buttons?.close(); } catch { /* button already gone */ }
+    };
+  }, [provider, canBuy, succeeded]);
 
   const handlePay = async () => {
     if (paying) return;
+    // Only INR is charged here (Razorpay). USD goes through the PayPal buttons.
+    if (provider !== "razorpay") return;
     // Gifting isn't wired up server-side yet — only the personal purchase is live.
     if (buyFor !== "personal") {
       toast.error("Gifting is coming soon. Choose Personal for now.");
@@ -362,22 +472,50 @@ export default function CheckoutClient({
               </AnimatePresence>
             </div>
 
-            <button
-              onClick={handlePay}
-              disabled={paying || buyFor !== "personal"}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {paying ? "Processing…" : (
-                <>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  Buy now — {plan.symbol}{plan.display}
-                </>
-              )}
-            </button>
+            {!canBuy ? (
+              <button
+                disabled
+                className="mt-5 w-full cursor-not-allowed rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white opacity-50"
+              >
+                Gifting coming soon
+              </button>
+            ) : provider === "paypal" ? (
+              <div className="mt-5">
+                {paypalState === "unconfigured" ? (
+                  <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
+                    PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments, or switch to INR.
+                  </p>
+                ) : paypalState === "error" ? (
+                  <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
+                    Couldn&apos;t load PayPal. Check your connection and try again, or switch to INR.
+                  </p>
+                ) : (
+                  <>
+                    {paypalState === "loading" && (
+                      <p className="mb-2 text-center text-[12.5px] font-light text-white/40">Loading PayPal…</p>
+                    )}
+                    <div ref={paypalRef} className="[color-scheme:none]" />
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={handlePay}
+                disabled={paying}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {paying ? "Processing…" : (
+                  <>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    Buy now — {plan.symbol}{plan.display}
+                  </>
+                )}
+              </button>
+            )}
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-              Secure payment, encrypted end-to-end · Razorpay
+              Secure payment, encrypted end-to-end · {provider === "paypal" ? "PayPal" : "Razorpay"}
             </p>
           </motion.div>
         </div>
