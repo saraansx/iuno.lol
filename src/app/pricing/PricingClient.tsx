@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
-import { toast } from "@/components/ui/toast";
 import { MorphingText } from "@/components/ui/morphing-text";
 import { BlurTextEffect } from "@/components/ui/blur-text-effect";
 import GlyphPortal from "@/components/ui/glyph-portal";
@@ -296,7 +295,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                 </ul>
 
                 <button
-                  onClick={() => toast.error("Coming soon.")}
+                  onClick={() => router.push("/checkout")}
                   className="mt-auto w-full bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.25)] cursor-pointer"
                 >
                   Get Premium

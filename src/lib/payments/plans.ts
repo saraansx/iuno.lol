@@ -1,0 +1,45 @@
+// Premium is a one-time "lifetime" purchase. Amounts are in the smallest
+// currency unit (paise for INR, cents for USD) because that is exactly what the
+// Razorpay Orders API expects. Keep this file the single source of truth so the
+// client display and the server-created order can never drift apart — the
+// server derives the charge from here and never trusts an amount sent by the
+// browser.
+export const PREMIUM_PLAN = {
+  USD: { symbol: "$", display: "0.50", amount: 50, label: "USD $" }, // TESTING: $0.50 (Razorpay's ~min for USD; 1¢ is rejected) — revert to display "4.99" / amount 499 before going live
+  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" }, // TESTING: ₹1 (100 paise) — revert to display "450" / amount 45000 before going live
+} as const;
+
+export type Currency = keyof typeof PREMIUM_PLAN;
+
+export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
+
+// Which payment gateway handles each currency. INR is charged through Razorpay
+// (domestic UPI/card/netbanking); USD is charged through PayPal. This split is
+// enforced server-side — each gateway's routes reject a currency that isn't
+// theirs — so it can't be bypassed from the browser.
+export const PROVIDER = {
+  INR: "razorpay",
+  USD: "paypal",
+} as const satisfies Record<Currency, "razorpay" | "paypal">;
+
+export type Provider = (typeof PROVIDER)[Currency];
+
+// Payment methods offered per currency. For Razorpay (INR) this doubles as a
+// server-side allow-list. USD is PayPal-only, and PayPal covers cards itself
+// inside its own flow, so there's no sub-method to choose.
+//   INR  -> UPI / card / net banking (Razorpay)
+//   USD  -> PayPal
+export const PAYMENT_METHODS = {
+  INR: ["upi", "card", "netbanking"],
+  USD: ["paypal"],
+} as const satisfies Record<Currency, readonly string[]>;
+
+export type PaymentMethod = (typeof PAYMENT_METHODS)[Currency][number];
+
+export function isCurrency(value: unknown): value is Currency {
+  return typeof value === "string" && value in PREMIUM_PLAN;
+}
+
+export function isAllowedMethod(currency: Currency, method: string): boolean {
+  return (PAYMENT_METHODS[currency] as readonly string[]).includes(method);
+}
