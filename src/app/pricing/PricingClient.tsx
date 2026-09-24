@@ -241,7 +241,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                 <p className="text-[12.5px] font-light text-white/40 mb-4">Unlock everything, no limits.</p>
                 <div className="flex items-baseline gap-1.5 mb-6">
                   <span className="text-4xl font-medium text-white">$4.99</span>
-                  <span className="text-sm font-light text-white/40">/ month</span>
+                  <span className="text-sm font-light text-white/40">/lifetime</span>
                 </div>
 
                 <ul className="flex flex-col gap-3 mb-8">
