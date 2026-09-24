@@ -6,7 +6,7 @@ import LazySharedBackground from "./LazySharedBackground";
 export default function ConditionalBackground() {
   const pathname = usePathname();
 
-  if (pathname === "/" || pathname === "/pricing" || pathname === "/checkout") return null;
+  if (pathname === "/" || pathname === "/pricing") return null;
 
   return <LazySharedBackground />;
 }

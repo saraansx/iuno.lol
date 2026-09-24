@@ -143,6 +143,7 @@ export default function CheckoutClient({
   const [currency, setCurrency] = useState<Currency>("USD");
   const [method, setMethod] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
+  const [succeeded, setSucceeded] = useState(false);
   const paypalRef = useRef<HTMLDivElement>(null);
   const [paypalState, setPaypalState] = useState<
     "idle" | "loading" | "ready" | "error" | "unconfigured"
@@ -195,9 +196,8 @@ export default function CheckoutClient({
             });
             const verifyData = await verifyRes.json().catch(() => ({}));
             if (verifyRes.ok && verifyData.success) {
-              toast.success("Welcome to Premium!", "Your account has been upgraded.");
-              router.push("/dashboard");
-              router.refresh();
+              setPaying(false);
+              setSucceeded(true);
             } else {
               toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
               setPaying(false);
@@ -262,9 +262,7 @@ export default function CheckoutClient({
           });
           const result = await res.json().catch(() => ({}));
           if (res.ok && result.success) {
-            toast.success("Welcome to Premium!", "Your account has been upgraded.");
-            router.push("/dashboard");
-            router.refresh();
+            setSucceeded(true);
           } else {
             toast.error(result.error || "We couldn't confirm your payment. If you were charged, contact support.");
           }
@@ -300,6 +298,56 @@ export default function CheckoutClient({
             <p className="mt-2 text-[13px] font-light leading-relaxed text-white/40">Lifetime access to everything is unlocked. Thanks for supporting iuno.</p>
             <button onClick={() => router.push("/dashboard")} className="mt-6 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30">Go to Dashboard</button>
           </div>
+        </div>
+      </main>
+    );
+  }
+
+  // Payment just completed — confirm it before sending them to the dashboard.
+  if (succeeded) {
+    return (
+      <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
+        <Navbar isAuthenticated={isAuthenticated} />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0"
+          style={{ background: "radial-gradient(60% 40% at 50% 30%, rgba(91,108,245,0.16) 0%, transparent 70%)" }}
+        />
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 pb-16 pt-28">
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="rounded-[20px] border border-white/5 bg-[#0c0c0c] p-8 text-center shadow-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.4, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", bounce: 0.5, delay: 0.1, duration: 0.6 }}
+              className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#5b6cf5] shadow-[0_0_25px_rgba(91,108,245,0.15)]"
+            >
+              <motion.svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <motion.path d="M20 6 9 17l-5-5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.35, duration: 0.4, ease: "easeOut" }} />
+              </motion.svg>
+            </motion.div>
+            <h1 className="text-xl font-medium tracking-tight text-white">You&apos;re Premium</h1>
+            <p className="mt-2 text-[13px] font-light leading-relaxed text-white/40">
+              Payment successful — lifetime access to everything is now unlocked. Thank you for supporting iuno.
+            </p>
+            <div className="mt-6 flex items-center justify-between rounded-xl border border-white/5 bg-[#161616] px-4 py-3 text-left">
+              <div>
+                <p className="text-[13px] font-normal text-white/90">Premium</p>
+                <p className="text-[11px] font-light text-white/40">Lifetime access</p>
+              </div>
+              <p className="text-[15px] font-medium text-white">{plan.symbol}{plan.display}</p>
+            </div>
+            <button
+              onClick={() => { router.push("/dashboard"); router.refresh(); }}
+              className="mt-6 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30"
+            >
+              Go to Dashboard
+            </button>
+          </motion.div>
         </div>
       </main>
     );
@@ -405,7 +453,7 @@ export default function CheckoutClient({
                       </p>
                     ) : paypalState === "error" ? (
                       <p className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-[12.5px] font-light leading-relaxed text-red-300/80">
-                        Couldn&apos;t load PayPal. Check your connection and try again.
+                        Couldn&apos;t load PayPal. This is usually an ad blocker or VPN — turn it off for this site and try again.
                       </p>
                     ) : (
                       <div className="min-h-[52px]">

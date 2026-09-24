@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
@@ -33,14 +31,6 @@ const PREMIUM_FEATURES = [
   "Premium badge on your profile",
 ];
 
-// Premium price by currency; the switch above the plans drives which one shows.
-const PRICING = {
-  USD: { symbol: "$", premium: "4.99" },
-  INR: { symbol: "₹", premium: "450" },
-} as const;
-
-type Currency = keyof typeof PRICING;
-
 function CheckIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
@@ -51,7 +41,6 @@ function CheckIcon() {
 
 export default function PricingClient({ isAuthenticated = false }: PricingProps) {
   const router = useRouter();
-  const [currency, setCurrency] = useState<Currency>("USD");
 
   // "See plans" (the portal's enter link) should fly through the word instead of jumping.
   // We cancel the anchor jump and drive an eased scroll across the whole portal runway,
@@ -111,9 +100,8 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
       {/* Re-skin the portal chrome for iuno's dark palette (class beats the component's :where() rules) */}
       <style>{`
         .gp-pricing [data-gp-caption]{inset:calc(var(--gp-word-bottom,55%) + 44px) 24px auto;justify-content:center;}
-        /* Match the navbar "Dashboard" button: translucent indigo pill + soft glow */
-        .gp-pricing [data-gp-enter]{min-height:40px;padding:8px 24px;gap:8px;background:rgba(91,108,245,0.20);border-radius:9999px;color:#fff;font-size:14px;font-weight:400;box-shadow:0 0 15px rgba(91,108,245,0.10);transition:all .18s;}
-        .gp-pricing [data-gp-enter]:hover{background:rgba(91,108,245,0.30);}
+        .gp-pricing [data-gp-enter]{min-height:44px;padding:0 22px;gap:14px;background:#5b6cf5;border-radius:12px;color:#fff;font-size:13px;font-weight:400;box-shadow:0 0 20px rgba(91,108,245,.30);transition:background .18s,box-shadow .18s;}
+        .gp-pricing [data-gp-enter]:hover{background:rgba(91,108,245,.85);box-shadow:0 0 26px rgba(91,108,245,.45);}
         .gp-pricing [data-gp-enter]:focus-visible{outline:2px solid #8b7cf6;outline-offset:4px;}
         /* Land the hero+cards near the top so there's no empty gap on entry (portal default centers them). */
         .gp-pricing [data-gp-content]{align-content:start;padding-top:clamp(88px,12vh,132px);}
@@ -124,7 +112,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
         word="PREMIUM"
         interactive={false}
         scrollLength={1.7}
-        enterLabel="Click me, it's free to look"
+        enterLabel="See plans"
         style={{
           "--gp-paper": "#000000",
           "--gp-ink": "rgba(255,255,255,0.70)",
@@ -205,39 +193,13 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
             </div>
           </div>
 
-          {/* Currency switch — drives the plan prices below (Free is 0 either way) */}
-          <div className="mb-6 flex justify-center">
-            <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.06] p-1">
-              {(Object.keys(PRICING) as Currency[]).map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCurrency(c)}
-                  aria-pressed={currency === c}
-                  className={`relative rounded-full px-4 py-1 text-[12.5px] font-light transition-colors cursor-pointer ${
-                    currency === c ? "text-white" : "text-white/50 hover:text-white/80"
-                  }`}
-                >
-                  {currency === c && (
-                    <motion.div
-                      layoutId="currency-bubble"
-                      className="absolute inset-0 z-0 rounded-full bg-[#5b6cf5] shadow-[0_0_15px_rgba(91,108,245,0.25)]"
-                      transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
-                    />
-                  )}
-                  <span className="relative z-10">{c === "USD" ? "USD $" : "INR ₹"}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
           {/* Plans */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start text-left">
             <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col md:mt-15">
               <p className="text-[14px] font-normal text-white/90 tracking-tight mb-1">Free</p>
               <p className="text-[12.5px] font-light text-white/40 mb-4">Everything you need to start.</p>
               <div className="flex items-baseline gap-1.5 mb-6">
-                <span className="text-4xl font-medium text-white">{PRICING[currency].symbol}0</span>
+                <span className="text-4xl font-medium text-white">$0</span>
                 <span className="text-sm font-light text-white/40">/ forever</span>
               </div>
 
@@ -277,7 +239,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                 </div>
                 <p className="text-[12.5px] font-light text-white/40 mb-4">Unlock everything, no limits.</p>
                 <div className="flex items-baseline gap-1.5 mb-6">
-                  <span className="text-4xl font-medium text-white">{PRICING[currency].symbol}{PRICING[currency].premium}</span>
+                  <span className="text-4xl font-medium text-white">$4.99</span>
                   <span className="text-sm font-light text-white/40">/lifetime</span>
                 </div>
 
@@ -295,7 +257,7 @@ export default function PricingClient({ isAuthenticated = false }: PricingProps)
                 </ul>
 
                 <button
-                  onClick={() => router.push("/checkout")}
+                  onClick={() => router.push(isAuthenticated ? "/checkout" : "/register")}
                   className="mt-auto w-full bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.25)] cursor-pointer"
                 >
                   Get Premium
