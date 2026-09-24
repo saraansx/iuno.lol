@@ -14,7 +14,7 @@ interface NavbarProps {
 const tabForPath = (pathname: string) => {
   if (pathname === '/pricing') return 'Pricing';
   if (pathname === '/dashboard/leaderboard') return 'Leaderboard';
-  return 'Features';
+  return 'Helpcenter';
 };
 
 const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
@@ -26,7 +26,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
     setActiveTab(tabForPath(pathname));
   }, [pathname]);
   
-  const tabs = ['Features', 'Leaderboard', 'Pricing', 'FAQ', 'Discord'];
+  const tabs = ['Helpcenter', 'Leaderboard', 'Pricing', 'FAQ', 'Discord'];
 
   const handleGetStarted = (e: React.MouseEvent) => {
     e.preventDefault();
