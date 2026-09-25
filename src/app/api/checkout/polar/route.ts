@@ -1,13 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
+import { SITE_CONFIG } from "@/lib/config";
 import { createPolarCheckout, polarConfigured } from "@/lib/payments/polar";
 
-// Creates a hosted Polar checkout session for the USD Premium (lifetime)
-// purchase and returns its URL. Polar owns the price, so the browser never
-// sends an amount — it just asks us to start a checkout, and the webhook
-// (/api/webhooks/polar) grants Premium once the money actually lands.
-export async function POST(request: NextRequest) {
+export async function POST() {
   const userId = await getSessionUserId();
   if (!userId) {
     return NextResponse.json({ error: "Please sign in to continue." }, { status: 401 });
@@ -28,7 +25,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const origin = request.nextUrl.origin;
+  const origin = SITE_CONFIG.url.replace(/\/$/, "");
   try {
     const checkout = await createPolarCheckout({
       userId,
