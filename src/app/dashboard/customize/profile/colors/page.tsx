@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import ColorsProfileClient from "./ColorsProfileClient";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const userId = await getSessionUserId();
   const user = userId ? await getUserById(userId) : null;
+  const backgrounds = userId ? await getUserBackgrounds(userId) : [];
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -70,7 +71,7 @@ export default async function Page() {
         <ProfileCustomizeNav />
       </div>
 
-      <ColorsProfileClient user={user} />
+      <ColorsProfileClient user={user} backgrounds={backgrounds} />
     </div>
   );
 }

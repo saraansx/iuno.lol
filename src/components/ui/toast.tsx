@@ -4,7 +4,7 @@ import * as React from "react";
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
 import {
   CircleCheckIcon,
-  OctagonXIcon,
+  CircleXIcon,
   XIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,7 +42,7 @@ function ToastViewport({ className, ...props }: ToastPrimitive.Viewport.Props) {
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
-        "pointer-events-none fixed top-4 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2 w-auto max-w-sm outline-none select-none",
+        "pointer-events-none fixed top-6 left-1/2 -translate-x-1/2 z-[9999] flex flex-col items-center gap-2 w-auto max-w-sm outline-none select-none",
         className
       )}
       {...props}
@@ -55,7 +55,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "pointer-events-auto flex items-center justify-between gap-3 px-4 py-3.5 rounded-2xl bg-[#222226] border border-white/10 text-white backdrop-blur-xl w-[350px] max-w-[90vw] select-none transition-all duration-300 animate-in fade-in slide-in-from-top-3",
+        "pointer-events-auto flex items-center justify-between gap-2.5 pl-3.5 pr-2.5 py-2.5 rounded-xl bg-[#0c0c0c]/95 backdrop-blur-xl border border-white/[0.08] text-white w-[340px] max-w-[90vw] select-none shadow-[0_12px_40px_rgba(0,0,0,0.55)]",
         className
       )}
       {...props}
@@ -77,7 +77,7 @@ function ToastTitle({ className, ...props }: ToastPrimitive.Title.Props) {
   return (
     <ToastPrimitive.Title
       data-slot="toast-title"
-      className={cn("text-[13.5px] font-normal tracking-[0.2px] text-white/90", className)}
+      className={cn("text-[13px] font-normal tracking-tight text-white/85 leading-snug", className)}
       {...props}
     />
   );
@@ -90,7 +90,7 @@ function ToastDescription({
   return (
     <ToastPrimitive.Description
       data-slot="toast-description"
-      className={cn("text-[12px] text-zinc-400", className)}
+      className={cn("text-[12px] font-light text-white/40 leading-relaxed", className)}
       {...props}
     />
   );
@@ -106,12 +106,12 @@ function ToastClose({
       data-slot="toast-close"
       aria-label="Close toast"
       className={cn(
-        "shrink-0 text-zinc-400 hover:text-white transition-colors cursor-pointer rounded-md p-1",
+        "shrink-0 self-center text-white/25 hover:text-white/70 transition-colors cursor-pointer rounded-md p-1",
         className
       )}
       {...props}
     >
-      {children ?? <XIcon className="size-4" aria-hidden="true" />}
+      {children ?? <XIcon className="size-3.5" aria-hidden="true" />}
     </ToastPrimitive.Close>
   );
 }
@@ -119,7 +119,7 @@ function ToastClose({
 function ToastIcon({ type }: { type: string | undefined }) {
   if (type === "success") {
     return (
-      <span data-slot="toast-icon" className="shrink-0 text-emerald-400">
+      <span data-slot="toast-icon" className="shrink-0 self-center text-emerald-400/90">
         <CircleCheckIcon className="size-4" aria-hidden="true" />
       </span>
     );
@@ -127,8 +127,8 @@ function ToastIcon({ type }: { type: string | undefined }) {
 
   if (type === "error") {
     return (
-      <span data-slot="toast-icon" className="shrink-0 text-red-400">
-        <OctagonXIcon className="size-4" aria-hidden="true" />
+      <span data-slot="toast-icon" className="shrink-0 self-center text-red-400/90">
+        <CircleXIcon className="size-4" aria-hidden="true" />
       </span>
     );
   }

@@ -538,6 +538,7 @@ function LikesCard({ owned, equipped, totalLikes, onToggle }: { owned: string[];
 
 export default function BadgesTabs({
   user,
+  backgrounds,
   initialOwned = [],
   initialEquipped = [],
   earlyEligible = false,
@@ -545,6 +546,7 @@ export default function BadgesTabs({
   initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5, shimmer: false },
 }: {
   user: FullUser | null;
+  backgrounds?: string[];
   initialOwned?: string[];
   initialEquipped?: string[];
   earlyEligible?: boolean;
@@ -1296,6 +1298,7 @@ export default function BadgesTabs({
       {tab === "customize" && (
         <DashboardProfilePreview
           user={user}
+          backgrounds={backgrounds}
           overrides={{
             badgeGlowEnabled: glowEnabled,
             badgeGlowStrength: glowStrength,

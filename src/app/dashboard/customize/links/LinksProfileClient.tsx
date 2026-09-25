@@ -487,7 +487,7 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
   );
 }
 
-export default function LinksProfileClient({ user }: { user: FullUser | null }) {
+export default function LinksProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
   const initialLinks: ProfileLink[] = (user?.links ?? [])
     .map((l) => toLink(l))
@@ -766,6 +766,7 @@ export default function LinksProfileClient({ user }: { user: FullUser | null }) 
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           links,
           linksAlignment: alignment,

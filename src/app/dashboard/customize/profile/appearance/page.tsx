@@ -1,5 +1,5 @@
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { Metadata } from "next";
 import AppearanceProfileClient from "./AppearanceProfileClient";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const userId = await getSessionUserId();
   const user = userId ? await getUserById(userId) : null;
+  const backgrounds = userId ? await getUserBackgrounds(userId) : [];
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -69,7 +70,7 @@ export default async function Page() {
         <ProfileCustomizeNav />
       </div>
 
-      <AppearanceProfileClient user={user} />
+      <AppearanceProfileClient user={user} backgrounds={backgrounds} />
     </div>
   );
 }

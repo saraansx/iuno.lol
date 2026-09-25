@@ -4,6 +4,7 @@ import { inArray, isNotNull } from 'drizzle-orm'
 import { revalidatePath } from 'next/cache'
 import { isAuthorizedCron } from '@/lib/cron-auth'
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from '@/lib/badge-roles'
+import { isPremiumActive } from '@/lib/premium'
 import { BADGES, EARLY_CUTOFF_UID } from '@/app/dashboard/customize/badges/badges-data'
 import { SITE_CONFIG } from '@/lib/config'
 import { syncAllRecruiterInvites } from '@/lib/recruiter'
@@ -106,9 +107,12 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
+    const premiumByUserId = new Map(
+      users.map((u) => [u.id, isPremiumActive({ isPremium: u.isPremium, premiumExpiresAt: u.premiumExpiresAt })])
+    );
     const userByDiscordId = new Map(
       users
         .filter((u): u is typeof u & { discordId: string } => !!u.discordId)
@@ -137,6 +141,9 @@ async function handleSync(request: Request) {
     const changedUsernames = new Set<string>();
 
     // 1. Strip badges whose role is gone (or user left the server).
+    // Premium badge additionally requires active premium — strip it (and the
+    // server role below) when expired, even if the role is still held.
+    const premiumRoleRemovals: Array<{ discordId: string; roleId: string }> = [];
     for (const row of rows) {
       if (row.badgeId === 'early') {
         if (row.userId > EARLY_CUTOFF_UID) {
@@ -148,6 +155,14 @@ async function handleSync(request: Request) {
       }
       const roleId = BADGE_ROLE_MAP[row.badgeId];
       if (!roleId) continue;
+      if (row.badgeId === 'premium' && !premiumByUserId.get(row.userId)) {
+        toDeleteIds.push(row.id);
+        const name = usernameById.get(row.userId);
+        if (name) changedUsernames.add(name);
+        const discordId = discordIdByUserId.get(row.userId);
+        if (discordId) premiumRoleRemovals.push({ discordId, roleId });
+        continue;
+      }
       const discordId = discordIdByUserId.get(row.userId);
       const roles = discordId ? memberRoles.get(discordId) : undefined;
       if (!roles || !roles.includes(roleId)) {
@@ -158,12 +173,15 @@ async function handleSync(request: Request) {
     }
 
     // 2. Grant badges for newly earned roles (unlock only, never auto-equip).
+    // Premium is skipped without active premium (handled above instead).
     for (const [discordId, roles] of memberRoles) {
       const user = userByDiscordId.get(discordId);
       if (!user) continue;
+      const premiumActive = premiumByUserId.get(user.id) ?? false;
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
+        if (badgeId === 'premium' && !premiumActive) continue;
         const key = `${user.id}:${badgeId}`;
         if (!existingKeys.has(key)) {
           existingKeys.add(key);
@@ -202,6 +220,19 @@ async function handleSync(request: Request) {
       revalidatePath(`/${name}`);
     }
     await purgeProfiles([...changedUsernames]);
+
+    // Pull the premium role off expired members (best-effort burst).
+    if (premiumRoleRemovals.length > 0) {
+      await Promise.allSettled(
+        premiumRoleRemovals.map(({ discordId, roleId }) =>
+          fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bot ${botToken}` },
+            signal: AbortSignal.timeout(8000),
+          })
+        )
+      );
+    }
 
     let recruiter: { checked: number; granted: number } | { error: string } = { checked: 0, granted: 0 };
     try {

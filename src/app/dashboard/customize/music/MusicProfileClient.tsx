@@ -36,7 +36,7 @@ function sanitizeStyle(raw: string | null | undefined): MusicPlayerStyle {
   return raw === "lyrics" ? "lyrics" : raw === "waveform" ? "waveform" : "compact";
 }
 
-export default function MusicProfileClient({ user }: { user: FullUser | null }) {
+export default function MusicProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
@@ -291,6 +291,7 @@ export default function MusicProfileClient({ user }: { user: FullUser | null }) 
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           musicTracks: tracks,
           musicPlayerStyle: playerStyle,

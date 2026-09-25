@@ -4,7 +4,7 @@ import Link from "next/link";
 import BadgesTabs from "./BadgesTabs";
 import { EARLY_CUTOFF_UID } from "./badges-data";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { getMyBadges, getDonatedCents } from "@/actions/badges";
 
 export const metadata: Metadata = {
@@ -16,7 +16,8 @@ export default async function Page() {
   const userId = await getSessionUserId();
   const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };
   const donatedCents = userId ? await getDonatedCents(userId) : 0;
-  const user = userId ? await getUserById(userId) : null;  return (
+  const user = userId ? await getUserById(userId) : null;
+  const backgrounds = userId ? await getUserBackgrounds(userId) : [];  return (
     <div className="flex flex-col gap-8 h-full">
       <div className="border-b border-white/4 pb-5 -mx-12 px-12">
         <Breadcrumb>
@@ -60,6 +61,7 @@ export default async function Page() {
 
         <BadgesTabs
           user={user}
+          backgrounds={backgrounds}
           initialOwned={initial.owned}
           initialEquipped={initial.equipped}
           earlyEligible={userId != null && userId <= EARLY_CUTOFF_UID}

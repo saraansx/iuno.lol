@@ -69,6 +69,16 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
     .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
 
   const ownedSet = new Set(rows.map((r) => r.badgeId));
+  // Premium badge lives and dies with premium status — strip it when expired.
+  if (!isPremiumActive(user) && ownedSet.has("premium")) {
+    await db
+      .delete(schema.userBadges)
+      .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, "premium")));
+    ownedSet.delete("premium");
+    for (let i = rows.length - 1; i >= 0; i--) {
+      if (rows[i].badgeId === "premium") rows.splice(i, 1);
+    }
+  }
   for (const id of reached) {
     if (!ownedSet.has(id)) {
       await db.insert(schema.userBadges).values({
@@ -98,6 +108,10 @@ export async function equipBadge(badgeId: string): Promise<{ owned: string[]; eq
   if (isLocked(badge)) throw new Error("This badge isn't available yet.");
   if (cleanId === "early" && userId > EARLY_CUTOFF_UID) {
     throw new Error("Only the first 100 members can earn this badge.");
+  }
+  if (cleanId === "premium") {
+    const me = await getUserById(userId);
+    if (!isPremiumActive(me)) throw new Error("Premium badge needs Premium.");
   }
 
   const rate = await profileUpdateRateLimit(userId);
@@ -284,7 +298,6 @@ export async function syncDiscordBadges(): Promise<{
   // which then unlocks the premium badge through the normal role mapping below.
   const premiumRoleId = BADGE_ROLE_MAP["premium"];
   const premium = isPremiumActive(user);
-  let premiumGrantFailed = false;
   if (premium && premiumRoleId && !roles.includes(premiumRoleId)) {
     try {
       const put = await fetch(
@@ -297,26 +310,43 @@ export async function syncDiscordBadges(): Promise<{
       );
       if (put.ok) {
         roles.push(premiumRoleId);
-      } else {
-        // 404 = not in the guild (can't grant); leave badge state untouched.
-        premiumGrantFailed = true;
       }
+      // Non-ok (e.g. 404 = not in the guild): badge simply won't be granted below.
     } catch {
-      premiumGrantFailed = true;
+      // network failure: badge simply won't be granted below.
     }
   }
 
   for (const [roleId, badgeId] of Object.entries(ROLE_BADGE_MAP)) {
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
-    // Don't strip the premium badge when the grant failed (e.g. user not in guild).
-    if (badgeId === "premium" && premium && premiumGrantFailed) continue;
 
     const existing = await db
       .select()
       .from(schema.userBadges)
       .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)))
       .limit(1);
+
+    // Premium badge follows premium status, not just the role: non-premium
+    // users lose the badge AND the role on the server.
+    if (badgeId === "premium" && !premium) {
+      if (existing.length > 0) {
+        await db
+          .delete(schema.userBadges)
+          .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
+        removed.push(badgeId);
+      }
+      try {
+        await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bot ${botToken}` },
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch {
+        // best-effort
+      }
+      continue;
+    }
 
     if (roles.includes(roleId)) {
       if (existing.length === 0) {

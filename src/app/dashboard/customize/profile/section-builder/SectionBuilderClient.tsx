@@ -12,11 +12,12 @@ import { type FullUser } from "@/lib/features/users/db";
 
 interface SectionBuilderClientProps {
   user: FullUser | null;
+  backgrounds?: string[];
   initialAbout: AboutSectionData;
   initialLinks: Omit<LinksSectionData, "bigCount"> & { bigCount: number };
 }
 
-export default function SectionBuilderClient({ user, initialAbout, initialLinks }: SectionBuilderClientProps) {
+export default function SectionBuilderClient({ user, backgrounds, initialAbout, initialLinks }: SectionBuilderClientProps) {
   const router = useRouter();
   const [about, setAbout] = useState<AboutSectionData>(initialAbout);
   const [links, setLinks] = useState<LinksSectionData>(initialLinks);
@@ -120,6 +121,7 @@ export default function SectionBuilderClient({ user, initialAbout, initialLinks 
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           aboutSectionEnabled: about.hidden === false,
           aboutSectionTitle: about.title,

@@ -3,7 +3,7 @@ import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import WidgetsProfileClient from "./WidgetsProfileClient";
 
 export const metadata: Metadata = {
@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const userId = await getSessionUserId();
   const user = userId ? await getUserById(userId) : null;
+  const backgrounds = userId ? await getUserBackgrounds(userId) : [];
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -67,7 +68,7 @@ export default async function Page() {
         <ProfileCustomizeNav />
       </div>
 
-      <WidgetsProfileClient user={user} />
+      <WidgetsProfileClient user={user} backgrounds={backgrounds} />
     </div>
   );
 }

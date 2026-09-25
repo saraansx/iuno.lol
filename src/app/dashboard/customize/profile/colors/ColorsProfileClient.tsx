@@ -14,7 +14,7 @@ import MusicStyleCustomization from "@/components/dashboard/customize/colors/Mus
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
-export default function ColorsProfileClient({ user }: { user: FullUser | null }) {
+export default function ColorsProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
 
@@ -123,6 +123,7 @@ export default function ColorsProfileClient({ user }: { user: FullUser | null })
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           ...overrides,
           usernameColor,

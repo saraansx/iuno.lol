@@ -29,7 +29,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
 
-export default function AppearanceProfileClient({ user }: { user: FullUser | null }) {
+export default function AppearanceProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
 
@@ -566,6 +566,7 @@ export default function AppearanceProfileClient({ user }: { user: FullUser | nul
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           ...overrides,
           profileBgColor,

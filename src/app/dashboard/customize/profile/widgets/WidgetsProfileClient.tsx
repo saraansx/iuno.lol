@@ -108,7 +108,7 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
   });
 }
 
-export default function WidgetsProfileClient({ user }: { user: FullUser | null }) {
+export default function WidgetsProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const [, startTransition] = useTransition();
@@ -241,7 +241,7 @@ export default function WidgetsProfileClient({ user }: { user: FullUser | null }
         )}
       </div>
 
-      <DashboardProfilePreview user={user} overrides={overrides} />
+      <DashboardProfilePreview user={user} backgrounds={backgrounds} overrides={overrides} />
 
       <SaveBar
         show={hasChanges}

@@ -13,7 +13,7 @@ import { type FullUser } from "@/lib/features/users/db";
 
 type FontGroupKey = "username" | "description" | "sectionTitle" | "sectionDesc" | "musicPrimary" | "musicSecondary" | "musicLyrics" | "other" | "highlight" | "links" | "widgetPrimary" | "widgetSecondary";
 
-export default function FontsProfileClient({ user }: { user: FullUser | null }) {
+export default function FontsProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
 
@@ -483,6 +483,7 @@ export default function FontsProfileClient({ user }: { user: FullUser | null }) 
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           ...overrides,
           usernameFont,

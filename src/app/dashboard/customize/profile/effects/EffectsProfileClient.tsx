@@ -11,7 +11,7 @@ import { useCustomizeProfile } from '../CustomizeProfileProvider';
 import { isPremiumActive } from "@/lib/premium";
 import PremiumUpsellCard from "@/components/dashboard/PremiumUpsellCard";
 
-export default function EffectsProfileClient({ user }: { user: FullUser | null }) {
+export default function EffectsProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
 
@@ -178,6 +178,7 @@ export default function EffectsProfileClient({ user }: { user: FullUser | null }
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{
           ...overrides,
           backgroundEffect,

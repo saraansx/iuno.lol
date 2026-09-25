@@ -4,7 +4,7 @@ import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import SectionBuilderClient from "./SectionBuilderClient";
 import WidgetsNotice from "./WidgetsNotice";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -23,6 +23,7 @@ export default async function Page() {
   }
 
   const user = await getUserById(userId);
+  const backgrounds = await getUserBackgrounds(userId);
   const isSectioned = user?.profileStructure === "sectioned";
   const bigLinksCount = (user?.links ?? []).filter((l) => l && l.variant !== "small").length;
 
@@ -128,6 +129,7 @@ export default async function Page() {
 
             <SectionBuilderClient
               user={user}
+              backgrounds={backgrounds}
               initialAbout={{
                 hidden: user?.aboutSectionEnabled === false,
                 title: user?.aboutSectionTitle ?? "About",

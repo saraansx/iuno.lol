@@ -40,7 +40,7 @@ const DETAIL_FIELDS = {
   feedback: ["feedbackPlacement", DEFAULT_DETAILS.feedback],
 } as const;
 
-export default function LayoutProfileClient({ user }: { user: FullUser | null }) {
+export default function LayoutProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const router = useRouter();
 
@@ -162,6 +162,7 @@ export default function LayoutProfileClient({ user }: { user: FullUser | null })
 
       <DashboardProfilePreview
         user={user}
+        backgrounds={backgrounds}
         overrides={{ ...overrides, profileStructure: structure, profilePreset: preset,
           wrapInCard,
           contentWidth,

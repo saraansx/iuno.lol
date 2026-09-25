@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import MusicProfileClient from "./MusicProfileClient";
@@ -19,6 +19,7 @@ export default async function Page() {
   }
 
   const user = await getUserById(userId);
+  const backgrounds = await getUserBackgrounds(userId);
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -63,7 +64,7 @@ export default async function Page() {
         </div>
       </div>
 
-      <MusicProfileClient user={user} />
+      <MusicProfileClient user={user} backgrounds={backgrounds} />
     </div>
   );
 }

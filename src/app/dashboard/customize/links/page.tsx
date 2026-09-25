@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import LinksProfileClient from "./LinksProfileClient";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
@@ -20,6 +20,7 @@ export default async function Page() {
   }
 
   const user = await getUserById(userId);
+  const backgrounds = await getUserBackgrounds(userId);
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -73,7 +74,7 @@ export default async function Page() {
         <ProfileCustomizeNav />
       </div>
 
-      <LinksProfileClient user={user} />
+      <LinksProfileClient user={user} backgrounds={backgrounds} />
     </div>
   );
 }
