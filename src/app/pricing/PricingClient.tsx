@@ -101,8 +101,8 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
       {/* Re-skin the portal chrome for iuno's dark palette (class beats the component's :where() rules) */}
       <style>{`
         .gp-pricing [data-gp-caption]{inset:calc(var(--gp-word-bottom,55%) + 44px) 24px auto;justify-content:center;}
-        .gp-pricing [data-gp-enter]{min-height:44px;padding:0 22px;gap:14px;background:#5b6cf5;border-radius:12px;color:#fff;font-size:13px;font-weight:400;box-shadow:0 0 20px rgba(91,108,245,.30);transition:background .18s,box-shadow .18s;}
-        .gp-pricing [data-gp-enter]:hover{background:rgba(91,108,245,.85);box-shadow:0 0 26px rgba(91,108,245,.45);}
+        .gp-pricing [data-gp-enter]{min-height:44px;padding:0 22px;gap:14px;background:rgba(91,108,245,.20);border-radius:12px;color:#fff;font-size:13px;font-weight:400;box-shadow:0 0 15px rgba(91,108,245,.10);transition:background .18s,box-shadow .18s;}
+        .gp-pricing [data-gp-enter]:hover{background:rgba(91,108,245,.30);box-shadow:0 0 20px rgba(91,108,245,.18);}
         .gp-pricing [data-gp-enter]:focus-visible{outline:2px solid #8b7cf6;outline-offset:4px;}
         /* Land the hero+cards near the top so there's no empty gap on entry (portal default centers them). */
         .gp-pricing [data-gp-content]{align-content:start;padding-top:clamp(88px,12vh,132px);}
@@ -113,7 +113,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
         word="PREMIUM"
         interactive={false}
         scrollLength={1.7}
-        enterLabel="See plans"
+        enterLabel="Treat yourself"
         style={{
           "--gp-paper": "#000000",
           "--gp-ink": "rgba(255,255,255,0.70)",
@@ -235,7 +235,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                     Premium
                   </p>
                   <span className="text-[11px] font-medium text-white bg-[#5b6cf5] rounded-full px-2.5 py-0.5">
-                    {isPremium ? "Active" : "Popular"}
+                    {isPremium ? "Active" : "Recommended"}
                   </span>
                 </div>
                 <p className="text-[12.5px] font-light text-white/40 mb-4">Unlock everything, no limits.</p>
@@ -267,7 +267,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 ) : (
                   <button
                     onClick={() => router.push(isAuthenticated ? "/checkout" : "/register")}
-                    className="mt-auto w-full bg-[#5b6cf5] hover:bg-[#5b6cf5]/85 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.25)] cursor-pointer"
+                    className="mt-auto w-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white font-normal rounded-xl py-2.5 text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                   >
                     Get Premium
                   </button>
