@@ -64,6 +64,7 @@ export default function ProfileBadges({
   visibleCount?: number | null;
   shimmerEnabled?: boolean | null;
 }) {
+  const instanceId = useId().replace(/:/g, "");
   const badges = badgeIds
     .map(badgeById)
     .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone => b !== null);
@@ -77,7 +78,6 @@ export default function ProfileBadges({
       : "#ffffff"
     : null;
   const separate = containerStyle === "separate";
-  const instanceId = useId().replace(/:/g, "");
 
   const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone, keyPrefix = "") => {
     const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge || "amount" in badge;
