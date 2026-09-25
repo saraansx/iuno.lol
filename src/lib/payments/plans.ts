@@ -5,8 +5,8 @@
 // server derives the charge from here and never trusts an amount sent by the
 // browser.
 export const PREMIUM_PLAN = {
-  USD: { symbol: "$", display: "1.10", amount: 110, label: "USD $" }, // LIVE TEST: $1.10 (110 cents) — revert to display "4.99" / amount 499 before real launch
-  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" }, // TESTING: ₹1 (100 paise) — revert to display "450" / amount 45000 before going live
+  USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
+  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
 } as const;
 
 export type Currency = keyof typeof PREMIUM_PLAN;

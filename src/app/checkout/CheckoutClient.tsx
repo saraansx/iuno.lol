@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
@@ -187,28 +188,38 @@ export default function CheckoutClient({
       buttons = window.paypal.Buttons({
         style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 46 },
         createOrder: async () => {
-          const res = await fetch("/api/checkout/paypal/order", { method: "POST" });
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok || !data.orderId) {
-            toast.error(data.error || "Could not start PayPal checkout.");
-            throw new Error("paypal order failed");
+          try {
+            const res = await fetch("/api/checkout/paypal/order", { method: "POST" });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.orderId) {
+              toast.error(data.error || "Could not start PayPal checkout.");
+              throw new Error("paypal order failed");
+            }
+            return data.orderId as string;
+          } catch (err) {
+            toast.error("Couldn't reach PayPal. Check your connection and try again.");
+            throw err instanceof Error ? err : new Error("paypal order failed");
           }
-          return data.orderId as string;
         },
         onApprove: async (data) => {
           setVerifying(true);
-          const res = await fetch("/api/checkout/paypal/capture", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ orderId: data.orderID }),
-          });
-          const verifyData = await res.json().catch(() => ({}));
-          if (res.ok && verifyData.success) {
+          try {
+            const res = await fetch("/api/checkout/paypal/capture", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ orderId: data.orderID }),
+            });
+            const verifyData = await res.json().catch(() => ({}));
+            if (res.ok && verifyData.success) {
+              setVerifying(false);
+              setSucceeded(true);
+            } else {
+              setVerifying(false);
+              toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
+            }
+          } catch {
             setVerifying(false);
-            setSucceeded(true);
-          } else {
-            setVerifying(false);
-            toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
+            toast.error("We couldn't confirm your payment. If you were charged, contact support.");
           }
         },
         onError: () => toast.error("PayPal ran into a problem. Please try again."),
@@ -322,39 +333,41 @@ export default function CheckoutClient({
       <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
         <Navbar isAuthenticated={isAuthenticated} />
         {Backdrop}
-        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-5 pb-16 pt-28">
+        <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-lg flex-col justify-center px-5 pb-16 pt-28">
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/5 bg-[#0c0c0c]/80 p-8 text-center shadow-sm backdrop-blur-xl"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-7 backdrop-blur-xl"
           >
-            <motion.div
-              initial={{ scale: 0.4, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", bounce: 0.5, delay: 0.1, duration: 0.6 }}
-              className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#5b6cf5] shadow-[0_0_25px_rgba(91,108,245,0.15)]"
-            >
-              <motion.svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <motion.path d="M20 6 9 17l-5-5" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ delay: 0.35, duration: 0.4, ease: "easeOut" }} />
-              </motion.svg>
-            </motion.div>
-            <h1 className="text-xl font-medium tracking-tight text-white">You&apos;re Premium</h1>
-            <p className="mt-2 text-[13px] font-light leading-relaxed text-white/40">
-              Payment successful — lifetime access to everything is now unlocked. Thank you for supporting iuno.
-            </p>
-            <div className="mt-6 flex items-center justify-between rounded-xl border border-white/5 bg-[#161616] px-4 py-3 text-left">
+            <div className="flex items-center gap-4">
+              {/* Static logo mark */}
+              <Image src="/Favicon.png" alt="iuno.lol" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
               <div>
-                <p className="text-[13px] font-normal text-white/90">Premium</p>
-                <p className="text-[11px] font-light text-white/40">Lifetime access</p>
+                <h1 className="text-[19px] font-medium tracking-tight text-white">
+                  You&apos;re <span className="text-[#5b6cf5]">Premium</span>
+                </h1>
+                <p className="mt-1 text-[12.5px] font-light leading-relaxed text-white/40">
+                  Every Premium feature is now unlocked on your account, forever.
+                </p>
               </div>
-              <p className="text-[15px] font-medium text-white">{plan.symbol}{plan.display}</p>
             </div>
+
+            {/* Receipt row */}
+            <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-5">
+              <div>
+                <p className="text-[12.5px] font-normal text-white/85">iuno.lol Premium</p>
+                <p className="mt-0.5 text-[10.5px] font-light text-white/35">Lifetime access · paid</p>
+              </div>
+              <p className="text-sm font-medium text-white">{plan.symbol}{plan.display}</p>
+            </div>
+
             <button
               onClick={() => { router.push("/dashboard"); router.refresh(); }}
-              className="mt-6 w-full cursor-pointer rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30"
+              className="mt-5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/25"
             >
               Go to Dashboard
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
           </motion.div>
         </div>
@@ -396,11 +409,10 @@ export default function CheckoutClient({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-[#5b6cf5]/30 bg-[#5b6cf5]/10 px-3 py-1 text-[11.5px] font-normal text-[#a5aef9]">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="#5b6cf5" aria-hidden="true"><path d="M12 2l2.9 6.9L22 9.6l-5.3 4.7L18.2 22 12 18.3 5.8 22l1.5-7.7L2 9.6l7.1-.7L12 2z" /></svg>
+            <span className="text-[11px] font-normal uppercase tracking-[0.2em] text-[#5b6cf5]/80">
               Lifetime upgrade
             </span>
-            <h1 className="mt-5 text-4xl font-medium tracking-tight text-white sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-medium tracking-tight text-white sm:text-5xl">
               iuno.lol <span className="text-[#5b6cf5]">Premium</span>
             </h1>
             <p className="mt-3 max-w-md text-[14px] font-light leading-relaxed text-white/45">
@@ -411,15 +423,13 @@ export default function CheckoutClient({
               <span className="text-[13px] font-light text-white/40">one-time</span>
             </div>
 
-            <div className="my-7 h-px w-full bg-white/5" />
+            <div className="my-7 h-px w-full bg-white/[0.06]" />
 
             <p className="mb-4 text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">What&apos;s included</p>
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-2.5">
               {PREMIUM_FEATURES.map((feature) => (
-                <li key={feature} className="flex items-start gap-2.5 text-[13px] font-light text-white/70">
-                  <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#5b6cf5]/15 text-[#5b6cf5]">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-                  </span>
+                <li key={feature} className="flex items-center gap-3 text-[13px] font-light text-white/60">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
                   {feature}
                 </li>
               ))}
@@ -431,13 +441,13 @@ export default function CheckoutClient({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/5 bg-[#0c0c0c]/80 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.5)] backdrop-blur-xl lg:sticky lg:top-28"
+            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-6 backdrop-blur-xl lg:sticky lg:top-28"
           >
             <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
 
             {/* Buy for */}
-            <p className="mt-5 mb-2 text-[13px] font-normal text-white/90">Buy for</p>
-            <div className="grid grid-cols-2 gap-2">
+            <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Buy for</p>
+            <div className="grid grid-cols-3 gap-1.5">
               {BUY_OPTIONS.map((opt) => {
                 const selected = buyFor === opt.id;
                 return (
@@ -447,34 +457,34 @@ export default function CheckoutClient({
                     onClick={() => setBuyFor(opt.id)}
                     aria-pressed={selected}
                     title={opt.sub}
-                    className={`flex items-center gap-2 rounded-xl border p-3 text-left transition-all cursor-pointer ${opt.id === "giftlink" ? "col-span-2" : ""} ${selected ? "border-[#5b6cf5]/50 bg-[#5b6cf5]/10 text-white" : "border-white/5 bg-[#161616] text-white/70 hover:border-white/10"}`}
+                    className={`flex flex-col items-center gap-1.5 rounded-xl py-3 transition-colors cursor-pointer ${selected ? "bg-[#5b6cf5]/15 text-white" : "bg-white/[0.03] text-white/45 hover:text-white/70"}`}
                   >
-                    <span className={selected ? "text-[#5b6cf5]" : "text-white/50"}>{opt.icon}</span>
-                    <span className="text-[13px] font-normal">{opt.label}</span>
+                    <span className={selected ? "text-[#5b6cf5]" : "text-white/40"}>{opt.icon}</span>
+                    <span className="text-[11.5px] font-light">{opt.label}</span>
                   </button>
                 );
               })}
             </div>
             {buyFor !== "personal" && (
-              <p className="mt-2 text-[11.5px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
+              <p className="mt-2 text-[11px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
 
             {/* Currency */}
-            <p className="mt-5 mb-2 text-[13px] font-normal text-white/90">Currency</p>
-            <div className="grid grid-cols-2 gap-1 rounded-full border border-[#5b6cf5]/10 bg-[#5b6cf5]/[0.03] p-1">
+            <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Currency</p>
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1">
               {CURRENCIES.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setCurrency(c)}
                   aria-pressed={currency === c}
-                  className={`relative rounded-full py-2 text-[13px] font-light transition-colors cursor-pointer ${currency === c ? "text-white" : "text-white/60 hover:text-white"}`}
+                  className={`relative rounded-lg py-1.5 text-[12.5px] font-light transition-colors cursor-pointer ${currency === c ? "text-white" : "text-white/45 hover:text-white/70"}`}
                 >
                   {currency === c && (
                     <motion.div
                       layoutId="checkout-currency-bubble"
-                      className="absolute inset-0 z-0 rounded-full bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
-                      transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
+                      className="absolute inset-0 z-0 rounded-lg bg-[#5b6cf5]/15"
+                      transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                     />
                   )}
                   <span className="relative z-10">{PREMIUM_PLAN[c].label}</span>
@@ -482,11 +492,11 @@ export default function CheckoutClient({
               ))}
             </div>
 
-            <div className="my-5 h-px w-full bg-white/5" />
+            <div className="my-6 h-px w-full bg-white/[0.06]" />
 
             {/* Total */}
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-light text-white/50">Total</span>
+            <div className="flex items-baseline justify-between">
+              <span className="text-[12px] font-light text-white/45">Total</span>
               <AnimatePresence mode="wait">
                 <motion.span
                   key={`${currency}-${plan.display}`}
@@ -494,7 +504,7 @@ export default function CheckoutClient({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -4 }}
                   transition={{ duration: 0.18 }}
-                  className="text-2xl font-medium text-white"
+                  className="text-xl font-medium text-white"
                 >
                   {plan.symbol}{plan.display}
                 </motion.span>
@@ -525,18 +535,23 @@ export default function CheckoutClient({
                 )}
               </div>
             ) : (
-              <button
-                onClick={handlePay}
-                disabled={paying}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {paying ? "Processing…" : (
-                  <>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                    Buy now — {plan.symbol}{plan.display}
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  onClick={handlePay}
+                  disabled={paying}
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {paying ? "Processing…" : (
+                    <>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                      Buy now — {plan.symbol}{plan.display}
+                    </>
+                  )}
+                </button>
+                <p className="mt-2.5 text-center text-[11px] font-light italic text-white/40">
+                  Powered by <span className="font-medium not-italic text-[#3395ff]">Razorpay</span>
+                </p>
+              </>
             )}
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">

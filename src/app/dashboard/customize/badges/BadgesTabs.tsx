@@ -342,7 +342,7 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
         </div>
       </div>
       <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
-        {LEVELS.map((stage, stageIdx) => {
+        {LEVELS.map((stage) => {
           const unlocked = owned.includes(stage.id);
           const isEquipped = equipped.includes(stage.id);
           return (
@@ -843,7 +843,7 @@ export default function BadgesTabs({
                 Drag to reorder. Disabled badges won&apos;t appear on your page.
               </p>
               <p className="text-[#fbbf24]/70 text-[10.5px] mt-1">
-                Got a new Discord role? Hit Sync in Available badges to unlock it.
+                Got a new Discord role/badge? Hit Sync in Available badges to unlock it.
               </p>
             </div>
             <button
