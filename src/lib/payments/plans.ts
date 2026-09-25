@@ -5,7 +5,7 @@
 // server derives the charge from here and never trusts an amount sent by the
 // browser.
 export const PREMIUM_PLAN = {
-  USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
+  USD: { symbol: "$", display: "0.50", amount: 50, label: "USD $" },
   INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
 } as const;
 

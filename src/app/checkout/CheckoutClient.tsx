@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
@@ -74,7 +75,7 @@ function loadPaypal(clientId: string): Promise<boolean> {
       return;
     }
     const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons&disable-funding=card`;
     script.dataset.paypalSdk = "true";
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
@@ -160,11 +161,52 @@ export default function CheckoutClient({
   // active selection; tear them down when the user switches away.
   const paypalRef = useRef<HTMLDivElement>(null);
   const [paypalState, setPaypalState] = useState<"idle" | "loading" | "ready" | "unconfigured" | "error">("idle");
+  const [payOpen, setPayOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const [payMethod, setPayMethod] = useState<"paypal" | "card">("paypal");
+  const [cardLoading, setCardLoading] = useState(false);
+
+  // "Card" is charged through Polar's hosted checkout. We ask our server to
+  // create a checkout session, then hand the browser off to Polar's secure page;
+  // Premium is granted server-side by the Polar webhook once payment lands.
+  const startPolarCheckout = async () => {
+    if (cardLoading) return;
+    setCardLoading(true);
+    try {
+      const res = await fetch("/api/checkout/polar", { method: "POST" });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        toast.error(data?.error ?? "Could not start card checkout. Please try again.");
+        setCardLoading(false);
+        return;
+      }
+      window.location.href = data.url as string;
+    } catch {
+      toast.error("Could not start card checkout. Please try again.");
+      setCardLoading(false);
+    }
+  };
+
+  // When Polar redirects back with ?polar=success, the webhook has (or shortly
+  // will have) granted Premium. Confirm the good news and clean the URL.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("polar") === "success") {
+      setSucceeded(true);
+      window.history.replaceState(null, "", "/checkout");
+    }
+  }, []);
+
+  // Close the PayPal popup whenever the purchase completes or the user switches
+  // away from the USD/PayPal path.
+  useEffect(() => {
+    if (provider !== "paypal" || !canBuy || succeeded) setPayOpen(false);
+  }, [provider, canBuy, succeeded]);
 
   useEffect(() => {
-    // Only relevant for the USD/PayPal + personal path; otherwise the buttons
-    // aren't rendered and the state is ignored, so there's nothing to reset.
-    if (provider !== "paypal" || !canBuy || succeeded) {
+    // Only render the PayPal buttons once the popup is open on the USD/PayPal +
+    // personal path; otherwise there's no mounted container to render into.
+    if (provider !== "paypal" || !canBuy || succeeded || !payOpen) {
       return;
     }
     let cancelled = false;
@@ -235,7 +277,7 @@ export default function CheckoutClient({
       cancelled = true;
       try { buttons?.close(); } catch { /* button already gone */ }
     };
-  }, [provider, canBuy, succeeded]);
+  }, [provider, canBuy, succeeded, payOpen]);
 
   const handlePay = async () => {
     if (paying) return;
@@ -520,18 +562,110 @@ export default function CheckoutClient({
               </button>
             ) : provider === "paypal" ? (
               <div className="mt-5">
-                {paypalState === "unconfigured" ? (
-                  <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
-                    PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments, or switch to INR.
-                  </p>
-                ) : paypalState === "error" ? (
-                  <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
-                    Couldn&apos;t load PayPal. Check your connection and try again, or switch to INR.
-                  </p>
-                ) : (
-                  <>
-                    <div ref={paypalRef} className="[color-scheme:none]" />
-                  </>
+                <button
+                  onClick={() => setPayOpen(true)}
+                  disabled={paypalState === "loading"}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                  {paypalState === "loading" ? "Loading…" : <>Checkout — {plan.symbol}{plan.display}</>}
+                </button>
+
+                {/* Centered payment popup with blurred backdrop — portaled to body
+                    so `fixed` centers on the viewport, not the transformed card. */}
+                {mounted && createPortal(
+                  <AnimatePresence>
+                    {payOpen && (
+                    <motion.div
+                      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div
+                        onClick={() => setPayOpen(false)}
+                        className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                      />
+                      <motion.div
+                        className="relative z-10 w-full max-w-sm rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 shadow-2xl"
+                        initial={{ opacity: 0, scale: 0.94, y: 12 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.94, y: 12 }}
+                        transition={{ type: "spring", stiffness: 320, damping: 28 }}
+                      >
+                    <div className="mb-4 flex items-center justify-between">
+                      <p className="text-[14px] font-normal tracking-tight text-white/90">Complete your payment</p>
+                      <button
+                        onClick={() => setPayOpen(false)}
+                        aria-label="Close"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                    <div className="mb-4 flex items-center justify-between text-[13px]">
+                      <span className="font-light text-white/50">Total</span>
+                      <span className="font-medium text-white">{plan.symbol}{plan.display}</span>
+                    </div>
+                    {paypalState === "unconfigured" ? (
+                      <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
+                        PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments, or switch to INR.
+                      </p>
+                    ) : paypalState === "error" ? (
+                      <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
+                        Couldn&apos;t load PayPal. Check your connection and try again, or switch to INR.
+                      </p>
+                    ) : (
+                      <>
+                        {/* Payment method selector */}
+                        <div className="mb-4 grid grid-cols-2 gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setPayMethod("paypal")}
+                            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
+                              payMethod === "paypal"
+                                ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
+                                : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
+                            }`}
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 11l1.5-7h6c2.5 0 4 1.5 3.5 4-.5 2.5-2.5 4-5 4H9l-.5 3" /><path d="M6 17l1.5-7" /></svg>
+                            <span className="text-[12px] font-normal">PayPal</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPayMethod("card")}
+                            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
+                              payMethod === "card"
+                                ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
+                                : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
+                            }`}
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
+                            <span className="text-[12px] font-normal">Card</span>
+                          </button>
+                        </div>
+
+                        {/* Card → Polar hosted checkout. PayPal buttons below
+                            stay in the DOM so they render at full width. */}
+                        {payMethod === "card" && (
+                          <button
+                            type="button"
+                            onClick={startPolarCheckout}
+                            disabled={cardLoading}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {cardLoading ? "Redirecting…" : `Pay with Card — ${plan.symbol}${plan.display}`}
+                          </button>
+                        )}
+                      </>
+                    )}
+                    <div ref={paypalRef} className={`[color-scheme:none] ${payMethod === "card" ? "pointer-events-none absolute opacity-0" : ""}`} />
+                      </motion.div>
+                    </motion.div>
+                  )}
+                  </AnimatePresence>,
+                  document.body
                 )}
               </div>
             ) : (
@@ -539,12 +673,12 @@ export default function CheckoutClient({
                 <button
                   onClick={handlePay}
                   disabled={paying}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5] py-3 text-sm font-normal text-white shadow-[0_0_20px_rgba(91,108,245,0.25)] transition-all hover:bg-[#5b6cf5]/85 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {paying ? "Processing…" : (
                     <>
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                      Buy now — {plan.symbol}{plan.display}
+                      Checkout — {plan.symbol}{plan.display}
                     </>
                   )}
                 </button>

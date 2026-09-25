@@ -6,12 +6,12 @@
 // purchase (the user is already Premium by the time we call this), so every call
 // is wrapped and errors are only logged.
 
-type Gateway = "razorpay" | "paypal";
+type Gateway = "razorpay" | "paypal" | "polar";
 
 function webhookFor(gateway: Gateway): string | undefined {
-  return gateway === "razorpay"
-    ? process.env.DISCORD_WEBHOOK_RAZORPAY
-    : process.env.DISCORD_WEBHOOK_PAYPAL;
+  if (gateway === "razorpay") return process.env.DISCORD_WEBHOOK_RAZORPAY;
+  if (gateway === "polar") return process.env.DISCORD_WEBHOOK_POLAR ?? process.env.DISCORD_WEBHOOK_PAYPAL;
+  return process.env.DISCORD_WEBHOOK_PAYPAL;
 }
 
 export interface PurchaseNotification {
@@ -43,7 +43,7 @@ export async function notifyPremiumPurchase(n: PurchaseNotification): Promise<vo
         fields: [
           { name: "User", value: profile, inline: true },
           { name: "Amount", value: `${n.amount} ${n.currency}`, inline: true },
-          { name: "Gateway", value: n.gateway === "razorpay" ? "Razorpay" : "PayPal", inline: true },
+          { name: "Gateway", value: n.gateway === "razorpay" ? "Razorpay" : n.gateway === "polar" ? "Polar (Card)" : "PayPal", inline: true },
           ...(n.email ? [{ name: "Email", value: n.email, inline: false }] : []),
           { name: "User ID", value: String(n.userId), inline: false },
         ],
