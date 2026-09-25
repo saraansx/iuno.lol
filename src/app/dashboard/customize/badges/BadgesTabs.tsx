@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
 import Link from "next/link";
-import { saveEquippedBadges, syncDiscordBadges } from "@/actions/badges";
+import { saveEquippedBadges, syncDiscordBadges, getMyBadges } from "@/actions/badges";
 import { checkRecruiterProgress, getMyInvite, hasInviteCode } from "@/actions/recruiter";
 import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
@@ -789,8 +789,18 @@ export default function BadgesTabs({
       const parts: string[] = [];
       if (next.added.length > 0) parts.push(`${next.added.length} added`);
       if (next.removed.length > 0) parts.push(`${next.removed.length} removed`);
-      toast.success(parts.length > 0 ? `Synced — ${parts.join(", ")}` : "Already in sync");
+      toast.success(parts.length > 0 ? `Synced — ${parts.join(", ")}` : "Nothing to sync");
     } catch (e) {
+      // Sync may have stripped/granted badges before failing — refresh so
+      // the UI doesn't show stale badges.
+      try {
+        const fresh = await getMyBadges();
+        setOwned(fresh.owned);
+        setEquipped(fresh.equipped);
+        setSavedEquipped(fresh.equipped);
+      } catch {
+        // ignore refresh errors, surface the original sync error below
+      }
       toast.error(e instanceof Error ? e.message : "Sync failed");
     } finally {
       setSyncing(false);
@@ -939,6 +949,28 @@ export default function BadgesTabs({
               {syncing ? "Syncing…" : "Sync"}
             </button>
           </div>
+          <div className="flex gap-3 bg-[#e0a355]/[0.04] border border-[#e0a355]/15 rounded-[16px] px-4 py-3.5 relative overflow-hidden">
+              <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#e0a355]/70" />
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e0a355" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 mt-0.5">
+                <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z" />
+                <path d="M12 9v4" />
+                <path d="M12 17h.01" />
+              </svg>
+              <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                <span className="text-[14px] font-medium text-white/90 tracking-tight">
+                  Discord role badges
+                </span>
+                <p className="text-[12.5px] text-white/40">
+                  Authorize with Discord for claiming your Discord role badges.
+                </p>
+              </div>
+              <Link
+                href="/api/auth/discord"
+                className="shrink-0 self-center bg-[#e0a355]/15 hover:bg-[#e0a355]/25 border border-[#e0a355]/20 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors"
+              >
+                Authorize
+              </Link>
+            </div>
           <div className={`bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden flex flex-col divide-y divide-white/5 transition-opacity ${syncing ? "opacity-60 pointer-events-none" : ""}`}>
             {ROWS.map((row, i) => (
               <div key={i} className={`grid grid-cols-1 ${row.cols} md:divide-x divide-white/5`}>

@@ -6,9 +6,10 @@ import { getUserById } from "@/lib/features/users/db";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { eq, and, asc, sql } from "drizzle-orm";
+import { eq, and, asc, sql, inArray } from "drizzle-orm";
 import { BADGES, EARLY_CUTOFF_UID, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
-import { ROLE_BADGE_MAP } from "@/lib/badge-roles";
+import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from "@/lib/badge-roles";
+import { isPremiumActive } from "@/lib/premium";
 import { RECRUITER_BADGE_ID, refreshRecruiter } from "@/lib/recruiter";
 
 type BadgeEntry = (typeof BADGES)[number];
@@ -29,6 +30,44 @@ function findBadge(badgeId: string): BadgeEntry | LevelEntry | ViewEntry | LikeE
 
 function isLocked(badge: BadgeEntry | LevelEntry | ViewEntry | LikeEntry | DonationEntry): boolean {
   return "pill" in badge;
+}
+
+/** Best-effort removal of guild roles from a member (idempotent, failures ignored). */
+async function removeMemberRoles(
+  guildId: string,
+  botToken: string,
+  discordId: string,
+  roleIds: string[]
+): Promise<void> {
+  for (const roleId of roleIds) {
+    try {
+      await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bot ${botToken}` },
+        signal: AbortSignal.timeout(10000),
+      });
+    } catch {
+      // best-effort — a missing member/role just 404s
+    }
+  }
+}
+/** Insert a badge row when missing (for badges that need no Discord role). Returns [id] when newly granted. */
+async function grantBadgeIfMissing(userId: number, badgeId: string): Promise<string[]> {
+  const badge = findBadge(badgeId);
+  if (!badge || isLocked(badge)) return [];
+  const existing = await db
+    .select({ id: schema.userBadges.id })
+    .from(schema.userBadges)
+    .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)))
+    .limit(1);
+  if (existing.length > 0) return [];
+  await db.insert(schema.userBadges).values({
+    userId,
+    badgeId,
+    equipped: false,
+    equippedAt: null,
+  });
+  return [badgeId];
 }
 
 export async function getDonatedCents(userId: number): Promise<number> {
@@ -250,7 +289,31 @@ export async function syncDiscordBadges(): Promise<{
 
   const user = await getUserById(userId);
   const discordId = user?.discordId;
-  if (!discordId) throw new Error("Connect your Discord account first.");
+  if (!discordId) {
+    // No Discord linked: role badges can't be verified, so strip them —
+    // but badges that don't need Discord are still granted when earned.
+    const added: string[] = [];
+    if (isPremiumActive(user)) {
+      added.push(...(await grantBadgeIfMissing(userId, "premium")));
+    }
+    if (userId <= EARLY_CUTOFF_UID) {
+      added.push(...(await grantBadgeIfMissing(userId, "early")));
+    }
+    const mapped = [...new Set(Object.values(ROLE_BADGE_MAP))];
+    const owned = await db
+      .select({ badgeId: schema.userBadges.badgeId })
+      .from(schema.userBadges)
+      .where(and(eq(schema.userBadges.userId, userId), inArray(schema.userBadges.badgeId, mapped)));
+    const removed = owned.map((r) => r.badgeId);
+    if (removed.length > 0) {
+      await db
+        .delete(schema.userBadges)
+        .where(and(eq(schema.userBadges.userId, userId), inArray(schema.userBadges.badgeId, removed)));
+    }
+    await revalidateOwnProfile(userId);
+    const state = await getMyBadges();
+    return { ...state, added, removed };
+  }
 
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const guildId = process.env.DISCORD_GUILD_ID;
@@ -262,7 +325,9 @@ export async function syncDiscordBadges(): Promise<{
       headers: { Authorization: `Bot ${botToken}` },
       signal: AbortSignal.timeout(10000),
     });
-    if (res.status === 404) {
+    if (res.status === 404 || res.status === 400) {
+      // Not in the guild, or the linked Discord ID is stale/invalid (app
+      // disconnected) — nothing verifiable, so role badges get stripped below.
       roles = [];
     } else if (!res.ok) {
       throw new Error(`Discord API error (${res.status})`);
@@ -278,9 +343,37 @@ export async function syncDiscordBadges(): Promise<{
   const added: string[] = [];
   const removed: string[] = [];
 
+  // Premium members get the Discord premium role granted by the bot on sync,
+  // which then unlocks the premium badge through the normal role mapping below.
+  const premiumRoleId = BADGE_ROLE_MAP["premium"];
+  const premium = isPremiumActive(user);
+  let premiumGrantFailed = false;
+  if (premium && premiumRoleId && !roles.includes(premiumRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${premiumRoleId}`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bot ${botToken}` },
+          signal: AbortSignal.timeout(10000),
+        }
+      );
+      if (put.ok) {
+        roles.push(premiumRoleId);
+      } else {
+        // 404 = not in the guild (can't grant); leave badge state untouched.
+        premiumGrantFailed = true;
+      }
+    } catch {
+      premiumGrantFailed = true;
+    }
+  }
+
   for (const [roleId, badgeId] of Object.entries(ROLE_BADGE_MAP)) {
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
+    // Don't strip the premium badge when the grant failed (e.g. user not in guild).
+    if (badgeId === "premium" && premium && premiumGrantFailed) continue;
 
     const existing = await db
       .select()
@@ -303,6 +396,9 @@ export async function syncDiscordBadges(): Promise<{
         .delete(schema.userBadges)
         .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
       removed.push(badgeId);
+      // Badge stripped (role gone / unverifiable, e.g. deauthorized) — also
+      // pull the role from the member on the server. Best-effort.
+      await removeMemberRoles(guildId, botToken, discordId, [roleId]);
     }
   }
 
