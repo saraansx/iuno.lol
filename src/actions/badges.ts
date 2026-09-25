@@ -39,17 +39,20 @@ async function removeMemberRoles(
   discordId: string,
   roleIds: string[]
 ): Promise<void> {
-  for (const roleId of roleIds) {
-    try {
-      await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+  if (roleIds.length === 0) return;
+  // Concurrent burst (usually 1–3 roles) + short timeout so sync never hangs
+  // waiting on Discord. 429s/hierarchy failures are ignored by design.
+  await Promise.allSettled(
+    roleIds.map((roleId) =>
+      fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
         method: "DELETE",
         headers: { Authorization: `Bot ${botToken}` },
-        signal: AbortSignal.timeout(10000),
-      });
-    } catch {
-      // best-effort — a missing member/role just 404s
-    }
-  }
+        signal: AbortSignal.timeout(8000),
+      }).then((res) => {
+        if (!res.ok) throw new Error(`role remove failed (${res.status})`);
+      })
+    )
+  );
 }
 /** Insert a badge row when missing (for badges that need no Discord role). Returns [id] when newly granted. */
 async function grantBadgeIfMissing(userId: number, badgeId: string): Promise<string[]> {
@@ -342,6 +345,7 @@ export async function syncDiscordBadges(): Promise<{
 
   const added: string[] = [];
   const removed: string[] = [];
+  const rolesToRemove: string[] = [];
 
   // Premium members get the Discord premium role granted by the bot on sync,
   // which then unlocks the premium badge through the normal role mapping below.
@@ -396,11 +400,14 @@ export async function syncDiscordBadges(): Promise<{
         .delete(schema.userBadges)
         .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
       removed.push(badgeId);
-      // Badge stripped (role gone / unverifiable, e.g. deauthorized) — also
-      // pull the role from the member on the server. Best-effort.
-      await removeMemberRoles(guildId, botToken, discordId, [roleId]);
+      // Badge stripped (role gone / unverifiable, e.g. deauthorized) — queue
+      // the role for removal from the member below. Batched, best-effort.
+      rolesToRemove.push(roleId);
     }
   }
+
+  // Pull stripped roles off the member on the server (one concurrent burst).
+  await removeMemberRoles(guildId, botToken, discordId, rolesToRemove);
 
   const earlyExisting = await db
     .select()
