@@ -6,7 +6,7 @@
 // browser.
 export const PREMIUM_PLAN = {
   USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
-  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
+  INR: { symbol: "₹", display: "449", amount: 44900, label: "INR ₹" },
 } as const;
 
 export type Currency = keyof typeof PREMIUM_PLAN;

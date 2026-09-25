@@ -148,7 +148,7 @@ export async function GET(req: NextRequest) {
 
     await addUserToGuild(discordUser.id, accessToken)
 
-    return NextResponse.redirect(`${appUrl}/dashboard/customize/profile/widgets`)
+    return NextResponse.redirect(`${appUrl}/dashboard`)
   } catch (err) {
     console.error('[Discord OAuth]', err)
     return NextResponse.redirect(`${appUrl}/signin?error=discord_failed`)
