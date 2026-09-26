@@ -6,6 +6,9 @@ import { MorphingText } from "@/components/ui/morphing-text";
 import { BlurTextEffect } from "@/components/ui/blur-text-effect";
 import GlyphPortal from "@/components/ui/glyph-portal";
 import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
@@ -40,8 +43,63 @@ function CheckIcon() {
   );
 }
 
+// Standalone add-on products shown below the plans, arranged podium-style
+// (middle raised & larger, left/right stepped down like 2nd / 1st / 3rd).
+const PRODUCTS = [
+  {
+    id: "image-host",
+    title: "Image Host",
+    desc: "Upload and share your images with fast, permanent CDN links.",
+    price: { USD: "2.99", INR: "249" },
+    features: [
+      "Exclusive Image Host Badge",
+      "Special Discord Server Role",
+      "20GB storage",
+      "Custom Share Links",
+    ],
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M1.5 6A2.25 2.25 0 0 1 3.75 3.75h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0z" /></svg>
+    ),
+  },
+  {
+    id: "verified-badge",
+    title: "Verified Badge",
+    desc: "Stand out with a verified checkmark shown right beside your name.",
+    price: { USD: "9.99", INR: "949" },
+    features: [
+      "Exclusive verified checkmark",
+      "Special Discord role",
+      "Show next to your name as a checkmark",
+      "Stand out as a trusted member",
+    ],
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0 1 12 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 0 1 3.498 1.307 4.491 4.491 0 0 1 1.307 3.497A4.49 4.49 0 0 1 21.75 12a4.49 4.49 0 0 1-1.549 3.397 4.491 4.491 0 0 1-1.307 3.497 4.491 4.491 0 0 1-3.497 1.307A4.49 4.49 0 0 1 12 21.75a4.49 4.49 0 0 1-3.397-1.549 4.49 4.49 0 0 1-3.498-1.306 4.491 4.491 0 0 1-1.307-3.498A4.49 4.49 0 0 1 2.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 0 1 1.307-3.497 4.49 4.49 0 0 1 3.497-1.307zm7.007 6.387a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25z" /></svg>
+    ),
+  },
+  {
+    id: "custom-badge",
+    title: "Custom Badge",
+    desc: "Design your own badge with a custom icon and colour.",
+    price: { USD: "4.99", INR: "449" },
+    features: [
+      "Create your own custom badge",
+      "Upload your own badge image",
+      "Choose a custom badge name",
+      "Display it on your profile",
+    ],
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.006 5.404.434c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.434 2.082-5.005z" /></svg>
+    ),
+  },
+] as const;
+
 export default function PricingClient({ isAuthenticated = false, isPremium = false }: PricingProps) {
   const router = useRouter();
+  // Display-only currency switch for the plan prices (USD / INR). Checkout still
+  // resolves the real charge server-side from PREMIUM_PLAN, so this can't affect
+  // what a buyer is billed.
+  const [currency, setCurrency] = useState<Currency>("USD");
+  const plan = PREMIUM_PLAN[currency];
 
   // "See plans" (the portal's enter link) should fly through the word instead of jumping.
   // We cancel the anchor jump and drive an eased scroll across the whole portal runway,
@@ -194,13 +252,38 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
             </div>
           </div>
 
+          {/* Currency selector — sliding bubble + glass theme mirror the navbar
+              tabs and the Dashboard / Claim buttons. Display-only (see `currency`). */}
+          <div className="mb-8 flex justify-center">
+            <div className="relative inline-flex items-center gap-1 rounded-full border border-[#5b6cf5]/10 bg-[#5b6cf5]/3 p-1">
+              {CURRENCIES.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCurrency(c)}
+                  className={`relative z-10 rounded-full px-5 py-1.5 text-[13px] font-light transition-colors cursor-pointer ${
+                    currency === c ? "text-white" : "text-white/60 hover:text-white"
+                  }`}
+                >
+                  {currency === c && (
+                    <motion.div
+                      layoutId="currency-bubble"
+                      className="absolute inset-0 z-0 rounded-full bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+                      transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{c}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Plans */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start text-left">
             <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col md:mt-15">
               <p className="text-[14px] font-normal text-white/90 tracking-tight mb-1">Free</p>
               <p className="text-[12.5px] font-light text-white/40 mb-4">Everything you need to start.</p>
               <div className="flex items-baseline gap-1.5 mb-6">
-                <span className="text-4xl font-medium text-white">$0</span>
+                <span className="text-4xl font-medium text-white">{plan.symbol}0</span>
                 <span className="text-sm font-light text-white/40">/ forever</span>
               </div>
 
@@ -240,7 +323,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 </div>
                 <p className="text-[12.5px] font-light text-white/40 mb-4">Unlock everything, no limits.</p>
                 <div className="flex items-baseline gap-1.5 mb-6">
-                  <span className="text-4xl font-medium text-white">$4.99</span>
+                  <span className="text-4xl font-medium text-white">{plan.symbol}{plan.display}</span>
                   <span className="text-sm font-light text-white/40">/lifetime</span>
                 </div>
 
@@ -277,6 +360,95 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
           </div>
         </div>
       </GlyphPortal>
+
+      {/* Discover products — blackish add-on section, podium-arranged cards */}
+      <section className="relative z-20 bg-black px-5 pt-16 pb-24">
+        {/* Smooth fade so the aurora above melts into black instead of ending on
+            a hard horizontal line. Anchored with bottom-full so the gradient sits
+            entirely above this section and reaches solid black exactly at the seam
+            (a -top offset would leave the gradient only partly black at the join,
+            which is what showed as a line). */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-full h-64 bg-gradient-to-b from-transparent to-black"
+        />
+        <div className="relative mx-auto w-full max-w-5xl">
+          <div className="mb-14 flex flex-col items-center text-center">
+            <span className="text-[11px] font-normal uppercase tracking-[0.2em] text-[#8b7cf6]/80">
+              Add-ons
+            </span>
+            <h2 className="mt-3 text-3xl md:text-4xl font-medium tracking-tight text-white">
+              Discover products
+            </h2>
+            <p className="mt-3 max-w-md text-[13.5px] font-light leading-relaxed text-white/45">
+              Extra upgrades you can add to your profile, à la carte.
+            </p>
+          </div>
+
+          {/* Equal-height cards (stretched row), with the middle raised and a
+              touch wider as the hero. The earlier version stepped the card
+              heights via min-h, which left big empty voids inside the taller
+              cards; stretching keeps every card tight to its content. */}
+          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-[1fr_1.15fr_1fr]">
+            {PRODUCTS.map((product, i) => {
+              const isMiddle = i === 1;
+              return (
+                <div
+                  key={product.id}
+                  className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#0c0c0c] p-6 text-left shadow-sm transition-all ${
+                    isMiddle
+                      ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)] md:-translate-y-4"
+                      : "border-white/5"
+                  }`}
+                >
+                  {isMiddle && (
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#5b6cf5]/[0.07] via-transparent to-transparent" />
+                  )}
+                  {isMiddle && (
+                    <span className="absolute right-4 top-4 rounded-full bg-[#5b6cf5] px-2.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-white">
+                      Popular
+                    </span>
+                  )}
+                  <div className="relative flex flex-1 flex-col">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#8b7cf6]">
+                      {product.icon}
+                    </span>
+                    <div className="mt-5 flex items-baseline justify-between gap-3">
+                      <p className="text-[15px] font-normal tracking-tight text-white/90">
+                        {product.title}
+                      </p>
+                      <p className="flex shrink-0 items-baseline gap-1 text-xl font-medium text-white">
+                        <span>
+                          {plan.symbol}
+                          {product.price[currency]}
+                        </span>
+                        <span className="text-[12px] font-light text-white/40">/lifetime</span>
+                      </p>
+                    </div>
+                    <p className="mt-2 text-[13px] font-light leading-relaxed text-white/45">
+                      {product.desc}
+                    </p>
+                    <ul className="mt-5 mb-8 flex flex-col gap-3">
+                      {product.features.map((feature) => (
+                        <li key={feature} className="flex items-start gap-2.5 text-[13px] font-light text-white/70">
+                          <CheckIcon />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      onClick={() => router.push(isAuthenticated ? "/dashboard" : "/register")}
+                      className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 cursor-pointer"
+                    >
+                      Get {product.title}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
