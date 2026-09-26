@@ -559,15 +559,6 @@ export const userBadgesRelations = relations(userBadges, ({ one }) => ({
   }),
 }))
 
-export const donations = mysqlTable('donations', {
-  id: int('id').primaryKey().autoincrement(),
-  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  amountCents: int('amount_cents').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => ({
-  donationUserIdx: index('donation_user_idx').on(table.userId),
-}))
-
 export const uploadedFiles = mysqlTable('uploaded_files', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -606,7 +597,6 @@ export const schema = {
   commentLikes,
   profileFeedback,
   userBadges,
-  donations,
   uploadedFiles,
   userBackgrounds,
   usersRelations,
