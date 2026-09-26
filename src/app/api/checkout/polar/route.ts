@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
   if (!polarConfigured()) {
     return NextResponse.json(
-      { error: "Card payments aren't set up yet. Please try PayPal, or switch to INR." },
+      { error: "Card payments aren't set up yet. Please try Razorpay, or switch to INR." },
       { status: 503 },
     );
   }

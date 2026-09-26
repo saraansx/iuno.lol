@@ -13,15 +13,17 @@ export type Currency = keyof typeof PREMIUM_PLAN;
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
-// Which payment gateway handles each currency. INR is charged through Razorpay
-// (UPI/card/net banking); USD is charged through PayPal. This is enforced
-// server-side so it can't be bypassed from the browser.
-export const PROVIDER = {
-  INR: "razorpay",
-  USD: "paypal",
-} as const satisfies Record<Currency, "razorpay" | "paypal">;
+export type Provider = "razorpay";
 
-export type Provider = (typeof PROVIDER)[Currency];
+// Which payment gateway handles each currency, enforced server-side so it can't
+// be bypassed from the browser. Both currencies go through Razorpay — INR uses
+// the domestic checkout, USD uses Razorpay's international checkout (which
+// surfaces card and, where activated on the account, PayPal itself). The "Card"
+// option in the UI is handled separately by Polar's hosted checkout.
+export const PROVIDER: Record<Currency, Provider> = {
+  INR: "razorpay",
+  USD: "razorpay",
+};
 
 // Payment methods offered per currency. For Razorpay (INR) this doubles as a
 // server-side allow-list. USD opens Razorpay's international checkout, which

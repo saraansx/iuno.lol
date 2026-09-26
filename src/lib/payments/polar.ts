@@ -6,7 +6,7 @@
 // Premium.
 //
 // Card payments for USD Premium are charged through Polar (hosted checkout);
-// PayPal still handles the PayPal button, and INR goes through Razorpay.
+// Razorpay handles the "Razorpay" method for both USD (international) and INR.
 //
 // Required environment variables:
 //   POLAR_ACCESS_TOKEN    Organization Access Token (polar_oat_...). Secret —
