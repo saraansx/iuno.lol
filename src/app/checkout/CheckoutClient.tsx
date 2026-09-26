@@ -1,100 +1,55 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
 import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
-import { PREMIUM_PLAN, PROVIDER, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN } from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
   email?: string | null;
 }
 
-// Razorpay Checkout is loaded from their CDN on demand, only when the user pays.
-interface RazorpayResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
+// Tebex.js is loaded from their CDN on demand, only when the user checks out.
+// It exposes window.Tebex with an embedded-checkout API.
+interface TebexCheckout {
+  init: (config: {
+    ident: string;
+    theme?: "light" | "dark" | "auto";
+    colors?: { name: string; color: string }[];
+    closeOnComplete?: boolean;
+  }) => void;
+  launch: () => void;
+  on: (event: string, cb: () => void) => void;
 }
-interface RazorpayOptions {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description?: string;
-  order_id: string;
-  prefill?: { name?: string; email?: string; contact?: string; method?: string };
-  theme?: { color?: string };
-  handler?: (response: RazorpayResponse) => void;
-  modal?: { ondismiss?: () => void };
-}
-interface RazorpayInstance {
-  open: () => void;
-  on: (event: string, handler: (payload: unknown) => void) => void;
-}
-
-// PayPal JS SDK (USD). Only the button-rendering surface we actually use is typed.
-interface PaypalButtonsConfig {
-  style?: Record<string, string | number>;
-  createOrder: () => Promise<string>;
-  onApprove: (data: { orderID: string }) => Promise<void> | void;
-  onError?: (err: unknown) => void;
-  onCancel?: () => void;
-}
-interface PaypalButtonsInstance {
-  render: (container: HTMLElement) => Promise<void>;
-  close: () => void;
-}
-interface PaypalNamespace {
-  Buttons: (config: PaypalButtonsConfig) => PaypalButtonsInstance;
+interface TebexNamespace {
+  checkout: TebexCheckout;
+  events?: Record<string, string>;
 }
 declare global {
   interface Window {
-    Razorpay?: new (options: RazorpayOptions) => RazorpayInstance;
-    paypal?: PaypalNamespace;
+    Tebex?: TebexNamespace;
   }
 }
 
-const RAZORPAY_SCRIPT = "https://checkout.razorpay.com/v1/checkout.js";
+const TEBEX_SCRIPT = "https://js.tebex.io/v/1.js";
 
-// PayPal JS SDK loader. The SDK is keyed by the client id in its URL, so once
-// window.paypal exists we reuse it.
-function loadPaypal(clientId: string): Promise<boolean> {
+function loadTebex(): Promise<boolean> {
   return new Promise((resolve) => {
     if (typeof window === "undefined") return resolve(false);
-    if (window.paypal) return resolve(true);
-    const existing = document.querySelector<HTMLScriptElement>("script[data-paypal-sdk]");
+    if (window.Tebex) return resolve(true);
+    const existing = document.querySelector<HTMLScriptElement>(`script[src="${TEBEX_SCRIPT}"]`);
     if (existing) {
       existing.addEventListener("load", () => resolve(true), { once: true });
       existing.addEventListener("error", () => resolve(false), { once: true });
       return;
     }
     const script = document.createElement("script");
-    script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=USD&intent=capture&components=buttons&disable-funding=card`;
-    script.dataset.paypalSdk = "true";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-}
-
-function loadRazorpay(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === "undefined") return resolve(false);
-    if (window.Razorpay) return resolve(true);
-    const existing = document.querySelector<HTMLScriptElement>(`script[src="${RAZORPAY_SCRIPT}"]`);
-    if (existing) {
-      existing.addEventListener("load", () => resolve(true), { once: true });
-      existing.addEventListener("error", () => resolve(false), { once: true });
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = RAZORPAY_SCRIPT;
+    script.src = TEBEX_SCRIPT;
     script.onload = () => resolve(true);
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
@@ -144,219 +99,104 @@ const BUY_OPTIONS: { id: BuyFor; label: string; sub: string; icon: React.ReactNo
 
 export default function CheckoutClient({
   isAuthenticated = true,
-  email = null,
 }: CheckoutClientProps) {
   const router = useRouter();
-  const [currency, setCurrency] = useState<Currency>("USD");
   const [buyFor, setBuyFor] = useState<BuyFor>("personal");
   const [paying, setPaying] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [succeeded, setSucceeded] = useState(false);
 
-  const plan = PREMIUM_PLAN[currency];
-  const provider = PROVIDER[currency];
+  // Tebex localizes the display currency for the customer at checkout; we bill
+  // in USD, so the summary shows the USD plan.
+  const plan = PREMIUM_PLAN.USD;
   const canBuy = buyFor === "personal";
 
-  // USD is paid with PayPal Smart Buttons. Render them when USD + personal is the
-  // active selection; tear them down when the user switches away.
-  const paypalRef = useRef<HTMLDivElement>(null);
-  const [paypalState, setPaypalState] = useState<"idle" | "loading" | "ready" | "unconfigured" | "error">("idle");
-  const [payOpen, setPayOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const [payMethod, setPayMethod] = useState<"paypal" | "razorpay" | "card">("paypal");
-  const [cardLoading, setCardLoading] = useState(false);
-
-  // Default the popup's method to the currency's native gateway (PayPal for USD,
-  // Razorpay for INR); "card" (Polar) is the shared alternative on both.
-  useEffect(() => {
-    setPayMethod(provider === "paypal" ? "paypal" : "razorpay");
-  }, [provider]);
-
-  // "Card" is charged through Polar's hosted checkout. We ask our server to
-  // create a checkout session, then hand the browser off to Polar's secure page;
-  // Premium is granted server-side by the Polar webhook once payment lands.
-  const startPolarCheckout = async () => {
-    if (cardLoading) return;
-    setCardLoading(true);
-    try {
-      const res = await fetch("/api/checkout/polar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.url) {
-        toast.error(data?.error ?? "Could not start card checkout. Please try again.");
-        setCardLoading(false);
-        return;
+  // Poll the server until the webhook has granted Premium, then celebrate. The
+  // browser is never trusted to flip is_premium — this only *reads* the flag.
+  const confirmPremium = async () => {
+    setVerifying(true);
+    for (let i = 0; i < 20; i++) {
+      try {
+        const res = await fetch("/api/checkout/tebex/status", { cache: "no-store" });
+        const data = await res.json().catch(() => null);
+        if (data?.premium) {
+          setVerifying(false);
+          setSucceeded(true);
+          return;
+        }
+      } catch {
+        /* transient — keep polling */
       }
-      window.location.href = data.url as string;
-    } catch {
-      toast.error("Could not start card checkout. Please try again.");
-      setCardLoading(false);
+      await new Promise((r) => setTimeout(r, 1500));
     }
+    // Payment landed but the webhook hasn't caught up yet. Reassure, don't alarm.
+    setVerifying(false);
+    toast.success("Payment received! Your Premium will activate in a moment.");
   };
 
-  // When Polar redirects back with ?polar=success, the webhook has (or shortly
-  // will have) granted Premium. Confirm the good news and clean the URL.
+  // If Tebex redirected back with ?tebex=success (fallback for the hosted flow),
+  // confirm server-side and clean the URL.
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("polar") === "success") {
-      setSucceeded(true);
+    if (new URLSearchParams(window.location.search).get("tebex") === "success") {
       window.history.replaceState(null, "", "/checkout");
+      // Defer out of the effect body so we don't call setState synchronously.
+      const t = setTimeout(() => void confirmPremium(), 0);
+      return () => clearTimeout(t);
     }
   }, []);
 
-  // Close the payment popup whenever the purchase completes or gifting (not yet
-  // wired) is selected.
-  useEffect(() => {
-    if (!canBuy || succeeded) setPayOpen(false);
-  }, [canBuy, succeeded]);
-
-  useEffect(() => {
-    // Only render the PayPal buttons once the popup is open on the USD/PayPal +
-    // personal path; otherwise there's no mounted container to render into.
-    if (provider !== "paypal" || !canBuy || succeeded || !payOpen) {
-      return;
-    }
-    let cancelled = false;
-    let buttons: PaypalButtonsInstance | null = null;
-    (async () => {
-      setPaypalState("loading");
-      const cfgRes = await fetch("/api/checkout/paypal/config").catch(() => null);
-      const cfg = cfgRes && cfgRes.ok ? await cfgRes.json().catch(() => null) : null;
-      if (!cfg?.configured || !cfg.clientId) {
-        if (!cancelled) setPaypalState("unconfigured");
-        return;
-      }
-      const ok = await loadPaypal(cfg.clientId);
-      const container = paypalRef.current;
-      if (cancelled) return;
-      if (!ok || !window.paypal || !container) {
-        setPaypalState("error");
-        return;
-      }
-      container.innerHTML = "";
-      buttons = window.paypal.Buttons({
-        style: { layout: "vertical", color: "blue", shape: "rect", label: "pay", height: 46 },
-        createOrder: async () => {
-          try {
-            const res = await fetch("/api/checkout/paypal/order", { method: "POST" });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || !data.orderId) {
-              toast.error(data.error || "Could not start PayPal checkout.");
-              throw new Error("paypal order failed");
-            }
-            return data.orderId as string;
-          } catch (err) {
-            toast.error("Couldn't reach PayPal. Check your connection and try again.");
-            throw err instanceof Error ? err : new Error("paypal order failed");
-          }
-        },
-        onApprove: async (data) => {
-          setVerifying(true);
-          try {
-            const res = await fetch("/api/checkout/paypal/capture", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ orderId: data.orderID }),
-            });
-            const verifyData = await res.json().catch(() => ({}));
-            if (res.ok && verifyData.success) {
-              setVerifying(false);
-              setSucceeded(true);
-            } else {
-              setVerifying(false);
-              toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
-            }
-          } catch {
-            setVerifying(false);
-            toast.error("We couldn't confirm your payment. If you were charged, contact support.");
-          }
-        },
-        onError: () => toast.error("PayPal ran into a problem. Please try again."),
-      });
-      try {
-        await buttons.render(container);
-        if (!cancelled) setPaypalState("ready");
-      } catch {
-        if (!cancelled) setPaypalState("error");
-      }
-    })();
-    return () => {
-      cancelled = true;
-      try { buttons?.close(); } catch { /* button already gone */ }
-    };
-  }, [provider, canBuy, succeeded, payOpen]);
-
-  const handlePay = async () => {
+  const handleCheckout = async () => {
     if (paying) return;
-    // Only INR is charged here (Razorpay). USD goes through the PayPal buttons.
-    if (provider !== "razorpay") return;
-    // Gifting isn't wired up server-side yet — only the personal purchase is live.
-    if (buyFor !== "personal") {
+    if (!canBuy) {
       toast.error("Gifting is coming soon. Choose Personal for now.");
       return;
     }
     setPaying(true);
     try {
-      const orderRes = await fetch("/api/checkout/order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency }),
-      });
-      const orderData = await orderRes.json().catch(() => ({}));
-      if (!orderRes.ok) {
-        toast.error(orderData.error || "Could not start checkout.");
+      const res = await fetch("/api/checkout/tebex", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ident) {
+        toast.error(data.error || "Could not start checkout. Please try again.");
         setPaying(false);
         return;
       }
-      const ready = await loadRazorpay();
-      if (!ready || !window.Razorpay) {
+
+      const ready = await loadTebex();
+      if (!ready || !window.Tebex) {
+        // Fall back to the hosted checkout page if the embed script won't load.
+        if (data.url) {
+          window.location.href = data.url as string;
+          return;
+        }
         toast.error("Couldn't load the payment window. Check your connection and try again.");
         setPaying(false);
         return;
       }
-      const rzp = new window.Razorpay({
-        key: orderData.keyId,
-        order_id: orderData.orderId,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: "iuno.lol",
-        description: "Premium — lifetime access",
-        prefill: { email: email || undefined },
-        theme: { color: "#5b6cf5" },
-        handler: async (response) => {
-          setVerifying(true);
-          try {
-            const verifyRes = await fetch("/api/checkout/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(response),
-            });
-            const verifyData = await verifyRes.json().catch(() => ({}));
-            if (verifyRes.ok && verifyData.success) {
-              setPaying(false);
-              setVerifying(false);
-              setSucceeded(true);
-            } else {
-              setVerifying(false);
-              toast.error(verifyData.error || "We couldn't confirm your payment. If you were charged, contact support.");
-              setPaying(false);
-            }
-          } catch {
-            setVerifying(false);
-            toast.error("We couldn't confirm your payment. If you were charged, contact support.");
-            setPaying(false);
-          }
-        },
-        modal: { ondismiss: () => setPaying(false) },
+
+      const { checkout, events } = window.Tebex;
+      checkout.init({
+        ident: data.ident as string,
+        theme: "dark",
+        colors: [
+          { name: "primary", color: "#5b6cf5" },
+          { name: "secondary", color: "#5b6cf5" },
+        ],
+        closeOnComplete: true,
       });
-      rzp.on("payment.failed", () => {
-        toast.error("Payment failed. Please try again.");
+
+      checkout.on(events?.PAYMENT_COMPLETE ?? "payment:complete", () => {
+        setPaying(false);
+        void confirmPremium();
+      });
+      checkout.on(events?.PAYMENT_ERROR ?? "payment:error", () => {
+        setPaying(false);
+        toast.error("Payment couldn't be completed. Please try again.");
+      });
+      checkout.on(events?.CLOSE ?? "close", () => {
         setPaying(false);
       });
-      rzp.open();
+
+      checkout.launch();
     } catch {
       toast.error("Something went wrong. Please try again.");
       setPaying(false);
@@ -521,46 +361,12 @@ export default function CheckoutClient({
               <p className="mt-2 text-[11px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
 
-            {/* Currency */}
-            <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Currency</p>
-            <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1">
-              {CURRENCIES.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCurrency(c)}
-                  aria-pressed={currency === c}
-                  className={`relative rounded-lg py-1.5 text-[12.5px] font-light transition-colors cursor-pointer ${currency === c ? "text-white" : "text-white/45 hover:text-white/70"}`}
-                >
-                  {currency === c && (
-                    <motion.div
-                      layoutId="checkout-currency-bubble"
-                      className="absolute inset-0 z-0 rounded-lg bg-[#5b6cf5]/15"
-                      transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
-                    />
-                  )}
-                  <span className="relative z-10">{PREMIUM_PLAN[c].label}</span>
-                </button>
-              ))}
-            </div>
-
             <div className="my-6 h-px w-full bg-white/[0.06]" />
 
             {/* Total */}
             <div className="flex items-baseline justify-between">
               <span className="text-[12px] font-light text-white/45">Total</span>
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={`${currency}-${plan.display}`}
-                  initial={{ opacity: 0, y: 4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -4 }}
-                  transition={{ duration: 0.18 }}
-                  className="text-xl font-medium text-white"
-                >
-                  {plan.symbol}{plan.display}
-                </motion.span>
-              </AnimatePresence>
+              <span className="text-xl font-medium text-white">{plan.symbol}{plan.display}</span>
             </div>
 
             {!canBuy ? (
@@ -571,134 +377,19 @@ export default function CheckoutClient({
                 Gifting coming soon
               </button>
             ) : (
-              <div className="mt-5">
-                <button
-                  onClick={() => setPayOpen(true)}
-                  disabled={provider === "paypal" && paypalState === "loading"}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  {provider === "paypal" && paypalState === "loading" ? "Loading…" : <>Checkout - {plan.symbol}{plan.display}</>}
-                </button>
-
-                {/* Centered payment popup with blurred backdrop — portaled to body
-                    so `fixed` centers on the viewport, not the transformed card. */}
-                {mounted && createPortal(
-                  <AnimatePresence>
-                    {payOpen && (
-                    <motion.div
-                      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      <div
-                        onClick={() => setPayOpen(false)}
-                        className="absolute inset-0 bg-black/80 backdrop-blur-md"
-                      />
-                      <motion.div
-                        className="relative z-10 w-full max-w-sm rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 shadow-2xl"
-                        initial={{ opacity: 0, scale: 0.94, y: 12 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.94, y: 12 }}
-                        transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                      >
-                    <div className="mb-4 flex items-center justify-between">
-                      <p className="text-[14px] font-normal tracking-tight text-white/90">Complete your payment</p>
-                      <button
-                        onClick={() => setPayOpen(false)}
-                        aria-label="Close"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition-colors hover:bg-white/[0.06] hover:text-white"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
-                      </button>
-                    </div>
-                    <div className="mb-4 flex items-center justify-between text-[13px]">
-                      <span className="font-light text-white/50">Total</span>
-                      <span className="font-medium text-white">{plan.symbol}{plan.display}</span>
-                    </div>
-                    {provider === "paypal" && paypalState === "unconfigured" ? (
-                      <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
-                        PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments, or switch to INR.
-                      </p>
-                    ) : provider === "paypal" && paypalState === "error" ? (
-                      <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
-                        Couldn&apos;t load PayPal. Check your connection and try again, or switch to INR.
-                      </p>
-                    ) : (
-                      <>
-                        {/* Payment method selector — native gateway (PayPal for
-                            USD / Razorpay for INR) or Card (Polar). */}
-                        <div className="mb-4 grid grid-cols-2 gap-2.5">
-                          <button
-                            type="button"
-                            onClick={() => setPayMethod(provider === "paypal" ? "paypal" : "razorpay")}
-                            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
-                              payMethod !== "card"
-                                ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
-                                : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
-                            }`}
-                          >
-                            {provider === "paypal" ? (
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 11l1.5-7h6c2.5 0 4 1.5 3.5 4-.5 2.5-2.5 4-5 4H9l-.5 3" /><path d="M6 17l1.5-7" /></svg>
-                            ) : (
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
-                            )}
-                            <span className="text-[12px] font-normal">{provider === "paypal" ? "PayPal" : "Razorpay"}</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPayMethod("card")}
-                            className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
-                              payMethod === "card"
-                                ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
-                                : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
-                            }`}
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
-                            <span className="text-[12px] font-normal">Card</span>
-                          </button>
-                        </div>
-
-                        {payMethod === "card" ? (
-                          /* Card → Polar hosted checkout (USD or INR product). */
-                          <button
-                            type="button"
-                            onClick={startPolarCheckout}
-                            disabled={cardLoading}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {cardLoading ? "Redirecting…" : `Pay with Card - ${plan.symbol}${plan.display}`}
-                          </button>
-                        ) : provider === "razorpay" ? (
-                          /* Razorpay (INR) — opens Razorpay Checkout over the popup. */
-                          <button
-                            type="button"
-                            onClick={handlePay}
-                            disabled={paying}
-                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            {paying ? "Processing…" : `Pay with Razorpay - ${plan.symbol}${plan.display}`}
-                          </button>
-                        ) : null}
-                      </>
-                    )}
-                    {/* PayPal buttons stay mounted (USD) so they render at full
-                        width; hidden unless PayPal is the chosen method. */}
-                    <div ref={paypalRef} className={`[color-scheme:none] ${payMethod !== "paypal" ? "pointer-events-none absolute opacity-0" : ""}`} />
-                      </motion.div>
-                    </motion.div>
-                  )}
-                  </AnimatePresence>,
-                  document.body
-                )}
-              </div>
+              <button
+                onClick={handleCheckout}
+                disabled={paying}
+                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                {paying ? "Loading…" : <>Checkout - {plan.symbol}{plan.display}</>}
+              </button>
             )}
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-              Secure payment, encrypted end-to-end · {provider === "paypal" ? "PayPal" : "Razorpay"}
+              Secure payment, encrypted end-to-end · Tebex
             </p>
           </motion.div>
         </div>

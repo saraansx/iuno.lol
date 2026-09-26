@@ -13,32 +13,18 @@ export type Currency = keyof typeof PREMIUM_PLAN;
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
-// Which payment gateway handles each currency. INR is charged through Razorpay
-// (UPI/card/net banking); USD is charged through PayPal. This is enforced
-// server-side so it can't be bypassed from the browser.
+// Tebex is the single merchant-of-record for every purchase — it surfaces every
+// payment method (cards, PayPal, UPI, net banking, wallets) and localizes the
+// currency for the customer at checkout, so both display currencies map to the
+// same gateway. Pricing is still derived server-side from PREMIUM_PLAN; the
+// browser never dictates the amount.
 export const PROVIDER = {
-  INR: "razorpay",
-  USD: "paypal",
-} as const satisfies Record<Currency, "razorpay" | "paypal">;
+  INR: "tebex",
+  USD: "tebex",
+} as const satisfies Record<Currency, "tebex">;
 
 export type Provider = (typeof PROVIDER)[Currency];
 
-// Payment methods offered per currency. For Razorpay (INR) this doubles as a
-// server-side allow-list. USD opens Razorpay's international checkout, which
-// surfaces card and PayPal itself, so there's no sub-method to pre-select.
-//   INR  -> UPI / card / net banking (Razorpay)
-//   USD  -> Razorpay international (card / PayPal)
-export const PAYMENT_METHODS = {
-  INR: ["upi", "card", "netbanking"],
-  USD: [],
-} as const satisfies Record<Currency, readonly string[]>;
-
-export type PaymentMethod = (typeof PAYMENT_METHODS)[Currency][number];
-
 export function isCurrency(value: unknown): value is Currency {
   return typeof value === "string" && value in PREMIUM_PLAN;
-}
-
-export function isAllowedMethod(currency: Currency, method: string): boolean {
-  return (PAYMENT_METHODS[currency] as readonly string[]).includes(method);
 }
