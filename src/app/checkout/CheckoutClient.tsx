@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
 import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
+import { CardBrandLogos, RazorpayLogo } from "@/components/checkout/payment-logos";
 import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
@@ -497,26 +498,28 @@ export default function CheckoutClient({
                       <button
                         type="button"
                         onClick={() => setPayMethod("razorpay")}
-                        className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
+                        aria-pressed={payMethod !== "card"}
+                        className={`flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all cursor-pointer ${
                           payMethod !== "card"
                             ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
                             : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
                         }`}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
-                        <span className="text-[12px] font-normal">Razorpay</span>
+                        <RazorpayLogo className="h-5 w-auto" />
+                        <span className="text-[11px] font-light text-white/40">UPI · Cards · Netbanking</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setPayMethod("card")}
-                        className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
+                        aria-pressed={payMethod === "card"}
+                        className={`flex min-h-[88px] flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-all cursor-pointer ${
                           payMethod === "card"
                             ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
                             : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
                         }`}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>
-                        <span className="text-[12px] font-normal">Card</span>
+                        <CardBrandLogos />
+                        <span className="text-[11px] font-light text-white/40">Credit · Debit · UPI</span>
                       </button>
                     </div>
 
@@ -526,9 +529,9 @@ export default function CheckoutClient({
                         type="button"
                         onClick={startPolarCheckout}
                         disabled={cardLoading}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {cardLoading ? "Redirecting…" : `Pay with Card - ${plan.symbol}${plan.display}`}
+                        {cardLoading ? "Redirecting…" : `Pay ${plan.symbol}${plan.display} with Card`}
                       </button>
                     ) : (
                       /* Razorpay — opens Razorpay Checkout over the popup. */
@@ -536,9 +539,9 @@ export default function CheckoutClient({
                         type="button"
                         onClick={handlePay}
                         disabled={paying}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                       >
-                        {paying ? "Processing…" : `Pay with Razorpay - ${plan.symbol}${plan.display}`}
+                        {paying ? "Processing…" : `Pay ${plan.symbol}${plan.display} with Razorpay`}
                       </button>
                     )}
                       </motion.div>
@@ -552,7 +555,7 @@ export default function CheckoutClient({
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-              Secure payment, encrypted end-to-end · Razorpay
+              Secure payment via Razorpay/Polar
             </p>
           </motion.div>
         </div>
