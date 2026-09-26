@@ -4,7 +4,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { SITE_CONFIG } from "@/lib/config";
 import { createPolarCheckout, polarConfigured } from "@/lib/payments/polar";
-import { getClientIp } from "@/lib/server/security/ip";
 import { isCurrency, type Currency } from "@/lib/payments/plans";
 
 export async function POST(request: NextRequest) {
@@ -39,7 +38,6 @@ export async function POST(request: NextRequest) {
       userId,
       successUrl: `${origin}/checkout?polar=success`,
       customerEmail: user.email ?? undefined,
-      customerIp: getClientIp(request.headers) ?? undefined,
       currency,
     });
     return NextResponse.json({ url: checkout.url });

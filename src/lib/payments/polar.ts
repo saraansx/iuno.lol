@@ -74,7 +74,6 @@ export async function createPolarCheckout(params: {
   userId: number | string;
   successUrl: string;
   customerEmail?: string;
-  customerIp?: string;
   currency?: Currency;
 }): Promise<PolarCheckout> {
   const token = process.env.POLAR_ACCESS_TOKEN;
@@ -92,7 +91,6 @@ export async function createPolarCheckout(params: {
       success_url: params.successUrl,
       external_customer_id: String(params.userId),
       ...(params.customerEmail ? { customer_email: params.customerEmail } : {}),
-      ...(params.customerIp ? { customer_ip_address: params.customerIp } : {}),
       metadata: { userId: String(params.userId), plan: "premium_lifetime" },
     }),
   });
