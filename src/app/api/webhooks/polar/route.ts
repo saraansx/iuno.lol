@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { PREMIUM_PLAN } from "@/lib/payments/plans";
-import { getPolarProductId, verifyPolarWebhook } from "@/lib/payments/polar";
+import { verifyPolarWebhook, polarProductIds } from "@/lib/payments/polar";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 // Polar webhook handler. Polar POSTs here on order events; we verify the
@@ -46,14 +46,12 @@ export async function POST(request: NextRequest) {
 
   const data = event.data ?? {};
 
-  // Only act on our Premium product — ignore anything else that might arrive.
-  let expectedProduct: string;
-  try {
-    expectedProduct = getPolarProductId();
-  } catch {
+  // Only act on our Premium products (USD or INR) — ignore anything else.
+  const known = polarProductIds();
+  if (known.length === 0) {
     return NextResponse.json({ error: "Not configured." }, { status: 503 });
   }
-  if (data.product_id && data.product_id !== expectedProduct) {
+  if (data.product_id && !known.includes(data.product_id)) {
     return NextResponse.json({ received: true });
   }
 
@@ -75,13 +73,17 @@ export async function POST(request: NextRequest) {
           .from(schema.users)
           .where(eq(schema.users.id, userId))
           .limit(1);
-        await notifyPremiumPurchase({
+      // Which currency's product this order was for, so the notification shows
+      // the right amount. Defaults to USD when the id can't be matched.
+      const isInr = data.product_id === process.env.POLAR_PRODUCT_ID_INR;
+      const plan = isInr ? PREMIUM_PLAN.INR : PREMIUM_PLAN.USD;
+      await notifyPremiumPurchase({
           gateway: "polar",
           userId,
           username: row?.username,
           email: row?.email,
-          amount: `${PREMIUM_PLAN.USD.symbol}${PREMIUM_PLAN.USD.display}`,
-          currency: "USD",
+          amount: `${plan.symbol}${plan.display}`,
+          currency: isInr ? "INR" : "USD",
         });
       } catch (err) {
         console.error("[webhooks/polar] notify failed:", err);

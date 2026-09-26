@@ -164,8 +164,14 @@ export default function CheckoutClient({
   const [payOpen, setPayOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  const [payMethod, setPayMethod] = useState<"paypal" | "card">("paypal");
+  const [payMethod, setPayMethod] = useState<"paypal" | "razorpay" | "card">("paypal");
   const [cardLoading, setCardLoading] = useState(false);
+
+  // Default the popup's method to the currency's native gateway (PayPal for USD,
+  // Razorpay for INR); "card" (Polar) is the shared alternative on both.
+  useEffect(() => {
+    setPayMethod(provider === "paypal" ? "paypal" : "razorpay");
+  }, [provider]);
 
   // "Card" is charged through Polar's hosted checkout. We ask our server to
   // create a checkout session, then hand the browser off to Polar's secure page;
@@ -174,7 +180,11 @@ export default function CheckoutClient({
     if (cardLoading) return;
     setCardLoading(true);
     try {
-      const res = await fetch("/api/checkout/polar", { method: "POST" });
+      const res = await fetch("/api/checkout/polar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currency }),
+      });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.url) {
         toast.error(data?.error ?? "Could not start card checkout. Please try again.");
@@ -197,11 +207,11 @@ export default function CheckoutClient({
     }
   }, []);
 
-  // Close the PayPal popup whenever the purchase completes or the user switches
-  // away from the USD/PayPal path.
+  // Close the payment popup whenever the purchase completes or gifting (not yet
+  // wired) is selected.
   useEffect(() => {
-    if (provider !== "paypal" || !canBuy || succeeded) setPayOpen(false);
-  }, [provider, canBuy, succeeded]);
+    if (!canBuy || succeeded) setPayOpen(false);
+  }, [canBuy, succeeded]);
 
   useEffect(() => {
     // Only render the PayPal buttons once the popup is open on the USD/PayPal +
@@ -560,15 +570,15 @@ export default function CheckoutClient({
               >
                 Gifting coming soon
               </button>
-            ) : provider === "paypal" ? (
+            ) : (
               <div className="mt-5">
                 <button
                   onClick={() => setPayOpen(true)}
-                  disabled={paypalState === "loading"}
+                  disabled={provider === "paypal" && paypalState === "loading"}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                  {paypalState === "loading" ? "Loading…" : <>Checkout — {plan.symbol}{plan.display}</>}
+                  {provider === "paypal" && paypalState === "loading" ? "Loading…" : <>Checkout — {plan.symbol}{plan.display}</>}
                 </button>
 
                 {/* Centered payment popup with blurred backdrop — portaled to body
@@ -608,29 +618,34 @@ export default function CheckoutClient({
                       <span className="font-light text-white/50">Total</span>
                       <span className="font-medium text-white">{plan.symbol}{plan.display}</span>
                     </div>
-                    {paypalState === "unconfigured" ? (
+                    {provider === "paypal" && paypalState === "unconfigured" ? (
                       <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
                         PayPal isn&apos;t set up yet. Add your PayPal keys to enable USD payments, or switch to INR.
                       </p>
-                    ) : paypalState === "error" ? (
+                    ) : provider === "paypal" && paypalState === "error" ? (
                       <p className="rounded-xl border border-white/5 bg-[#161616] p-3.5 text-[12.5px] font-light leading-relaxed text-white/50">
                         Couldn&apos;t load PayPal. Check your connection and try again, or switch to INR.
                       </p>
                     ) : (
                       <>
-                        {/* Payment method selector */}
+                        {/* Payment method selector — native gateway (PayPal for
+                            USD / Razorpay for INR) or Card (Polar). */}
                         <div className="mb-4 grid grid-cols-2 gap-2.5">
                           <button
                             type="button"
-                            onClick={() => setPayMethod("paypal")}
+                            onClick={() => setPayMethod(provider === "paypal" ? "paypal" : "razorpay")}
                             className={`flex flex-col items-center gap-1.5 rounded-xl border p-3.5 transition-all ${
-                              payMethod === "paypal"
+                              payMethod !== "card"
                                 ? "border-[#5b6cf5]/40 bg-[#5b6cf5]/10 text-white"
                                 : "border-white/5 bg-[#161616] text-white/50 hover:bg-white/[0.06]"
                             }`}
                           >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 11l1.5-7h6c2.5 0 4 1.5 3.5 4-.5 2.5-2.5 4-5 4H9l-.5 3" /><path d="M6 17l1.5-7" /></svg>
-                            <span className="text-[12px] font-normal">PayPal</span>
+                            {provider === "paypal" ? (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M7 11l1.5-7h6c2.5 0 4 1.5 3.5 4-.5 2.5-2.5 4-5 4H9l-.5 3" /><path d="M6 17l1.5-7" /></svg>
+                            ) : (
+                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h16M4 12h16M4 17h10" /></svg>
+                            )}
+                            <span className="text-[12px] font-normal">{provider === "paypal" ? "PayPal" : "Razorpay"}</span>
                           </button>
                           <button
                             type="button"
@@ -646,9 +661,8 @@ export default function CheckoutClient({
                           </button>
                         </div>
 
-                        {/* Card → Polar hosted checkout. PayPal buttons below
-                            stay in the DOM so they render at full width. */}
-                        {payMethod === "card" && (
+                        {payMethod === "card" ? (
+                          /* Card → Polar hosted checkout (USD or INR product). */
                           <button
                             type="button"
                             onClick={startPolarCheckout}
@@ -657,10 +671,22 @@ export default function CheckoutClient({
                           >
                             {cardLoading ? "Redirecting…" : `Pay with Card — ${plan.symbol}${plan.display}`}
                           </button>
-                        )}
+                        ) : provider === "razorpay" ? (
+                          /* Razorpay (INR) — opens Razorpay Checkout over the popup. */
+                          <button
+                            type="button"
+                            onClick={handlePay}
+                            disabled={paying}
+                            className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            {paying ? "Processing…" : `Pay with Razorpay — ${plan.symbol}${plan.display}`}
+                          </button>
+                        ) : null}
                       </>
                     )}
-                    <div ref={paypalRef} className={`[color-scheme:none] ${payMethod === "card" ? "pointer-events-none absolute opacity-0" : ""}`} />
+                    {/* PayPal buttons stay mounted (USD) so they render at full
+                        width; hidden unless PayPal is the chosen method. */}
+                    <div ref={paypalRef} className={`[color-scheme:none] ${payMethod !== "paypal" ? "pointer-events-none absolute opacity-0" : ""}`} />
                       </motion.div>
                     </motion.div>
                   )}
@@ -668,24 +694,6 @@ export default function CheckoutClient({
                   document.body
                 )}
               </div>
-            ) : (
-              <>
-                <button
-                  onClick={handlePay}
-                  disabled={paying}
-                  className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {paying ? "Processing…" : (
-                    <>
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
-                      Checkout — {plan.symbol}{plan.display}
-                    </>
-                  )}
-                </button>
-                <p className="mt-2.5 text-center text-[11px] font-light italic text-white/40">
-                  Powered by <span className="font-medium not-italic text-[#3395ff]">Razorpay</span>
-                </p>
-              </>
             )}
 
             <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] font-light text-white/30">

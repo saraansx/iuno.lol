@@ -19,6 +19,7 @@
 //   POLAR_SERVER          "production" for live; anything else uses sandbox.
 
 import crypto from "crypto";
+import type { Currency } from "@/lib/payments/plans";
 
 const PRODUCTION_API = "https://api.polar.sh";
 const SANDBOX_API = "https://sandbox-api.polar.sh";
@@ -32,16 +33,30 @@ function apiBase(): string {
   return polarServer() === "production" ? PRODUCTION_API : SANDBOX_API;
 }
 
-/** True only when the access token and product id are configured. */
+/** True only when the access token and at least one product id are configured. */
 export function polarConfigured(): boolean {
-  return Boolean(process.env.POLAR_ACCESS_TOKEN && process.env.POLAR_PRODUCT_ID);
+  return Boolean(
+    process.env.POLAR_ACCESS_TOKEN &&
+      (process.env.POLAR_PRODUCT_ID || process.env.POLAR_PRODUCT_ID_INR),
+  );
 }
 
-/** The configured Premium product id, or throws when unset. */
-export function getPolarProductId(): string {
-  const id = process.env.POLAR_PRODUCT_ID;
-  if (!id) throw new Error("POLAR_PRODUCT_ID is not set");
+/**
+ * The Premium product id for a currency. USD uses POLAR_PRODUCT_ID; INR uses
+ * POLAR_PRODUCT_ID_INR (a separate Polar product priced in ₹). Throws when the
+ * product for that currency isn't configured.
+ */
+export function getPolarProductId(currency: Currency = "USD"): string {
+  const id = currency === "INR" ? process.env.POLAR_PRODUCT_ID_INR : process.env.POLAR_PRODUCT_ID;
+  if (!id) throw new Error(`POLAR product id for ${currency} is not set`);
   return id;
+}
+
+/** Every configured Polar product id — used by the webhook to accept an order. */
+export function polarProductIds(): string[] {
+  return [process.env.POLAR_PRODUCT_ID, process.env.POLAR_PRODUCT_ID_INR].filter(
+    (v): v is string => Boolean(v),
+  );
 }
 
 export interface PolarCheckout {
@@ -59,6 +74,8 @@ export async function createPolarCheckout(params: {
   userId: number | string;
   successUrl: string;
   customerEmail?: string;
+  customerIp?: string;
+  currency?: Currency;
 }): Promise<PolarCheckout> {
   const token = process.env.POLAR_ACCESS_TOKEN;
   if (!token) throw new Error("Polar is not configured");
@@ -71,10 +88,11 @@ export async function createPolarCheckout(params: {
     },
     cache: "no-store",
     body: JSON.stringify({
-      products: [getPolarProductId()],
+      products: [getPolarProductId(params.currency ?? "USD")],
       success_url: params.successUrl,
       external_customer_id: String(params.userId),
       ...(params.customerEmail ? { customer_email: params.customerEmail } : {}),
+      ...(params.customerIp ? { customer_ip_address: params.customerIp } : {}),
       metadata: { userId: String(params.userId), plan: "premium_lifetime" },
     }),
   });
