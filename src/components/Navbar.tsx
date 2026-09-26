@@ -12,7 +12,7 @@ interface NavbarProps {
 }
 
 const tabForPath = (pathname: string) => {
-  if (pathname === '/pricing') return 'Pricing';
+  if (pathname === '/pricing' || pathname === '/checkout') return 'Pricing';
   if (pathname === '/dashboard/leaderboard') return 'Leaderboard';
   return 'Helpcenter'; // Helpcenter is highlighted by default on other pages
 };
