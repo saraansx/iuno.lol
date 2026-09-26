@@ -1,23 +1,21 @@
 "use client";
 
 import { useId } from "react";
-import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
+import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 type ViewMilestone = (typeof VIEW_MILESTONES)[number];
 type LikeMilestone = (typeof LIKE_MILESTONES)[number];
-type DonationMilestone = (typeof DONATION_MILESTONES)[number];
 
 export type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
 
-function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone | null {
+function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | null {
   return (
     (BADGES as readonly Badge[]).find((b) => b.id === id) ??
     (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
     (VIEW_MILESTONES as readonly ViewMilestone[]).find((b) => b.id === id) ??
     (LIKE_MILESTONES as readonly LikeMilestone[]).find((b) => b.id === id) ??
-    (DONATION_MILESTONES as readonly DonationMilestone[]).find((b) => b.id === id) ??
     null
   );
 }
@@ -67,7 +65,7 @@ export default function ProfileBadges({
   const instanceId = useId().replace(/:/g, "");
   const badges = badgeIds
     .map(badgeById)
-    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone => b !== null);
+    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone => b !== null);
   if (badges.length === 0) return null;
 
   const size = Math.min(32, Math.max(12, badgeSize ?? 18));
@@ -79,8 +77,8 @@ export default function ProfileBadges({
     : null;
   const separate = containerStyle === "separate";
 
-  const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone, keyPrefix = "") => {
-    const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge || "amount" in badge;
+  const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone, keyPrefix = "") => {
+    const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge;
     const color = mono ?? badge.accent;
     const glow = badgeGlowFilter(color, glowEnabled, glowStrength);
     const vb = ("viewBox" in badge ? (badge.viewBox as string) : "0 0 24 24") || "0 0 24 24";

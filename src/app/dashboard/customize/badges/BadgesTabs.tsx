@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, type DragEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, DONATION_MILESTONES } from "./badges-data";
+import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "./badges-data";
 import Link from "next/link";
 import { saveEquippedBadges, syncDiscordBadges, getMyBadges } from "@/actions/badges";
 import { checkRecruiterProgress, getMyInvite, hasInviteCode } from "@/actions/recruiter";
@@ -18,8 +18,7 @@ type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 type ViewMilestone = (typeof VIEW_MILESTONES)[number];
 type LikeMilestone = (typeof LIKE_MILESTONES)[number];
-type DonationMilestone = (typeof DONATION_MILESTONES)[number];
-type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone | DonationMilestone;
+type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone;
 type ContainerStyle = "pill" | "none" | "separate";
 type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
@@ -56,13 +55,12 @@ function badgeById(id: string): AnyBadge | null {
     (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
     (VIEW_MILESTONES as readonly ViewMilestone[]).find((b) => b.id === id) ??
     (LIKE_MILESTONES as readonly LikeMilestone[]).find((b) => b.id === id) ??
-    (DONATION_MILESTONES as readonly DonationMilestone[]).find((b) => b.id === id) ??
     null
   );
 }
 
 function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
-  const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge || "amount" in badge;
+  const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge;
   const glow = badgeGlowFilter(badge.accent);
   return (
     <svg
@@ -251,79 +249,6 @@ const TABS = [
   { id: "available", label: "Available badges" },
   { id: "customize", label: "Badge Customization" },
 ] as const;
-
-function formatMoney(n: number): string {
-  return `$${n}`;
-}
-
-function DonatorCard({ owned, equipped, totalDonated, onToggle }: { owned: string[]; equipped: string[]; totalDonated: number; onToggle: (id: string) => void }) {
-  const reached = DONATION_MILESTONES.filter((m) => owned.includes(m.id)).map((m) => m.amount);
-  const current = reached.length > 0 ? Math.max(...reached) : 0;
-  const next = DONATION_MILESTONES.find((m) => m.amount > current);
-  return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm overflow-hidden">
-      <div className="px-3.5 py-2.5 flex items-center gap-2.5">
-        <div className="min-w-0">
-          <h3 className="text-[13px] font-medium text-white tracking-tight">Donator</h3>
-          <p className="text-[10px] text-white/40 mt-px truncate">Donate to unlock donator badges.</p>
-        </div>
-        <div className="ml-auto text-right shrink-0">
-          <p className="text-[12px] font-medium text-white">{formatMoney(totalDonated)} donated</p>
-          <p className="text-[10.5px] text-white/40">{next ? `${formatMoney(next.amount - totalDonated)} to next` : "Max level"}</p>
-        </div>
-      </div>
-      <div className="flex flex-col divide-y divide-white/5 border-t border-white/5">
-        {DONATION_MILESTONES.map((milestone) => {
-          const unlocked = owned.includes(milestone.id);
-          const isEquipped = equipped.includes(milestone.id);
-          return (
-            <div
-              key={milestone.id}
-              className={`px-3.5 py-2 flex items-center gap-2 transition-all ${unlocked ? "" : "saturate-50 opacity-70"}`}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill={milestone.accent}
-                stroke="none"
-                className="shrink-0"
-                style={{ filter: badgeGlowFilter(milestone.accent) }}
-              >
-                {milestone.icon}
-              </svg>
-              <span className={`text-[12.5px] font-normal truncate min-w-0 ${unlocked ? "text-white/90" : "text-white/40"}`}>{milestone.name}</span>
-              <span className="ml-auto shrink-0 flex items-center gap-1.5">
-                {!unlocked && (
-                  <span className="text-white/30">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                  </span>
-                )}
-                <span className={`text-[11px] whitespace-nowrap ${unlocked ? "text-white/40" : "text-white/25"}`}>{formatMoney(milestone.amount)}</span>
-                {unlocked && (
-                  <button
-                    type="button"
-                    onClick={() => onToggle(milestone.id)}
-                    className={`text-[11px] font-normal rounded-lg px-2.5 py-1 border transition-colors cursor-pointer ${
-                      isEquipped
-                        ? "text-white/70 bg-white/[0.03] border-white/15 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/20"
-                        : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
-                    }`}
-                  >
-                    {isEquipped ? "Unequip" : "Equip"}
-                  </button>
-                )}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: string[]; onToggle: (id: string) => void }) {
   const reachedLevels = LEVELS.filter((s) => owned.includes(s.id)).map((s) => s.level);
@@ -542,7 +467,6 @@ export default function BadgesTabs({
   initialOwned = [],
   initialEquipped = [],
   earlyEligible = false,
-  initialDonated = 0,
   initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5, shimmer: false },
 }: {
   user: FullUser | null;
@@ -551,7 +475,6 @@ export default function BadgesTabs({
   initialEquipped?: string[];
   earlyEligible?: boolean;
   initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number; shimmer: boolean };
-  initialDonated?: number;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("available");
   const [owned, setOwned] = useState<string[]>(initialOwned);
@@ -974,8 +897,7 @@ export default function BadgesTabs({
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 pt-2">
-            <DonatorCard owned={owned} equipped={equipped} totalDonated={initialDonated} onToggle={toggleBadge} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pt-2">
             <LevelsCard owned={owned} equipped={equipped} onToggle={toggleBadge} />
             <ViewsCard owned={owned} equipped={equipped} totalViews={user?.views ?? 0} onToggle={toggleBadge} />
             <LikesCard owned={owned} equipped={equipped} totalLikes={user?.likesCount ?? 0} onToggle={toggleBadge} />
