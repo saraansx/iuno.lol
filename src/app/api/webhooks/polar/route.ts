@@ -6,11 +6,6 @@ import { verifyPolarWebhook, polarProductIds } from "@/lib/payments/polar";
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
-// Polar webhook handler. Polar POSTs here on order events; we verify the
-// Standard-Webhooks signature before trusting anything, then on `order.paid`
-// grant Premium to the mapped user (and on `order.refunded` revoke it). This is
-// the source of truth for Polar (card) purchases — the browser is never trusted
-// to flip is_premium.
 
 interface PolarOrderData {
   product_id?: string;
@@ -47,7 +42,6 @@ export async function POST(request: NextRequest) {
 
   const data = event.data ?? {};
 
-  // Only act on our Premium products (USD or INR) — ignore anything else.
   const known = polarProductIds();
   if (known.length === 0) {
     return NextResponse.json({ error: "Not configured." }, { status: 503 });
@@ -58,9 +52,6 @@ export async function POST(request: NextRequest) {
 
   const userId = userIdFrom(data);
 
-  // Standard-Webhooks message id, stable across Polar's retries of the same
-  // event — our idempotency key. verifyPolarWebhook already guaranteed it's
-  // present; re-read it here for the type-checker.
   const eventId = request.headers.get("webhook-id");
   if (!eventId) {
     return NextResponse.json({ error: "Missing event id." }, { status: 400 });
@@ -72,13 +63,9 @@ export async function POST(request: NextRequest) {
         console.error("[webhooks/polar] order.paid with no mappable user id");
         return NextResponse.json({ received: true });
       }
-      // Record-and-grant atomically. A replayed (or Polar-retried) delivery
-      // hits the unique (provider, event_id) key and returns false without
-      // re-granting — this is the replay protection.
       const processed = await processPaymentEventOnce(
         { provider: "polar", eventId, userId },
         async (tx) => {
-          // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
           await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
         },
       );
@@ -86,15 +73,12 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true });
       }
 
-      // Best-effort Discord notification — never blocks or fails the upgrade.
       try {
         const [row] = await db
           .select({ username: schema.users.username, email: schema.users.email })
           .from(schema.users)
           .where(eq(schema.users.id, userId))
           .limit(1);
-      // Which currency's product this order was for, so the notification shows
-      // the right amount. Defaults to USD when the id can't be matched.
       const isInr = data.product_id === process.env.POLAR_PRODUCT_ID_INR;
       const plan = isInr ? PREMIUM_PLAN.INR : PREMIUM_PLAN.USD;
       await notifyPremiumPurchase({
@@ -110,8 +94,6 @@ export async function POST(request: NextRequest) {
       }
     } else if (event.type === "order.refunded") {
       if (userId) {
-        // Same idempotency guard so a captured refund can't be replayed to
-        // repeatedly strip Premium.
         await processPaymentEventOnce(
           { provider: "polar", eventId, userId },
           async (tx) => {

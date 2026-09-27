@@ -1,13 +1,9 @@
-// Magic-byte media detection shared by the profile-asset upload route and the
-// image-host upload route. Never trust the client's Content-Type — sniff the
-// real format from the file's leading bytes.
 
 export interface DetectedType {
   ext: string;
   mime: string;
 }
 
-/** Detect a supported image or video from its signature bytes, or null. */
 export function detectImageOrVideo(buffer: Buffer): DetectedType | null {
   if (buffer.length < 12) return null;
 
@@ -63,7 +59,6 @@ export function detectImageOrVideo(buffer: Buffer): DetectedType | null {
   return null;
 }
 
-/** Detect a supported audio file from its signature bytes, or null. */
 export function detectAudio(buffer: Buffer): DetectedType | null {
   if (buffer.length < 12) return null;
 

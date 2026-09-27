@@ -277,7 +277,6 @@ export async function updateGeneralProfile(data: {
   return { success: true };
 }
 
-/** Replace the user's page-background playlist (ordered, max 5). */
 export async function updateBackgrounds(urls: string[]) {
   const userId = await getSessionUserId();
   if (!userId) {
@@ -794,8 +793,6 @@ export async function updateMetadataProfile(data: {
 
   const setData: Record<string, unknown> = {};
 
-  // Browser tab (title, animation, favicon, cursor) is premium-only.
-  // Clearing a value is always allowed so expired users can remove theirs.
   const wantsTabPremium =
     (typeof data.faviconUrl === "string" && data.faviconUrl !== "") ||
     (typeof data.cursorUrl === "string" && data.cursorUrl !== "") ||
@@ -944,8 +941,6 @@ export async function updateEffectsProfile(data: {
 
   const setData: Record<string, unknown> = {};
 
-  // Premium-gated effects: reject non-premium users up front so the
-  // dashboard lock can't be bypassed with direct action calls.
   const gatedEffects: Array<[unknown, ReadonlySet<string>, string]> = [
     [data.backgroundEffect, PREMIUM_BACKGROUND_EFFECTS, "That background effect needs Premium."],
     [data.borderEffect, PREMIUM_BORDER_EFFECTS, "That border effect needs Premium."],
@@ -1529,8 +1524,6 @@ function eviHeaders(accept: string): Record<string, string> {
   };
 }
 
-/** Download the 320kbps mp3 from upstream and pin it to Catbox.
- *  Returns null on failure — no upstream fallback, main page is Catbox-only. */
 async function cacheTrackAudio(userId: number, id: string): Promise<string | null> {
   try {
     const res = await fetch(`${EVI_BASE}/api/stream/${encodeURIComponent(id)}?quality=320`, {
@@ -1552,8 +1545,6 @@ async function cacheTrackAudio(userId: number, id: string): Promise<string | nul
   }
 }
 
-/** Download cover art from upstream and pin it to Catbox. Accepts the local
- *  `/api/music/artwork?...` path or an already-cached Catbox URL. */
 async function cacheTrackArtwork(userId: number, artwork: string | null | undefined): Promise<string | null> {
   if (!artwork) return null;
   if (isCatboxUrl(artwork)) return artwork;
@@ -1593,7 +1584,6 @@ async function cacheTrackArtwork(userId: number, artwork: string | null | undefi
   }
 }
 
-/** Fetch synced lyrics from upstream (stored as JSON, no file needed). */
 async function fetchTrackLyrics(input: {
   id: string;
   title: string;
@@ -1856,7 +1846,6 @@ export async function saveProfileLinks(data: {
   return { success: true, links: sanitizedLinks as ProfileLink[] };
 }
 
-/** Best-effort cleanup of freshly uploaded link icons (e.g. user reverts). */
 export async function deleteLinkIconFiles(urls: string[]) {
   const userId = await getSessionUserId();
   if (!userId) {

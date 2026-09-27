@@ -13,12 +13,9 @@ export type AnimatedBackgroundId = (typeof ANIMATED_BACKGROUNDS)[number]["id"];
 
 const VALID_IDS = new Set<string>(ANIMATED_BACKGROUNDS.map((b) => b.id));
 
-/** `animated:aurora` -> `aurora`, or null when not a known animated background. */
 export function animatedBackgroundId(url: string | null | undefined): AnimatedBackgroundId | null {
   if (!url || !url.startsWith(ANIMATED_BACKGROUND_PREFIX)) return null;
   const id = url.slice(ANIMATED_BACKGROUND_PREFIX.length).trim().toLowerCase();
-  // Legacy aliases: Ember Rise -> Dark Veil, Neon Beams -> Pixel Blast,
-  // Mist Flow -> Color Bends, Wave Motion -> Liquid Chrome, Pulse Grid -> CRT Warp.
   if (id === "ember") return "darkveil";
   if (id === "beams") return "pixelblast";
   if (id === "mist") return "colorbends";
@@ -31,18 +28,15 @@ export function isAnimatedBackgroundUrl(url: string | null | undefined): boolean
   return animatedBackgroundId(url) !== null;
 }
 
-/** Full stored value for a preset, e.g. `animated:aurora`. */
 export function animatedBackgroundUrl(id: AnimatedBackgroundId): string {
   return `${ANIMATED_BACKGROUND_PREFIX}${id}`;
 }
 
-/** True for premium-only animated presets. */
 export function isPremiumBackgroundId(id: string | null | undefined): boolean {
   if (!id) return false;
   return (ANIMATED_BACKGROUNDS as readonly { id: string; premium: boolean }[]).some((b) => b.id === id && b.premium);
 }
 
-/** Default Aurora (animated preset) settings. */
 export const AURORA_DEFAULTS = {
   color1: "#7cff67",
   color2: "#b497cf",
@@ -51,7 +45,6 @@ export const AURORA_DEFAULTS = {
   blend: 0.5,
 } as const;
 
-/** Default Dark Veil (animated preset) settings. */
 export const DARKVEIL_DEFAULTS = {
   speed: 0.5,
   hueShift: 0,
@@ -61,7 +54,6 @@ export const DARKVEIL_DEFAULTS = {
   warpAmount: 0,
 } as const;
 
-/** Default Pixel Blast (animated preset) settings. */
 export const PIXELBLAST_DEFAULTS = {
   color: "#b497cf",
   variant: "square",
@@ -75,7 +67,6 @@ export const PIXELBLAST_DEFAULTS = {
   liquid: false,
 } as const;
 
-/** Default Color Bends (animated preset) settings. */
 export const COLORBENDS_DEFAULTS = {
   color: "#a855f7",
   rotation: 90,
@@ -92,7 +83,6 @@ export const COLORBENDS_DEFAULTS = {
   bandWidth: 6,
 } as const;
 
-/** Default Liquid Chrome (animated preset) settings. */
 export const LIQUIDCHROME_DEFAULTS = {
   color: "#1a1a1a",
   speed: 0.3,
@@ -100,7 +90,6 @@ export const LIQUIDCHROME_DEFAULTS = {
   interactive: true,
 } as const;
 
-/** Default CRT Warp (animated preset) settings. */
 export const CRTWARP_DEFAULTS = {
   color: "#c755f7",
   background: "#05010a",

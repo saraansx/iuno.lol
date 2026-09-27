@@ -7,15 +7,6 @@ import {
   IMAGE_HOST_QUOTA_BYTES as STORAGE_QUOTA_BYTES,
 } from "@/lib/image-host";
 
-// ---------------------------------------------------------------------------
-// Image-host upload UI. Files upload for real to Catbox via
-// /api/image-host/upload (auth-gated, with server-side type/size/quota checks)
-// and report live byte progress over XHR. The quota line is seeded from the
-// user's real stored bytes (/api/image-host/stats) and kept live from each
-// upload response. The client-side checks below are only for instant feedback
-// — the server is authoritative.
-// ---------------------------------------------------------------------------
-
 type UploadStatus = "uploading" | "done" | "error";
 type MediaKind = "image" | "video";
 
@@ -34,7 +25,7 @@ function formatSize(bytes: number): string {
   const units = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
   const value = bytes / Math.pow(1024, i);
-  const decimals = i >= 2 ? 1 : 0; // MB/GB/TB → one decimal, B/KB → whole
+  const decimals = i >= 2 ? 1 : 0;
   return `${value.toFixed(decimals)} ${units[i]}`;
 }
 
@@ -85,8 +76,6 @@ export default function ImageHostUploadClient() {
   const xhrsRef = useRef<Map<string, XMLHttpRequest>>(new Map());
   const dragDepth = useRef(0);
 
-  // Seed the quota line with the user's real stored bytes, then keep it live
-  // from each upload response. Abort any in-flight uploads on unmount.
   useEffect(() => {
     let cancelled = false;
     fetch("/api/image-host/stats")
@@ -107,8 +96,6 @@ export default function ImageHostUploadClient() {
 
   const activeCount = useMemo(() => items.filter((it) => it.status === "uploading").length, [items]);
 
-  // Real upload to Catbox through our image-host endpoint, with live byte
-  // progress. usedBytes is set from the server's authoritative response.
   const startUpload = (id: string, file: File) => {
     const form = new FormData();
     form.append("fileToUpload", file);
@@ -119,7 +106,6 @@ export default function ImageHostUploadClient() {
 
     xhr.upload.onprogress = (e) => {
       if (!e.lengthComputable) return;
-      // Hold at 99% until the server confirms — bytes sent ≠ stored + verified.
       const pct = Math.min(99, Math.round((e.loaded / e.total) * 100));
       setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: pct } : it)));
     };
@@ -149,10 +135,6 @@ export default function ImageHostUploadClient() {
     xhr.send(form);
   };
 
-  // Dismiss a row. If it's still uploading, abort the request first; usedBytes
-  // only ever reflects completed uploads, so nothing needs reverting here.
-  // (Dismissing a finished row doesn't delete the stored file, so its bytes
-  // stay counted — a real "delete file" action would be separate.)
   const removeItem = (id: string) => {
     const xhr = xhrsRef.current.get(id);
     if (xhr) xhr.abort();
@@ -184,7 +166,7 @@ export default function ImageHostUploadClient() {
 
   const onInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) addFiles(e.target.files);
-    e.target.value = ""; // let the same file be re-picked
+    e.target.value = "";
   };
 
   const onDrop = (e: DragEvent) => {

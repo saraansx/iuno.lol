@@ -8,7 +8,6 @@ export function catboxFileId(url: string | null | undefined): string | null {
   return storedFileId(url);
 }
 
-/** Record that `userId` owns a Catbox file. Duplicate URLs are re-attributed to this user. */
 export async function recordUploadedFile(userId: number, url: string): Promise<void> {
   if (!isStoredMediaUrl(url)) return;
   try {
@@ -35,10 +34,6 @@ async function deleteFromCatbox(fileIds: string[]): Promise<void> {
   }
 }
 
-/**
- * Delete Catbox files ONLY if `userId` owns them (uploaded_files row).
- * URLs owned by other users are skipped — prevents User A deleting User B's files.
- */
 export async function deleteOwnedCatboxFiles(
   userId: number,
   urls: (string | null | undefined)[],

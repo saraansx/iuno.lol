@@ -8,7 +8,6 @@ interface ResetButtonProps {
   className?: string;
 }
 
-/** Small ghost "reset to default" button used across customize sections. */
 export default function ResetButton({
   onClick,
   label = "Reset",

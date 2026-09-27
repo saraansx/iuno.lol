@@ -122,7 +122,6 @@ export function StardustTrail({ color = "#ffffff" }: { color?: string }) {
           ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
           ctx.fill();
 
-          // tiny sparkle cross
           if (p.size > 1.8) {
             ctx.strokeStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
             ctx.lineWidth = 1;

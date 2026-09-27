@@ -100,9 +100,6 @@ export async function GET(
     const limited = await widgetRateLimit(req, "discord_presence");
     if (limited) return limited;
 
-    // All three only need the Discord ID, so run them concurrently instead
-    // of sequentially. Presence stays realtime (fresh every load); the bot
-    // call is bounded to 1.5s so a slow bot never holds the page.
     const redisBadgesKey = `discord:badges:v2:${id}`;
     const [memberData, presenceData, cachedBadgesRaw] = await Promise.all([
       withWidgetCache<DiscordMemberData>(

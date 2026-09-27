@@ -13,8 +13,6 @@ import { recordImageHostFile, getImageHostUsedBytes } from "@/lib/features/image
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
-// Larger files than the profile-asset route (up to 200MB, Catbox's own per-file
-// cap), so allow the full proxy-through-and-verify window.
 export const maxDuration = 60;
 
 function sanitizeName(raw: string): string {
@@ -58,8 +56,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Soft quota check before we bother Catbox. Concurrent uploads can race
-    // past this slightly; a bounded overshoot beats locking every upload.
     const usedBefore = await getImageHostUsedBytes(userId);
     if (usedBefore + file.size > IMAGE_HOST_QUOTA_BYTES) {
       return NextResponse.json(
@@ -111,8 +107,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
     }
 
-    // Catbox's CDN can lag a moment behind the upload — retry the range probe
-    // before declaring failure, so we don't reject a file that's already there.
     let verified = false;
     for (let attempt = 0; attempt < 3 && !verified; attempt++) {
       if (attempt > 0) await new Promise((r) => setTimeout(r, 1500));

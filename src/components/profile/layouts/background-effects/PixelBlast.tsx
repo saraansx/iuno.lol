@@ -565,11 +565,7 @@ export function PixelBlastEffect({
       io.disconnect();
       teardown();
     };
-    // Re-create GL context only when liquid toggles (needs composer chain).
   }, [liquid]);
 
-  // pointer-events-auto: canvas gets mouse events (click ripples, liquid follow)
-  // even though ancestors are pointer-events-none. Profile content sits above,
-  // so it still receives its own clicks first.
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;
 }

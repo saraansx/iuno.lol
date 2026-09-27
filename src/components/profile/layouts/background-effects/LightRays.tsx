@@ -279,7 +279,6 @@ void main() {
           const c = gl.canvas;
           if (c && c.parentNode) c.parentNode.removeChild(c);
         } catch {
-          /* noop */
         }
 
         rendererRef.current = null;

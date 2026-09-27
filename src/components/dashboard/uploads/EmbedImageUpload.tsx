@@ -4,7 +4,6 @@ import MediaUploadModal, { type MediaUploadModalProps } from "./MediaUploadModal
 
 export default function EmbedImageUpload(
   props: Omit<MediaUploadModalProps, "assetType" | "cropShape" | "cropAspect" | "cropTitle"> & {
-    /** "icon" gets the avatar-style circle crop; "background" gets a 1200x630 rect crop. */
     variant?: "background" | "icon";
   }
 ) {

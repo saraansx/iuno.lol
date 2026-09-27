@@ -51,8 +51,7 @@ export default function EmbedPreviewSection({
               </p>
             )}
 
-            {/* The live mock of the auto card (bg + icon + name). When
-                nothing custom is staged, show the saved generated card. */}
+            {}
             <div className="mt-1.5 relative w-full aspect-[1200/630] rounded-lg overflow-hidden bg-[#0a0a0a] border border-white/5">
               {savedAutoCard && !embedBackgroundUrl && !embedIconUrl ? (
                 <Image src={savedAutoCard} alt="" fill className="object-cover" unoptimized priority />

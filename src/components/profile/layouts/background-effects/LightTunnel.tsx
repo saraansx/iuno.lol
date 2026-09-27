@@ -302,7 +302,6 @@ export function LightTunnelEffect({ intensity = 50, color = "#5b6cf5" }: { inten
       try {
         container.removeChild(canvas);
       } catch {
-        /* noop */
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };

@@ -14,10 +14,6 @@ export interface AuroraSettings {
   blend?: number | null;
 }
 
-/**
- * Preset animated page backgrounds, rendered in the live profile,
- * the dashboard preview and the picker thumbnails.
- */
 export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome, crtwarp }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings; crtwarp?: CRTWarpSettings }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">

@@ -123,7 +123,6 @@ export function BubblesTrail({ color = "#ffffff" }: { color?: string }) {
           ctx.arc(p.x, p.y, radius, 0, Math.PI * 2);
           ctx.stroke();
 
-          // highlight
           ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.55})`;
           ctx.beginPath();
           ctx.arc(p.x - radius * 0.3, p.y - radius * 0.3, Math.max(0.5, radius * 0.2), 0, Math.PI * 2);

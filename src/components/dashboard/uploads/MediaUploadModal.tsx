@@ -9,26 +9,16 @@ export interface MediaUploadModalProps {
   open: boolean;
   onClose: () => void;
   onApply?: (url: string, rawFile?: File) => void;
-  /** /api/upload assetType; when set, videos upload to Catbox on Apply so Save stays fast. */
   assetType?: "avatar" | "background" | "banner" | "embed";
-  /**
-   * When set, static images (not GIF/video) go through the crop step
-   * before preview. "round" also renders a circular preview like avatars.
-   */
   cropShape?: "round" | "rect";
   cropAspect?: number;
   cropTitle?: string;
-  /** When true, video files are rejected up front (images only). */
   imagesOnly?: boolean;
 }
 
 interface Props extends MediaUploadModalProps {
   title: string;
   limitMB: number;
-  /**
-   * Optional rewrite of the picked file before it is previewed and uploaded.
-   * Return null to keep the original.
-   */
   transform?: (objectUrl: string, file: File) => Promise<{ url: string; file: File } | null>;
 }
 
@@ -196,9 +186,6 @@ export default function MediaUploadModal({
         const url: string = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open("POST", "/api/upload");
-          // Server still uploads to Catbox + verifies after the browser
-          // finishes sending, which can take a while with no further
-          // upload-progress events. Give it room before timing out.
           xhr.timeout = 120000;
           const uploadStart = Date.now();
           xhr.upload.onprogress = (e) => {
@@ -207,8 +194,6 @@ export default function MediaUploadModal({
             if (e.lengthComputable && e.total > 0) {
               const pct = Math.round((e.loaded / e.total) * 100);
               if (pct >= 100) {
-                // Browser -> server done, but server -> storage still
-                // running. Stop showing a misleading ETA/countdown.
                 setUploadProgress(99);
                 setStatusText("Processing… saving to storage");
               } else {
@@ -220,8 +205,6 @@ export default function MediaUploadModal({
               setStatusText(`Uploading ${(e.loaded / (1024 * 1024)).toFixed(1)}MB · ${mbps} Mbps`);
             }
           };
-          // Fired when the request body is fully sent but the server
-          // hasn't responded yet (Catbox upload + verify in progress).
           xhr.upload.onload = () => {
             setUploadProgress(99);
             setStatusText("Processing… saving to storage");

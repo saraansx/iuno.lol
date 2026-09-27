@@ -65,7 +65,7 @@ export async function getOrCreateInvite(discordId: string): Promise<{ code: stri
     try {
       alive = (await fetchInvite(found.code, botToken)) !== null;
     } catch {
-      alive = true; // REST hiccup — trust the bot's copy
+      alive = true;
     }
     if (alive) return { code: found.code, uses: Number(found.uses ?? 0) };
   }
@@ -123,8 +123,6 @@ export async function grantRecruiterBadge(userId: number, discordId: string): Pr
   return false;
 }
 
-// Poll uses; grant role + badge once the threshold is hit.
-// Grant failure doesn't kill progress — user still sees their count.
 export async function refreshRecruiter(userId: number, discordId: string): Promise<RecruiterState> {
   const { code, uses } = await getOrCreateInvite(discordId);
   let granted = await hasBadge(userId);
@@ -133,7 +131,6 @@ export async function refreshRecruiter(userId: number, discordId: string): Promi
       await grantRecruiterBadge(userId, discordId);
       granted = true;
     } catch {
-      // Discord/DB hiccup — progress still returned below, cron will retry.
     }
   }
   return { code, url: inviteUrl(code), uses, required: RECRUITER_REQUIRED, granted };

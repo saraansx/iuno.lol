@@ -28,8 +28,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Currency picks the Polar product (USD vs INR). Never trust it for pricing —
-  // Polar owns the amount — it only selects which product's checkout to open.
   const body = await request.json().catch(() => null);
   const currency: Currency = isCurrency(body?.currency) ? body.currency : "USD";
 

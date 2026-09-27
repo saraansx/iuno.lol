@@ -66,8 +66,6 @@ export function UsernameEffect({ effect = "none", glow = false, glowColor, child
     return <>{inner}</>;
   }
 
-  // Smooth outer glow: overflow visible + breathing room so there is
-  // no hard edge / hard mask cut. text-shadow layers are all blurred.
   return (
     <span style={{ ...textGlowWrapperStyle(true), textShadow: textGlowShadow(glowColor, true) }}>
       {inner}

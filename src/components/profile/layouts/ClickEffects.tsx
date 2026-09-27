@@ -62,7 +62,6 @@ function drawStar(ctx: CanvasRenderingContext2D, size: number) {
 function spawn(effect: string, x: number, y: number): Particle[] {
   const out: Particle[] = [];
   if (effect === "spark") {
-    // ClickSpark style: evenly spaced radial line bursts (reactbits)
     const count = 8;
     const radius = 15;
     const duration = 400;
@@ -237,7 +236,6 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
     resize();
     window.addEventListener("resize", resize);
 
-    // Preload the click sound so the first tap plays instantly.
     let warmAudio: HTMLAudioElement | null = null;
     const soundUrl = clickSoundUrl(soundRef.current);
     if (soundUrl) {
@@ -294,7 +292,6 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
         ctx.fillStyle = p.color;
         ctx.strokeStyle = p.color;
         if (p.kind === "spark") {
-          // ClickSpark: ease-out travel + shrinking line length
           const eased = t * (2 - t);
           const distance = eased * p.size;
           const lineLength = 10 * (1 - eased);
@@ -371,7 +368,6 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
           audio.volume = 0.7;
           audio.play().catch(() => {});
         } catch {
-          // ignore playback errors
         }
       }
       if (!fx || !isClickEffect(fx) || fx === "none" || reducedMotion) return;
@@ -388,7 +384,6 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
       try {
         warmAudio?.pause();
       } catch {
-        // ignore cleanup errors
       }
       warmAudio = null;
     };

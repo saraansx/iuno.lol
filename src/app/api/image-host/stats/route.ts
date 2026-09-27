@@ -3,8 +3,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";
 import { getImageHostStats } from "@/lib/features/image-host/db";
 
-// Per-user image-host aggregates for the overview dashboard and the upload
-// page's quota line. Always live — these numbers change on every upload.
 export const dynamic = "force-dynamic";
 
 export async function GET() {

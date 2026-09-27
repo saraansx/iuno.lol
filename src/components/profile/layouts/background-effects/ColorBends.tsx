@@ -291,7 +291,5 @@ export function ColorBendsEffect(props: ColorBendsSettings) {
     };
   }, []);
 
-  // pointer-events-auto so mouse influence/parallax receive pointer movement.
-  // Profile content sits above, so its own interactions still win.
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;
 }

@@ -6,7 +6,6 @@ export interface ProfileLink {
   url: string;
   icon: string;
   variant: LinkVariant;
-  /** User-picked tint. Null = natural look (brand colors / own colors). */
   color: string | null;
 }
 
@@ -53,7 +52,6 @@ const CUSTOM_ICON_HOSTS = new Set([
 
 export const ICONIFY_API = "https://api.iconify.design";
 
-/** Build a hotlinkable Iconify SVG URL from a "prefix:name" icon. */
 export function iconifySvgUrl(name: string): string {
   const clean = name.trim().replace(/\.svg$/i, "");
   const [prefix, ...rest] = clean.split(":");
@@ -61,27 +59,19 @@ export function iconifySvgUrl(name: string): string {
   return `${ICONIFY_API}/${prefix}/${rest.join(":")}.svg`;
 }
 
-/** Bump when the recolor logic changes — SVGs are cached immutable. */
 export const ICON_COLOR_VERSION = 3;
 
-/** Normalize a user-picked color for URLs (bare lowercase hex or null). */
 export function normalizeColorParam(color: string | undefined | null): string | null {
   if (!color) return null;
   const clean = color.trim().replace(/^#/, "");
   return /^[0-9a-f]{6}$/i.test(clean) ? clean.toLowerCase() : null;
 }
 
-/** Same-origin render URL for an Iconify icon (avoids third-party blocking). */
 export function iconifyProxyUrl(name: string, color?: string | null): string {
   const tint = normalizeColorParam(color ?? null);
   return `/api/icons/svg?icon=${encodeURIComponent(name)}${tint ? `&color=${tint}` : ""}&v=${ICON_COLOR_VERSION}`;
 }
 
-/**
- * Brand colors for popular icons. Iconify SVGs are monochrome
- * `currentColor` (no color data inside), so known brands get their color
- * here and everything else falls back to white.
- */
 const BRAND_COLORS: Record<string, string> = {
   "simple-icons:discord": "#5865F2",
   "simple-icons:youtube": "#FF0000",
@@ -115,7 +105,6 @@ export function brandColorFor(name: string): string {
   return BRAND_COLORS[name.toLowerCase()] ?? "#ffffff";
 }
 
-/** "prefix:name" back from a stored Iconify SVG URL (for display). */
 export function iconifyNameFromUrl(url: string): string | null {
   if (!url.startsWith(`${ICONIFY_API}/`)) return null;
   const path = url.slice(ICONIFY_API.length + 1).replace(/\.svg$/i, "");
@@ -124,7 +113,6 @@ export function iconifyNameFromUrl(url: string): string | null {
   return `${prefix}:${rest.join(":")}`;
 }
 
-/** Curated starter set shown before the user searches. */
 export const CURATED_ICONIFY_ICONS = [
   "simple-icons:discord",
   "simple-icons:x",
@@ -151,7 +139,6 @@ export const CURATED_ICONIFY_ICONS = [
   "lucide:zap",
 ];
 
-/** True when the icon is an uploaded image URL (not a preset key). */
 export function isCustomIconUrl(icon: string): boolean {
   if (!icon.startsWith("https://")) return false;
   try {
@@ -161,7 +148,6 @@ export function isCustomIconUrl(icon: string): boolean {
   }
 }
 
-/** Prepend https:// when missing and allow http(s) only. Returns null when invalid. */
 export function normalizeLinkUrl(raw: string): string | null {
   const trimmed = raw.trim().slice(0, 2048);
   if (!trimmed) return null;
@@ -177,7 +163,6 @@ export function normalizeLinkUrl(raw: string): string | null {
   }
 }
 
-/** Validate + coerce one raw link. Returns null when title/url are unusable. */
 export function sanitizeProfileLink(raw: unknown): ProfileLink | null {
   if (!raw || typeof raw !== "object") return null;
   const record = raw as Record<string, unknown>;

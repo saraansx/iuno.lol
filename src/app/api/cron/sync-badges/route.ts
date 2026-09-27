@@ -140,9 +140,6 @@ async function handleSync(request: Request) {
     const toInsert: { userId: number; badgeId: string }[] = [];
     const changedUsernames = new Set<string>();
 
-    // 1. Strip badges whose role is gone (or user left the server).
-    // Premium badge additionally requires active premium — strip it (and the
-    // server role below) when expired, even if the role is still held.
     const premiumRoleRemovals: Array<{ discordId: string; roleId: string }> = [];
     for (const row of rows) {
       if (row.badgeId === 'early') {
@@ -172,8 +169,6 @@ async function handleSync(request: Request) {
       }
     }
 
-    // 2. Grant badges for newly earned roles (unlock only, never auto-equip).
-    // Premium is skipped without active premium (handled above instead).
     for (const [discordId, roles] of memberRoles) {
       const user = userByDiscordId.get(discordId);
       if (!user) continue;
@@ -221,7 +216,6 @@ async function handleSync(request: Request) {
     }
     await purgeProfiles([...changedUsernames]);
 
-    // Pull the premium role off expired members (best-effort burst).
     if (premiumRoleRemovals.length > 0) {
       await Promise.allSettled(
         premiumRoleRemovals.map(({ discordId, roleId }) =>

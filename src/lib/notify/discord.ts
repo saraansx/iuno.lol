@@ -1,10 +1,3 @@
-// Server-only Discord webhook notifications for Premium purchases. Reads
-// DISCORD_WEBHOOK_RAZORPAY / DISCORD_WEBHOOK_POLAR, so this module must never be
-// imported into a client component — only into route handlers / server code.
-//
-// Notifications are best-effort: a webhook failure must NEVER block or fail the
-// purchase (the user is already Premium by the time we call this), so every call
-// is wrapped and errors are only logged.
 
 type Gateway = "razorpay" | "polar";
 
@@ -18,19 +11,13 @@ export interface PurchaseNotification {
   userId: number | string;
   username?: string | null;
   email?: string | null;
-  /** Human-readable price, e.g. "$1.10" or "₹1". */
   amount: string;
   currency: string;
 }
 
-/**
- * Post a "new Premium purchase" embed to the gateway's Discord webhook.
- * Best-effort and non-throwing — safe to `await` (or fire-and-forget) after the
- * account has already been upgraded.
- */
 export async function notifyPremiumPurchase(n: PurchaseNotification): Promise<void> {
   const url = webhookFor(n.gateway);
-  if (!url) return; // webhook not configured for this gateway — skip silently
+  if (!url) return;
 
   const profile = n.username ? `iuno.lol/${n.username}` : `user #${n.userId}`;
   const body = {

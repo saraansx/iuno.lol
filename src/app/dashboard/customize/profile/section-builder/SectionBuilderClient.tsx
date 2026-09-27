@@ -54,7 +54,6 @@ export default function SectionBuilderClient({ user, backgrounds, initialAbout, 
   const dropOn = (target: "about" | "links") => (e: React.DragEvent) => {
     e.preventDefault();
     const kind = e.dataTransfer.getData("text/section");
-    // Widgets-style: dropping one row onto the other swaps their order.
     if ((kind === "about" || kind === "links") && kind !== target) {
       patchLinks({ aboveAbout: !links.aboveAbout });
     }

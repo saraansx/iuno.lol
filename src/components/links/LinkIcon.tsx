@@ -31,8 +31,6 @@ interface LinkIconProps {
   icon: string;
   size?: number;
   className?: string;
-  /** User-picked tint. Applies to Iconify glyphs (via proxy) and
-   *  currentColor preset glyphs. Uploaded raster images keep own colors. */
   color?: string | null;
 }
 

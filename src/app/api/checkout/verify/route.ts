@@ -8,11 +8,6 @@ import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razo
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
-// Confirms a Razorpay payment and upgrades the account to Premium. Security
-// rests on the signature check (only Razorpay can produce a valid signature for
-// an order+payment pair, so a valid one proves the payment succeeded). We then
-// re-fetch the order to confirm it was created for THIS user and for a real
-// plan amount before flipping is_premium.
 const bodySchema = z.object({
   razorpay_order_id: z.string().min(1).max(64),
   razorpay_payment_id: z.string().min(1).max(64),
@@ -47,8 +42,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
 
-  // Re-fetch the order and confirm it belongs to this user and matches a real
-  // plan price — defence-in-depth against a signed triple from another order.
   const order = await fetchRazorpayOrder(orderId);
   if (!order || order.notes?.userId !== String(userId)) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
@@ -59,20 +52,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Record-and-grant atomically, keyed on the Razorpay payment id. Re-submitting
-    // the same verified {order, payment, signature} triple hits the unique
-    // (provider, event_id) key and returns false, so it can't be replayed to
-    // re-fire side effects (e.g. the Discord notification).
     const processed = await processPaymentEventOnce(
       { provider: "razorpay", eventId: paymentId, userId },
       async (tx) => {
-        // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
         await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
       },
     );
 
-    // Replay of an already-processed payment: the user is already Premium, so
-    // confirm success without re-granting or re-notifying.
     if (!processed) {
       return NextResponse.json({ success: true });
     }
@@ -84,7 +70,6 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Best-effort Discord notification — never blocks or fails the upgrade.
   try {
     const [row] = await db
       .select({ username: schema.users.username, email: schema.users.email })

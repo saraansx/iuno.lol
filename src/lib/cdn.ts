@@ -1,7 +1,6 @@
 export const CATBOX_BASE = "https://files.catbox.moe/";
 export const CDN_BASE = "https://cdn.iuno.lol/";
 
-/** Hosts we treat as our own stored media (upload + delete + playback). */
 const STORED_MEDIA_HOSTS = new Set(["files.catbox.moe", "cdn.iuno.lol"]);
 
 function hostnameOf(url: string | null | undefined): string | null {
@@ -13,16 +12,13 @@ function hostnameOf(url: string | null | undefined): string | null {
   }
 }
 
-/** True for Catbox or our CDN URLs (backward compatible with old uploads). */
 export function isStoredMediaUrl(url: string | null | undefined): boolean {
   const host = hostnameOf(url);
   return host !== null && STORED_MEDIA_HOSTS.has(host);
 }
 
-/** Legacy name — now accepts CDN URLs too. */
 export const isCatboxUrl = isStoredMediaUrl;
 
-/** `abc123.png` from a Catbox or CDN URL, or null. */
 export function storedFileId(url: string | null | undefined): string | null {
   const host = hostnameOf(url);
   if (!host || !STORED_MEDIA_HOSTS.has(host)) return null;
@@ -35,7 +31,6 @@ export function storedFileId(url: string | null | undefined): string | null {
   }
 }
 
-/** Rewrite a Catbox URL to the CDN; leaves CDN/other URLs untouched. */
 export function toCdnUrl(url: string): string {
   const id = storedFileId(url);
   if (!id) return url;

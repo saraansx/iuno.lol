@@ -175,7 +175,6 @@ function hexToColor(hex: string): THREE.Color {
   try {
     if (/^#[0-9a-f]{3}([0-9a-f]{3})?$/i.test(hex.trim())) c.set(hex.trim());
   } catch {
-    /* keep default */
   }
   return c;
 }
@@ -345,7 +344,5 @@ export function CRTWarpEffect(props: CRTWarpSettings) {
     };
   }, []);
 
-  // pointer-events-auto so pointer warp receives mouse movement.
-  // Profile content sits above, so its own interactions still win.
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;
 }

@@ -342,8 +342,6 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0 }: SidebarProps) => {
   const pathname = usePathname();
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(() => ({
-    // Profile starts collapsed when the dashboard loads. It only opens if you're
-    // already on a Profile sub-page, so the active item stays visible on deep links.
     Profile:
       pathname.startsWith("/dashboard/customize/profile") ||
       pathname === "/dashboard/customize/links",

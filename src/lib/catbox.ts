@@ -3,7 +3,6 @@ export { isStoredMediaUrl, isCatboxUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_URL_BASE = "https://files.catbox.moe/";
 
-/** Upload a buffer to Catbox. Returns the public file URL, or null on failure. */
 export async function uploadToCatbox(
   buffer: Buffer,
   filename: string,

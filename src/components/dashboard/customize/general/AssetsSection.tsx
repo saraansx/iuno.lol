@@ -429,7 +429,6 @@ export default function AssetsSection({
     setBgUrls(bgUrls.map((u, i) => (i === index ? url : u)).filter(Boolean));
   };
 
-  // Preset grid pick: select existing, append (<5), or replace selected.
   const applyPreset = (url: string) => {
     const existing = bgUrls.indexOf(url);
     if (existing >= 0) {
@@ -497,7 +496,6 @@ export default function AssetsSection({
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [prevAnimatedId, setPrevAnimatedId] = useState<string | null>(null);
 
-  // Collapse settings whenever a different preset is picked.
   if (prevAnimatedId !== activeAnimatedId) {
     setPrevAnimatedId(activeAnimatedId);
     setShowAdvanced(false);

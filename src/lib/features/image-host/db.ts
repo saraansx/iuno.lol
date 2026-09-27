@@ -11,11 +11,6 @@ export interface RecordImageHostFileInput {
   mime: string
 }
 
-/**
- * Insert an image-host file row. If the same user re-uploads byte-identical
- * content (Catbox dedups it to the same URL, hitting the (user_id, url) unique
- * key) we just refresh the name — no new row, no extra quota.
- */
 export async function recordImageHostFile(input: RecordImageHostFileInput): Promise<void> {
   await db
     .insert(schema.imageHostFiles)
@@ -23,7 +18,6 @@ export async function recordImageHostFile(input: RecordImageHostFileInput): Prom
     .onDuplicateKeyUpdate({ set: { name: input.name } })
 }
 
-/** Total bytes this user is currently storing. */
 export async function getImageHostUsedBytes(userId: number): Promise<number> {
   const [row] = await db
     .select({ used: sql<number>`coalesce(sum(${schema.imageHostFiles.size}), 0)` })
@@ -37,11 +31,10 @@ export interface ImageHostStats {
   storageUsedBytes: number
   favorites: number
   byKind: { kind: string; count: number }[]
-  recent: number[] // upload timestamps (epoch ms) within the last 30 days (chart range window)
-  recentFiles: { url: string; name: string; size: number; kind: string; createdAt: number }[] // newest first, capped
+  recent: number[]
+  recentFiles: { url: string; name: string; size: number; kind: string; createdAt: number }[]
 }
 
-/** Aggregates powering the overview dashboard, all scoped to one user. */
 export async function getImageHostStats(userId: number): Promise<ImageHostStats> {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const owned = eq(schema.imageHostFiles.userId, userId)

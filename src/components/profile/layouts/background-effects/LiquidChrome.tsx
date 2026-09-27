@@ -162,7 +162,5 @@ export function LiquidChromeEffect({ color, speed, amplitude, interactive }: Liq
     };
   }, []);
 
-  // pointer-events-auto so mouse interaction reaches the canvas.
-  // Profile content sits above, so its own interactions still win.
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;
 }

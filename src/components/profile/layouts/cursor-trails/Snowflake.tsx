@@ -38,7 +38,6 @@ function drawSnowflake(
     ctx.lineTo(ex, ey);
     ctx.stroke();
 
-    // small branch tips
     const bx = Math.cos(a) * size * 0.6;
     const by = Math.sin(a) * size * 0.6;
     const tipLen = size * 0.3;

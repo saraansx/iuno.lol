@@ -16,7 +16,6 @@ interface CheckoutClientProps {
   email?: string | null;
 }
 
-// Razorpay Checkout is loaded from their CDN on demand, only when the user pays.
 interface RazorpayResponse {
   razorpay_payment_id: string;
   razorpay_order_id: string;
@@ -65,7 +64,6 @@ function loadRazorpay(): Promise<boolean> {
   });
 }
 
-// Everything unlocked with Premium — the full list shown on the left.
 const PREMIUM_FEATURES = [
   "Everything in Free",
   "Premium badge on your profile",
@@ -123,13 +121,9 @@ export default function CheckoutClient({
   const [payOpen, setPayOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
-  // "Razorpay" (Razorpay Checkout) is the default method; "card" routes to Polar.
   const [payMethod, setPayMethod] = useState<"razorpay" | "card">("razorpay");
   const [cardLoading, setCardLoading] = useState(false);
 
-  // "Card" is charged through Polar's hosted checkout. We ask our server to
-  // create a checkout session, then hand the browser off to Polar's secure page;
-  // Premium is granted server-side by the Polar webhook once payment lands.
   const startPolarCheckout = async () => {
     if (cardLoading) return;
     setCardLoading(true);
@@ -152,8 +146,6 @@ export default function CheckoutClient({
     }
   };
 
-  // When Polar redirects back with ?polar=success, the webhook has (or shortly
-  // will have) granted Premium. Confirm the good news and clean the URL.
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get("polar") === "success") {
       setSucceeded(true);
@@ -161,15 +153,12 @@ export default function CheckoutClient({
     }
   }, []);
 
-  // Close the payment popup whenever the purchase completes or gifting (not yet
-  // wired) is selected.
   useEffect(() => {
     if (!canBuy || succeeded) setPayOpen(false);
   }, [canBuy, succeeded]);
 
   const handlePay = async () => {
     if (paying) return;
-    // Gifting isn't wired up server-side yet — only the personal purchase is live.
     if (buyFor !== "personal") {
       toast.error("Gifting is coming soon. Choose Personal for now.");
       return;
@@ -239,7 +228,6 @@ export default function CheckoutClient({
     }
   };
 
-  // Soft aurora backdrop shared by both states.
   const Backdrop = (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
       <div className="absolute inset-0 bg-black" />
@@ -255,7 +243,6 @@ export default function CheckoutClient({
     </div>
   );
 
-  // Payment just completed — confirm it before sending them to the dashboard.
   if (succeeded) {
     return (
       <main className="relative min-h-screen bg-black" style={{ fontFamily: "var(--font-comfortaa)" }}>
@@ -269,7 +256,7 @@ export default function CheckoutClient({
             className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-7 backdrop-blur-xl"
           >
             <div className="flex items-center gap-4">
-              {/* Static logo mark */}
+              {}
               <Image src="/Favicon.png" alt="iuno.lol" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
               <div>
                 <h1 className="text-[19px] font-medium tracking-tight text-white">
@@ -281,7 +268,7 @@ export default function CheckoutClient({
               </div>
             </div>
 
-            {/* Receipt row */}
+            {}
             <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-5">
               <div>
                 <p className="text-[12.5px] font-normal text-white/85">iuno.lol Premium</p>
@@ -308,8 +295,7 @@ export default function CheckoutClient({
       <Navbar isAuthenticated={isAuthenticated} />
       {Backdrop}
 
-      {/* Verifying overlay — shown while we confirm the payment server-side so the
-          user waits instead of refreshing and thinking it failed. */}
+      {}
       <AnimatePresence>
         {verifying && (
           <motion.div
@@ -331,7 +317,7 @@ export default function CheckoutClient({
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-28 lg:pt-36">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-start">
-          {/* LEFT — what Premium unlocks */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -364,7 +350,7 @@ export default function CheckoutClient({
             </ul>
           </motion.div>
 
-          {/* RIGHT — order summary */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -373,7 +359,7 @@ export default function CheckoutClient({
           >
             <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
 
-            {/* Buy for */}
+            {}
             <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Buy for</p>
             <div className="grid grid-cols-3 gap-1.5">
               {BUY_OPTIONS.map((opt) => {
@@ -397,7 +383,7 @@ export default function CheckoutClient({
               <p className="mt-2 text-[11px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
 
-            {/* Currency */}
+            {}
             <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Currency</p>
             <div className="grid grid-cols-2 gap-1 rounded-xl bg-white/[0.03] p-1">
               {CURRENCIES.map((c) => (
@@ -422,7 +408,7 @@ export default function CheckoutClient({
 
             <div className="my-6 h-px w-full bg-white/[0.06]" />
 
-            {/* Total */}
+            {}
             <div className="flex items-baseline justify-between">
               <span className="text-[12px] font-light text-white/45">Total</span>
               <AnimatePresence mode="wait">
@@ -456,8 +442,7 @@ export default function CheckoutClient({
                   Checkout - {plan.symbol}{plan.display}
                 </button>
 
-                {/* Centered payment popup with blurred backdrop — portaled to body
-                    so `fixed` centers on the viewport, not the transformed card. */}
+                {}
                 {mounted && createPortal(
                   <AnimatePresence>
                     {payOpen && (
@@ -493,7 +478,7 @@ export default function CheckoutClient({
                       <span className="font-light text-white/50">Total</span>
                       <span className="font-medium text-white">{plan.symbol}{plan.display}</span>
                     </div>
-                    {/* Payment method selector — Razorpay or Card (Polar). */}
+                    {}
                     <div className="mb-4 grid grid-cols-2 gap-2.5">
                       <button
                         type="button"
@@ -524,7 +509,6 @@ export default function CheckoutClient({
                     </div>
 
                     {payMethod === "card" ? (
-                      /* Card → Polar hosted checkout (USD or INR product). */
                       <button
                         type="button"
                         onClick={startPolarCheckout}
@@ -534,7 +518,6 @@ export default function CheckoutClient({
                         {cardLoading ? "Redirecting…" : `Pay ${plan.symbol}${plan.display} with Card`}
                       </button>
                     ) : (
-                      /* Razorpay — opens Razorpay Checkout over the popup. */
                       <button
                         type="button"
                         onClick={handlePay}

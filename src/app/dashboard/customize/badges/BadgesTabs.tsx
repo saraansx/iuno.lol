@@ -22,10 +22,8 @@ type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone;
 type ContainerStyle = "pill" | "none" | "separate";
 type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
-// Badges that can be applied for (modal with purchase + Discord options).
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
 
-// Show-only CTA buttons on locked rows.
 const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" }> = {
   premium: { label: "Get premium", action: "soon" },
   "image-host": { label: "Get image host", action: "soon" },
@@ -659,7 +657,6 @@ export default function BadgesTabs({
           await navigator.clipboard.writeText(data.url);
           toast.success("Invite link copied");
         } catch {
-          // clipboard blocked — modal is open, user can copy manually
         }
       }
     } catch (e) {
@@ -716,15 +713,12 @@ export default function BadgesTabs({
       if (next.removed.length > 0) parts.push(`${next.removed.length} removed`);
       toast.success(parts.length > 0 ? `Synced — ${parts.join(", ")}` : "Nothing to sync");
     } catch (e) {
-      // Sync may have stripped/granted badges before failing — refresh so
-      // the UI doesn't show stale badges.
       try {
         const fresh = await getMyBadges();
         setOwned(fresh.owned);
         setEquipped(fresh.equipped);
         setSavedEquipped(fresh.equipped);
       } catch {
-        // ignore refresh errors, surface the original sync error below
       }
       toast.error(e instanceof Error ? e.message : "Sync failed");
     } finally {

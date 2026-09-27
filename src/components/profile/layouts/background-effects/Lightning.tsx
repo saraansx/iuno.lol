@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-/** hex (#a8d8ff) -> hue degrees (0-360) for the uHue uniform. */
 function hexToHue(hex: string): number {
   let clean = hex.replace("#", "");
   if (clean.length === 3) {

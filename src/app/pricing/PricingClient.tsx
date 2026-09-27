@@ -43,8 +43,6 @@ function CheckIcon() {
   );
 }
 
-// Standalone add-on products shown below the plans, arranged podium-style
-// (middle raised & larger, left/right stepped down like 2nd / 1st / 3rd).
 const PRODUCTS = [
   {
     id: "image-host",
@@ -95,21 +93,9 @@ const PRODUCTS = [
 
 export default function PricingClient({ isAuthenticated = false, isPremium = false }: PricingProps) {
   const router = useRouter();
-  // Display-only currency switch for the plan prices (USD / INR). Checkout still
-  // resolves the real charge server-side from PREMIUM_PLAN, so this can't affect
-  // what a buyer is billed.
   const [currency, setCurrency] = useState<Currency>("USD");
   const plan = PREMIUM_PLAN[currency];
 
-  // "See plans" (the portal's enter link) should fly through the word instead of jumping.
-  // We cancel the anchor jump and drive an eased scroll across the whole portal runway,
-  // which advances the scroll-linked zoom frame by frame.
-  //
-  // The portal force-locks itself fully open whenever [data-gp-content] holds focus (its
-  // :focus-within rule sets clip-path:none!important + opacity:1). That's the right behaviour
-  // for keyboard nav, but for a mouse dive it freezes the zoom so scrolling back up can't rewind
-  // to the word. So only keyboard activations (e.detail === 0) move focus into the content; a
-  // mouse dive drops focus off the trigger and leaves the reveal scroll-driven and reversible.
   const handleEnterClick = (e: React.MouseEvent<HTMLElement>) => {
     const enter = (e.target as HTMLElement).closest<HTMLElement>("[data-gp-enter]");
     if (!enter) return;
@@ -117,7 +103,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
     const content = e.currentTarget.querySelector<HTMLElement>(".gp-pricing [data-gp-content]");
     if (!content) return;
     const keyboard = e.detail === 0;
-    if (!keyboard) enter.blur(); // let the caption fade with scroll instead of sticking lit
+    if (!keyboard) enter.blur();
     const startY = window.scrollY;
     const targetY = startY + content.getBoundingClientRect().top;
     const distance = targetY - startY;
@@ -156,7 +142,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
     <main className="bg-black relative" onClick={handleEnterClick} style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
 
-      {/* Re-skin the portal chrome for iuno's dark palette (class beats the component's :where() rules) */}
+      {}
       <style>{`
         .gp-pricing [data-gp-caption]{inset:calc(var(--gp-word-bottom,55%) + 44px) 24px auto;justify-content:center;}
         .gp-pricing [data-gp-enter]{min-height:44px;padding:0 22px;gap:14px;background:rgba(91,108,245,.20);border-radius:12px;color:#fff;font-size:13px;font-weight:400;box-shadow:0 0 15px rgba(91,108,245,.10);transition:background .18s,box-shadow .18s;}
@@ -181,8 +167,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
         }}
         background={
           <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "#000000" }}>
-            {/* A tight indigo spotlight stays behind the mid-frame word so PREMIUM stays legible
-                through the dive; everything above it reads as black. */}
+            {}
             <div
               style={{
                 position: "absolute",
@@ -192,9 +177,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                   "radial-gradient(78% 42% at 50% 40%, rgba(91,108,245,0.42) 0%, rgba(91,108,245,0.10) 50%, transparent 76%)",
               }}
             >
-              {/* Aurora flipped to rise from the bottom behind the plans; the mask (authored at the
-                  pre-flip top, so it lands at the screen bottom) feathers it into a soft centre glow
-                  that fades up into black and drops the hard corner lobes. */}
+              {}
               <div
                 style={{
                   position: "absolute",
@@ -232,7 +215,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
         }
       >
         <div className="mx-auto w-full max-w-3xl">
-          {/* Hero copy — revealed as you step through the portal */}
+          {}
           <div className="mb-10 flex flex-col items-center text-center">
             <div className="mb-4 flex items-center justify-center gap-2 flex-wrap">
               <h1 className="text-3xl md:text-5xl font-medium text-white tracking-tight leading-[1.05]">
@@ -252,8 +235,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
             </div>
           </div>
 
-          {/* Currency selector — sliding bubble + glass theme mirror the navbar
-              tabs and the Dashboard / Claim buttons. Display-only (see `currency`). */}
+          {}
           <div className="mb-8 flex justify-center">
             <div className="relative inline-flex items-center gap-1 rounded-full border border-[#5b6cf5]/10 bg-[#5b6cf5]/3 p-1">
               {CURRENCIES.map((c) => (
@@ -277,7 +259,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
             </div>
           </div>
 
-          {/* Plans */}
+          {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start text-left">
             <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col md:mt-15">
               <p className="text-[14px] font-normal text-white/90 tracking-tight mb-1">Free</p>
@@ -361,13 +343,9 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
         </div>
       </GlyphPortal>
 
-      {/* Discover products — blackish add-on section, podium-arranged cards */}
+      {}
       <section className="relative z-20 bg-black px-5 pt-16 pb-24">
-        {/* Smooth fade so the aurora above melts into black instead of ending on
-            a hard horizontal line. Anchored with bottom-full so the gradient sits
-            entirely above this section and reaches solid black exactly at the seam
-            (a -top offset would leave the gradient only partly black at the join,
-            which is what showed as a line). */}
+        {}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 bottom-full h-64 bg-gradient-to-b from-transparent to-black"
@@ -385,10 +363,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
             </p>
           </div>
 
-          {/* Equal-height cards (stretched row), with the middle raised and a
-              touch wider as the hero. The earlier version stepped the card
-              heights via min-h, which left big empty voids inside the taller
-              cards; stretching keeps every card tight to its content. */}
+          {}
           <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-[1fr_1.15fr_1fr]">
             {PRODUCTS.map((product, i) => {
               const isMiddle = i === 1;

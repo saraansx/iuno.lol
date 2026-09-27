@@ -395,7 +395,6 @@ export async function getUserForSession(id: number) {
   return result[0] || null
 }
 
-/** Ordered page-background urls (max 5), oldest position first. */
 export async function getUserBackgrounds(userId: number): Promise<string[]> {
   const rows = await db
     .select({ url: schema.userBackgrounds.url })

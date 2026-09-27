@@ -2,7 +2,6 @@
 
 import { useCallback, useId, useRef, useState, type CSSProperties, type RefObject } from "react";
 
-/** Volume state that survives track changes (refs) + applies to audio elements. */
 export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
   const [volume, setVolumeState] = useState(1);
   const [muted, setMutedState] = useState(false);
@@ -37,8 +36,6 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
   return { volume, muted, setVolume, toggleMute, applyVolume };
 }
 
-/** Frosted bluish button; hover reveals slider, click mutes.
- *  fixed=true floats it at the page top-left corner instead of the card. */
 export function VolumeButton({
   volume,
   muted,

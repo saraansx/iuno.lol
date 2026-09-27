@@ -15,7 +15,6 @@ type LoginInput = {
   password?: string
   otpCode?: string
   turnstileToken?: string
-  /** @deprecated Use `identifier` instead. */
   email?: string
 }
 

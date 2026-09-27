@@ -5,7 +5,6 @@ interface PremiumLockProps {
   className?: string;
 }
 
-/** Tiny bluish lock shown next to premium-gated dropdown options (same lock as badges). */
 export default function PremiumLock({ size = 12, className = "" }: PremiumLockProps) {
   return (
     <span

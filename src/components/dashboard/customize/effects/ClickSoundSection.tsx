@@ -93,7 +93,6 @@ export default function ClickSoundSection({
                           preview.volume = 0.7;
                           preview.play().catch(() => {});
                         } catch {
-                          // ignore preview errors
                         }
                       }
                       setDropdownOpen(false);

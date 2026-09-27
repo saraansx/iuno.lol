@@ -59,10 +59,6 @@ export default async function middleware(request: NextRequest) {
     )
   }
 
-  // Razorpay Checkout loads its script from checkout.razorpay.com, opens a
-  // payment iframe (frame-src), and calls its API/analytics over XHR
-  // (connect-src) — all on *.razorpay.com. This covers both INR (domestic) and
-  // USD (Razorpay international) checkout.
   const cspDirectives = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://challenges.cloudflare.com https://static.cloudflareinsights.com https://*.razorpay.com",

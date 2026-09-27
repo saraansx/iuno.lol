@@ -6,7 +6,6 @@ import { toast } from "@/components/ui/toast";
 
 const Dither = dynamic(() => import("@/components/effects/Dither"), { ssr: false });
 
-// #5b6cf5 -> [0.357, 0.424, 0.961]
 const THEME_WAVE_COLOR: [number, number, number] = [0.357, 0.424, 0.961];
 
 function openDiscord() {
@@ -21,7 +20,7 @@ function openDiscord() {
 export default function CustomBadgePromo() {
   return (
     <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] shadow-sm">
-      {/* Dither animated background */}
+      {}
       <div className="absolute inset-0" aria-hidden="true">
         <Dither
           waveColor={THEME_WAVE_COLOR}
@@ -36,7 +35,7 @@ export default function CustomBadgePromo() {
           mouseRadius={0.5}
         />
       </div>
-      {/* Readability overlay — keeps theme dark glass */}
+      {}
       <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/35" aria-hidden="true" />
       <div className="absolute inset-0 bg-[#5b6cf5]/[0.06]" aria-hidden="true" />
 

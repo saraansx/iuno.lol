@@ -189,7 +189,6 @@ export default function ProfileBadges({
 
   const style = scrollStyle as BadgeScrollStyle;
   const speed = Math.min(100, Math.max(1, scrollSpeed ?? 40));
-  // Constant visual speed regardless of badge count. All modes loop forever.
   const duration = Math.min(40, Math.max(2.5, (badges.length * 60) / speed));
 
   const animation =
@@ -199,10 +198,9 @@ export default function ProfileBadges({
         ? `badge-scroll-right ${duration}s linear infinite`
         : `badge-scroll-left ${duration}s linear infinite`;
 
-  // Viewport fits exactly `visible` badges — e.g. 5 shows 5, the rest scroll through.
   const visible = Math.min(Math.max(1, Math.min(20, visibleCount ?? 5)), Math.max(1, badges.length));
-  const boxExtra = separate ? 10 : 0; // separate boxes add padding + border
-  const containerPad = containerStyle === "pill" ? 20 : 0; // px-2.5 on both sides
+  const boxExtra = separate ? 10 : 0;
+  const containerPad = containerStyle === "pill" ? 20 : 0;
   const viewportWidth = visible * (size + boxExtra) + (visible - 1) * gap + containerPad;
 
   return (
@@ -214,7 +212,6 @@ export default function ProfileBadges({
       }`}
       style={{
         width: `${viewportWidth}px`,
-        // Soft edge fade so scrolling badges never hit a hard cut.
         maskImage: "linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent)",
         WebkitMaskImage: "linear-gradient(to right, transparent, black 14px, black calc(100% - 14px), transparent)",
       }}

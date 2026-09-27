@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * Glyph Portal © 2026 Christian Katzmann. MIT.
- * Origin: UsefulPortal.astro on https://ktzm.dk → UsefulPortal.tsx → ClarityPortal.tsx.
- * A scroll-driven camera through live type. Keep this notice with copies.
- */
 import { useId, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 export type GlyphPortalStyle = CSSProperties & {
@@ -16,16 +11,11 @@ export type GlyphPortalStyle = CSSProperties & {
 
 export type GlyphPortalProps = {
   word?: string;
-  /** First matching character. Omit to choose the largest safe patch of ink. */
   focusChar?: string;
-  /** Hover, tap, or use arrow keys to choose a letter before scrolling. */
   interactive?: boolean;
-  /** Decorative, inert, mounted once. Fill its parent with an image, video, or canvas. */
   background?: ReactNode;
-  /** Optional foreground composition for the opening frame, above the clipped scene. */
   front?: ReactNode;
   children?: ReactNode;
-  /** Scroll travel in visible container heights, clamped to 1–8. */
   scrollLength?: number;
   fontFamily?: string;
   fontWeight?: number;
@@ -33,7 +23,6 @@ export type GlyphPortalProps = {
   enterLabel?: string;
   className?: string;
   style?: GlyphPortalStyle;
-  /** Called once per rendered scroll frame, never through React state. */
   onProgress?: (progress: number) => void;
 };
 
@@ -46,7 +35,6 @@ const DEFAULT_FONT = '"Arial Black", "Arial", sans-serif';
 type Ink = { x: number; y: number; radius: number; index: number };
 type Letter = { index: number; x: number; y: number; width: number; height: number };
 
-/** Largest opaque square, in linear time. Unlike a stem guess, it works in O, S and Ø. */
 function interior(context: CanvasRenderingContext2D, char: string, font: string): Omit<Ink, "index"> | null {
   const canvas = context.canvas;
   context.font = font;
@@ -74,7 +62,6 @@ function interior(context: CanvasRenderingContext2D, char: string, font: string)
     }
   }
   if (size < 3) return null;
-  // Scan at 3× SVG size. Inscribe a disk in the square, with room for raster disagreement.
   return { x: (bx + 1 - size / 2 - pad - left) / 3,
     y: (by + 1 - size / 2 - pad - ascent) / 3, radius: (size / 2 - 1) / 3 };
 }
@@ -132,8 +119,6 @@ export default function GlyphPortal({
     let choosing = false;
     let bounds = { x: 0, y: 0, width: 1, height: 1 };
     let fontDirty = true;
-    // Freeze an available face for this mount. Late font swaps move the ink under the camera.
-    // Preload custom faces before mounting; pending/failed faces use the supplied fallback stack.
     glyph.style.fontFamily = fontFamily;
     const computedFamily = getComputedStyle(glyph).fontFamily;
     const families = computedFamily.match(/(?:[^,"']+|"[^"]*"|'[^']*')+/g) ?? [];
@@ -142,7 +127,6 @@ export default function GlyphPortal({
       catch { return false; }
     });
     glyph.style.fontFamily = [...available, DEFAULT_FONT].join(",");
-    // A pending requested face may also hold WebKit's render loop. Keep that mount static.
     stalled = available.length < families.length;
 
     const readInk = () => {
@@ -153,7 +137,6 @@ export default function GlyphPortal({
       context.fontKerning = "none";
       const metrics = context.measureText(text);
       const advances = Array.from({ length: text.length }, (_, i) => context.measureText(text.slice(0, i)).width);
-      // SVG getBBox includes the font's line box in some engines. Frame visible ink instead.
       bounds = { x: -metrics.actualBoundingBoxLeft, y: -metrics.actualBoundingBoxAscent,
         width: metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight,
         height: metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent };
@@ -215,8 +198,6 @@ export default function GlyphPortal({
       const cy = center.y + ((target?.y ?? center.y) - center.y) * blend;
       const roll = -4 * smooth(0.06, 0.5, t) * (1 - smooth(0.62, 0.92, t));
       const transform = `translate(${W / 2} ${H * 0.46 + H * 0.04 * eased}) scale(${scale}) rotate(${roll}) translate(${-cx} ${-cy})`;
-      // Keep scale on the clip to avoid text paint limits. Text-local translation
-      // follows page zoom in WebKit; translation on an HTML clip reference does not.
       const radians = roll * Math.PI / 180;
       const dx = W / 2 / scale, dy = (H * .46 + H * .04 * eased) / scale;
       clip.setAttribute("transform", `scale(${scale}) rotate(${roll})`);
@@ -226,7 +207,6 @@ export default function GlyphPortal({
       choosing = interactive && !isStatic && p < .04;
       choices.inert = !choosing;
       section.dataset.gpChoosing = String(choosing);
-      // Drop the clip only after the camera has already filled the viewport with ink.
       field.style.clipPath = t >= 1 ? "none" : `url(#${clipId})`;
       section.style.setProperty("--gp-caption", String(1 - smooth(0.01, 0.16, p)));
       section.style.setProperty("--gp-reveal", String(isStatic ? 1 : smooth(0.6, 0.72, p)));
@@ -240,7 +220,6 @@ export default function GlyphPortal({
     const layout = () => {
       if (!section.clientWidth) return;
       W = pin.clientWidth;
-      // A 100svh probe keeps browser chrome from continually changing the scroll distance.
       const smallViewport = section.querySelector<HTMLElement>("[data-gp-viewport]")!.offsetHeight;
       const viewportHeight = Math.max(1, Math.min(root?.clientHeight ?? smallViewport, smallViewport));
       H = motion.matches ? Math.min(viewportHeight * 0.75, 480) : viewportHeight;
@@ -251,7 +230,6 @@ export default function GlyphPortal({
       if (!ready) return;
       const wordHeight = hasFront && H < 480 ? Math.min(H * .38, Math.max(24, H - 264)) : H * .38;
       startScale = Math.min(W * 0.84 / bounds.width, wordHeight / bounds.height);
-      // The whole viewport fits inside measured ink, even with the small camera bank.
       select(target);
       for (const button of buttons) {
         const letter = letters.find((item) => item.index === Number(button.dataset.gpLetter))!;
@@ -320,8 +298,6 @@ export default function GlyphPortal({
     window.visualViewport?.addEventListener("resize", resize);
     motion.addEventListener("change", resize);
     frame();
-    // WebKit can withhold frames, timers and scroll events behind an initial hung font.
-    // Begin in reading flow. Enable motion only when the browser starts rendering promptly.
     schedule();
     return () => {
       disposed = true;
@@ -386,7 +362,7 @@ export default function GlyphPortal({
         @media(prefers-reduced-motion:reduce){${q} [data-gp-pin]{position:relative!important;} ${q} [data-gp-content]{margin-top:0!important;opacity:1!important;background:var(--gp-field)!important;min-height:0;padding-block:64px;} ${q} [data-gp-caption]{opacity:1!important;}}
         @media(prefers-reduced-motion:reduce){${q} [data-gp-hint]{display:none;}}
       `}</style>
-      {/* JS reveals only measured geometry. The unmeasured poster is reserved for no-JS. */}
+      {}
       <noscript><style>{`${q} [data-gp-fallback]{display:grid}${q} [data-gp-hint]{display:none}`}</style></noscript>
       <div data-gp-viewport aria-hidden="true" />
       <div data-gp-pin>

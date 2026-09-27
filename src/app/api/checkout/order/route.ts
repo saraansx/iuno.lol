@@ -5,9 +5,6 @@ import { getUserById } from "@/lib/features/users/db";
 import { PREMIUM_PLAN, PROVIDER, isAllowedMethod, type Currency } from "@/lib/payments/plans";
 import { createRazorpayOrder, getRazorpayKeyId, razorpayConfigured } from "@/lib/payments/razorpay";
 
-// Creates a Razorpay order for the Premium (lifetime) purchase. The amount is
-// always derived server-side from PREMIUM_PLAN — the client only tells us which
-// currency it wants, never the price.
 const bodySchema = z.object({
   currency: z.enum(["USD", "INR"]),
   method: z.string().max(32).optional(),
@@ -32,8 +29,6 @@ export async function POST(request: NextRequest) {
   }
   const currency = parsed.data.currency as Currency;
   const { method } = parsed.data;
-  // Everything is charged through Razorpay now (USD uses Razorpay's
-  // international checkout). This guard stays as defence-in-depth.
   if (PROVIDER[currency] !== "razorpay") {
     return NextResponse.json({ error: "Unsupported currency for this gateway." }, { status: 400 });
   }

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 const DIAMOND_PATH =
   "M396.31 32H264l84.19 112.26L396.31 32Zm-280.62 0 48.12 112.26L248 32H115.69ZM256 74.67 192 160h128l-64-85.33Zm166.95-23.61L376.26 160H488L422.95 51.06Zm-333.9 0L23 160h112.74L89.05 51.06ZM146.68 192H24l222.8 288h.53L146.68 192Zm218.64 0L264.67 480h.53L488 192H365.32Zm-35.93 0H182.61L256 400l73.39-208Z";
 
-/** Bottom-of-page premium upsell card (shown to non-premium users). */
 export default function PremiumUpsellCard({
   description = "Take your profile to the next level. Unlock all fonts, styles and effects with premium.",
 }: {

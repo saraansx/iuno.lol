@@ -4,18 +4,12 @@ import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import { startOfDay, subDays, format, isSameDay } from "date-fns";
 
-// ---------------------------------------------------------------------------
-// Real per-user data from /api/image-host/stats — every stat and chart below
-// is derived from the fetched payload. byKind currently only ever contains
-// "image" and "video" (the kinds the upload route records); the extra
-// FILE_TYPE_META entries are kept so new kinds render without a code change.
-// ---------------------------------------------------------------------------
 interface RecentFile {
   url: string;
   name: string;
   size: number;
   kind: string;
-  createdAt: number; // epoch ms
+  createdAt: number;
 }
 
 interface ImageHostStats {
@@ -23,7 +17,7 @@ interface ImageHostStats {
   storageUsedBytes: number;
   favorites: number;
   byKind: { kind: string; count: number }[];
-  recent: number[]; // upload timestamps (epoch ms) within the last 30 days
+  recent: number[];
   recentFiles: RecentFile[];
   quotaBytes: number;
 }
@@ -40,8 +34,6 @@ function fileTypeMeta(kind: string) {
   return FILE_TYPE_META[kind] ?? FILE_TYPE_META.other;
 }
 
-// Uploads chart range options. Totals/stats stay all-time; only this chart
-// window is adjustable. The widest window (30d) matches the `recent` payload.
 type RangeKey = "24h" | "7d" | "14d" | "30d";
 
 const RANGES: { key: RangeKey; label: string }[] = [
@@ -67,7 +59,6 @@ function formatBytes(bytes: number): string {
   return `${rounded} ${units[i]}`;
 }
 
-// Compact relative time ("2h ago") for the recent-uploads list.
 function timeAgo(ms: number): string {
   const s = Math.floor((Date.now() - ms) / 1000);
   if (s < 60) return `${Math.max(s, 0)}s ago`;
@@ -87,7 +78,6 @@ function buildSeries(timestamps: number[], range: RangeKey) {
   const dates = timestamps.map((t) => new Date(t));
   const points: { label: string; count: number }[] = [];
   if (range === "24h") {
-    // Hourly buckets across the last 24 hours.
     for (let i = 23; i >= 0; i--) {
       const start = new Date(now.getTime() - i * 60 * 60 * 1000);
       start.setMinutes(0, 0, 0);
@@ -95,7 +85,6 @@ function buildSeries(timestamps: number[], range: RangeKey) {
       points.push({ label: format(start, "ha"), count: dates.filter((d) => d >= start && d < end).length });
     }
   } else {
-    // Daily buckets across the selected number of days.
     const days = range === "7d" ? 7 : range === "14d" ? 14 : 30;
     for (let i = days - 1; i >= 0; i--) {
       const bucket = startOfDay(subDays(now, i));
@@ -166,7 +155,6 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
 
   const data = useMemo(() => buildSeries(timestamps, range), [timestamps, range]);
   const maxCount = useMemo(() => Math.max(...data.map((d) => d.count), 1), [data]);
-  // Thin the x-axis labels so wide ranges (14d/30d/24h) don't overcrowd.
   const tickInterval = data.length > 10 ? Math.floor(data.length / 6) : 0;
   const yTicks = useMemo(() => {
     if (maxCount <= 4) return Array.from({ length: maxCount + 1 }, (_, i) => i);

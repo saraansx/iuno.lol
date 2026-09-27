@@ -305,7 +305,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
 
   return (
     <div className="relative w-full rounded-2xl bg-[#101010] border border-white/10 overflow-hidden">
-      {/* dynamic blurred artwork bg — changes with the song */}
+      {}
       {artBg && track.artwork ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={track.id} src={track.artwork} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-60" />

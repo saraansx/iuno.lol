@@ -7,9 +7,6 @@ import { detectImageOrVideo, detectAudio } from "@/lib/media-signature";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
-// Video uploads proxy through us to Catbox + verify, so allow extra time.
-// Otherwise the function can be killed while the file is already stored,
-// leaving the client stuck on "Uploading..." for a file that exists.
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
@@ -87,7 +84,6 @@ export async function POST(req: Request) {
       catboxRes = await fetch(CATBOX_API, {
         method: "POST",
         body: catboxForm,
-        // Don't hang forever if Catbox is slow — client XHR has a 120s timeout.
         signal: AbortSignal.timeout(55000),
       });
       body = (await catboxRes.text()).trim();
@@ -100,9 +96,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
     }
 
-    // Catbox CDN can take a moment to serve a just-uploaded file. Retry the
-    // range check a few times before declaring the upload corrupted —
-    // otherwise the client sees a failure for a file that is already there.
     let verified = false;
     let lastVerifyStatus = -1;
     for (let attempt = 0; attempt < 3 && !verified; attempt++) {

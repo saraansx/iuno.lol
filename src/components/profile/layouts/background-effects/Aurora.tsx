@@ -154,11 +154,8 @@ export function AuroraEffect({
 }: {
   intensity?: number;
   color?: string;
-  /** Three explicit gradient stops (aurora preset settings). Falls back to `color` when incomplete. */
   colors?: AuroraColors;
-  /** 0–3 animation speed multiplier. Falls back to intensity-derived speed when unset. */
   speed?: number | null;
-  /** 0–1 edge softness. Falls back to 0.5 when unset. */
   blend?: number | null;
 }) {
   const ctnDom = useRef<HTMLDivElement>(null);

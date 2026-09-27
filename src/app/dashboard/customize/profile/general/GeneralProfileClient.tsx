@@ -57,12 +57,10 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
   const setBannerImageUrl = (val: string) => updateOverrides({ bannerImageUrl: val === initialBannerImageUrl ? undefined : val });
   const bannerBlend = overrides.bannerBlend !== undefined ? Boolean(overrides.bannerBlend) : Boolean(initialBannerBlend);
   const setBannerBlend = (val: boolean) => updateOverrides({ bannerBlend: val === initialBannerBlend ? undefined : val });
-  // Page-background playlist (max 5), local state synced from server on refresh.
   const [bgUrls, setBgUrls] = useState<string[]>(backgrounds);
   const [bgSelected, setBgSelected] = useState(0);
   const [pendingBgIndex, setPendingBgIndex] = useState<number | null>(null);
   const [prevBackgrounds, setPrevBackgrounds] = useState<string[]>(backgrounds);
-  // Sync from server after save/refresh.
   if (JSON.stringify(prevBackgrounds) !== JSON.stringify(backgrounds)) {
     setPrevBackgrounds(backgrounds);
     setBgUrls(backgrounds);

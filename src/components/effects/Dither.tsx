@@ -171,9 +171,6 @@ export interface DitherProps {
   mouseRadius?: number;
 }
 
-// Plain three.js version (no @react-three/fiber): fiber constructs a
-// THREE.Clock internally, which logs a deprecation warning on three >= r183.
-// This uses THREE.Timer instead — same pattern as ColorBends.
 export default function Dither({
   waveSpeed = 0.05,
   waveFrequency = 3,

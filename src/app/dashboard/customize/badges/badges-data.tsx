@@ -1,7 +1,5 @@
-// Shared badge definitions (imported by both the server page and the client tabs).
 import type { ReactNode } from "react";
 
-// Only the first 100 registered users (by id) can earn the Early badge.
 export const EARLY_CUTOFF_UID = 100;
 
 export const BADGES = [
@@ -219,8 +217,6 @@ export interface LevelStage {
   icon: ReactNode;
 }
 
-// Discord activity level milestones. Displayed as one milestone card
-// (not part of the BADGES grid). Unlocked via Sync / nightly cron.
 export const LEVELS: LevelStage[] = [
   {
     id: "level-10",
@@ -334,9 +330,6 @@ export interface ViewMilestone {
   icon: ReactNode;
 }
 
-// Profile view milestones. Displayed as one milestone card next to Levels
-// (not part of the BADGES grid). Auto-unlocked when profile views reach
-// the milestone — views only grow, so these are never revoked.
 export const VIEW_MILESTONES: ViewMilestone[] = [
   {
     id: "views-100",
@@ -439,9 +432,6 @@ export interface LikeMilestone {
   icon: ReactNode;
 }
 
-// Profile like milestones. Displayed as one milestone card next to Levels
-// and Views (not part of the BADGES grid). Auto-unlocked when profile likes
-// reach the milestone — likes only grow, so these are never revoked.
 export const LIKE_MILESTONES: LikeMilestone[] = [
   {
     id: "likes-10",

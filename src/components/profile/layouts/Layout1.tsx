@@ -292,7 +292,6 @@ interface Layout1Props {
   widgetSecondaryLetterSpacing?: number | null;
   wrapInCard?: boolean;
   contentWidth?: number;
-  /** Dashboard preview: force the card to fit a narrow panel instead of the 480px floor. */
   forceCardWidth?: number;
   profilePreset?: string;
   profileStructure?: string;
@@ -713,10 +712,6 @@ const Layout1 = ({
   const bgVideoRef = useRef<HTMLVideoElement>(null);
   const [entered, setEntered] = useState(!enterScreenEnabled);
 
-  // Single-background playlist: one shows at a time. Shuffle picks a random
-  // one on load; a video hands over to the next video in line (cyclically),
-  // otherwise it loops. Images/presets stay put. bgPreviewUrl locks the
-  // dashboard preview to the selected background.
   const locked = bgPreviewUrl !== undefined && bgPreviewUrl !== null;
   const [bgIdx, setBgIdx] = useState<number>(() => {
     if (!backgrounds || backgrounds.length === 0) return 0;
@@ -1187,7 +1182,6 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
             fontWeight: bioFontWeight,
             letterSpacing: `${bioLetterSpacing}px`,
             color: bioColor ?? "#FFFFFF",
-            // Smooth glow directly on text (no hard edge): all layers blurred.
             textShadow: textGlowShadow(bioColor ?? "#FFFFFF", descriptionGlowEnabled),
             overflow: "visible",
           }}

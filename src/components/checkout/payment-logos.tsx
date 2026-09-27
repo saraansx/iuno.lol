@@ -1,20 +1,9 @@
-// Payment brand logos — inlined SVG so no extra image domain / CSP entry is needed.
-// Sources (public domain shapes, via Wikimedia Commons):
-// - Razorpay: File:Razorpay_logo.svg
-// - Visa: File:Visa_Inc._logo_(2005–2014).svg
-// - Mastercard: File:Mastercard-logo.svg (circles mark)
-//
-// The checkout UI is dark, so logos render in their "onDark" treatment by
-// default: white wordmarks + full-color accent marks. No white pills — brand
-// colors stay visible directly on the dark card.
 
 interface LogoProps {
   className?: string;
-  /** "onDark" (default) renders wordmarks in white for dark backgrounds. */
   variant?: "onDark" | "color";
 }
 
-/** Razorpay wordmark. On dark, navy text becomes white; blue accent is kept. */
 export function RazorpayLogo({ className = "", variant = "onDark" }: LogoProps) {
   const wordmark = variant === "onDark" ? "#FFFFFF" : "#072654";
   return (
@@ -69,7 +58,6 @@ export function RazorpayLogo({ className = "", variant = "onDark" }: LogoProps) 
   );
 }
 
-/** Visa wordmark. On dark it renders all-white (standard dark-bg treatment). */
 export function VisaLogo({ className = "", variant = "onDark" }: LogoProps) {
   const main = variant === "onDark" ? "#FFFFFF" : "#00579F";
   const accent = variant === "onDark" ? "#FFFFFF" : "#FAA61A";
@@ -98,7 +86,6 @@ export function VisaLogo({ className = "", variant = "onDark" }: LogoProps) {
   );
 }
 
-/** Mastercard interlocking-circles mark — full color, pops on dark as-is. */
 export function MastercardMark({ className = "" }: Omit<LogoProps, "variant">) {
   return (
     <svg viewBox="0 0 36 22" role="img" aria-label="Mastercard" className={className} xmlns="http://www.w3.org/2000/svg">
@@ -109,7 +96,6 @@ export function MastercardMark({ className = "" }: Omit<LogoProps, "variant">) {
   );
 }
 
-/** Combined Visa + Mastercard lockup for the "Card" option. No background — dark-native. */
 export function CardBrandLogos({ className = "" }: Omit<LogoProps, "variant">) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`} role="img" aria-label="Visa and Mastercard">

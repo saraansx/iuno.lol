@@ -67,7 +67,6 @@ export function GlowTrail({ color = "#ffffff" }: { color?: string }) {
         const dist = Math.hypot(dx, dy);
 
         if (dist > 3) {
-          // interpolate along path for a smooth continuous ribbon of glow
           const steps = Math.min(6, Math.max(1, Math.floor(dist / 5)));
           for (let i = 1; i <= steps; i++) {
             const t = i / steps;
@@ -130,7 +129,6 @@ export function GlowTrail({ color = "#ffffff" }: { color?: string }) {
         }
       }
 
-      // hot core at cursor
       if (mouseX > -999) {
         const rgb = rgbColorRef.current;
         const coreR = 10 + 3 * Math.sin(time * 0.15);

@@ -1,5 +1,3 @@
-// Minimal Discord Bot REST helpers (no gateway needed).
-// Used for granting the recruiter role; invite tracking lives in the bot.
 
 const API = "https://discord.com/api/v10";
 

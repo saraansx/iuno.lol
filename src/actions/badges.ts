@@ -41,8 +41,6 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
-  // View + like milestones unlock purely from profile stats — grant any
-  // reached ones (stats only grow, so grants are never revoked).
   const user = await getUserById(userId);
   const totalViews = user?.views ?? 0;
   const reachedViews = VIEW_MILESTONES.filter((m) => totalViews >= m.views).map((m) => m.id);
@@ -57,7 +55,6 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
     .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
 
   const ownedSet = new Set(rows.map((r) => r.badgeId));
-  // Premium badge lives and dies with premium status — strip it when expired.
   if (!isPremiumActive(user) && ownedSet.has("premium")) {
     await db
       .delete(schema.userBadges)
@@ -265,8 +262,6 @@ export async function syncDiscordBadges(): Promise<{
       signal: AbortSignal.timeout(10000),
     });
     if (res.status === 404 || res.status === 400) {
-      // Not in the guild, or the linked Discord ID is stale/invalid (app
-      // disconnected) — nothing verifiable, so role badges get stripped below.
       roles = [];
     } else if (!res.ok) {
       throw new Error(`Discord API error (${res.status})`);
@@ -282,8 +277,6 @@ export async function syncDiscordBadges(): Promise<{
   const added: string[] = [];
   const removed: string[] = [];
 
-  // Premium members get the Discord premium role granted by the bot on sync,
-  // which then unlocks the premium badge through the normal role mapping below.
   const premiumRoleId = BADGE_ROLE_MAP["premium"];
   const premium = isPremiumActive(user);
   if (premium && premiumRoleId && !roles.includes(premiumRoleId)) {
@@ -299,9 +292,7 @@ export async function syncDiscordBadges(): Promise<{
       if (put.ok) {
         roles.push(premiumRoleId);
       }
-      // Non-ok (e.g. 404 = not in the guild): badge simply won't be granted below.
     } catch {
-      // network failure: badge simply won't be granted below.
     }
   }
 
@@ -315,8 +306,6 @@ export async function syncDiscordBadges(): Promise<{
       .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)))
       .limit(1);
 
-    // Premium badge follows premium status, not just the role: non-premium
-    // users lose the badge AND the role on the server.
     if (badgeId === "premium" && !premium) {
       if (existing.length > 0) {
         await db
@@ -331,7 +320,6 @@ export async function syncDiscordBadges(): Promise<{
           signal: AbortSignal.timeout(8000),
         });
       } catch {
-        // best-effort
       }
       continue;
     }
@@ -377,8 +365,6 @@ export async function syncDiscordBadges(): Promise<{
     removed.push("early");
   }
 
-  // Discord Recruiter: poll personal invite uses, grant at threshold.
-  // Never fails the whole sync — the modal refresh surfaces errors instead.
   try {
     const before = await db
       .select({ id: schema.userBadges.id })
@@ -388,7 +374,6 @@ export async function syncDiscordBadges(): Promise<{
     const state = await refreshRecruiter(userId, discordId);
     if (state.granted && before.length === 0) added.push(RECRUITER_BADGE_ID);
   } catch {
-    // ignore — covered by nightly cron + manual refresh
   }
 
   await revalidateOwnProfile(userId);

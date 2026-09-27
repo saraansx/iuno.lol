@@ -9,7 +9,6 @@ interface SectionVisibilityButtonProps {
   name: string;
   field: "aboutSectionEnabled" | "widgetsSectionEnabled" | "linksSectionEnabled";
   hidden: boolean;
-  /** Staged mode: call instead of saving immediately. */
   onToggle?: () => void;
 }
 
