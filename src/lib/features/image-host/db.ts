@@ -1,6 +1,6 @@
 import { db, schema } from '@/lib/db'
 import { and, desc, eq, gte, inArray, sql, count } from 'drizzle-orm'
-import { storedFileId } from '@/lib/cdn'
+import { imageHostFileId } from '@/lib/cdn'
 import type { ImageHostKind } from '@/lib/image-host'
 
 export interface RecordImageHostFileInput {
@@ -215,7 +215,7 @@ export async function deleteImageHostFiles(
     const referenced = new Set(stillReferenced.map((r) => r.url))
     const orphanedFileIds = urls
       .filter((u) => !referenced.has(u))
-      .map((u) => storedFileId(u))
+      .map((u) => imageHostFileId(u))
       .filter((id): id is string => id !== null)
 
     const [usedRow] = await tx

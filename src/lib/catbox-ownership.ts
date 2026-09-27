@@ -1,6 +1,7 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { storedFileId, isStoredMediaUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
+import { purgeCloudflareFiles } from "@/lib/cloudflare";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
@@ -63,4 +64,6 @@ export async function deleteOwnedCatboxFiles(
   await db
     .delete(schema.uploadedFiles)
     .where(and(eq(schema.uploadedFiles.userId, userId), inArray(schema.uploadedFiles.url, fullUrls)));
+
+  await purgeCloudflareFiles(ownedIds.map((f) => `${CDN_BASE}${f}`));
 }

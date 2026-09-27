@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { PREMIUM_PLAN } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, PREMIUM, premiumFieldsForGrant } from "@/lib/payments/plans";
 import { verifyPolarWebhook, polarProductIds } from "@/lib/payments/polar";
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
       const processed = await processPaymentEventOnce(
         { provider: "polar", eventId, userId },
         async (tx) => {
-          await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
+          await tx.update(schema.users).set(premiumFieldsForGrant(PREMIUM.grant)).where(eq(schema.users.id, userId));
         },
       );
       if (!processed) {

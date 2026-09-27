@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { imageHostUploadRateLimit } from "@/lib/rate-limit";
 import { detectImageOrVideo } from "@/lib/media-signature";
-import { toCdnUrl } from "@/lib/cdn";
+import { toImageHostUrl } from "@/lib/cdn";
 import {
   IMAGE_HOST_MAX_FILE_BYTES,
   IMAGE_HOST_MAX_FILE_MB,
@@ -129,7 +129,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }
 
-    const url = toCdnUrl(body);
+    const url = toImageHostUrl(body);
     await recordImageHostFile({ userId, url, name: sanitizeName(file.name), size: file.size, kind, mime: detected.mime });
     const usedBytes = await getImageHostUsedBytes(userId);
 

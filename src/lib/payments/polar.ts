@@ -1,6 +1,6 @@
 
 import crypto from "crypto";
-import type { Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN_TAG, type Currency } from "@/lib/payments/plans";
 
 const PRODUCTION_API = "https://api.polar.sh";
 const SANDBOX_API = "https://sandbox-api.polar.sh";
@@ -60,7 +60,7 @@ export async function createPolarCheckout(params: {
       external_customer_id: String(params.userId),
       ...(params.customerEmail ? { customer_email: params.customerEmail } : {}),
       ...(params.customerIp ? { customer_ip_address: params.customerIp } : {}),
-      metadata: { userId: String(params.userId), plan: "premium_lifetime" },
+      metadata: { userId: String(params.userId), plan: PREMIUM_PLAN_TAG },
     }),
   });
 

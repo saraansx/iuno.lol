@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";
+import { purgeCloudflareFiles } from "@/lib/cloudflare";
+import { IMAGE_HOST_BASE } from "@/lib/cdn";
 import {
   listImageHostFiles,
   setImageHostFavorite,
@@ -101,6 +103,10 @@ export async function DELETE(req: Request) {
       } catch (e) {
         console.error("[image-host] Catbox delete error:", e);
       }
+    }
+
+    if (orphanedFileIds.length > 0) {
+      await purgeCloudflareFiles(orphanedFileIds.map((id) => `${IMAGE_HOST_BASE}${id}`));
     }
 
     return NextResponse.json({ deletedIds, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });

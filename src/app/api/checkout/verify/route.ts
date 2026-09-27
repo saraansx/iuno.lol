@@ -3,7 +3,7 @@ import * as z from "zod";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { PREMIUM_PLAN, isCurrency, type Currency } from "@/lib/payments/plans";
+import { getPlan, premiumFieldsForGrant, isCurrency, type Currency } from "@/lib/payments/plans";
 import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razorpay";
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
@@ -43,11 +43,19 @@ export async function POST(request: NextRequest) {
   }
 
   const order = await fetchRazorpayOrder(orderId);
-  if (!order || order.notes?.userId !== String(userId)) {
+  const plan = getPlan(order?.notes?.plan);
+  if (
+    !order ||
+    order.notes?.userId !== String(userId) ||
+    !plan
+  ) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
   const currency = order.currency;
-  if (!isCurrency(currency) || order.amount !== PREMIUM_PLAN[currency as Currency].amount) {
+  if (!isCurrency(currency) || order.amount !== plan.prices[currency as Currency].amount) {
+    return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
+  }
+  if (order.status !== "paid") {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
 
@@ -55,7 +63,7 @@ export async function POST(request: NextRequest) {
     const processed = await processPaymentEventOnce(
       { provider: "razorpay", eventId: paymentId, userId },
       async (tx) => {
-        await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
+        await tx.update(schema.users).set(premiumFieldsForGrant(plan.grant)).where(eq(schema.users.id, userId));
       },
     );
 
@@ -81,7 +89,7 @@ export async function POST(request: NextRequest) {
       userId,
       username: row?.username,
       email: row?.email,
-      amount: `${PREMIUM_PLAN[currency as Currency].symbol}${PREMIUM_PLAN[currency as Currency].display}`,
+      amount: `${plan.prices[currency as Currency].symbol}${plan.prices[currency as Currency].display}`,
       currency,
     });
   } catch (err) {

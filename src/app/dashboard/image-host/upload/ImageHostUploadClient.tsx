@@ -17,6 +17,9 @@ interface UploadItem {
   kind: MediaKind;
   progress: number;
   status: UploadStatus;
+  loaded: number;
+  speed: number;
+  eta: number | null;
   error?: string;
 }
 
@@ -29,6 +32,23 @@ function formatSize(bytes: number): string {
   return `${value.toFixed(decimals)} ${units[i]}`;
 }
 
+function formatSpeed(bytesPerSec: number): string {
+  if (!isFinite(bytesPerSec) || bytesPerSec <= 0) return "—";
+  const units = ["B/s", "KB/s", "MB/s", "GB/s"];
+  const i = Math.min(Math.floor(Math.log(bytesPerSec) / Math.log(1024)), units.length - 1);
+  const value = bytesPerSec / Math.pow(1024, i);
+  return `${value.toFixed(i >= 2 ? 1 : 0)} ${units[i]}`;
+}
+
+function formatEta(seconds: number | null): string {
+  if (seconds == null || !isFinite(seconds) || seconds < 0) return "";
+  if (seconds < 1) return "<1s left";
+  if (seconds < 60) return `${Math.round(seconds)}s left`;
+  const m = Math.floor(seconds / 60);
+  const s = Math.round(seconds % 60);
+  return `${m}m ${s}s left`;
+}
+
 function UploadTrayIcon() {
   return (
     <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -37,7 +57,7 @@ function UploadTrayIcon() {
   );
 }
 
-function RowIcon({ kind, status }: { kind: MediaKind; status: UploadStatus }) {
+function RowIcon({ status }: { status: UploadStatus }) {
   if (status === "error") {
     return (
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -45,24 +65,31 @@ function RowIcon({ kind, status }: { kind: MediaKind; status: UploadStatus }) {
       </svg>
     );
   }
-  if (kind === "video") {
-    return (
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m22 8-6 4 6 4V8Z" /><rect width="14" height="12" x="2" y="6" rx="2" ry="2" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-    </svg>
-  );
+  if (status === "done") return <CheckIcon />;
+  return <Spinner />;
 }
 
 function CloseIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
+function Spinner() {
+  return (
+    <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.2" strokeWidth="2.5" />
+      <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20 6 9 17l-5-5" />
     </svg>
   );
 }
@@ -104,10 +131,28 @@ export default function ImageHostUploadClient() {
     xhr.open("POST", "/api/image-host/upload");
     xhr.timeout = 120_000;
 
+    let lastTime = 0;
+    let lastLoaded = 0;
+    let ema = 0;
+
     xhr.upload.onprogress = (e) => {
       if (!e.lengthComputable) return;
+      const now = performance.now();
+      if (lastTime === 0) {
+        lastTime = now;
+        lastLoaded = e.loaded;
+      } else {
+        const dt = (now - lastTime) / 1000;
+        if (dt >= 0.05) {
+          const instant = (e.loaded - lastLoaded) / dt;
+          ema = ema === 0 ? instant : ema * 0.75 + instant * 0.25;
+          lastTime = now;
+          lastLoaded = e.loaded;
+        }
+      }
       const pct = Math.min(99, Math.round((e.loaded / e.total) * 100));
-      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: pct } : it)));
+      const eta = ema > 0 ? (e.total - e.loaded) / ema : null;
+      setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: pct, loaded: e.loaded, speed: ema, eta } : it)));
     };
 
     const fail = (message: string) => {
@@ -120,7 +165,7 @@ export default function ImageHostUploadClient() {
       let data: { usedBytes?: number; error?: string } = {};
       try { data = JSON.parse(xhr.responseText); } catch {}
       if (xhr.status >= 200 && xhr.status < 300) {
-        setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: 100, status: "done" } : it)));
+        setItems((prev) => prev.map((it) => (it.id === id ? { ...it, progress: 100, status: "done", speed: 0, eta: null } : it)));
         if (typeof data.usedBytes === "number") setUsedBytes(data.usedBytes);
       } else {
         setItems((prev) =>
@@ -151,12 +196,12 @@ export default function ImageHostUploadClient() {
       const isVideo = f.type.startsWith("video/");
       const kind: MediaKind = isVideo ? "video" : "image";
       if (!isImage && !isVideo) {
-        return { id, name: f.name, size: f.size, kind, progress: 0, status: "error", error: "Only images and videos are allowed" };
+        return { id, name: f.name, size: f.size, kind, progress: 0, loaded: 0, speed: 0, eta: null, status: "error", error: "Only images and videos are allowed" };
       }
       if (f.size > MAX_FILE_BYTES) {
-        return { id, name: f.name, size: f.size, kind, progress: 0, status: "error", error: `File exceeds the ${MAX_FILE_MB} MB limit` };
+        return { id, name: f.name, size: f.size, kind, progress: 0, loaded: 0, speed: 0, eta: null, status: "error", error: `File exceeds the ${MAX_FILE_MB} MB limit` };
       }
-      return { id, name: f.name, size: f.size, kind, progress: 0, status: "uploading" };
+      return { id, name: f.name, size: f.size, kind, progress: 0, loaded: 0, speed: 0, eta: null, status: "uploading" };
     });
     setItems((prev) => [...newItems, ...prev]);
     newItems.forEach((it, i) => {
@@ -236,20 +281,37 @@ export default function ImageHostUploadClient() {
           <div className="mt-5 flex flex-col gap-3">
             {items.map((it) => (
               <div key={it.id} className="flex items-center gap-4 rounded-xl border border-white/5 bg-[#111111] px-4 py-3.5">
-                <span className={`shrink-0 ${it.status === "error" ? "text-red-400/70" : "text-white/40"}`}>
-                  <RowIcon kind={it.kind} status={it.status} />
+                <span
+                  className={`shrink-0 ${it.status === "error" ? "text-red-400/70" : "text-[#5b6cf5]"}`}
+                  aria-label={it.status === "error" ? "Failed" : it.status === "done" ? "Uploaded" : "Uploading"}
+                >
+                  <RowIcon status={it.status} />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-medium text-white/90">{it.name}</p>
                   {it.status === "error" ? (
                     <p className="mt-1 text-[11px] text-red-400/70">{it.error}</p>
                   ) : (
-                    <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-[#5b6cf5] to-[#7c8bff] shadow-[0_0_10px_rgba(91,108,245,0.5)] transition-all duration-200"
-                        style={{ width: `${it.progress}%` }}
-                      />
-                    </div>
+                    <>
+                      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-[#5b6cf5] to-[#7c8bff] shadow-[0_0_10px_rgba(91,108,245,0.5)] transition-all duration-200"
+                          style={{ width: `${it.progress}%` }}
+                        />
+                      </div>
+                      <div className="mt-1.5 flex items-center justify-between text-[11px] tabular-nums text-white/30">
+                        <span>
+                          {it.status === "uploading"
+                            ? `${formatSize(it.loaded)} / ${formatSize(it.size)}`
+                            : formatSize(it.size)}
+                        </span>
+                        <span className={it.status === "done" ? "text-[#5b6cf5]/80" : undefined}>
+                          {it.status === "uploading"
+                            ? [formatSpeed(it.speed), formatEta(it.eta)].filter(Boolean).join(" · ")
+                            : "Uploaded"}
+                        </span>
+                      </div>
+                    </>
                   )}
                 </div>
                 <span className="w-12 shrink-0 text-right text-[12px] tabular-nums text-white/40">

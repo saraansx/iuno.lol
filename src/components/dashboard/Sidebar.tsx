@@ -404,6 +404,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
           subItems: [
             { label: "Overview", href: "/dashboard/image-host/overview" },
             { label: "Upload", href: "/dashboard/image-host/upload" },
+            { label: "Gallery", href: "/dashboard/image-host/gallery" },
           ]
         },
       ]

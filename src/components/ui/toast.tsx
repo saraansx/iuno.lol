@@ -55,7 +55,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "pointer-events-auto flex items-center justify-between gap-2.5 pl-3.5 pr-2.5 py-2.5 rounded-xl bg-[#0c0c0c]/95 backdrop-blur-xl border border-white/[0.08] text-white w-[340px] max-w-[90vw] select-none shadow-[0_12px_40px_rgba(0,0,0,0.55)]",
+        "pointer-events-auto flex items-center justify-between gap-2.5 pl-3.5 pr-2.5 py-2.5 rounded-xl bg-[#161616]/95 backdrop-blur-xl border border-white/[0.08] text-white w-[340px] max-w-[90vw] select-none shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
         className
       )}
       {...props}

@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "host.iuno.lol",
+      },
+      {
+        protocol: "https",
         hostname: "cdn.iuno.lol",
       },
       {
