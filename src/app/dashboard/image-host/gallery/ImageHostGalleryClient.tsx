@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
+import { imageHostFileId } from "@/lib/cdn";
 
 type FilterKey = "all" | "image" | "video" | "favorite";
 
@@ -38,6 +39,17 @@ function formatBytes(bytes: number): string {
   const value = bytes / Math.pow(1024, i);
   const rounded = value >= 100 || i === 0 ? Math.round(value) : Math.round(value * 10) / 10;
   return `${rounded} ${units[i]}`;
+}
+
+function sharePath(file: GalleryFile): string {
+  const id = imageHostFileId(file.url);
+  return id ? `/f/${id}` : file.url;
+}
+
+function shareLink(file: GalleryFile): string {
+  const path = sharePath(file);
+  if (path.startsWith("/") && typeof window !== "undefined") return `${window.location.origin}${path}`;
+  return path;
 }
 
 function DotsIcon() {
@@ -117,6 +129,7 @@ export default function ImageHostGalleryClient() {
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number[] | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [viewer, setViewer] = useState<GalleryFile | null>(null);
 
   const filterRef = useRef<FilterKey>("all");
   filterRef.current = filter;
@@ -161,6 +174,7 @@ export default function ImageHostGalleryClient() {
       if (e.key === "Escape") {
         setMenuOpenId(null);
         setConfirmDelete(null);
+        setViewer(null);
       }
     };
     document.addEventListener("mousedown", onDown);
@@ -203,7 +217,7 @@ export default function ImageHostGalleryClient() {
   const copyLink = async (file: GalleryFile) => {
     setMenuOpenId(null);
     try {
-      await navigator.clipboard.writeText(file.url);
+      await navigator.clipboard.writeText(shareLink(file));
       toast.success("Link copied");
     } catch {
       toast.error("Couldn't copy link");
@@ -361,7 +375,7 @@ export default function ImageHostGalleryClient() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {files.map((f) => (
                 <FileCard key={f.id} file={f} selected={selected.has(f.id)} menuOpen={menuOpenId === f.id}
-                  onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink}
+                  onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink} onOpen={setViewer}
                   onToggleFavorite={toggleFavorite} onRequestDelete={setConfirmDelete} onCloseMenu={() => setMenuOpenId(null)} />
               ))}
             </div>
@@ -412,6 +426,9 @@ export default function ImageHostGalleryClient() {
           </div>
         </div>
       )}
+      <AnimatePresence>
+        {viewer && <Viewer file={viewer} onClose={() => setViewer(null)} />}
+      </AnimatePresence>
     </div>
   );
 }
@@ -426,6 +443,7 @@ function FileCard({
   onToggleFavorite,
   onRequestDelete,
   onCloseMenu,
+  onOpen,
 }: {
   file: GalleryFile;
   selected: boolean;
@@ -436,6 +454,7 @@ function FileCard({
   onToggleFavorite: (file: GalleryFile) => void;
   onRequestDelete: (ids: number[]) => void;
   onCloseMenu: () => void;
+  onOpen: (file: GalleryFile) => void;
 }) {
   return (
     <div
@@ -443,7 +462,19 @@ function FileCard({
         selected ? "border-[#5b6cf5]/60" : "border-white/5 hover:border-white/10"
       }`}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-white/5">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onOpen(file)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onOpen(file);
+          }
+        }}
+        aria-label={`Open ${file.name}`}
+        className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60"
+      >
         <Thumbnail file={file} />
         {file.favorite && (
           <div className="absolute bottom-2 left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#f5c451] backdrop-blur-sm">
@@ -484,7 +515,7 @@ function FileCard({
               className="absolute right-0 top-full mt-1.5 w-44 origin-top-right rounded-xl border border-white/10 bg-[#161616] p-1 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)]"
             >
               <a
-                href={file.url}
+                href={sharePath(file)}
                 target="_blank"
                 rel="noreferrer"
                 onClick={onCloseMenu}
@@ -524,6 +555,115 @@ function FileCard({
         </p>
       </div>
     </div>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" />
+    </svg>
+  );
+}
+
+function Viewer({ file, onClose }: { file: GalleryFile; onClose: () => void }) {
+  const isVideo = file.kind === "video";
+  const [downloading, setDownloading] = useState(false);
+
+  const download = async () => {
+    if (downloading) return;
+    setDownloading(true);
+    try {
+      const res = await fetch(file.url);
+      if (!res.ok) throw new Error("failed");
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = objectUrl;
+      a.download = file.name || "download";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch {
+      window.open(file.url, "_blank", "noopener,noreferrer");
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.16 }}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close"
+        className="absolute top-4 right-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white/80 backdrop-blur-sm hover:bg-white/20 hover:text-white transition-colors"
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 6 6 18" /><path d="m6 6 12 12" />
+        </svg>
+      </button>
+      <motion.div
+        initial={{ scale: 0.96, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.96, opacity: 0 }}
+        transition={{ duration: 0.18, ease: [0.23, 1, 0.32, 1] }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-4xl overflow-hidden rounded-[20px] border border-white/10 bg-[#0c0c0c] shadow-2xl"
+      >
+        <div className="flex items-center justify-center bg-black">
+          {isVideo ? (
+            <video src={file.url} controls autoPlay playsInline className="max-h-[74vh] w-full" />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={file.url} alt={file.name} className="max-h-[74vh] w-full object-contain" />
+          )}
+        </div>
+        <div className="flex items-center justify-between gap-4 border-t border-white/5 px-4 py-3">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-1.5">
+              <span className="truncate text-[14px] font-medium text-white/90">{file.name}</span>
+              <span className="shrink-0 text-[12px] text-white/40">({formatBytes(file.size)})</span>
+            </div>
+            <p className="mt-0.5 truncate text-[12px] text-white/40">
+              Uploaded {format(new Date(file.createdAt), "MMM d, yyyy, hh:mm a")}
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <a
+              href={sharePath(file)}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Open in new tab"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+            >
+              <ExternalLinkIcon />
+            </a>
+            <button
+              type="button"
+              onClick={download}
+              disabled={downloading}
+              aria-label="Download"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
+            >
+              {downloading ? (
+                <div className="h-3.5 w-3.5 rounded-full border-2 border-white/20 border-t-white/70 animate-spin" />
+              ) : (
+                <DownloadIcon />
+              )}
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 

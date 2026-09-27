@@ -1,6 +1,6 @@
 import { db, schema } from '@/lib/db'
 import { and, desc, eq, gte, inArray, sql, count } from 'drizzle-orm'
-import { imageHostFileId } from '@/lib/cdn'
+import { imageHostFileId, IMAGE_HOST_BASE, CATBOX_BASE } from '@/lib/cdn'
 import type { ImageHostKind } from '@/lib/image-host'
 
 export interface RecordImageHostFileInput {
@@ -9,7 +9,6 @@ export interface RecordImageHostFileInput {
   name: string
   size: number
   kind: ImageHostKind
-  mime: string
 }
 
 export async function recordImageHostFile(input: RecordImageHostFileInput): Promise<void> {
@@ -17,6 +16,14 @@ export async function recordImageHostFile(input: RecordImageHostFileInput): Prom
     .insert(schema.imageHostFiles)
     .values(input)
     .onDuplicateKeyUpdate({ set: { name: input.name } })
+  await db.insert(schema.imageHostActivity).values({
+    userId: input.userId,
+    action: 'upload',
+    kind: input.kind,
+    name: input.name,
+    size: input.size,
+    url: input.url,
+  })
 }
 
 export async function getImageHostUsedBytes(userId: number): Promise<number> {
@@ -27,20 +34,29 @@ export async function getImageHostUsedBytes(userId: number): Promise<number> {
   return Number(row?.used ?? 0)
 }
 
+export interface ImageHostActivityEntry {
+  action: 'upload' | 'delete'
+  kind: string
+  name: string
+  size: number
+  url: string | null
+  createdAt: number
+}
+
 export interface ImageHostStats {
   totalUploads: number
   storageUsedBytes: number
   favorites: number
   byKind: { kind: string; count: number }[]
   recent: number[]
-  recentFiles: { url: string; name: string; size: number; kind: string; createdAt: number }[]
 }
 
 export async function getImageHostStats(userId: number): Promise<ImageHostStats> {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
   const owned = eq(schema.imageHostFiles.userId, userId)
+  const ownedActivity = eq(schema.imageHostActivity.userId, userId)
 
-  const [totalsRows, byKindRows, recentRows, recentFileRows] = await Promise.all([
+  const [totalsRows, byKindRows, recentRows] = await Promise.all([
     db
       .select({
         total: count(),
@@ -55,21 +71,15 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
       .where(owned)
       .groupBy(schema.imageHostFiles.kind),
     db
-      .select({ createdAt: schema.imageHostFiles.createdAt })
-      .from(schema.imageHostFiles)
-      .where(and(owned, gte(schema.imageHostFiles.createdAt, thirtyDaysAgo))),
-    db
-      .select({
-        url: schema.imageHostFiles.url,
-        name: schema.imageHostFiles.name,
-        size: schema.imageHostFiles.size,
-        kind: schema.imageHostFiles.kind,
-        createdAt: schema.imageHostFiles.createdAt,
-      })
-      .from(schema.imageHostFiles)
-      .where(owned)
-      .orderBy(desc(schema.imageHostFiles.createdAt))
-      .limit(6),
+      .select({ createdAt: schema.imageHostActivity.createdAt })
+      .from(schema.imageHostActivity)
+      .where(
+        and(
+          ownedActivity,
+          eq(schema.imageHostActivity.action, 'upload'),
+          gte(schema.imageHostActivity.createdAt, thirtyDaysAgo),
+        ),
+      ),
   ])
 
   const totals = totalsRows[0]
@@ -79,13 +89,48 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
     favorites: Number(totals?.favorites ?? 0),
     byKind: byKindRows.map((r) => ({ kind: r.kind, count: Number(r.kindCount) })),
     recent: recentRows.map((r) => r.createdAt.getTime()),
-    recentFiles: recentFileRows.map((r) => ({
+  }
+}
+
+export interface ListImageHostActivityResult {
+  items: ImageHostActivityEntry[]
+  total: number
+}
+
+export async function listImageHostActivity(
+  userId: number,
+  { limit, offset }: { limit: number; offset: number },
+): Promise<ListImageHostActivityResult> {
+  const owned = eq(schema.imageHostActivity.userId, userId)
+
+  const [rows, totalRows] = await Promise.all([
+    db
+      .select({
+        action: schema.imageHostActivity.action,
+        url: schema.imageHostActivity.url,
+        name: schema.imageHostActivity.name,
+        size: schema.imageHostActivity.size,
+        kind: schema.imageHostActivity.kind,
+        createdAt: schema.imageHostActivity.createdAt,
+      })
+      .from(schema.imageHostActivity)
+      .where(owned)
+      .orderBy(desc(schema.imageHostActivity.createdAt), desc(schema.imageHostActivity.id))
+      .limit(limit)
+      .offset(offset),
+    db.select({ total: count() }).from(schema.imageHostActivity).where(owned),
+  ])
+
+  return {
+    items: rows.map((r) => ({
+      action: r.action,
       url: r.url,
       name: r.name,
       size: Number(r.size),
       kind: r.kind,
       createdAt: r.createdAt.getTime(),
     })),
+    total: Number(totalRows[0]?.total ?? 0),
   }
 }
 
@@ -171,6 +216,41 @@ export async function setImageHostFavorite(
   return ownedIds
 }
 
+export interface PublicImageHostFile {
+  url: string
+  name: string
+  size: number
+  kind: string
+  createdAt: number
+  ownerUsername: string
+}
+
+export async function getPublicImageHostFile(id: string): Promise<PublicImageHostFile | null> {
+  const candidates = [`${IMAGE_HOST_BASE}${id}`, `${CATBOX_BASE}${id}`]
+  const [row] = await db
+    .select({
+      url: schema.imageHostFiles.url,
+      name: schema.imageHostFiles.name,
+      size: schema.imageHostFiles.size,
+      kind: schema.imageHostFiles.kind,
+      createdAt: schema.imageHostFiles.createdAt,
+      ownerUsername: schema.users.username,
+    })
+    .from(schema.imageHostFiles)
+    .innerJoin(schema.users, eq(schema.users.id, schema.imageHostFiles.userId))
+    .where(inArray(schema.imageHostFiles.url, candidates))
+    .limit(1)
+  if (!row) return null
+  return {
+    url: row.url,
+    name: row.name,
+    size: Number(row.size),
+    kind: row.kind,
+    createdAt: row.createdAt.getTime(),
+    ownerUsername: row.ownerUsername,
+  }
+}
+
 export interface DeleteImageHostFilesResult {
   deletedIds: number[]
   orphanedFileIds: string[]
@@ -191,7 +271,13 @@ export async function deleteImageHostFiles(
       inArray(schema.imageHostFiles.id, ids),
     )
     const rows = await tx
-      .select({ id: schema.imageHostFiles.id, url: schema.imageHostFiles.url })
+      .select({
+        id: schema.imageHostFiles.id,
+        url: schema.imageHostFiles.url,
+        name: schema.imageHostFiles.name,
+        size: schema.imageHostFiles.size,
+        kind: schema.imageHostFiles.kind,
+      })
       .from(schema.imageHostFiles)
       .where(owned)
 
@@ -207,6 +293,17 @@ export async function deleteImageHostFiles(
     const urls = [...new Set(rows.map((r) => r.url))]
 
     await tx.delete(schema.imageHostFiles).where(owned)
+
+    await tx.insert(schema.imageHostActivity).values(
+      rows.map((r) => ({
+        userId,
+        action: 'delete' as const,
+        kind: r.kind,
+        name: r.name,
+        size: Number(r.size),
+        url: r.url,
+      })),
+    )
 
     const stillReferenced = await tx
       .select({ url: schema.imageHostFiles.url })

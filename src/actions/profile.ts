@@ -27,6 +27,7 @@ import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
+import { EFFECT_CONFIG_KEYS, packEffectConfig, pickEffectConfig, type EffectConfig } from "@/lib/effect-config";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
 import { isStoredMediaUrl } from "@/lib/cdn";
@@ -247,6 +248,16 @@ export async function updateGeneralProfile(data: {
   sanitizeProfileSettings(setData);
 
   const prev = await getUserById(userId);
+
+  const changedEffectKeys = EFFECT_CONFIG_KEYS.filter((key) => key in setData);
+  if (changedEffectKeys.length > 0) {
+    const changes: Partial<EffectConfig> = {};
+    for (const key of changedEffectKeys) {
+      (changes as Record<string, unknown>)[key] = setData[key];
+      delete setData[key];
+    }
+    setData.effectConfig = packEffectConfig(pickEffectConfig(prev), changes);
+  }
 
   if (Object.keys(setData).length > 0) {
     await db

@@ -8,6 +8,7 @@ import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import effects from '@/effects.json'
 import { getEquippedBadgeIds, getUserBackgrounds } from '@/lib/features/users/db'
+import { resolveEffectConfig } from '@/lib/effect-config'
 import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
@@ -213,64 +214,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
       backgroundEffectIntensity: userSettings.backgroundEffectIntensity,
       backgroundEffectColor: userSettings.backgroundEffectColor,
       backgroundEffectAboveContainer: userSettings.backgroundEffectAboveContainer,
-      auroraColor1: userSettings.auroraColor1,
-      auroraColor2: userSettings.auroraColor2,
-      auroraColor3: userSettings.auroraColor3,
-      auroraSpeed: userSettings.auroraSpeed,
-      auroraBlend: userSettings.auroraBlend,
-      darkveilSpeed: userSettings.darkveilSpeed,
-      darkveilHueShift: userSettings.darkveilHueShift,
-      darkveilNoise: userSettings.darkveilNoise,
-      darkveilScanFreq: userSettings.darkveilScanFreq,
-      darkveilScan: userSettings.darkveilScan,
-      darkveilWarp: userSettings.darkveilWarp,
-      pixelblastColor: userSettings.pixelblastColor,
-      pixelblastVariant: userSettings.pixelblastVariant,
-      pixelblastPixelSize: userSettings.pixelblastPixelSize,
-      pixelblastPatternScale: userSettings.pixelblastPatternScale,
-      pixelblastPatternDensity: userSettings.pixelblastPatternDensity,
-      pixelblastPixelJitter: userSettings.pixelblastPixelJitter,
-      pixelblastSpeed: userSettings.pixelblastSpeed,
-      pixelblastEdgeFade: userSettings.pixelblastEdgeFade,
-      pixelblastRipples: userSettings.pixelblastRipples,
-      pixelblastLiquid: userSettings.pixelblastLiquid,
-      colorbendsColor: userSettings.colorbendsColor,
-      colorbendsRotation: userSettings.colorbendsRotation,
-      colorbendsAutoRotate: userSettings.colorbendsAutoRotate,
-      colorbendsSpeed: userSettings.colorbendsSpeed,
-      colorbendsScale: userSettings.colorbendsScale,
-      colorbendsFrequency: userSettings.colorbendsFrequency,
-      colorbendsWarp: userSettings.colorbendsWarp,
-      colorbendsMouse: userSettings.colorbendsMouse,
-      colorbendsParallax: userSettings.colorbendsParallax,
-      colorbendsNoise: userSettings.colorbendsNoise,
-      colorbendsIterations: userSettings.colorbendsIterations,
-      colorbendsIntensity: userSettings.colorbendsIntensity,
-      colorbendsBandWidth: userSettings.colorbendsBandWidth,
-      liquidchromeColor: userSettings.liquidchromeColor,
-      liquidchromeSpeed: userSettings.liquidchromeSpeed,
-      liquidchromeAmplitude: userSettings.liquidchromeAmplitude,
-      liquidchromeInteractive: userSettings.liquidchromeInteractive,
-      crtwarpColor: userSettings.crtwarpColor,
-      crtwarpBackground: userSettings.crtwarpBackground,
-      crtwarpSpeed: userSettings.crtwarpSpeed,
-      crtwarpCurvature: userSettings.crtwarpCurvature,
-      crtwarpWaveAmount: userSettings.crtwarpWaveAmount,
-      crtwarpWaveDensity: userSettings.crtwarpWaveDensity,
-      crtwarpScanStrength: userSettings.crtwarpScanStrength,
-      crtwarpScanDensity: userSettings.crtwarpScanDensity,
-      crtwarpBloom: userSettings.crtwarpBloom,
-      crtwarpBloomRadius: userSettings.crtwarpBloomRadius,
-      crtwarpNoise: userSettings.crtwarpNoise,
-      crtwarpVignette: userSettings.crtwarpVignette,
-      crtwarpBrightness: userSettings.crtwarpBrightness,
-      crtwarpRgbShift: userSettings.crtwarpRgbShift,
-      crtwarpPixelSize: userSettings.crtwarpPixelSize,
-      crtwarpRenderQuality: userSettings.crtwarpRenderQuality,
-      crtwarpFrameRate: userSettings.crtwarpFrameRate,
-      crtwarpPointerWarp: userSettings.crtwarpPointerWarp,
-      crtwarpPointerStrength: userSettings.crtwarpPointerStrength,
-      crtwarpPaused: userSettings.crtwarpPaused,
+      effectConfig: userSettings.effectConfig,
       borderEffect: userSettings.borderEffect,
       borderEffectColor: userSettings.borderEffectColor,
       cardEffect: userSettings.cardEffect,
@@ -357,7 +301,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     notFound()
   }
 
-  const user = userList[0]
+  const user = { ...userList[0], ...resolveEffectConfig(userList[0].effectConfig) }
 
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 

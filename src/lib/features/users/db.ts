@@ -5,6 +5,7 @@ import { UserFacingError } from '@/lib/errors'
 import { eq, sql, and, lt, desc, asc } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
+import { resolveEffectConfig, type EffectConfig } from '@/lib/effect-config'
 
 const userColumns = {
   id: schema.users.id,
@@ -44,64 +45,7 @@ const userColumns = {
   backgroundEffectIntensity: schema.userSettings.backgroundEffectIntensity,
   backgroundEffectColor: schema.userSettings.backgroundEffectColor,
   backgroundEffectAboveContainer: schema.userSettings.backgroundEffectAboveContainer,
-  auroraColor1: schema.userSettings.auroraColor1,
-  auroraColor2: schema.userSettings.auroraColor2,
-  auroraColor3: schema.userSettings.auroraColor3,
-  auroraSpeed: schema.userSettings.auroraSpeed,
-  auroraBlend: schema.userSettings.auroraBlend,
-  darkveilSpeed: schema.userSettings.darkveilSpeed,
-  darkveilHueShift: schema.userSettings.darkveilHueShift,
-  darkveilNoise: schema.userSettings.darkveilNoise,
-  darkveilScanFreq: schema.userSettings.darkveilScanFreq,
-  darkveilScan: schema.userSettings.darkveilScan,
-  darkveilWarp: schema.userSettings.darkveilWarp,
-  pixelblastColor: schema.userSettings.pixelblastColor,
-  pixelblastVariant: schema.userSettings.pixelblastVariant,
-  pixelblastPixelSize: schema.userSettings.pixelblastPixelSize,
-  pixelblastPatternScale: schema.userSettings.pixelblastPatternScale,
-  pixelblastPatternDensity: schema.userSettings.pixelblastPatternDensity,
-  pixelblastPixelJitter: schema.userSettings.pixelblastPixelJitter,
-  pixelblastSpeed: schema.userSettings.pixelblastSpeed,
-  pixelblastEdgeFade: schema.userSettings.pixelblastEdgeFade,
-  pixelblastRipples: schema.userSettings.pixelblastRipples,
-  pixelblastLiquid: schema.userSettings.pixelblastLiquid,
-  colorbendsColor: schema.userSettings.colorbendsColor,
-  colorbendsRotation: schema.userSettings.colorbendsRotation,
-  colorbendsAutoRotate: schema.userSettings.colorbendsAutoRotate,
-  colorbendsSpeed: schema.userSettings.colorbendsSpeed,
-  colorbendsScale: schema.userSettings.colorbendsScale,
-  colorbendsFrequency: schema.userSettings.colorbendsFrequency,
-  colorbendsWarp: schema.userSettings.colorbendsWarp,
-  colorbendsMouse: schema.userSettings.colorbendsMouse,
-  colorbendsParallax: schema.userSettings.colorbendsParallax,
-  colorbendsNoise: schema.userSettings.colorbendsNoise,
-  colorbendsIterations: schema.userSettings.colorbendsIterations,
-  colorbendsIntensity: schema.userSettings.colorbendsIntensity,
-  colorbendsBandWidth: schema.userSettings.colorbendsBandWidth,
-  liquidchromeColor: schema.userSettings.liquidchromeColor,
-  liquidchromeSpeed: schema.userSettings.liquidchromeSpeed,
-  liquidchromeAmplitude: schema.userSettings.liquidchromeAmplitude,
-  liquidchromeInteractive: schema.userSettings.liquidchromeInteractive,
-  crtwarpColor: schema.userSettings.crtwarpColor,
-  crtwarpBackground: schema.userSettings.crtwarpBackground,
-  crtwarpSpeed: schema.userSettings.crtwarpSpeed,
-  crtwarpCurvature: schema.userSettings.crtwarpCurvature,
-  crtwarpWaveAmount: schema.userSettings.crtwarpWaveAmount,
-  crtwarpWaveDensity: schema.userSettings.crtwarpWaveDensity,
-  crtwarpScanStrength: schema.userSettings.crtwarpScanStrength,
-  crtwarpScanDensity: schema.userSettings.crtwarpScanDensity,
-  crtwarpBloom: schema.userSettings.crtwarpBloom,
-  crtwarpBloomRadius: schema.userSettings.crtwarpBloomRadius,
-  crtwarpNoise: schema.userSettings.crtwarpNoise,
-  crtwarpVignette: schema.userSettings.crtwarpVignette,
-  crtwarpBrightness: schema.userSettings.crtwarpBrightness,
-  crtwarpRgbShift: schema.userSettings.crtwarpRgbShift,
-  crtwarpPixelSize: schema.userSettings.crtwarpPixelSize,
-  crtwarpRenderQuality: schema.userSettings.crtwarpRenderQuality,
-  crtwarpFrameRate: schema.userSettings.crtwarpFrameRate,
-  crtwarpPointerWarp: schema.userSettings.crtwarpPointerWarp,
-  crtwarpPointerStrength: schema.userSettings.crtwarpPointerStrength,
-  crtwarpPaused: schema.userSettings.crtwarpPaused,
+  effectConfig: schema.userSettings.effectConfig,
   borderEffect: schema.userSettings.borderEffect,
   borderEffectColor: schema.userSettings.borderEffectColor,
   cardEffect: schema.userSettings.cardEffect,
@@ -321,6 +265,14 @@ export async function createUser(input: CreateUserInput) {
   }
 }
 
+function hydrateUser<T extends { effectConfig?: EffectConfig | null }>(
+  row: T | undefined,
+): (T & EffectConfig) | null {
+  if (!row) return null;
+  Object.assign(row, resolveEffectConfig(row.effectConfig));
+  return row as T & EffectConfig;
+}
+
 export async function getUserByEmail(email: string) {
   const result = await db
     .select(userColumns)
@@ -328,7 +280,7 @@ export async function getUserByEmail(email: string) {
     .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.email, email.toLowerCase().trim()))
     .limit(1)
-  return result[0] || null
+  return hydrateUser(result[0])
 }
 
 export async function getUserByEmailWithPassword(email: string) {
@@ -368,7 +320,7 @@ async function getUserByUsername(username: string) {
     .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.username, username.toLowerCase().trim()))
     .limit(1)
-  return result[0] || null
+  return hydrateUser(result[0])
 }
 
 export const getUserById = cache(async (id: number) => {
@@ -379,7 +331,7 @@ export const getUserById = cache(async (id: number) => {
     .where(eq(schema.users.id, id))
     .limit(1)
 
-  return result[0] || null
+  return hydrateUser(result[0])
 })
 
 export async function getUserForSession(id: number) {
@@ -468,7 +420,7 @@ export async function getUserByDiscordId(discordId: string) {
     .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
     .where(eq(schema.users.discordId, discordId))
     .limit(1)
-  return result[0] || null
+  return hydrateUser(result[0])
 }
 
 type UpsertDiscordUserInput = {

@@ -139,9 +139,6 @@ const CHECKOUT_ORDER_WINDOW = 60;
 const CHECKOUT_ORDER_USER_MAX = 5;
 const CHECKOUT_ORDER_IP_MAX = 15;
 
-// Creating an order hits Razorpay's API and writes nothing we can't afford to
-// throw away, so cap it tightly: 5/min per user, plus a per-IP ceiling so a
-// batch of throwaway accounts from one machine can't get around the per-user cap.
 export async function checkoutOrderRateLimit(userId: number, ip: string | null) {
   const userRate = await checkRateLimit(
     `checkout:order:user:${userId}`,

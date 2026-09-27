@@ -4,8 +4,9 @@ import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import { startOfDay, subDays, format, isSameDay } from "date-fns";
 
-interface RecentFile {
-  url: string;
+interface ActivityEntry {
+  action: "upload" | "delete";
+  url: string | null;
   name: string;
   size: number;
   kind: string;
@@ -18,7 +19,6 @@ interface ImageHostStats {
   favorites: number;
   byKind: { kind: string; count: number }[];
   recent: number[];
-  recentFiles: RecentFile[];
   quotaBytes: number;
 }
 
@@ -57,20 +57,6 @@ function formatBytes(bytes: number): string {
   const value = bytes / Math.pow(1024, i);
   const rounded = value >= 100 || i === 0 ? Math.round(value) : Math.round(value * 10) / 10;
   return `${rounded} ${units[i]}`;
-}
-
-function timeAgo(ms: number): string {
-  const s = Math.floor((Date.now() - ms) / 1000);
-  if (s < 60) return `${Math.max(s, 0)}s ago`;
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  const d = Math.floor(h / 24);
-  if (d < 7) return `${d}d ago`;
-  const w = Math.floor(d / 7);
-  if (w < 5) return `${w}w ago`;
-  return `${Math.floor(d / 30)}mo ago`;
 }
 
 function buildSeries(timestamps: number[], range: RangeKey) {
@@ -320,46 +306,155 @@ function FileTypesChart({ data }: { data: { name: string; value: number; color: 
   );
 }
 
-function RecentUploads({ files, loading }: { files: RecentFile[]; loading: boolean }) {
+function ActivityActionIcon({ action }: { action: "upload" | "delete" }) {
+  if (action === "delete") {
+    return (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      </svg>
+    );
+  }
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
+    </svg>
+  );
+}
+
+function ActivityRow({ item }: { item: ActivityEntry }) {
+  const meta = fileTypeMeta(item.kind);
+  const isDelete = item.action === "delete";
+  const rowClass = "flex items-center gap-3 px-3 h-11 border-t border-white/[0.04] first:border-t-0 transition-colors";
+  const content = (
+    <>
+      <span className="flex items-center gap-2 w-[104px] shrink-0">
+        <span
+          className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
+          style={isDelete ? { color: "#f87171", backgroundColor: "rgba(248,113,113,0.1)" } : { color: "#5b6cf5", backgroundColor: "rgba(91,108,245,0.12)" }}
+        >
+          <ActivityActionIcon action={item.action} />
+        </span>
+        <span className={`text-[12px] font-normal ${isDelete ? "text-white/45" : "text-white/70"}`}>
+          {isDelete ? "Deleted" : "Uploaded"}
+        </span>
+      </span>
+      <span className={`flex-1 min-w-0 truncate text-[13px] ${isDelete ? "text-white/40" : "text-white/90"}`}>{item.name}</span>
+      <span className="w-[64px] shrink-0 hidden sm:block">
+        <span className="text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded-md" style={{ color: meta.color, backgroundColor: `${meta.color}18` }}>
+          {item.kind}
+        </span>
+      </span>
+      <span className="w-16 shrink-0 text-right tabular-nums text-white/50 text-xs">{formatBytes(item.size)}</span>
+      <span className="w-28 shrink-0 text-right text-white/40 text-xs tabular-nums hidden sm:block">{format(new Date(item.createdAt), "MMM d, h:mm a")}</span>
+    </>
+  );
+
+  if (!isDelete && item.url) {
+    return (
+      <a href={item.url} target="_blank" rel="noreferrer" className={`${rowClass} hover:bg-white/[0.02]`}>
+        {content}
+      </a>
+    );
+  }
+  return <div className={rowClass}>{content}</div>;
+}
+
+function RecentActivity() {
+  const PAGE_SIZE = 5;
+  const [items, setItems] = useState<ActivityEntry[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/image-host/activity?limit=${PAGE_SIZE}&offset=${page * PAGE_SIZE}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data || !Array.isArray(data.items)) return;
+        setItems(data.items);
+        setTotal(typeof data.total === "number" ? data.total : 0);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [page]);
+
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const firstLoad = loading && items.length === 0;
+  const start = total === 0 ? 0 : page * PAGE_SIZE + 1;
+  const end = Math.min(page * PAGE_SIZE + items.length, total);
+
+  const goTo = (next: number) => {
+    const clamped = Math.min(Math.max(next, 0), pageCount - 1);
+    if (clamped === page) return;
+    setLoading(true);
+    setPage(clamped);
+  };
+
   return (
     <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6">
       <div>
-        <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Recent uploads</h2>
-        <p className="text-white/30 text-[12px] mt-1">Your latest files.</p>
+        <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Recent activity</h2>
+        <p className="text-white/30 text-[12px] mt-1">Your latest uploads and deletions.</p>
       </div>
-      <div className="mt-4 flex flex-col">
-        {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 py-2.5 border-t border-white/5 first:border-t-0">
-              <div className="w-10 h-10 rounded-lg bg-white/5 animate-pulse shrink-0" />
-              <div className="flex-1 h-3 rounded bg-white/5 animate-pulse" />
-              <div className="w-12 h-3 rounded bg-white/5 animate-pulse shrink-0" />
-            </div>
-          ))
-        ) : files.length === 0 ? (
-          <div className="py-10 text-center text-white/30 text-[13px]">No uploads yet.</div>
-        ) : (
-          files.map((f) => (
-            <a key={f.url} href={f.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 py-2.5 border-t border-white/5 first:border-t-0 hover:bg-white/[0.02] -mx-2 px-2 rounded-lg transition-colors">
-              <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 relative">
-                {f.kind === "video" ? (
-                  <>
-                    <video src={f.url} className="w-full h-full object-cover" muted playsInline preload="metadata" />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z" /></svg>
-                    </div>
-                  </>
-                ) : (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={f.url} alt={f.name} className="w-full h-full object-cover" loading="lazy" />
-                )}
+
+      <div className="mt-4">
+        <div className="flex items-center gap-3 px-3 pb-2 border-b border-white/5 text-[10px] uppercase tracking-wider text-white/30 font-medium">
+          <span className="w-[104px] shrink-0">Action</span>
+          <span className="flex-1 min-w-0">Name</span>
+          <span className="w-[64px] shrink-0 hidden sm:block">Type</span>
+          <span className="w-16 shrink-0 text-right">Size</span>
+          <span className="w-28 shrink-0 text-right hidden sm:block">When</span>
+        </div>
+
+        <div className={`flex flex-col transition-opacity ${loading && !firstLoad ? "opacity-50" : ""}`}>
+          {firstLoad ? (
+            Array.from({ length: PAGE_SIZE }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-3 h-11 border-t border-white/[0.04] first:border-t-0">
+                <div className="w-[104px] h-3 rounded bg-white/5 animate-pulse shrink-0" />
+                <div className="flex-1 h-3 rounded bg-white/5 animate-pulse" />
+                <div className="w-16 h-3 rounded bg-white/5 animate-pulse shrink-0" />
               </div>
-              <span className="flex-1 min-w-0 truncate text-white/90 text-[13px]">{f.name}</span>
-              <span className="text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 rounded-md shrink-0" style={{ color: fileTypeMeta(f.kind).color, backgroundColor: `${fileTypeMeta(f.kind).color}18` }}>{f.kind}</span>
-              <span className="text-white/50 text-xs shrink-0 w-16 text-right tabular-nums">{formatBytes(f.size)}</span>
-              <span className="text-white/40 text-xs shrink-0 w-16 text-right hidden sm:block">{timeAgo(f.createdAt)}</span>
-            </a>
-          ))
+            ))
+          ) : items.length === 0 ? (
+            <div className="py-10 text-center text-white/30 text-[13px]">No activity yet.</div>
+          ) : (
+            items.map((item, i) => <ActivityRow key={`${item.action}-${item.createdAt}-${i}`} item={item} />)
+          )}
+        </div>
+
+        {total > PAGE_SIZE && (
+          <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+            <span className="text-[11px] text-white/30 tabular-nums">
+              {start}–{end} of {total}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => goTo(page - 1)}
+                disabled={page === 0 || loading}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                aria-label="Previous page"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <span className="text-[11px] text-white/40 tabular-nums px-1 min-w-[48px] text-center">
+                {page + 1} / {pageCount}
+              </span>
+              <button
+                onClick={() => goTo(page + 1)}
+                disabled={page >= pageCount - 1 || loading}
+                className="w-7 h-7 flex items-center justify-center rounded-lg bg-white/[0.06] border border-white/10 text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                aria-label="Next page"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6" /></svg>
+              </button>
+            </div>
+          </div>
         )}
       </div>
     </div>
@@ -412,7 +507,7 @@ export default function ImageHostOverviewClient() {
         </div>
       </div>
 
-      <RecentUploads files={stats?.recentFiles ?? []} loading={loading} />
+      <RecentActivity />
     </div>
   );
 }

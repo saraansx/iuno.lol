@@ -130,7 +130,7 @@ export async function POST(req: Request) {
     }
 
     const url = toImageHostUrl(body);
-    await recordImageHostFile({ userId, url, name: sanitizeName(file.name), size: file.size, kind, mime: detected.mime });
+    await recordImageHostFile({ userId, url, name: sanitizeName(file.name), size: file.size, kind });
     const usedBytes = await getImageHostUsedBytes(userId);
 
     return NextResponse.json({ url, kind, size: file.size, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
