@@ -1,5 +1,5 @@
 import { db, schema } from '@/lib/db'
-import { and, asc, desc, eq, gte, inArray, like, ne, sql, count } from 'drizzle-orm'
+import { and, desc, eq, gte, sql, count } from 'drizzle-orm'
 import type { ImageHostKind } from '@/lib/image-host'
 
 export interface RecordImageHostFileInput {
@@ -94,44 +94,3 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
     })),
   }
 }
-
-// ---------------------------------------------------------------------------
-// Gallery: paginated listing + per-file management (favorite / delete). All
-// scoped to one user; the userId clause is what enforces ownership on every
-// read and write below.
-// ---------------------------------------------------------------------------
-
-export type ImageHostSort = 'newest' | 'oldest' | 'largest' | 'smallest'
-
-export interface ImageHostFileRow {
-  id: number
-  url: string
-  name: string
-  size: number
-  kind: string
-  mime: string
-  favorite: boolean
-  createdAt: number
-}
-
-export interface ListImageHostFilesInput {
-  userId: number
-  page: number
-  pageSize: number
-  sort: ImageHostSort
-  q?: string
-  favoritesOnly?: boolean
-}
-
-export interface ListImageHostFilesResult {
-  files: ImageHostFileRow[]
-  total: number
-  page: number
-  pageSize: number
-}
-
-// Escape LIKE wildcards so a name search treats `%` and `_` literally.
-function escapeLike(s: string): string {
-  return s.replace(/[\\%_]/g, (c) => `\\${c}`)
-}
-// __GALLERY_DB_APPEND__

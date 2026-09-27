@@ -608,14 +608,6 @@ export const imageHostFilesRelations = relations(imageHostFiles, ({ one }) => ({
     references: [users.id],
   }),
 }))
-
-// Idempotency ledger for payment-provider events (Polar webhooks, Razorpay
-// verifications). Every event we act on is recorded here under a unique
-// (provider, event_id) key BEFORE Premium is granted/revoked, in the same
-// transaction. A replayed "order.paid" / "order.refunded" / payment id then
-// hits the unique key and is skipped, so a captured notification can't be
-// replayed to farm Premium or strip it from others. Append-only (never pruned)
-// so replays of any age are caught. See src/lib/payments/idempotency.ts.
 export const processedPaymentEvents = mysqlTable('processed_payment_events', {
   id: int('id').primaryKey().autoincrement(),
   provider: varchar('provider', { length: 16 }).notNull(),
