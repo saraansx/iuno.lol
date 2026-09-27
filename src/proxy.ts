@@ -127,7 +127,6 @@ export default async function middleware(request: NextRequest) {
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||
-      path.startsWith('/f/') ||
       isProfilePath ||
       isStaticFile
 

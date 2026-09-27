@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
-import { imageHostFileId } from "@/lib/cdn";
 
 type FilterKey = "all" | "image" | "video" | "favorite";
 
@@ -39,17 +38,6 @@ function formatBytes(bytes: number): string {
   const value = bytes / Math.pow(1024, i);
   const rounded = value >= 100 || i === 0 ? Math.round(value) : Math.round(value * 10) / 10;
   return `${rounded} ${units[i]}`;
-}
-
-function sharePath(file: GalleryFile): string {
-  const id = imageHostFileId(file.url);
-  return id ? `/f/${id}` : file.url;
-}
-
-function shareLink(file: GalleryFile): string {
-  const path = sharePath(file);
-  if (path.startsWith("/") && typeof window !== "undefined") return `${window.location.origin}${path}`;
-  return path;
 }
 
 function DotsIcon() {
@@ -217,7 +205,7 @@ export default function ImageHostGalleryClient() {
   const copyLink = async (file: GalleryFile) => {
     setMenuOpenId(null);
     try {
-      await navigator.clipboard.writeText(shareLink(file));
+      await navigator.clipboard.writeText(file.url);
       toast.success("Link copied");
     } catch {
       toast.error("Couldn't copy link");
@@ -515,7 +503,7 @@ function FileCard({
               className="absolute right-0 top-full mt-1.5 w-44 origin-top-right rounded-xl border border-white/10 bg-[#161616] p-1 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)]"
             >
               <a
-                href={sharePath(file)}
+                href={file.url}
                 target="_blank"
                 rel="noreferrer"
                 onClick={onCloseMenu}
@@ -639,7 +627,7 @@ function Viewer({ file, onClose }: { file: GalleryFile; onClose: () => void }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <a
-              href={sharePath(file)}
+              href={file.url}
               target="_blank"
               rel="noreferrer"
               aria-label="Open in new tab"

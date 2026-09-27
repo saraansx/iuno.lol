@@ -1,6 +1,6 @@
 import { db, schema } from '@/lib/db'
 import { and, desc, eq, gte, inArray, sql, count } from 'drizzle-orm'
-import { imageHostFileId, IMAGE_HOST_BASE, CATBOX_BASE } from '@/lib/cdn'
+import { imageHostFileId } from '@/lib/cdn'
 import type { ImageHostKind } from '@/lib/image-host'
 
 export interface RecordImageHostFileInput {
@@ -214,41 +214,6 @@ export async function setImageHostFavorite(
   if (ownedIds.length === 0) return []
   await db.update(schema.imageHostFiles).set({ favorite }).where(owned)
   return ownedIds
-}
-
-export interface PublicImageHostFile {
-  url: string
-  name: string
-  size: number
-  kind: string
-  createdAt: number
-  ownerUsername: string
-}
-
-export async function getPublicImageHostFile(id: string): Promise<PublicImageHostFile | null> {
-  const candidates = [`${IMAGE_HOST_BASE}${id}`, `${CATBOX_BASE}${id}`]
-  const [row] = await db
-    .select({
-      url: schema.imageHostFiles.url,
-      name: schema.imageHostFiles.name,
-      size: schema.imageHostFiles.size,
-      kind: schema.imageHostFiles.kind,
-      createdAt: schema.imageHostFiles.createdAt,
-      ownerUsername: schema.users.username,
-    })
-    .from(schema.imageHostFiles)
-    .innerJoin(schema.users, eq(schema.users.id, schema.imageHostFiles.userId))
-    .where(inArray(schema.imageHostFiles.url, candidates))
-    .limit(1)
-  if (!row) return null
-  return {
-    url: row.url,
-    name: row.name,
-    size: Number(row.size),
-    kind: row.kind,
-    createdAt: row.createdAt.getTime(),
-    ownerUsername: row.ownerUsername,
-  }
 }
 
 export interface DeleteImageHostFilesResult {
