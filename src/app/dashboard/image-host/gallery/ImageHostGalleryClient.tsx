@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
 
 type FilterKey = "all" | "image" | "video" | "favorite";
@@ -26,9 +27,9 @@ const FILTERS: { key: FilterKey; label: string }[] = [
 ];
 
 const MENU_ITEM =
-  "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-white/80 hover:bg-white/5 transition-colors";
+  "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] text-white/80 hover:bg-white/[0.06] transition-colors";
 const MENU_ITEM_DANGER =
-  "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10 transition-colors";
+  "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10 transition-colors";
 
 function formatBytes(bytes: number): string {
   if (bytes <= 0) return "0 KB";
@@ -473,36 +474,44 @@ function FileCard({
         >
           <DotsIcon />
         </button>
-        {menuOpen && (
-          <div className="absolute right-0 top-full mt-1.5 w-44 overflow-hidden rounded-xl border border-white/10 bg-[#161616] py-1 shadow-2xl">
-            <a
-              href={file.url}
-              target="_blank"
-              rel="noreferrer"
-              onClick={onCloseMenu}
-              className={MENU_ITEM}
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -4 }}
+              transition={{ duration: 0.14, ease: [0.23, 1, 0.32, 1] }}
+              className="absolute right-0 top-full mt-1.5 w-44 origin-top-right rounded-xl border border-white/10 bg-[#161616] p-1 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)]"
             >
-              <ExternalLinkIcon /> Open in new tab
-            </a>
-            <button type="button" onClick={() => onCopy(file)} className={MENU_ITEM}>
-              <CopyIcon /> Copy link
-            </button>
-            <button type="button" onClick={() => onToggleFavorite(file)} className={MENU_ITEM}>
-              <StarIcon filled={file.favorite} />
-              {file.favorite ? "Remove favorite" : "Add to favorites"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                onCloseMenu();
-                onRequestDelete([file.id]);
-              }}
-              className={MENU_ITEM_DANGER}
-            >
-              <TrashIcon /> Delete
-            </button>
-          </div>
-        )}
+              <a
+                href={file.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={onCloseMenu}
+                className={MENU_ITEM}
+              >
+                <ExternalLinkIcon /> Open in new tab
+              </a>
+              <button type="button" onClick={() => onCopy(file)} className={MENU_ITEM}>
+                <CopyIcon /> Copy link
+              </button>
+              <button type="button" onClick={() => onToggleFavorite(file)} className={MENU_ITEM}>
+                <StarIcon filled={file.favorite} />
+                {file.favorite ? "Remove favorite" : "Add to favorites"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onCloseMenu();
+                  onRequestDelete([file.id]);
+                }}
+                className={MENU_ITEM_DANGER}
+              >
+                <TrashIcon /> Delete
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <div className="px-1.5 pt-2 pb-1">
