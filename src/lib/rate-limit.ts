@@ -105,6 +105,10 @@ export async function uploadRateLimit(userId: number, assetType: string) {
   return checkRateLimit(`upload:${userId}:${assetType}`, 10, 5 * 60);
 }
 
+export async function imageHostUploadRateLimit(userId: number) {
+  return checkRateLimit(`ih:upload:${userId}`, 60, 5 * 60);
+}
+
 export async function commentRateLimit(userId: number) {
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60);
 }

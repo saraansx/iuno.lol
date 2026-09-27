@@ -1,4 +1,5 @@
 import {
+  bigint,
   boolean,
   date,
   int,
@@ -585,6 +586,46 @@ export const userBackgroundsRelations = relations(userBackgrounds, ({ one }) => 
   }),
 }))
 
+export const imageHostFiles = mysqlTable('image_host_files', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  url: varchar('url', { length: 255 }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  size: bigint('size', { mode: 'number' }).notNull(),
+  kind: varchar('kind', { length: 16 }).notNull(),
+  mime: varchar('mime', { length: 64 }).notNull(),
+  favorite: boolean('favorite').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userUrlIdx: uniqueIndex('image_host_files_user_url_unique').on(table.userId, table.url),
+  userCreatedIdx: index('image_host_files_user_created_idx').on(table.userId, table.createdAt),
+  userFavoriteIdx: index('image_host_files_user_favorite_idx').on(table.userId, table.favorite),
+}))
+
+export const imageHostFilesRelations = relations(imageHostFiles, ({ one }) => ({
+  user: one(users, {
+    fields: [imageHostFiles.userId],
+    references: [users.id],
+  }),
+}))
+
+// Idempotency ledger for payment-provider events (Polar webhooks, Razorpay
+// verifications). Every event we act on is recorded here under a unique
+// (provider, event_id) key BEFORE Premium is granted/revoked, in the same
+// transaction. A replayed "order.paid" / "order.refunded" / payment id then
+// hits the unique key and is skipped, so a captured notification can't be
+// replayed to farm Premium or strip it from others. Append-only (never pruned)
+// so replays of any age are caught. See src/lib/payments/idempotency.ts.
+export const processedPaymentEvents = mysqlTable('processed_payment_events', {
+  id: int('id').primaryKey().autoincrement(),
+  provider: varchar('provider', { length: 16 }).notNull(),
+  eventId: varchar('event_id', { length: 128 }).notNull(),
+  userId: int('user_id'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  providerEventIdx: uniqueIndex('processed_payment_events_provider_event_idx').on(table.provider, table.eventId),
+}))
+
 export const schema = {
   users,
   userSettings,
@@ -599,6 +640,8 @@ export const schema = {
   userBadges,
   uploadedFiles,
   userBackgrounds,
+  imageHostFiles,
+  processedPaymentEvents,
   usersRelations,
   userSettingsRelations,
   profileCommentsRelations,
@@ -606,6 +649,7 @@ export const schema = {
   profileFeedbackRelations,
   userBadgesRelations,
   userBackgroundsRelations,
+  imageHostFilesRelations,
 }
 
 export type User = typeof users.$inferSelect;

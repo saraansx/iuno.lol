@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { PREMIUM_PLAN } from "@/lib/payments/plans";
 import { verifyPolarWebhook, polarProductIds } from "@/lib/payments/polar";
+import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 // Polar webhook handler. Polar POSTs here on order events; we verify the
@@ -57,14 +58,33 @@ export async function POST(request: NextRequest) {
 
   const userId = userIdFrom(data);
 
+  // Standard-Webhooks message id, stable across Polar's retries of the same
+  // event — our idempotency key. verifyPolarWebhook already guaranteed it's
+  // present; re-read it here for the type-checker.
+  const eventId = request.headers.get("webhook-id");
+  if (!eventId) {
+    return NextResponse.json({ error: "Missing event id." }, { status: 400 });
+  }
+
   try {
     if (event.type === "order.paid") {
       if (!userId) {
         console.error("[webhooks/polar] order.paid with no mappable user id");
         return NextResponse.json({ received: true });
       }
-      // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
-      await db.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
+      // Record-and-grant atomically. A replayed (or Polar-retried) delivery
+      // hits the unique (provider, event_id) key and returns false without
+      // re-granting — this is the replay protection.
+      const processed = await processPaymentEventOnce(
+        { provider: "polar", eventId, userId },
+        async (tx) => {
+          // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
+          await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
+        },
+      );
+      if (!processed) {
+        return NextResponse.json({ received: true });
+      }
 
       // Best-effort Discord notification — never blocks or fails the upgrade.
       try {
@@ -90,7 +110,14 @@ export async function POST(request: NextRequest) {
       }
     } else if (event.type === "order.refunded") {
       if (userId) {
-        await db.update(schema.users).set({ isPremium: false }).where(eq(schema.users.id, userId));
+        // Same idempotency guard so a captured refund can't be replayed to
+        // repeatedly strip Premium.
+        await processPaymentEventOnce(
+          { provider: "polar", eventId, userId },
+          async (tx) => {
+            await tx.update(schema.users).set({ isPremium: false }).where(eq(schema.users.id, userId));
+          },
+        );
       }
     }
   } catch (err) {

@@ -26,6 +26,7 @@ interface NavItem {
   icon: React.ReactElement;
   href?: string;
   subItems?: SubItem[];
+  matchPrefix?: string;
   external?: boolean;
 }
 
@@ -42,14 +43,14 @@ interface SidebarContentProps {
   decorationHue?: number;
   navItems: NavGroup[];
   pathname: string;
-  profileExpanded: boolean;
-  setProfileExpanded: (expanded: boolean) => void;
+  expandedItems: Record<string, boolean>;
+  toggleExpanded: (label: string) => void;
 }
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_MAX_WIDTH = 260;
 
-const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, profileExpanded, setProfileExpanded }: SidebarContentProps) => {
+const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded }: SidebarContentProps) => {
   const { open, setOpen, animate } = useSidebar();
   const [width, setWidth] = useState(SIDEBAR_MAX_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
@@ -133,12 +134,13 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
               <div className="flex flex-col gap-0.5">
                 {group.items.map((item: NavItem) => {
                   if (item.subItems) {
-                    const isGroupActive = item.subItems.some((sub: SubItem) => pathname === sub.href) || pathname.startsWith("/dashboard/customize/profile");
+                    const isExpanded = !!expandedItems[item.label];
+                    const isGroupActive = item.subItems.some((sub: SubItem) => pathname === sub.href) || (item.matchPrefix ? pathname.startsWith(item.matchPrefix) : false);
                     return (
                       <div key={item.label} className="flex flex-col">
                         <button
                           onClick={() => {
-                             if (open) setProfileExpanded(!profileExpanded);
+                             if (open) toggleExpanded(item.label);
                           }}
                           className={`relative flex items-center w-full transition-all duration-300 ${open ? 'px-3' : 'px-[9px]'} py-2.5 rounded-xl text-[13.5px] font-normal group overflow-hidden ${
                             isGroupActive
@@ -166,14 +168,14 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
                               opacity: animate ? (open ? 1 : 0) : 1,
                             }}
                             height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                            className={`transition-transform duration-200 text-white/40 shrink-0 overflow-hidden ml-auto ${profileExpanded ? "rotate-180" : ""}`}
+                            className={`transition-transform duration-200 text-white/40 shrink-0 overflow-hidden ml-auto ${isExpanded ? "rotate-180" : ""}`}
                           >
                             <path d="m6 9 6 6 6-6"/>
                           </motion.svg>
                         </button>
                         
                         <AnimatePresence>
-                          {profileExpanded && open && (
+                          {isExpanded && open && (
                             <motion.div 
                               initial={{ opacity: 0, height: 0 }}
                               animate={{ opacity: 1, height: "auto" }}
@@ -339,8 +341,19 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 
 const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0 }: SidebarProps) => {
   const pathname = usePathname();
-  const [profileExpanded, setProfileExpanded] = useState(true);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(() => ({
+    // Profile starts collapsed when the dashboard loads. It only opens if you're
+    // already on a Profile sub-page, so the active item stays visible on deep links.
+    Profile:
+      pathname.startsWith("/dashboard/customize/profile") ||
+      pathname === "/dashboard/customize/links",
+    "Image Host": true,
+  }));
   const [open, setOpen] = useState(true);
+
+  const toggleExpanded = (label: string) => {
+    setExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
 
   const navItems = [
     {
@@ -363,6 +376,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
               <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
             </svg>
           ),
+          matchPrefix: "/dashboard/customize/profile",
           subItems: [
             { label: "General", href: "/dashboard/customize/profile/general" },
             { label: "Appearance", href: "/dashboard/customize/profile/appearance" },
@@ -379,6 +393,21 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
         { label: "Widgets", href: "/dashboard/customize/profile/widgets", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><rect width="7" height="7" x="14" y="3" rx="1"/><path d="M10 21V8a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H3"/></svg> },
         { label: "Badges", href: "/dashboard/customize/badges", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> },
         { label: "Templates", href: "/dashboard/customize/templates", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2.5" fill="currentColor"/><path d="M3 9h18" stroke="#0a0a0a" strokeWidth="2"/><path d="M9 21V9" stroke="#0a0a0a" strokeWidth="2"/></svg> },
+        {
+          label: "Image Host",
+          matchPrefix: "/dashboard/image-host",
+          icon: (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+              <circle cx="9" cy="9" r="2" />
+              <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+            </svg>
+          ),
+          subItems: [
+            { label: "Overview", href: "/dashboard/image-host/overview" },
+            { label: "Upload", href: "/dashboard/image-host/upload" },
+          ]
+        },
       ]
     }
   ];
@@ -393,8 +422,8 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
         decorationHue={decorationHue}
         navItems={navItems}
         pathname={pathname}
-        profileExpanded={profileExpanded}
-        setProfileExpanded={setProfileExpanded}
+        expandedItems={expandedItems}
+        toggleExpanded={toggleExpanded}
       />
     </AceSidebar>
   );

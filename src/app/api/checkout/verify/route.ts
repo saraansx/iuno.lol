@@ -5,6 +5,7 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { PREMIUM_PLAN, isCurrency, type Currency } from "@/lib/payments/plans";
 import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razorpay";
+import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 // Confirms a Razorpay payment and upgrades the account to Premium. Security
@@ -58,11 +59,23 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
-    await db
-      .update(schema.users)
-      .set({ isPremium: true })
-      .where(eq(schema.users.id, userId));
+    // Record-and-grant atomically, keyed on the Razorpay payment id. Re-submitting
+    // the same verified {order, payment, signature} triple hits the unique
+    // (provider, event_id) key and returns false, so it can't be replayed to
+    // re-fire side effects (e.g. the Discord notification).
+    const processed = await processPaymentEventOnce(
+      { provider: "razorpay", eventId: paymentId, userId },
+      async (tx) => {
+        // Lifetime plan: set the flag, leave premium_expires_at null (no expiry).
+        await tx.update(schema.users).set({ isPremium: true }).where(eq(schema.users.id, userId));
+      },
+    );
+
+    // Replay of an already-processed payment: the user is already Premium, so
+    // confirm success without re-granting or re-notifying.
+    if (!processed) {
+      return NextResponse.json({ success: true });
+    }
   } catch (err) {
     console.error("[checkout/verify] failed to upgrade user:", err);
     return NextResponse.json(
