@@ -1,4 +1,4 @@
-'use server'
+import 'server-only'
 
 import { decrypt, encrypt } from '@/lib/server/security/jwt'
 import { addDays } from 'date-fns'

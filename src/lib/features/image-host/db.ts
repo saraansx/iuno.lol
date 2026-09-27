@@ -196,6 +196,18 @@ export async function listImageHostFiles(
   }
 }
 
+export async function getImageHostFileForUser(
+  userId: number,
+  id: number,
+): Promise<{ url: string; name: string } | null> {
+  const [row] = await db
+    .select({ url: schema.imageHostFiles.url, name: schema.imageHostFiles.name })
+    .from(schema.imageHostFiles)
+    .where(and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id)))
+    .limit(1)
+  return row ?? null
+}
+
 export async function setImageHostFavorite(
   userId: number,
   ids: number[],

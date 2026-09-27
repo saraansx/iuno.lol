@@ -17,7 +17,19 @@ interface GalleryFile {
   createdAt: number;
 }
 
-const PAGE_SIZE = 24;
+const PAGE_SIZE = 8;
+
+function pageList(current: number, count: number): (number | "gap")[] {
+  if (count <= 7) return Array.from({ length: count }, (_, i) => i);
+  const pages = new Set([0, count - 1, current - 1, current, current + 1]);
+  const sorted = [...pages].filter((p) => p >= 0 && p < count).sort((a, b) => a - b);
+  const out: (number | "gap")[] = [];
+  sorted.forEach((p, i) => {
+    if (i > 0 && p - sorted[i - 1] > 1) out.push("gap");
+    out.push(p);
+  });
+  return out;
+}
 
 const FILTERS: { key: FilterKey; label: string }[] = [
   { key: "all", label: "All" },
@@ -108,10 +120,9 @@ function Thumbnail({ file }: { file: GalleryFile }) {
 export default function ImageHostGalleryClient() {
   const [files, setFiles] = useState<GalleryFile[]>([]);
   const [total, setTotal] = useState(0);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [paging, setPaging] = useState(false);
   const [filter, setFilter] = useState<FilterKey>("all");
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
@@ -122,34 +133,37 @@ export default function ImageHostGalleryClient() {
   const filterRef = useRef<FilterKey>("all");
   filterRef.current = filter;
 
-  const loadPage = useCallback((f: FilterKey, off: number, append: boolean) => {
-    fetch(`/api/image-host/files?limit=${PAGE_SIZE}&offset=${off}&filter=${f}`)
+  const loadPage = useCallback((f: FilterKey, p: number) => {
+    fetch(`/api/image-host/files?limit=${PAGE_SIZE}&offset=${p * PAGE_SIZE}&filter=${f}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("failed"))))
-      .then((data: { files: GalleryFile[]; total: number; hasMore: boolean }) => {
-        setFiles((prev) => (append ? [...prev, ...data.files] : data.files));
+      .then((data: { files: GalleryFile[]; total: number }) => {
+        // Page emptied (e.g. last item deleted) — step back to the new last page
+        if (data.files.length === 0 && p > 0 && data.total > 0) {
+          const last = Math.ceil(data.total / PAGE_SIZE) - 1;
+          setPage(last);
+          loadPage(f, last);
+          return;
+        }
+        setFiles(data.files);
         setTotal(data.total);
-        setHasMore(data.hasMore);
-        setOffset(off + data.files.length);
+        setPage(p);
+        setLoading(false);
+        setPaging(false);
       })
       .catch(() => {
-        if (!append) {
-          setFiles([]);
-          setTotal(0);
-          setHasMore(false);
-        }
-      })
-      .finally(() => {
+        setFiles([]);
+        setTotal(0);
         setLoading(false);
-        setLoadingMore(false);
+        setPaging(false);
       });
   }, []);
 
   useEffect(() => {
-    loadPage("all", 0, false);
+    loadPage("all", 0);
   }, [loadPage]);
 
   useEffect(() => {
-    const onUploaded = () => loadPage(filterRef.current, 0, false);
+    const onUploaded = () => loadPage(filterRef.current, 0);
     window.addEventListener("image-host:uploaded", onUploaded);
     return () => window.removeEventListener("image-host:uploaded", onUploaded);
   }, [loadPage]);
@@ -178,14 +192,18 @@ export default function ImageHostGalleryClient() {
     setFilter(f);
     setSelected(new Set());
     setMenuOpenId(null);
-    setOffset(0);
+    setPage(0);
     setLoading(true);
-    loadPage(f, 0, false);
+    loadPage(f, 0);
   };
 
-  const loadMore = () => {
-    setLoadingMore(true);
-    loadPage(filter, offset, true);
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const goTo = (p: number) => {
+    const next = Math.min(Math.max(p, 0), pageCount - 1);
+    if (next === page || paging) return;
+    setPaging(true);
+    setMenuOpenId(null);
+    loadPage(filter, next);
   };
 
   const toggleSelect = (id: number) =>
@@ -231,7 +249,7 @@ export default function ImageHostGalleryClient() {
       toast.success(next ? "Added to favorites" : "Removed from favorites");
     } catch {
       toast.error("Couldn't update favorite");
-      loadPage(filterRef.current, 0, false);
+      loadPage(filterRef.current, page);
     }
   };
 
@@ -250,7 +268,7 @@ export default function ImageHostGalleryClient() {
       toast.success(`Added ${ids.length} to favorites`);
     } catch {
       toast.error("Couldn't update favorites");
-      loadPage(filterRef.current, 0, false);
+      loadPage(filterRef.current, page);
     }
   };
 
@@ -277,6 +295,8 @@ export default function ImageHostGalleryClient() {
       if (typeof data.usedBytes === "number") {
         window.dispatchEvent(new CustomEvent("image-host:usage", { detail: { usedBytes: data.usedBytes } }));
       }
+      // Refill the page from the next one (or step back if it's now empty)
+      if (removed.size > 0) loadPage(filterRef.current, page);
       toast.success(removed.size === 1 ? "File deleted" : `${removed.size} files deleted`);
     } catch {
       toast.error("Couldn't delete. Try again.");
@@ -360,21 +380,14 @@ export default function ImageHostGalleryClient() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 transition-opacity ${paging ? "opacity-50 pointer-events-none" : ""}`}>
               {files.map((f) => (
                 <FileCard key={f.id} file={f} selected={selected.has(f.id)} menuOpen={menuOpenId === f.id}
                   onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink} onOpen={setViewer}
                   onToggleFavorite={toggleFavorite} onRequestDelete={setConfirmDelete} onCloseMenu={() => setMenuOpenId(null)} />
               ))}
             </div>
-            {hasMore && (
-              <div className="mt-5 flex justify-center">
-                <button onClick={loadMore} disabled={loadingMore}
-                  className="rounded-xl bg-white/[0.06] border border-white/10 px-5 py-2 text-[13px] text-white/80 hover:bg-white/10 transition-colors disabled:opacity-50">
-                  {loadingMore ? "Loading…" : "Load more"}
-                </button>
-              </div>
-            )}
+            <Pagination page={page} pageCount={pageCount} total={total} shown={files.length} disabled={paging} onGo={goTo} />
           </>
         )}
       </div>
@@ -554,31 +567,72 @@ function DownloadIcon() {
   );
 }
 
+function Pagination({
+  page,
+  pageCount,
+  total,
+  shown,
+  disabled,
+  onGo,
+}: {
+  page: number;
+  pageCount: number;
+  total: number;
+  shown: number;
+  disabled: boolean;
+  onGo: (p: number) => void;
+}) {
+  const start = total === 0 ? 0 : page * PAGE_SIZE + 1;
+  const end = page * PAGE_SIZE + shown;
+  const pill =
+    "flex h-8 items-center justify-center gap-1.5 rounded-full bg-white/[0.03] px-3.5 text-[13px] font-normal tabular-nums transition-colors";
+  const navPill = `${pill} text-white/60 hover:bg-white/[0.06] hover:text-white disabled:opacity-40 disabled:pointer-events-none`;
+
+  return (
+    <nav
+      aria-label="Gallery pagination"
+      className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3"
+    >
+      <p className="text-[12px] text-white/40 tabular-nums">
+        Showing {start}—{end} of {total} {total === 1 ? "entry" : "entries"}
+      </p>
+      <div className="flex items-center gap-2">
+        <button type="button" onClick={() => onGo(page - 1)} disabled={disabled || page === 0} className={navPill}>
+          <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M7 1 2 5l5 4z" /></svg>
+          Previous
+        </button>
+        {pageList(page, pageCount).map((p, i) =>
+          p === "gap" ? (
+            <span key={`gap-${i}`} className="px-1 text-[13px] text-white/25" aria-hidden="true">…</span>
+          ) : (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onGo(p)}
+              disabled={disabled}
+              aria-label={`Page ${p + 1}`}
+              aria-current={p === page ? "page" : undefined}
+              className={`${pill} min-w-14 ${
+                p === page
+                  ? "bg-[#5b6cf5]/20 text-[#aab4ff]"
+                  : "text-white/45 hover:bg-[#5b6cf5]/10 hover:text-white"
+              }`}
+            >
+              {p + 1}
+            </button>
+          ),
+        )}
+        <button type="button" onClick={() => onGo(page + 1)} disabled={disabled || page >= pageCount - 1} className={navPill}>
+          Next
+          <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M3 1l5 4-5 4z" /></svg>
+        </button>
+      </div>
+    </nav>
+  );
+}
+
 function Viewer({ file, onClose }: { file: GalleryFile; onClose: () => void }) {
   const isVideo = file.kind === "video";
-  const [downloading, setDownloading] = useState(false);
-
-  const download = async () => {
-    if (downloading) return;
-    setDownloading(true);
-    try {
-      const res = await fetch(file.url);
-      if (!res.ok) throw new Error("failed");
-      const blob = await res.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = objectUrl;
-      a.download = file.name || "download";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(objectUrl);
-    } catch {
-      window.open(file.url, "_blank", "noopener,noreferrer");
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   return (
     <motion.div
@@ -635,19 +689,15 @@ function Viewer({ file, onClose }: { file: GalleryFile; onClose: () => void }) {
             >
               <ExternalLinkIcon />
             </a>
-            <button
-              type="button"
-              onClick={download}
-              disabled={downloading}
+            {}
+            <a
+              href={`/api/image-host/download/${file.id}`}
+              download={file.name || true}
               aria-label="Download"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-colors disabled:opacity-50"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] border border-white/10 text-white/70 hover:bg-white/10 hover:text-white transition-colors"
             >
-              {downloading ? (
-                <div className="h-3.5 w-3.5 rounded-full border-2 border-white/20 border-t-white/70 animate-spin" />
-              ) : (
-                <DownloadIcon />
-              )}
-            </button>
+              <DownloadIcon />
+            </a>
           </div>
         </div>
       </motion.div>
