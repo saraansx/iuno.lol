@@ -109,6 +109,10 @@ export async function imageHostUploadRateLimit(userId: number) {
   return checkRateLimit(`ih:upload:${userId}`, 60, 5 * 60);
 }
 
+export async function imageHostMutateRateLimit(userId: number) {
+  return checkRateLimit(`ih:mutate:${userId}`, 120, 5 * 60);
+}
+
 export async function commentRateLimit(userId: number) {
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60);
 }

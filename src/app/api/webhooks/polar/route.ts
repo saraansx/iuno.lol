@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   if (known.length === 0) {
     return NextResponse.json({ error: "Not configured." }, { status: 503 });
   }
-  if (data.product_id && !known.includes(data.product_id)) {
+  if (!data.product_id || !known.includes(data.product_id)) {
     return NextResponse.json({ received: true });
   }
 
