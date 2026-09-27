@@ -1,21 +1,3 @@
-#!/usr/bin/env node
-/**
- * scripts/strip-comments.mjs
- *
- * Removes `//` line comments and block comments from source files, safely.
- *
- * It parses each file with the TypeScript compiler and only removes real
- * comment tokens, so `//` inside strings/URLs, template literals and regexes
- * is never touched. Load-bearing directive comments (@ts-*, eslint-disable,
- * prettier-ignore, triple-slash, source maps, bundler magic comments) are kept
- * unless you pass --all.
- *
- * Usage:
- *   node scripts/strip-comments.mjs                 # dry run over ./src
- *   node scripts/strip-comments.mjs --write         # apply to ./src
- *   node scripts/strip-comments.mjs src scripts      # dry run over given paths
- *   node scripts/strip-comments.mjs --write --all    # also strip directives
- */
 import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
@@ -33,8 +15,6 @@ const EXCLUDE_DIRS = new Set([
 ]);
 const EXTS = new Set([".ts", ".tsx", ".mts", ".cts", ".js", ".jsx", ".mjs", ".cjs"]);
 
-// Load-bearing comments (compiler / linter / bundler directives). Kept unless
-// --all is passed, because deleting them changes build or lint behaviour.
 const PRESERVE = [
   /^\/\/\/\s*<reference/,
   /@ts-(ignore|expect-error|nocheck|check)\b/,
@@ -50,13 +30,6 @@ const PRESERVE = [
 
 const isDirective = (t) => PRESERVE.some((re) => re.test(t));
 
-/**
- * Every comment range in the file. We ask the compiler for the leading and
- * trailing comment ranges of each token: every comment is trivia belonging to
- * some token, so walking all tokens (and de-duping) yields all comments — and
- * because the parser has already resolved strings/regexes/templates, a `//`
- * inside them is not a token boundary and can't be mistaken for a comment.
- */
 function collectCommentRanges(sourceFile) {
   const text = sourceFile.getFullText();
   const ranges = [];
@@ -77,12 +50,6 @@ function collectCommentRanges(sourceFile) {
   return ranges.sort((a, b) => a.pos - b.pos);
 }
 
-/**
- * Grow a comment's [pos, end) into the span to actually delete:
- *  - alone on its line  -> the whole line, including its newline
- *  - trailing code      -> the comment plus the spaces/tabs before it
- *  - block then code     -> just the comment itself
- */
 function expandRange(text, pos, end) {
   let lineStart = pos;
   while (lineStart > 0 && text[lineStart - 1] !== "\n") lineStart--;
@@ -110,7 +77,6 @@ function scriptKindFor(file) {
   return ts.ScriptKind.TS;
 }
 
-/** Strip a single file's text. Returns the new text and how many comments went. */
 function stripFile(text, file) {
   const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, scriptKindFor(file));
   let ranges = collectCommentRanges(sf);
