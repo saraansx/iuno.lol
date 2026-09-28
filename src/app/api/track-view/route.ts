@@ -3,13 +3,18 @@ import { redis } from '@/lib/redis';
 import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
 import { getClientIp } from '@/lib/server/security/ip';
+import { db, schema } from '@/lib/db';
+import { eq } from 'drizzle-orm';
+
+// A visitor counts once per profile per 7 days; dedup keys expire on their own
+const VIEW_DEDUP_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 const TRACK_VIEW_SCRIPT = `
-if redis.call('SET', KEYS[1], '1', 'NX') then
-  if ARGV[3] == '1' and not redis.call('SET', KEYS[2], '1', 'NX') then
+if redis.call('SET', KEYS[1], '1', 'NX', 'EX', ARGV[5]) then
+  if ARGV[3] == '1' and not redis.call('SET', KEYS[2], '1', 'NX', 'EX', ARGV[5]) then
     return 0
   end
-  if ARGV[4] == '1' and not redis.call('SET', KEYS[5], '1', 'NX') then
+  if ARGV[4] == '1' and not redis.call('SET', KEYS[5], '1', 'NX', 'EX', ARGV[5]) then
     return 0
   end
   redis.call('HINCRBY', KEYS[3], 'total', 1)
@@ -22,6 +27,23 @@ return 0
 
 function shortHash(input: string): string {
   return createHash('sha256').update(input).digest('hex').slice(0, 16);
+}
+
+// Cached so fake IDs can't hammer MySQL; missing IDs cache briefly so new signups show up fast
+async function profileExists(profileId: number): Promise<boolean> {
+  const cacheKey = `profile_exists:${profileId}`;
+  const cached = await redis.get(cacheKey);
+  if (cached !== null) return cached === '1';
+
+  const [row] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.id, profileId))
+    .limit(1);
+
+  const exists = !!row;
+  await redis.set(cacheKey, exists ? '1' : '0', 'EX', exists ? 60 * 60 : 60 * 5);
+  return exists;
 }
 
 export async function POST(request: NextRequest) {
@@ -47,6 +69,10 @@ export async function POST(request: NextRequest) {
     }
     if (viewerId !== null && viewerId === profileId) {
       return NextResponse.json({ success: true, message: 'Owner view ignored' });
+    }
+
+    if (!(await profileExists(profileId))) {
+      return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
     }
 
     const userAgent = request.headers.get('user-agent') || '';
@@ -81,6 +107,7 @@ export async function POST(request: NextRequest) {
       String(profileId),
       fingerprintHash ? '1' : '0',
       viewerId !== null ? '1' : '0',
+      String(VIEW_DEDUP_TTL_SECONDS),
     )) as number;
 
     if (counted !== 1) {

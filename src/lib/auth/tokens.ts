@@ -44,18 +44,23 @@ export async function consumeVerificationToken(token: string): Promise<string | 
   const now    = new Date()
   const hashed = hashToken(token)
 
-  const row = await db.query.verificationTokens.findFirst({
-    where: and(
-      eq(schema.verificationTokens.token, hashed),
-      gt(schema.verificationTokens.expiresAt, now)
-    ),
+  // Row lock makes concurrent uses of the same token wait; only the first one sees the row
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(schema.verificationTokens)
+      .where(and(
+        eq(schema.verificationTokens.token, hashed),
+        gt(schema.verificationTokens.expiresAt, now)
+      ))
+      .for("update")
+
+    if (!row) return null
+
+    await tx.delete(schema.verificationTokens).where(eq(schema.verificationTokens.id, row.id))
+
+    return row.email
   })
-
-  if (!row) return null
-
-  await db.delete(schema.verificationTokens).where(eq(schema.verificationTokens.id, row.id))
-
-  return row.email
 }
 
 export async function createPasswordResetToken(email: string): Promise<string> {
@@ -90,16 +95,21 @@ export async function consumePasswordResetToken(token: string): Promise<string |
   const now    = new Date()
   const hashed = hashToken(token)
 
-  const row = await db.query.passwordResetTokens.findFirst({
-    where: and(
-      eq(schema.passwordResetTokens.token, hashed),
-      gt(schema.passwordResetTokens.expiresAt, now)
-    ),
+  // Row lock makes concurrent uses of the same token wait; only the first one sees the row
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(schema.passwordResetTokens)
+      .where(and(
+        eq(schema.passwordResetTokens.token, hashed),
+        gt(schema.passwordResetTokens.expiresAt, now)
+      ))
+      .for("update")
+
+    if (!row) return null
+
+    await tx.delete(schema.passwordResetTokens).where(eq(schema.passwordResetTokens.id, row.id))
+
+    return row.email
   })
-
-  if (!row) return null
-
-  await db.delete(schema.passwordResetTokens).where(eq(schema.passwordResetTokens.id, row.id))
-
-  return row.email
 }

@@ -6,7 +6,10 @@ import { sendTwoFactorTokenEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { UserFacingError } from '@/lib/errors'
 
-export const sendOTP = async (email: string, turnstileToken: string) => {
+export const sendOTP = async (
+  email: string,
+  turnstileToken: string
+): Promise<{ success?: string; error?: string }> => {
   try {
     const clean = (email ?? '').trim()
     if (!clean) {
@@ -19,9 +22,12 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
 
+    // Same response whether or not the account exists, so emails can't be probed
+    const genericSuccess = { success: 'If an account exists for that email, we sent a code.' }
+
     const user = await getUserByEmail(clean)
     if (!user?.email) {
-      return { error: 'No account found with that email.' }
+      return genericSuccess
     }
 
     try {
@@ -34,7 +40,7 @@ export const sendOTP = async (email: string, turnstileToken: string) => {
       throw error
     }
 
-    return { success: 'OTP sent to your email!' }
+    return genericSuccess
   } catch (error) {
     console.error('[sendOTP] Failed:', error)
     return { error: 'Something went wrong. Please try again.' }

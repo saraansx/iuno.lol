@@ -49,10 +49,6 @@ export async function login(input: LoginInput) {
 
     const email = user.email
 
-    if (!user.emailVerified) {
-      return { error: 'Please verify your email address before logging in.' }
-    }
-
     if (method === 'password') {
       if (!password) {
         return { error: 'Password is required.' }
@@ -79,6 +75,11 @@ export async function login(input: LoginInput) {
       }
     } else {
       return { error: 'Invalid login method.' }
+    }
+
+    // Checked only after credentials pass, so it can't reveal which accounts exist
+    if (!user.emailVerified) {
+      return { error: 'Please verify your email address before logging in.' }
     }
 
     await createSession(user.id)

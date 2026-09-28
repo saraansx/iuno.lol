@@ -16,13 +16,14 @@ export async function forgotPassword(email: string, turnstileToken: string) {
     if (turnstileError) return { error: turnstileError }
 
     const user = await getUserByEmail(email)
-    if (!user) {
+    if (!user?.email) {
       return { success: 'If an account exists, a reset link was sent!' }
     }
 
     try {
-      const token = await createPasswordResetToken(email)
-      await sendPasswordResetEmail(email, token)
+      // Use the stored email, not the typed one, so case variants share one cooldown
+      const token = await createPasswordResetToken(user.email)
+      await sendPasswordResetEmail(user.email, token)
     } catch (err: unknown) {
       if (err instanceof UserFacingError) {
         return { success: 'If an account exists, a reset link was sent!' }

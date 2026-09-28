@@ -6,7 +6,10 @@ import { sendVerificationEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { UserFacingError } from '@/lib/errors'
 
-export async function resendVerification(email: string, turnstileToken: string) {
+export async function resendVerification(
+  email: string,
+  turnstileToken: string
+): Promise<{ success?: string; error?: string }> {
   try {
     if (!email) {
       return { error: 'Email is required.' }
@@ -15,19 +18,18 @@ export async function resendVerification(email: string, turnstileToken: string) 
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
 
+    // Same response for unknown, verified, and pending emails, so emails can't be probed
+    const genericSuccess = { success: 'If that email has a pending signup, we sent a verification link.' }
+
     const user = await getUserByEmail(email)
-
-    if (!user) {
-      return { error: 'No pending signup found for that email. Please register again.' }
-    }
-
-    if (user.emailVerified) {
-      return { error: 'That email is already verified. You can sign in.' }
+    if (!user?.email || user.emailVerified) {
+      return genericSuccess
     }
 
     try {
-      const token = await createVerificationToken(email)
-      await sendVerificationEmail(email, token)
+      // Use the stored email, not the typed one, so case variants share one cooldown
+      const token = await createVerificationToken(user.email)
+      await sendVerificationEmail(user.email, token)
     } catch (err: unknown) {
       if (err instanceof UserFacingError) {
         return { error: err.message }
@@ -35,7 +37,7 @@ export async function resendVerification(email: string, turnstileToken: string) 
       throw err
     }
 
-    return { success: 'Verification email sent! Check your inbox.' }
+    return genericSuccess
   } catch (err: unknown) {
     console.error('[resendVerification] Failed:', err)
     return { error: 'Something went wrong. Please try again.' }
