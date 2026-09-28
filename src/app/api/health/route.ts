@@ -2,8 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
+import { razorpayConfigured } from '@/lib/payments/razorpay';
+import { polarConfigured } from '@/lib/payments/polar';
+import { CDN_BASE, IMAGE_HOST_BASE } from '@/lib/cdn';
 
 export const dynamic = 'force-dynamic';
+
+async function probeMediaHost(base: string): Promise<boolean> {
+  try {
+    const res = await fetch(base, {
+      method: 'HEAD',
+      cache: 'no-store',
+      signal: AbortSignal.timeout(5000),
+    });
+    return res.status < 500;
+  } catch (error) {
+    console.error(`[health:media] Probe failed for ${base}:`, error);
+    return false;
+  }
+}
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -12,13 +29,6 @@ export async function GET(request: NextRequest) {
 
   if (service) {
     switch (service) {
-      case 'web':
-        return NextResponse.json({
-          status: 'ok',
-          service: 'Website & Dashboard',
-          responseTimeMs: Date.now() - startTime,
-        });
-
       case 'db':
       case 'database': {
         try {
@@ -59,56 +69,46 @@ export async function GET(request: NextRequest) {
       case 'profiles': {
         try {
           await redis.ping();
-          await db.execute(sql`SELECT 1`);
+          await db.execute(sql`SELECT id FROM users LIMIT 1`);
           return NextResponse.json({
             status: 'ok',
-            service: 'Profile & Live Stats API',
+            service: 'Profile & Live Stats',
             responseTimeMs: Date.now() - startTime,
           });
         } catch (error) {
           console.error('[health:stats] Check failed:', error);
           return NextResponse.json(
-            { status: 'down', service: 'Profile & Live Stats API' },
+            { status: 'down', service: 'Profile & Live Stats' },
             { status: 503 }
           );
         }
       }
 
       case 'media':
+      case 'cdn':
       case 'storage': {
         const configured = Boolean(process.env.CATBOX_USERHASH);
+        const [hostUp, cdnUp] = await Promise.all([
+          probeMediaHost(IMAGE_HOST_BASE),
+          probeMediaHost(CDN_BASE),
+        ]);
+        const up = configured && hostUp && cdnUp;
+        return NextResponse.json({
+          status: up ? 'ok' : 'down',
+          service: 'Image Hosting & CDN',
+          responseTimeMs: Date.now() - startTime,
+        }, { status: up ? 200 : 503 });
+      }
+
+      case 'payments':
+      case 'payment':
+      case 'gateway': {
+        const configured = razorpayConfigured() || polarConfigured();
         return NextResponse.json({
           status: configured ? 'ok' : 'down',
-          service: 'Media Storage (Catbox)',
+          service: 'Payment Gateway',
           responseTimeMs: Date.now() - startTime,
         }, { status: configured ? 200 : 503 });
-      }
-
-      case 'cron': {
-        return NextResponse.json({
-          status: 'ok',
-          service: 'Background Cron Jobs',
-          schedule: 'daily',
-          responseTimeMs: Date.now() - startTime,
-        });
-      }
-
-      case 'email':
-      case 'mail':
-      case 'resend': {
-        const hasKey = Boolean(process.env.RESEND_API_KEY);
-        if (!hasKey) {
-          return NextResponse.json(
-            { status: 'down', service: 'Email Delivery (Resend)', error: 'RESEND_API_KEY missing' },
-            { status: 503 }
-          );
-        }
-        return NextResponse.json({
-          status: 'ok',
-          service: 'Email Delivery (Resend)',
-          provider: 'Resend',
-          responseTimeMs: Date.now() - startTime,
-        });
       }
 
       default:
@@ -119,7 +119,6 @@ export async function GET(request: NextRequest) {
   const checks: Record<string, 'up' | 'down'> = {
     database: 'down',
     redis: 'down',
-    storage: 'up',
   };
 
   try {
