@@ -14,8 +14,11 @@ interface GalleryFile {
   size: number;
   kind: string;
   favorite: boolean;
+  locked: boolean;
   createdAt: number;
 }
+
+type PasswordMode = "add" | "remove";
 
 const PAGE_SIZE = 8;
 
@@ -92,6 +95,15 @@ function StarIcon({ filled }: { filled?: boolean }) {
   );
 }
 
+function LockIcon({ open }: { open?: boolean }) {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4" y="11" width="16" height="10" rx="2" />
+      <path d={open ? "M8 11V7a4 4 0 0 1 7.75-1.4" : "M8 11V7a4 4 0 0 1 8 0v4"} />
+    </svg>
+  );
+}
+
 function TrashIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -129,6 +141,7 @@ export default function ImageHostGalleryClient() {
   const [confirmDelete, setConfirmDelete] = useState<number[] | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [viewer, setViewer] = useState<GalleryFile | null>(null);
+  const [passwordFor, setPasswordFor] = useState<{ file: GalleryFile; mode: PasswordMode } | null>(null);
 
   const filterRef = useRef<FilterKey>("all");
   filterRef.current = filter;
@@ -227,6 +240,17 @@ export default function ImageHostGalleryClient() {
     } catch {
       toast.error("Couldn't copy link");
     }
+  };
+
+  const requestPassword = (file: GalleryFile) => {
+    setMenuOpenId(null);
+    setPasswordFor({ file, mode: file.locked ? "remove" : "add" });
+  };
+
+  const onPasswordDone = (id: number, locked: boolean) => {
+    setFiles((prev) => prev.map((x) => (x.id === id ? { ...x, locked } : x)));
+    setPasswordFor(null);
+    toast.success(locked ? "Password added" : "Password removed");
   };
 
   const toggleFavorite = async (file: GalleryFile) => {
@@ -382,7 +406,8 @@ export default function ImageHostGalleryClient() {
               {files.map((f) => (
                 <FileCard key={f.id} file={f} selected={selected.has(f.id)} menuOpen={menuOpenId === f.id}
                   onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink} onOpen={setViewer}
-                  onToggleFavorite={toggleFavorite} onRequestDelete={setConfirmDelete} onCloseMenu={() => setMenuOpenId(null)} />
+                  onToggleFavorite={toggleFavorite} onRequestPassword={requestPassword}
+                  onRequestDelete={setConfirmDelete} onCloseMenu={() => setMenuOpenId(null)} />
               ))}
             </div>
             <Pagination page={page} pageCount={pageCount} total={total} shown={files.length} disabled={paging} onGo={goTo} />
@@ -425,6 +450,14 @@ export default function ImageHostGalleryClient() {
           </div>
         </div>
       )}
+      {passwordFor && (
+        <PasswordModal
+          file={passwordFor.file}
+          mode={passwordFor.mode}
+          onClose={() => setPasswordFor(null)}
+          onDone={onPasswordDone}
+        />
+      )}
       <AnimatePresence>
         {viewer && <Viewer file={viewer} onClose={() => setViewer(null)} />}
       </AnimatePresence>
@@ -440,6 +473,7 @@ function FileCard({
   onToggleMenu,
   onCopy,
   onToggleFavorite,
+  onRequestPassword,
   onRequestDelete,
   onCloseMenu,
   onOpen,
@@ -451,6 +485,7 @@ function FileCard({
   onToggleMenu: (id: number) => void;
   onCopy: (file: GalleryFile) => void;
   onToggleFavorite: (file: GalleryFile) => void;
+  onRequestPassword: (file: GalleryFile) => void;
   onRequestDelete: (ids: number[]) => void;
   onCloseMenu: () => void;
   onOpen: (file: GalleryFile) => void;
@@ -475,11 +510,22 @@ function FileCard({
         className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60"
       >
         <Thumbnail file={file} />
-        {file.favorite && (
-          <div className="absolute bottom-2 left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#f5c451] backdrop-blur-sm">
-            <StarIcon filled />
-          </div>
-        )}
+        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
+          {file.favorite && (
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#f5c451] backdrop-blur-sm">
+              <StarIcon filled />
+            </div>
+          )}
+          {file.locked && (
+            <div
+              title="Password protected"
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#aab4ff] backdrop-blur-sm"
+            >
+              <LockIcon />
+              <span className="sr-only">Password protected</span>
+            </div>
+          )}
+        </div>
       </div>
 
       <button
@@ -529,6 +575,10 @@ function FileCard({
                 <StarIcon filled={file.favorite} />
                 {file.favorite ? "Remove favorite" : "Add to favorites"}
               </button>
+              <button type="button" onClick={() => onRequestPassword(file)} className={MENU_ITEM}>
+                <LockIcon open={file.locked} />
+                {file.locked ? "Remove password" : "Add password"}
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -562,6 +612,128 @@ function DownloadIcon() {
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" />
     </svg>
+  );
+}
+
+function PasswordModal({
+  file,
+  mode,
+  onClose,
+  onDone,
+}: {
+  file: GalleryFile;
+  mode: PasswordMode;
+  onClose: () => void;
+  onDone: (id: number, locked: boolean) => void;
+}) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const isAdd = mode === "add";
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (saving) return;
+    if (isAdd && password.length < 4) return setError("Password must be at least 4 characters");
+    if (isAdd && password !== confirm) return setError("Passwords don't match");
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/image-host/files/${file.id}/password`, {
+        method: isAdd ? "POST" : "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setError(data?.error || "Something went wrong. Try again.");
+        setSaving(false);
+        return;
+      }
+      onDone(file.id, isAdd);
+    } catch {
+      setError("Something went wrong. Try again.");
+      setSaving(false);
+    }
+  };
+
+  const inputClass =
+    "h-10 w-full rounded-xl border border-white/5 bg-[#161616] px-3.5 text-[13px] text-white placeholder:text-white/25 focus:border-[#5b6cf5]/40 focus:outline-none";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={() => !saving && onClose()}
+    >
+      <form
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="ih-password-title"
+        onSubmit={submit}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm rounded-2xl border border-white/10 bg-[#0c0c0c] p-6 shadow-2xl"
+      >
+        <h3 id="ih-password-title" className="text-[14px] font-normal tracking-tight text-white/90">
+          {isAdd ? "Add password" : "Remove password"}
+        </h3>
+        <p className="mt-1.5 truncate text-[12px] text-white/40">{file.name}</p>
+        <p className="mt-2 text-[12px] leading-relaxed text-white/40">
+          {isAdd
+            ? "Anyone opening this link will need the password to view it."
+            : "Enter the current password to remove the lock."}
+        </p>
+
+        <div className="mt-4 flex flex-col gap-2">
+          <label htmlFor="ih-password" className="sr-only">{isAdd ? "New password" : "Current password"}</label>
+          <input
+            id="ih-password"
+            type="password"
+            autoFocus
+            autoComplete={isAdd ? "new-password" : "current-password"}
+            maxLength={128}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder={isAdd ? "New password" : "Current password"}
+            className={inputClass}
+          />
+          {isAdd && (
+            <>
+              <label htmlFor="ih-password-confirm" className="sr-only">Confirm password</label>
+              <input
+                id="ih-password-confirm"
+                type="password"
+                autoComplete="new-password"
+                maxLength={128}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Confirm password"
+                className={inputClass}
+              />
+            </>
+          )}
+        </div>
+        {error && <p role="alert" className="mt-2 text-[12px] text-red-400">{error}</p>}
+
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-2 text-[13px] text-white/80 transition-colors hover:bg-white/10 disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={saving || !password}
+            className="rounded-xl bg-[#5b6cf5]/20 px-4 py-2 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/30 disabled:opacity-50"
+          >
+            {saving ? "Saving…" : isAdd ? "Add password" : "Remove password"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }
 

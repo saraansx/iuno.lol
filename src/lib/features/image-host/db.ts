@@ -51,14 +51,48 @@ export async function recordImageHostFile(input: RecordImageHostFileInput): Prom
   }
 }
 
-// Maps a public file name (e.g. "k9Xa2mQpT4bZ.mp4") to its upstream storage name
-export async function resolveImageHostStorageId(publicName: string): Promise<string | null> {
+export interface ImageHostFileAccess {
+  userId: number
+  storageId: string | null
+  passwordHash: string | null
+}
+
+// Looks up a file by its public name (e.g. "k9Xa2.mp4") for serving / unlocking
+export async function getImageHostFileAccess(publicName: string): Promise<ImageHostFileAccess | null> {
   const [row] = await db
-    .select({ storageId: schema.imageHostFiles.storageId })
+    .select({
+      userId: schema.imageHostFiles.userId,
+      storageId: schema.imageHostFiles.storageId,
+      passwordHash: schema.imageHostFiles.passwordHash,
+    })
     .from(schema.imageHostFiles)
     .where(eq(schema.imageHostFiles.url, `${IMAGE_HOST_BASE}${publicName}`))
     .limit(1)
-  return row?.storageId ?? null
+  return row ?? null
+}
+
+export async function getOwnedImageHostFile(
+  userId: number,
+  id: number,
+): Promise<{ url: string; passwordHash: string | null } | null> {
+  const [row] = await db
+    .select({ url: schema.imageHostFiles.url, passwordHash: schema.imageHostFiles.passwordHash })
+    .from(schema.imageHostFiles)
+    .where(and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id)))
+    .limit(1)
+  return row ?? null
+}
+
+// Pass a bcrypt hash to lock the file, or null to unlock it
+export async function setImageHostFilePassword(
+  userId: number,
+  id: number,
+  passwordHash: string | null,
+): Promise<void> {
+  await db
+    .update(schema.imageHostFiles)
+    .set({ passwordHash })
+    .where(and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id)))
 }
 
 export async function getImageHostUsedBytes(userId: number): Promise<number> {
@@ -178,6 +212,7 @@ export interface ImageHostFile {
   size: number
   kind: string
   favorite: boolean
+  locked: boolean
   createdAt: number
 }
 
@@ -207,6 +242,7 @@ export async function listImageHostFiles(
         size: schema.imageHostFiles.size,
         kind: schema.imageHostFiles.kind,
         favorite: schema.imageHostFiles.favorite,
+        locked: sql<number>`${schema.imageHostFiles.passwordHash} is not null`,
         createdAt: schema.imageHostFiles.createdAt,
       })
       .from(schema.imageHostFiles)
@@ -225,6 +261,7 @@ export async function listImageHostFiles(
       size: Number(r.size),
       kind: r.kind,
       favorite: Boolean(r.favorite),
+      locked: Boolean(Number(r.locked)),
       createdAt: r.createdAt.getTime(),
     })),
     total: Number(totalRows[0]?.total ?? 0),

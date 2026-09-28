@@ -537,6 +537,8 @@ export const imageHostFiles = mysqlTable('image_host_files', {
   url: varchar('url', { length: 255 }).notNull(),
   // Upstream storage file name; resolved server-side only, never sent to clients
   storageId: varchar('storage_id', { length: 128 }),
+  // bcrypt hash; when set, viewers must unlock the file with its password
+  passwordHash: varchar('password_hash', { length: 255 }),
   name: varchar('name', { length: 255 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),
   kind: mysqlEnum('kind', ['image', 'video']).notNull(),

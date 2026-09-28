@@ -128,6 +128,8 @@ export default async function middleware(request: NextRequest) {
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||
       path.startsWith('/api/internal/image-host/resolve/') ||
+      path === '/api/image-host/unlock' ||
+      path.startsWith('/unlock/') ||
       isProfilePath ||
       isStaticFile
 
