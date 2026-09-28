@@ -5,7 +5,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { commentRateLimit, commentLikeRateLimit } from "@/lib/rate-limit";
-import { safePage } from "@/lib/utils";
+import { safePage, safeLimit } from "@/lib/utils";
 
 type PublicCommentAuthor = {
   id: number;
@@ -112,9 +112,10 @@ export async function addComment(profileId: number, content: string, replyToId?:
 export async function getComments(
   profileId: number, 
   page: number = 1, 
-  limit: number = 10,
+  rawLimit: number = 10,
   filter: string = "Newest first"
 ) {
+  const limit = safeLimit(rawLimit, 10);
   const viewerId = await getSessionUserId();
 
   const profile = await getUserById(profileId);
@@ -291,7 +292,8 @@ export async function deleteComment(commentId: number, profileId: number) {
   return { success: true };
 }
 
-export async function getDashboardComments(page: number = 1, limit: number = 4) {
+export async function getDashboardComments(page: number = 1, rawLimit: number = 4) {
+  const limit = safeLimit(rawLimit, 4);
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
 

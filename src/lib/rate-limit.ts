@@ -135,6 +135,10 @@ export async function commentLikeRateLimit(userId: number) {
   return checkRateLimit(`comment_like:${userId}`, 20, 60);
 }
 
+export async function profileFeedbackRateLimit(userId: number) {
+  return checkRateLimit(`profile_feedback:${userId}`, 20, 60);
+}
+
 const CHECKOUT_ORDER_WINDOW = 60;
 const CHECKOUT_ORDER_USER_MAX = 5;
 const CHECKOUT_ORDER_IP_MAX = 15;

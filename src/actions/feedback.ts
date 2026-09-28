@@ -6,7 +6,8 @@ import { revalidatePath } from "next/cache";
 
 import { getSessionUserId } from "@/lib/auth/session";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
-import { safePage } from "@/lib/utils";
+import { safePage, safeLimit } from "@/lib/utils";
+import { profileFeedbackRateLimit } from "@/lib/rate-limit";
 
 const FEEDBACK_TYPES = ["like", "dislike", "unlike", "undislike"] as const;
 
@@ -15,6 +16,11 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
   if (!sessionUserId) {
     return { success: false, error: "You must be logged in to like or dislike." };
+  }
+
+  const rate = await profileFeedbackRateLimit(sessionUserId);
+  if (!rate.ok) {
+    return { success: false, error: `You're doing that too fast. Please wait ${rate.retryAfterSeconds} second${rate.retryAfterSeconds === 1 ? '' : 's'}.` };
   }
 
   if (!FEEDBACK_TYPES.includes(type)) {
@@ -159,8 +165,9 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 export async function getDashboardFeedback(
   receivedPage: number = 1,
   givenPage: number = 1,
-  limit: number = 4,
+  rawLimit: number = 4,
 ) {
+  const limit = safeLimit(rawLimit, 4);
   const sessionUserId = await getSessionUserId();
   if (!sessionUserId) {
     return { success: false, error: "Unauthorized" };
