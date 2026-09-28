@@ -4,7 +4,7 @@ import { resolveImageHostStorageId } from "@/lib/features/image-host/db";
 
 export const dynamic = "force-dynamic";
 
-const NAME_RE = /^[A-Za-z0-9]{12}\.[a-z0-9]{2,5}$/;
+const NAME_RE = /^[A-Za-z0-9]{5}\.[a-z0-9]{2,5}$/;
 const STORAGE_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
 function authorized(req: Request): boolean {

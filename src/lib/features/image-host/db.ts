@@ -5,7 +5,7 @@ import { IMAGE_HOST_BASE } from '@/lib/cdn'
 import type { ImageHostKind } from '@/lib/image-host'
 
 const PUBLIC_ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-const PUBLIC_ID_LENGTH = 12
+const PUBLIC_ID_LENGTH = 5
 
 // Random public file name, unrelated to the upstream storage name
 function newPublicId(): string {
@@ -36,7 +36,7 @@ export async function recordImageHostFile(input: RecordImageHostFileInput): Prom
     try {
       await db.insert(schema.imageHostFiles).values({ ...rest, url })
     } catch (error) {
-      if (isDuplicateKeyError(error) && attempt < 2) continue
+      if (isDuplicateKeyError(error) && attempt < 5) continue
       throw error
     }
     await db.insert(schema.imageHostActivity).values({
