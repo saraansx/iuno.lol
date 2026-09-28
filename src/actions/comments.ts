@@ -7,7 +7,6 @@ import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { commentRateLimit, commentLikeRateLimit, commentModifyRateLimit } from "@/lib/rate-limit";
 import { safePage, safeLimit } from "@/lib/utils";
 
-// Not exported, so it stays a private helper rather than a callable server action
 async function checkCommentModifyLimit(userId: number) {
   const rate = await commentModifyRateLimit(userId);
   if (rate.ok) return null;

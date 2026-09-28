@@ -135,7 +135,6 @@ export async function commentLikeRateLimit(userId: number) {
   return checkRateLimit(`comment_like:${userId}`, 20, 60);
 }
 
-// Shared bucket for edit / delete / pin on comments
 export async function commentModifyRateLimit(userId: number) {
   return checkRateLimit(`comment_modify:${userId}`, 20, 60);
 }
