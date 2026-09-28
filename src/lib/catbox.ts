@@ -1,3 +1,6 @@
+import "server-only";
+import { toCdnUrl } from "@/lib/cdn";
+
 export { isStoredMediaUrl, isCatboxUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
@@ -28,7 +31,7 @@ export async function uploadToCatbox(
       console.error("[Catbox] upload error:", res.status, body.slice(0, 200));
       return null;
     }
-    return body;
+    return toCdnUrl(body);
   } catch (error) {
     console.error("[Catbox] upload failed:", error);
     return null;

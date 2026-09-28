@@ -44,7 +44,6 @@ export async function consumeVerificationToken(token: string): Promise<string | 
   const now    = new Date()
   const hashed = hashToken(token)
 
-  // Row lock makes concurrent uses of the same token wait; only the first one sees the row
   return db.transaction(async (tx) => {
     const [row] = await tx
       .select()
@@ -95,7 +94,6 @@ export async function consumePasswordResetToken(token: string): Promise<string |
   const now    = new Date()
   const hashed = hashToken(token)
 
-  // Row lock makes concurrent uses of the same token wait; only the first one sees the row
   return db.transaction(async (tx) => {
     const [row] = await tx
       .select()

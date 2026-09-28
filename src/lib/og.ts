@@ -20,7 +20,6 @@ export function formatTabTitle(
 }
 
 const ALLOWED_IMAGE_PREFIXES = [
-  "https://files.catbox.moe/",
   "https://cdn.iuno.lol/",
   "https://cdn.discordapp.com/",
 ];

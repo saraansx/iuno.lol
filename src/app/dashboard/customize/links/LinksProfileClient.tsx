@@ -799,7 +799,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
             ...new Set(
               links
                 .map((l) => l.icon)
-                .filter((u) => u && !initialUrls.has(u) && (u.includes("files.catbox.moe") || u.includes("cdn.iuno.lol")))
+                .filter((u) => u && !initialUrls.has(u) && u.includes("cdn.iuno.lol"))
             ),
           ];
           if (added.length > 0) {

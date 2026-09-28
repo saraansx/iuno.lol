@@ -14,10 +14,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "files.catbox.moe",
-      },
-      {
-        protocol: "https",
         hostname: "host.iuno.lol",
       },
       {

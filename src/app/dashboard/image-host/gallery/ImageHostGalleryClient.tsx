@@ -137,7 +137,6 @@ export default function ImageHostGalleryClient() {
     fetch(`/api/image-host/files?limit=${PAGE_SIZE}&offset=${p * PAGE_SIZE}&filter=${f}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("failed"))))
       .then((data: { files: GalleryFile[]; total: number }) => {
-        // Page emptied (e.g. last item deleted) — step back to the new last page
         if (data.files.length === 0 && p > 0 && data.total > 0) {
           const last = Math.ceil(data.total / PAGE_SIZE) - 1;
           setPage(last);
@@ -295,7 +294,6 @@ export default function ImageHostGalleryClient() {
       if (typeof data.usedBytes === "number") {
         window.dispatchEvent(new CustomEvent("image-host:usage", { detail: { usedBytes: data.usedBytes } }));
       }
-      // Refill the page from the next one (or step back if it's now empty)
       if (removed.size > 0) loadPage(filterRef.current, page);
       toast.success(removed.size === 1 ? "File deleted" : `${removed.size} files deleted`);
     } catch {

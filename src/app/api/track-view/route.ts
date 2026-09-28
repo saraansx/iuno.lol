@@ -6,7 +6,6 @@ import { getClientIp } from '@/lib/server/security/ip';
 import { db, schema } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
-// A visitor counts once per profile per 7 days; dedup keys expire on their own
 const VIEW_DEDUP_TTL_SECONDS = 60 * 60 * 24 * 7;
 
 const TRACK_VIEW_SCRIPT = `
@@ -29,7 +28,6 @@ function shortHash(input: string): string {
   return createHash('sha256').update(input).digest('hex').slice(0, 16);
 }
 
-// Cached so fake IDs can't hammer MySQL; missing IDs cache briefly so new signups show up fast
 async function profileExists(profileId: number): Promise<boolean> {
   const cacheKey = `profile_exists:${profileId}`;
   const cached = await redis.get(cacheKey);

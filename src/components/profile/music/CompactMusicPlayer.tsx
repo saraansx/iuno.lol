@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { type MusicTrack } from "@/lib/music";
-import { isCatboxUrl } from "@/lib/catbox";
+import { isHostedMediaUrl } from "@/lib/media-hosts";
 import { useVolume, VolumeButton } from "./volume";
 
 function formatTime(sec: number): string {
@@ -100,7 +100,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
-    const url = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : null;
+    const url = isHostedMediaUrl(t.streamUrl) ? (t.streamUrl as string) : null;
     if (!url) {
       setLoading(false);
       return undefined;

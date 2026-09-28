@@ -18,7 +18,6 @@ export async function resendVerification(
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
 
-    // Same response for unknown, verified, and pending emails, so emails can't be probed
     const genericSuccess = { success: 'If that email has a pending signup, we sent a verification link.' }
 
     const user = await getUserByEmail(email)
@@ -27,7 +26,6 @@ export async function resendVerification(
     }
 
     try {
-      // Use the stored email, not the typed one, so case variants share one cooldown
       const token = await createVerificationToken(user.email)
       await sendVerificationEmail(user.email, token)
     } catch (err: unknown) {

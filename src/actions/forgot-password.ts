@@ -21,7 +21,6 @@ export async function forgotPassword(email: string, turnstileToken: string) {
     }
 
     try {
-      // Use the stored email, not the typed one, so case variants share one cooldown
       const token = await createPasswordResetToken(user.email)
       await sendPasswordResetEmail(user.email, token)
     } catch (err: unknown) {

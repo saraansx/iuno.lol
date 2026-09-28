@@ -1,3 +1,5 @@
+import "server-only";
+
 export const CATBOX_BASE = "https://files.catbox.moe/";
 export const CDN_BASE = "https://cdn.iuno.lol/";
 export const IMAGE_HOST_BASE = "https://host.iuno.lol/";

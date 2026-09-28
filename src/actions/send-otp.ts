@@ -22,7 +22,6 @@ export const sendOTP = async (
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
 
-    // Same response whether or not the account exists, so emails can't be probed
     const genericSuccess = { success: 'If an account exists for that email, we sent a code.' }
 
     const user = await getUserByEmail(clean)
