@@ -533,11 +533,8 @@ export const userBackgroundsRelations = relations(userBackgrounds, ({ one }) => 
 export const imageHostFiles = mysqlTable('image_host_files', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  // Public link (https://host.iuno.lol/<random id>.<ext>) — never the storage name
   url: varchar('url', { length: 255 }).notNull(),
-  // Upstream storage file name; resolved server-side only, never sent to clients
   storageId: varchar('storage_id', { length: 128 }),
-  // bcrypt hash; when set, viewers must unlock the file with its password
   passwordHash: varchar('password_hash', { length: 255 }),
   name: varchar('name', { length: 255 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),

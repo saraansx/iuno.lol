@@ -7,7 +7,6 @@ import type { ImageHostKind } from '@/lib/image-host'
 const PUBLIC_ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
 const PUBLIC_ID_LENGTH = 5
 
-// Random public file name, unrelated to the upstream storage name
 function newPublicId(): string {
   let id = ''
   for (let i = 0; i < PUBLIC_ID_LENGTH; i++) id += PUBLIC_ID_ALPHABET[randomInt(PUBLIC_ID_ALPHABET.length)]
@@ -28,7 +27,6 @@ export interface RecordImageHostFileInput {
   kind: ImageHostKind
 }
 
-// Stores the file under a fresh public link and returns that link
 export async function recordImageHostFile(input: RecordImageHostFileInput): Promise<string> {
   const { ext, ...rest } = input
   for (let attempt = 0; ; attempt++) {
@@ -57,7 +55,6 @@ export interface ImageHostFileAccess {
   passwordHash: string | null
 }
 
-// Looks up a file by its public name (e.g. "k9Xa2.mp4") for serving / unlocking
 export async function getImageHostFileAccess(publicName: string): Promise<ImageHostFileAccess | null> {
   const [row] = await db
     .select({
@@ -83,7 +80,6 @@ export async function getOwnedImageHostFile(
   return row ?? null
 }
 
-// Pass a bcrypt hash to lock the file, or null to unlock it
 export async function setImageHostFilePassword(
   userId: number,
   id: number,
@@ -302,9 +298,7 @@ export async function setImageHostFavorite(
 
 export interface DeleteImageHostFilesResult {
   deletedIds: number[]
-  // Upstream storage names no longer referenced by any row — safe to delete upstream
   orphanedStorageIds: string[]
-  // Public links of the deleted rows — to purge from the CDN cache
   deletedUrls: string[]
   usedBytes: number
 }

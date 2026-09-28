@@ -113,6 +113,16 @@ function TrashIcon() {
 }
 
 function Thumbnail({ file }: { file: GalleryFile }) {
+  if (file.locked) {
+    return (
+      <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#5b6cf5]/[0.06] text-[#aab4ff]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
+        </svg>
+        <span className="text-[11px] text-white/40">Password protected</span>
+      </div>
+    );
+  }
   if (file.kind === "video") {
     return (
       <>
@@ -240,6 +250,11 @@ export default function ImageHostGalleryClient() {
     } catch {
       toast.error("Couldn't copy link");
     }
+  };
+
+  const openFile = (file: GalleryFile) => {
+    if (file.locked) window.open(file.url, "_blank", "noopener,noreferrer");
+    else setViewer(file);
   };
 
   const requestPassword = (file: GalleryFile) => {
@@ -405,7 +420,7 @@ export default function ImageHostGalleryClient() {
             <div className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 transition-opacity ${paging ? "opacity-50 pointer-events-none" : ""}`}>
               {files.map((f) => (
                 <FileCard key={f.id} file={f} selected={selected.has(f.id)} menuOpen={menuOpenId === f.id}
-                  onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink} onOpen={setViewer}
+                  onToggleSelect={toggleSelect} onToggleMenu={toggleMenu} onCopy={copyLink} onOpen={openFile}
                   onToggleFavorite={toggleFavorite} onRequestPassword={requestPassword}
                   onRequestDelete={setConfirmDelete} onCloseMenu={() => setMenuOpenId(null)} />
               ))}

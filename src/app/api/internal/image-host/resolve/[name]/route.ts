@@ -1,15 +1,12 @@
 import { timingSafeEqual } from "node:crypto";
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { getSessionUserId } from "@/lib/auth/session";
 import { getImageHostFileAccess } from "@/lib/features/image-host/db";
-import { PUBLIC_NAME_RE, isValidUnlockToken, unlockCookieName } from "@/lib/features/image-host/unlock";
+import { PUBLIC_NAME_RE, isValidUnlockToken } from "@/lib/features/image-host/unlock";
 
 export const dynamic = "force-dynamic";
 
 const STORAGE_RE = /^[A-Za-z0-9._-]{1,128}$/;
 
-// Cache policy nginx applies to the file response (Cloudflare honours it)
 const PUBLIC_CACHE = "public, max-age=14400";
 const PRIVATE_CACHE = "private, no-store";
 
@@ -22,10 +19,6 @@ function authorized(req: Request): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-// Called by the host.iuno.lol nginx (auth_request) to map a public file name
-// to its upstream storage name. Never reachable without the shared secret.
-// The viewer's cookies are forwarded, so password-locked files are only
-// resolved for the owner or someone holding a valid unlock cookie.
 export async function GET(req: Request, { params }: { params: Promise<{ name: string }> }) {
   if (!authorized(req)) return new NextResponse(null, { status: 404 });
 
@@ -37,10 +30,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
     if (!file?.storageId || !STORAGE_RE.test(file.storageId)) return new NextResponse(null, { status: 404 });
 
     if (file.passwordHash) {
-      const token = (await cookies()).get(unlockCookieName(name))?.value;
-      const unlocked =
-        isValidUnlockToken(name, file.passwordHash, token) || (await getSessionUserId()) === file.userId;
-      if (!unlocked) {
+      const token = new URL(req.url).searchParams.get("t") ?? undefined;
+      if (!isValidUnlockToken(name, file.passwordHash, token)) {
         return new NextResponse(null, { status: 401, headers: { "Cache-Control": "no-store" } });
       }
     }

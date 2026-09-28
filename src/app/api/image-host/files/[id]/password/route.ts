@@ -10,7 +10,6 @@ export const dynamic = "force-dynamic";
 
 type Ctx = { params: Promise<{ id: string }> };
 
-// Shared auth / rate limit / ownership checks for both handlers
 async function load(req: Request, { params }: Ctx) {
   const userId = await getSessionUserId();
   if (!userId) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
@@ -38,7 +37,6 @@ async function load(req: Request, { params }: Ctx) {
   return { userId, id, password, file };
 }
 
-// Lock a file with a password
 export async function POST(req: Request, ctx: Ctx) {
   try {
     const r = await load(req, ctx);
@@ -54,7 +52,6 @@ export async function POST(req: Request, ctx: Ctx) {
     }
 
     await setImageHostFilePassword(r.userId, r.id, await hashPassword(r.password));
-    // Drop any publicly cached copy so the lock applies immediately
     await purgeCloudflareFiles([r.file.url]);
     return NextResponse.json({ locked: true });
   } catch (error) {
@@ -63,7 +60,6 @@ export async function POST(req: Request, ctx: Ctx) {
   }
 }
 
-// Remove the password; requires the current password
 export async function DELETE(req: Request, ctx: Ctx) {
   try {
     const r = await load(req, ctx);

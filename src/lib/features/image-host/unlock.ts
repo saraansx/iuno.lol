@@ -1,21 +1,15 @@
 import "server-only";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
-// Public file names look like "k9Xa2.mp4"
 export const PUBLIC_NAME_RE = /^[A-Za-z0-9]{5}\.[a-z0-9]{2,5}$/;
 
-export const UNLOCK_TTL_SECONDS = 24 * 60 * 60;
+export const UNLOCK_TTL_SECONDS = 2 * 60 * 60;
 export const FILE_PASSWORD_MIN = 4;
 export const FILE_PASSWORD_MAX = 128;
-
-export function unlockCookieName(publicName: string): string {
-  return `ih_unlock_${publicName.replace(/\./g, "_")}`;
-}
 
 function sign(publicName: string, passwordHash: string, exp: number): string {
   const secret = process.env.JWT_SECRET_KEY;
   if (!secret) throw new Error("JWT_SECRET_KEY is not set");
-  // Binding the current hash means changing/removing the password revokes old unlocks
   return createHmac("sha256", secret)
     .update(`ih-unlock|${publicName}|${exp}|${passwordHash}`)
     .digest("base64url");
