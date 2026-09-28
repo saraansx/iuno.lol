@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
-import { CATBOX_BASE, imageHostFileId } from "@/lib/cdn";
+import { CATBOX_BASE } from "@/lib/cdn";
 import { getImageHostFileForUser } from "@/lib/features/image-host/db";
 
 export const dynamic = "force-dynamic";
@@ -22,10 +22,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     }
 
     const file = await getImageHostFileForUser(userId, id);
-    const fileId = file ? imageHostFileId(file.url) : null;
-    if (!file || !fileId) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const storageId = file?.storageId;
+    if (!file || !storageId) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const upstream = await fetch(`${CATBOX_BASE}${fileId}`, {
+    const upstream = await fetch(`${CATBOX_BASE}${storageId}`, {
       headers: { "User-Agent": "iuno-cdn/1.0" },
       signal: AbortSignal.timeout(60000),
     });
@@ -35,7 +35,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
 
     const headers = new Headers({
       "Content-Type": upstream.headers.get("content-type") || "application/octet-stream",
-      "Content-Disposition": attachmentHeader(file.name || fileId),
+      "Content-Disposition": attachmentHeader(file.name || "download"),
       "Cache-Control": "private, no-store",
     });
     const length = upstream.headers.get("content-length");

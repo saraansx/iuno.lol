@@ -3,7 +3,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";
 import { purgeCloudflareFiles } from "@/lib/cloudflare";
-import { IMAGE_HOST_BASE } from "@/lib/cdn";
 import {
   listImageHostFiles,
   setImageHostFavorite,
@@ -90,24 +89,22 @@ export async function DELETE(req: Request) {
     const ids = parseIds(body?.ids);
     if (!ids) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
 
-    const { deletedIds, orphanedFileIds, usedBytes } = await deleteImageHostFiles(userId, ids);
+    const { deletedIds, orphanedStorageIds, deletedUrls, usedBytes } = await deleteImageHostFiles(userId, ids);
 
     const userhash = process.env.CATBOX_USERHASH;
-    if (userhash && orphanedFileIds.length > 0) {
+    if (userhash && orphanedStorageIds.length > 0) {
       try {
         const del = new FormData();
         del.append("reqtype", "deletefiles");
         del.append("userhash", userhash);
-        del.append("files", orphanedFileIds.join(" "));
+        del.append("files", orphanedStorageIds.join(" "));
         await fetch(CATBOX_API, { method: "POST", body: del, signal: AbortSignal.timeout(15000) });
       } catch (e) {
         console.error("[image-host] Catbox delete error:", e);
       }
     }
 
-    if (orphanedFileIds.length > 0) {
-      await purgeCloudflareFiles(orphanedFileIds.map((id) => `${IMAGE_HOST_BASE}${id}`));
-    }
+    if (deletedUrls.length > 0) await purgeCloudflareFiles(deletedUrls);
 
     return NextResponse.json({ deletedIds, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
   } catch (error) {

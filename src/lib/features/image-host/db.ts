@@ -1,29 +1,64 @@
+import { randomInt } from 'node:crypto'
 import { db, schema } from '@/lib/db'
 import { and, desc, eq, gte, inArray, sql, count } from 'drizzle-orm'
-import { imageHostFileId } from '@/lib/cdn'
+import { IMAGE_HOST_BASE } from '@/lib/cdn'
 import type { ImageHostKind } from '@/lib/image-host'
+
+const PUBLIC_ID_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+const PUBLIC_ID_LENGTH = 12
+
+// Random public file name, unrelated to the upstream storage name
+function newPublicId(): string {
+  let id = ''
+  for (let i = 0; i < PUBLIC_ID_LENGTH; i++) id += PUBLIC_ID_ALPHABET[randomInt(PUBLIC_ID_ALPHABET.length)]
+  return id
+}
+
+function isDuplicateKeyError(error: unknown): boolean {
+  const e = error as { code?: string; cause?: { code?: string } } | null
+  return e?.code === 'ER_DUP_ENTRY' || e?.cause?.code === 'ER_DUP_ENTRY'
+}
 
 export interface RecordImageHostFileInput {
   userId: number
-  url: string
+  storageId: string
+  ext: string
   name: string
   size: number
   kind: ImageHostKind
 }
 
-export async function recordImageHostFile(input: RecordImageHostFileInput): Promise<void> {
-  await db
-    .insert(schema.imageHostFiles)
-    .values(input)
-    .onDuplicateKeyUpdate({ set: { name: input.name } })
-  await db.insert(schema.imageHostActivity).values({
-    userId: input.userId,
-    action: 'upload',
-    kind: input.kind,
-    name: input.name,
-    size: input.size,
-    url: input.url,
-  })
+// Stores the file under a fresh public link and returns that link
+export async function recordImageHostFile(input: RecordImageHostFileInput): Promise<string> {
+  const { ext, ...rest } = input
+  for (let attempt = 0; ; attempt++) {
+    const url = `${IMAGE_HOST_BASE}${newPublicId()}.${ext}`
+    try {
+      await db.insert(schema.imageHostFiles).values({ ...rest, url })
+    } catch (error) {
+      if (isDuplicateKeyError(error) && attempt < 2) continue
+      throw error
+    }
+    await db.insert(schema.imageHostActivity).values({
+      userId: input.userId,
+      action: 'upload',
+      kind: input.kind,
+      name: input.name,
+      size: input.size,
+      url,
+    })
+    return url
+  }
+}
+
+// Maps a public file name (e.g. "k9Xa2mQpT4bZ.mp4") to its upstream storage name
+export async function resolveImageHostStorageId(publicName: string): Promise<string | null> {
+  const [row] = await db
+    .select({ storageId: schema.imageHostFiles.storageId })
+    .from(schema.imageHostFiles)
+    .where(eq(schema.imageHostFiles.url, `${IMAGE_HOST_BASE}${publicName}`))
+    .limit(1)
+  return row?.storageId ?? null
 }
 
 export async function getImageHostUsedBytes(userId: number): Promise<number> {
@@ -199,9 +234,9 @@ export async function listImageHostFiles(
 export async function getImageHostFileForUser(
   userId: number,
   id: number,
-): Promise<{ url: string; name: string } | null> {
+): Promise<{ storageId: string | null; name: string } | null> {
   const [row] = await db
-    .select({ url: schema.imageHostFiles.url, name: schema.imageHostFiles.name })
+    .select({ storageId: schema.imageHostFiles.storageId, name: schema.imageHostFiles.name })
     .from(schema.imageHostFiles)
     .where(and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id)))
     .limit(1)
@@ -230,7 +265,10 @@ export async function setImageHostFavorite(
 
 export interface DeleteImageHostFilesResult {
   deletedIds: number[]
-  orphanedFileIds: string[]
+  // Upstream storage names no longer referenced by any row — safe to delete upstream
+  orphanedStorageIds: string[]
+  // Public links of the deleted rows — to purge from the CDN cache
+  deletedUrls: string[]
   usedBytes: number
 }
 
@@ -239,7 +277,7 @@ export async function deleteImageHostFiles(
   ids: number[],
 ): Promise<DeleteImageHostFilesResult> {
   if (ids.length === 0) {
-    return { deletedIds: [], orphanedFileIds: [], usedBytes: await getImageHostUsedBytes(userId) }
+    return { deletedIds: [], orphanedStorageIds: [], deletedUrls: [], usedBytes: await getImageHostUsedBytes(userId) }
   }
 
   return db.transaction(async (tx) => {
@@ -251,6 +289,7 @@ export async function deleteImageHostFiles(
       .select({
         id: schema.imageHostFiles.id,
         url: schema.imageHostFiles.url,
+        storageId: schema.imageHostFiles.storageId,
         name: schema.imageHostFiles.name,
         size: schema.imageHostFiles.size,
         kind: schema.imageHostFiles.kind,
@@ -263,11 +302,14 @@ export async function deleteImageHostFiles(
         .select({ used: sql<number>`coalesce(sum(${schema.imageHostFiles.size}), 0)` })
         .from(schema.imageHostFiles)
         .where(eq(schema.imageHostFiles.userId, userId))
-      return { deletedIds: [], orphanedFileIds: [], usedBytes: Number(usedRow?.used ?? 0) }
+      return { deletedIds: [], orphanedStorageIds: [], deletedUrls: [], usedBytes: Number(usedRow?.used ?? 0) }
     }
 
     const deletedIds = rows.map((r) => r.id)
-    const urls = [...new Set(rows.map((r) => r.url))]
+    const deletedUrls = [...new Set(rows.map((r) => r.url))]
+    const storageIds = [
+      ...new Set(rows.map((r) => r.storageId).filter((s): s is string => Boolean(s))),
+    ]
 
     await tx.delete(schema.imageHostFiles).where(owned)
 
@@ -282,21 +324,20 @@ export async function deleteImageHostFiles(
       })),
     )
 
-    const stillReferenced = await tx
-      .select({ url: schema.imageHostFiles.url })
-      .from(schema.imageHostFiles)
-      .where(inArray(schema.imageHostFiles.url, urls))
-    const referenced = new Set(stillReferenced.map((r) => r.url))
-    const orphanedFileIds = urls
-      .filter((u) => !referenced.has(u))
-      .map((u) => imageHostFileId(u))
-      .filter((id): id is string => id !== null)
+    const stillReferenced = storageIds.length
+      ? await tx
+          .select({ storageId: schema.imageHostFiles.storageId })
+          .from(schema.imageHostFiles)
+          .where(inArray(schema.imageHostFiles.storageId, storageIds))
+      : []
+    const referenced = new Set(stillReferenced.map((r) => r.storageId))
+    const orphanedStorageIds = storageIds.filter((s) => !referenced.has(s))
 
     const [usedRow] = await tx
       .select({ used: sql<number>`coalesce(sum(${schema.imageHostFiles.size}), 0)` })
       .from(schema.imageHostFiles)
       .where(eq(schema.imageHostFiles.userId, userId))
 
-    return { deletedIds, orphanedFileIds, usedBytes: Number(usedRow?.used ?? 0) }
+    return { deletedIds, orphanedStorageIds, deletedUrls, usedBytes: Number(usedRow?.used ?? 0) }
   })
 }

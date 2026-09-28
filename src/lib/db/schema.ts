@@ -533,7 +533,10 @@ export const userBackgroundsRelations = relations(userBackgrounds, ({ one }) => 
 export const imageHostFiles = mysqlTable('image_host_files', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  // Public link (https://host.iuno.lol/<random id>.<ext>) — never the storage name
   url: varchar('url', { length: 255 }).notNull(),
+  // Upstream storage file name; resolved server-side only, never sent to clients
+  storageId: varchar('storage_id', { length: 128 }),
   name: varchar('name', { length: 255 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),
   kind: mysqlEnum('kind', ['image', 'video']).notNull(),
@@ -541,6 +544,8 @@ export const imageHostFiles = mysqlTable('image_host_files', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   userUrlIdx: uniqueIndex('image_host_files_user_url_unique').on(table.userId, table.url),
+  urlIdx: uniqueIndex('image_host_files_url_unique').on(table.url),
+  storageIdx: index('image_host_files_storage_idx').on(table.storageId),
   userCreatedIdx: index('image_host_files_user_created_idx').on(table.userId, table.createdAt),
   userFavoriteIdx: index('image_host_files_user_favorite_idx').on(table.userId, table.favorite),
 }))

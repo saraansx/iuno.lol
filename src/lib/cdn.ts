@@ -5,7 +5,6 @@ export const CDN_BASE = "https://cdn.iuno.lol/";
 export const IMAGE_HOST_BASE = "https://host.iuno.lol/";
 
 const STORED_MEDIA_HOSTS = new Set(["files.catbox.moe", "cdn.iuno.lol"]);
-const IMAGE_HOST_HOSTS = new Set(["files.catbox.moe", "host.iuno.lol"]);
 
 function hostnameOf(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -46,13 +45,3 @@ export function toCdnUrl(url: string): string {
   return `${CDN_BASE}${id}`;
 }
 
-export function imageHostFileId(url: string | null | undefined): string | null {
-  return fileIdForHosts(url, IMAGE_HOST_HOSTS);
-}
-
-export function toImageHostUrl(url: string): string {
-  const id = imageHostFileId(url);
-  if (!id) return url;
-  if (url.startsWith(IMAGE_HOST_BASE)) return url;
-  return `${IMAGE_HOST_BASE}${id}`;
-}

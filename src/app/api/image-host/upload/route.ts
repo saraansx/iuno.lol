@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { imageHostUploadRateLimit } from "@/lib/rate-limit";
 import { detectImageOrVideo } from "@/lib/media-signature";
-import { toImageHostUrl } from "@/lib/cdn";
 import {
   IMAGE_HOST_MAX_FILE_BYTES,
   IMAGE_HOST_MAX_FILE_MB,
@@ -129,8 +128,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }
 
-    const url = toImageHostUrl(body);
-    await recordImageHostFile({ userId, url, name: sanitizeName(file.name), size: file.size, kind });
+    const storageId = body.slice("https://files.catbox.moe/".length);
+    const url = await recordImageHostFile({
+      userId,
+      storageId,
+      ext: detected.ext,
+      name: sanitizeName(file.name),
+      size: file.size,
+      kind,
+    });
     const usedBytes = await getImageHostUsedBytes(userId);
 
     return NextResponse.json({ url, kind, size: file.size, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
