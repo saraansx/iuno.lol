@@ -17,7 +17,12 @@ export async function widgetRateLimit(
         { status: 429, headers: { "Retry-After": String(rate.retryAfterSeconds) } },
       );
     }
-  } catch {
+  } catch (err) {
+    console.error(`[widget-guard] Rate limit check failed for "${key}", blocking request:`, err);
+    return NextResponse.json(
+      { error: "Service temporarily unavailable. Please try again later." },
+      { status: 503, headers: { "Retry-After": "30" } },
+    );
   }
 
   return null;

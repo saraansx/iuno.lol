@@ -345,7 +345,7 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
     Profile:
       pathname.startsWith("/dashboard/customize/profile") ||
       pathname === "/dashboard/customize/links",
-    "Image Host": true,
+    "Image Host": pathname.startsWith("/dashboard/image-host"),
   }));
   const [open, setOpen] = useState(true);
 
