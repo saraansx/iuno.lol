@@ -4,8 +4,15 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
-import { commentRateLimit, commentLikeRateLimit } from "@/lib/rate-limit";
+import { commentRateLimit, commentLikeRateLimit, commentModifyRateLimit } from "@/lib/rate-limit";
 import { safePage, safeLimit } from "@/lib/utils";
+
+// Not exported, so it stays a private helper rather than a callable server action
+async function checkCommentModifyLimit(userId: number) {
+  const rate = await commentModifyRateLimit(userId);
+  if (rate.ok) return null;
+  return { error: `You're doing that too fast. Please wait ${rate.retryAfterSeconds} second${rate.retryAfterSeconds === 1 ? '' : 's'}.` };
+}
 
 type PublicCommentAuthor = {
   id: number;
@@ -217,6 +224,9 @@ export async function togglePinComment(commentId: number, profileId: number) {
   const userId = await getSessionUserId();
   if (!userId || userId !== profileId) return { error: "Unauthorized" };
 
+  const limited = await checkCommentModifyLimit(userId);
+  if (limited) return limited;
+
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
   });
@@ -235,6 +245,9 @@ export async function togglePinComment(commentId: number, profileId: number) {
 export async function editComment(commentId: number, content: string) {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
+
+  const limited = await checkCommentModifyLimit(userId);
+  if (limited) return limited;
 
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
@@ -264,9 +277,15 @@ export async function editComment(commentId: number, content: string) {
   return { success: true };
 }
 
-export async function deleteComment(commentId: number, profileId: number) {
+export async function deleteComment(
+  commentId: number,
+  profileId: number
+): Promise<{ success?: boolean; error?: string }> {
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
+
+  const limited = await checkCommentModifyLimit(userId);
+  if (limited) return limited;
 
   const comment = await db.query.profileComments.findFirst({
     where: eq(schema.profileComments.id, commentId),
