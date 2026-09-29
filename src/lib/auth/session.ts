@@ -8,7 +8,6 @@ import { getUserForSession } from '@/lib/features/users/db'
 
 type SessionPayload = {
   userId: number
-  expiresAt: Date
 }
 
 const SESSION_COOKIE_NAME = 'iuno_session'
@@ -16,8 +15,8 @@ const SESSION_COOKIE_NAME = 'iuno_session'
 export async function createSession(userId: number) {
   const expiresAt = addDays(new Date(), 7)
 
-  const payload: SessionPayload = { userId, expiresAt }
-  const session = await encrypt(payload)
+  const payload: SessionPayload = { userId }
+  const session = await encrypt(payload, expiresAt)
   const cookieStore = await cookies()
 
   const isProduction = process.env.NODE_ENV === 'production'
@@ -34,7 +33,6 @@ export async function createSession(userId: number) {
 
 const decryptedSessionSchema = z.object({
   userId: z.number(),
-  expiresAt: z.string(),
   iat: z.number(),
   exp: z.number(),
 })
