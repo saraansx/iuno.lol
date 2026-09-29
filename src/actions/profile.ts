@@ -52,7 +52,7 @@ function isValidMediaUrl(url: string | null | undefined): boolean {
           url.startsWith("https://discord-decoration.art/");
 }
 
-export async function updateGeneralProfile(data: {
+async function updateGeneralProfileImpl(data: {
   displayName?: string;
   location?: string;
   timezone?: string;
@@ -288,7 +288,7 @@ export async function updateGeneralProfile(data: {
   return { success: true };
 }
 
-export async function updateBackgrounds(urls: string[]) {
+async function updateBackgroundsImpl(urls: string[]) {
   const userId = await getSessionUserId();
   if (!userId) {
     throw new Error("Unauthorized");
@@ -339,7 +339,7 @@ export async function updateBackgrounds(urls: string[]) {
   return { success: true };
 }
 
-export async function updateAppearanceProfile(data: {
+async function updateAppearanceProfileImpl(data: {
   pageBgColor?: string;
   profileBgColor?: string;
   profileBgOpacity?: number;
@@ -565,7 +565,7 @@ export async function updateAppearanceProfile(data: {
   return { success: true };
 }
 
-export async function updateColorsProfile(data: {
+async function updateColorsProfileImpl(data: {
   usernameColor?: string | null;
   bioColor?: string | null;
   otherColor?: string | null;
@@ -643,7 +643,7 @@ const DETAIL_PLACEMENT_FIELDS = [
 
 const PROFILE_PRESETS = ["split", "floating", "modern", "classic"] as const;
 
-export async function updateLayoutProfile(data: {
+async function updateLayoutProfileImpl(data: {
   profileStructure?: string;
   aboutSectionEnabled?: boolean;
   aboutSectionTitle?: string;
@@ -779,7 +779,7 @@ export async function updateLayoutProfile(data: {
   return { success: true };
 }
 
-export async function updateMetadataProfile(data: {
+async function updateMetadataProfileImpl(data: {
   embedTitle?: string;
   embedDescription?: string;
   embedColor?: string;
@@ -899,7 +899,7 @@ export async function updateMetadataProfile(data: {
   return { success: true };
 }
 
-export async function updateEffectsProfile(data: {
+async function updateEffectsProfileImpl(data: {
   backgroundEffect?: string | null;
   backgroundEffectIntensity?: number | null;
   backgroundEffectColor?: string | null;
@@ -1041,7 +1041,7 @@ export async function updateEffectsProfile(data: {
   return { success: true };
 }
 
-export async function updateProfileWidgets(data: {
+async function updateProfileWidgetsImpl(data: {
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
   widgetBorderOpacity?: number;
@@ -1635,7 +1635,7 @@ async function fetchTrackLyrics(input: {
   }
 }
 
-export async function updateMusicProfile(data: {
+async function updateMusicProfileImpl(data: {
   tracks: MusicTrackInput[];
   playerStyle?: string;
   artBg?: boolean;
@@ -1778,7 +1778,7 @@ export async function updateMusicProfile(data: {
   };
 }
 
-export async function saveProfileLinks(data: {
+async function saveProfileLinksImpl(data: {
   links: unknown[];
   alignment?: string;
   socialBackground?: boolean;
@@ -1857,7 +1857,7 @@ export async function saveProfileLinks(data: {
   return { success: true, links: sanitizedLinks as ProfileLink[] };
 }
 
-export async function deleteLinkIconFiles(urls: string[]) {
+async function deleteLinkIconFilesImpl(urls: string[]) {
   const userId = await getSessionUserId();
   if (!userId) {
     throw new Error("Unauthorized");
@@ -1875,3 +1875,78 @@ export async function deleteLinkIconFiles(urls: string[]) {
   return { success: true };
 }
 
+const INVALID_DATA = "Invalid data. Please refresh the page and try again.";
+
+function assertPlainObject<T>(data: T): T {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    throw new Error(INVALID_DATA);
+  }
+  return data;
+}
+
+function assertStringArray(urls: unknown): string[] {
+  if (!Array.isArray(urls) || urls.some((u) => typeof u !== "string")) {
+    throw new Error(INVALID_DATA);
+  }
+  return urls;
+}
+
+async function runSafely<R>(action: string, fn: () => Promise<R>): Promise<R> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof TypeError || err instanceof RangeError || err instanceof SyntaxError) {
+      console.warn(`[profile:${action}] Rejected malformed input:`, err.message);
+      throw new Error(INVALID_DATA);
+    }
+    if (err && typeof err === "object" && "sqlMessage" in err) {
+      console.error(`[profile:${action}] Database rejected update:`, err);
+      throw new Error("Could not save your changes. Please check your values and try again.");
+    }
+    throw err;
+  }
+}
+
+export async function updateGeneralProfile(data: Parameters<typeof updateGeneralProfileImpl>[0]) {
+  return runSafely("general", () => updateGeneralProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateBackgrounds(urls: string[]) {
+  return runSafely("backgrounds", () => updateBackgroundsImpl(assertStringArray(urls)));
+}
+
+export async function updateAppearanceProfile(data: Parameters<typeof updateAppearanceProfileImpl>[0]) {
+  return runSafely("appearance", () => updateAppearanceProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateColorsProfile(data: Parameters<typeof updateColorsProfileImpl>[0]) {
+  return runSafely("colors", () => updateColorsProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateLayoutProfile(data: Parameters<typeof updateLayoutProfileImpl>[0]) {
+  return runSafely("layout", () => updateLayoutProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateMetadataProfile(data: Parameters<typeof updateMetadataProfileImpl>[0]) {
+  return runSafely("metadata", () => updateMetadataProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateEffectsProfile(data: Parameters<typeof updateEffectsProfileImpl>[0]) {
+  return runSafely("effects", () => updateEffectsProfileImpl(assertPlainObject(data)));
+}
+
+export async function updateProfileWidgets(data: Parameters<typeof updateProfileWidgetsImpl>[0]) {
+  return runSafely("widgets", () => updateProfileWidgetsImpl(assertPlainObject(data)));
+}
+
+export async function updateMusicProfile(data: Parameters<typeof updateMusicProfileImpl>[0]) {
+  return runSafely("music", () => updateMusicProfileImpl(assertPlainObject(data)));
+}
+
+export async function saveProfileLinks(data: Parameters<typeof saveProfileLinksImpl>[0]) {
+  return runSafely("links", () => saveProfileLinksImpl(assertPlainObject(data)));
+}
+
+export async function deleteLinkIconFiles(urls: string[]) {
+  return runSafely("link-icons", () => deleteLinkIconFilesImpl(assertStringArray(urls)));
+}

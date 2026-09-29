@@ -52,11 +52,15 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
   try {
     const result = await db.transaction(async (tx) => {
-      await tx
+      const [target] = await tx
         .select({ id: schema.users.id })
         .from(schema.users)
         .where(eq(schema.users.id, userId))
         .for("update");
+
+      if (!target) {
+        return { applied: false, notFound: true };
+      }
 
       const existingRows = await tx
         .select({ type: schema.profileFeedback.type })
@@ -136,6 +140,10 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
       return { applied: true };
     });
+
+    if (result && "notFound" in result) {
+      return { success: false, error: "Profile not found." };
+    }
 
     if (!result?.applied) {
       return { success: true, changed: false };

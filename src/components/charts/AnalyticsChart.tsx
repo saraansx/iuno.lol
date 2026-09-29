@@ -52,7 +52,6 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
     if (!isMounted) return [];
 
     const now = new Date();
-    // Today plus the previous 6 days; matches the 7-day retention in cleanup-views
     const daysBack = 6;
     const viewMap = new Map<string, number>();
 
