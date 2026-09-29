@@ -1,4 +1,5 @@
 "use client";
+import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
@@ -228,11 +229,13 @@ export function AuroraEffect({
     }
     window.addEventListener("resize", resize);
 
+    const visibility = trackVisibility(ctn);
     let animateId = 0;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
+      if (!visibility.state.visible) return;
       const p = propsRef.current;
-      const it = Math.min(1, Math.max(0, p.intensity / 100));
+      const it =Math.min(1, Math.max(0, p.intensity / 100));
       const speedFactor = p.speed ?? (0.2 + it * 1.3);
       (U.uTime as NumUniform).value = t * 0.01 * speedFactor * 0.1;
       renderer.render({ scene: mesh });
@@ -243,6 +246,7 @@ export function AuroraEffect({
 
     return () => {
       cancelAnimationFrame(animateId);
+      visibility.stop();
       window.removeEventListener("resize", resize);
       delete (ctn as HTMLDivElement & { __auroraMesh?: Mesh }).__auroraMesh;
       if (gl.canvas.parentNode === ctn) {

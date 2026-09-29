@@ -1,4 +1,5 @@
 "use client";
+import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle, Vec2 } from "ogl";
@@ -158,9 +159,11 @@ export function DarkVeilEffect({
     window.addEventListener("resize", resize);
 
     const start = performance.now();
+    const visibility = trackVisibility(ctn);
     let animateId = 0;
     const loop = () => {
       animateId = requestAnimationFrame(loop);
+      if (!visibility.state.visible) return;
       const p = propsRef.current;
       (U.uTime as NumUniform).value = ((performance.now() - start) / 1000) * (p.speed ?? DEFAULTS.speed);
       (U.uHueShift as NumUniform).value = p.hueShift ?? DEFAULTS.hueShift;
@@ -176,6 +179,7 @@ export function DarkVeilEffect({
 
     return () => {
       cancelAnimationFrame(animateId);
+      visibility.stop();
       window.removeEventListener("resize", resize);
       if (gl.canvas.parentNode === ctn) {
         ctn.removeChild(gl.canvas);

@@ -1,4 +1,5 @@
 "use client";
+import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Triangle } from "ogl";
@@ -139,9 +140,11 @@ export function LiquidChromeEffect({ color, speed, amplitude, interactive }: Liq
     ctn.addEventListener("mousemove", handleMouseMove, { passive: true });
     ctn.addEventListener("touchmove", handleTouchMove, { passive: true });
 
+    const visibility = trackVisibility(ctn);
     let animateId = 0;
     const update = (t: number) => {
       animateId = requestAnimationFrame(update);
+      if (!visibility.state.visible) return;
       const p = propsRef.current;
       (program.uniforms.uTime.value as number) = t * 0.001 * (p.speed ?? DEFAULTS.speed);
       (program.uniforms.uAmplitude.value as number) = p.amplitude ?? DEFAULTS.amplitude;
@@ -152,6 +155,7 @@ export function LiquidChromeEffect({ color, speed, amplitude, interactive }: Liq
 
     return () => {
       cancelAnimationFrame(animateId);
+      visibility.stop();
       window.removeEventListener("resize", resize);
       ctn.removeEventListener("mousemove", handleMouseMove);
       ctn.removeEventListener("touchmove", handleTouchMove);

@@ -1,4 +1,5 @@
 "use client";
+import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Triangle, Mesh } from "ogl";
@@ -246,8 +247,14 @@ void main() {
         uniforms.rayDir.value = dir;
       };
 
+      const visibility = trackVisibility(containerRef.current);
       const loop = (t: number) => {
         if (!rendererRef.current || !uniformsRef.current || !meshRef.current) {
+          return;
+        }
+
+        if (!visibility.state.visible) {
+          animationIdRef.current = requestAnimationFrame(loop);
           return;
         }
 
@@ -270,6 +277,7 @@ void main() {
           cancelAnimationFrame(animationIdRef.current);
           animationIdRef.current = null;
         }
+        visibility.stop();
 
         window.removeEventListener("resize", updatePlacement);
 

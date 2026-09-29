@@ -1,4 +1,5 @@
 "use client";
+import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
@@ -244,11 +245,13 @@ export function ColorBendsEffect(props: ColorBendsSettings) {
     let lastStamp = startStamp;
     let elapsed = 0;
     let raf = 0;
+    const visibility = trackVisibility(container);
     const loop = () => {
       raf = requestAnimationFrame(loop);
       const now = performance.now();
       const dt = Math.min((now - lastStamp) / 1000, 0.1);
       lastStamp = now;
+      if (!visibility.state.visible) return;
       elapsed += dt;
 
       const c = settingsRef.current;
@@ -281,6 +284,7 @@ export function ColorBendsEffect(props: ColorBendsSettings) {
 
     return () => {
       cancelAnimationFrame(raf);
+      visibility.stop();
       ro.disconnect();
       container.removeEventListener("pointermove", onPointerMove);
       geometry.dispose();
