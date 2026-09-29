@@ -168,7 +168,7 @@ export function CommentsModal({
       
       return updated;
     });
-    togglePinComment(id, profileId).catch(() => {
+    togglePinComment(id).catch(() => {
     });
   };
 

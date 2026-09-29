@@ -219,9 +219,9 @@ export async function toggleLikeComment(commentId: number) {
   return { success: true };
 }
 
-export async function togglePinComment(commentId: number, profileId: number) {
+export async function togglePinComment(commentId: number) {
   const userId = await getSessionUserId();
-  if (!userId || userId !== profileId) return { error: "Unauthorized" };
+  if (!userId) return { error: "Unauthorized" };
 
   const limited = await checkCommentModifyLimit(userId);
   if (limited) return limited;
@@ -230,7 +230,7 @@ export async function togglePinComment(commentId: number, profileId: number) {
     where: eq(schema.profileComments.id, commentId),
   });
 
-  if (!comment || comment.profileId !== profileId) {
+  if (!comment || comment.profileId !== userId) {
     return { error: "Comment not found or unauthorized" };
   }
 

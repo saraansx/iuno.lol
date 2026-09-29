@@ -126,7 +126,7 @@ export default function RecentComments({
     }
   };
 
-  const handlePin = async (commentId: number, profileId: number) => {
+  const handlePin = async (commentId: number) => {
     const updater = (prev: CommentData[]) => prev.map(c =>
       c.id === commentId
         ? { ...c, isPinned: !c.isPinned }
@@ -135,7 +135,7 @@ export default function RecentComments({
     setReceived(updater);
 
     try {
-      const res = await togglePinComment(commentId, profileId);
+      const res = await togglePinComment(commentId);
       if ("error" in res) {
         fetchComments(receivedPage, "received");
       }
@@ -238,7 +238,7 @@ export default function RecentComments({
 
                         {activeTab === "received" ? (
                           <button
-                            onClick={() => handlePin(comment.id, comment.profileId)}
+                            onClick={() => handlePin(comment.id)}
                             className={`flex items-center justify-center transition-colors focus:outline-none ${comment.isPinned ? "text-[#5b6cf5] hover:text-[#4a58c9]" : "text-white/40 hover:text-white"}`}
                             title={comment.isPinned ? "Unpin" : "Pin"}
                           >
