@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,7 +14,10 @@ import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
   email?: string | null;
+  initialSucceeded?: boolean;
 }
+
+const subscribeNoop = () => () => {};
 
 interface RazorpayResponse {
   razorpay_payment_id: string;
@@ -107,20 +110,21 @@ const BUY_OPTIONS: { id: BuyFor; label: string; sub: string; icon: React.ReactNo
 export default function CheckoutClient({
   isAuthenticated = true,
   email = null,
+  initialSucceeded = false,
 }: CheckoutClientProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
   const [buyFor, setBuyFor] = useState<BuyFor>("personal");
   const [paying, setPaying] = useState(false);
   const [verifying, setVerifying] = useState(false);
-  const [succeeded, setSucceeded] = useState(false);
+  const [succeeded, setSucceeded] = useState(initialSucceeded);
 
   const plan = PREMIUM_PLAN[currency];
   const canBuy = buyFor === "personal";
 
   const [payOpen, setPayOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  const showPay = payOpen && canBuy && !succeeded;
+  const mounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const [payMethod, setPayMethod] = useState<"razorpay" | "card">("razorpay");
   const [cardLoading, setCardLoading] = useState(false);
 
@@ -147,15 +151,8 @@ export default function CheckoutClient({
   };
 
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get("polar") === "success") {
-      setSucceeded(true);
-      window.history.replaceState(null, "", "/checkout");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!canBuy || succeeded) setPayOpen(false);
-  }, [canBuy, succeeded]);
+    if (initialSucceeded) window.history.replaceState(null, "", "/checkout");
+  }, [initialSucceeded]);
 
   const handlePay = async () => {
     if (paying) return;
@@ -368,7 +365,10 @@ export default function CheckoutClient({
                   <button
                     key={opt.id}
                     type="button"
-                    onClick={() => setBuyFor(opt.id)}
+                    onClick={() => {
+                      setBuyFor(opt.id);
+                      if (opt.id !== "personal") setPayOpen(false);
+                    }}
                     aria-pressed={selected}
                     title={opt.sub}
                     className={`flex flex-col items-center gap-1.5 rounded-xl py-3 transition-colors cursor-pointer ${selected ? "bg-[#5b6cf5]/15 text-white" : "bg-white/[0.03] text-white/45 hover:text-white/70"}`}
@@ -445,7 +445,7 @@ export default function CheckoutClient({
                 {}
                 {mounted && createPortal(
                   <AnimatePresence>
-                    {payOpen && (
+                    {showPay && (
                     <motion.div
                       className="fixed inset-0 z-50 flex items-center justify-center p-4"
                       initial={{ opacity: 0 }}

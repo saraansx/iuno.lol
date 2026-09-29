@@ -9,7 +9,12 @@ export const metadata: Metadata = {
   description: "Upgrade to iuno.lol Premium.",
 };
 
-export default async function CheckoutPage() {
+export default async function CheckoutPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ polar?: string }>;
+}) {
+  const { polar } = await searchParams;
   const userId = await getSessionUserId();
   if (!userId) {
     redirect("/signin");
@@ -25,6 +30,7 @@ export default async function CheckoutPage() {
     <CheckoutClient
       isAuthenticated
       email={user?.email ?? null}
+      initialSucceeded={polar === "success"}
     />
   );
 }
