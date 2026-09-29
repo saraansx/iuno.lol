@@ -32,8 +32,6 @@ export function isStoredMediaUrl(url: string | null | undefined): boolean {
   return host !== null && STORED_MEDIA_HOSTS.has(host);
 }
 
-export const isCatboxUrl = isStoredMediaUrl;
-
 export function storedFileId(url: string | null | undefined): string | null {
   return fileIdForHosts(url, STORED_MEDIA_HOSTS);
 }

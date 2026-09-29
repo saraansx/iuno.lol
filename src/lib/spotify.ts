@@ -51,16 +51,4 @@ export function parseSpotifyIdentifier(input: string): {
   return { type: null, id: null };
 }
 
-export function formatSpotifyNumber(num: number): string {
-  if (num >= 1_000_000) {
-    const val = num / 1_000_000;
-    return `${val.toFixed(val >= 10 ? 0 : 1).replace(/\.0$/, "")}M`;
-  }
-  if (num >= 1_000) {
-    const val = num / 1_000;
-    return `${val.toFixed(val >= 10 ? 0 : 1).replace(/\.0$/, "")}K`;
-  }
-  return num.toLocaleString();
-}
-
-export const formatNumber = formatSpotifyNumber;
+export { formatNumber } from "@/lib/utils";

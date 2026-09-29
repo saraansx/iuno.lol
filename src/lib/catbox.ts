@@ -1,7 +1,7 @@
 import "server-only";
 import { toCdnUrl } from "@/lib/cdn";
 
-export { isStoredMediaUrl, isCatboxUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
+export { isStoredMediaUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 const CATBOX_URL_BASE = "https://files.catbox.moe/";

@@ -29,7 +29,7 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { EFFECT_CONFIG_KEYS, packEffectConfig, pickEffectConfig, type EffectConfig } from "@/lib/effect-config";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { uploadToCatbox, isCatboxUrl } from "@/lib/catbox";
+import { uploadToCatbox } from "@/lib/catbox";
 import { isStoredMediaUrl } from "@/lib/cdn";
 import { animatedBackgroundId, isAnimatedBackgroundUrl, isPremiumBackgroundId } from "@/lib/animated-background";
 import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
@@ -1558,7 +1558,7 @@ async function cacheTrackAudio(userId: number, id: string): Promise<string | nul
 
 async function cacheTrackArtwork(userId: number, artwork: string | null | undefined): Promise<string | null> {
   if (!artwork) return null;
-  if (isCatboxUrl(artwork)) return artwork;
+  if (isStoredMediaUrl(artwork)) return artwork;
   let artId: string | null = null;
   let artist = "";
   try {
@@ -1684,10 +1684,10 @@ async function updateMusicProfileImpl(data: {
           : null;
 
       if (id.startsWith("custom-")) {
-        if (!isCatboxUrl(t.streamUrl)) {
+        if (!isStoredMediaUrl(t.streamUrl)) {
           throw new Error(`Could not save "${title}" — audio upload missing.`);
         }
-        if (!isCatboxUrl(t.artwork)) {
+        if (!isStoredMediaUrl(t.artwork)) {
           throw new Error(`Could not save "${title}" — cover art is required.`);
         }
         const lyrics = Array.isArray(t.lyrics)
@@ -1713,7 +1713,7 @@ async function updateMusicProfileImpl(data: {
       }
 
       const prev = prevTracks.find((p) => p.id === id);
-      if (prev && isCatboxUrl(t.streamUrl) && prev.streamUrl === t.streamUrl) {
+      if (prev && isStoredMediaUrl(t.streamUrl) && prev.streamUrl === t.streamUrl) {
         return {
           id,
           title,
@@ -1727,11 +1727,11 @@ async function updateMusicProfileImpl(data: {
       }
 
       const [cachedAudio, artwork, lyrics] = await Promise.all([
-        isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cacheTrackAudio(userId, id),
+        isStoredMediaUrl(t.streamUrl) ? (t.streamUrl as string) : cacheTrackAudio(userId, id),
         cacheTrackArtwork(userId, typeof t.artwork === "string" ? t.artwork.slice(0, 500) : null),
         fetchTrackLyrics({ id, title, artist, duration }),
       ]);
-      const streamUrl = isCatboxUrl(t.streamUrl) ? (t.streamUrl as string) : cachedAudio;
+      const streamUrl = isStoredMediaUrl(t.streamUrl) ? (t.streamUrl as string) : cachedAudio;
       if (!streamUrl) {
         throw new Error(`Could not save "${title}" — audio upload failed. Try again.`);
       }

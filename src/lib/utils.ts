@@ -5,6 +5,18 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function formatNumber(num: number): string {
+  if (num >= 1_000_000) {
+    const val = num / 1_000_000;
+    return `${val.toFixed(val >= 10 ? 0 : 1).replace(/\.0$/, "")}M`;
+  }
+  if (num >= 1_000) {
+    const val = num / 1_000;
+    return `${val.toFixed(val >= 10 ? 0 : 1).replace(/\.0$/, "")}K`;
+  }
+  return num.toLocaleString();
+}
+
 export function safePage(page: number) {
   return Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1;
 }
