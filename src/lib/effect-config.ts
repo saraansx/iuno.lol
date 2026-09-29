@@ -60,7 +60,7 @@ export type EffectConfig = {
   crtwarpPaused: boolean;
 };
 
-export const EFFECT_DEFAULTS: EffectConfig = {
+const EFFECT_DEFAULTS: EffectConfig = {
   auroraColor1: null,
   auroraColor2: null,
   auroraColor3: null,

@@ -100,7 +100,7 @@ async function hasBadge(userId: number): Promise<boolean> {
   return found.length > 0;
 }
 
-export async function grantRecruiterBadge(userId: number, discordId: string): Promise<boolean> {
+async function grantRecruiterBadge(userId: number, discordId: string): Promise<boolean> {
   const { botToken, guildId } = botConfig();
   if (!RECRUITER_ROLE_ID) throw new Error("Recruiter role isn't mapped yet.");
 

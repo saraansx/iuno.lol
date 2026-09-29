@@ -4,7 +4,7 @@ import React from "react";
 import { type DetailKey, type DetailPlacement } from "./ProfilePresetLayout";
 import { iconGlowFilter } from "./textGlow";
 
-export interface DetailValues {
+interface DetailValues {
   location?: string;
   occupation?: string;
   uid?: number;
@@ -30,7 +30,7 @@ export interface DetailTooltips {
   views?: boolean;
 }
 
-export interface DetailIconGlow {
+interface DetailIconGlow {
   location?: boolean | null;
   occupation?: boolean | null;
   uid?: boolean | null;

@@ -9,9 +9,9 @@ export interface RobloxUserData {
   friendsCount: number | null;
 }
 
-export const ROBLOX_USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
+const ROBLOX_USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,20}$/;
 
-export const ROBLOX_ID_PATTERN = /^[1-9][0-9]{0,18}$/;
+const ROBLOX_ID_PATTERN = /^[1-9][0-9]{0,18}$/;
 
 export function cleanRobloxInput(input: string | null | undefined): string {
   const raw = (input || "").trim();

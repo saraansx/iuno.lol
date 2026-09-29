@@ -58,7 +58,7 @@ export function RazorpayLogo({ className = "", variant = "onDark" }: LogoProps) 
   );
 }
 
-export function VisaLogo({ className = "", variant = "onDark" }: LogoProps) {
+function VisaLogo({ className = "", variant = "onDark" }: LogoProps) {
   const main = variant === "onDark" ? "#FFFFFF" : "#00579F";
   const accent = variant === "onDark" ? "#FFFFFF" : "#FAA61A";
   return (
@@ -86,7 +86,7 @@ export function VisaLogo({ className = "", variant = "onDark" }: LogoProps) {
   );
 }
 
-export function MastercardMark({ className = "" }: Omit<LogoProps, "variant">) {
+function MastercardMark({ className = "" }: Omit<LogoProps, "variant">) {
   return (
     <svg viewBox="0 0 36 22" role="img" aria-label="Mastercard" className={className} xmlns="http://www.w3.org/2000/svg">
       <circle cx="13.5" cy="11" r="8" fill="#EB001B" />

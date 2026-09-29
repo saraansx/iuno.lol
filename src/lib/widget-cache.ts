@@ -1,6 +1,6 @@
 import { redis } from "@/lib/redis";
 
-export const WIDGET_CACHE_TTL_SECONDS = 12 * 60 * 60;
+const WIDGET_CACHE_TTL_SECONDS = 12 * 60 * 60;
 
 export const WIDGET_EDGE_CACHE = {
   headers: { "Cache-Control": "public, max-age=0, s-maxage=3600" },

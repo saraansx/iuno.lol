@@ -1,5 +1,5 @@
 
-export type ProfilePresetId = "split" | "floating" | "modern" | "classic";
+type ProfilePresetId = "split" | "floating" | "modern" | "classic";
 
 export const DEFAULT_PRESET: ProfilePresetId = "modern";
 
@@ -59,9 +59,9 @@ export function normalizePlacement(
     : fallback;
 }
 
-export type DetailDefaults = Record<DetailKey, DetailPlacement>;
+type DetailDefaults = Record<DetailKey, DetailPlacement>;
 
-export const CLASSIC_DETAIL_DEFAULTS: DetailDefaults = {
+const CLASSIC_DETAIL_DEFAULTS: DetailDefaults = {
   joinDate: "hidden",
   location: "beside",
   occupation: "beside",
@@ -129,7 +129,7 @@ export function normalizeAvatarPlacement(
     : fallback;
 }
 
-export const PRESET_FRAME_DEFAULTS: Record<
+const PRESET_FRAME_DEFAULTS: Record<
   ProfilePresetId,
   {
     contentAlignment: ContentAlignment;

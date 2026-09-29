@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import { Effect, EffectComposer, EffectPass, RenderPass } from "postprocessing";
 import * as THREE from "three";
 
-export type PixelBlastVariant = "square" | "circle" | "triangle" | "diamond";
+type PixelBlastVariant = "square" | "circle" | "triangle" | "diamond";
 
 export interface PixelBlastSettings {
   variant?: PixelBlastVariant | string | null;

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
-export interface DiscordPresenceData {
+interface DiscordPresenceData {
   in_server: boolean;
   user: {
     id: string;

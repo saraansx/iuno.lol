@@ -1,6 +1,6 @@
 import React from "react";
 
-export interface WidgetIconProps extends React.SVGProps<SVGSVGElement> {
+interface WidgetIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
   className?: string;
 }
@@ -29,7 +29,7 @@ export function WidgetRedirectIcon({
   );
 }
 
-export function VerifiedBadgeIcon({
+function VerifiedBadgeIcon({
   size = 14,
   fill = "#0095F6",
   className = "w-3.5 h-3.5",
@@ -382,25 +382,6 @@ export function GenshinLogoIcon({
         clipRule="evenodd"
         d="M6 7.5C9.5 7 14.5 7 18 7.5L18.5 9C17.5 8.7 15.5 8.5 13.8 8.6V10H16.8V11.5H13.8V19H12.2V8.6C10.5 8.5 8.5 8.7 7.5 9L8 7.5ZM5 9.5C8 9.2 11 9.3 11 9.3V11H9C7.8 11 6.8 11.9 6.8 13.2C6.8 14.7 7.9 15.8 9.3 15.8C10.5 15.8 11 15.1 11 14.2V13.2H8.8V12H12.2V15C11.8 16.3 10.7 17.2 9.2 17.2C6.9 17.2 5.2 15.5 5.2 13.2C5.2 11.4 6.3 10.1 7.8 9.7C6.8 9.8 5.8 10.1 5 10.5V9.5ZM14.5 11.5H18.8V13H17.2V18.5H18.8V20H14.5V18.5H16V13H14.5V11.5ZM4 19.5C7 21.2 17 21.2 20 19.5L20.5 20.8C17 22.8 7 22.8 3.5 20.8L4 19.5Z"
       />
-    </svg>
-  );
-}
-
-export function ValorantLogoIcon({
-  size = 14,
-  className = "w-3.5 h-3.5",
-  ...props
-}: WidgetIconProps) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      className={`shrink-0 ${className}`}
-      {...props}
-    >
-      <path d="M12 0L0 24h6.857L12 12.686 17.143 24H24L12 0z" />
     </svg>
   );
 }

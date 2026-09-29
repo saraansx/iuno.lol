@@ -25,7 +25,7 @@ import {
   SteamLogoIcon,
   PinterestLogoIcon,
 } from "@/components/profile/widgets/WidgetIcons";
-import { ICONIFY_API, LINK_ICON_KEYS, iconifyNameFromUrl, iconifyProxyUrl } from "@/lib/links";
+import { ICONIFY_API, iconifyNameFromUrl, iconifyProxyUrl } from "@/lib/links";
 
 interface LinkIconProps {
   icon: string;
@@ -93,35 +93,6 @@ const REGISTRY: Record<string, (size: number) => React.ReactNode> = {
   zap: (s) => <LucideWrap size={s}><Zap size={s} /></LucideWrap>,
 };
 
-const ICON_LABELS: Record<string, string> = {
-  discord: "Discord",
-  x: "X",
-  instagram: "Instagram",
-  youtube: "YouTube",
-  twitch: "Twitch",
-  tiktok: "TikTok",
-  github: "GitHub",
-  spotify: "Spotify",
-  steam: "Steam",
-  telegram: "Telegram",
-  pinterest: "Pinterest",
-  globe: "Website",
-  link: "Link",
-  mail: "Email",
-  music: "Music",
-  play: "Video",
-  message: "Chat",
-  send: "Send",
-  at: "Mention",
-  star: "Star",
-  heart: "Heart",
-  zap: "Zap",
-};
-
-export const LINK_ICON_OPTIONS = LINK_ICON_KEYS.map((key) => ({
-  key,
-  label: ICON_LABELS[key] ?? key,
-}));
 
 export default function LinkIcon({ icon, size = 16, className, color }: LinkIconProps) {
   if (icon.startsWith(`${ICONIFY_API}/`)) {

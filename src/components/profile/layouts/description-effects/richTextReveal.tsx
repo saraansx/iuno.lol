@@ -8,7 +8,7 @@ type ElementProps = {
 
 const HIDDEN: CSSProperties = { opacity: 0 };
 
-export function splitHtml(
+function splitHtml(
   html: string,
   limit: number,
 ): { head: string; tail: string; visible: number } {
@@ -82,7 +82,7 @@ export function countRichText(node: ReactNode): number {
   return 0;
 }
 
-export type RevealState = {
+type RevealState = {
   left: number;
   caret: ReactNode;
   placed: boolean;

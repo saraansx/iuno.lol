@@ -6,7 +6,7 @@ function webhookFor(gateway: Gateway): string | undefined {
   return process.env.DISCORD_WEBHOOK_POLAR;
 }
 
-export interface PurchaseNotification {
+interface PurchaseNotification {
   gateway: Gateway;
   userId: number | string;
   username?: string | null;

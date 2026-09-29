@@ -87,7 +87,7 @@ function hexToRgbChannels(hex: string | undefined | null): string | null {
   return `${(int >> 16) & 255} ${(int >> 8) & 255} ${int & 255}`;
 }
 
-export interface WidgetStyleProps {
+interface WidgetStyleProps {
   widgetPrimaryTextColor?: string | null;
   widgetSecondaryTextColor?: string | null;
   widgetBorderColor?: string | null;

@@ -1500,13 +1500,13 @@ async function updateProfileWidgetsImpl(data: {
   return { success: true };
 }
 
-export type LyricLineInput = {
+type LyricLineInput = {
   text: string;
   start: number;
   end: number;
 };
 
-export type MusicTrackInput = {
+type MusicTrackInput = {
   id: string;
   title: string;
   artist: string;

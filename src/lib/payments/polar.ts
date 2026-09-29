@@ -5,7 +5,7 @@ import { PREMIUM_PLAN_TAG, type Currency } from "@/lib/payments/plans";
 const PRODUCTION_API = "https://api.polar.sh";
 const SANDBOX_API = "https://sandbox-api.polar.sh";
 
-export function polarServer(): "production" | "sandbox" {
+function polarServer(): "production" | "sandbox" {
   return process.env.POLAR_SERVER === "production" ? "production" : "sandbox";
 }
 
@@ -20,7 +20,7 @@ export function polarConfigured(): boolean {
   );
 }
 
-export function getPolarProductId(currency: Currency = "USD"): string {
+function getPolarProductId(currency: Currency = "USD"): string {
   const id = currency === "INR" ? process.env.POLAR_PRODUCT_ID_INR : process.env.POLAR_PRODUCT_ID;
   if (!id) throw new Error(`POLAR product id for ${currency} is not set`);
   return id;
@@ -32,7 +32,7 @@ export function polarProductIds(): string[] {
   );
 }
 
-export interface PolarCheckout {
+interface PolarCheckout {
   id: string;
   url: string;
 }

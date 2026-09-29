@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
-export interface ContributionDay {
+interface ContributionDay {
   level: number;
 }
 

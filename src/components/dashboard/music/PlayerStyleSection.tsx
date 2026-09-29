@@ -12,7 +12,7 @@ interface PlayerStyleOption {
   enabled: boolean;
 }
 
-export const PLAYER_STYLES: PlayerStyleOption[] = [
+const PLAYER_STYLES: PlayerStyleOption[] = [
   {
     id: "compact",
     name: "Compact player",
@@ -33,7 +33,7 @@ export const PLAYER_STYLES: PlayerStyleOption[] = [
   },
 ];
 
-export function CompactPlayerMock() {
+function CompactPlayerMock() {
   return (
     <div className="relative w-full my-auto rounded-xl bg-[#101010] border border-white/5 overflow-hidden" aria-hidden="true">
       <div className="flex items-center gap-2.5 pl-3 pr-2 py-2.5">
@@ -76,7 +76,7 @@ export function CompactPlayerMock() {
   );
 }
 
-export function LyricsPlayerMock() {
+function LyricsPlayerMock() {
   return (
     <div className="w-full rounded-xl bg-[#101010] border border-white/5 px-3 pt-2.5 pb-3 flex flex-col gap-2" aria-hidden="true">
       <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function LyricsPlayerMock() {
   );
 }
 
-export function WaveformPlayerMock() {
+function WaveformPlayerMock() {
   const bars = useMemo(() => seedHeights("preview", 36), []);
   return (
     <div className="w-full my-auto rounded-xl bg-[#101010] border border-white/5 px-3 pt-2.5 pb-3 flex flex-col gap-2" aria-hidden="true">

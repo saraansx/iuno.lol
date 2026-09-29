@@ -1,4 +1,4 @@
-export interface YouTubeVideoData {
+interface YouTubeVideoData {
   id: string;
   title: string;
   thumbnailUrl: string;

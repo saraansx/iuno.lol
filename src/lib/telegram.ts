@@ -6,7 +6,7 @@ export interface TelegramUserData {
   avatarUrl: string | null;
 }
 
-export const TELEGRAM_USERNAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
+const TELEGRAM_USERNAME_PATTERN = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
 
 export function cleanTelegramUsername(input: string | null | undefined): string {
   return (input || "")

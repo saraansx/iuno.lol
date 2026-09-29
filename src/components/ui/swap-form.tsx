@@ -8,7 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import LoginForm from "@/components/auth/LoginForm";
 import RegisterForm from "@/components/auth/RegisterForm";
 
-export type AuthMode = "signin" | "register";
+type AuthMode = "signin" | "register";
 
 interface SwapFormProps {
   initialMode?: AuthMode;

@@ -158,7 +158,7 @@ class RetroEffectImpl extends Effect {
   }
 }
 
-export interface DitherProps {
+interface DitherProps {
   waveSpeed?: number;
   waveFrequency?: number;
   waveAmplitude?: number;

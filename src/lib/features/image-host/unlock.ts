@@ -3,7 +3,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const PUBLIC_NAME_RE = /^[A-Za-z0-9]{5}\.[a-z0-9]{2,5}$/;
 
-export const UNLOCK_TTL_SECONDS = 2 * 60 * 60;
+const UNLOCK_TTL_SECONDS = 2 * 60 * 60;
 export const FILE_PASSWORD_MIN = 4;
 export const FILE_PASSWORD_MAX = 128;
 

@@ -11,7 +11,7 @@ interface PresetOption {
   description: string;
 }
 
-export const PRESETS: PresetOption[] = [
+const PRESETS: PresetOption[] = [
   {
     id: "split",
     name: "Split",
@@ -48,11 +48,11 @@ interface StandardProfileSectionProps {
   setAlignment: (val: ContentAlignment) => void;
 }
 
-export const CONTENT_WIDTH_MIN = 480;
-export const CONTENT_WIDTH_MAX = 1000;
+const CONTENT_WIDTH_MIN = 480;
+const CONTENT_WIDTH_MAX = 1000;
 
-export const CARD_OPACITY_MIN = 10;
-export const CARD_OPACITY_MAX = 100;
+const CARD_OPACITY_MIN = 10;
+const CARD_OPACITY_MAX = 100;
 
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (

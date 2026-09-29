@@ -1,5 +1,5 @@
 
-export interface PremiumStatus {
+interface PremiumStatus {
   isPremium?: boolean | null;
   premiumExpiresAt?: Date | string | null;
 }
@@ -8,12 +8,6 @@ export function isPremiumActive(user: PremiumStatus | null | undefined): boolean
   if (!user?.isPremium) return false;
   if (!user.premiumExpiresAt) return true;
   return new Date(user.premiumExpiresAt).getTime() > Date.now();
-}
-
-export function requirePremium(user: PremiumStatus | null | undefined): void {
-  if (!isPremiumActive(user)) {
-    throw new Error("This feature needs Premium.");
-  }
 }
 
 export const PREMIUM_BACKGROUND_EFFECTS: ReadonlySet<string> = new Set([

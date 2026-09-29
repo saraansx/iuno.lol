@@ -38,8 +38,6 @@ export const LINK_ICON_KEYS = [
   "zap",
 ] as const;
 
-export type LinkIconKey = (typeof LINK_ICON_KEYS)[number];
-
 const LINK_ICON_SET = new Set<string>(LINK_ICON_KEYS);
 
 const CUSTOM_ICON_HOSTS = new Set([
@@ -138,7 +136,7 @@ export const CURATED_ICONIFY_ICONS = [
   "lucide:zap",
 ];
 
-export function isCustomIconUrl(icon: string): boolean {
+function isCustomIconUrl(icon: string): boolean {
   if (!icon.startsWith("https://")) return false;
   try {
     return CUSTOM_ICON_HOSTS.has(new URL(icon).hostname);

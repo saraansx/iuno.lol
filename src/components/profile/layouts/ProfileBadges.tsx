@@ -8,7 +8,7 @@ type LevelStage = (typeof LEVELS)[number];
 type ViewMilestone = (typeof VIEW_MILESTONES)[number];
 type LikeMilestone = (typeof LIKE_MILESTONES)[number];
 
-export type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
+type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
 
 function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | null {
   return (

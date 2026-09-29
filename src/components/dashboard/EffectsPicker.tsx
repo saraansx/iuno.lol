@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import effects from "@/effects.json";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 
-export type ProfileEffectItem = {
+type ProfileEffectItem = {
   src: string;
   loop: boolean;
   height?: number | null;

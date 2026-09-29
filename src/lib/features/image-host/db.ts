@@ -18,7 +18,7 @@ function isDuplicateKeyError(error: unknown): boolean {
   return e?.code === 'ER_DUP_ENTRY' || e?.cause?.code === 'ER_DUP_ENTRY'
 }
 
-export interface RecordImageHostFileInput {
+interface RecordImageHostFileInput {
   userId: number
   storageId: string
   ext: string
@@ -49,7 +49,7 @@ export async function recordImageHostFile(input: RecordImageHostFileInput): Prom
   }
 }
 
-export interface ImageHostFileAccess {
+interface ImageHostFileAccess {
   userId: number
   storageId: string | null
   passwordHash: string | null
@@ -99,7 +99,7 @@ export async function getImageHostUsedBytes(userId: number): Promise<number> {
   return Number(row?.used ?? 0)
 }
 
-export interface ImageHostActivityEntry {
+interface ImageHostActivityEntry {
   action: 'upload' | 'delete'
   kind: string
   name: string
@@ -157,7 +157,7 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
   }
 }
 
-export interface ListImageHostActivityResult {
+interface ListImageHostActivityResult {
   items: ImageHostActivityEntry[]
   total: number
 }
@@ -201,7 +201,7 @@ export async function listImageHostActivity(
 
 export type ImageHostFilter = 'all' | 'image' | 'video' | 'favorite'
 
-export interface ImageHostFile {
+interface ImageHostFile {
   id: number
   url: string
   name: string
@@ -212,7 +212,7 @@ export interface ImageHostFile {
   createdAt: number
 }
 
-export interface ListImageHostFilesResult {
+interface ListImageHostFilesResult {
   files: ImageHostFile[]
   total: number
 }
@@ -296,7 +296,7 @@ export async function setImageHostFavorite(
   return ownedIds
 }
 
-export interface DeleteImageHostFilesResult {
+interface DeleteImageHostFilesResult {
   deletedIds: number[]
   orphanedStorageIds: string[]
   deletedUrls: string[]

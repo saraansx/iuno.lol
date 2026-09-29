@@ -1,4 +1,4 @@
-export const ANIMATED_BACKGROUND_PREFIX = "animated:";
+const ANIMATED_BACKGROUND_PREFIX = "animated:";
 
 export const ANIMATED_BACKGROUNDS = [
   { id: "aurora", name: "Aurora", premium: false },

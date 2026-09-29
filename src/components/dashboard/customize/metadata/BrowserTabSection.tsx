@@ -5,7 +5,7 @@ import PremiumLock from "@/components/ui/premium-lock";
 
 import { formatTabTitle } from "@/lib/og";
 
-export const TAB_TITLE_MAX = 60;
+const TAB_TITLE_MAX = 60;
 
 interface BrowserTabSectionProps {
   isPremium: boolean;

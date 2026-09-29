@@ -26,9 +26,3 @@ export const FONT_OPTIONS = [
   "Poppins", "Chillax", "Montserrat", "Dancing Script", "DM Sans",
   "Comfortaa", "Syne", "Oxanium", "Pixelify"
 ];
-
-export const DEFAULT_FONT_VAR = "var(--font-inter)";
-
-export function fontFamilyVar(font: string | null | undefined): string {
-  return (font && FONT_FAMILY_VARS[font]) || DEFAULT_FONT_VAR;
-}

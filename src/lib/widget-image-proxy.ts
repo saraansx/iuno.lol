@@ -6,11 +6,11 @@ import { Readable } from "node:stream";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 
-export const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
 
 export const FETCH_TIMEOUT_MS = 30_000;
 
-export async function readImageWithLimit(
+async function readImageWithLimit(
   res: Response,
   maxBytes: number = MAX_IMAGE_BYTES
 ): Promise<ArrayBuffer | null> {
@@ -78,7 +78,7 @@ const EXT_CONTENT_TYPES: Record<string, string> = {
   ".mp4": "video/mp4",
 };
 
-export interface WidgetProxyOptions {
+interface WidgetProxyOptions {
   allowedHosts?: string[];
   key: string;
   referer?: string;

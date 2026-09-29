@@ -2,14 +2,14 @@
 
 import { useId, useLayoutEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
-export type GlyphPortalStyle = CSSProperties & {
+type GlyphPortalStyle = CSSProperties & {
   "--gp-paper"?: string;
   "--gp-ink"?: string;
   "--gp-field"?: string;
   "--gp-foreground"?: string;
 };
 
-export type GlyphPortalProps = {
+type GlyphPortalProps = {
   word?: string;
   focusChar?: string;
   interactive?: boolean;

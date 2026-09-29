@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
 
 export const LIVE_STATS_CACHE_TTL = 60;
-export const LIVE_STATS_CACHE_PREFIX = 'live:';
+const LIVE_STATS_CACHE_PREFIX = 'live:';
 
 export function liveStatsCacheKey(username: string) {
   return `${LIVE_STATS_CACHE_PREFIX}${username.toLowerCase()}`;

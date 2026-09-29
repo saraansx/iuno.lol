@@ -1,5 +1,5 @@
 
-export interface DetectedType {
+interface DetectedType {
   ext: string;
   mime: string;
 }

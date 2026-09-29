@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export const WIDGET_DEBOUNCE_MS = 600;
+const WIDGET_DEBOUNCE_MS = 600;
 
 export function useDebouncedValue(
   value: string,

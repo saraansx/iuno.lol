@@ -2,8 +2,8 @@
 
 import ColorPickerInput from "@/components/ui/color-picker";
 
-export const TITLE_MAX = 100;
-export const DESCRIPTION_MAX = 250;
+const TITLE_MAX = 100;
+const DESCRIPTION_MAX = 250;
 
 interface EmbedContentSectionProps {
   username: string;

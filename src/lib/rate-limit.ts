@@ -45,11 +45,11 @@ export function checkRateLimit(key: string, maxAttempts: number, windowSeconds: 
   return evalLimit(key, maxAttempts, windowSeconds, true);
 }
 
-export function peekRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
+function peekRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
   return evalLimit(key, maxAttempts, windowSeconds, false);
 }
 
-export async function recordAttempt(key: string, windowSeconds: number) {
+async function recordAttempt(key: string, windowSeconds: number) {
   const now = Date.now();
   await redis.zadd(`rl:w:${key}`, now, `${now}:${Math.random()}`);
   await redis.expire(`rl:w:${key}`, windowSeconds);

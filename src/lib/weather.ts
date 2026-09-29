@@ -1,7 +1,7 @@
 
 export type TemperatureUnit = "celsius" | "fahrenheit" | "both";
 
-export type WeatherIconKind =
+type WeatherIconKind =
   | "clear"
   | "partly-cloudy"
   | "cloudy"
@@ -50,10 +50,10 @@ export function countryNameFromCode(code: string): string {
   }
 }
 
-export const WEATHER_LOCATION_PATTERN =
+const WEATHER_LOCATION_PATTERN =
   /^[\p{L}\p{M}0-9][\p{L}\p{M}0-9\s,.'’\-()]{1,79}$/u;
 
-export const WEATHER_COORDS_PATTERN =
+const WEATHER_COORDS_PATTERN =
   /^(-?(?:[0-8]?\d(?:\.\d+)?|90(?:\.0+)?))\s*,\s*(-?(?:1[0-7]\d(?:\.\d+)?|[0-9]?\d(?:\.\d+)?|180(?:\.0+)?))$/;
 
 export function cleanWeatherLocation(input: string | null | undefined): string {
@@ -74,7 +74,7 @@ export function parseWeatherCoords(
   return { latitude: Number(match[1]), longitude: Number(match[2]) };
 }
 
-export function toFahrenheit(celsius: number): number {
+function toFahrenheit(celsius: number): number {
   return celsius * 9 / 5 + 32;
 }
 

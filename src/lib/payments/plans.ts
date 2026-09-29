@@ -9,9 +9,9 @@ export type Currency = keyof typeof PREMIUM_PLAN;
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
-export type PlanGrant = { kind: "lifetime" } | { kind: "duration"; days: number };
+type PlanGrant = { kind: "lifetime" } | { kind: "duration"; days: number };
 
-export interface Plan {
+interface Plan {
   tag: string;
   name: string;
   prices: Record<Currency, { symbol: string; display: string; amount: number }>;
@@ -25,7 +25,7 @@ export const PREMIUM: Plan = {
   grant: { kind: "lifetime" },
 };
 
-export const PLANS: Record<string, Plan> = {
+const PLANS: Record<string, Plan> = {
   [PREMIUM_PLAN_TAG]: PREMIUM,
 };
 
@@ -50,12 +50,10 @@ export const PROVIDER: Record<Currency, Provider> = {
   USD: "razorpay",
 };
 
-export const PAYMENT_METHODS = {
+const PAYMENT_METHODS = {
   INR: ["upi", "card", "netbanking"],
   USD: [],
 } as const satisfies Record<Currency, readonly string[]>;
-
-export type PaymentMethod = (typeof PAYMENT_METHODS)[Currency][number];
 
 export function isCurrency(value: unknown): value is Currency {
   return typeof value === "string" && value in PREMIUM_PLAN;

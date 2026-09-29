@@ -12,7 +12,7 @@ export const CLICK_EFFECTS = [
   { id: "fireworks", name: "Fireworks" },
 ] as const;
 
-export type ClickEffectId = (typeof CLICK_EFFECTS)[number]["id"];
+type ClickEffectId = (typeof CLICK_EFFECTS)[number]["id"];
 
 export const CLICK_SOUNDS = [
   { id: "none", name: "None", url: null },
@@ -27,8 +27,6 @@ export const CLICK_SOUNDS = [
   { id: "laser", name: "Laser", url: "/sounds/click/laser.wav" },
   { id: "thock", name: "Thock", url: "/sounds/click/thock.wav" },
 ] as const;
-
-export type ClickSoundId = (typeof CLICK_SOUNDS)[number]["id"];
 
 const EFFECT_IDS = new Set<string>(CLICK_EFFECTS.map((e) => e.id));
 const SOUND_URLS = new Map<string, string>(

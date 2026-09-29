@@ -5,7 +5,7 @@ type ElementProps = {
   dangerouslySetInnerHTML?: { __html: string };
 };
 
-export type ScrambleState = {
+type ScrambleState = {
   index: number;
   settled: number;
   glyph: () => string;
@@ -18,7 +18,7 @@ function escapeGlyph(ch: string): string {
   return ch;
 }
 
-export function scrambleHtml(html: string, state: ScrambleState): string {
+function scrambleHtml(html: string, state: ScrambleState): string {
   let out = "";
   let i = 0;
 

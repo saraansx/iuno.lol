@@ -8,7 +8,7 @@ import { ColorBendsEffect, type ColorBendsSettings } from "./background-effects/
 import { LiquidChromeEffect, type LiquidChromeSettings } from "./background-effects/LiquidChrome";
 import { CRTWarpEffect, type CRTWarpSettings } from "./background-effects/CRTWarp";
 
-export interface AuroraSettings {
+interface AuroraSettings {
   colors?: AuroraColors;
   speed?: number | null;
   blend?: number | null;

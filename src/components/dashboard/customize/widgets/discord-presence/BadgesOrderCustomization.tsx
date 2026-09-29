@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 
-export interface BadgeItemData {
+interface BadgeItemData {
   id: string;
   name: string;
   icon: string;

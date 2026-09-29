@@ -16,7 +16,3 @@ export interface MusicTrack {
 }
 
 export type MusicPlayerStyle = "compact" | "waveform" | "lyrics";
-
-export function streamUrlForTrack(id: string): string {
-  return `/api/music/stream/${encodeURIComponent(id)}?quality=320`;
-}

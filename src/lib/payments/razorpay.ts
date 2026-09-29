@@ -25,7 +25,7 @@ function authHeader(): string {
   return "Basic " + Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 }
 
-export interface RazorpayOrder {
+interface RazorpayOrder {
   id: string;
   amount: number;
   currency: string;

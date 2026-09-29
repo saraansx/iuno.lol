@@ -5,7 +5,7 @@ import { purgeCloudflareFiles } from "@/lib/cloudflare";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
-export function catboxFileId(url: string | null | undefined): string | null {
+function catboxFileId(url: string | null | undefined): string | null {
   return storedFileId(url);
 }
 
