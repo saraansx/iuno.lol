@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import fpPromise from '@fingerprintjs/fingerprintjs';
 
 interface ProfileViewTrackerProps {
   profileId: number;
+}
+
+function whenIdle(fn: () => void): () => void {
+  if (typeof window.requestIdleCallback === 'function') {
+    const id = window.requestIdleCallback(fn, { timeout: 3000 });
+    return () => window.cancelIdleCallback(id);
+  }
+  const id = window.setTimeout(fn, 1500);
+  return () => window.clearTimeout(id);
 }
 
 export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProps) {
@@ -19,11 +27,13 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
     }
 
     hasTracked.current = true;
-    sessionStorage.setItem(sessionKey, 'true');
 
     const trackView = async () => {
-    let fingerprint: string | undefined;
+      sessionStorage.setItem(sessionKey, 'true');
+
+      let fingerprint: string | undefined;
       try {
+        const { default: fpPromise } = await import('@fingerprintjs/fingerprintjs');
         const fp = await fpPromise.load();
         fingerprint = (await fp.get()).visitorId;
       } catch (err) {
@@ -36,12 +46,19 @@ export default function ProfileViewTracker({ profileId }: ProfileViewTrackerProp
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ profileId, fingerprint }),
+        keepalive: true,
       }).catch(err => {
         console.error('[views] Client tracking failed:', err);
       });
     };
 
-    trackView();
+    const cancel = whenIdle(() => {
+      void trackView();
+    });
+    return () => {
+      cancel();
+      hasTracked.current = false;
+    };
   }, [profileId]);
 
   return null;

@@ -5,7 +5,12 @@ import { useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
 import { BlurTextEffect } from "@/components/ui/blur-text-effect";
 import GlyphPortal from "@/components/ui/glyph-portal";
-import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
+import dynamic from "next/dynamic";
+
+const AuroraEffect = dynamic(
+  () => import("@/components/profile/layouts/background-effects/Aurora").then((m) => m.AuroraEffect),
+  { ssr: false },
+);
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";

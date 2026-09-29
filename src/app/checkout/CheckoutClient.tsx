@@ -7,7 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import { toast } from "@/components/ui/toast";
-import { AuroraEffect } from "@/components/profile/layouts/background-effects/Aurora";
+import dynamic from "next/dynamic";
+
+const AuroraEffect = dynamic(
+  () => import("@/components/profile/layouts/background-effects/Aurora").then((m) => m.AuroraEffect),
+  { ssr: false },
+);
 import { CardBrandLogos, RazorpayLogo } from "@/components/checkout/payment-logos";
 import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 

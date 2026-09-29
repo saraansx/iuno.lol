@@ -1,12 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import type { AnimatedBackgroundId } from "@/lib/animated-background";
-import { AuroraEffect, type AuroraColors } from "./background-effects/Aurora";
-import { DarkVeilEffect, type DarkVeilSettings } from "./background-effects/DarkVeil";
-import { PixelBlastEffect, type PixelBlastSettings } from "./background-effects/PixelBlast";
-import { ColorBendsEffect, type ColorBendsSettings } from "./background-effects/ColorBends";
-import { LiquidChromeEffect, type LiquidChromeSettings } from "./background-effects/LiquidChrome";
-import { CRTWarpEffect, type CRTWarpSettings } from "./background-effects/CRTWarp";
+import type { AuroraColors } from "./background-effects/Aurora";
+import type { DarkVeilSettings } from "./background-effects/DarkVeil";
+import type { PixelBlastSettings } from "./background-effects/PixelBlast";
+import type { ColorBendsSettings } from "./background-effects/ColorBends";
+import type { LiquidChromeSettings } from "./background-effects/LiquidChrome";
+import type { CRTWarpSettings } from "./background-effects/CRTWarp";
+
+const AuroraEffect = dynamic(() => import("./background-effects/Aurora").then((m) => m.AuroraEffect), { ssr: false });
+const DarkVeilEffect = dynamic(() => import("./background-effects/DarkVeil").then((m) => m.DarkVeilEffect), { ssr: false });
+const PixelBlastEffect = dynamic(() => import("./background-effects/PixelBlast").then((m) => m.PixelBlastEffect), { ssr: false });
+const ColorBendsEffect = dynamic(() => import("./background-effects/ColorBends").then((m) => m.ColorBendsEffect), { ssr: false });
+const LiquidChromeEffect = dynamic(() => import("./background-effects/LiquidChrome").then((m) => m.LiquidChromeEffect), { ssr: false });
+const CRTWarpEffect = dynamic(() => import("./background-effects/CRTWarp").then((m) => m.CRTWarpEffect), { ssr: false });
 
 interface AuroraSettings {
   colors?: AuroraColors;
