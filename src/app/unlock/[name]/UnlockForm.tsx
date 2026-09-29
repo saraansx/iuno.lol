@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+
+type Unlocked = { src: string; isVideo: boolean };
 
 export default function UnlockForm({ name }: { name: string }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [unlocked, setUnlocked] = useState<Unlocked | null>(null);
+
+  useEffect(() => () => {
+    if (unlocked) URL.revokeObjectURL(unlocked.src);
+  }, [unlocked]);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -18,18 +25,28 @@ export default function UnlockForm({ name }: { name: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, password }),
       });
-      const data = await res.json().catch(() => null);
-      if (!res.ok || !data?.url) {
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
         setError(data?.error || "Couldn't unlock file");
         setLoading(false);
         return;
       }
-      window.location.href = data.url;
+      const blob = await res.blob();
+      setUnlocked({ src: URL.createObjectURL(blob), isVideo: blob.type.startsWith("video/") });
     } catch {
       setError("Couldn't unlock file. Try again.");
       setLoading(false);
     }
   };
+
+  if (unlocked) {
+    return unlocked.isVideo ? (
+      <video src={unlocked.src} controls autoPlay playsInline className="max-h-screen max-w-full" />
+    ) : (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={unlocked.src} alt={name} className="max-h-screen max-w-full object-contain" />
+    );
+  }
 
   return (
     <form

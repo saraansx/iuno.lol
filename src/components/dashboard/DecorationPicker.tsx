@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import decorations from "@/Deco.json";
+import { useDecorationsCatalog } from "@/lib/collectibles-client";
 
 export type Decoration = {
   id: string;
@@ -22,7 +22,6 @@ interface DecorationPickerProps {
   onDecorationHueChange: (value: number) => void;
 }
 
-const typedDecorations = decorations as Decoration[];
 const itemsPerPage = 8;
 
 export default function DecorationPicker({
@@ -37,14 +36,17 @@ export default function DecorationPicker({
 }: DecorationPickerProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const catalog = useDecorationsCatalog(open);
+  const loading = catalog === null;
 
   const filteredItems = useMemo(() => {
+    const all = catalog ?? [];
     const query = search.trim().toLowerCase();
-    if (!query) return typedDecorations;
-    return typedDecorations.filter((decoration) =>
+    if (!query) return all;
+    return all.filter((decoration) =>
       decoration.name.toLowerCase().includes(query) || decoration.id.toLowerCase().includes(query)
     );
-  }, [search]);
+  }, [search, catalog]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
   const currentPage = Math.min(page, totalPages);
@@ -177,12 +179,12 @@ export default function DecorationPicker({
                   className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#5b6cf5]/35"
                 />
               </div>
-              <p className="w-20 text-right text-[13px] text-white/45">{filteredItems.length} results</p>
+              <p className="w-20 text-right text-[13px] text-white/45">{loading ? "Loading…" : `${filteredItems.length} results`}</p>
             </div>
 
             <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
               {visibleItems.map((item: Decoration) => {
-                const isSelected = selectedDecoration?.id === item.id;
+                const isSelected = selectedDecoration?.url === item.url;
                   
                 return (
                   <button

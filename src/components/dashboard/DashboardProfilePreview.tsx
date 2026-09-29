@@ -7,7 +7,7 @@ import { type FullUser } from "@/lib/features/users/db";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import { getMyBadges } from "@/actions/badges";
-import effects from "@/effects.json";
+import { effectSkuFromUrl, useProfileEffect } from "@/lib/collectibles-client";
 
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
@@ -36,6 +36,11 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
 
   const equippedBadges = equippedBadgesProp ?? fetchedBadges ?? [];
 
+  const effectUrl = deferredOverrides.profileEffectUrl !== undefined
+    ? deferredOverrides.profileEffectUrl
+    : user?.profileEffectUrl ?? null;
+  const selectedEffect: ProfileEffect | null = useProfileEffect(effectSkuFromUrl(effectUrl)) ?? null;
+
   return (
     <ProfilePreview
       userId={user?.id}
@@ -51,16 +56,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
         : user?.avatarDecorationUrl
         ? ({ id: "custom", name: "Custom Decoration", url: user.avatarDecorationUrl } as Decoration)
         : null}
-      selectedEffect={(() => {
-        if (deferredOverrides.profileEffectUrl !== undefined) {
-          if (!deferredOverrides.profileEffectUrl) return null;
-          return (effects as ProfileEffect[]).find(e => e.sku_id === deferredOverrides.profileEffectUrl!.split("effect:")[1]) || null;
-        }
-        if (user?.profileEffectUrl) {
-          return (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) || null;
-        }
-        return null;
-      })()}
+      selectedEffect={selectedEffect}
       decorationHue={deferredOverrides.avatarDecorationHue ?? user?.avatarDecorationHue ?? 0}
       effectHue={deferredOverrides.profileEffectHue ?? user?.profileEffectHue ?? 0}
       bannerImageUrl={deferredOverrides.bannerImageUrl ?? user?.bannerImageUrl ?? undefined}

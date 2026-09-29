@@ -1,7 +1,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getImageHostFileAccess } from "@/lib/features/image-host/db";
-import { PUBLIC_NAME_RE, isValidUnlockToken } from "@/lib/features/image-host/unlock";
+import { PUBLIC_NAME_RE } from "@/lib/features/image-host/unlock";
 
 export const dynamic = "force-dynamic";
 
@@ -30,10 +30,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ name: st
     if (!file?.storageId || !STORAGE_RE.test(file.storageId)) return new NextResponse(null, { status: 404 });
 
     if (file.passwordHash) {
-      const token = new URL(req.url).searchParams.get("t") ?? undefined;
-      if (!isValidUnlockToken(name, file.passwordHash, token)) {
-        return new NextResponse(null, { status: 401, headers: { "Cache-Control": "no-store" } });
-      }
+      return new NextResponse(null, { status: 401, headers: { "Cache-Control": "no-store" } });
     }
 
     return new NextResponse(null, {

@@ -16,8 +16,7 @@ import EffectsPicker from "@/components/dashboard/EffectsPicker";
 import { isVideoUrl } from "@/lib/utils/media";
 import { AURORA_DEFAULTS, DARKVEIL_DEFAULTS, PIXELBLAST_DEFAULTS, COLORBENDS_DEFAULTS, LIQUIDCHROME_DEFAULTS, CRTWARP_DEFAULTS } from "@/lib/animated-background";
 import { isPremiumActive } from "@/lib/premium";
-import decorations from "@/Deco.json";
-import effects from "@/effects.json";
+import { effectSkuFromUrl, useDecoration, useProfileEffect } from "@/lib/collectibles-client";
 
 import { type FullUser } from "@/lib/features/users/db";
 
@@ -257,10 +256,11 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
   const [effectsPickerOpen, setEffectsPickerOpen] = useState(false);
 
   const avatarDecorationUrl = overrides.avatarDecorationUrl !== undefined ? overrides.avatarDecorationUrl : initialDecorationUrl;
+  const decorationInfo = useDecoration(avatarDecorationUrl ?? null);
   const selectedDecoration = avatarDecorationUrl
     ? {
-        id: (decorations as Decoration[]).find(d => d.url === avatarDecorationUrl)?.id || "custom",
-        name: (decorations as Decoration[]).find(d => d.url === avatarDecorationUrl)?.name || "Custom Decoration",
+        id: decorationInfo?.id || "custom",
+        name: decorationInfo === undefined ? "Loading…" : decorationInfo?.name || "Custom Decoration",
         url: avatarDecorationUrl
       } as Decoration
     : null;
@@ -276,10 +276,11 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
 
 
   const profileEffectUrl = overrides.profileEffectUrl !== undefined ? overrides.profileEffectUrl : initialEffectUrl;
+  const effectInfo = useProfileEffect(effectSkuFromUrl(profileEffectUrl));
   const selectedEffect = profileEffectUrl
     ? {
         id: "custom",
-        name: (effects as { sku_id: string, name: string }[]).find(e => e.sku_id === profileEffectUrl.split("effect:")[1])?.name || "Custom Effect",
+        name: effectInfo === undefined ? "Loading…" : effectInfo?.name || "Custom Effect",
         url: profileEffectUrl
       } as Decoration
     : null;

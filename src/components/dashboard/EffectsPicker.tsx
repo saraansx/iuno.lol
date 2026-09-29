@@ -3,8 +3,8 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import effects from "@/effects.json";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
+import { useEffectsCatalog } from "@/lib/collectibles-client";
 
 type ProfileEffectItem = {
   src: string;
@@ -42,7 +42,6 @@ interface EffectsPickerProps {
   onEffectHueChange: (value: number) => void;
 }
 
-const typedEffects = effects as ProfileEffect[];
 const itemsPerPage = 8;
 
 export default function EffectsPicker({
@@ -57,18 +56,21 @@ export default function EffectsPicker({
 }: EffectsPickerProps) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const catalog = useEffectsCatalog(open);
+  const loading = catalog === null;
 
   const selectedEffectData = selectedEffect
-    ? typedEffects.find((e) => e.sku_id === selectedEffect.url.split("effect:")[1])
+    ? catalog?.find((e) => e.sku_id === selectedEffect.url.split("effect:")[1])
     : null;
 
   const filteredItems = useMemo(() => {
+    const all = catalog ?? [];
     const query = search.trim().toLowerCase();
-    if (!query) return typedEffects;
-    return typedEffects.filter((effect) =>
+    if (!query) return all;
+    return all.filter((effect) =>
       effect.name.toLowerCase().includes(query) || effect.id.toLowerCase().includes(query)
     );
-  }, [search]);
+  }, [search, catalog]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / itemsPerPage));
   const currentPage = Math.min(page, totalPages);
@@ -213,7 +215,7 @@ export default function EffectsPicker({
                       className="h-10 w-full rounded-lg border border-white/10 bg-[#151515] pl-11 pr-4 text-[13px] text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#5b6cf5]/35"
                     />
                   </div>
-                  <p className="w-20 text-right text-[13px] text-white/45">{filteredItems.length} results</p>
+                  <p className="w-20 text-right text-[13px] text-white/45">{loading ? "Loading…" : `${filteredItems.length} results`}</p>
                 </div>
 
                 <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
