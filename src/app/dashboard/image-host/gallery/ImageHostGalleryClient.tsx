@@ -115,11 +115,10 @@ function TrashIcon() {
 function Thumbnail({ file }: { file: GalleryFile }) {
   if (file.locked) {
     return (
-      <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-[#5b6cf5]/[0.06] text-[#aab4ff]">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
-        <span className="text-[11px] text-white/40">Password protected</span>
+      <div className="flex h-full w-full items-center justify-center bg-[#0c0c0c]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/Favicon.png" alt="" aria-hidden="true" className="h-8 w-8 object-contain opacity-40" />
+        <span className="sr-only">Password protected</span>
       </div>
     );
   }
@@ -525,22 +524,11 @@ function FileCard({
         className="relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-white/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60"
       >
         <Thumbnail file={file} />
-        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1.5">
-          {file.favorite && (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#f5c451] backdrop-blur-sm">
-              <StarIcon filled />
-            </div>
-          )}
-          {file.locked && (
-            <div
-              title="Password protected"
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#aab4ff] backdrop-blur-sm"
-            >
-              <LockIcon />
-              <span className="sr-only">Password protected</span>
-            </div>
-          )}
-        </div>
+        {file.favorite && (
+          <div className="absolute bottom-2 left-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-[#f5c451] backdrop-blur-sm">
+            <StarIcon filled />
+          </div>
+        )}
       </div>
 
       <button
