@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type FormEvent } from "react";
+import Image from "next/image";
 
 type Unlocked = { src: string; isVideo: boolean };
 
@@ -53,10 +54,8 @@ export default function UnlockForm({ name }: { name: string }) {
       onSubmit={submit}
       className="w-full max-w-sm rounded-[20px] border border-white/5 bg-[#0c0c0c] p-6 shadow-sm"
     >
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#5b6cf5]/15 text-[#aab4ff]">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" />
-        </svg>
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#5b6cf5]/15">
+        <Image src="/Favicon.png" alt="iuno" width={512} height={512} className="h-5 w-5 object-contain" priority />
       </div>
       <h1 className="text-[14px] font-normal tracking-tight text-white/90">This file is password protected</h1>
       <p className="mt-1 text-[12px] text-white/40">Enter the password to view it.</p>
