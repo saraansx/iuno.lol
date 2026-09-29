@@ -116,7 +116,7 @@ export default function RecentComments({
 
     try {
       const res = await toggleLikeComment(commentId);
-      if (!res.success) {
+      if ("error" in res) {
         fetchComments(receivedPage, "received");
         fetchComments(givenPage, "given");
       }
@@ -136,7 +136,7 @@ export default function RecentComments({
 
     try {
       const res = await togglePinComment(commentId, profileId);
-      if (!res.success) {
+      if ("error" in res) {
         fetchComments(receivedPage, "received");
       }
     } catch {
