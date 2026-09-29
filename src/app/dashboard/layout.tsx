@@ -2,6 +2,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { redirect } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
+import { profileFontVariables } from "@/lib/profile-fonts";
 
 export default async function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default async function DashboardLayout({
   const user = await getUserById(userId);
 
   return (
+    <div className={`${profileFontVariables} contents`}>
     <DashboardShell
       username={user?.username ?? undefined}
       userId={user?.id}
@@ -26,5 +28,6 @@ export default async function DashboardLayout({
     >
       {children}
     </DashboardShell>
+    </div>
   );
 }
