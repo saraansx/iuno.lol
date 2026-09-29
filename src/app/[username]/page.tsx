@@ -6,10 +6,9 @@ import type { Metadata, Viewport } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
-import effects from '@/effects.json'
+import { getEffectByUrl } from '@/lib/collectibles'
 import { getEquippedBadgeIds, getUserBackgrounds } from '@/lib/features/users/db'
 import { resolveEffectConfig } from '@/lib/effect-config'
-import { ProfileEffect } from '@/components/dashboard/EffectsPicker'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
 import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle, isAllowedOgImage } from '@/lib/og'
@@ -303,7 +302,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const user = { ...userList[0], ...resolveEffectConfig(userList[0].effectConfig) }
 
-  const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
+  const selectedEffect = getEffectByUrl(user.profileEffectUrl);
 
   const [equippedBadges, backgrounds] = await Promise.all([
     getEquippedBadgeIds(user.id),
