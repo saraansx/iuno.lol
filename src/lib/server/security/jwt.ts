@@ -7,7 +7,6 @@ if (!secret) {
 
 const encodedKey = new TextEncoder().encode(secret)
 
-// Expiry lives only in the standard `exp` claim, which jwtVerify enforces
 export async function encrypt(payload: JWTPayload, expiresAt: Date) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: 'HS256' })

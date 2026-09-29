@@ -53,13 +53,13 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
   try {
     const result = await db.transaction(async (tx) => {
       const [target] = await tx
-        .select({ id: schema.users.id })
+        .select({ id: schema.users.id, username: schema.users.username })
         .from(schema.users)
         .where(eq(schema.users.id, userId))
         .for("update");
 
       if (!target) {
-        return { applied: false, notFound: true };
+        return { applied: false, notFound: true, username: null };
       }
 
       const existingRows = await tx
@@ -80,7 +80,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
       switch (type) {
         case "like":
           if (existingType === "like") {
-            return { applied: false };
+            return { applied: false, username: target.username };
           }
           counterDiffs.likesCount = sql`${schema.users.likesCount} + 1`;
           if (existingType === "dislike") {
@@ -90,7 +90,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
         case "dislike":
           if (existingType === "dislike") {
-            return { applied: false };
+            return { applied: false, username: target.username };
           }
           counterDiffs.dislikesCount = sql`${schema.users.dislikesCount} + 1`;
           if (existingType === "like") {
@@ -100,14 +100,14 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
 
         case "unlike":
           if (existingType !== "like") {
-            return { applied: false };
+            return { applied: false, username: target.username };
           }
           counterDiffs.likesCount = sql`GREATEST(0, ${schema.users.likesCount} - 1)`;
           break;
 
         case "undislike":
           if (existingType !== "dislike") {
-            return { applied: false };
+            return { applied: false, username: target.username };
           }
           counterDiffs.dislikesCount = sql`GREATEST(0, ${schema.users.dislikesCount} - 1)`;
           break;
@@ -138,7 +138,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
           );
       }
 
-      return { applied: true };
+      return { applied: true, username: target.username };
     });
 
     if (result && "notFound" in result) {
@@ -150,14 +150,9 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
     }
 
     try {
-      await invalidateLiveStatsCache(userId);
-      const [receiver] = await db
-        .select({ username: schema.users.username })
-        .from(schema.users)
-        .where(eq(schema.users.id, userId))
-        .limit(1);
-      if (receiver?.username) {
-        revalidatePath(`/${receiver.username}`);
+      if (result.username) {
+        await invalidateLiveStatsCache(result.username);
+        revalidatePath(`/${result.username}`);
       }
     } catch (e) {
       console.error("Failed to invalidate cache/revalidate profile:", e);
