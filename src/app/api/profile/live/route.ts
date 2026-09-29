@@ -40,7 +40,7 @@ export async function GET(request: Request) {
       try {
         const parsed = typeof cached === "string" ? JSON.parse(cached) : cached;
         return NextResponse.json(parsed, {
-          headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+          headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60' },
         });
       } catch {
         await redis.del(cacheKey);
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
     await redis.set(cacheKey, JSON.stringify(responseData), "EX", LIVE_STATS_CACHE_TTL);
 
     return NextResponse.json(responseData, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=300' },
+      headers: { 'Cache-Control': 'public, max-age=0, s-maxage=60' },
     });
   } catch (error) {
     console.error('[live-data] Error fetching live data:', error);
