@@ -402,13 +402,6 @@ export const profileViews = mysqlTable('profile_views', {
   viewDateIdx: index('view_date_idx').on(table.viewDate),
 }))
 
-export const affiliateCodes = mysqlTable('affiliate_codes', {
-  id: int('id').primaryKey().autoincrement(),
-  code: varchar('code', { length: 32 }).notNull().unique(),
-  userId: int('user_id').references(() => users.id, { onDelete: 'cascade' }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-})
-
 export const profileComments = mysqlTable('profile_comments', {
   id: int('id').primaryKey().autoincrement(),
   profileId: int('profile_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -587,7 +580,6 @@ export const schema = {
   verificationTokens,
   passwordResetTokens,
   profileViews,
-  affiliateCodes,
   profileComments,
   commentLikes,
   profileFeedback,

@@ -22,7 +22,6 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [affiliateCode, setAffiliateCode] = useState("");
   const [tosAccepted, setTosAccepted] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isPending, startTransition] = useTransition();
@@ -125,7 +124,7 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
     }
 
     startTransition(() => {
-      register({ username, email, password, affiliateCode, turnstileToken: token })
+      register({ username, email, password, turnstileToken: token })
         .then((data) => {
           if (data.error) {
             setError(data.error);
@@ -309,23 +308,6 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
       animate={{ opacity: 1, x: 0 }}
       className="w-full flex flex-col gap-5"
     >
-      <div className="relative">
-        <div className="absolute -top-2 -right-1 z-10">
-          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-[#5b6cf5]/15 text-[#5b6cf5] border border-[#5b6cf5]/25 shadow-sm">
-            Coming soon
-          </span>
-        </div>
-        <div className="opacity-40 pointer-events-none select-none grayscale">
-          <FloatingInput
-            id="affiliate-code"
-            label="Affiliate Code (Optional)"
-            value={affiliateCode}
-            onChange={(e) => setAffiliateCode(e.target.value)}
-            disabled
-          />
-        </div>
-      </div>
-
       <div className="flex flex-col gap-2">
         <label className="flex items-center gap-3 cursor-pointer group">
           <div className="relative flex items-center justify-center">

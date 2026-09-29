@@ -228,7 +228,6 @@ type CreateUserInput = {
   email: string
   password: string
   ip?: string
-  affiliateCode?: string
 }
 
 export async function createUser(input: CreateUserInput) {

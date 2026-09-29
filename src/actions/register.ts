@@ -14,13 +14,12 @@ type RegisterInput = {
   username: string
   email: string
   password: string
-  affiliateCode?: string
   turnstileToken: string
 }
 
 export async function register(input: RegisterInput) {
   try {
-    const { username, email, password, turnstileToken, affiliateCode } = input
+    const { username, email, password, turnstileToken } = input
 
     const usernameError = validateUsername(username)
     if (usernameError) return { error: usernameError }
@@ -56,7 +55,7 @@ export async function register(input: RegisterInput) {
 
     await deleteUnverifiedUserByEmail(email)
 
-    await createUser({ username, email, password, affiliateCode, ip: ip ?? undefined })
+    await createUser({ username, email, password, ip: ip ?? undefined })
 
     try {
       const token = await createVerificationToken(email)
