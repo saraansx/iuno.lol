@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
 import { redis } from "@/lib/redis";
-import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey, readWidgetCache, writeWidgetCache } from "@/lib/widget-cache";
 import { discordActivityImageUrl } from "@/lib/discord-activity-image";
 import { signWidgetImageUrl } from "@/lib/server/security/widget-signature";
 
@@ -74,6 +74,8 @@ const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
 
+const PRESENCE_CACHE_SECONDS = 5;
+
 function resolveActivityImage(url?: string | null): string | null {
   return discordActivityImageUrl(url, signWidgetImageUrl);
 }
@@ -99,6 +101,10 @@ export async function GET(
   try {
     const limited = await widgetRateLimit(req, "discord_presence");
     if (limited) return limited;
+
+    const cacheKey = widgetCacheKey("discord", "presence", id);
+    const cached = await readWidgetCache<PresenceResponse>(cacheKey);
+    if (cached) return NextResponse.json(cached, { headers: NO_STORE });
 
     const redisBadgesKey = `discord:badges:v2:${id}`;
     const [memberData, presenceData, cachedBadgesRaw] = await Promise.all([
@@ -148,11 +154,13 @@ export async function GET(
     ]);
 
     if (!memberData) {
-      return NextResponse.json<PresenceResponse>({
+      const payload: PresenceResponse = {
         in_server: false,
         user: null,
         status: "offline",
-      }, { headers: NO_STORE });
+      };
+      await writeWidgetCache(cacheKey, payload, PRESENCE_CACHE_SECONDS);
+      return NextResponse.json(payload, { headers: NO_STORE });
     }
 
     const discordUser = (memberData.user ||
@@ -244,7 +252,7 @@ export async function GET(
       }
     }
 
-    return NextResponse.json<PresenceResponse>({
+    const payload: PresenceResponse = {
       in_server: true,
       user: {
         id: discordUser.id,
@@ -281,7 +289,9 @@ export async function GET(
             small_image_url: resolveActivityImage(presenceData.primary_activity.small_image_url),
           }
         : null,
-    }, { headers: NO_STORE });
+    };
+    await writeWidgetCache(cacheKey, payload, PRESENCE_CACHE_SECONDS);
+    return NextResponse.json(payload, { headers: NO_STORE });
   } catch (err) {
     console.error("[Discord Presence API Error]", err);
     return NextResponse.json({ in_server: false, error: "Internal Server Error" }, { status: 500 });
