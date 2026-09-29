@@ -516,7 +516,7 @@ export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
   const rows = await db.execute(sql`
     SELECT view_date, count
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
     ORDER BY view_date ASC
   `)
 
@@ -554,7 +554,7 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
       SUM(mac_count) as mac,
       SUM(other_count) as other
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
   `)
 
   const resultRows = (rows as unknown as [{ ios: number | null, android: number | null, windows: number | null, mac: number | null, other: number | null }[]])[0]
