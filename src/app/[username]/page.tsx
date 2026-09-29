@@ -305,9 +305,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const selectedEffect = user.profileEffectUrl ? (effects as ProfileEffect[]).find(e => e.sku_id === user.profileEffectUrl!.split("effect:")[1]) : null;
 
-  const equippedBadges = await getEquippedBadgeIds(user.id);
-
-  const backgrounds = await getUserBackgrounds(user.id);
+  const [equippedBadges, backgrounds] = await Promise.all([
+    getEquippedBadgeIds(user.id),
+    getUserBackgrounds(user.id),
+  ]);
 
   const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
   const cursorValue = cursorUrl
