@@ -1,22 +1,24 @@
 "use client";
 
 import { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
-import DiscordPresenceWidget from "./DiscordPresenceWidget";
-import DiscordServerWidget from "./DiscordServerWidget";
-import GitHubUserWidget from "./GitHubUserWidget";
-import GitHubRepoWidget from "./GitHubRepoWidget";
-import PinterestProfileWidget from "./PinterestProfileWidget";
-import PinterestBoardWidget from "./PinterestBoardWidget";
-import ValorantWidget from "./ValorantWidget";
-import SteamWidget from "./SteamWidget";
-import GenshinWidget from "./GenshinWidget";
-import TwitchWidget from "./TwitchWidget";
-import SpotifyWidget from "./SpotifyWidget";
-import TikTokWidget from "./TikTokWidget";
-import YouTubeWidget from "./YouTubeWidget";
-import TelegramWidget from "./TelegramWidget";
-import RobloxWidget from "./RobloxWidget";
-import WeatherWidget from "./WeatherWidget";
+import dynamic from "next/dynamic";
+
+const DiscordPresenceWidget = dynamic(() => import("./DiscordPresenceWidget"));
+const DiscordServerWidget = dynamic(() => import("./DiscordServerWidget"));
+const GitHubUserWidget = dynamic(() => import("./GitHubUserWidget"));
+const GitHubRepoWidget = dynamic(() => import("./GitHubRepoWidget"));
+const PinterestProfileWidget = dynamic(() => import("./PinterestProfileWidget"));
+const PinterestBoardWidget = dynamic(() => import("./PinterestBoardWidget"));
+const ValorantWidget = dynamic(() => import("./ValorantWidget"));
+const SteamWidget = dynamic(() => import("./SteamWidget"));
+const GenshinWidget = dynamic(() => import("./GenshinWidget"));
+const TwitchWidget = dynamic(() => import("./TwitchWidget"));
+const SpotifyWidget = dynamic(() => import("./SpotifyWidget"));
+const TikTokWidget = dynamic(() => import("./TikTokWidget"));
+const YouTubeWidget = dynamic(() => import("./YouTubeWidget"));
+const TelegramWidget = dynamic(() => import("./TelegramWidget"));
+const RobloxWidget = dynamic(() => import("./RobloxWidget"));
+const WeatherWidget = dynamic(() => import("./WeatherWidget"));
 import { FONT_FAMILY_VARS } from "@/lib/fonts";
 
 function renderWidget(w: WidgetItem) {

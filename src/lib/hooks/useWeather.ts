@@ -75,7 +75,6 @@ export function useWeather(
 
     fetchData();
 
-    // Skip polls while the tab is hidden; refresh once when the visitor comes back
     let timer: NodeJS.Timeout | undefined;
     const onVisible = () => {
       if (!document.hidden) fetchData();

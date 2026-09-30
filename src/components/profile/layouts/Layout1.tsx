@@ -5,7 +5,9 @@ import Image from "next/image";
 import { isVideoUrl } from "@/lib/utils/media";
 import { animatedBackgroundId } from "@/lib/animated-background";
 import AnimatedBackground from "./AnimatedBackground";
-import { CommentsModal } from "../comments/CommentsModal";
+import dynamic from "next/dynamic";
+
+const CommentsModal = dynamic(() => import("../comments/CommentsModal").then((m) => m.CommentsModal));
 import FeedbackButtons from "../feedback/FeedbackButtons";
 import { BackgroundEffect } from "./BackgroundEffect";
 import { BorderEffect } from "./BorderEffect";
@@ -310,6 +312,8 @@ const Layout1 = ({
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
   const [liveViews, setLiveViews] = useState(views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
+  const [commentsEverOpened, setCommentsEverOpened] = useState(false);
+  if (isCommentsModalOpen && !commentsEverOpened) setCommentsEverOpened(true);
   const [likesCount, setLikesCount] = useState(initialLikes);
   const [dislikesCount, setDislikesCount] = useState(initialDislikes);
 
@@ -1288,14 +1292,15 @@ const sectionSurface: React.CSSProperties = {
           </div>
         )}
 
-        <CommentsModal
+        {}
+        {commentsEverOpened && <CommentsModal
           isOpen={isCommentsModalOpen}
           onClose={() => setIsCommentsModalOpen(false)}
           profileId={profileId}
           viewerId={viewerId}
           showCommentsPublicly={showCommentsPublicly}
           allowNewComments={allowNewComments}
-        />
+        />}
       </div>
     );
 };
