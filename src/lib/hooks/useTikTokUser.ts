@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import { type TikTokUserData, cleanTikTokUsername } from "@/lib/tiktok";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -35,7 +36,7 @@ export function useTikTokUser(rawUsername: string | null | undefined): UseTikTok
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/tiktok/user/${encodeURIComponent(fetchUsername)}`
         );
         const json = await res.json();

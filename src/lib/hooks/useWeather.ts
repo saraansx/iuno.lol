@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import { type WeatherData, cleanWeatherLocation } from "@/lib/weather";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -44,7 +45,7 @@ export function useWeather(
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/weather/current/${encodeURIComponent(fetchLocation)}`
         );
         const data = await res.json();
@@ -74,14 +75,22 @@ export function useWeather(
 
     fetchData();
 
+    // Skip polls while the tab is hidden; refresh once when the visitor comes back
     let timer: NodeJS.Timeout | undefined;
+    const onVisible = () => {
+      if (!document.hidden) fetchData();
+    };
     if (refetchInterval && refetchInterval > 0) {
-      timer = setInterval(fetchData, refetchInterval);
+      timer = setInterval(() => {
+        if (!document.hidden) fetchData();
+      }, refetchInterval);
+      document.addEventListener("visibilitychange", onVisible);
     }
 
     return () => {
       isMounted = false;
       if (timer) clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [fetchLocation, enabled, trigger, refetchInterval]);
 

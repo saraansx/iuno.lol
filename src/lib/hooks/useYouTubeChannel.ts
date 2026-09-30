@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import { type YouTubeWidgetData, cleanYouTubeInput } from "@/lib/youtube";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -37,7 +38,7 @@ export function useYouTubeChannel(
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/youtube/channel/${encodeURIComponent(fetchInput)}`
         );
         const json = await res.json();

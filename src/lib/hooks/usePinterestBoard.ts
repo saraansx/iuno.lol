@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type PinterestBoardData } from "@/app/api/widgets/pinterest/board/[username]/[board]/route";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -36,7 +37,7 @@ export function usePinterestBoard(input: string) {
       setError(null);
 
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/pinterest/board/${encodeURIComponent(user)}/${encodeURIComponent(board)}`,
           {
             signal: controller.signal,

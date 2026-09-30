@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
@@ -38,7 +39,7 @@ export function useGitHubContributions(username: string, enabled: boolean = true
     const fetchContributions = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`/api/widgets/github/contributions/${encodeURIComponent(fetchUsername)}`, {
+        const res = await cachedFetch(`/api/widgets/github/contributions/${encodeURIComponent(fetchUsername)}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Failed to load contributions");

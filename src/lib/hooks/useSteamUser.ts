@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type SteamUserData } from "@/app/api/widgets/steam/user/[id]/route";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -35,7 +36,7 @@ export function useSteamUser(input: string) {
       setError(null);
 
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/steam/user/${encodeURIComponent(fetchInput)}`,
           {
             signal: controller.signal,

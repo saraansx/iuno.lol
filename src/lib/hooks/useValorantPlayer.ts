@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type ValorantPlayerData } from "@/app/api/widgets/valorant/player/[name]/[tag]/route";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -32,7 +33,7 @@ export function useValorantPlayer(riotId: string) {
       setError(null);
 
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/valorant/player/${encodeURIComponent(name)}/${encodeURIComponent(tag)}`,
           { signal: controller.signal }
         );

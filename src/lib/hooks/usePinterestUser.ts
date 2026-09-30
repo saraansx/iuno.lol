@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type PinterestUserData } from "@/app/api/widgets/pinterest/user/[username]/route";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -32,7 +33,7 @@ export function usePinterestUser(username: string) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/widgets/pinterest/user/${encodeURIComponent(fetchUsername)}`, {
+        const res = await cachedFetch(`/api/widgets/pinterest/user/${encodeURIComponent(fetchUsername)}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Failed to load Pinterest user");

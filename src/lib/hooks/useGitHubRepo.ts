@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type GitHubRepoData } from "@/app/api/widgets/github/repo/[owner]/[repo]/route";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -35,7 +36,7 @@ export function useGitHubRepo(repoString: string) {
 
       try {
         const [owner, repo] = fetchRepo.split("/");
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/github/repo/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`,
           {
             signal: controller.signal,

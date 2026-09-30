@@ -9,6 +9,8 @@ import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import { getMyBadges } from "@/actions/badges";
 import { effectSkuFromUrl, useProfileEffect } from "@/lib/collectibles-client";
 
+let lastEquippedBadges: string[] | null = null;
+
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
   overrides?: Partial<FullUser>;
@@ -19,13 +21,14 @@ interface DashboardProfilePreviewProps {
 
 export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp, backgrounds, bgPreviewUrl }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
-  const [fetchedBadges, setFetchedBadges] = useState<string[] | null>(null);
+  const [fetchedBadges, setFetchedBadges] = useState<string[] | null>(lastEquippedBadges);
 
   useEffect(() => {
     if (equippedBadgesProp !== undefined) return;
     let cancelled = false;
     getMyBadges()
       .then((res) => {
+        lastEquippedBadges = res.equipped;
         if (!cancelled) setFetchedBadges(res.equipped);
       })
       .catch(() => {});

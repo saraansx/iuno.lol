@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import { type TelegramUserData, cleanTelegramUsername } from "@/lib/telegram";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -44,7 +45,7 @@ export function useTelegramUser(
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/telegram/user/${encodeURIComponent(fetchUsername)}`
         );
         const data = await res.json();

@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import { type RobloxUserData, cleanRobloxInput } from "@/lib/roblox";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -44,7 +45,7 @@ export function useRobloxUser(
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/roblox/user/${encodeURIComponent(fetchInput)}`
         );
         const data = await res.json();

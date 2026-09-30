@@ -63,7 +63,6 @@ function formatBytes(bytes: number): string {
 
 type UploadEntry = { at: number; size: number };
 
-// Per bucket: number of uploads and total bytes uploaded
 function buildSeries(entries: UploadEntry[], range: RangeKey) {
   const now = new Date();
   const points: { label: string; count: number; bytes: number }[] = [];
@@ -225,8 +224,8 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
               ticks={yTicks}
               allowDecimals={false}
             />
-            {/* Hidden scale for the storage line so it isn't flattened by the count axis */}
-            {/* Storage scale tops out at ~60% height so its line never sits on top of the uploads line */}
+            {}
+            {}
             <YAxis yAxisId="bytes" orientation="right" hide domain={[0, (max: number) => Math.max(max, 1) * 1.6]} />
             <Tooltip
               cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}

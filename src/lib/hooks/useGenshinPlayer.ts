@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type GenshinPlayerData } from "@/lib/genshin";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -30,7 +31,7 @@ export function useGenshinPlayer(uid: string) {
       setError(null);
 
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/genshin/player/${encodeURIComponent(fetchUid)}`,
           {
             signal: controller.signal,

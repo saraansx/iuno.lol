@@ -313,7 +313,6 @@ export async function setImageHostFavorite(
   const ownedIds = rows.map((r) => r.id)
   if (ownedIds.length === 0) return []
   await db.update(schema.imageHostFiles).set({ favorite }).where(owned)
-  // Only log files whose state actually changed
   await logImageHostActivity(
     userId,
     favorite ? 'favorite' : 'unfavorite',

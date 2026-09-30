@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { type DiscordServerData } from "@/app/api/widgets/discord/invite/[code]/route";
 import { useDebouncedValue } from "@/lib/hooks/useDebouncedValue";
@@ -30,7 +31,7 @@ export function useDiscordServer(inviteCode: string) {
       setError(null);
 
       try {
-        const res = await fetch(`/api/widgets/discord/invite/${encodeURIComponent(fetchCode)}`, {
+        const res = await cachedFetch(`/api/widgets/discord/invite/${encodeURIComponent(fetchCode)}`, {
           signal: controller.signal,
         });
         if (!res.ok) throw new Error("Failed to load server data");

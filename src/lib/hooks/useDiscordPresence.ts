@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useEffect, useState } from "react";
 import { useDebouncedValue } from "./useDebouncedValue";
 
@@ -75,7 +76,7 @@ export function useDiscordPresence(id: string, poll = true) {
       isFetching = true;
 
       try {
-        const res = await fetch(`/api/widgets/discord/presence/${fetchId}`, {
+        const res = await cachedFetch(`/api/widgets/discord/presence/${fetchId}`, {
           cache: "no-store",
         });
 

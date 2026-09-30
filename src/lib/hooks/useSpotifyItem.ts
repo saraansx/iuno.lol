@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/fetch-cache";
 import { useState, useEffect } from "react";
 import type { SpotifyItemData } from "@/lib/spotify";
 import { useDebouncedValue } from "./useDebouncedValue";
@@ -52,7 +53,7 @@ export function useSpotifyItem(
 
     async function fetchData() {
       try {
-        const res = await fetch(
+        const res = await cachedFetch(
           `/api/widgets/spotify/item/${encodeURIComponent(fetchType)}/${encodeURIComponent(fetchId)}`
         );
         const json = await res.json();
