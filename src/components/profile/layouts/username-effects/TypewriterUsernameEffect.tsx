@@ -89,14 +89,10 @@ export default function TypewriterUsernameEffect({ children }: { children: React
 }
 
 function Caret() {
-  const [on, setOn] = useState(true);
-  useEffect(() => {
-    const id = setInterval(() => setOn((v) => !v), 530);
-    return () => clearInterval(id);
-  }, []);
   return (
     <span
       aria-hidden
+      className="typewriter-caret"
       style={{
         display: "inline-block",
         width: "0.08em",
@@ -104,8 +100,6 @@ function Caret() {
         marginLeft: "2px",
         verticalAlign: "-0.15em",
         background: "currentColor",
-        opacity: on ? 1 : 0,
-        transition: "opacity 120ms linear",
       }}
     />
   );

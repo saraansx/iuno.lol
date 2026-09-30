@@ -63,7 +63,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   const bounceRef = useRef(0);
 
   const startLevels = () => {
-    if (levelTimerRef.current !== null) return;
+    if (levelTimerRef.current !== null || document.hidden) return;
     const phases = [0, 2.1, 4.2];
     const speeds = [1.1, 1.45, 0.85];
     levelTimerRef.current = window.setInterval(() => {
@@ -90,6 +90,25 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
     }
     setLevels(null);
   };
+
+  const startLevelsRef = useRef(startLevels);
+  useEffect(() => {
+    startLevelsRef.current = startLevels;
+  });
+  useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) {
+        if (levelTimerRef.current !== null) {
+          window.clearInterval(levelTimerRef.current);
+          levelTimerRef.current = null;
+        }
+      } else if (audioRef.current && !audioRef.current.paused) {
+        startLevelsRef.current();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, []);
 
   const playAt = useCallback((target: number): Promise<void> | undefined => {
     const existing = audioRef.current;

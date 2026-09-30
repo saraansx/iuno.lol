@@ -8,6 +8,7 @@ interface ZoomInCardTransitionProps {
 
 export default function ZoomInCardTransition({ children, className = "" }: ZoomInCardTransitionProps) {
   const [visible, setVisible] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -17,11 +18,14 @@ export default function ZoomInCardTransition({ children, className = "" }: ZoomI
   return (
     <div
       className={className}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget && e.propertyName === "transform") setDone(true);
+      }}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "scale(1)" : "scale(0.8)",
         transition: "opacity 0.5s ease-out, transform 0.5s ease-out",
-        willChange: "transform, opacity",
+        willChange: done ? undefined : "transform, opacity",
       }}
     >
       {children}

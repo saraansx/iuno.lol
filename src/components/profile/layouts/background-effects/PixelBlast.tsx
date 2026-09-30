@@ -430,6 +430,7 @@ export function PixelBlastEffect({
       t.quad?.geometry.dispose();
       t.material.dispose();
       t.composer?.dispose();
+      t.touch?.texture.dispose();
       t.renderer.dispose();
       t.renderer.forceContextLoss();
       if (t.renderer.domElement.parentElement === container) container.removeChild(t.renderer.domElement);

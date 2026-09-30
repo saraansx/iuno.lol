@@ -41,6 +41,32 @@
   }
 }
 
+/* Typewriter caret: 530ms on / 530ms off with a ~120ms fade, same rhythm as the old JS timer */
+@keyframes typewriter-caret-blink {
+  0%, 50% { opacity: 1; }
+  61%, 89% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.typewriter-caret {
+  animation: typewriter-caret-blink 1060ms linear infinite;
+}
+
+/* Blur description effect. Same curve as the username blur: 0 → 6px (with soft glow) → 0 every 2s */
+@keyframes description-blur {
+  /* `none`, not blur(0px): the minifier rewrites blur(0px) to blur(), which some browsers reject */
+  0%, 100% { filter: none; }
+  50% { filter: blur(6px); text-shadow: 0 0 6px currentColor; }
+}
+
+/* Referenced from a class (not inline style) so Tailwind keeps the keyframes.
+   The username and description blur effects share the same animation. */
+.username-blur,
+.description-blur {
+  animation: description-blur 2000ms linear infinite;
+  will-change: filter;
+}
+
 @keyframes pingpong-scroll {
   0%, 16.66% {
     transform: translateX(0px);

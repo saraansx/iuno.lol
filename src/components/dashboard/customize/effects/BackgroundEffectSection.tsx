@@ -153,7 +153,7 @@ export default function BackgroundEffectSection({
                   >
                     <span className="text-[13px] flex items-center gap-2">
                       {effect.name}
-                      {isPremiumBackgroundEffect(effect.id) && <PremiumLock size={12} />}
+                      {locked && <PremiumLock size={12} />}
                     </span>
                     {backgroundEffect === effect.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">

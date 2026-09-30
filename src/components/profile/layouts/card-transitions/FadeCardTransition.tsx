@@ -8,6 +8,7 @@ interface FadeCardTransitionProps {
 
 export default function FadeCardTransition({ children, className = "" }: FadeCardTransitionProps) {
   const [visible, setVisible] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -17,11 +18,14 @@ export default function FadeCardTransition({ children, className = "" }: FadeCar
   return (
     <div
       className={className}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget && e.propertyName === "opacity") setDone(true);
+      }}
       style={{
         opacity: visible ? 1 : 0,
         transition: "opacity 1s ease-out",
         overflow: "visible",
-        willChange: "opacity",
+        willChange: done ? undefined : "opacity",
       }}
     >
       {children}

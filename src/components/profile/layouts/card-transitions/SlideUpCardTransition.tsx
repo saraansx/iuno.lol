@@ -8,6 +8,7 @@ interface SlideUpCardTransitionProps {
 
 export default function SlideUpCardTransition({ children, className = "" }: SlideUpCardTransitionProps) {
   const [visible, setVisible] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -17,11 +18,14 @@ export default function SlideUpCardTransition({ children, className = "" }: Slid
   return (
     <div
       className={className}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget && e.propertyName === "transform") setDone(true);
+      }}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",
         transition: "opacity 0.6s ease-out, transform 0.6s ease-out",
-        willChange: "transform, opacity",
+        willChange: done ? undefined : "transform, opacity",
       }}
     >
       {children}

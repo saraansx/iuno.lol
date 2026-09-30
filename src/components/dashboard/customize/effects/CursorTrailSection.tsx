@@ -118,7 +118,7 @@ export default function CursorTrailSection({
                   >
                     <span className="text-[13px] flex items-center gap-2">
                       {item.name}
-                      {isPremiumOption(PREMIUM_CURSOR_TRAILS, item.id) && <PremiumLock size={12} />}
+                      {locked && <PremiumLock size={12} />}
                     </span>
                     {cursorTrail === item.id && (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

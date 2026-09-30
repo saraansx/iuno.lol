@@ -62,8 +62,15 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 
   useEffect(() => {
     if (!isDragging) return;
+    let frame = 0;
+    let latestX = 0;
     const handleMouseMove = (e: MouseEvent) => {
-      setWidth(Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, e.clientX)));
+      latestX = e.clientX;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setWidth(Math.max(SIDEBAR_MIN_WIDTH, Math.min(SIDEBAR_MAX_WIDTH, latestX)));
+      });
     };
     const handleMouseUp = () => {
       setIsDragging(false);
@@ -73,6 +80,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
     return () => {
+      if (frame) cancelAnimationFrame(frame);
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
       document.body.style.cursor = "";

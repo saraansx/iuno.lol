@@ -8,6 +8,7 @@ interface BlurCardTransitionProps {
 
 export default function BlurCardTransition({ children, className = "" }: BlurCardTransitionProps) {
   const [visible, setVisible] = useState(false);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setVisible(true));
@@ -17,11 +18,14 @@ export default function BlurCardTransition({ children, className = "" }: BlurCar
   return (
     <div
       className={className}
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget && e.propertyName === "filter") setDone(true);
+      }}
       style={{
         opacity: visible ? 1 : 0,
-        filter: visible ? "blur(0px)" : "blur(20px)",
+        filter: done ? undefined : visible ? "blur(0px)" : "blur(20px)",
         transition: "opacity 0.7s ease-out, filter 0.7s ease-out",
-        willChange: "filter, opacity",
+        willChange: done ? undefined : "filter, opacity",
       }}
     >
       {children}

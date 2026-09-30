@@ -19,7 +19,7 @@ export function FirefliesEffect({ intensity = 50, color = "#ffe97a" }: { intensi
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let animationFrameId: number;
     let width = canvas.offsetWidth;
     let height = canvas.offsetHeight;

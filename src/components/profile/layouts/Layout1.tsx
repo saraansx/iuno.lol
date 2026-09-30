@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useEffect, useRef, useState  } from "react";
+import React, {  useEffect, useRef, useState, useSyncExternalStore  } from "react";
 import Image from "next/image";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { isVideoUrl } from "@/lib/utils/media";
@@ -377,6 +377,18 @@ interface Layout1Props {
 const hexToRgba = (hex: string | undefined, opacity: number) =>
   toRgba(hex, opacity, "5, 5, 5");
 
+const MOBILE_ANIMATED_BG_MAX_BLUR = 6;
+
+const COARSE_POINTER_QUERY = "(pointer: coarse)";
+function subscribeCoarsePointer(onChange: () => void) {
+  const mq = window.matchMedia(COARSE_POINTER_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+function isCoarsePointer() {
+  return window.matchMedia(COARSE_POINTER_QUERY).matches;
+}
+
 const AvatarInner = ({
   avatarUrl,
   shapeClass,
@@ -725,6 +737,11 @@ const Layout1 = ({
     return 0;
   });
   const bannerBackgroundUrl = (locked ? bgPreviewUrl : backgrounds?.[bgIdx]) || null;
+  const isTouchDevice = useSyncExternalStore(subscribeCoarsePointer, isCoarsePointer, () => false);
+  const hasAnimatedBg = Boolean(bannerBackgroundUrl && animatedBackgroundId(bannerBackgroundUrl));
+  const cardBlur = isTouchDevice && hasAnimatedBg
+    ? Math.min(profileCardBlur, MOBILE_ANIMATED_BG_MAX_BLUR)
+    : profileCardBlur;
   const autoplay = bannerBackgroundAutoplay ?? true;
   const nextVideoIdx = (() => {
     if (locked || !autoplay || !backgrounds || backgrounds.length < 2) return null;
@@ -1193,8 +1210,8 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
   );
 
 const sectionSurface: React.CSSProperties = {
-    backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-    WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+    backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
+    WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
     borderRadius: `${profileBorderRadius}px`,
     border:
       profileBorderWidth > 0
@@ -1241,7 +1258,6 @@ const sectionSurface: React.CSSProperties = {
           fontClassMap={FONT_CLASS_MAP}
           onEnter={handleEntered}
         />
-
 
         <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
         {bannerBackgroundUrl && (
@@ -1313,7 +1329,6 @@ const sectionSurface: React.CSSProperties = {
         <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
         <ClickEffects effect={clickEffect} sound={clickSound} scopeRef={clickScopeRef} />
 
-
         {paged && (
           <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[60]">
             <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 pointer-events-auto">
@@ -1352,8 +1367,8 @@ const sectionSurface: React.CSSProperties = {
               <div
                 className="absolute inset-0 z-0"
                 style={{
-                  backdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
-                  WebkitBackdropFilter: profileCardBlur > 0 ? `blur(${profileCardBlur}px)` : undefined,
+                  backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
+                  WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
                   borderRadius: `${profileBorderRadius}px`,
                   border: profileBorderWidth > 0 ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}` : '1px solid rgba(255,255,255,0.08)',
                   background: hexToRgba(profileBgColor, profileBgOpacity),
