@@ -496,7 +496,9 @@ export default function CheckoutClient({
                         }`}
                       >
                         <RazorpayLogo className="h-5 w-auto" />
-                        <span className="text-[11px] font-light text-white/40">UPI · Cards · Netbanking</span>
+                        <span className="text-[11px] font-light text-white/40">
+                          {currency === "INR" ? "UPI · Cards · Netbanking" : "Cards · PayPal"}
+                        </span>
                       </button>
                       <button
                         type="button"
@@ -509,7 +511,9 @@ export default function CheckoutClient({
                         }`}
                       >
                         <CardBrandLogos />
-                        <span className="text-[11px] font-light text-white/40">Credit · Debit · UPI</span>
+                        <span className="text-[11px] font-light text-white/40">
+                          {currency === "INR" ? "Credit · Debit · UPI" : "Credit · Debit"}
+                        </span>
                       </button>
                     </div>
 
