@@ -552,7 +552,7 @@ export const imageHostFilesRelations = relations(imageHostFiles, ({ one }) => ({
 export const imageHostActivity = mysqlTable('image_host_activity', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  action: mysqlEnum('action', ['upload', 'delete']).notNull(),
+  action: mysqlEnum('action', ['upload', 'delete', 'favorite', 'unfavorite', 'lock', 'unlock']).notNull(),
   kind: mysqlEnum('kind', ['image', 'video']).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   size: bigint('size', { mode: 'number' }).notNull(),

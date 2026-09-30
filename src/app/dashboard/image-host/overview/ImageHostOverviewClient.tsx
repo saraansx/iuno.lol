@@ -4,8 +4,10 @@ import { useMemo, useState, useEffect, useRef, type ReactNode } from "react";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import { startOfDay, subDays, format, isSameDay } from "date-fns";
 
+type ActivityAction = "upload" | "delete" | "favorite" | "unfavorite" | "lock" | "unlock";
+
 interface ActivityEntry {
-  action: "upload" | "delete";
+  action: ActivityAction;
   url: string | null;
   name: string;
   size: number;
@@ -18,7 +20,7 @@ interface ImageHostStats {
   storageUsedBytes: number;
   favorites: number;
   byKind: { kind: string; count: number }[];
-  recent: number[];
+  recent: UploadEntry[];
   quotaBytes: number;
 }
 
@@ -59,22 +61,28 @@ function formatBytes(bytes: number): string {
   return `${rounded} ${units[i]}`;
 }
 
-function buildSeries(timestamps: number[], range: RangeKey) {
+type UploadEntry = { at: number; size: number };
+
+// Per bucket: number of uploads and total bytes uploaded
+function buildSeries(entries: UploadEntry[], range: RangeKey) {
   const now = new Date();
-  const dates = timestamps.map((t) => new Date(t));
-  const points: { label: string; count: number }[] = [];
+  const points: { label: string; count: number; bytes: number }[] = [];
+  const push = (label: string, inBucket: (d: Date) => boolean) => {
+    const hits = entries.filter((e) => inBucket(new Date(e.at)));
+    points.push({ label, count: hits.length, bytes: hits.reduce((sum, e) => sum + e.size, 0) });
+  };
   if (range === "24h") {
     for (let i = 23; i >= 0; i--) {
       const start = new Date(now.getTime() - i * 60 * 60 * 1000);
       start.setMinutes(0, 0, 0);
       const end = new Date(start.getTime() + 60 * 60 * 1000);
-      points.push({ label: format(start, "ha"), count: dates.filter((d) => d >= start && d < end).length });
+      push(format(start, "ha"), (d) => d >= start && d < end);
     }
   } else {
     const days = range === "7d" ? 7 : range === "14d" ? 14 : 30;
     for (let i = days - 1; i >= 0; i--) {
       const bucket = startOfDay(subDays(now, i));
-      points.push({ label: format(bucket, "MMM d"), count: dates.filter((d) => isSameDay(d, bucket)).length });
+      push(format(bucket, "MMM d"), (d) => isSameDay(d, bucket));
     }
   }
   return points;
@@ -124,7 +132,7 @@ function StatCard({ label, value, icon }: { label: string; value: string; icon: 
   );
 }
 
-function UploadsChart({ timestamps }: { timestamps: number[] }) {
+function UploadsChart({ entries }: { entries: UploadEntry[] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [range, setRange] = useState<RangeKey>("7d");
@@ -139,7 +147,9 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
     return () => observer.disconnect();
   }, []);
 
-  const data = useMemo(() => buildSeries(timestamps, range), [timestamps, range]);
+  const data = useMemo(() => buildSeries(entries, range), [entries, range]);
+  const totalCount = data.reduce((sum, d) => sum + d.count, 0);
+  const totalBytes = data.reduce((sum, d) => sum + d.bytes, 0);
   const maxCount = useMemo(() => Math.max(...data.map((d) => d.count), 1), [data]);
   const tickInterval = data.length > 10 ? Math.floor(data.length / 6) : 0;
   const yTicks = useMemo(() => {
@@ -157,6 +167,16 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Uploads</h2>
           <p className="text-white/30 text-[12px] mt-1">{RANGE_SUBTITLE[range]}</p>
+          <div className="mt-2 flex items-center gap-3 text-[11px] text-white/40">
+            <span className="flex items-center gap-1.5">
+              <span className="h-0.5 w-3 rounded bg-[#5b6cf5]" />Uploads
+              <span className="tabular-nums text-white/70">{totalCount}</span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-0.5 w-3 rounded border-t border-dashed border-[#a855f7]" />Storage
+              <span className="tabular-nums text-white/70">{formatBytes(totalBytes)}</span>
+            </span>
+          </div>
         </div>
         <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
           {RANGES.map((r) => (
@@ -197,6 +217,7 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
               minTickGap={8}
             />
             <YAxis
+              yAxisId="count"
               axisLine={false}
               tickLine={false}
               tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 12 }}
@@ -204,18 +225,27 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
               ticks={yTicks}
               allowDecimals={false}
             />
+            {/* Hidden scale for the storage line so it isn't flattened by the count axis */}
+            {/* Storage scale tops out at ~60% height so its line never sits on top of the uploads line */}
+            <YAxis yAxisId="bytes" orientation="right" hide domain={[0, (max: number) => Math.max(max, 1) * 1.6]} />
             <Tooltip
               cursor={{ stroke: "rgba(255,255,255,0.1)", strokeWidth: 1 }}
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
-                  const v = payload[0].value as number;
+                  const point = payload[0].payload as { count: number; bytes: number };
                   return (
                     <div className="bg-[#111] border border-white/10 px-3 py-2 rounded-lg shadow-2xl backdrop-blur-md">
                       <p className="text-[10px] text-white/40 uppercase tracking-wider font-bold mb-0.5">{label}</p>
                       <div className="flex items-center gap-1.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#5b6cf5]" />
                         <p className="text-white text-xs font-semibold">
-                          {v} <span className="text-white/40 font-normal">upload{v === 1 ? "" : "s"}</span>
+                          {point.count} <span className="text-white/40 font-normal">upload{point.count === 1 ? "" : "s"}</span>
+                        </p>
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-1.5">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#a855f7]" />
+                        <p className="text-white text-xs font-semibold">
+                          {formatBytes(point.bytes)} <span className="text-white/40 font-normal">uploaded</span>
                         </p>
                       </div>
                     </div>
@@ -224,7 +254,8 @@ function UploadsChart({ timestamps }: { timestamps: number[] }) {
                 return null;
               }}
             />
-            <Area type="monotone" dataKey="count" name="Uploads" stroke="#5b6cf5" strokeWidth={2} fillOpacity={1} fill="url(#colorUploads)" />
+            <Area yAxisId="count" type="monotone" dataKey="count" name="Uploads" stroke="#5b6cf5" strokeWidth={2} fillOpacity={1} fill="url(#colorUploads)" />
+            <Area yAxisId="bytes" type="monotone" dataKey="bytes" name="Storage" stroke="#a855f7" strokeWidth={1.5} strokeDasharray="4 3" fill="none" dot={false} />
           </AreaChart>
         )}
       </div>
@@ -306,23 +337,56 @@ function FileTypesChart({ data }: { data: { name: string; value: number; color: 
   );
 }
 
-function ActivityActionIcon({ action }: { action: "upload" | "delete" }) {
-  if (action === "delete") {
-    return (
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-      </svg>
-    );
-  }
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 19V5" /><path d="m5 12 7-7 7 7" />
-    </svg>
-  );
-}
+const ICON_PROPS = {
+  width: 13,
+  height: 13,
+  viewBox: "0 0 24 24",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.9,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+const STAR_PATH = "M12 2 15.09 8.26 22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+
+const ACTIVITY_META: Record<ActivityAction, { label: string; color: string; icon: ReactNode }> = {
+  upload: {
+    label: "Uploaded",
+    color: "#5b6cf5",
+    icon: <svg {...ICON_PROPS}><path d="M12 19V5" /><path d="m5 12 7-7 7 7" /></svg>,
+  },
+  delete: {
+    label: "Deleted",
+    color: "#f87171",
+    icon: <svg {...ICON_PROPS}><path d="M3 6h18" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>,
+  },
+  favorite: {
+    label: "Favorited",
+    color: "#f5c451",
+    icon: <svg {...ICON_PROPS} fill="currentColor"><path d={STAR_PATH} /></svg>,
+  },
+  unfavorite: {
+    label: "Unfavorited",
+    color: "#a3a3a3",
+    icon: <svg {...ICON_PROPS}><path d={STAR_PATH} /></svg>,
+  },
+  lock: {
+    label: "Locked",
+    color: "#aab4ff",
+    icon: <svg {...ICON_PROPS}><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>,
+  },
+  unlock: {
+    label: "Unlocked",
+    color: "#a3a3a3",
+    icon: <svg {...ICON_PROPS}><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 7.75-1.4" /></svg>,
+  },
+};
 
 function ActivityRow({ item }: { item: ActivityEntry }) {
   const meta = fileTypeMeta(item.kind);
+  const action = ACTIVITY_META[item.action] ?? ACTIVITY_META.upload;
   const isDelete = item.action === "delete";
   const rowClass = "flex items-center gap-3 px-3 h-11 border-t border-white/[0.04] first:border-t-0 transition-colors";
   const content = (
@@ -330,12 +394,12 @@ function ActivityRow({ item }: { item: ActivityEntry }) {
       <span className="flex items-center gap-2 w-[104px] shrink-0">
         <span
           className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
-          style={isDelete ? { color: "#f87171", backgroundColor: "rgba(248,113,113,0.1)" } : { color: "#5b6cf5", backgroundColor: "rgba(91,108,245,0.12)" }}
+          style={{ color: action.color, backgroundColor: `${action.color}1a` }}
         >
-          <ActivityActionIcon action={item.action} />
+          {action.icon}
         </span>
         <span className={`text-[12px] font-normal ${isDelete ? "text-white/45" : "text-white/70"}`}>
-          {isDelete ? "Deleted" : "Uploaded"}
+          {action.label}
         </span>
       </span>
       <span className={`flex-1 min-w-0 truncate text-[13px] ${isDelete ? "text-white/40" : "text-white/90"}`}>{item.name}</span>
@@ -488,7 +552,7 @@ export default function ImageHostOverviewClient() {
       .map((b) => ({ name: fileTypeMeta(b.kind).label, value: b.count, color: fileTypeMeta(b.kind).color }));
   }, [stats]);
 
-  const timestamps = stats?.recent ?? [];
+  const uploads = stats?.recent ?? [];
 
   return (
     <div className="flex flex-col gap-4">
@@ -500,7 +564,7 @@ export default function ImageHostOverviewClient() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 min-w-0">
-          <UploadsChart timestamps={timestamps} />
+          <UploadsChart entries={uploads} />
         </div>
         <div className="lg:col-span-1 min-w-0">
           <FileTypesChart data={typeData} />

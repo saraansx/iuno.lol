@@ -76,6 +76,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json(
     { icons: out },
-    { headers: { "Cache-Control": "public, max-age=3600, s-maxage=3600" } }
+    // Matches the 1-day upstream revalidate above; icons almost never change
+    { headers: { "Cache-Control": "public, max-age=86400, s-maxage=86400" } }
   );
 }

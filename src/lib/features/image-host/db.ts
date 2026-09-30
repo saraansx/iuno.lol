@@ -80,15 +80,35 @@ export async function getOwnedImageHostFile(
   return row ?? null
 }
 
+type ImageHostAction = (typeof schema.imageHostActivity.action.enumValues)[number]
+
+const activityFileColumns = {
+  id: schema.imageHostFiles.id,
+  url: schema.imageHostFiles.url,
+  name: schema.imageHostFiles.name,
+  size: schema.imageHostFiles.size,
+  kind: schema.imageHostFiles.kind,
+  favorite: schema.imageHostFiles.favorite,
+}
+
+type ActivityFile = { url: string; name: string; size: number; kind: ImageHostKind }
+
+async function logImageHostActivity(userId: number, action: ImageHostAction, files: ActivityFile[]) {
+  if (files.length === 0) return
+  await db.insert(schema.imageHostActivity).values(
+    files.map((f) => ({ userId, action, kind: f.kind, name: f.name, size: Number(f.size), url: f.url })),
+  )
+}
+
 export async function setImageHostFilePassword(
   userId: number,
   id: number,
   passwordHash: string | null,
 ): Promise<void> {
-  await db
-    .update(schema.imageHostFiles)
-    .set({ passwordHash })
-    .where(and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id)))
+  const owned = and(eq(schema.imageHostFiles.userId, userId), eq(schema.imageHostFiles.id, id))
+  const rows = await db.select(activityFileColumns).from(schema.imageHostFiles).where(owned).limit(1)
+  await db.update(schema.imageHostFiles).set({ passwordHash }).where(owned)
+  await logImageHostActivity(userId, passwordHash ? 'lock' : 'unlock', rows)
 }
 
 export async function getImageHostUsedBytes(userId: number): Promise<number> {
@@ -100,7 +120,7 @@ export async function getImageHostUsedBytes(userId: number): Promise<number> {
 }
 
 interface ImageHostActivityEntry {
-  action: 'upload' | 'delete'
+  action: ImageHostAction
   kind: string
   name: string
   size: number
@@ -113,7 +133,7 @@ export interface ImageHostStats {
   storageUsedBytes: number
   favorites: number
   byKind: { kind: string; count: number }[]
-  recent: number[]
+  recent: { at: number; size: number }[]
 }
 
 export async function getImageHostStats(userId: number): Promise<ImageHostStats> {
@@ -136,7 +156,7 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
       .where(owned)
       .groupBy(schema.imageHostFiles.kind),
     db
-      .select({ createdAt: schema.imageHostActivity.createdAt })
+      .select({ createdAt: schema.imageHostActivity.createdAt, size: schema.imageHostActivity.size })
       .from(schema.imageHostActivity)
       .where(
         and(
@@ -153,7 +173,7 @@ export async function getImageHostStats(userId: number): Promise<ImageHostStats>
     storageUsedBytes: Number(totals?.used ?? 0),
     favorites: Number(totals?.favorites ?? 0),
     byKind: byKindRows.map((r) => ({ kind: r.kind, count: Number(r.kindCount) })),
-    recent: recentRows.map((r) => r.createdAt.getTime()),
+    recent: recentRows.map((r) => ({ at: r.createdAt.getTime(), size: Number(r.size) })),
   }
 }
 
@@ -287,12 +307,18 @@ export async function setImageHostFavorite(
     inArray(schema.imageHostFiles.id, ids),
   )
   const rows = await db
-    .select({ id: schema.imageHostFiles.id })
+    .select(activityFileColumns)
     .from(schema.imageHostFiles)
     .where(owned)
   const ownedIds = rows.map((r) => r.id)
   if (ownedIds.length === 0) return []
   await db.update(schema.imageHostFiles).set({ favorite }).where(owned)
+  // Only log files whose state actually changed
+  await logImageHostActivity(
+    userId,
+    favorite ? 'favorite' : 'unfavorite',
+    rows.filter((r) => Boolean(r.favorite) !== favorite),
+  )
   return ownedIds
 }
 
