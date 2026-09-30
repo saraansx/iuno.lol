@@ -69,7 +69,7 @@ export const FileUpload = ({
     accept: accept ? { [accept]: [] } : undefined,
     onDrop: handleFileChange,
     onDropRejected: (error) => {
-      console.log(error);
+      console.warn("[file-upload] Rejected file:", error);
     },
   });
 
