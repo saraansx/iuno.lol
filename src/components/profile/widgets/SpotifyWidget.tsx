@@ -219,7 +219,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgSrc}
             alt=""
             className="w-full h-full object-cover opacity-35 filter blur-[12px] scale-125"
@@ -241,7 +241,7 @@ export default function SpotifyWidget({ widget }: { widget: WidgetItem }) {
           >
             {imageSrc ? (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img
+              <img loading="lazy"
                 src={imageSrc}
                 alt={itemData.title}
                 className="w-full h-full object-cover block"

@@ -78,7 +78,7 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
       {showBackgroundOverlay && ownerName && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -94,7 +94,7 @@ export default function GitHubRepoWidget({ widget }: { widget: WidgetItem }) {
           }`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={`/api/widgets/github/avatar/${encodeURIComponent(ownerName || "github")}`}
             alt=""
             className="w-full h-full object-cover block"

@@ -53,7 +53,7 @@ export default function PinterestProfileWidget({ widget }: { widget: WidgetItem 
       {showBackgroundOverlay && bgImageUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgImageUrl}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -70,7 +70,7 @@ export default function PinterestProfileWidget({ widget }: { widget: WidgetItem 
         >
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <img loading="lazy"
               src={avatarUrl}
               alt=""
               className="w-full h-full object-cover block"

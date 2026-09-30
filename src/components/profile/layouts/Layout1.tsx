@@ -996,7 +996,7 @@ const sectionSurface: React.CSSProperties = {
             >
               {selectedEffect.effects.map((fx, idx) => (
                 /* eslint-disable-next-line @next/next/no-img-element */
-                <img
+                <img loading="lazy"
                   key={idx}
                   src={fx.src}
                   alt="Profile Effect"

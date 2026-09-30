@@ -59,7 +59,7 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
       {showBackgroundOverlay && bgImageUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgImageUrl}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -76,7 +76,7 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
         >
           {coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <img loading="lazy"
               src={coverUrl}
               alt=""
               className="w-full h-full object-cover block"
@@ -109,7 +109,7 @@ export default function PinterestBoardWidget({ widget }: { widget: WidgetItem })
                 <span className="text-white/40">by</span>
                 {boardData.owner_image && (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <img loading="lazy"
                     src={`/api/widgets/pinterest/image?url=${encodeURIComponent(boardData.owner_image)}`}
                     alt=""
                     className="w-[15px] h-[15px] rounded-full object-cover shrink-0 border border-white/10"

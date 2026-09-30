@@ -69,7 +69,7 @@ export default function DiscordServerWidget({ widget }: { widget: WidgetItem }) 
       ) : showBackgroundOverlay && iconUrl ? (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={iconUrl}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"

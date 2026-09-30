@@ -271,7 +271,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
       {}
       {artBg && track.artwork ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img key={track.id} src={track.artwork} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-70" />
+        <img loading="lazy" key={track.id} src={track.artwork} alt="" aria-hidden="true" draggable={false} className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-70" />
       ) : null}
       {artBg && track.artwork ? <div className="absolute inset-0 bg-black/55" aria-hidden="true" /> : null}
       {volumeControl ? (
@@ -281,7 +281,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
       <div className="w-14 h-14 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
         {track.artwork ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={track.artwork} alt="" className="w-full h-full object-cover" draggable={false} />
+          <img loading="lazy" src={track.artwork} alt="" className="w-full h-full object-cover" draggable={false} />
         ) : (
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/30">
             <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />

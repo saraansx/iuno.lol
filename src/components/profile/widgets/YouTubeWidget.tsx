@@ -85,7 +85,7 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
       {bannerSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bannerSrc}
             alt=""
             className="w-full h-full object-cover opacity-50 filter blur-[2px] scale-105"
@@ -97,7 +97,7 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgSrc}
             alt=""
             className="w-full h-full object-cover opacity-35 filter blur-[12px] scale-125"
@@ -114,7 +114,7 @@ export default function YouTubeWidget({ widget }: { widget: WidgetItem }) {
         >
           {imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <img loading="lazy"
               src={imageUrl}
               alt=""
               className="w-full h-full object-cover block"

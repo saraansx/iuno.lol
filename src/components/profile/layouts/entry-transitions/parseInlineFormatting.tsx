@@ -27,7 +27,7 @@ export function parseInlineFormatting(text: string): React.ReactNode {
 
       nodes.push(
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img
+        <img loading="lazy"
           key={key++}
           src={emojiUrl}
           alt={`:${name}:`}

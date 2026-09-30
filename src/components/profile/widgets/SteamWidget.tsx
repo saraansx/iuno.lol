@@ -109,7 +109,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
             </video>
           ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <img loading="lazy"
               src={bgImageSrc!}
               alt=""
               className="w-full h-full object-cover opacity-85 scale-105"
@@ -122,7 +122,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
       {avatarBgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={avatarBgSrc}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -140,7 +140,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
           >
             {avatarSrc && (
               /* eslint-disable-next-line @next/next/no-img-element */
-              <img
+              <img loading="lazy"
                 src={avatarSrc}
                 alt={steamData.personaname}
                 className="w-full h-full object-cover block"
@@ -151,7 +151,7 @@ export default function SteamWidget({ widget }: { widget: WidgetItem }) {
           {showAvatarFrame && frameSrc && (
             <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center overflow-visible">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <img loading="lazy"
                 src={frameSrc}
                 alt=""
                 className="w-[114%] h-[114%] max-w-none max-h-none object-contain"

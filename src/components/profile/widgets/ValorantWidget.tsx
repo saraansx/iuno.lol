@@ -69,7 +69,7 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
       {bgImageUrl && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgImageUrl}
             alt=""
             className="w-full h-full object-cover opacity-80 scale-105"
@@ -82,7 +82,7 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
         <div className="relative w-[74px] h-[74px] shrink-0 flex items-center justify-center">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <img loading="lazy"
               src={avatarUrl}
               alt=""
               className="w-full h-full object-contain block transition-transform duration-200 group-hover:scale-105"
@@ -108,7 +108,7 @@ export default function ValorantWidget({ widget }: { widget: WidgetItem }) {
                 <div className="flex items-center gap-1.5 shrink-0">
                   {rankIconUrl && (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={rankIconUrl} alt="" className="w-3.5 h-3.5 object-contain inline" />
+                    <img loading="lazy" src={rankIconUrl} alt="" className="w-3.5 h-3.5 object-contain inline" />
                   )}
                   {rankStyle !== "icon" && (
                     <span className="text-white/85">

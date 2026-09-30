@@ -55,7 +55,7 @@ export default function TelegramWidget({ widget }: { widget: WidgetItem }) {
       {bgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={bgSrc}
             alt=""
             className={`w-full h-full object-cover ${
@@ -82,7 +82,7 @@ export default function TelegramWidget({ widget }: { widget: WidgetItem }) {
         >
           {avatarSrc ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <img loading="lazy"
               src={avatarSrc}
               alt={user.displayName}
               className="w-full h-full object-cover block"

@@ -58,7 +58,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
       {showBackgroundOverlay && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={avatarUrl}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -92,7 +92,7 @@ export default function GitHubUserWidget({ widget }: { widget: WidgetItem }) {
           }`}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={avatarUrl}
             alt=""
             className="w-full h-full object-cover block"

@@ -55,7 +55,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       {namecardBgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={namecardBgSrc}
             alt=""
             className="w-full h-full object-cover opacity-85 scale-105"
@@ -67,7 +67,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
       {avatarBgSrc && (
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <img loading="lazy"
             src={avatarBgSrc}
             alt=""
             className="w-full h-full object-cover opacity-45 filter blur-[10px] scale-125"
@@ -84,7 +84,7 @@ export default function GenshinWidget({ widget }: { widget: WidgetItem }) {
         >
           {avatarSrc && (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img
+            <img loading="lazy"
               src={avatarSrc}
               alt={genshinData.nickname}
               className="w-full h-full object-cover block"
