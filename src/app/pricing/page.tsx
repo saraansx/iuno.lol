@@ -16,6 +16,7 @@ export default async function PricingPage() {
       isAuthenticated={!!userId}
       isPremium={!!user?.isPremium}
       hasImageHost={!!user?.hasImageHost}
+      hasVerified={!!user?.hasVerified}
     />
   );
 }

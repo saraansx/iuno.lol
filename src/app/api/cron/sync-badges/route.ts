@@ -107,13 +107,14 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt, hasImageHost: schema.users.hasImageHost })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt, hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
     const premiumByUserId = new Map(
       users.map((u) => [u.id, isPremiumActive({ isPremium: u.isPremium, premiumExpiresAt: u.premiumExpiresAt })])
     );
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
+    const boughtVerified = new Set(users.filter((u) => u.hasVerified).map((u) => u.id));
     const ownsPaidBadge = (badgeId: string, uid: number) =>
       badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
@@ -158,6 +159,16 @@ async function handleSync(request: Request) {
         if (!owns && has) paidRoleChanges.push({ discordId, roleId, method: 'DELETE' });
       }
     }
+    // bought verified: make sure the role is there (never removed, role-granted verified stays)
+    const verifiedRoleId = BADGE_ROLE_MAP['verified'];
+    if (verifiedRoleId) {
+      for (const [discordId, roles] of memberRoles) {
+        const user = userByDiscordId.get(discordId);
+        if (user && boughtVerified.has(user.id) && !roles.includes(verifiedRoleId)) {
+          paidRoleChanges.push({ discordId, roleId: verifiedRoleId, method: 'PUT' });
+        }
+      }
+    }
     for (const row of rows) {
       if (row.badgeId === 'early') {
         if (row.userId > EARLY_CUTOFF_UID) {
@@ -177,6 +188,7 @@ async function handleSync(request: Request) {
         if (name) changedUsernames.add(name);
         continue;
       }
+      if (row.badgeId === 'verified' && boughtVerified.has(row.userId)) continue;
       const discordId = discordIdByUserId.get(row.userId);
       const roles = discordId ? memberRoles.get(discordId) : undefined;
       if (!roles || !roles.includes(roleId)) {

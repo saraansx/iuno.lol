@@ -13,12 +13,13 @@ const AuroraEffect = dynamic(
 );
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, IMAGE_HOST_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
   isPremium?: boolean;
   hasImageHost?: boolean;
+  hasVerified?: boolean;
 }
 
 const FREE_FEATURES = [
@@ -70,7 +71,8 @@ const PRODUCTS = [
     id: "verified-badge",
     title: "Verified Badge",
     desc: "Stand out with a verified checkmark shown right beside your name.",
-    price: { USD: "9.99", INR: "949" },
+    price: { USD: VERIFIED_PLAN.USD.display, INR: VERIFIED_PLAN.INR.display },
+    href: "/checkout/verified",
     features: [
       "Exclusive verified checkmark",
       "Special Discord role",
@@ -98,7 +100,7 @@ const PRODUCTS = [
   },
 ] as const;
 
-export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false }: PricingProps) {
+export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false, hasVerified = false }: PricingProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
   const plan = PREMIUM_PLAN[currency];
@@ -418,13 +420,13 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                         </li>
                       ))}
                     </ul>
-                    {product.id === "image-host" && hasImageHost ? (
+                    {(product.id === "image-host" && hasImageHost) || (product.id === "verified-badge" && hasVerified) ? (
                       <button
-                        onClick={() => router.push("/dashboard/image-host/overview")}
+                        onClick={() => router.push(product.id === "image-host" ? "/dashboard/image-host/overview" : "/dashboard/customize/badges")}
                         className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-sm font-normal text-white ring-1 ring-inset ring-[#5b6cf5]/30 transition-all hover:bg-[#5b6cf5]/25 cursor-pointer"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                        Open Image Host
+                        {product.id === "image-host" ? "Open Image Host" : "Verified owned"}
                       </button>
                     ) : (
                       <button

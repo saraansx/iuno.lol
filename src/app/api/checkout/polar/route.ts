@@ -7,6 +7,7 @@ import { createPolarCheckout, polarConfigured } from "@/lib/payments/polar";
 import { getClientIp } from "@/lib/server/security/ip";
 import {
   IMAGE_HOST_PLAN_TAG,
+  VERIFIED_PLAN_TAG,
   PREMIUM,
   getPlan,
   isCurrency,
@@ -41,7 +42,10 @@ export async function POST(request: NextRequest) {
   }
 
   const origin = SITE_CONFIG.url.replace(/\/$/, "");
-  const checkoutPath = plan.tag === IMAGE_HOST_PLAN_TAG ? "/checkout/image-host" : "/checkout";
+  const checkoutPath =
+    plan.tag === IMAGE_HOST_PLAN_TAG ? "/checkout/image-host"
+    : plan.tag === VERIFIED_PLAN_TAG ? "/checkout/verified"
+    : "/checkout";
   try {
     const checkout = await createPolarCheckout({
       userId,

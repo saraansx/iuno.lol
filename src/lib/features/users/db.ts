@@ -17,6 +17,7 @@ const userColumns = {
   isPremium: schema.users.isPremium,
   premiumExpiresAt: schema.users.premiumExpiresAt,
   hasImageHost: schema.users.hasImageHost,
+  hasVerified: schema.users.hasVerified,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,

@@ -1270,11 +1270,8 @@ export default function BadgesTabs({
               </p>
               <div className="flex flex-col gap-2.5">
                 {applyFor.id === "verified" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      toast.error("Purchases open soon — please use Discord for now.");
-                    }}
+                  <Link
+                    href="/checkout/verified"
                     className="w-full flex items-center gap-3 rounded-xl border border-[#5b6cf5]/30 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/25 transition-colors px-4 py-3 cursor-pointer"
                   >
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c7cdfb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
@@ -1283,7 +1280,7 @@ export default function BadgesTabs({
                       <path d="M3 3h2l2.4 12.2a1 1 0 0 0 1 .8H17a1 1 0 0 0 1-.8L20 7H6" />
                     </svg>
                     <span className="text-[13.5px] font-normal text-white">Buy {applyFor.name}</span>
-                  </button>
+                  </Link>
                 )}
                 <button
                   type="button"

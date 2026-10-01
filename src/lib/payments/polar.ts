@@ -3,6 +3,8 @@ import crypto from "crypto";
 import {
   PREMIUM_PLAN_TAG,
   IMAGE_HOST_PLAN_TAG,
+  VERIFIED_PLAN_TAG,
+  PLAN_TAGS,
   getPlan,
   type Currency,
   type Plan,
@@ -16,12 +18,18 @@ function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
       INR: process.env.POLAR_IMAGE_HOST_PRODUCT_ID_INR,
     };
   }
+  if (tag === VERIFIED_PLAN_TAG) {
+    return {
+      USD: process.env.POLAR_VERIFIED_PRODUCT_ID,
+      INR: process.env.POLAR_VERIFIED_PRODUCT_ID_INR,
+    };
+  }
   return { USD: process.env.POLAR_PRODUCT_ID, INR: process.env.POLAR_PRODUCT_ID_INR };
 }
 
 export function polarProduct(productId: string | undefined): { plan: Plan; currency: Currency } | null {
   if (!productId) return null;
-  for (const tag of [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG] as const) {
+  for (const tag of PLAN_TAGS) {
     const ids = productEnv(tag);
     for (const currency of ["USD", "INR"] as const) {
       if (ids[currency] === productId) return { plan: getPlan(tag)!, currency };
@@ -53,7 +61,7 @@ function getPolarProductId(tag: PlanTag, currency: Currency): string {
 }
 
 export function polarProductIds(): string[] {
-  return ([PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG] as const)
+  return PLAN_TAGS
     .flatMap((tag) => Object.values(productEnv(tag)))
     .filter((v): v is string => Boolean(v));
 }

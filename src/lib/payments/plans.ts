@@ -5,14 +5,21 @@ export const PREMIUM_PLAN = {
 
 export const IMAGE_HOST_PLAN = {
   USD: { symbol: "$", display: "2.99", amount: 299, label: "USD $" },
-  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
+  INR: { symbol: "₹", display: "249", amount: 24900, label: "INR ₹" },
+} as const;
+
+export const VERIFIED_PLAN = {
+  USD: { symbol: "$", display: "9.99", amount: 999, label: "USD $" },
+  INR: { symbol: "₹", display: "949", amount: 94900, label: "INR ₹" },
 } as const;
 
 export const PREMIUM_PLAN_TAG = "premium_lifetime";
 export const IMAGE_HOST_PLAN_TAG = "image_host_lifetime";
+export const VERIFIED_PLAN_TAG = "verified_lifetime";
 
 export type Currency = keyof typeof PREMIUM_PLAN;
-export type PlanTag = typeof PREMIUM_PLAN_TAG | typeof IMAGE_HOST_PLAN_TAG;
+export type PlanTag = typeof PREMIUM_PLAN_TAG | typeof IMAGE_HOST_PLAN_TAG | typeof VERIFIED_PLAN_TAG;
+export const PLAN_TAGS = [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG] as const;
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
@@ -42,9 +49,18 @@ export const IMAGE_HOST: Plan = {
   badgeId: "image-host",
 };
 
+export const VERIFIED: Plan = {
+  tag: VERIFIED_PLAN_TAG,
+  name: "Verified",
+  prices: VERIFIED_PLAN,
+  grant: { kind: "lifetime" },
+  badgeId: "verified",
+};
+
 const PLANS: Record<string, Plan> = {
   [PREMIUM_PLAN_TAG]: PREMIUM,
   [IMAGE_HOST_PLAN_TAG]: IMAGE_HOST,
+  [VERIFIED_PLAN_TAG]: VERIFIED,
 };
 
 export function getPlan(tag: string | null | undefined): Plan | null {
@@ -61,19 +77,27 @@ export function premiumFieldsForGrant(
   return { isPremium: true, premiumExpiresAt: null };
 }
 
+// users-table fields a paid plan sets
 export function fieldsForPlan(plan: Plan) {
-  return plan.tag === IMAGE_HOST_PLAN_TAG ? { hasImageHost: true } : premiumFieldsForGrant(plan.grant);
+  if (plan.tag === IMAGE_HOST_PLAN_TAG) return { hasImageHost: true };
+  if (plan.tag === VERIFIED_PLAN_TAG) return { hasVerified: true };
+  return premiumFieldsForGrant(plan.grant);
 }
 
+// users-table fields a refund clears
 export function revokeFieldsForPlan(plan: Plan) {
-  return plan.tag === IMAGE_HOST_PLAN_TAG ? { hasImageHost: false } : { isPremium: false };
+  if (plan.tag === IMAGE_HOST_PLAN_TAG) return { hasImageHost: false };
+  if (plan.tag === VERIFIED_PLAN_TAG) return { hasVerified: false };
+  return { isPremium: false };
 }
 
 export function ownsPlan(
-  user: { isPremium?: boolean | null; hasImageHost?: boolean | null },
+  user: { isPremium?: boolean | null; hasImageHost?: boolean | null; hasVerified?: boolean | null },
   plan: Plan,
 ): boolean {
-  return plan.tag === IMAGE_HOST_PLAN_TAG ? Boolean(user.hasImageHost) : Boolean(user.isPremium);
+  if (plan.tag === IMAGE_HOST_PLAN_TAG) return Boolean(user.hasImageHost);
+  if (plan.tag === VERIFIED_PLAN_TAG) return Boolean(user.hasVerified);
+  return Boolean(user.isPremium);
 }
 
 export type Provider = "razorpay";

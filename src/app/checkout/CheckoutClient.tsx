@@ -17,8 +17,10 @@ import { CardBrandLogos, RazorpayLogo } from "@/components/checkout/payment-logo
 import {
   PREMIUM_PLAN,
   IMAGE_HOST_PLAN,
+  VERIFIED_PLAN,
   PREMIUM_PLAN_TAG,
   IMAGE_HOST_PLAN_TAG,
+  VERIFIED_PLAN_TAG,
   CURRENCIES,
   type Currency,
   type PlanTag,
@@ -109,6 +111,13 @@ const IMAGE_HOST_FEATURES = [
   "Special Discord server role",
 ];
 
+const VERIFIED_FEATURES = [
+  "Verified checkmark beside your name",
+  "Exclusive Verified badge",
+  "Special Discord server role",
+  "One-time payment, yours forever",
+];
+
 const PRODUCT_COPY = {
   [PREMIUM_PLAN_TAG]: {
     prices: PREMIUM_PLAN,
@@ -134,6 +143,19 @@ const PRODUCT_COPY = {
     successHref: "/dashboard/image-host/upload",
     successCta: "Open Image Host",
     razorpayDesc: "Image Host — lifetime access",
+    allowGift: true,
+  },
+  [VERIFIED_PLAN_TAG]: {
+    prices: VERIFIED_PLAN,
+    name: "Verified",
+    path: "/checkout/verified",
+    blurb: "A single, one-time payment adds the Verified checkmark to your profile. No renewals — yours forever.",
+    features: VERIFIED_FEATURES,
+    successTitle: "Verified",
+    successText: "Your Verified badge is unlocked. Equip it from the badges page.",
+    successHref: "/dashboard/customize/badges",
+    successCta: "Go to Badges",
+    razorpayDesc: "Verified badge — lifetime",
     allowGift: true,
   },
 } as const;
@@ -313,7 +335,7 @@ export default function CheckoutClient({
               <Image src="/Favicon.png" alt="iuno.lol" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
               <div>
                 <h1 className="text-[19px] font-medium tracking-tight text-white">
-                  {product === IMAGE_HOST_PLAN_TAG ? "You've got " : "You're "}
+                  {product === PREMIUM_PLAN_TAG ? "You're " : "You've got "}
                   <span className="text-[#5b6cf5]">{copy.successTitle}</span>
                 </h1>
                 <p className="mt-1 text-[12.5px] font-light leading-relaxed text-white/40">

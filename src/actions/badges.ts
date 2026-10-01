@@ -72,6 +72,8 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
       reached.push(badgeId);
     }
   }
+  // verified is hybrid: bought (flag) or granted via Discord role, so only add here
+  if (user?.hasVerified && !ownedSet.has("verified")) reached.push("verified");
   for (const id of reached) {
     if (!ownedSet.has(id)) {
       await db.insert(schema.userBadges).values({
@@ -213,6 +215,17 @@ export async function syncDiscordBadges(): Promise<{
   const premium = isPremiumActive(user);
   const imageHostRoleId = BADGE_ROLE_MAP["image-host"];
   const imageHost = Boolean(user?.hasImageHost);
+  const verifiedRoleId = BADGE_ROLE_MAP["verified"];
+  if (user?.hasVerified && verifiedRoleId && !roles.includes(verifiedRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${verifiedRoleId}`,
+        { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
+      );
+      if (put.ok) roles.push(verifiedRoleId);
+    } catch {
+    }
+  }
   if (imageHost && imageHostRoleId && !roles.includes(imageHostRoleId)) {
     try {
       const put = await fetch(
@@ -269,7 +282,7 @@ export async function syncDiscordBadges(): Promise<{
     }
     if (badgeId === "premium" || badgeId === "image-host") continue;
 
-    if (roles.includes(roleId)) {
+    if (roles.includes(roleId) || (badgeId === "verified" && user?.hasVerified)) {
       if (existing.length === 0) {
         await db.insert(schema.userBadges).values({
           userId,
