@@ -109,7 +109,6 @@ const IMAGE_HOST_FEATURES = [
   "Special Discord server role",
 ];
 
-// Copy and pricing per product; Premium is the default
 const PRODUCT_COPY = {
   [PREMIUM_PLAN_TAG]: {
     prices: PREMIUM_PLAN,

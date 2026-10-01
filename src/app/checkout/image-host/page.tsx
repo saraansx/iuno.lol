@@ -23,7 +23,6 @@ export default async function ImageHostCheckoutPage({
 
   const user = await getUserById(userId);
 
-  // Already owned (and not just returning from a Polar payment)
   if (user?.hasImageHost && polar !== "success") {
     redirect("/dashboard/image-host/overview");
   }

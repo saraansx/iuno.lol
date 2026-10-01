@@ -55,7 +55,6 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
     .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
 
   const ownedSet = new Set(rows.map((r) => r.badgeId));
-  // Purchased badges follow the purchase only, never the Discord role
   const paid: Record<string, boolean> = {
     premium: isPremiumActive(user),
     "image-host": Boolean(user?.hasImageHost),
@@ -268,7 +267,6 @@ export async function syncDiscordBadges(): Promise<{
       }
       continue;
     }
-    // Owned purchase: keep the badge whether or not the role is there
     if (badgeId === "premium" || badgeId === "image-host") continue;
 
     if (roles.includes(roleId)) {

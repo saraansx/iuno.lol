@@ -7,7 +7,6 @@ import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { grantPlanPerks } from "@/lib/payments/fulfill";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
-
 interface PolarOrderData {
   product_id?: string;
   metadata?: Record<string, unknown>;
@@ -43,7 +42,6 @@ export async function POST(request: NextRequest) {
 
   const data = event.data ?? {};
 
-  // The product id tells us which plan (Premium / Image Host) was bought
   const product = polarProduct(data.product_id);
   if (!product) {
     return NextResponse.json({ received: true });

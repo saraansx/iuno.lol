@@ -5,8 +5,6 @@ import { BADGE_ROLE_MAP } from "@/lib/badge-roles";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import type { Plan } from "@/lib/payments/plans";
 
-// After a successful purchase: give the plan's badge and Discord role.
-// Best-effort — the purchase itself is already saved; sync-badges fixes any miss.
 export async function grantPlanPerks(userId: number, plan: Plan): Promise<void> {
   try {
     await db

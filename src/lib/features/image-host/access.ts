@@ -16,7 +16,6 @@ export type ImageHostUser =
   | { ok: true; userId: number }
   | { ok: false; status: 401 | 403; error: string };
 
-// Signed-in user who has bought Image Host. Every image-host API route goes through this.
 export async function requireImageHostUser(): Promise<ImageHostUser> {
   const userId = await getSessionUserId();
   if (!userId) return { ok: false, status: 401, error: "Unauthorized" };

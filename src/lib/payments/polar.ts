@@ -9,7 +9,6 @@ import {
   type PlanTag,
 } from "@/lib/payments/plans";
 
-// Polar product ids per plan and currency, from env
 function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
   if (tag === IMAGE_HOST_PLAN_TAG) {
     return {
@@ -20,7 +19,6 @@ function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
   return { USD: process.env.POLAR_PRODUCT_ID, INR: process.env.POLAR_PRODUCT_ID_INR };
 }
 
-// Which plan + currency a Polar product id belongs to
 export function polarProduct(productId: string | undefined): { plan: Plan; currency: Currency } | null {
   if (!productId) return null;
   for (const tag of [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG] as const) {

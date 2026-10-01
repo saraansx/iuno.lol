@@ -3,7 +3,6 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { hasImageHostAccess } from "@/lib/features/image-host/access";
 import { IMAGE_HOST_PLAN } from "@/lib/payments/plans";
 
-// Every /dashboard/image-host page is locked until Image Host is bought
 export default async function ImageHostLayout({ children }: { children: React.ReactNode }) {
   const userId = await getSessionUserId();
   if (userId && (await hasImageHostAccess(userId))) return <>{children}</>;

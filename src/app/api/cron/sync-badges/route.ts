@@ -114,7 +114,6 @@ async function handleSync(request: Request) {
       users.map((u) => [u.id, isPremiumActive({ isPremium: u.isPremium, premiumExpiresAt: u.premiumExpiresAt })])
     );
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
-    // Purchased perks: the badge exists only while the purchase is active
     const ownsPaidBadge = (badgeId: string, uid: number) =>
       badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
@@ -159,7 +158,6 @@ async function handleSync(request: Request) {
       const roleId = BADGE_ROLE_MAP[row.badgeId];
       if (!roleId) continue;
       if (row.badgeId === 'premium' || row.badgeId === 'image-host') {
-        // Users without Discord aren't in this list; leave their purchased badge alone
         if (!premiumByUserId.has(row.userId)) continue;
         if (ownsPaidBadge(row.badgeId, row.userId)) continue;
         toDeleteIds.push(row.id);
@@ -184,7 +182,6 @@ async function handleSync(request: Request) {
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
-        // Purchased badges are granted by the purchase itself, not by having the role
         if (badgeId === 'premium' || badgeId === 'image-host') continue;
         const key = `${user.id}:${badgeId}`;
         if (!existingKeys.has(key)) {

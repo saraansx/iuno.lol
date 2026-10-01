@@ -5,7 +5,6 @@ export const PREMIUM_PLAN = {
 
 export const IMAGE_HOST_PLAN = {
   USD: { symbol: "$", display: "2.99", amount: 299, label: "USD $" },
-  // TODO: testing price, restore to display "249" / amount 24900 before launch
   INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
 } as const;
 
@@ -24,7 +23,6 @@ export interface Plan {
   name: string;
   prices: Record<Currency, { symbol: string; display: string; amount: number }>;
   grant: PlanGrant;
-  // Badge (and its mapped Discord role) that comes with the purchase
   badgeId: string;
 }
 
@@ -63,12 +61,10 @@ export function premiumFieldsForGrant(
   return { isPremium: true, premiumExpiresAt: null };
 }
 
-// users-table fields a paid plan sets
 export function fieldsForPlan(plan: Plan) {
   return plan.tag === IMAGE_HOST_PLAN_TAG ? { hasImageHost: true } : premiumFieldsForGrant(plan.grant);
 }
 
-// users-table fields a refund clears
 export function revokeFieldsForPlan(plan: Plan) {
   return plan.tag === IMAGE_HOST_PLAN_TAG ? { hasImageHost: false } : { isPremium: false };
 }
