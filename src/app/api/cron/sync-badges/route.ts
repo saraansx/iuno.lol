@@ -145,7 +145,19 @@ async function handleSync(request: Request) {
     const toInsert: { userId: number; badgeId: string }[] = [];
     const changedUsernames = new Set<string>();
 
-    const premiumRoleRemovals: Array<{ discordId: string; roleId: string }> = [];
+    const paidRoleChanges: Array<{ discordId: string; roleId: string; method: 'PUT' | 'DELETE' }> = [];
+    for (const badgeId of ['premium', 'image-host'] as const) {
+      const roleId = BADGE_ROLE_MAP[badgeId];
+      if (!roleId) continue;
+      for (const [discordId, roles] of memberRoles) {
+        const user = userByDiscordId.get(discordId);
+        if (!user) continue;
+        const owns = ownsPaidBadge(badgeId, user.id);
+        const has = roles.includes(roleId);
+        if (owns && !has) paidRoleChanges.push({ discordId, roleId, method: 'PUT' });
+        if (!owns && has) paidRoleChanges.push({ discordId, roleId, method: 'DELETE' });
+      }
+    }
     for (const row of rows) {
       if (row.badgeId === 'early') {
         if (row.userId > EARLY_CUTOFF_UID) {
@@ -163,8 +175,6 @@ async function handleSync(request: Request) {
         toDeleteIds.push(row.id);
         const name = usernameById.get(row.userId);
         if (name) changedUsernames.add(name);
-        const discordId = discordIdByUserId.get(row.userId);
-        if (discordId) premiumRoleRemovals.push({ discordId, roleId });
         continue;
       }
       const discordId = discordIdByUserId.get(row.userId);
@@ -222,11 +232,11 @@ async function handleSync(request: Request) {
     }
     await purgeProfiles([...changedUsernames]);
 
-    if (premiumRoleRemovals.length > 0) {
+    if (paidRoleChanges.length > 0) {
       await Promise.allSettled(
-        premiumRoleRemovals.map(({ discordId, roleId }) =>
+        paidRoleChanges.map(({ discordId, roleId, method }) =>
           fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
-            method: 'DELETE',
+            method,
             headers: { Authorization: `Bot ${botToken}` },
             signal: AbortSignal.timeout(8000),
           })
@@ -246,6 +256,7 @@ async function handleSync(request: Request) {
       membersChecked: memberRoles.size,
       added: toInsert.length,
       removed: toDeleteIds.length,
+      paidRoles: paidRoleChanges.map((c) => `${c.method} ${c.roleId} ${c.discordId}`),
       recruiter,
     });
   } catch (error) {
