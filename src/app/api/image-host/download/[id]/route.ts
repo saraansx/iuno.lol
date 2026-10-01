@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUserId } from "@/lib/auth/session";
+import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { CATBOX_BASE } from "@/lib/cdn";
 import { getImageHostFileForUser } from "@/lib/features/image-host/db";
 
@@ -12,8 +12,9 @@ function attachmentHeader(name: string): string {
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = await getSessionUserId();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireImageHostUser();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = auth.userId;
 
     const { id: rawId } = await params;
     const id = Number(rawId);

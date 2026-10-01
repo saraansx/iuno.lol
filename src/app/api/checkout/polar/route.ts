@@ -5,7 +5,14 @@ import { getUserById } from "@/lib/features/users/db";
 import { SITE_CONFIG } from "@/lib/config";
 import { createPolarCheckout, polarConfigured } from "@/lib/payments/polar";
 import { getClientIp } from "@/lib/server/security/ip";
-import { isCurrency, type Currency } from "@/lib/payments/plans";
+import {
+  IMAGE_HOST_PLAN_TAG,
+  PREMIUM,
+  getPlan,
+  isCurrency,
+  ownsPlan,
+  type Currency,
+} from "@/lib/payments/plans";
 
 export async function POST(request: NextRequest) {
   const userId = await getSessionUserId();
@@ -17,28 +24,32 @@ export async function POST(request: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Please sign in to continue." }, { status: 401 });
   }
-  if (user.isPremium) {
-    return NextResponse.json({ error: "You already have Premium." }, { status: 409 });
+
+  const body = await request.json().catch(() => null);
+  const currency: Currency = isCurrency(body?.currency) ? body.currency : "USD";
+  const plan = getPlan(body?.plan) ?? PREMIUM;
+
+  if (ownsPlan(user, plan)) {
+    return NextResponse.json({ error: `You already have ${plan.name}.` }, { status: 409 });
   }
 
-  if (!polarConfigured()) {
+  if (!polarConfigured(plan.tag)) {
     return NextResponse.json(
       { error: "Card payments aren't set up yet. Please try Razorpay, or switch to INR." },
       { status: 503 },
     );
   }
 
-  const body = await request.json().catch(() => null);
-  const currency: Currency = isCurrency(body?.currency) ? body.currency : "USD";
-
   const origin = SITE_CONFIG.url.replace(/\/$/, "");
+  const checkoutPath = plan.tag === IMAGE_HOST_PLAN_TAG ? "/checkout/image-host" : "/checkout";
   try {
     const checkout = await createPolarCheckout({
       userId,
-      successUrl: `${origin}/checkout?polar=success`,
+      successUrl: `${origin}${checkoutPath}?polar=success`,
       customerEmail: user.email ?? undefined,
       customerIp: getClientIp(request.headers) ?? undefined,
       currency,
+      plan: plan.tag,
     });
     return NextResponse.json({ url: checkout.url });
   } catch (err) {

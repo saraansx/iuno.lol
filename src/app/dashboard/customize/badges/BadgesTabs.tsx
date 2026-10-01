@@ -24,9 +24,9 @@ type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
 const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
 
-const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" }> = {
-  premium: { label: "Get premium", action: "soon" },
-  "image-host": { label: "Get image host", action: "soon" },
+const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" | "link"; href?: string }> = {
+  premium: { label: "Get premium", action: "link", href: "/checkout" },
+  "image-host": { label: "Get image host", action: "link", href: "/checkout/image-host" },
   donator: { label: "Donate", action: "soon" },
   "bug-hunter": { label: "Report a bug", action: "discord" },
   booster: { label: "Join Discord", action: "discord" },
@@ -162,7 +162,7 @@ function BadgeCell({
   onInvite: () => void;
   ctaLabel?: string;
 }) {
-  const pillText = "pill" in badge ? badge.pill : null;
+  const pillText = "pill" in badge ? String(badge.pill) : null;
   return (
     <div
       className={`px-5 py-4 flex flex-col gap-1 transition-all ${
@@ -223,6 +223,7 @@ function BadgeCell({
                 }
                 const cta = CTA_BUTTONS[badge.id];
                 if (cta.action === "discord") onDiscord();
+                else if (cta.action === "link" && cta.href) window.location.href = cta.href;
                 else toast.error("Coming soon.");
               }}
               className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"

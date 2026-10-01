@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUserId } from "@/lib/auth/session";
+import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { hashPassword, isPasswordCorrect } from "@/lib/server/security/bcrypt";
 import { purgeCloudflareFiles } from "@/lib/cloudflare";
@@ -11,8 +11,9 @@ export const dynamic = "force-dynamic";
 type Ctx = { params: Promise<{ id: string }> };
 
 async function load(req: Request, { params }: Ctx) {
-  const userId = await getSessionUserId();
-  if (!userId) return { error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }) };
+  const auth = await requireImageHostUser();
+  if (!auth.ok) return { error: NextResponse.json({ error: auth.error }, { status: auth.status }) };
+  const userId = auth.userId;
 
   const rl = await imageHostMutateRateLimit(userId);
   if (!rl.ok) {

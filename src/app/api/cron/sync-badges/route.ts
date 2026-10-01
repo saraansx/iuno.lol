@@ -107,12 +107,18 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt, hasImageHost: schema.users.hasImageHost })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
     const premiumByUserId = new Map(
       users.map((u) => [u.id, isPremiumActive({ isPremium: u.isPremium, premiumExpiresAt: u.premiumExpiresAt })])
     );
+    const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
+    // Purchased perks: the badge exists only while the purchase is active
+    const ownsPaidBadge = (badgeId: string, uid: number) =>
+      badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
+      : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
+      : true;
     const userByDiscordId = new Map(
       users
         .filter((u): u is typeof u & { discordId: string } => !!u.discordId)
@@ -152,7 +158,10 @@ async function handleSync(request: Request) {
       }
       const roleId = BADGE_ROLE_MAP[row.badgeId];
       if (!roleId) continue;
-      if (row.badgeId === 'premium' && !premiumByUserId.get(row.userId)) {
+      if (row.badgeId === 'premium' || row.badgeId === 'image-host') {
+        // Users without Discord aren't in this list; leave their purchased badge alone
+        if (!premiumByUserId.has(row.userId)) continue;
+        if (ownsPaidBadge(row.badgeId, row.userId)) continue;
         toDeleteIds.push(row.id);
         const name = usernameById.get(row.userId);
         if (name) changedUsernames.add(name);
@@ -172,11 +181,11 @@ async function handleSync(request: Request) {
     for (const [discordId, roles] of memberRoles) {
       const user = userByDiscordId.get(discordId);
       if (!user) continue;
-      const premiumActive = premiumByUserId.get(user.id) ?? false;
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
-        if (badgeId === 'premium' && !premiumActive) continue;
+        // Purchased badges are granted by the purchase itself, not by having the role
+        if (badgeId === 'premium' || badgeId === 'image-host') continue;
         const key = `${user.id}:${badgeId}`;
         if (!existingKeys.has(key)) {
           existingKeys.add(key);

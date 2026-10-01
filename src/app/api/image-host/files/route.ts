@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUserId } from "@/lib/auth/session";
+import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";
 import { purgeCloudflareFiles } from "@/lib/cloudflare";
@@ -28,8 +28,9 @@ function parseIds(raw: unknown): number[] | null {
 
 export async function GET(req: Request) {
   try {
-    const userId = await getSessionUserId();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireImageHostUser();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = auth.userId;
 
     const { searchParams } = new URL(req.url);
     const limit = Math.min(Math.max(parseInt(searchParams.get("limit") || "24", 10) || 24, 1), 48);
@@ -47,8 +48,9 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-    const userId = await getSessionUserId();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireImageHostUser();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = auth.userId;
 
     const rl = await imageHostMutateRateLimit(userId);
     if (!rl.ok) {
@@ -74,8 +76,9 @@ export async function PATCH(req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const userId = await getSessionUserId();
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireImageHostUser();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = auth.userId;
 
     const rl = await imageHostMutateRateLimit(userId);
     if (!rl.ok) {

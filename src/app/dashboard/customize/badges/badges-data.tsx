@@ -86,7 +86,6 @@ export const BADGES = [
     description: "Purchase the Image Host storage extension.",
     accent: "#fb7185",
     filled: true,
-    pill: "Coming soon",
     viewBox: "0 0 48 48",
     icon: (
       <path

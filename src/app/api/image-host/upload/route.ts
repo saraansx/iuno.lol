@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionUserId } from "@/lib/auth/session";
+import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostUploadRateLimit } from "@/lib/rate-limit";
 import { detectImageOrVideo } from "@/lib/media-signature";
 import {
@@ -21,10 +21,9 @@ function sanitizeName(raw: string): string {
 
 export async function POST(req: Request) {
   try {
-    const userId = await getSessionUserId();
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const auth = await requireImageHostUser();
+    if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
+    const userId = auth.userId;
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
     if (contentLength > IMAGE_HOST_MAX_FILE_BYTES + 5 * 1024 * 1024) {

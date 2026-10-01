@@ -13,11 +13,12 @@ const AuroraEffect = dynamic(
 );
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
   isPremium?: boolean;
+  hasImageHost?: boolean;
 }
 
 const FREE_FEATURES = [
@@ -53,12 +54,13 @@ const PRODUCTS = [
     id: "image-host",
     title: "Image Host",
     desc: "Upload and share your images with fast, permanent CDN links.",
-    price: { USD: "2.99", INR: "249" },
+    price: { USD: IMAGE_HOST_PLAN.USD.display, INR: IMAGE_HOST_PLAN.INR.display },
+    href: "/checkout/image-host",
     features: [
       "Exclusive Image Host Badge",
       "Special Discord Server Role",
-      "20GB storage",
-      "Custom Share Links",
+      "50GB storage",
+      "Short share links & password lock",
     ],
     icon: (
       <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M1.5 6A2.25 2.25 0 0 1 3.75 3.75h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0z" /></svg>
@@ -96,7 +98,7 @@ const PRODUCTS = [
   },
 ] as const;
 
-export default function PricingClient({ isAuthenticated = false, isPremium = false }: PricingProps) {
+export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false }: PricingProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
   const plan = PREMIUM_PLAN[currency];
@@ -416,12 +418,26 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                         </li>
                       ))}
                     </ul>
-                    <button
-                      onClick={() => router.push(isAuthenticated ? "/dashboard" : "/register")}
-                      className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 cursor-pointer"
-                    >
-                      Get {product.title}
-                    </button>
+                    {product.id === "image-host" && hasImageHost ? (
+                      <button
+                        onClick={() => router.push("/dashboard/image-host/overview")}
+                        className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-sm font-normal text-white ring-1 ring-inset ring-[#5b6cf5]/30 transition-all hover:bg-[#5b6cf5]/25 cursor-pointer"
+                      >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
+                        Open Image Host
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() =>
+                          router.push(
+                            !isAuthenticated ? "/register" : "href" in product ? product.href : "/dashboard",
+                          )
+                        }
+                        className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/20 py-2.5 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 cursor-pointer"
+                      >
+                        Get {product.title}
+                      </button>
+                    )}
                   </div>
                 </div>
               );

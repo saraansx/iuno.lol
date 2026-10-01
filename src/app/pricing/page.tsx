@@ -11,5 +11,11 @@ export const metadata: Metadata = {
 export default async function PricingPage() {
   const userId = await getSessionUserId();
   const user = userId ? await getUserById(userId) : null;
-  return <PricingClient isAuthenticated={!!userId} isPremium={!!user?.isPremium} />;
+  return (
+    <PricingClient
+      isAuthenticated={!!userId}
+      isPremium={!!user?.isPremium}
+      hasImageHost={!!user?.hasImageHost}
+    />
+  );
 }

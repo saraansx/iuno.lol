@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { PREMIUM_PLAN, PREMIUM, premiumFieldsForGrant } from "@/lib/payments/plans";
-import { verifyPolarWebhook, polarProductIds } from "@/lib/payments/polar";
+import { fieldsForPlan, revokeFieldsForPlan } from "@/lib/payments/plans";
+import { verifyPolarWebhook, polarProduct } from "@/lib/payments/polar";
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
+import { grantPlanPerks } from "@/lib/payments/fulfill";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 
@@ -42,13 +43,12 @@ export async function POST(request: NextRequest) {
 
   const data = event.data ?? {};
 
-  const known = polarProductIds();
-  if (known.length === 0) {
-    return NextResponse.json({ error: "Not configured." }, { status: 503 });
-  }
-  if (!data.product_id || !known.includes(data.product_id)) {
+  // The product id tells us which plan (Premium / Image Host) was bought
+  const product = polarProduct(data.product_id);
+  if (!product) {
     return NextResponse.json({ received: true });
   }
+  const { plan, currency } = product;
 
   const userId = userIdFrom(data);
 
@@ -66,12 +66,13 @@ export async function POST(request: NextRequest) {
       const processed = await processPaymentEventOnce(
         { provider: "polar", eventId, userId },
         async (tx) => {
-          await tx.update(schema.users).set(premiumFieldsForGrant(PREMIUM.grant)).where(eq(schema.users.id, userId));
+          await tx.update(schema.users).set(fieldsForPlan(plan)).where(eq(schema.users.id, userId));
         },
       );
       if (!processed) {
         return NextResponse.json({ received: true });
       }
+      await grantPlanPerks(userId, plan);
 
       try {
         const [row] = await db
@@ -79,15 +80,15 @@ export async function POST(request: NextRequest) {
           .from(schema.users)
           .where(eq(schema.users.id, userId))
           .limit(1);
-      const isInr = data.product_id === process.env.POLAR_PRODUCT_ID_INR;
-      const plan = isInr ? PREMIUM_PLAN.INR : PREMIUM_PLAN.USD;
-      await notifyPremiumPurchase({
+        const price = plan.prices[currency];
+        await notifyPremiumPurchase({
           gateway: "polar",
+          product: plan.name,
           userId,
           username: row?.username,
           email: row?.email,
-          amount: `${plan.symbol}${plan.display}`,
-          currency: isInr ? "INR" : "USD",
+          amount: `${price.symbol}${price.display}`,
+          currency,
         });
       } catch (err) {
         console.error("[webhooks/polar] notify failed:", err);
@@ -97,7 +98,7 @@ export async function POST(request: NextRequest) {
         await processPaymentEventOnce(
           { provider: "polar", eventId, userId },
           async (tx) => {
-            await tx.update(schema.users).set({ isPremium: false }).where(eq(schema.users.id, userId));
+            await tx.update(schema.users).set(revokeFieldsForPlan(plan)).where(eq(schema.users.id, userId));
           },
         );
       }

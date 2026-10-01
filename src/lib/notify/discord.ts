@@ -8,6 +8,7 @@ function webhookFor(gateway: Gateway): string | undefined {
 
 interface PurchaseNotification {
   gateway: Gateway;
+  product?: string;
   userId: number | string;
   username?: string | null;
   email?: string | null;
@@ -24,7 +25,7 @@ export async function notifyPremiumPurchase(n: PurchaseNotification): Promise<vo
     username: "iuno.lol payments",
     embeds: [
       {
-        title: "New Premium purchase",
+        title: `New ${n.product ?? "Premium"} purchase`,
         color: 0x5b6cf5,
         fields: [
           { name: "User", value: profile, inline: true },

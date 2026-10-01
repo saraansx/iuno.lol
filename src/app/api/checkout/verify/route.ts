@@ -3,7 +3,8 @@ import * as z from "zod";
 import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getPlan, premiumFieldsForGrant, isCurrency, type Currency } from "@/lib/payments/plans";
+import { getPlan, fieldsForPlan, isCurrency, type Currency } from "@/lib/payments/plans";
+import { grantPlanPerks } from "@/lib/payments/fulfill";
 import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razorpay";
 import { processPaymentEventOnce } from "@/lib/payments/idempotency";
 import { notifyPremiumPurchase } from "@/lib/notify/discord";
@@ -63,13 +64,14 @@ export async function POST(request: NextRequest) {
     const processed = await processPaymentEventOnce(
       { provider: "razorpay", eventId: paymentId, userId },
       async (tx) => {
-        await tx.update(schema.users).set(premiumFieldsForGrant(plan.grant)).where(eq(schema.users.id, userId));
+        await tx.update(schema.users).set(fieldsForPlan(plan)).where(eq(schema.users.id, userId));
       },
     );
 
     if (!processed) {
       return NextResponse.json({ success: true });
     }
+    await grantPlanPerks(userId, plan);
   } catch (err) {
     console.error("[checkout/verify] failed to upgrade user:", err);
     return NextResponse.json(
@@ -86,6 +88,7 @@ export async function POST(request: NextRequest) {
       .limit(1);
     await notifyPremiumPurchase({
       gateway: "razorpay",
+      product: plan.name,
       userId,
       username: row?.username,
       email: row?.email,

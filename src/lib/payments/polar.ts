@@ -1,6 +1,36 @@
 
 import crypto from "crypto";
-import { PREMIUM_PLAN_TAG, type Currency } from "@/lib/payments/plans";
+import {
+  PREMIUM_PLAN_TAG,
+  IMAGE_HOST_PLAN_TAG,
+  getPlan,
+  type Currency,
+  type Plan,
+  type PlanTag,
+} from "@/lib/payments/plans";
+
+// Polar product ids per plan and currency, from env
+function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
+  if (tag === IMAGE_HOST_PLAN_TAG) {
+    return {
+      USD: process.env.POLAR_IMAGE_HOST_PRODUCT_ID,
+      INR: process.env.POLAR_IMAGE_HOST_PRODUCT_ID_INR,
+    };
+  }
+  return { USD: process.env.POLAR_PRODUCT_ID, INR: process.env.POLAR_PRODUCT_ID_INR };
+}
+
+// Which plan + currency a Polar product id belongs to
+export function polarProduct(productId: string | undefined): { plan: Plan; currency: Currency } | null {
+  if (!productId) return null;
+  for (const tag of [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG] as const) {
+    const ids = productEnv(tag);
+    for (const currency of ["USD", "INR"] as const) {
+      if (ids[currency] === productId) return { plan: getPlan(tag)!, currency };
+    }
+  }
+  return null;
+}
 
 const PRODUCTION_API = "https://api.polar.sh";
 const SANDBOX_API = "https://sandbox-api.polar.sh";
@@ -13,23 +43,21 @@ function apiBase(): string {
   return polarServer() === "production" ? PRODUCTION_API : SANDBOX_API;
 }
 
-export function polarConfigured(): boolean {
-  return Boolean(
-    process.env.POLAR_ACCESS_TOKEN &&
-      (process.env.POLAR_PRODUCT_ID || process.env.POLAR_PRODUCT_ID_INR),
-  );
+export function polarConfigured(tag: PlanTag = PREMIUM_PLAN_TAG): boolean {
+  const ids = productEnv(tag);
+  return Boolean(process.env.POLAR_ACCESS_TOKEN && (ids.USD || ids.INR));
 }
 
-function getPolarProductId(currency: Currency = "USD"): string {
-  const id = currency === "INR" ? process.env.POLAR_PRODUCT_ID_INR : process.env.POLAR_PRODUCT_ID;
-  if (!id) throw new Error(`POLAR product id for ${currency} is not set`);
+function getPolarProductId(tag: PlanTag, currency: Currency): string {
+  const id = productEnv(tag)[currency];
+  if (!id) throw new Error(`Polar product id for ${tag} ${currency} is not set`);
   return id;
 }
 
 export function polarProductIds(): string[] {
-  return [process.env.POLAR_PRODUCT_ID, process.env.POLAR_PRODUCT_ID_INR].filter(
-    (v): v is string => Boolean(v),
-  );
+  return ([PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG] as const)
+    .flatMap((tag) => Object.values(productEnv(tag)))
+    .filter((v): v is string => Boolean(v));
 }
 
 interface PolarCheckout {
@@ -43,7 +71,9 @@ export async function createPolarCheckout(params: {
   customerEmail?: string;
   customerIp?: string;
   currency?: Currency;
+  plan?: PlanTag;
 }): Promise<PolarCheckout> {
+  const tag = params.plan ?? PREMIUM_PLAN_TAG;
   const token = process.env.POLAR_ACCESS_TOKEN;
   if (!token) throw new Error("Polar is not configured");
 
@@ -55,12 +85,12 @@ export async function createPolarCheckout(params: {
     },
     cache: "no-store",
     body: JSON.stringify({
-      products: [getPolarProductId(params.currency ?? "USD")],
+      products: [getPolarProductId(tag, params.currency ?? "USD")],
       success_url: params.successUrl,
       external_customer_id: String(params.userId),
       ...(params.customerEmail ? { customer_email: params.customerEmail } : {}),
       ...(params.customerIp ? { customer_ip_address: params.customerIp } : {}),
-      metadata: { userId: String(params.userId), plan: PREMIUM_PLAN_TAG },
+      metadata: { userId: String(params.userId), plan: tag },
     }),
   });
 

@@ -14,12 +14,21 @@ const AuroraEffect = dynamic(
   { ssr: false },
 );
 import { CardBrandLogos, RazorpayLogo } from "@/components/checkout/payment-logos";
-import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import {
+  PREMIUM_PLAN,
+  IMAGE_HOST_PLAN,
+  PREMIUM_PLAN_TAG,
+  IMAGE_HOST_PLAN_TAG,
+  CURRENCIES,
+  type Currency,
+  type PlanTag,
+} from "@/lib/payments/plans";
 
 interface CheckoutClientProps {
   isAuthenticated?: boolean;
   email?: string | null;
   initialSucceeded?: boolean;
+  product?: PlanTag;
 }
 
 const subscribeNoop = () => () => {};
@@ -89,6 +98,47 @@ const PREMIUM_FEATURES = [
   "Priority support in Discord",
 ];
 
+const IMAGE_HOST_FEATURES = [
+  "Unlocks the Image Host dashboard",
+  "50 GB of storage",
+  "Up to 200 MB per file",
+  "Images & videos with short share links",
+  "Password-protected files",
+  "Gallery, favorites & activity log",
+  "Exclusive Image Host badge",
+  "Special Discord server role",
+];
+
+// Copy and pricing per product; Premium is the default
+const PRODUCT_COPY = {
+  [PREMIUM_PLAN_TAG]: {
+    prices: PREMIUM_PLAN,
+    name: "Premium",
+    path: "/checkout",
+    blurb: "A single, one-time payment unlocks every Premium feature on your account. No renewals, no surprises — yours forever.",
+    features: PREMIUM_FEATURES,
+    successTitle: "Premium",
+    successText: "Every Premium feature is now unlocked on your account, forever.",
+    successHref: "/dashboard",
+    successCta: "Go to Dashboard",
+    razorpayDesc: "Premium — lifetime access",
+    allowGift: true,
+  },
+  [IMAGE_HOST_PLAN_TAG]: {
+    prices: IMAGE_HOST_PLAN,
+    name: "Image Host",
+    path: "/checkout/image-host",
+    blurb: "A single, one-time payment unlocks the Image Host on your account. Upload, share and manage your files — yours forever.",
+    features: IMAGE_HOST_FEATURES,
+    successTitle: "Image Host",
+    successText: "Your Image Host is now unlocked. Start uploading right away.",
+    successHref: "/dashboard/image-host/upload",
+    successCta: "Open Image Host",
+    razorpayDesc: "Image Host — lifetime access",
+    allowGift: true,
+  },
+} as const;
+
 type BuyFor = "personal" | "gift" | "giftlink";
 
 const BUY_OPTIONS: { id: BuyFor; label: string; sub: string; icon: React.ReactNode }[] = [
@@ -116,7 +166,9 @@ export default function CheckoutClient({
   isAuthenticated = true,
   email = null,
   initialSucceeded = false,
+  product = PREMIUM_PLAN_TAG,
 }: CheckoutClientProps) {
+  const copy = PRODUCT_COPY[product];
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
   const [buyFor, setBuyFor] = useState<BuyFor>("personal");
@@ -124,7 +176,7 @@ export default function CheckoutClient({
   const [verifying, setVerifying] = useState(false);
   const [succeeded, setSucceeded] = useState(initialSucceeded);
 
-  const plan = PREMIUM_PLAN[currency];
+  const plan = copy.prices[currency];
   const canBuy = buyFor === "personal";
 
   const [payOpen, setPayOpen] = useState(false);
@@ -140,7 +192,7 @@ export default function CheckoutClient({
       const res = await fetch("/api/checkout/polar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency }),
+        body: JSON.stringify({ currency, plan: product }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.url) {
@@ -156,8 +208,8 @@ export default function CheckoutClient({
   };
 
   useEffect(() => {
-    if (initialSucceeded) window.history.replaceState(null, "", "/checkout");
-  }, [initialSucceeded]);
+    if (initialSucceeded) window.history.replaceState(null, "", copy.path);
+  }, [initialSucceeded, copy.path]);
 
   const handlePay = async () => {
     if (paying) return;
@@ -170,7 +222,7 @@ export default function CheckoutClient({
       const orderRes = await fetch("/api/checkout/order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currency }),
+        body: JSON.stringify({ currency, plan: product }),
       });
       const orderData = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok) {
@@ -190,7 +242,7 @@ export default function CheckoutClient({
         amount: orderData.amount,
         currency: orderData.currency,
         name: "iuno.lol",
-        description: "Premium — lifetime access",
+        description: copy.razorpayDesc,
         prefill: { email: email || undefined },
         theme: { color: "#5b6cf5" },
         handler: async (response) => {
@@ -262,10 +314,11 @@ export default function CheckoutClient({
               <Image src="/Favicon.png" alt="iuno.lol" width={512} height={512} className="h-9 w-9 shrink-0 object-contain" priority />
               <div>
                 <h1 className="text-[19px] font-medium tracking-tight text-white">
-                  You&apos;re <span className="text-[#5b6cf5]">Premium</span>
+                  {product === IMAGE_HOST_PLAN_TAG ? "You've got " : "You're "}
+                  <span className="text-[#5b6cf5]">{copy.successTitle}</span>
                 </h1>
                 <p className="mt-1 text-[12.5px] font-light leading-relaxed text-white/40">
-                  Every Premium feature is now unlocked on your account, forever.
+                  {copy.successText}
                 </p>
               </div>
             </div>
@@ -273,17 +326,17 @@ export default function CheckoutClient({
             {}
             <div className="mt-6 flex items-center justify-between border-t border-white/[0.06] pt-5">
               <div>
-                <p className="text-[12.5px] font-normal text-white/85">iuno.lol Premium</p>
+                <p className="text-[12.5px] font-normal text-white/85">iuno.lol {copy.name}</p>
                 <p className="mt-0.5 text-[10.5px] font-light text-white/35">Lifetime access · paid</p>
               </div>
               <p className="text-sm font-medium text-white">{plan.symbol}{plan.display}</p>
             </div>
 
             <button
-              onClick={() => { router.push("/dashboard"); router.refresh(); }}
+              onClick={() => { router.push(copy.successHref); router.refresh(); }}
               className="mt-5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-[13px] font-normal text-white transition-colors hover:bg-[#5b6cf5]/25"
             >
-              Go to Dashboard
+              {copy.successCta}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
             </button>
           </motion.div>
@@ -329,10 +382,10 @@ export default function CheckoutClient({
               Lifetime upgrade
             </span>
             <h1 className="mt-3 text-4xl font-medium tracking-tight text-white sm:text-5xl">
-              iuno.lol <span className="text-[#5b6cf5]">Premium</span>
+              iuno.lol <span className="text-[#5b6cf5]">{copy.name}</span>
             </h1>
             <p className="mt-3 max-w-md text-[14px] font-light leading-relaxed text-white/45">
-              A single, one-time payment unlocks every Premium feature on your account. No renewals, no surprises — yours forever.
+              {copy.blurb}
             </p>
             <div className="mt-5 flex items-baseline gap-1.5">
               <span className="text-3xl font-medium text-white">{plan.symbol}{plan.display}</span>
@@ -343,7 +396,7 @@ export default function CheckoutClient({
 
             <p className="mb-4 text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">What&apos;s included</p>
             <ul className="flex flex-col gap-2.5">
-              {PREMIUM_FEATURES.map((feature) => (
+              {copy.features.map((feature) => (
                 <li key={feature} className="flex items-center gap-3 text-[13px] font-light text-white/60">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
                   {feature}
@@ -362,6 +415,7 @@ export default function CheckoutClient({
             <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
 
             {}
+            {copy.allowGift && (<>
             <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Buy for</p>
             <div className="grid grid-cols-3 gap-1.5">
               {BUY_OPTIONS.map((opt) => {
@@ -375,7 +429,7 @@ export default function CheckoutClient({
                       if (opt.id !== "personal") setPayOpen(false);
                     }}
                     aria-pressed={selected}
-                    title={opt.sub}
+                    title={opt.sub.replace("Premium", copy.name)}
                     className={`flex flex-col items-center gap-1.5 rounded-xl py-3 transition-colors cursor-pointer ${selected ? "bg-[#5b6cf5]/15 text-white" : "bg-white/[0.03] text-white/45 hover:text-white/70"}`}
                   >
                     <span className={selected ? "text-[#5b6cf5]" : "text-white/40"}>{opt.icon}</span>
@@ -387,6 +441,7 @@ export default function CheckoutClient({
             {buyFor !== "personal" && (
               <p className="mt-2 text-[11px] font-light text-[#a5aef9]/70">Gifting is coming soon — pick Personal to buy now.</p>
             )}
+            </>)}
 
             {}
             <p className="mt-6 mb-2.5 text-[12px] font-light text-white/45">Currency</p>
@@ -406,7 +461,7 @@ export default function CheckoutClient({
                       transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
                     />
                   )}
-                  <span className="relative z-10">{PREMIUM_PLAN[c].label}</span>
+                  <span className="relative z-10">{copy.prices[c].label}</span>
                 </button>
               ))}
             </div>

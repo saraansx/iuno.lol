@@ -55,13 +55,22 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
     .orderBy(asc(schema.userBadges.sortOrder), asc(schema.userBadges.equippedAt));
 
   const ownedSet = new Set(rows.map((r) => r.badgeId));
-  if (!isPremiumActive(user) && ownedSet.has("premium")) {
-    await db
-      .delete(schema.userBadges)
-      .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, "premium")));
-    ownedSet.delete("premium");
-    for (let i = rows.length - 1; i >= 0; i--) {
-      if (rows[i].badgeId === "premium") rows.splice(i, 1);
+  // Purchased badges follow the purchase only, never the Discord role
+  const paid: Record<string, boolean> = {
+    premium: isPremiumActive(user),
+    "image-host": Boolean(user?.hasImageHost),
+  };
+  for (const [badgeId, owns] of Object.entries(paid)) {
+    if (!owns && ownedSet.has(badgeId)) {
+      await db
+        .delete(schema.userBadges)
+        .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
+      ownedSet.delete(badgeId);
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].badgeId === badgeId) rows.splice(i, 1);
+      }
+    } else if (owns && !ownedSet.has(badgeId)) {
+      reached.push(badgeId);
     }
   }
   for (const id of reached) {
@@ -203,6 +212,18 @@ export async function syncDiscordBadges(): Promise<{
 
   const premiumRoleId = BADGE_ROLE_MAP["premium"];
   const premium = isPremiumActive(user);
+  const imageHostRoleId = BADGE_ROLE_MAP["image-host"];
+  const imageHost = Boolean(user?.hasImageHost);
+  if (imageHost && imageHostRoleId && !roles.includes(imageHostRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${imageHostRoleId}`,
+        { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
+      );
+      if (put.ok) roles.push(imageHostRoleId);
+    } catch {
+    }
+  }
   if (premium && premiumRoleId && !roles.includes(premiumRoleId)) {
     try {
       const put = await fetch(
@@ -230,7 +251,7 @@ export async function syncDiscordBadges(): Promise<{
       .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)))
       .limit(1);
 
-    if (badgeId === "premium" && !premium) {
+    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost)) {
       if (existing.length > 0) {
         await db
           .delete(schema.userBadges)
@@ -247,6 +268,8 @@ export async function syncDiscordBadges(): Promise<{
       }
       continue;
     }
+    // Owned purchase: keep the badge whether or not the role is there
+    if (badgeId === "premium" || badgeId === "image-host") continue;
 
     if (roles.includes(roleId)) {
       if (existing.length === 0) {
