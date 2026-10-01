@@ -66,9 +66,10 @@ export async function POST(req: Request) {
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Signature check only needs the header; avoid copying the whole file.
+    const head = Buffer.from(await file.slice(0, 4096).arrayBuffer());
 
-    const detected = detectImageOrVideo(buffer);
+    const detected = detectImageOrVideo(head);
     const kind = detected ? imageHostKind(detected.mime) : null;
     if (!detected || !kind) {
       return NextResponse.json(
@@ -85,7 +86,7 @@ export async function POST(req: Request) {
     const catboxForm = new FormData();
     catboxForm.append("reqtype", "fileupload");
     catboxForm.append("userhash", userhash);
-    catboxForm.append("fileToUpload", new Blob([buffer], { type: detected.mime }), `media_${Date.now()}.${detected.ext}`);
+    catboxForm.append("fileToUpload", file.slice(0, file.size, detected.mime), `media_${Date.now()}.${detected.ext}`);
 
     let catboxRes: Response;
     let body: string;

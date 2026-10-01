@@ -2,11 +2,14 @@
 
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getCustomBadges } from "@/lib/features/users/db";
+import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
+import { storedFileId, toCdnUrl, CATBOX_BASE } from "@/lib/cdn";
+import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, like, sql } from "drizzle-orm";
 import { BADGES, EARLY_CUTOFF_UID, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from "@/lib/badge-roles";
 import { isPremiumActive } from "@/lib/premium";
@@ -37,7 +40,11 @@ async function revalidateOwnProfile(userId: number) {
   }
 }
 
-export async function getMyBadges(): Promise<{ owned: string[]; equipped: string[] }> {
+type MyBadges = { owned: string[]; equipped: string[]; custom: CustomBadge[]; tokens: number };
+
+const CUSTOM_PREFIX = "custom-";
+
+export async function getMyBadges(): Promise<MyBadges> {
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
@@ -72,7 +79,6 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
       reached.push(badgeId);
     }
   }
-  // verified is hybrid: bought (flag) or granted via Discord role, so only add here
   if (user?.hasVerified && !ownedSet.has("verified")) reached.push("verified");
   for (const id of reached) {
     if (!ownedSet.has(id)) {
@@ -90,16 +96,91 @@ export async function getMyBadges(): Promise<{ owned: string[]; equipped: string
   return {
     owned: rows.map((r) => r.badgeId),
     equipped: rows.filter((r) => r.equipped).map((r) => r.badgeId),
+    custom: await getCustomBadges(userId),
+    tokens: user?.badgeTokens ?? 0,
   };
 }
 
-export async function saveEquippedBadges(ids: string[]): Promise<{ owned: string[]; equipped: string[] }> {
+export async function createCustomBadge(input: { name: string; iconUrl: string }): Promise<MyBadges> {
+  const userId = await getSessionUserId();
+  if (!userId) throw new Error("Unauthorized");
+
+  const name = String(input.name ?? "").trim().replace(/\s+/g, " ");
+  if (name.length < 1 || name.length > 32) throw new Error("Badge name must be 1–32 characters.");
+
+  const fileId = storedFileId(input.iconUrl);
+  if (!fileId) throw new Error("Upload a badge icon first.");
+  const [upload] = await db
+    .select({ id: schema.uploadedFiles.id })
+    .from(schema.uploadedFiles)
+    .where(and(eq(schema.uploadedFiles.userId, userId), eq(schema.uploadedFiles.url, `${CATBOX_BASE}${fileId}`)))
+    .limit(1);
+  if (!upload) throw new Error("Upload a badge icon first.");
+
+  const rate = await profileUpdateRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? "" : "s"}.`);
+  }
+
+  await db.transaction(async (tx) => {
+    const [user] = await tx
+      .select({ tokens: schema.users.badgeTokens })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .for("update");
+    const [{ used }] = await tx
+      .select({ used: sql<number>`COUNT(*)` })
+      .from(schema.userBadges)
+      .where(and(eq(schema.userBadges.userId, userId), like(schema.userBadges.badgeId, `${CUSTOM_PREFIX}%`)));
+    if (Number(used) >= (user?.tokens ?? 0)) throw new Error("No free badge slot. Buy a badge token first.");
+    await tx.insert(schema.userBadges).values({
+      userId,
+      badgeId: `${CUSTOM_PREFIX}${randomBytes(6).toString("hex")}`,
+      equipped: false,
+      equippedAt: null,
+      customName: name,
+      customIconUrl: toCdnUrl(`${CATBOX_BASE}${fileId}`),
+    });
+  });
+
+  await revalidateOwnProfile(userId);
+  return getMyBadges();
+}
+
+export async function resetCustomBadges(): Promise<MyBadges> {
+  const userId = await getSessionUserId();
+  if (!userId) throw new Error("Unauthorized");
+
+  await db
+    .delete(schema.userBadges)
+    .where(and(eq(schema.userBadges.userId, userId), like(schema.userBadges.badgeId, `${CUSTOM_PREFIX}%`)));
+
+  await revalidateOwnProfile(userId);
+  return getMyBadges();
+}
+
+export async function deleteCustomBadge(badgeId: string): Promise<MyBadges> {
+  const userId = await getSessionUserId();
+  if (!userId) throw new Error("Unauthorized");
+  if (typeof badgeId !== "string" || !badgeId.startsWith(CUSTOM_PREFIX)) throw new Error("Unknown badge.");
+
+  await db
+    .delete(schema.userBadges)
+    .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
+
+  await revalidateOwnProfile(userId);
+  return getMyBadges();
+}
+
+export async function saveEquippedBadges(ids: string[]): Promise<MyBadges> {
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 
   const clean = [...new Set(ids.map((id) => id.trim().slice(0, 50)).filter(Boolean))];
 
   for (const id of clean) {
+    if (id.startsWith(CUSTOM_PREFIX)) continue;
     const badge = findBadge(id);
     if (!badge) throw new Error("Unknown badge.");
     if (isLocked(badge)) throw new Error("This badge isn't available yet.");
@@ -166,12 +247,7 @@ export async function saveEquippedBadges(ids: string[]): Promise<{ owned: string
   return getMyBadges();
 }
 
-export async function syncDiscordBadges(): Promise<{
-  owned: string[];
-  equipped: string[];
-  added: string[];
-  removed: string[];
-}> {
+export async function syncDiscordBadges(): Promise<MyBadges & { added: string[]; removed: string[] }> {
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 

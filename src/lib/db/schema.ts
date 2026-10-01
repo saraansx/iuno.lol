@@ -30,6 +30,7 @@ export const users = mysqlTable('users', {
   premiumExpiresAt: timestamp('premium_expires_at'),
   hasImageHost: boolean('is_image_host').default(false).notNull(),
   hasVerified: boolean('is_verified').default(false).notNull(),
+  badgeTokens: int('badge_tokens').default(0).notNull(),
   discordId: varchar('discord_id', { length: 32 }).unique(),
   discordUsername: varchar('discord_username', { length: 32 }),
   views: int('views').default(0).notNull(),
@@ -486,6 +487,8 @@ export const userBadges = mysqlTable('user_badges', {
   equipped: boolean('equipped').default(false).notNull(),
   equippedAt: timestamp('equipped_at'),
   sortOrder: int('sort_order').default(0).notNull(),
+  customName: varchar('custom_name', { length: 32 }),
+  customIconUrl: varchar('custom_icon_url', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   userBadgeIdx: uniqueIndex('user_badge_idx').on(table.userId, table.badgeId),

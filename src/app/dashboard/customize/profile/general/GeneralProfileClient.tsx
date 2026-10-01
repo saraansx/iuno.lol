@@ -497,6 +497,7 @@ export default function GeneralProfileClient({ user, backgrounds = [] }: { user:
       />
 
       <BackgroundUpload
+        isPremium={isPremiumActive(user)}
         open={bannerBackgroundModalOpen}
         onClose={() => setBannerBackgroundModalOpen(false)}
         onApply={(url, rawFile) => {

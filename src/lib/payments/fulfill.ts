@@ -6,13 +6,16 @@ import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import type { Plan } from "@/lib/payments/plans";
 
 export async function grantPlanPerks(userId: number, plan: Plan): Promise<void> {
-  try {
-    await db
-      .insert(schema.userBadges)
-      .values({ userId, badgeId: plan.badgeId, equipped: false, equippedAt: null })
-      .onDuplicateKeyUpdate({ set: { badgeId: plan.badgeId } });
-  } catch (err) {
-    console.error(`[payments] badge grant (${plan.badgeId}) failed:`, err);
+  const badgeId = plan.badgeId;
+  if (badgeId) {
+    try {
+      await db
+        .insert(schema.userBadges)
+        .values({ userId, badgeId, equipped: false, equippedAt: null })
+        .onDuplicateKeyUpdate({ set: { badgeId } });
+    } catch (err) {
+      console.error(`[payments] badge grant (${badgeId}) failed:`, err);
+    }
   }
 
   const [user] = await db
@@ -21,7 +24,7 @@ export async function grantPlanPerks(userId: number, plan: Plan): Promise<void> 
     .where(eq(schema.users.id, userId))
     .limit(1);
 
-  const roleId = BADGE_ROLE_MAP[plan.badgeId];
+  const roleId = badgeId ? BADGE_ROLE_MAP[badgeId] : undefined;
   const botToken = process.env.DISCORD_BOT_TOKEN;
   const guildId = process.env.DISCORD_GUILD_ID;
   if (user?.discordId && roleId && botToken && guildId) {
@@ -32,7 +35,7 @@ export async function grantPlanPerks(userId: number, plan: Plan): Promise<void> 
         signal: AbortSignal.timeout(8000),
       });
     } catch (err) {
-      console.error(`[payments] discord role (${plan.badgeId}) failed:`, err);
+      console.error(`[payments] discord role (${badgeId}) failed:`, err);
     }
   }
 

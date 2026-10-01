@@ -126,7 +126,6 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
 
   const isPremium = isPremiumActive(user);
   const maxWidgets = isPremium ? PREMIUM_WIDGETS : FREE_WIDGETS;
-  const widgetCount = currentWidgets.length;
 
   const initialBorderWidth = user?.widgetBorderWidth ?? 1;
   const initialBorderRadius = user?.widgetBorderRadius ?? 24;
@@ -227,7 +226,7 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
                   </svg>
                   Premium
                 </span>{" "}
-                to add {PREMIUM_WIDGETS - widgetCount} more.
+                to add {PREMIUM_WIDGETS - FREE_WIDGETS} more.
               </p>
             </div>
             <button

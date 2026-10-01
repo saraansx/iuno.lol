@@ -186,7 +186,7 @@ export default function MediaUploadModal({
         const url: string = await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
           xhr.open("POST", "/api/upload");
-          xhr.timeout = 120000;
+          xhr.timeout = 300000;
           const uploadStart = Date.now();
           xhr.upload.onprogress = (e) => {
             const elapsed = Math.max(0.5, (Date.now() - uploadStart) / 1000);

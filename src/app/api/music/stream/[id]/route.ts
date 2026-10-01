@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
+import { getSessionUserId } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -14,6 +15,11 @@ export async function GET(
 ) {
   const limited = await widgetRateLimit(req, "music_stream", 120);
   if (limited) return limited;
+
+  // Only the dashboard search preview uses this; profiles play the cached hosted copy.
+  if (!(await getSessionUserId())) {
+    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
 
   const { id } = await params;
   const songId = (id || "").trim().slice(0, 32);

@@ -8,6 +8,7 @@ import RecentFeedback from "@/components/dashboard/RecentFeedback";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { getDashboardComments } from "@/actions/comments";
 import { getDashboardFeedback } from "@/actions/feedback";
+import { isPremiumActive } from "@/lib/premium";
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -22,6 +23,7 @@ export default async function DashboardPage() {
   }
 
   const user = await getUserById(userId);
+  const premium = isPremiumActive(user);
 
   const [rawViews, deviceStats, commentsRes, feedbackRes] = await Promise.all([
     user ? getAnalyticsData(user.id) : Promise.resolve([]),
@@ -58,7 +60,7 @@ export default async function DashboardPage() {
           { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#5b6cf5" },
           { label: "TOTAL VIEWS", value: user?.views != null ? String(user.views) : "0", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>, color: "#5b6cf5" },
           { label: "USERNAME", value: user?.username || "—", icon: <span className="font-normal text-lg">@</span>, color: "#5b6cf5" },
-          { label: "PLAN", value: "Free", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" /></svg>, color: "#5b6cf5" },
+          { label: "PLAN", value: premium ? "Premium" : "Free", icon: <svg width="18" height="18" viewBox="0 0 512 512" fill="currentColor" aria-hidden="true"><path d="M396.31 32H264l84.19 112.26L396.31 32Zm-280.62 0 48.12 112.26L248 32H115.69ZM256 74.67 192 160h128l-64-85.33Zm166.95-23.61L376.26 160H488L422.95 51.06Zm-333.9 0L23 160h112.74L89.05 51.06ZM146.68 192H24l222.8 288h.53L146.68 192Zm218.64 0L264.67 480h.53L488 192H365.32Zm-35.93 0H182.61L256 400l73.39-208Z" /></svg>, color: "#5b6cf5" },
         ].map((stat) => (
           <div
             key={stat.label}

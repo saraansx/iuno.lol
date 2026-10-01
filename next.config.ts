@@ -3,7 +3,7 @@
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
-    proxyClientMaxBodySize: "30mb",
+    proxyClientMaxBodySize: "210mb",
     serverActions: {
       bodySizeLimit: "30mb",
     },

@@ -18,9 +18,11 @@ import {
   PREMIUM_PLAN,
   IMAGE_HOST_PLAN,
   VERIFIED_PLAN,
+  BADGE_TOKEN_PLAN,
   PREMIUM_PLAN_TAG,
   IMAGE_HOST_PLAN_TAG,
   VERIFIED_PLAN_TAG,
+  BADGE_TOKEN_PLAN_TAG,
   CURRENCIES,
   type Currency,
   type PlanTag,
@@ -87,6 +89,7 @@ const PREMIUM_FEATURES = [
   "Everything in Free",
   "Premium badge on your profile",
   "5 backgrounds",
+  "Background videos up to 100MB",
   "10 audio tracks",
   "10 widgets",
   "Every background effect unlocked",
@@ -116,6 +119,13 @@ const VERIFIED_FEATURES = [
   "Exclusive Verified badge",
   "Special Discord server role",
   "One-time payment, yours forever",
+];
+
+const BADGE_TOKEN_FEATURES = [
+  "One custom badge slot",
+  "Your own icon and badge name",
+  "Shown on your profile like any badge",
+  "Buy more tokens for more slots",
 ];
 
 const PRODUCT_COPY = {
@@ -156,6 +166,19 @@ const PRODUCT_COPY = {
     successHref: "/dashboard/customize/badges",
     successCta: "Go to Badges",
     razorpayDesc: "Verified badge — lifetime",
+    allowGift: true,
+  },
+  [BADGE_TOKEN_PLAN_TAG]: {
+    prices: BADGE_TOKEN_PLAN,
+    name: "Badge Token",
+    path: "/checkout/badge-token",
+    blurb: "One token = one custom badge slot. Pick your own icon and name, then show it on your profile.",
+    features: BADGE_TOKEN_FEATURES,
+    successTitle: "a Badge Token",
+    successText: "Your custom badge slot is ready. Create your badge from the badges page.",
+    successHref: "/dashboard/customize/badges",
+    successCta: "Create badge",
+    razorpayDesc: "Custom badge token",
     allowGift: true,
   },
 } as const;

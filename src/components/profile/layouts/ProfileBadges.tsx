@@ -10,6 +10,8 @@ type LikeMilestone = (typeof LIKE_MILESTONES)[number];
 
 type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
 
+export type CustomBadge = { id: string; name: string; iconUrl: string };
+
 function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | null {
   return (
     (BADGES as readonly Badge[]).find((b) => b.id === id) ??
@@ -35,6 +37,7 @@ export function badgeGlowFilter(
 
 export default function ProfileBadges({
   badgeIds,
+  customBadges = [],
   showTooltip = true,
   glowEnabled = true,
   glowStrength = 50,
@@ -49,6 +52,7 @@ export default function ProfileBadges({
   shimmerEnabled = false,
 }: {
   badgeIds: string[];
+  customBadges?: CustomBadge[];
   showTooltip?: boolean;
   glowEnabled?: boolean;
   glowStrength?: number | null;
@@ -64,8 +68,8 @@ export default function ProfileBadges({
 }) {
   const instanceId = useId().replace(/:/g, "");
   const badges = badgeIds
-    .map(badgeById)
-    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone => b !== null);
+    .map((id) => customBadges.find((c) => c.id === id) ?? badgeById(id))
+    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | CustomBadge => b !== null);
   if (badges.length === 0) return null;
 
   const size = Math.min(32, Math.max(12, badgeSize ?? 18));
@@ -77,7 +81,8 @@ export default function ProfileBadges({
     : null;
   const separate = containerStyle === "separate";
 
-  const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone, keyPrefix = "") => {
+  const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone | CustomBadge, keyPrefix = "") => {
+    if ("iconUrl" in badge) return renderCustom(badge, keyPrefix);
     const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge;
     const color = mono ?? badge.accent;
     const glow = badgeGlowFilter(color, glowEnabled, glowStrength);
@@ -147,6 +152,41 @@ export default function ProfileBadges({
         )}
       </svg>
     );
+    return wrap(badge.id, badge.name, icon, keyPrefix);
+  };
+
+  const renderCustom = (badge: CustomBadge, keyPrefix: string) => {
+    const s = Math.min(100, Math.max(0, glowStrength ?? 50));
+    const showGlow = glowEnabled && s > 0;
+    const icon = (
+      <span className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+        {showGlow && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={badge.iconUrl}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+            className="absolute inset-0 object-contain pointer-events-none"
+            style={{ width: size, height: size, filter: `blur(${(1 + (s / 100) * 4).toFixed(1)}px)`, opacity: 0.35 + (s / 100) * 0.45 }}
+          />
+        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={badge.iconUrl}
+          alt={badge.name}
+          width={size}
+          height={size}
+          draggable={false}
+          className="relative object-contain"
+          style={{ width: size, height: size }}
+        />
+      </span>
+    );
+    return wrap(badge.id, badge.name, icon, keyPrefix);
+  };
+
+  function wrap(id: string, name: string, icon: React.ReactNode, keyPrefix: string) {
     const inner = separate ? (
       <span className="rounded-xl border border-white/10 bg-white/[0.04] p-1 backdrop-blur-sm inline-flex">
         {icon}
@@ -155,18 +195,18 @@ export default function ProfileBadges({
       icon
     );
     return (
-      <span key={`${keyPrefix}${badge.id}`} className="relative group/pbadge inline-flex shrink-0">
+      <span key={`${keyPrefix}${id}`} className="relative group/pbadge inline-flex shrink-0">
         {inner}
         {showTooltip && (
           <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 opacity-0 pointer-events-none group-hover/pbadge:opacity-100 transition-all duration-200 z-30">
             <span className="block bg-[#0f0f12]/75 backdrop-blur-xl border border-white/10 px-2.5 py-1 rounded-md text-white text-xs shadow-lg whitespace-nowrap leading-normal">
-              {badge.name}
+              {name}
             </span>
           </span>
         )}
       </span>
     );
-  };
+  }
 
   const scrolling =
     (scrollStyle === "pingpong" || scrollStyle === "left" || scrollStyle === "right") &&

@@ -7,7 +7,7 @@ import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import { getEffectByUrl } from '@/lib/collectibles'
-import { getEquippedBadgeIds, getUserBackgrounds } from '@/lib/features/users/db'
+import { getEquippedBadgeIds, getUserBackgrounds, getCustomBadges } from '@/lib/features/users/db'
 import { resolveEffectConfig } from '@/lib/effect-config'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
@@ -304,9 +304,10 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
 
   const selectedEffect = getEffectByUrl(user.profileEffectUrl);
 
-  const [equippedBadges, backgrounds] = await Promise.all([
+  const [equippedBadges, backgrounds, customBadges] = await Promise.all([
     getEquippedBadgeIds(user.id),
     getUserBackgrounds(user.id),
+    getCustomBadges(user.id),
   ]);
 
   const cursorUrl = isAllowedOgImage(user.cursorUrl) ? user.cursorUrl : null
@@ -410,6 +411,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         usernameEffect={user.usernameEffect ?? undefined}
         usernameGlowEnabled={user.usernameGlowEnabled ?? false}
         equippedBadges={equippedBadges}
+        customBadges={customBadges}
         badgeGlowEnabled={user.badgeGlowEnabled ?? true}
         badgeGlowStrength={user.badgeGlowStrength ?? undefined}
         badgeSize={user.badgeSize ?? undefined}

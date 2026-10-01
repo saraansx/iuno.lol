@@ -273,7 +273,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
                   </svg>
                   Premium
                 </span>{" "}
-                to add {PREMIUM_TRACKS - count} more.
+                to add {PREMIUM_TRACKS - FREE_TRACKS} more.
               </p>
             </div>
             <button

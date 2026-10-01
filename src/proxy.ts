@@ -122,7 +122,6 @@ export default async function middleware(request: NextRequest) {
       path.startsWith('/api/profile/') ||
       path.startsWith('/api/widgets/') ||
       path.startsWith('/api/webhooks/') ||
-      path.startsWith('/api/music/stream/') ||
       path.startsWith('/api/music/artwork') ||
       path.startsWith('/_next/') ||
       path.startsWith('/api/cron/') ||

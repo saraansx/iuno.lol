@@ -9,19 +9,24 @@ import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import { getMyBadges } from "@/actions/badges";
 import { effectSkuFromUrl, useProfileEffect } from "@/lib/collectibles-client";
 
+import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
+
 let lastEquippedBadges: string[] | null = null;
+let lastCustomBadges: CustomBadge[] = [];
 
 interface DashboardProfilePreviewProps {
   user: FullUser | null;
   overrides?: Partial<FullUser>;
   equippedBadges?: string[];
+  customBadges?: CustomBadge[];
   backgrounds?: string[];
   bgPreviewUrl?: string | null;
 }
 
-export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp, backgrounds, bgPreviewUrl }: DashboardProfilePreviewProps) {
+export default function DashboardProfilePreview({ user, overrides = {}, equippedBadges: equippedBadgesProp, customBadges: customBadgesProp, backgrounds, bgPreviewUrl }: DashboardProfilePreviewProps) {
   const deferredOverrides = useDeferredValue(overrides);
   const [fetchedBadges, setFetchedBadges] = useState<string[] | null>(lastEquippedBadges);
+  const [fetchedCustom, setFetchedCustom] = useState<CustomBadge[]>(lastCustomBadges);
 
   useEffect(() => {
     if (equippedBadgesProp !== undefined) return;
@@ -29,7 +34,11 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
     getMyBadges()
       .then((res) => {
         lastEquippedBadges = res.equipped;
-        if (!cancelled) setFetchedBadges(res.equipped);
+        lastCustomBadges = res.custom;
+        if (!cancelled) {
+          setFetchedBadges(res.equipped);
+          setFetchedCustom(res.custom);
+        }
       })
       .catch(() => {});
     return () => {
@@ -38,6 +47,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
   }, [equippedBadgesProp]);
 
   const equippedBadges = equippedBadgesProp ?? fetchedBadges ?? [];
+  const customBadges = customBadgesProp ?? fetchedCustom;
 
   const effectUrl = deferredOverrides.profileEffectUrl !== undefined
     ? deferredOverrides.profileEffectUrl
@@ -137,6 +147,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       usernameEffect={deferredOverrides.usernameEffect ?? user?.usernameEffect ?? "none"}
       usernameGlowEnabled={deferredOverrides.usernameGlowEnabled ?? user?.usernameGlowEnabled ?? false}
       equippedBadges={equippedBadges}
+      customBadges={customBadges}
       descriptionEffect={deferredOverrides.descriptionEffect ?? user?.descriptionEffect ?? "none"}
       descriptionGlowEnabled={deferredOverrides.descriptionGlowEnabled ?? user?.descriptionGlowEnabled ?? false}
       cursorTrail={deferredOverrides.cursorTrail ?? user?.cursorTrail ?? "none"}

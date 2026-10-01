@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
-import { PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, PROVIDER, getPlan, isAllowedMethod, ownsPlan, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, BADGE_TOKEN_PLAN_TAG, PLAN_TAGS, PROVIDER, getPlan, isAllowedMethod, ownsPlan, type Currency } from "@/lib/payments/plans";
 import { createRazorpayOrder, getRazorpayKeyId, razorpayConfigured } from "@/lib/payments/razorpay";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkoutOrderRateLimit } from "@/lib/rate-limit";
@@ -10,8 +10,15 @@ import { checkoutOrderRateLimit } from "@/lib/rate-limit";
 const bodySchema = z.object({
   currency: z.enum(["USD", "INR"]),
   method: z.string().max(32).optional(),
-  plan: z.enum([PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG]).default(PREMIUM_PLAN_TAG),
+  plan: z.enum(PLAN_TAGS).default(PREMIUM_PLAN_TAG),
 });
+
+const RECEIPT_PREFIX = {
+  [PREMIUM_PLAN_TAG]: "prem",
+  [IMAGE_HOST_PLAN_TAG]: "ih",
+  [VERIFIED_PLAN_TAG]: "ver",
+  [BADGE_TOKEN_PLAN_TAG]: "bt",
+} as const;
 
 export async function POST(request: NextRequest) {
   const userId = await getSessionUserId();
@@ -68,7 +75,7 @@ export async function POST(request: NextRequest) {
     const order = await createRazorpayOrder({
       amount: price.amount,
       currency,
-      receipt: `iuno_${plan.tag === IMAGE_HOST_PLAN_TAG ? "ih" : plan.tag === VERIFIED_PLAN_TAG ? "ver" : "prem"}_${userId}_${Date.now()}`,
+      receipt: `iuno_${RECEIPT_PREFIX[plan.tag]}_${userId}_${Date.now()}`,
       notes: {
         userId: String(userId),
         plan: plan.tag,

@@ -4,10 +4,14 @@ import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 import { recordUploadedFile } from "@/lib/catbox-ownership";
 import { toCdnUrl } from "@/lib/cdn";
 import { detectImageOrVideo, detectAudio } from "@/lib/media-signature";
+import { getUserById } from "@/lib/features/users/db";
+import { isPremiumActive } from "@/lib/premium";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
+
+const PREMIUM_BACKGROUND_MB = 100;
 
 export async function POST(req: Request) {
   try {
@@ -17,8 +21,8 @@ export async function POST(req: Request) {
     }
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
-    if (contentLength > 17 * 1024 * 1024) {
-      return NextResponse.json({ error: "Payload too large. Maximum file size is 15MB." }, { status: 413 });
+    if (contentLength > (PREMIUM_BACKGROUND_MB + 2) * 1024 * 1024) {
+      return NextResponse.json({ error: `Payload too large. Maximum file size is ${PREMIUM_BACKGROUND_MB}MB.` }, { status: 413 });
     }
 
     const preRl = await uploadPreRateLimit(userId);
@@ -30,7 +34,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork", "link-icon"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork", "link-icon", "badge"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
@@ -39,9 +43,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `Too many uploads. Please wait ${rl.retryAfterSeconds} seconds before trying again.` }, { status: 429 });
     }
 
-    const isTinyAsset = assetType === "favicon" || assetType === "cursor" || assetType === "link-icon";
+    const isTinyAsset = assetType === "favicon" || assetType === "cursor" || assetType === "link-icon" || assetType === "badge";
+    const premium = assetType === "background" && isPremiumActive(await getUserById(userId));
     const maxSize = assetType === "background"
-      ? 10 * 1024 * 1024
+      ? (premium ? PREMIUM_BACKGROUND_MB : 10) * 1024 * 1024
       : assetType === "track"
       ? 15 * 1024 * 1024
       : isTinyAsset
@@ -50,12 +55,14 @@ export async function POST(req: Request) {
 
     if (file.size > maxSize) {
       const limitMB = maxSize / (1024 * 1024);
-      return NextResponse.json({ error: `File too large. Maximum size for ${assetType} is ${limitMB}MB.` }, { status: 400 });
+      const upsell = assetType === "background" && !premium ? ` Premium gets up to ${PREMIUM_BACKGROUND_MB}MB.` : "";
+      return NextResponse.json({ error: `File too large. Maximum size for ${assetType} is ${limitMB}MB.${upsell}` }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    // Signature check only needs the header; avoid copying the whole file.
+    const head = Buffer.from(await file.slice(0, 4096).arrayBuffer());
 
-    const detected = assetType === "track" ? detectAudio(buffer) : detectImageOrVideo(buffer);
+    const detected = assetType === "track" ? detectAudio(head) : detectImageOrVideo(head);
     if (!detected) {
       return NextResponse.json({ error: "Invalid or corrupted media file format." }, { status: 400 });
     }
@@ -76,7 +83,7 @@ export async function POST(req: Request) {
     const catboxForm = new FormData();
     catboxForm.append("reqtype", "fileupload");
     catboxForm.append("userhash", userhash);
-    catboxForm.append("fileToUpload", new Blob([buffer], { type: detected.mime }), `media_${Date.now()}.${detected.ext}`);
+    catboxForm.append("fileToUpload", file.slice(0, file.size, detected.mime), `media_${Date.now()}.${detected.ext}`);
 
     let catboxRes: Response;
     let body: string;
@@ -84,7 +91,7 @@ export async function POST(req: Request) {
       catboxRes = await fetch(CATBOX_API, {
         method: "POST",
         body: catboxForm,
-        signal: AbortSignal.timeout(55000),
+        signal: AbortSignal.timeout(280000),
       });
       body = (await catboxRes.text()).trim();
     } catch (e) {

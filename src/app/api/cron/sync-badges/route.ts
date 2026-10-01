@@ -159,7 +159,6 @@ async function handleSync(request: Request) {
         if (!owns && has) paidRoleChanges.push({ discordId, roleId, method: 'DELETE' });
       }
     }
-    // bought verified: make sure the role is there (never removed, role-granted verified stays)
     const verifiedRoleId = BADGE_ROLE_MAP['verified'];
     if (verifiedRoleId) {
       for (const [discordId, roles] of memberRoles) {

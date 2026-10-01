@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { toast } from "@/components/ui/toast";
 
 const Dither = dynamic(() => import("@/components/effects/Dither"), { ssr: false });
@@ -66,13 +67,12 @@ export default function CustomBadgePromo() {
         </div>
 
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
-          <button
-            type="button"
-            onClick={() => toast.error("Custom badge purchases open soon — join Discord for now.")}
+          <Link
+            href="/checkout/badge-token"
             className="bg-[#5b6cf5] hover:bg-[#4b5ce4] border border-[#5b6cf5] text-white font-normal rounded-xl px-5 py-2.5 text-[13px] transition-colors cursor-pointer shadow-[0_0_20px_rgba(91,108,245,0.45)]"
           >
             Buy custom badge
-          </button>
+          </Link>
           <button
             type="button"
             onClick={openDiscord}

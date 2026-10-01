@@ -187,7 +187,8 @@ export async function GET(
     } catch {
     }
 
-    if (!userProfileBadges || userProfileBadges.length === 0) {
+    // Only fetch on a cache miss; a cached "[]" means the user has no badges.
+    if (cachedBadgesRaw == null) {
       const userToken = process.env.DISCORD_USER_TOKEN;
 
       if (userToken) {
@@ -245,9 +246,12 @@ export async function GET(
             }
           } else {
             console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());
+            // Back off for 10 min instead of retrying on every poll.
+            await redis.set(redisBadgesKey, "[]", "EX", 600).catch(() => {});
           }
         } catch (e) {
           console.error("[Discord User Token Profile Error]", e);
+          await redis.set(redisBadgesKey, "[]", "EX", 600).catch(() => {});
         }
       }
     }

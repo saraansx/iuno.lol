@@ -139,6 +139,7 @@ const Layout1 = ({
   descriptionEffect = "none",
   descriptionGlowEnabled = false,
   equippedBadges = [],
+  customBadges = [],
   badgeGlowEnabled = true,
   badgeGlowStrength = 50,
   badgeSize = 18,
@@ -1116,7 +1117,7 @@ const sectionSurface: React.CSSProperties = {
                     </div>
                   )}
                   </span>
-                  <ProfileBadges badgeIds={equippedBadges} showTooltip={showBadgesTooltip} glowEnabled={badgeGlowEnabled} glowStrength={badgeGlowStrength} badgeSize={badgeSize} monoEnabled={badgeMonochromeEnabled} monoColor={badgeMonochromeColor} containerStyle={badgeContainerStyle} badgeSpacing={badgeSpacing} scrollStyle={badgeScrollStyle} scrollSpeed={badgeScrollSpeed} visibleCount={badgeVisibleCount} shimmerEnabled={badgeShimmerEnabled} />
+                  <ProfileBadges badgeIds={equippedBadges} customBadges={customBadges} showTooltip={showBadgesTooltip} glowEnabled={badgeGlowEnabled} glowStrength={badgeGlowStrength} badgeSize={badgeSize} monoEnabled={badgeMonochromeEnabled} monoColor={badgeMonochromeColor} containerStyle={badgeContainerStyle} badgeSpacing={badgeSpacing} scrollStyle={badgeScrollStyle} scrollSpeed={badgeScrollSpeed} visibleCount={badgeVisibleCount} shimmerEnabled={badgeShimmerEnabled} />
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}

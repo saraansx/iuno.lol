@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import { FREE_FEATURES, PREMIUM_FEATURES } from "@/lib/plan-features";
 import { useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
 import { BlurTextEffect } from "@/components/ui/blur-text-effect";
@@ -13,7 +14,7 @@ const AuroraEffect = dynamic(
 );
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, BADGE_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
@@ -22,25 +23,6 @@ interface PricingProps {
   hasVerified?: boolean;
 }
 
-const FREE_FEATURES = [
-  "Custom username & profile page",
-  "1 background, 1 audio track, 3 widgets",
-  "Core background & text effects",
-  "Discord embeds & animated entry",
-  "Custom fonts, colors & layouts",
-  "Badges, likes, views & comments",
-];
-
-const PREMIUM_FEATURES = [
-  "5 backgrounds, 10 tracks, 10 widgets",
-  "Every background effect unlocked",
-  "Every username & description effect",
-  "Electric border, card effects & transitions",
-  "Every click effect, sound & cursor trail",
-  "Every entry transition",
-  "Browser tab: title, favicon & cursor",
-  "Premium badge on your profile",
-];
 
 function CheckIcon() {
   return (
@@ -61,6 +43,7 @@ const PRODUCTS = [
       "Exclusive Image Host Badge",
       "Special Discord Server Role",
       "50GB storage",
+      "Up to 200MB per file upload",
       "Short share links & password lock",
     ],
     icon: (
@@ -87,7 +70,8 @@ const PRODUCTS = [
     id: "custom-badge",
     title: "Custom Badge",
     desc: "Design your own badge with a custom icon and colour.",
-    price: { USD: "4.99", INR: "449" },
+    price: { USD: BADGE_TOKEN_PLAN.USD.display, INR: BADGE_TOKEN_PLAN.INR.display },
+    href: "/checkout/badge-token",
     features: [
       "Create your own custom badge",
       "Upload your own badge image",

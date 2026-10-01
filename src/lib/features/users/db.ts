@@ -2,10 +2,11 @@ import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
 import { validateUsername } from '@/lib/server/security/validation'
 import { UserFacingError } from '@/lib/errors'
-import { eq, sql, and, lt, asc } from 'drizzle-orm'
+import { eq, sql, and, lt, asc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
 import { resolveEffectConfig, type EffectConfig } from '@/lib/effect-config'
+import type { CustomBadge } from '@/components/profile/layouts/ProfileBadges'
 
 const userColumns = {
   id: schema.users.id,
@@ -18,6 +19,7 @@ const userColumns = {
   premiumExpiresAt: schema.users.premiumExpiresAt,
   hasImageHost: schema.users.hasImageHost,
   hasVerified: schema.users.hasVerified,
+  badgeTokens: schema.users.badgeTokens,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,
@@ -570,6 +572,15 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
     mac: Number(resultRows[0].mac) || 0,
     other: Number(resultRows[0].other) || 0
   }
+}
+
+export async function getCustomBadges(userId: number): Promise<CustomBadge[]> {
+  const rows = await db
+    .select({ id: schema.userBadges.badgeId, name: schema.userBadges.customName, iconUrl: schema.userBadges.customIconUrl })
+    .from(schema.userBadges)
+    .where(and(eq(schema.userBadges.userId, userId), like(schema.userBadges.badgeId, 'custom-%')))
+    .orderBy(asc(schema.userBadges.createdAt), asc(schema.userBadges.id))
+  return rows.map((r) => ({ id: r.id, name: r.name ?? 'Custom', iconUrl: r.iconUrl ?? '' }))
 }
 
 export async function getEquippedBadgeIds(userId: number): Promise<string[]> {

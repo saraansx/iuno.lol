@@ -125,6 +125,7 @@ export interface Layout1Props {
   usernameLetterSpacing?: number;
   usernameColor?: string;
   equippedBadges?: string[];
+  customBadges?: import("./ProfileBadges").CustomBadge[];
   badgeGlowEnabled?: boolean;
   badgeGlowStrength?: number | null;
   badgeSize?: number | null;

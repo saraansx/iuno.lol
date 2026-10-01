@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const userId = await getSessionUserId();
-  const initial = userId ? await getMyBadges() : { owned: [], equipped: [] };
+  const initial = userId ? await getMyBadges() : { owned: [], equipped: [], custom: [], tokens: 0 };
   const user = userId ? await getUserById(userId) : null;
   const backgrounds = userId ? await getUserBackgrounds(userId) : [];  return (
     <div className="flex flex-col gap-8 h-full">
@@ -63,6 +63,8 @@ export default async function Page() {
           backgrounds={backgrounds}
           initialOwned={initial.owned}
           initialEquipped={initial.equipped}
+          initialCustom={initial.custom}
+          initialTokens={initial.tokens}
           earlyEligible={userId != null && userId <= EARLY_CUTOFF_UID}
           initialGlow={{
             enabled: user?.badgeGlowEnabled ?? true,

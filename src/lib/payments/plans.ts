@@ -1,3 +1,5 @@
+import { sql } from "drizzle-orm";
+
 export const PREMIUM_PLAN = {
   USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
   INR: { symbol: "₹", display: "449", amount: 44900, label: "INR ₹" },
@@ -10,16 +12,22 @@ export const IMAGE_HOST_PLAN = {
 
 export const VERIFIED_PLAN = {
   USD: { symbol: "$", display: "9.99", amount: 999, label: "USD $" },
-  INR: { symbol: "₹", display: "949", amount: 94900, label: "INR ₹" },
+  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
+} as const;
+
+export const BADGE_TOKEN_PLAN = {
+  USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
+  INR: { symbol: "₹", display: "1", amount: 100, label: "INR ₹" },
 } as const;
 
 export const PREMIUM_PLAN_TAG = "premium_lifetime";
 export const IMAGE_HOST_PLAN_TAG = "image_host_lifetime";
 export const VERIFIED_PLAN_TAG = "verified_lifetime";
+export const BADGE_TOKEN_PLAN_TAG = "badge_token";
 
 export type Currency = keyof typeof PREMIUM_PLAN;
-export type PlanTag = typeof PREMIUM_PLAN_TAG | typeof IMAGE_HOST_PLAN_TAG | typeof VERIFIED_PLAN_TAG;
-export const PLAN_TAGS = [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG] as const;
+export const PLAN_TAGS = [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, BADGE_TOKEN_PLAN_TAG] as const;
+export type PlanTag = (typeof PLAN_TAGS)[number];
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
@@ -30,7 +38,7 @@ export interface Plan {
   name: string;
   prices: Record<Currency, { symbol: string; display: string; amount: number }>;
   grant: PlanGrant;
-  badgeId: string;
+  badgeId?: string;
 }
 
 export const PREMIUM: Plan = {
@@ -57,10 +65,18 @@ export const VERIFIED: Plan = {
   badgeId: "verified",
 };
 
+export const BADGE_TOKEN: Plan = {
+  tag: BADGE_TOKEN_PLAN_TAG,
+  name: "Badge Token",
+  prices: BADGE_TOKEN_PLAN,
+  grant: { kind: "lifetime" },
+};
+
 const PLANS: Record<string, Plan> = {
   [PREMIUM_PLAN_TAG]: PREMIUM,
   [IMAGE_HOST_PLAN_TAG]: IMAGE_HOST,
   [VERIFIED_PLAN_TAG]: VERIFIED,
+  [BADGE_TOKEN_PLAN_TAG]: BADGE_TOKEN,
 };
 
 export function getPlan(tag: string | null | undefined): Plan | null {
@@ -77,17 +93,17 @@ export function premiumFieldsForGrant(
   return { isPremium: true, premiumExpiresAt: null };
 }
 
-// users-table fields a paid plan sets
 export function fieldsForPlan(plan: Plan) {
   if (plan.tag === IMAGE_HOST_PLAN_TAG) return { hasImageHost: true };
   if (plan.tag === VERIFIED_PLAN_TAG) return { hasVerified: true };
+  if (plan.tag === BADGE_TOKEN_PLAN_TAG) return { badgeTokens: sql`badge_tokens + 1` };
   return premiumFieldsForGrant(plan.grant);
 }
 
-// users-table fields a refund clears
 export function revokeFieldsForPlan(plan: Plan) {
   if (plan.tag === IMAGE_HOST_PLAN_TAG) return { hasImageHost: false };
   if (plan.tag === VERIFIED_PLAN_TAG) return { hasVerified: false };
+  if (plan.tag === BADGE_TOKEN_PLAN_TAG) return { badgeTokens: sql`GREATEST(badge_tokens - 1, 0)` };
   return { isPremium: false };
 }
 
@@ -97,6 +113,7 @@ export function ownsPlan(
 ): boolean {
   if (plan.tag === IMAGE_HOST_PLAN_TAG) return Boolean(user.hasImageHost);
   if (plan.tag === VERIFIED_PLAN_TAG) return Boolean(user.hasVerified);
+  if (plan.tag === BADGE_TOKEN_PLAN_TAG) return false;
   return Boolean(user.isPremium);
 }
 

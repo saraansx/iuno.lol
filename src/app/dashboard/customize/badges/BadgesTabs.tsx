@@ -10,6 +10,8 @@ import { updateEffectsProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import SaveBar from "@/components/dashboard/SaveBar";
 import CustomBadgePromo from "@/components/dashboard/CustomBadgePromo";
+import CustomBadgesSection from "./CustomBadgesSection";
+import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { badgeGlowFilter } from "@/components/profile/layouts/ProfileBadges";
 import { type FullUser } from "@/lib/features/users/db";
@@ -80,6 +82,7 @@ function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
 
 function OwnedRow({
   badge,
+  icon,
   onAction,
   dragging,
   dropTarget,
@@ -88,7 +91,8 @@ function OwnedRow({
   onDrop,
   onDragEnd,
 }: {
-  badge: AnyBadge;
+  badge: { id: string; name: string; description: string };
+  icon: React.ReactNode;
   onAction: () => void;
   dragging: boolean;
   dropTarget: boolean;
@@ -122,7 +126,7 @@ function OwnedRow({
           <circle cx="15" cy="19" r="1" />
         </svg>
       </div>
-      <BadgeIcon badge={badge} />
+      {icon}
       <div className="flex flex-col gap-0.5 min-w-0 flex-1">
         <span className="text-[13.5px] font-normal text-white/90 truncate">{badge.name}</span>
         <span className="text-[10.5px] text-white/35 truncate">{badge.description}</span>
@@ -465,6 +469,8 @@ export default function BadgesTabs({
   backgrounds,
   initialOwned = [],
   initialEquipped = [],
+  initialCustom = [],
+  initialTokens = 0,
   earlyEligible = false,
   initialGlow = { enabled: true, strength: 50, size: 18, mono: false, container: "pill" as ContainerStyle, spacing: 6, scroll: "none" as ScrollStyle, speed: 40, show: 5, shimmer: false },
 }: {
@@ -472,6 +478,8 @@ export default function BadgesTabs({
   backgrounds?: string[];
   initialOwned?: string[];
   initialEquipped?: string[];
+  initialCustom?: CustomBadge[];
+  initialTokens?: number;
   earlyEligible?: boolean;
   initialGlow?: { enabled: boolean; strength: number; size: number; mono: boolean; container: ContainerStyle; spacing: number; scroll: ScrollStyle; speed: number; show: number; shimmer: boolean };
 }) {
@@ -479,6 +487,8 @@ export default function BadgesTabs({
   const [owned, setOwned] = useState<string[]>(initialOwned);
   const [equipped, setEquipped] = useState<string[]>(initialEquipped);
   const [savedEquipped, setSavedEquipped] = useState<string[]>(initialEquipped);
+  const [custom, setCustom] = useState<CustomBadge[]>(initialCustom);
+  const [tokens, setTokens] = useState(initialTokens);
   const [saving, setSaving] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [glowEnabled, setGlowEnabled] = useState(initialGlow.enabled);
@@ -583,12 +593,22 @@ export default function BadgesTabs({
     setEquipped((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   }
 
+  function applyBadgeState(next: { owned: string[]; equipped: string[]; custom: CustomBadge[]; tokens: number }) {
+    setOwned(next.owned);
+    setCustom(next.custom);
+    setTokens(next.tokens);
+    setEquipped((prev) => prev.filter((id) => next.owned.includes(id) || id === "early"));
+    setSavedEquipped((prev) => prev.filter((id) => next.equipped.includes(id)));
+  }
+
   async function handleSave() {
     if (saving || !showSaveBar) return;
     setSaving(true);
     try {
       if (dirty) {
         const next = await saveEquippedBadges(equipped);
+        setCustom(next.custom);
+        setTokens(next.tokens);
         setOwned(next.owned);
         setEquipped(next.equipped);
         setSavedEquipped(next.equipped);
@@ -706,6 +726,8 @@ export default function BadgesTabs({
     setSyncing(true);
     try {
       const next = await syncDiscordBadges();
+      setCustom(next.custom);
+      setTokens(next.tokens);
       setOwned(next.owned);
       setEquipped(next.equipped);
       setSavedEquipped(next.equipped);
@@ -765,6 +787,7 @@ export default function BadgesTabs({
           transition={{ duration: 0.2, ease: "easeOut" }}
         >
       {tab === "yours" ? (
+        <div className="flex flex-col gap-4">
         <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm p-4 md:p-5 flex flex-col gap-4">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -817,12 +840,31 @@ export default function BadgesTabs({
             <>
               <div className={`flex flex-col gap-2.5 ${equipped.length > 4 ? "max-h-[310px] overflow-y-auto custom-scrollbar pr-1.5 -mr-1.5" : ""}`}>
               {equipped.map((id) => {
+                const cb = custom.find((c) => c.id === id);
+                if (cb) {
+                  return (
+                    <OwnedRow
+                      key={cb.id}
+                      badge={{ id: cb.id, name: cb.name, description: "Custom badge" }}
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      icon={<img src={cb.iconUrl} alt="" width={26} height={26} className="w-[26px] h-[26px] object-contain shrink-0" />}
+                      onAction={() => toggleBadge(cb.id)}
+                      dragging={dragId === cb.id}
+                      dropTarget={dropId === cb.id}
+                      onDragStart={handleRowDragStart}
+                      onDragOver={handleRowDragOver}
+                      onDrop={handleRowDrop}
+                      onDragEnd={handleRowDragEnd}
+                    />
+                  );
+                }
                 const badge = badgeById(id);
                 if (!badge) return null;
                 return (
                   <OwnedRow
                     key={badge.id}
                     badge={badge}
+                    icon={<BadgeIcon badge={badge} />}
                     onAction={() => toggleBadge(badge.id)}
                     dragging={dragId === badge.id}
                     dropTarget={dropId === badge.id}
@@ -836,6 +878,16 @@ export default function BadgesTabs({
               </div>
             </>
           )}
+        </div>
+        <CustomBadgesSection
+          custom={custom}
+          tokens={tokens}
+          totalOwned={owned.length}
+          equipped={equipped}
+          boxStyle={{ glowEnabled, glowStrength, badgeSize, containerStyle, badgeSpacing }}
+          onToggle={toggleBadge}
+          onChange={applyBadgeState}
+        />
         </div>
       ) : tab === "available" ? (
         <div className="flex flex-col gap-3">
@@ -1229,6 +1281,7 @@ export default function BadgesTabs({
             badgeShimmerEnabled: shimmerEnabled,
           }}
           equippedBadges={equipped}
+          customBadges={custom}
         />
       )}
 

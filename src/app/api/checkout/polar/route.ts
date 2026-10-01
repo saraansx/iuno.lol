@@ -8,6 +8,7 @@ import { getClientIp } from "@/lib/server/security/ip";
 import {
   IMAGE_HOST_PLAN_TAG,
   VERIFIED_PLAN_TAG,
+  BADGE_TOKEN_PLAN_TAG,
   PREMIUM,
   getPlan,
   isCurrency,
@@ -45,6 +46,7 @@ export async function POST(request: NextRequest) {
   const checkoutPath =
     plan.tag === IMAGE_HOST_PLAN_TAG ? "/checkout/image-host"
     : plan.tag === VERIFIED_PLAN_TAG ? "/checkout/verified"
+    : plan.tag === BADGE_TOKEN_PLAN_TAG ? "/checkout/badge-token"
     : "/checkout";
   try {
     const checkout = await createPolarCheckout({
