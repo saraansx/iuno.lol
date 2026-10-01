@@ -1,4 +1,3 @@
-// shared by the pricing page and the dashboard compare-plans modal
 export const FREE_FEATURES = [
   "Custom username & profile page",
   "1 background, 1 audio track, 3 widgets",

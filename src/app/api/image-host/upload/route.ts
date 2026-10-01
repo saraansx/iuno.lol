@@ -66,7 +66,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Signature check only needs the header; avoid copying the whole file.
     const head = Buffer.from(await file.slice(0, 4096).arrayBuffer());
 
     const detected = detectImageOrVideo(head);

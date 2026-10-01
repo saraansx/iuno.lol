@@ -27,7 +27,6 @@ export const users = mysqlTable('users', {
   role: mysqlEnum('role', ['user', 'admin', 'moderator']).default('user').notNull(),
   emailVerified: boolean('email_verified').default(false).notNull(),
   isPremium: boolean('is_premium').default(false).notNull(),
-  premiumExpiresAt: timestamp('premium_expires_at'),
   hasImageHost: boolean('is_image_host').default(false).notNull(),
   hasVerified: boolean('is_verified').default(false).notNull(),
   badgeTokens: int('badge_tokens').default(0).notNull(),

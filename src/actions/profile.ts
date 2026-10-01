@@ -18,7 +18,7 @@ import {
   PREMIUM_ENTRY_TRANSITIONS,
 } from "@/lib/premium";
 import { revalidatePath } from "next/cache";
-import { profileUpdateRateLimit } from "@/lib/rate-limit";
+import { profileUpdateRateLimit, musicSaveRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
@@ -1653,7 +1653,7 @@ async function updateMusicProfileImpl(data: {
     throw new Error("User not found");
   }
 
-  const rate = await profileUpdateRateLimit(userId);
+  const rate = await musicSaveRateLimit(userId);
   if (!rate.ok) {
     const minutes = Math.ceil(rate.retryAfterSeconds / 60);
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.`);
@@ -1713,7 +1713,7 @@ async function updateMusicProfileImpl(data: {
       }
 
       const prev = prevTracks.find((p) => p.id === id);
-      if (prev && isStoredMediaUrl(t.streamUrl) && prev.streamUrl === t.streamUrl) {
+      if (prev && isStoredMediaUrl(prev.streamUrl)) {
         return {
           id,
           title,

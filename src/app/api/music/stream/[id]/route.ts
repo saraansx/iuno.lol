@@ -16,7 +16,6 @@ export async function GET(
   const limited = await widgetRateLimit(req, "music_stream", 120);
   if (limited) return limited;
 
-  // Only the dashboard search preview uses this; profiles play the cached hosted copy.
   if (!(await getSessionUserId())) {
     return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }

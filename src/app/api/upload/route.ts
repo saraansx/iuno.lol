@@ -59,7 +59,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `File too large. Maximum size for ${assetType} is ${limitMB}MB.${upsell}` }, { status: 400 });
     }
 
-    // Signature check only needs the header; avoid copying the whole file.
     const head = Buffer.from(await file.slice(0, 4096).arrayBuffer());
 
     const detected = assetType === "track" ? detectAudio(head) : detectImageOrVideo(head);

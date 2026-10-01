@@ -45,16 +45,6 @@ export function checkRateLimit(key: string, maxAttempts: number, windowSeconds: 
   return evalLimit(key, maxAttempts, windowSeconds, true);
 }
 
-function peekRateLimit(key: string, maxAttempts: number, windowSeconds: number) {
-  return evalLimit(key, maxAttempts, windowSeconds, false);
-}
-
-async function recordAttempt(key: string, windowSeconds: number) {
-  const now = Date.now();
-  await redis.zadd(`rl:w:${key}`, now, `${now}:${Math.random()}`);
-  await redis.expire(`rl:w:${key}`, windowSeconds);
-}
-
 const UNIDENTIFIED_IP_KEY = "noip";
 const UNIDENTIFIED_IP_FACTOR = 5;
 const UNIDENTIFIED_IP_CEILING = 300;
@@ -77,16 +67,11 @@ function emailKey(email: string) {
 }
 
 export async function loginRateLimit(email: string, ip: string | null) {
-  const emailRate = await peekRateLimit(`login:email:${emailKey(email)}`, 5, LOGIN_WINDOW);
+  const emailRate = await checkRateLimit(`login:email:${emailKey(email)}`, 5, LOGIN_WINDOW);
   if (!emailRate.ok) return emailRate;
 
   const bucket = ipBucket("login:ip", ip, LOGIN_IP_MAX);
-  return peekRateLimit(bucket.key, bucket.max, LOGIN_WINDOW);
-}
-
-export async function recordFailedLogin(email: string, ip: string | null) {
-  await recordAttempt(`login:email:${emailKey(email)}`, LOGIN_WINDOW);
-  await recordAttempt(ipBucket("login:ip", ip, LOGIN_IP_MAX).key, LOGIN_WINDOW);
+  return checkRateLimit(bucket.key, bucket.max, LOGIN_WINDOW);
 }
 
 export async function registerRateLimit(email: string, ip: string | null) {
@@ -95,6 +80,13 @@ export async function registerRateLimit(email: string, ip: string | null) {
 
   const bucket = ipBucket("register:ip", ip, REGISTER_IP_MAX);
   return checkRateLimit(bucket.key, bucket.max, 10 * 60);
+}
+
+export async function authEmailRateLimit(email: string, ip: string | null): Promise<"ip" | "email" | null> {
+  const bucket = ipBucket("auth_email:ip", ip, 10);
+  if (!(await checkRateLimit(bucket.key, bucket.max, 10 * 60)).ok) return "ip";
+  if (!(await checkRateLimit(`auth_email:addr:${emailKey(email)}`, 5, 60 * 60)).ok) return "email";
+  return null;
 }
 
 export async function uploadPreRateLimit(userId: number) {
@@ -119,6 +111,10 @@ export async function commentRateLimit(userId: number) {
 
 export async function profileUpdateRateLimit(userId: number) {
   return checkRateLimit(`profile_update:${userId}`, 100, 60);
+}
+
+export async function musicSaveRateLimit(userId: number) {
+  return checkRateLimit(`music_save:${userId}`, 5, 60);
 }
 
 export async function checkAvailabilityRateLimit(ip: string | null) {

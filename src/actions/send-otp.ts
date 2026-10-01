@@ -5,6 +5,9 @@ import { getUserByEmail } from '@/lib/features/users/db'
 import { sendTwoFactorTokenEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { UserFacingError } from '@/lib/errors'
+import { authEmailRateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/server/security/ip'
+import { headers } from 'next/headers'
 
 export const sendOTP = async (
   email: string,
@@ -24,6 +27,10 @@ export const sendOTP = async (
 
     const genericSuccess = { success: 'If an account exists for that email, we sent a code.' }
 
+    const limited = await authEmailRateLimit(clean, getClientIp(await headers()))
+    if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
+    if (limited === 'email') return genericSuccess
+
     const user = await getUserByEmail(clean)
     if (!user?.email) {
       return genericSuccess
@@ -34,7 +41,7 @@ export const sendOTP = async (
       await sendTwoFactorTokenEmail(user.email, otp)
     } catch (error) {
       if (error instanceof UserFacingError) {
-        return { error: 'Could not send OTP. Please try again.' }
+        return genericSuccess
       }
       throw error
     }

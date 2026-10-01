@@ -93,6 +93,7 @@ export async function POST(request: Request) {
 }
 
 async function handleSync(request: Request) {
+  const startedAt = Date.now();
   if (!isAuthorizedCron(request)) {
     return new Response('Unauthorized', { status: 401 });
   }
@@ -107,11 +108,11 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium, premiumExpiresAt: schema.users.premiumExpiresAt, hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium,hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
     const premiumByUserId = new Map(
-      users.map((u) => [u.id, isPremiumActive({ isPremium: u.isPremium, premiumExpiresAt: u.premiumExpiresAt })])
+      users.map((u) => [u.id, isPremiumActive(u)])
     );
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
     const boughtVerified = new Set(users.filter((u) => u.hasVerified).map((u) => u.id));
@@ -243,16 +244,39 @@ async function handleSync(request: Request) {
     }
     await purgeProfiles([...changedUsernames]);
 
-    if (paidRoleChanges.length > 0) {
-      await Promise.allSettled(
-        paidRoleChanges.map(({ discordId, roleId, method }) =>
-          fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
+    const roleFailures: string[] = [];
+    const deadline = startedAt + 80_000;
+    for (const { discordId, roleId, method } of paidRoleChanges) {
+      const label = `${method} ${roleId} ${discordId}`;
+      if (Date.now() > deadline) {
+        roleFailures.push(`${label} (skipped: out of time)`);
+        continue;
+      }
+      let status = 0;
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const res = await fetch(`https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${roleId}`, {
             method,
             headers: { Authorization: `Bot ${botToken}` },
             signal: AbortSignal.timeout(8000),
-          })
-        )
-      );
+          });
+          status = res.status;
+          if (res.status !== 429) {
+            await res.body?.cancel();
+            break;
+          }
+          const body = (await res.json().catch(() => null)) as { retry_after?: number } | null;
+          const waitSec = (body?.retry_after ?? Number(res.headers.get('retry-after'))) || 1;
+          if (Date.now() + waitSec * 1000 > deadline) break;
+          await new Promise((r) => setTimeout(r, waitSec * 1000));
+        } catch {
+          status = 0;
+        }
+      }
+      if (status < 200 || status >= 300) roleFailures.push(`${label} (${status || 'network error'})`);
+    }
+    if (roleFailures.length > 0) {
+      console.error('[cron/sync-badges] role changes failed:', roleFailures);
     }
 
     let recruiter: { checked: number; granted: number } | { error: string } = { checked: 0, granted: 0 };
@@ -268,6 +292,7 @@ async function handleSync(request: Request) {
       added: toInsert.length,
       removed: toDeleteIds.length,
       paidRoles: paidRoleChanges.map((c) => `${c.method} ${c.roleId} ${c.discordId}`),
+      roleFailures,
       recruiter,
     });
   } catch (error) {

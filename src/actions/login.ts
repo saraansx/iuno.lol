@@ -6,7 +6,7 @@ import { getUserByEmailWithPassword, getUserByUsernameWithPassword } from '@/lib
 import { isPasswordCorrect } from '@/lib/server/security/bcrypt'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
-import { loginRateLimit, recordFailedLogin } from '@/lib/rate-limit'
+import { loginRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 
 type LoginInput = {
@@ -43,7 +43,6 @@ export async function login(input: LoginInput) {
       ? await getUserByEmailWithPassword(identifier)
       : await getUserByUsernameWithPassword(identifier)
     if (!user || !user.email) {
-      await recordFailedLogin(identifier, ip)
       return { error: 'Invalid credentials.' }
     }
 
@@ -55,12 +54,10 @@ export async function login(input: LoginInput) {
       }
 
       if (password.length > 128) {
-        await recordFailedLogin(identifier, ip)
         return { error: 'Invalid credentials.' }
       }
 
       if (!user.password || !(await isPasswordCorrect(password, user.password))) {
-        await recordFailedLogin(identifier, ip)
         return { error: 'Invalid credentials.' }
       }
     } else if (method === 'otp') {
@@ -70,7 +67,6 @@ export async function login(input: LoginInput) {
 
       const verification = await verifyOTPToken(email, otpCode)
       if (!verification.success) {
-        await recordFailedLogin(identifier, ip)
         return { error: verification.error || 'Invalid or expired OTP.' }
       }
     } else {

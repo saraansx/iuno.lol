@@ -5,6 +5,9 @@ import { getUserByEmail } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { UserFacingError } from '@/lib/errors'
+import { authEmailRateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/server/security/ip'
+import { headers } from 'next/headers'
 
 export async function resendVerification(
   email: string,
@@ -20,6 +23,10 @@ export async function resendVerification(
 
     const genericSuccess = { success: 'If that email has a pending signup, we sent a verification link.' }
 
+    const limited = await authEmailRateLimit(email, getClientIp(await headers()))
+    if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
+    if (limited === 'email') return genericSuccess
+
     const user = await getUserByEmail(email)
     if (!user?.email || user.emailVerified) {
       return genericSuccess
@@ -30,7 +37,7 @@ export async function resendVerification(
       await sendVerificationEmail(user.email, token)
     } catch (err: unknown) {
       if (err instanceof UserFacingError) {
-        return { error: err.message }
+        return genericSuccess
       }
       throw err
     }

@@ -1,13 +1,11 @@
 
 interface PremiumStatus {
   isPremium?: boolean | null;
-  premiumExpiresAt?: Date | string | null;
 }
 
+// Premium is a lifetime purchase, so the flag alone decides it.
 export function isPremiumActive(user: PremiumStatus | null | undefined): boolean {
-  if (!user?.isPremium) return false;
-  if (!user.premiumExpiresAt) return true;
-  return new Date(user.premiumExpiresAt).getTime() > Date.now();
+  return Boolean(user?.isPremium);
 }
 
 export const PREMIUM_BACKGROUND_EFFECTS: ReadonlySet<string> = new Set([

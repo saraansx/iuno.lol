@@ -16,7 +16,6 @@ const userColumns = {
   role: schema.users.role,
   emailVerified: schema.users.emailVerified,
   isPremium: schema.users.isPremium,
-  premiumExpiresAt: schema.users.premiumExpiresAt,
   hasImageHost: schema.users.hasImageHost,
   hasVerified: schema.users.hasVerified,
   badgeTokens: schema.users.badgeTokens,

@@ -5,6 +5,9 @@ import { getUserByEmail } from '@/lib/features/users/db'
 import { sendPasswordResetEmail } from '@/lib/mail'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { UserFacingError } from '@/lib/errors'
+import { authEmailRateLimit } from '@/lib/rate-limit'
+import { getClientIp } from '@/lib/server/security/ip'
+import { headers } from 'next/headers'
 
 export async function forgotPassword(email: string, turnstileToken: string) {
   try {
@@ -14,6 +17,10 @@ export async function forgotPassword(email: string, turnstileToken: string) {
 
     const turnstileError = await assertTurnstile(turnstileToken)
     if (turnstileError) return { error: turnstileError }
+
+    const limited = await authEmailRateLimit(email, getClientIp(await headers()))
+    if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
+    if (limited === 'email') return { success: 'If an account exists, a reset link was sent!' }
 
     const user = await getUserByEmail(email)
     if (!user?.email) {
