@@ -35,15 +35,17 @@ type OgInputs = {
   displayName?: string | null;
 };
 
-export function buildOgImagePath(username: string, inputs: OgInputs): string {
-  const version = createHash("sha256")
+export function ogImageVersion(inputs: OgInputs): string {
+  return createHash("sha256")
     .update(
       [inputs.embedBackgroundUrl ?? "", inputs.embedIconUrl ?? "", inputs.displayName ?? ""].join("|"),
     )
     .digest("hex")
     .slice(0, 12);
+}
 
-  return `/api/og/${encodeURIComponent(username)}?v=${version}`;
+export function buildOgImagePath(username: string, inputs: OgInputs): string {
+  return `/api/og/${encodeURIComponent(username)}?v=${ogImageVersion(inputs)}`;
 }
 
 export function buildOgImageUrl(username: string, inputs: OgInputs): string {

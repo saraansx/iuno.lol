@@ -451,7 +451,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         profileShadowColor={user.profileShadowColor ?? undefined}
         profileShadowOpacity={user.profileShadowOpacity ?? undefined}
         profileOpacity={user.profileOpacity ?? undefined}
-        views={user.views}
+        views={user.viewsEnabled === false ? 0 : user.views}
         usernameFont={user.usernameFont ?? undefined}
         usernameFontSize={user.usernameFontSize ?? undefined}
         usernameFontWeight={user.usernameFontWeight ?? undefined}
@@ -519,8 +519,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         uidIconGlow={user.uidIconGlow ?? false}
         viewsIconGlow={user.viewsIconGlow ?? false}
         feedbackIconGlow={user.feedbackIconGlow ?? false}
-        initialLikes={user.likesCount ?? 0}
-        initialDislikes={user.dislikesCount ?? 0}
+        initialLikes={user.feedbackEnabled === false ? 0 : user.likesCount ?? 0}
+        initialDislikes={user.feedbackEnabled === false ? 0 : user.dislikesCount ?? 0}
         createdAt={user.createdAt}
         profileId={user.id}
         viewerId={null}

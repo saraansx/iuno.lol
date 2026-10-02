@@ -3,7 +3,6 @@ interface PremiumStatus {
   isPremium?: boolean | null;
 }
 
-// Premium is a lifetime purchase, so the flag alone decides it.
 export function isPremiumActive(user: PremiumStatus | null | undefined): boolean {
   return Boolean(user?.isPremium);
 }

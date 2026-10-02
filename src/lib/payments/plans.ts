@@ -31,7 +31,6 @@ export type PlanTag = (typeof PLAN_TAGS)[number];
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
 
-// All plans are lifetime purchases.
 export interface Plan {
   tag: PlanTag;
   name: string;

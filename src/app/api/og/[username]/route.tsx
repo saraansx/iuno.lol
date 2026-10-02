@@ -3,14 +3,14 @@ import { db } from "@/lib/db";
 import { users, userSettings } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { isVideoUrl } from "@/lib/utils/media";
-import { OG_WIDTH, OG_HEIGHT, isAllowedOgImage } from "@/lib/og";
+import { OG_WIDTH, OG_HEIGHT, isAllowedOgImage, ogImageVersion } from "@/lib/og";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export const runtime = "nodejs";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ username: string }> }
 ) {
   const { username: rawUsername } = await params;
@@ -37,6 +37,17 @@ export async function GET(
   }
 
   const row = rows[0];
+
+  const search = new URL(req.url).searchParams;
+  if (
+    rawUsername !== row.username ||
+    [...search.keys()].some((k) => k !== "v") ||
+    search.getAll("v").length !== 1 ||
+    search.get("v") !== ogImageVersion(row)
+  ) {
+    return new Response(null, { status: 404 });
+  }
+
   const name = (row.displayName?.trim() || row.username).slice(0, 32);
   
   async function localAsset(file: string): Promise<string | null> {

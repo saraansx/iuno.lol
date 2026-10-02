@@ -874,21 +874,9 @@ async function updateMetadataProfileImpl(data: {
     .onDuplicateKeyUpdate({ set: setData });
 
   const stale: (string | null | undefined)[] = [];
-  if (typeof setData.embedBackgroundUrl === "string") {
-    if (!setData.embedBackgroundUrl && prev?.embedBackgroundUrl) stale.push(prev.embedBackgroundUrl);
-    else if (setData.embedBackgroundUrl !== prev?.embedBackgroundUrl && prev?.embedBackgroundUrl) stale.push(prev.embedBackgroundUrl);
-  }
-  if (typeof setData.embedIconUrl === "string") {
-    if (!setData.embedIconUrl && prev?.embedIconUrl) stale.push(prev.embedIconUrl);
-    else if (setData.embedIconUrl !== prev?.embedIconUrl && prev?.embedIconUrl) stale.push(prev.embedIconUrl);
-  }
-  if (typeof setData.faviconUrl === "string") {
-    if (!setData.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
-    else if (setData.faviconUrl !== prev?.faviconUrl && prev?.faviconUrl) stale.push(prev.faviconUrl);
-  }
-  if (typeof setData.cursorUrl === "string") {
-    if (!setData.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
-    else if (setData.cursorUrl !== prev?.cursorUrl && prev?.cursorUrl) stale.push(prev.cursorUrl);
+  for (const key of ["embedBackgroundUrl", "embedIconUrl", "faviconUrl", "cursorUrl"] as const) {
+    const old = prev?.[key];
+    if (key in setData && old && setData[key] !== old) stale.push(old);
   }
   if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 

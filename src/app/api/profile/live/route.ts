@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { users } from '@/lib/db/schema';
+import { users, userSettings } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
 import { LIVE_STATS_CACHE_TTL, liveStatsCacheKey } from '@/lib/live-stats-cache';
@@ -12,8 +12,11 @@ async function getLiveStatsByUsername(username: string) {
       views: users.views,
       likesCount: users.likesCount,
       dislikesCount: users.dislikesCount,
+      viewsEnabled: userSettings.viewsEnabled,
+      feedbackEnabled: userSettings.feedbackEnabled,
     })
     .from(users)
+    .leftJoin(userSettings, eq(users.id, userSettings.userId))
     .where(eq(users.username, username))
     .limit(1);
 
@@ -54,9 +57,11 @@ export async function GET(request: Request) {
     }
 
     const responseData = {
-      views: stats.views,
-      likesCount: stats.likesCount,
-      dislikesCount: stats.dislikesCount,
+      ...(stats.viewsEnabled !== false && { views: stats.views }),
+      ...(stats.feedbackEnabled !== false && {
+        likesCount: stats.likesCount,
+        dislikesCount: stats.dislikesCount,
+      }),
     };
 
     await redis.set(cacheKey, JSON.stringify(responseData), "EX", LIVE_STATS_CACHE_TTL);
