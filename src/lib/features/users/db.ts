@@ -518,7 +518,7 @@ export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
   const rows = await db.execute(sql`
     SELECT view_date, count
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 29 DAY)
     ORDER BY view_date ASC
   `)
 
@@ -539,6 +539,18 @@ export async function getAnalyticsData(userId: number): Promise<RawViewBin[]> {
   })
 }
 
+export async function getHourlyViews(userId: number): Promise<RawViewBin[]> {
+  const rows = await db.execute(sql`
+    SELECT DATE_FORMAT(view_hour, '%Y-%m-%dT%H') AS h, count
+    FROM profile_views_hourly
+    WHERE user_id = ${userId} AND view_hour > DATE_SUB(UTC_TIMESTAMP(), INTERVAL 24 HOUR)
+    ORDER BY view_hour ASC
+  `)
+  const resultRows = (rows as unknown as [{ h: string; count: string | number }[]])[0]
+  if (!Array.isArray(resultRows)) return []
+  return resultRows.map((r) => ({ d: String(r.h), c: Number(r.count) }))
+}
+
 export interface DeviceStats {
   ios: number;
   android: number;
@@ -556,7 +568,7 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
       SUM(mac_count) as mac,
       SUM(other_count) as other
     FROM profile_views
-    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 6 DAY)
+    WHERE user_id = ${userId} AND view_date >= DATE_SUB(UTC_DATE(), INTERVAL 29 DAY)
   `)
 
   const resultRows = (rows as unknown as [{ ios: number | null, android: number | null, windows: number | null, mac: number | null, other: number | null }[]])[0]

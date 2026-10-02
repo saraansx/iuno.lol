@@ -57,7 +57,7 @@ export default function RecentComments({
   const fetchComments = useCallback(async (page: number, forTab: "received" | "given" = activeTab) => {
     setIsLoading(true);
     try {
-      const res = await getDashboardComments(page, PAGE_SIZE);
+      const res = await getDashboardComments(page, PAGE_SIZE, forTab);
       if (res.success) {
         if (forTab === "received") {
           setReceived(res.received as unknown as CommentData[]);

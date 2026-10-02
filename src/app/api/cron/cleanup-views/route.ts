@@ -19,10 +19,14 @@ async function handleCleanup(request: Request) {
   try {
     await db.execute(sql`
       DELETE FROM profile_views
-      WHERE view_date <= DATE_SUB(UTC_DATE(), INTERVAL 7 DAY)
+      WHERE view_date <= DATE_SUB(UTC_DATE(), INTERVAL 30 DAY)
+    `)
+    await db.execute(sql`
+      DELETE FROM profile_views_hourly
+      WHERE view_hour < DATE_SUB(UTC_TIMESTAMP(), INTERVAL 25 HOUR)
     `)
 
-    return NextResponse.json({ success: true, message: 'Cleaned up profile views older than 7 days.' })
+    return NextResponse.json({ success: true, message: 'Cleaned up daily views older than 30 days and hourly views older than 25 hours.' })
   } catch (error) {
     console.error('[cron] failed to run profile views daily cleanup:', error)
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })

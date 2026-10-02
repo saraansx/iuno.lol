@@ -111,6 +111,16 @@ async function handler() {
                   mac_count = mac_count + VALUES(mac_count),
                   other_count = other_count + VALUES(other_count)
               `);
+
+              const hourly = sql.join(
+                validChunk.map(e => sql`(${e.profileId}, DATE_FORMAT(UTC_TIMESTAMP(), '%Y-%m-%d %H:00:00'), ${e.total})`),
+                sql`, `
+              );
+              await tx.execute(sql`
+                INSERT INTO profile_views_hourly (user_id, view_hour, count)
+                VALUES ${hourly}
+                ON DUPLICATE KEY UPDATE count = count + VALUES(count)
+              `);
             });
 
             totalFlushed += validChunk.reduce((sum, e) => sum + e.total, 0);

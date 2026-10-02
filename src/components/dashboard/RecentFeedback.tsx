@@ -68,6 +68,7 @@ export default function RecentFeedback({
         isReceived ? nextPage : receivedPage,
         isReceived ? givenPage : nextPage,
         PAGE_SIZE,
+        activeTab,
       );
       if (res.success) {
         if (isReceived) {

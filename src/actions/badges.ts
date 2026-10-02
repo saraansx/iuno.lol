@@ -195,53 +195,50 @@ export async function saveEquippedBadges(ids: string[]): Promise<MyBadges> {
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? "" : "s"}.`);
   }
 
-  const rows = await db
-    .select()
-    .from(schema.userBadges)
-    .where(eq(schema.userBadges.userId, userId));
-  const ownedSet = new Set(rows.map((r) => r.badgeId));
+  await db.transaction(async (tx) => {
+    await tx
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .for("update");
 
-  for (const id of clean) {
-    if (id !== "early" && !ownedSet.has(id)) {
-      throw new Error("Locked — sync your Discord roles to unlock this badge.");
-    }
-    if (id === "early" && userId > EARLY_CUTOFF_UID) {
-      throw new Error("Only the first 100 members can earn this badge.");
-    }
-  }
+    const rows = await tx
+      .select()
+      .from(schema.userBadges)
+      .where(eq(schema.userBadges.userId, userId));
+    const ownedSet = new Set(rows.map((r) => r.badgeId));
 
-  const now = new Date();
-  for (const [index, id] of clean.entries()) {
-    if (!ownedSet.has(id)) {
-      await db.insert(schema.userBadges).values({
-        userId,
-        badgeId: id,
-        equipped: true,
-        equippedAt: now,
-        sortOrder: index,
-      });
+    for (const id of clean) {
+      if (id !== "early" && !ownedSet.has(id)) {
+        throw new Error("Locked — sync your Discord roles to unlock this badge.");
+      }
     }
-  }
-  for (const row of rows) {
-    const index = clean.indexOf(row.badgeId);
-    const shouldEquip = index !== -1;
-    if (shouldEquip && !row.equipped) {
-      await db
-        .update(schema.userBadges)
-        .set({ equipped: true, equippedAt: now, sortOrder: index })
-        .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId)));
-    } else if (shouldEquip && row.equipped && row.sortOrder !== index) {
-      await db
-        .update(schema.userBadges)
-        .set({ sortOrder: index })
-        .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId)));
-    } else if (!shouldEquip && row.equipped) {
-      await db
-        .update(schema.userBadges)
-        .set({ equipped: false, equippedAt: null })
-        .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId)));
+
+    const now = new Date();
+    for (const [index, id] of clean.entries()) {
+      if (!ownedSet.has(id)) {
+        await tx.insert(schema.userBadges).values({
+          userId,
+          badgeId: id,
+          equipped: true,
+          equippedAt: now,
+          sortOrder: index,
+        });
+      }
     }
-  }
+    for (const row of rows) {
+      const index = clean.indexOf(row.badgeId);
+      const shouldEquip = index !== -1;
+      const where = and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, row.badgeId));
+      if (shouldEquip && !row.equipped) {
+        await tx.update(schema.userBadges).set({ equipped: true, equippedAt: now, sortOrder: index }).where(where);
+      } else if (shouldEquip && row.equipped && row.sortOrder !== index) {
+        await tx.update(schema.userBadges).set({ sortOrder: index }).where(where);
+      } else if (!shouldEquip && row.equipped) {
+        await tx.update(schema.userBadges).set({ equipped: false, equippedAt: null }).where(where);
+      }
+    }
+  });
 
   await revalidateOwnProfile(userId);
   return getMyBadges();
@@ -329,21 +326,25 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     }
   }
 
+  const owned = new Set(
+    (
+      await db
+        .select({ badgeId: schema.userBadges.badgeId })
+        .from(schema.userBadges)
+        .where(eq(schema.userBadges.userId, userId))
+    ).map((r) => r.badgeId)
+  );
+
   for (const [roleId, badgeId] of Object.entries(ROLE_BADGE_MAP)) {
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
-    const existing = await db
-      .select()
-      .from(schema.userBadges)
-      .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)))
-      .limit(1);
-
     if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost)) {
-      if (existing.length > 0) {
+      if (owned.has(badgeId)) {
         await db
           .delete(schema.userBadges)
           .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
+        owned.delete(badgeId);
         removed.push(badgeId);
       }
       try {
@@ -359,31 +360,27 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     if (badgeId === "premium" || badgeId === "image-host") continue;
 
     if (roles.includes(roleId) || (badgeId === "verified" && user?.hasVerified)) {
-      if (existing.length === 0) {
+      if (!owned.has(badgeId)) {
         await db.insert(schema.userBadges).values({
           userId,
           badgeId,
           equipped: false,
           equippedAt: null,
         });
+        owned.add(badgeId);
         added.push(badgeId);
       }
-    } else if (existing.length > 0) {
+    } else if (owned.has(badgeId)) {
       await db
         .delete(schema.userBadges)
         .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, badgeId)));
+      owned.delete(badgeId);
       removed.push(badgeId);
     }
   }
 
-  const earlyExisting = await db
-    .select()
-    .from(schema.userBadges)
-    .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, "early")))
-    .limit(1);
-
   if (userId <= EARLY_CUTOFF_UID) {
-    if (earlyExisting.length === 0) {
+    if (!owned.has("early")) {
       await db.insert(schema.userBadges).values({
         userId,
         badgeId: "early",
@@ -392,7 +389,7 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
       });
       added.push("early");
     }
-  } else if (earlyExisting.length > 0) {
+  } else if (owned.has("early")) {
     await db
       .delete(schema.userBadges)
       .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, "early")));
@@ -400,13 +397,8 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   }
 
   try {
-    const before = await db
-      .select({ id: schema.userBadges.id })
-      .from(schema.userBadges)
-      .where(and(eq(schema.userBadges.userId, userId), eq(schema.userBadges.badgeId, RECRUITER_BADGE_ID)))
-      .limit(1);
     const state = await refreshRecruiter(userId, discordId);
-    if (state.granted && before.length === 0) added.push(RECRUITER_BADGE_ID);
+    if (state.granted && !owned.has(RECRUITER_BADGE_ID)) added.push(RECRUITER_BADGE_ID);
   } catch {
   }
 

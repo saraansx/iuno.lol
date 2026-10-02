@@ -15,7 +15,7 @@ const poolConnection = globalForDb.pool ?? mysql.createPool({
   timezone:         'Z',
   waitForConnections: true,
   connectionLimit:  20,
-  queueLimit:       50,
+  queueLimit:       500,
   enableKeepAlive:  true,
   keepAliveInitialDelay: 10000,
   connectTimeout:   20000,

@@ -48,7 +48,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
     <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full h-full relative transition-opacity duration-300 opacity-100 flex flex-col">
       <div className="mb-4">
         <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Devices</h2>
-        <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>How visitors break down by device type.</p>
+        <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>How visitors break down by device type in the last 30 days.</p>
       </div>
 
       <div ref={containerRef} className="h-48 w-full relative mt-4">

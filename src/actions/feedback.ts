@@ -169,6 +169,7 @@ export async function getDashboardFeedback(
   receivedPage: number = 1,
   givenPage: number = 1,
   rawLimit: number = 4,
+  only?: "received" | "given",
 ) {
   const limit = safeLimit(rawLimit, 4);
   const sessionUserId = await getSessionUserId();
@@ -180,7 +181,7 @@ export async function getDashboardFeedback(
     const receivedOffset = (safePage(receivedPage) - 1) * limit;
     const givenOffset = (safePage(givenPage) - 1) * limit;
 
-    const receivedRaw = await db.query.profileFeedback.findMany({
+    const receivedQuery = only === "given" ? Promise.resolve([]) : db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.receiverId, sessionUserId),
       with: {
         giver: {
@@ -202,19 +203,7 @@ export async function getDashboardFeedback(
       offset: receivedOffset,
     });
 
-    const receivedHasMore = receivedRaw.length > limit;
-    const receivedSlice = receivedHasMore ? receivedRaw.slice(0, limit) : receivedRaw;
-
-    const received = receivedSlice.map(r => ({
-      ...r,
-      giver: {
-        id: r.giver.id,
-        username: r.giver.username,
-        avatarUrl: r.giver.settings?.avatarUrl ?? null
-      }
-    }));
-
-    const givenRaw = await db.query.profileFeedback.findMany({
+    const givenQuery = only === "received" ? Promise.resolve([]) : db.query.profileFeedback.findMany({
       where: eq(schema.profileFeedback.giverId, sessionUserId),
       with: {
         receiver: {
@@ -236,9 +225,32 @@ export async function getDashboardFeedback(
       offset: givenOffset,
     });
 
+    const [receivedRaw, givenRaw, [receivedTotal], [givenTotal]] = await Promise.all([
+      receivedQuery,
+      givenQuery,
+      db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(schema.profileFeedback)
+        .where(eq(schema.profileFeedback.receiverId, sessionUserId)),
+      db
+        .select({ count: sql<number>`COUNT(*)` })
+        .from(schema.profileFeedback)
+        .where(eq(schema.profileFeedback.giverId, sessionUserId)),
+    ]);
+
+    const receivedHasMore = receivedRaw.length > limit;
+    const receivedSlice = receivedHasMore ? receivedRaw.slice(0, limit) : receivedRaw;
+    const received = receivedSlice.map(r => ({
+      ...r,
+      giver: {
+        id: r.giver.id,
+        username: r.giver.username,
+        avatarUrl: r.giver.settings?.avatarUrl ?? null
+      }
+    }));
+
     const givenHasMore = givenRaw.length > limit;
     const givenSlice = givenHasMore ? givenRaw.slice(0, limit) : givenRaw;
-
     const given = givenSlice.map(g => ({
       ...g,
       receiver: {
@@ -247,15 +259,6 @@ export async function getDashboardFeedback(
         avatarUrl: g.receiver.settings?.avatarUrl ?? null
       }
     }));
-
-    const [receivedTotal] = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(schema.profileFeedback)
-      .where(eq(schema.profileFeedback.receiverId, sessionUserId));
-    const [givenTotal] = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(schema.profileFeedback)
-      .where(eq(schema.profileFeedback.giverId, sessionUserId));
 
     return {
       success: true,

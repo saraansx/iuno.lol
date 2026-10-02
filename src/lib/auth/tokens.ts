@@ -1,7 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { UserFacingError } from '@/lib/errors'
 import { addMinutes } from 'date-fns'
-import { eq, and, gt, lt } from 'drizzle-orm'
+import { eq, and, gt } from 'drizzle-orm'
 import { randomBytes, createHash } from 'crypto'
 
 function hashToken(token: string): string {
@@ -12,8 +12,6 @@ export async function createVerificationToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
   const expiresAt = addMinutes(new Date(), 9)
   const hashed    = hashToken(token)
-
-  await db.delete(schema.verificationTokens).where(lt(schema.verificationTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
     const existingRows = await tx
@@ -66,8 +64,6 @@ export async function createPasswordResetToken(email: string): Promise<string> {
   const token     = randomBytes(32).toString('hex')
   const expiresAt = addMinutes(new Date(), 5)
   const hashed    = hashToken(token)
-
-  await db.delete(schema.passwordResetTokens).where(lt(schema.passwordResetTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
     const existingRows = await tx

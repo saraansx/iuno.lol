@@ -20,10 +20,23 @@ interface DailyView {
 interface AnalyticsChartProps {
   totalViews: number;
   initialData: RawViewBin[];
+  hourlyData?: RawViewBin[];
 }
 
-export default function AnalyticsChart({ totalViews, initialData }: AnalyticsChartProps) {
+const RANGES = [
+  { id: "24h", label: "24h", long: "Last 24 hours", days: 0 },
+  { id: "7d", label: "7d", long: "Last 7 days", days: 7 },
+  { id: "14d", label: "14d", long: "Last 14 days", days: 14 },
+  { id: "30d", label: "30d", long: "Last 30 days", days: 30 },
+] as const;
+type RangeId = (typeof RANGES)[number]["id"];
+
+const pad = (n: number) => String(n).padStart(2, "0");
+
+export default function AnalyticsChart({ totalViews, initialData, hourlyData = [] }: AnalyticsChartProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [range, setRange] = useState<RangeId>("7d");
+  const rangeInfo = RANGES.find((r) => r.id === range)!;
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
@@ -33,7 +46,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
 
   useEffect(() => {
     if (!isMounted || !containerRef.current) return;
-    
+
     const observer = new ResizeObserver((entries) => {
       const entry = entries[0];
       if (entry) {
@@ -43,7 +56,7 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
         });
       }
     });
-    
+
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [isMounted]);
@@ -52,9 +65,20 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
     if (!isMounted) return [];
 
     const now = new Date();
-    const daysBack = 6;
     const viewMap = new Map<string, number>();
 
+    if (range === "24h") {
+      for (const row of hourlyData) viewMap.set(row.d, (viewMap.get(row.d) || 0) + row.c);
+      const hours: DailyView[] = [];
+      for (let i = 23; i >= 0; i--) {
+        const d = new Date(now.getTime() - i * 3_600_000);
+        const key = `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}T${pad(d.getUTCHours())}`;
+        hours.push({ name: `${pad(d.getHours())}:00`, views: viewMap.get(key) || 0 });
+      }
+      return hours;
+    }
+
+    const daysBack = rangeInfo.days - 1;
     for (const row of initialData) {
       viewMap.set(row.d, (viewMap.get(row.d) || 0) + row.c);
     }
@@ -62,18 +86,20 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
     const result: DailyView[] = [];
     for (let i = daysBack; i >= 0; i--) {
       const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - i));
-      
+
       const yyyy = d.getUTCFullYear();
       const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
       const dd = String(d.getUTCDate()).padStart(2, '0');
-      
+
       const key = `${yyyy}-${mm}-${dd}`;
       const label = `${mm}-${dd}`;
-      
+
       result.push({ name: label, views: viewMap.get(key) || 0 });
     }
     return result;
-  }, [initialData, isMounted]);
+  }, [initialData, hourlyData, range, rangeInfo.days, isMounted]);
+
+  const rangeTotal = useMemo(() => data.reduce((sum, d) => sum + d.views, 0), [data]);
 
   const maxViews = useMemo(() => {
     return Math.max(...data.map(d => d.views), 1);
@@ -99,14 +125,28 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
               <polyline points="17 6 23 6 23 12"></polyline>
             </svg>
-            <span className="text-[#5b6cf5] text-xs font-bold leading-none">{totalViews}</span>
+            <span className="text-[#5b6cf5] text-xs font-bold leading-none" title="All-time views">{totalViews}</span>
           </div>
+          <span className="text-xs text-white/35">
+            {rangeTotal} in {rangeInfo.long.toLowerCase()}
+          </span>
         </div>
 
-        <div className="relative">
-          <div className="bg-white/5 px-4 py-1.5 rounded-xl border border-white/10 flex items-center gap-2">
-            <span className="text-xs text-white/80 font-medium">Last 7 days</span>
-          </div>
+        <div role="group" aria-label="Chart range" className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+          {RANGES.map((r) => (
+            <button
+              key={r.id}
+              type="button"
+              onClick={() => setRange(r.id)}
+              aria-pressed={range === r.id}
+              title={r.long}
+              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                range === r.id ? "bg-[#5b6cf5]/20 text-white" : "text-white/50 hover:text-white/80"
+              }`}
+            >
+              {r.label}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -129,22 +169,24 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 12 }} 
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 12 }}
                 dy={10}
+                interval="preserveStartEnd"
+                minTickGap={24}
               />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
+              <YAxis
+                axisLine={false}
+                tickLine={false}
                 tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 12 }}
                 domain={[0, maxViews]}
                 ticks={yTicks}
                 allowDecimals={false}
               />
-              <Tooltip 
+              <Tooltip
                 cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
@@ -163,14 +205,14 @@ export default function AnalyticsChart({ totalViews, initialData }: AnalyticsCha
                   return null;
                 }}
               />
-              <Area 
-                type="monotone" 
-                dataKey="views" 
+              <Area
+                type="monotone"
+                dataKey="views"
                 name="Views"
-                stroke="#5b6cf5" 
+                stroke="#5b6cf5"
                 strokeWidth={2}
-                fillOpacity={1} 
-                fill="url(#colorViews)" 
+                fillOpacity={1}
+                fill="url(#colorViews)"
               />
 
             </AreaChart>

@@ -9,6 +9,7 @@ import {
   imageHostKind,
 } from "@/lib/image-host";
 import { recordImageHostFile, getImageHostUsedBytes } from "@/lib/features/image-host/db";
+import { redis } from "@/lib/redis";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
@@ -20,10 +21,12 @@ function sanitizeName(raw: string): string {
 }
 
 export async function POST(req: Request) {
+  let userId: number | null = null;
+  let reserved = 0;
   try {
     const auth = await requireImageHostUser();
     if (!auth.ok) return NextResponse.json({ error: auth.error }, { status: auth.status });
-    const userId = auth.userId;
+    userId = auth.userId;
 
     const contentLength = parseInt(req.headers.get("content-length") || "0", 10);
     if (contentLength > IMAGE_HOST_MAX_FILE_BYTES + 5 * 1024 * 1024) {
@@ -54,8 +57,13 @@ export async function POST(req: Request) {
       );
     }
 
+    const reservedKey = `ih:reserved:${userId}`;
+    const reservedTotal = await redis.incrby(reservedKey, file.size);
+    reserved = file.size;
+    await redis.expire(reservedKey, maxDuration + 30);
+
     const usedBefore = await getImageHostUsedBytes(userId);
-    if (usedBefore + file.size > IMAGE_HOST_QUOTA_BYTES) {
+    if (usedBefore + reservedTotal > IMAGE_HOST_QUOTA_BYTES) {
       return NextResponse.json(
         {
           error: "Storage quota exceeded. Delete some files and try again.",
@@ -142,5 +150,9 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("[image-host] Upload error:", error);
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });
+  } finally {
+    if (userId !== null && reserved > 0) {
+      await redis.decrby(`ih:reserved:${userId}`, reserved).catch(() => {});
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById, getAnalyticsData, getDeviceStats } from "@/lib/features/users/db";
+import { getUserById, getAnalyticsData, getHourlyViews, getDeviceStats, getUserBackgrounds, getEquippedBadgeIds } from "@/lib/features/users/db";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import { AnalyticsChart, DeviceChart } from "@/components/charts/LazyCharts";
@@ -9,6 +9,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { getDashboardComments } from "@/actions/comments";
 import { getDashboardFeedback } from "@/actions/feedback";
 import { isPremiumActive } from "@/lib/premium";
+import ProfileCompletion from "@/components/dashboard/ProfileCompletion";
 
 export const metadata: Metadata = {
   title: "Overview",
@@ -25,12 +26,26 @@ export default async function DashboardPage() {
   const user = await getUserById(userId);
   const premium = isPremiumActive(user);
 
-  const [rawViews, deviceStats, commentsRes, feedbackRes] = await Promise.all([
+  const [rawViews, hourlyViews, deviceStats, commentsRes, feedbackRes, backgrounds, badges] = await Promise.all([
     user ? getAnalyticsData(user.id) : Promise.resolve([]),
+    user ? getHourlyViews(user.id) : Promise.resolve([]),
     user ? getDeviceStats(user.id) : Promise.resolve({ ios: 0, android: 0, windows: 0, mac: 0, other: 0 }),
     getDashboardComments(1, 4),
-    getDashboardFeedback(1, 1, 4)
+    getDashboardFeedback(1, 1, 4),
+    user ? getUserBackgrounds(user.id) : Promise.resolve([]),
+    user ? getEquippedBadgeIds(user.id) : Promise.resolve([]),
   ]);
+
+  const completionSteps = [
+    { label: "Upload an avatar", done: !!user?.avatarUrl, href: "/dashboard/customize/profile/general" },
+    { label: "Add a background", done: backgrounds.length > 0, href: "/dashboard/customize/profile/general" },
+    { label: "Write a short bio", done: !!user?.bio?.trim(), href: "/dashboard/customize/profile/general" },
+    { label: "Add a link", done: (user?.links?.length ?? 0) > 0, href: "/dashboard/customize/links" },
+    { label: "Add a music track", done: (user?.musicTracks?.length ?? 0) > 0, href: "/dashboard/customize/music" },
+    { label: "Add a widget", done: (user?.widgets?.length ?? 0) > 0, href: "/dashboard/customize/profile/widgets" },
+    { label: "Equip a badge", done: badges.length > 0, href: "/dashboard/customize/badges" },
+    { label: "Connect Discord", done: !!user?.discordId, href: "/dashboard/customize/badges" },
+  ];
 
   const commentsReceived = commentsRes.success && commentsRes.received ? commentsRes.received : [];
   const commentsGiven = commentsRes.success && commentsRes.given ? commentsRes.given : [];
@@ -84,9 +99,11 @@ export default async function DashboardPage() {
         ))}
       </div>
 
+      <ProfileCompletion steps={completionSteps} />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="md:col-span-2 min-w-0 min-h-0">
-          <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} />
+          <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} hourlyData={hourlyViews} />
       </div>
 
         <div className="md:col-span-1 min-w-0 min-h-0">

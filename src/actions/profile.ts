@@ -320,12 +320,14 @@ async function updateBackgroundsImpl(urls: string[]) {
 
   const prev = await getUserBackgrounds(userId);
 
-  await db.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
-  if (clean.length > 0) {
-    await db.insert(schema.userBackgrounds).values(
-      clean.map((url, i) => ({ userId, url, position: i }))
-    );
-  }
+  await db.transaction(async (tx) => {
+    await tx.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
+    if (clean.length > 0) {
+      await tx.insert(schema.userBackgrounds).values(
+        clean.map((url, i) => ({ userId, url, position: i }))
+      );
+    }
+  });
 
   const removed = prev.filter((u) => !clean.includes(u));
   if (removed.length > 0) await deleteOwnedCatboxFiles(userId, removed);

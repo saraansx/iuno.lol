@@ -1,7 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { UserFacingError } from '@/lib/errors'
 import { addMinutes } from 'date-fns'
-import { eq, lt } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { randomInt } from 'crypto'
 import bcrypt from 'bcrypt'
 
@@ -23,8 +23,6 @@ export async function createOTPToken(email: string): Promise<string> {
   const otp        = generateOTP()
   const expiresAt  = addMinutes(new Date(), 5)
   const hashedOTP  = await hashOTP(otp)
-
-  await db.delete(schema.otpTokens).where(lt(schema.otpTokens.expiresAt, new Date()))
 
   await db.transaction(async (tx) => {
     const existingRows = await tx

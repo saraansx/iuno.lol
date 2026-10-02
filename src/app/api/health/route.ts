@@ -17,9 +17,9 @@ const WIDGET_UPSTREAMS = [
 const CHECK_CACHE_MS = 30_000;
 const checkResults = new Map<string, { up: boolean; at: number }>();
 
-async function cached(key: string, check: () => Promise<boolean>): Promise<boolean> {
+async function cached(key: string, check: () => Promise<boolean>, ttlMs = CHECK_CACHE_MS): Promise<boolean> {
   const hit = checkResults.get(key);
-  if (hit && Date.now() - hit.at < CHECK_CACHE_MS) return hit.up;
+  if (hit && Date.now() - hit.at < ttlMs) return hit.up;
   const up = await check();
   checkResults.set(key, { up, at: Date.now() });
   return up;
@@ -40,24 +40,30 @@ async function probe(url: string, init: RequestInit = {}): Promise<boolean> {
   }
 }
 
+const CORE_CHECK_CACHE_MS = 10_000;
+
 async function checkDatabase(): Promise<boolean> {
-  try {
-    await db.execute(sql`SELECT id FROM users LIMIT 1`);
-    return true;
-  } catch (error) {
-    console.error('[health:db] Check failed:', error);
-    return false;
-  }
+  return cached('db', async () => {
+    try {
+      await db.execute(sql`SELECT id FROM users LIMIT 1`);
+      return true;
+    } catch (error) {
+      console.error('[health:db] Check failed:', error);
+      return false;
+    }
+  }, CORE_CHECK_CACHE_MS);
 }
 
 async function checkCache(): Promise<boolean> {
-  try {
-    await redis.ping();
-    return true;
-  } catch (error) {
-    console.error('[health:cache] Check failed:', error);
-    return false;
-  }
+  return cached('redis', async () => {
+    try {
+      await redis.ping();
+      return true;
+    } catch (error) {
+      console.error('[health:cache] Check failed:', error);
+      return false;
+    }
+  }, CORE_CHECK_CACHE_MS);
 }
 
 async function checkMedia(): Promise<boolean> {

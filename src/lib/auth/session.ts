@@ -3,6 +3,7 @@ import 'server-only'
 import { decrypt, encrypt } from '@/lib/server/security/jwt'
 import { addDays } from 'date-fns'
 import { cookies } from 'next/headers'
+import { cache } from 'react'
 import * as z from 'zod'
 import { getUserForSession } from '@/lib/features/users/db'
 
@@ -41,7 +42,7 @@ type Session = {
   userId: number
 }
 
-async function verifySession(): Promise<Session | undefined> {
+const verifySession = cache(async (): Promise<Session | undefined> => {
   const cookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value
   if (!cookie) return undefined
 
@@ -61,7 +62,7 @@ async function verifySession(): Promise<Session | undefined> {
   }
 
   return { userId: parsed.data.userId }
-}
+})
 
 export async function deleteSession() {
   const cookieStore = await cookies()

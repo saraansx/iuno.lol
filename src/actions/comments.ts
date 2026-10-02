@@ -2,10 +2,23 @@
 
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
 import { eq, and, desc, asc, sql, or } from "drizzle-orm";
 import { commentRateLimit, commentLikeRateLimit, commentModifyRateLimit } from "@/lib/rate-limit";
 import { safePage, safeLimit } from "@/lib/utils";
+
+async function getCommentSettings(profileId: number) {
+  const [row] = await db
+    .select({
+      commentsEnabled: schema.userSettings.commentsEnabled,
+      allowNewComments: schema.userSettings.allowNewComments,
+      showCommentsPublicly: schema.userSettings.showCommentsPublicly,
+    })
+    .from(schema.users)
+    .leftJoin(schema.userSettings, eq(schema.users.id, schema.userSettings.userId))
+    .where(eq(schema.users.id, profileId))
+    .limit(1);
+  return row ?? null;
+}
 
 async function checkCommentModifyLimit(userId: number) {
   const rate = await commentModifyRateLimit(userId);
@@ -64,7 +77,7 @@ export async function addComment(profileId: number, content: string, replyToId?:
     return { error: `You're posting too fast. Please wait ${minutes} minute${minutes === 1 ? '' : 's'}.` };
   }
 
-  const profile = await getUserById(profileId);
+  const profile = await getCommentSettings(profileId);
   if (!profile) return { error: "Profile not found" };
   if (profile.commentsEnabled === false) {
     return { error: "Comments are disabled on this profile." };
@@ -124,7 +137,7 @@ export async function getComments(
   const limit = safeLimit(rawLimit, 10);
   const viewerId = await getSessionUserId();
 
-  const profile = await getUserById(profileId);
+  const profile = await getCommentSettings(profileId);
   if (!profile) return { success: true, comments: [], hasMore: false };
   if (profile.commentsEnabled === false) {
     return { success: true, comments: [], hasMore: false };
@@ -256,7 +269,7 @@ export async function editComment(commentId: number, content: string) {
     return { error: "Unauthorized" };
   }
 
-  const profile = await getUserById(comment.profileId);
+  const profile = await getCommentSettings(comment.profileId);
   if (profile?.commentsEnabled === false) {
     return { error: "Comments are disabled on this profile." };
   }
@@ -310,52 +323,47 @@ export async function deleteComment(
   return { success: true };
 }
 
-export async function getDashboardComments(page: number = 1, rawLimit: number = 4) {
+export async function getDashboardComments(
+  page: number = 1,
+  rawLimit: number = 4,
+  only?: "received" | "given",
+) {
   const limit = safeLimit(rawLimit, 4);
   const userId = await getSessionUserId();
   if (!userId) return { error: "Unauthorized" };
 
   const offset = (safePage(page) - 1) * limit;
 
-  const rawReceived = await db.query.profileComments.findMany({
-    where: eq(schema.profileComments.profileId, userId),
-    with: {
-      author: commentAuthorRelation,
-      likes: {
-        where: eq(schema.commentLikes.userId, userId)
+  const listFor = (column: typeof schema.profileComments.profileId | typeof schema.profileComments.authorId) =>
+    db.query.profileComments.findMany({
+      where: eq(column, userId),
+      with: {
+        author: commentAuthorRelation,
+        likes: {
+          where: eq(schema.commentLikes.userId, userId)
+        },
       },
-    },
-    orderBy: [desc(schema.profileComments.createdAt)],
-    limit: limit + 1,
-    offset,
-  });
+      orderBy: [desc(schema.profileComments.createdAt)],
+      limit: limit + 1,
+      offset,
+    });
+  const countFor = (column: typeof schema.profileComments.profileId | typeof schema.profileComments.authorId) =>
+    db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(schema.profileComments)
+      .where(eq(column, userId));
 
-  const rawGiven = await db.query.profileComments.findMany({
-    where: eq(schema.profileComments.authorId, userId),
-    with: {
-      author: commentAuthorRelation,
-      likes: {
-        where: eq(schema.commentLikes.userId, userId)
-      },
-    },
-    orderBy: [desc(schema.profileComments.createdAt)],
-    limit: limit + 1,
-    offset,
-  });
+  const [rawReceived, rawGiven, [receivedCount], [givenCount]] = await Promise.all([
+    only === "given" ? Promise.resolve([]) : listFor(schema.profileComments.profileId),
+    only === "received" ? Promise.resolve([]) : listFor(schema.profileComments.authorId),
+    countFor(schema.profileComments.profileId),
+    countFor(schema.profileComments.authorId),
+  ]);
 
   const receivedHasMore = rawReceived.length > limit;
   const receivedSlice = receivedHasMore ? rawReceived.slice(0, limit) : rawReceived;
   const givenHasMore = rawGiven.length > limit;
   const givenSlice = givenHasMore ? rawGiven.slice(0, limit) : rawGiven;
-
-  const [receivedCount] = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(schema.profileComments)
-    .where(eq(schema.profileComments.profileId, userId));
-  const [givenCount] = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(schema.profileComments)
-    .where(eq(schema.profileComments.authorId, userId));
 
   const mapComments = <T extends { likes?: unknown[], author: CommentAuthorRow }>(raw: T[]) => raw.map(c => {
     const isLiked = !!(c.likes && c.likes.length > 0);

@@ -2,6 +2,7 @@ import {
   bigint,
   boolean,
   date,
+  datetime,
   int,
   mysqlEnum,
   mysqlTable,
@@ -404,6 +405,16 @@ export const profileViews = mysqlTable('profile_views', {
   viewDateIdx: index('view_date_idx').on(table.viewDate),
 }))
 
+export const profileViewsHourly = mysqlTable('profile_views_hourly', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  viewHour: datetime('view_hour').notNull(),
+  count: int('count').default(1).notNull(),
+}, (table) => ({
+  userHourIdx: uniqueIndex('user_hour_idx').on(table.userId, table.viewHour),
+  viewHourIdx: index('view_hour_idx').on(table.viewHour),
+}))
+
 export const profileComments = mysqlTable('profile_comments', {
   id: int('id').primaryKey().autoincrement(),
   profileId: int('profile_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -584,6 +595,7 @@ export const schema = {
   verificationTokens,
   passwordResetTokens,
   profileViews,
+  profileViewsHourly,
   profileComments,
   commentLikes,
   profileFeedback,

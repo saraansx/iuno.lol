@@ -2,6 +2,7 @@ import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { notFound } from 'next/navigation'
+import { cache } from 'react'
 import type { Metadata, Viewport } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
@@ -26,12 +27,7 @@ export async function generateViewport(
   const { username: rawUsername } = await params
   const username = rawUsername.toLowerCase().trim()
 
-  const rows = await db
-    .select({ embedColor: userSettings.embedColor })
-    .from(users)
-    .leftJoin(userSettings, eq(users.id, userSettings.userId))
-    .where(eq(users.username, username))
-    .limit(1)
+  const rows = await getProfileRows(username)
 
   return { themeColor: normalizeEmbedColor(rows[0]?.embedColor) }
 }
@@ -42,21 +38,7 @@ export async function generateMetadata(
   const { username: rawUsername } = await params
   const username = rawUsername.toLowerCase().trim()
 
-  const rows = await db
-    .select({
-      username: users.username,
-      embedTitle: userSettings.embedTitle,
-      embedDescription: userSettings.embedDescription,
-      displayName: userSettings.displayName,
-      embedBackgroundUrl: userSettings.embedBackgroundUrl,
-      embedIconUrl: userSettings.embedIconUrl,
-      faviconUrl: userSettings.faviconUrl,
-      tabTitle: userSettings.tabTitle,
-    })
-    .from(users)
-    .leftJoin(userSettings, eq(users.id, userSettings.userId))
-    .where(eq(users.username, username))
-    .limit(1)
+  const rows = await getProfileRows(username)
 
   if (rows.length === 0) {
     return { title: { absolute: SITE_CONFIG.name } }
@@ -87,12 +69,15 @@ export async function generateMetadata(
   }
 }
 
-export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
-  const { username: rawUsername } = await params
-  const username = rawUsername.toLowerCase().trim()
-
-  const userListPromise = db
+const getProfileRows = cache((username: string) =>
+  db
     .select({
+      embedColor: userSettings.embedColor,
+      embedTitle: userSettings.embedTitle,
+      embedDescription: userSettings.embedDescription,
+      embedBackgroundUrl: userSettings.embedBackgroundUrl,
+      embedIconUrl: userSettings.embedIconUrl,
+      faviconUrl: userSettings.faviconUrl,
       id: users.id,
       username: users.username,
       displayName: userSettings.displayName,
@@ -292,9 +277,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
     .where(eq(users.username, username))
-    .limit(1);
+    .limit(1)
+)
 
-  const userList = await userListPromise;
+export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+  const { username: rawUsername } = await params
+  const username = rawUsername.toLowerCase().trim()
+
+  const userList = await getProfileRows(username)
 
   if (userList.length === 0) {
     notFound()
