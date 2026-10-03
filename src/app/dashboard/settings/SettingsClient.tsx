@@ -1,17 +1,27 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { addAlias, deleteAlias, updateDisplayName, updateUsername, type AliasState } from "@/actions/account";
+import { createPortal } from "react-dom";
+import { addAlias, deleteAlias, editAlias, swapAliasWithUsername, updateDisplayName, updateUsername, type AliasState } from "@/actions/account";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
+import FilterSelect from "@/components/ui/filter-select";
 
 const TABS = [{ id: "names", label: "Names" }] as const;
 const PAGE_SIZE = 10;
 const HANDLE_RE = /^[a-z0-9_.]{2,32}$/;
 const SITE = "iuno.lol";
+
+type AliasSort = "newest" | "oldest" | "shortest" | "az";
+const SORT_OPTIONS: { id: AliasSort; label: string }[] = [
+  { id: "newest", label: "Newest first" },
+  { id: "oldest", label: "Oldest first" },
+  { id: "shortest", label: "Shortest first" },
+  { id: "az", label: "A → Z" },
+];
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
@@ -148,7 +158,14 @@ function NamesTab({
       </div>
 
       <AliasPromo premium={initialAliases.premium} />
-      <AliasesSection initial={initialAliases} />
+      <AliasesSection
+        initial={initialAliases}
+        onUsernameChange={(u) => {
+          setUsername(u);
+          setSavedUsername(u);
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
@@ -220,10 +237,13 @@ function FieldCard({
   );
 }
 
-function AliasesSection({ initial }: { initial: AliasState }) {
+function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; onUsernameChange: (username: string) => void }) {
   const [state, setState] = useState(initial);
+  const [editing, setEditing] = useState<{ id: number; alias: string } | null>(null);
+  const [swapId, setSwapId] = useState<number | null>(null);
+  const [swapping, setSwapping] = useState(false);
   const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<"newest" | "oldest" | "shortest" | "az">("newest");
+  const [sort, setSort] = useState<AliasSort>("newest");
   const [page, setPage] = useState(1);
   const [adding, setAdding] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
@@ -246,6 +266,20 @@ function AliasesSection({ initial }: { initial: AliasState }) {
   const safePage = Math.min(page, pageCount);
   const rows = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const confirmAlias = state.aliases.find((a) => a.id === confirmId);
+  const swapAlias = state.aliases.find((a) => a.id === swapId);
+
+  async function handleSwap() {
+    if (swapId == null || swapping) return;
+    setSwapping(true);
+    const res = await swapAliasWithUsername(swapId);
+    setSwapping(false);
+    setSwapId(null);
+    if (!res.ok) return toast.error(res.error);
+    const { username, ...next } = res.data;
+    setState(next);
+    onUsernameChange(username);
+    toast.success(`Your username is now @${username}`);
+  }
 
   async function handleDelete() {
     if (confirmId == null || deleting) return;
@@ -333,22 +367,13 @@ function AliasesSection({ initial }: { initial: AliasState }) {
                 className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 pl-9 pr-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40"
               />
             </label>
-            <label className="relative">
-              <span className="sr-only">Sort aliases</span>
-              <select
-                value={sort}
-                onChange={(e) => setSort(e.target.value as typeof sort)}
-                className="appearance-none bg-[#161616] border border-white/5 rounded-xl h-10 pl-3.5 pr-9 text-[13px] text-white cursor-pointer outline-none focus:border-[#5b6cf5]/40 w-full sm:w-auto"
-              >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
-                <option value="shortest">Shortest first</option>
-                <option value="az">A → Z</option>
-              </select>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" aria-hidden="true">
-                <path d="m6 9 6 6 6-6" />
-              </svg>
-            </label>
+            <FilterSelect
+              label="Sort aliases"
+              value={sort}
+              options={SORT_OPTIONS}
+              onChange={setSort}
+              icon={<path d="M3 6h18M6 12h12M10 18h4" />}
+            />
           </div>
 
           <div className="border border-white/5 rounded-2xl overflow-hidden">
@@ -372,16 +397,12 @@ function AliasesSection({ initial }: { initial: AliasState }) {
                       <span className="text-[10.5px] rounded-full px-2 py-0.5 text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25">Redirect</span>
                     </span>
                     <span className="text-[12px] text-white/40 tabular-nums whitespace-nowrap">{formatDate(a.createdAt)}</span>
-                    <button
-                      type="button"
-                      onClick={() => setConfirmId(a.id)}
-                      aria-label={`Delete alias ${a.alias}`}
-                      className="w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 flex items-center justify-center text-white/40 hover:text-red-400 transition-colors cursor-pointer"
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
-                      </svg>
-                    </button>
+                    <AliasMenu
+                      alias={a.alias}
+                      onEdit={() => setEditing({ id: a.id, alias: a.alias })}
+                      onSwap={() => setSwapId(a.id)}
+                      onDelete={() => setConfirmId(a.id)}
+                    />
                   </li>
                 ))}
               </ul>
@@ -418,18 +439,54 @@ function AliasesSection({ initial }: { initial: AliasState }) {
 
       <AnimatePresence>
         {adding && (
-          <AddAliasModal
+          <AliasFormModal
+            title="Add alias"
+            description="Pick a handle. Visiting it will redirect to your profile. This uses one alias slot."
+            submitLabel="Add alias"
+            busyLabel="Adding…"
             onClose={() => setAdding(false)}
-            onAdded={(next) => {
+            onSubmit={addAlias}
+            onDone={(next, alias) => {
               setState(next);
               setAdding(false);
+              toast.success(`${SITE}/${alias} now points to your profile`);
             }}
+          />
+        )}
+        {editing && (
+          <AliasFormModal
+            title="Edit alias"
+            description="Change this alias. The old handle stops working and is free for anyone to claim."
+            submitLabel="Save alias"
+            busyLabel="Saving…"
+            initialValue={editing.alias}
+            onClose={() => setEditing(null)}
+            onSubmit={(value) => editAlias(editing.id, value)}
+            onDone={(next, alias) => {
+              setState(next);
+              setEditing(null);
+              toast.success(`Alias changed to ${SITE}/${alias}`);
+            }}
+          />
+        )}
+        {swapAlias && (
+          <ConfirmModal
+            title="Swap with username?"
+            text={`@${swapAlias.alias} becomes your username, and your current username becomes this alias. Both links keep working.`}
+            confirmLabel="Swap"
+            busyLabel="Swapping…"
+            tone="accent"
+            busy={swapping}
+            onCancel={() => setSwapId(null)}
+            onConfirm={handleSwap}
           />
         )}
         {confirmAlias && (
           <ConfirmModal
-            title="Delete this alias?"
+            title="Remove this alias?"
             text={`${SITE}/${confirmAlias.alias} will stop redirecting and anyone can claim it. Your token stays, so you can add another alias.`}
+            confirmLabel="Remove"
+            busyLabel="Removing…"
             busy={deleting}
             onCancel={() => setConfirmId(null)}
             onConfirm={handleDelete}
@@ -437,6 +494,176 @@ function AliasesSection({ initial }: { initial: AliasState }) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function AliasMenu({ alias, onEdit, onSwap, onDelete }: { alias: string; onEdit: () => void; onSwap: () => void; onDelete: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number; up: boolean } | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const url = `https://${SITE}/${alias}`;
+  const MENU_HEIGHT = 210;
+
+  function toggle() {
+    if (open) return setOpen(false);
+    const r = buttonRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const up = window.innerHeight - r.bottom < MENU_HEIGHT + 12;
+    setPos({ top: up ? r.top - 6 : r.bottom + 6, right: window.innerWidth - r.right, up });
+    setOpen(true);
+  }
+
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!menuRef.current?.contains(t) && !buttonRef.current?.contains(t)) setOpen(false);
+    };
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        buttonRef.current?.focus();
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  async function copy() {
+    setOpen(false);
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied");
+    } catch {
+      toast.error("Couldn't copy the link.");
+    }
+  }
+
+  return (
+    <div className="relative">
+      <button
+        ref={buttonRef}
+        type="button"
+        onClick={toggle}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={`Actions for ${alias}`}
+        className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors cursor-pointer ${
+          open ? "bg-white/[0.08] border-white/10 text-white" : "bg-white/[0.03] border-white/5 text-white/45 hover:text-white hover:bg-white/[0.06]"
+        }`}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="12" cy="5" r="1.8" />
+          <circle cx="12" cy="12" r="1.8" />
+          <circle cx="12" cy="19" r="1.8" />
+        </svg>
+      </button>
+      {typeof document !== "undefined" &&
+        createPortal(
+      <AnimatePresence>
+        {open && pos && (
+          <motion.div
+            ref={menuRef}
+            role="menu"
+            initial={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }}
+            transition={{ duration: 0.14, ease: "easeOut" }}
+            style={{ position: "fixed", right: pos.right, ...(pos.up ? { bottom: window.innerHeight - pos.top } : { top: pos.top }) }}
+            className={`z-[120] w-52 bg-[#121212] border border-white/10 rounded-xl p-1 shadow-2xl shadow-black/60 ${pos.up ? "origin-bottom-right" : "origin-top-right"}`}
+          >
+            <MenuItem
+              label="Edit"
+              onClick={() => {
+                setOpen(false);
+                onEdit();
+              }}
+              icon={<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />}
+            />
+            <MenuItem
+              label="Swap with username"
+              onClick={() => {
+                setOpen(false);
+                onSwap();
+              }}
+              icon={<path d="M7 16V4M3 8l4-4 4 4M17 8v12M21 16l-4 4-4-4" />}
+            />
+            <MenuItem
+              label="Copy link"
+              onClick={copy}
+              icon={
+                <>
+                  <rect x="9" y="9" width="12" height="12" rx="2" />
+                  <path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1" />
+                </>
+              }
+            />
+            <MenuItem
+              label="Open link"
+              href={`/${alias}`}
+              onClick={() => setOpen(false)}
+              icon={<path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />}
+            />
+            <div className="my-1 h-px bg-white/5" aria-hidden="true" />
+            <MenuItem
+              label="Remove"
+              danger
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+              icon={<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>,
+          document.body,
+        )}
+    </div>
+  );
+}
+
+function MenuItem({
+  label,
+  icon,
+  onClick,
+  href,
+  danger = false,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  href?: string;
+  danger?: boolean;
+}) {
+  const cls = `w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-[12.5px] text-left transition-colors cursor-pointer ${
+    danger ? "text-red-300/90 hover:bg-red-500/10 hover:text-red-300" : "text-white/75 hover:bg-white/[0.06] hover:text-white"
+  }`;
+  const svg = (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0" aria-hidden="true">
+      {icon}
+    </svg>
+  );
+  return href ? (
+    <a role="menuitem" href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} className={cls}>
+      {svg}
+      {label}
+    </a>
+  ) : (
+    <button role="menuitem" type="button" onClick={onClick} className={cls}>
+      {svg}
+      {label}
+    </button>
   );
 }
 
@@ -473,30 +700,48 @@ function ModalShell({ onClose, labelledBy, children, role = "dialog" }: { onClos
   );
 }
 
-function AddAliasModal({ onClose, onAdded }: { onClose: () => void; onAdded: (next: AliasState) => void }) {
-  const [value, setValue] = useState("");
+function AliasFormModal({
+  title,
+  description,
+  submitLabel,
+  busyLabel,
+  initialValue = "",
+  onClose,
+  onSubmit,
+  onDone,
+}: {
+  title: string;
+  description: string;
+  submitLabel: string;
+  busyLabel: string;
+  initialValue?: string;
+  onClose: () => void;
+  onSubmit: (value: string) => Promise<{ ok: true; data: AliasState } | { ok: false; error: string }>;
+  onDone: (next: AliasState, alias: string) => void;
+}) {
+  const [value, setValue] = useState(initialValue);
   const [busy, setBusy] = useState(false);
   const clean = value.toLowerCase().trim();
   const valid = HANDLE_RE.test(clean);
+  const unchanged = initialValue !== "" && clean === initialValue;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (busy) return;
+    if (busy || unchanged) return;
     if (!valid) return toast.error("2–32 characters: lowercase letters, numbers, _ and . only.");
     setBusy(true);
-    const res = await addAlias(clean);
+    const res = await onSubmit(clean);
     setBusy(false);
     if (!res.ok) return toast.error(res.error);
-    toast.success(`${SITE}/${clean} now points to your profile`);
-    onAdded(res.data);
+    onDone(res.data, clean);
   }
 
   return (
-    <ModalShell onClose={onClose} labelledBy="add-alias-title">
-      <h3 id="add-alias-title" className="text-[15px] font-normal text-white/90 tracking-tight">
-        Add alias
+    <ModalShell onClose={onClose} labelledBy="alias-form-title">
+      <h3 id="alias-form-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        {title}
       </h3>
-      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">Pick a handle. Visiting it will redirect to your profile. This uses one alias token.</p>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">{description}</p>
       <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
         <label className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
           <span className="flex items-center pl-3.5 text-[13px] text-white/35 select-none">{SITE}/</span>
@@ -523,10 +768,10 @@ function AddAliasModal({ onClose, onAdded }: { onClose: () => void; onAdded: (ne
           </button>
           <button
             type="submit"
-            disabled={busy || !valid}
+            disabled={busy || !valid || unchanged}
             className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
           >
-            {busy ? "Adding…" : "Add alias"}
+            {busy ? busyLabel : submitLabel}
           </button>
         </div>
       </form>
@@ -534,7 +779,25 @@ function AddAliasModal({ onClose, onAdded }: { onClose: () => void; onAdded: (ne
   );
 }
 
-function ConfirmModal({ title, text, busy, onCancel, onConfirm }: { title: string; text: string; busy: boolean; onCancel: () => void; onConfirm: () => void }) {
+function ConfirmModal({
+  title,
+  text,
+  busy,
+  onCancel,
+  onConfirm,
+  confirmLabel = "Delete",
+  busyLabel = "Deleting…",
+  tone = "danger",
+}: {
+  title: string;
+  text: string;
+  busy: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  confirmLabel?: string;
+  busyLabel?: string;
+  tone?: "danger" | "accent";
+}) {
   return (
     <ModalShell onClose={onCancel} labelledBy="alias-confirm-title" role="alertdialog">
       <h3 id="alias-confirm-title" className="text-[15px] font-normal text-white/90 tracking-tight">
@@ -554,9 +817,13 @@ function ConfirmModal({ title, text, busy, onCancel, onConfirm }: { title: strin
           type="button"
           onClick={onConfirm}
           disabled={busy}
-          className="h-9 rounded-xl px-4 text-[13px] font-normal text-red-300 bg-red-500/15 border border-red-500/25 hover:bg-red-500/25 transition-colors cursor-pointer disabled:opacity-50"
+          className={`h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors cursor-pointer disabled:opacity-50 ${
+            tone === "danger"
+              ? "text-red-300 bg-red-500/15 border-red-500/25 hover:bg-red-500/25"
+              : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+          }`}
         >
-          {busy ? "Deleting…" : "Delete"}
+          {busy ? busyLabel : confirmLabel}
         </button>
       </div>
     </ModalShell>

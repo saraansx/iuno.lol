@@ -139,6 +139,58 @@ export async function addAlias(raw: string): Promise<Result<AliasState>> {
   }
 }
 
+async function getOwnAlias(userId: number, id: number) {
+  const [row] = await db
+    .select({ id: schema.userAliases.id, alias: schema.userAliases.alias })
+    .from(schema.userAliases)
+    .where(and(eq(schema.userAliases.id, Number(id)), eq(schema.userAliases.userId, userId)))
+    .limit(1);
+  if (!row) throw new UserFacingError("Alias not found.");
+  return row;
+}
+
+export async function editAlias(id: number, raw: string): Promise<Result<AliasState>> {
+  try {
+    const userId = await requireUser();
+    const next = cleanHandle(raw);
+    const row = await getOwnAlias(userId, id);
+    if (row.alias === next) return { ok: true, data: await aliasState(userId) };
+    await assertUsernameAvailable(next);
+    await db.update(schema.userAliases).set({ alias: next }).where(eq(schema.userAliases.id, row.id));
+    await Promise.all([refreshProfile(row.alias), refreshProfile(next)]);
+    return { ok: true, data: await aliasState(userId) };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function swapAliasWithUsername(id: number): Promise<Result<AliasState & { username: string }>> {
+  try {
+    const userId = await requireUser();
+    const row = await getOwnAlias(userId, id);
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    const oldUsername = user.username;
+
+    await db.transaction(async (tx) => {
+      await tx.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.id, userId)).for("update");
+      await tx.update(schema.users).set({ username: row.alias }).where(eq(schema.users.id, userId));
+      await tx.update(schema.userAliases).set({ alias: oldUsername }).where(eq(schema.userAliases.id, row.id));
+    });
+
+    const aliases = await getUserAliases(userId);
+    await Promise.all([
+      refreshProfile(row.alias),
+      invalidateLiveStatsCache(oldUsername),
+      ...aliases.map((a) => refreshProfile(a.alias)),
+    ]);
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, data: { ...(await aliasState(userId)), username: row.alias } };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
 export async function deleteAlias(id: number): Promise<Result<AliasState>> {
   try {
     const userId = await requireUser();
