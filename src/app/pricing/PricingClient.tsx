@@ -296,8 +296,8 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
           </div>
 
           {}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start text-left">
-            <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col md:mt-15">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end text-left">
+            <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col">
               <p className="text-[14px] font-normal text-white/90 tracking-tight mb-1">Free</p>
               <p className="text-[12.5px] font-light text-white/40 mb-4">Everything you need to start.</p>
               <div className="flex items-baseline gap-1.5 mb-6">
@@ -482,7 +482,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 "Create an additional alias username",
                 "Redirects straight to your profile",
                 "Stack multiple for more aliases",
-                "Premium: 4 aliases per token (1 + 3 bonus)",
+                "Aliases work without Premium",
               ]}
               cta="Buy Alias Token"
               onClick={() => router.push(isAuthenticated ? "/checkout/alias-token" : "/register")}

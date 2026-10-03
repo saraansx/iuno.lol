@@ -92,6 +92,7 @@ const PREMIUM_FEATURES = [
   "Premium badge on your profile",
   "5 backgrounds",
   "Background videos up to 100MB",
+  "4 aliases per alias token (1 + 3 bonus)",
   "10 audio tracks",
   "10 widgets",
   "Every background effect unlocked",
@@ -127,7 +128,7 @@ const ALIAS_TOKEN_FEATURES = [
   "One extra alias username",
   "Redirects straight to your profile",
   "Buy more tokens for more aliases",
-  "Premium: 4 aliases per token (1 + 3 bonus)",
+  "Works without Premium",
 ];
 
 const BADGE_TOKEN_FEATURES = [

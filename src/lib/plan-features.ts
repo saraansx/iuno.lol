@@ -11,6 +11,7 @@ export const FREE_FEATURES = [
 export const PREMIUM_FEATURES = [
   "5 backgrounds, 10 tracks, 10 widgets",
   "Background videos up to 100MB",
+  "4 aliases per alias token (1 + 3 bonus)",
   "Every background effect unlocked",
   "Every username & description effect",
   "Electric border, card effects & transitions",
