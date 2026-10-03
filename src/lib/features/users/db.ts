@@ -20,6 +20,7 @@ const userColumns = {
   hasImageHost: schema.users.hasImageHost,
   hasVerified: schema.users.hasVerified,
   badgeTokens: schema.users.badgeTokens,
+  aliasTokens: schema.users.aliasTokens,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,
@@ -381,6 +382,7 @@ export async function assertEmailAvailable(email: string) {
 }
 
 export async function assertUsernameAvailable(username: string) {
+  if (await getAliasOwner(username)) throw new UserFacingError('That username is already taken.')
   const existing = await getUserByUsername(username)
   if (!existing) return
 
@@ -599,6 +601,24 @@ export async function getCustomBadges(userId: number): Promise<CustomBadge[]> {
     .where(and(eq(schema.userBadges.userId, userId), like(schema.userBadges.badgeId, 'custom-%')))
     .orderBy(asc(schema.userBadges.createdAt), asc(schema.userBadges.id))
   return rows.map((r) => ({ id: r.id, name: r.name ?? 'Custom', iconUrl: r.iconUrl ?? '' }))
+}
+
+export async function getAliasOwner(alias: string): Promise<{ userId: number; username: string } | null> {
+  const [row] = await db
+    .select({ userId: schema.userAliases.userId, username: schema.users.username })
+    .from(schema.userAliases)
+    .innerJoin(schema.users, eq(schema.users.id, schema.userAliases.userId))
+    .where(eq(schema.userAliases.alias, alias.toLowerCase().trim()))
+    .limit(1)
+  return row ?? null
+}
+
+export async function getUserAliases(userId: number) {
+  return db
+    .select({ id: schema.userAliases.id, alias: schema.userAliases.alias, createdAt: schema.userAliases.createdAt })
+    .from(schema.userAliases)
+    .where(eq(schema.userAliases.userId, userId))
+    .orderBy(asc(schema.userAliases.createdAt), asc(schema.userAliases.id))
 }
 
 export async function getEquippedBadgeIds(userId: number): Promise<string[]> {

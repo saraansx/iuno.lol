@@ -31,6 +31,7 @@ export const users = mysqlTable('users', {
   hasImageHost: boolean('is_image_host').default(false).notNull(),
   hasVerified: boolean('is_verified').default(false).notNull(),
   badgeTokens: int('badge_tokens').default(0).notNull(),
+  aliasTokens: int('alias_tokens').default(0).notNull(),
   discordId: varchar('discord_id', { length: 32 }).unique(),
   discordUsername: varchar('discord_username', { length: 32 }),
   views: int('views').default(0).notNull(),
@@ -512,6 +513,15 @@ export const userBadgesRelations = relations(userBadges, ({ one }) => ({
   }),
 }))
 
+export const userAliases = mysqlTable('user_aliases', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  alias: varchar('alias', { length: 32 }).notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('user_aliases_user_idx').on(table.userId),
+}))
+
 export const uploadedFiles = mysqlTable('uploaded_files', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -600,6 +610,7 @@ export const schema = {
   commentLikes,
   profileFeedback,
   userBadges,
+  userAliases,
   uploadedFiles,
   userBackgrounds,
   imageHostFiles,

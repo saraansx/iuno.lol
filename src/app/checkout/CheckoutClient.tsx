@@ -19,10 +19,12 @@ import {
   IMAGE_HOST_PLAN,
   VERIFIED_PLAN,
   BADGE_TOKEN_PLAN,
+  ALIAS_TOKEN_PLAN,
   PREMIUM_PLAN_TAG,
   IMAGE_HOST_PLAN_TAG,
   VERIFIED_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
+  ALIAS_TOKEN_PLAN_TAG,
   CURRENCIES,
   type Currency,
   type PlanTag,
@@ -121,6 +123,13 @@ const VERIFIED_FEATURES = [
   "One-time payment, yours forever",
 ];
 
+const ALIAS_TOKEN_FEATURES = [
+  "One extra alias username",
+  "Redirects straight to your profile",
+  "Buy more tokens for more aliases",
+  "Premium: 4 aliases per token (1 + 3 bonus)",
+];
+
 const BADGE_TOKEN_FEATURES = [
   "One custom badge slot",
   "Your own icon and badge name",
@@ -179,6 +188,19 @@ const PRODUCT_COPY = {
     successHref: "/dashboard/customize/badges",
     successCta: "Create badge",
     razorpayDesc: "Custom badge token",
+    allowGift: true,
+  },
+  [ALIAS_TOKEN_PLAN_TAG]: {
+    prices: ALIAS_TOKEN_PLAN,
+    name: "Alias Token",
+    path: "/checkout/alias-token",
+    blurb: "One token = one extra username that points to your profile. Share a shorter link or keep your favourite handles.",
+    features: ALIAS_TOKEN_FEATURES,
+    successTitle: "an Alias Token",
+    successText: "Your alias slot is ready. Add your alias from settings.",
+    successHref: "/dashboard/settings",
+    successCta: "Add alias",
+    razorpayDesc: "Alias token",
     allowGift: true,
   },
 } as const;

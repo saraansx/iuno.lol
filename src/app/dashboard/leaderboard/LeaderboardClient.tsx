@@ -245,7 +245,7 @@ function PodiumSpot({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean })
           @{entry.username}
           {isMe && <span className="text-[#a5aef9]"> · You</span>}
         </span>
-        {/* fixed-height row so every column lines up, tags or not */}
+        {}
         <span className="mt-2 h-[22px] flex items-center justify-center gap-1.5">
           {entry.premium && <PremiumTag />}
           {entry.verified && <VerifiedTag />}
@@ -521,7 +521,6 @@ function TrophyIcon({ className = "", size = 24, color = "currentColor" }: { cla
   );
 }
 
-// #1: solid cup with handles, base, and a soft highlight
 function TrophyFilled({ className = "", color }: { className?: string; color: string }) {
   return (
     <svg className={className} width="34" height="34" viewBox="0 0 32 32" aria-hidden="true" style={{ filter: `drop-shadow(0 0 3px ${color}40)` }}>
@@ -534,7 +533,6 @@ function TrophyFilled({ className = "", color }: { className?: string; color: st
   );
 }
 
-// #2 / #3: ribbon + round medal with the rank number on it
 function MedalFilled({ className = "", color, rank }: { className?: string; color: string; rank: 2 | 3 }) {
   return (
     <svg className={className} width="30" height="30" viewBox="0 0 32 32" aria-hidden="true" style={{ filter: `drop-shadow(0 0 2px ${color}33)` }}>

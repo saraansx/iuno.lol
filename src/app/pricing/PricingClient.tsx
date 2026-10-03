@@ -14,7 +14,7 @@ const AuroraEffect = dynamic(
 );
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, BADGE_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
@@ -23,6 +23,49 @@ interface PricingProps {
   hasVerified?: boolean;
 }
 
+
+function TokenCard({
+  title,
+  price,
+  features,
+  cta,
+  onClick,
+  icon,
+}: {
+  title: string;
+  price: string;
+  features: string[];
+  cta: string;
+  onClick: () => void;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8 rounded-[20px] border border-white/5 bg-[#0c0c0c] p-5 md:px-6 shadow-sm text-left">
+      <div className="flex items-center gap-4 shrink-0 md:min-w-[190px]">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#8b7cf6]">{icon}</span>
+        <div>
+          <p className="text-[15px] font-normal tracking-tight text-white/90">{title}</p>
+          <p className="text-xl font-medium text-white leading-tight">{price}</p>
+        </div>
+      </div>
+      <ul className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
+        {features.map((f) => (
+          <li key={f} className="flex items-start gap-2 text-[12.5px] font-light text-white/65">
+            <CheckIcon />
+            {f}
+          </li>
+        ))}
+      </ul>
+      <button
+        type="button"
+        onClick={onClick}
+        className="shrink-0 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/25 px-5 py-2.5 text-[13px] font-normal text-white transition-colors cursor-pointer"
+      >
+        {cta}
+      </button>
+    </div>
+  );
+}
 
 function CheckIcon() {
   return (
@@ -428,6 +471,28 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 </div>
               );
             })}
+          </div>
+
+          {}
+          <div className="mt-6 flex flex-col gap-4">
+            <TokenCard
+              title="Alias Token"
+              price={`${ALIAS_TOKEN_PLAN[currency].symbol}${ALIAS_TOKEN_PLAN[currency].display}`}
+              features={[
+                "Create an additional alias username",
+                "Redirects straight to your profile",
+                "Stack multiple for more aliases",
+                "Premium: 4 aliases per token (1 + 3 bonus)",
+              ]}
+              cta="Buy Alias Token"
+              onClick={() => router.push(isAuthenticated ? "/checkout/alias-token" : "/register")}
+              icon={
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <circle cx="12" cy="8" r="4" />
+                  <path d="M4 20.5C4 16.9 7.6 14 12 14s8 2.9 8 6.5a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5Z" />
+                </svg>
+              }
+            />
           </div>
         </div>
       </section>

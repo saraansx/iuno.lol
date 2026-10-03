@@ -1,14 +1,14 @@
 import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { cache } from 'react'
 import type { Metadata, Viewport } from 'next'
 import Layout1 from '@/components/profile/layouts/Layout1'
 import ProfileViewTracker from '@/components/profile/ProfileViewTracker'
 import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import { getEffectByUrl } from '@/lib/collectibles'
-import { getEquippedBadgeIds, getUserBackgrounds, getCustomBadges } from '@/lib/features/users/db'
+import { getEquippedBadgeIds, getUserBackgrounds, getCustomBadges, getAliasOwner } from '@/lib/features/users/db'
 import { resolveEffectConfig } from '@/lib/effect-config'
 import { SITE_CONFIG } from '@/lib/config'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
@@ -287,6 +287,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
   const userList = await getProfileRows(username)
 
   if (userList.length === 0) {
+    const owner = await getAliasOwner(username)
+    if (owner) redirect(`/${owner.username}`)
     notFound()
   }
 

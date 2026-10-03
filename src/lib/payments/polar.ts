@@ -5,6 +5,7 @@ import {
   IMAGE_HOST_PLAN_TAG,
   VERIFIED_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
+  ALIAS_TOKEN_PLAN_TAG,
   PLAN_TAGS,
   getPlan,
   type Currency,
@@ -29,6 +30,12 @@ function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
     return {
       USD: process.env.POLAR_BADGE_TOKEN_PRODUCT_ID,
       INR: process.env.POLAR_BADGE_TOKEN_PRODUCT_ID_INR,
+    };
+  }
+  if (tag === ALIAS_TOKEN_PLAN_TAG) {
+    return {
+      USD: process.env.POLAR_ALIAS_TOKEN_PRODUCT_ID,
+      INR: process.env.POLAR_ALIAS_TOKEN_PRODUCT_ID_INR,
     };
   }
   return { USD: process.env.POLAR_PRODUCT_ID, INR: process.env.POLAR_PRODUCT_ID_INR };

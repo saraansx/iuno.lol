@@ -275,6 +275,31 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           </Link>
         )}
 
+        <Link
+          href="/dashboard/settings"
+          aria-current={pathname.startsWith("/dashboard/settings") ? "page" : undefined}
+          className={`rounded-xl border flex items-center transition-colors ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group ${
+            pathname.startsWith("/dashboard/settings")
+              ? "border-[#5b6cf5]/25 bg-[#5b6cf5]/10"
+              : "border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10"
+          }`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className={`shrink-0 transition-colors ${pathname.startsWith("/dashboard/settings") ? "text-[#5b6cf5]" : "text-white/35 group-hover:text-[#5b6cf5]"}`} aria-hidden="true">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <motion.span
+            animate={{
+              width: animate ? (open ? "auto" : 0) : "auto",
+              opacity: animate ? (open ? 1 : 0) : 1,
+              marginLeft: animate ? (open ? "10px" : "0px") : "10px",
+            }}
+            className={`text-[13px] transition-colors font-normal tracking-tight whitespace-nowrap overflow-hidden ${pathname.startsWith("/dashboard/settings") ? "text-white" : "text-white/60 group-hover:text-white"}`}
+          >
+            Settings
+          </motion.span>
+        </Link>
+
         <div className={`rounded-xl border border-white/[0.07] bg-white/[0.03] flex items-center transition-all duration-300 ${open ? 'gap-3 p-2' : 'p-[6px]'} overflow-hidden relative w-full`}>
           <div className="relative w-8 h-8 shrink-0">
             <div className="absolute inset-0 rounded-full bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] text-xs font-bold uppercase overflow-hidden shrink-0">
