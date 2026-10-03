@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserAliases, getUserById, userHasPassword } from "@/lib/features/users/db";
+import { listPasskeys } from "@/lib/auth/passkeys";
 import { isPremiumActive } from "@/lib/premium";
 import SettingsClient from "./SettingsClient";
 
@@ -15,7 +16,12 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const userId = await getSessionUserId();
   if (!userId) redirect("/signin");
-  const [user, aliases, hasPassword] = await Promise.all([getUserById(userId), getUserAliases(userId), userHasPassword(userId)]);
+  const [user, aliases, hasPassword, passkeys] = await Promise.all([
+    getUserById(userId),
+    getUserAliases(userId),
+    userHasPassword(userId),
+    listPasskeys(userId),
+  ]);
   if (!user) redirect("/signin");
 
   return (
@@ -45,7 +51,15 @@ export default async function SettingsPage() {
           slots: user.aliasTokens ?? 0,
           premium: isPremiumActive(user),
         }}
-        security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword, twoFactor: Boolean(user.twoFactorEnabledAt) }}
+        security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword,
+          twoFactor: Boolean(user.twoFactorEnabledAt),
+          passkeys: passkeys.map((p) => ({
+            id: p.id,
+            name: p.name,
+            createdAt: p.createdAt.toISOString(),
+            lastUsedAt: p.lastUsedAt ? p.lastUsedAt.toISOString() : null,
+          })),
+        }}
       />
     </div>
   );

@@ -9,6 +9,9 @@ import { getClientIp } from '@/lib/server/security/ip'
 import { loginRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
 import { createLoginTicket, redeemLoginTicket } from '@/lib/auth/two-factor'
+import { finishPasskeyLogin, startPasskeyLogin } from '@/lib/auth/passkeys'
+import { checkRateLimit, ipBucket } from '@/lib/rate-limit'
+import type { AuthenticationResponseJSON } from '@simplewebauthn/server'
 
 type LoginInput = {
   identifier: string
@@ -101,5 +104,30 @@ export async function completeTwoFactorLogin(ticket: string, code: string) {
   } catch (err: unknown) {
     console.error('[completeTwoFactorLogin] Failed:', err)
     return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+export async function beginPasskeyLogin() {
+  try {
+    const ip = getClientIp(await headers())
+    const bucket = ipBucket('passkey_login:ip', ip, 30)
+    const rate = await checkRateLimit(bucket.key, bucket.max, 10 * 60)
+    if (!rate.ok) return { error: 'Too many attempts. Please try again in a few minutes.' }
+    return { data: await startPasskeyLogin() }
+  } catch (err: unknown) {
+    console.error('[beginPasskeyLogin] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+export async function completePasskeyLogin(challengeId: string, response: AuthenticationResponseJSON) {
+  try {
+    const userId = await finishPasskeyLogin(String(challengeId ?? ''), response)
+    if (!userId) return { error: "That passkey isn't registered for an iuno.lol account." }
+    await createSession(userId)
+    return { success: 'Logged in successfully!' }
+  } catch (err: unknown) {
+    console.error('[completePasskeyLogin] Failed:', err)
+    return { error: "Couldn't sign in with that passkey. Please try again." }
   }
 }

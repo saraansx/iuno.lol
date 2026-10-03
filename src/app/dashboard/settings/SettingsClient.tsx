@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, confirmEmailChange, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState } from "@/actions/account";
+import { addAlias, beginAddPasskey, confirmEmailChange, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
+import { browserSupportsWebAuthn, startRegistration } from "@simplewebauthn/browser";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
@@ -15,7 +16,7 @@ const TABS = [
   { id: "security", label: "Security" },
 ] as const;
 
-export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean };
+export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean; passkeys: PasskeyRow[] };
 const PAGE_SIZE = 10;
 const HANDLE_RE = /^[a-z0-9_.]{2,32}$/;
 const SITE = "iuno.lol";
@@ -82,6 +83,7 @@ export default function SettingsClient({
           <SecurityTab info={security} />
           <PasswordCard hasPassword={security.hasPassword} />
           <TwoFactorCard enabled={security.twoFactor} />
+          <PasskeysCard initial={security.passkeys} />
         </div>
       )}
     </div>
@@ -239,6 +241,176 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
         )}
       </AnimatePresence>
     </div>
+  );
+}
+
+function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
+  const [rows, setRows] = useState(initial);
+  const [adding, setAdding] = useState(false);
+  const [confirmId, setConfirmId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const confirmRow = rows.find((r) => r.id === confirmId);
+
+  async function handleDelete() {
+    if (confirmId == null || deleting) return;
+    setDeleting(true);
+    const res = await removePasskey(confirmId);
+    setDeleting(false);
+    setConfirmId(null);
+    if (!res.ok) return toast.error(res.error);
+    setRows(res.data);
+    toast.success("Passkey removed");
+  }
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Passkeys</h2>
+          <p className="text-[12px] text-white/40 mt-1">Sign in faster with your device&apos;s fingerprint, face or PIN. No password needed.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setAdding(true)}
+          className="shrink-0 flex items-center gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Add passkey
+        </button>
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="mt-5 border border-dashed border-white/[0.08] rounded-xl bg-[#141414]/30 py-6 px-4 text-center">
+          <p className="text-[12.5px] text-white/45">No passkeys yet. Add one to sign in with your device.</p>
+        </div>
+      ) : (
+        <ul className="mt-5 flex flex-col gap-2">
+          {rows.map((r) => (
+            <li key={r.id} className="flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-2.5">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] shrink-0" aria-hidden="true">
+                <circle cx="9" cy="8" r="4" />
+                <path d="M2 21v-1a6 6 0 0 1 9-5.2" />
+                <circle cx="18" cy="14" r="2.5" />
+                <path d="M18 16.5V22M18 19.5h2" />
+              </svg>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-[13px] text-white/90 truncate">{r.name}</span>
+                <span className="text-[11px] text-white/35 truncate">
+                  Added {formatDate(r.createdAt)}
+                  {r.lastUsedAt ? ` · Last used ${formatDate(r.lastUsedAt)}` : ""}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmId(r.id)}
+                aria-label={`Remove passkey ${r.name}`}
+                className="shrink-0 w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 flex items-center justify-center text-white/40 hover:text-red-400 transition-colors cursor-pointer"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <AnimatePresence>
+        {adding && (
+          <AddPasskeyModal
+            onClose={() => setAdding(false)}
+            onDone={(next) => {
+              setRows(next);
+              setAdding(false);
+            }}
+          />
+        )}
+        {confirmRow && (
+          <ConfirmModal
+            title="Remove this passkey?"
+            text={`"${confirmRow.name}" won't be able to sign in to your account anymore. Also delete it from your device or password manager.`}
+            confirmLabel="Remove"
+            busyLabel="Removing…"
+            busy={deleting}
+            onCancel={() => setConfirmId(null)}
+            onConfirm={handleDelete}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function AddPasskeyModal({ onClose, onDone }: { onClose: () => void; onDone: (rows: PasskeyRow[]) => void }) {
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    if (!browserSupportsWebAuthn()) return toast.error("This browser doesn't support passkeys.");
+    setBusy(true);
+    try {
+      const begin = await beginAddPasskey();
+      if (!begin.ok) return toast.error(begin.error);
+      let response;
+      try {
+        response = await startRegistration({ optionsJSON: begin.data });
+      } catch (err) {
+        const n = err instanceof Error ? err.name : "";
+        return toast.error(
+          n === "InvalidStateError" ? "This device already has a passkey for your account." : n === "NotAllowedError" ? "Passkey setup was cancelled." : "Couldn't create a passkey on this device.",
+        );
+      }
+      const done = await finishAddPasskey(response, name.trim() || "Passkey");
+      if (!done.ok) return toast.error(done.error);
+      toast.success("Passkey added");
+      onDone(done.data);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <ModalShell onClose={onClose} labelledBy="passkey-add-title">
+      <h3 id="passkey-add-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        Add passkey
+      </h3>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+        Give it a name so you can tell your devices apart. Your browser will then ask for your fingerprint, face or PIN.
+      </p>
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-[12px] text-white/60">Name</span>
+          <input
+            autoFocus
+            value={name}
+            onChange={(e) => setName(e.target.value.slice(0, 64))}
+            placeholder="e.g. MacBook, iPhone, Windows Hello"
+            maxLength={64}
+            className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors"
+          />
+        </label>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={busy}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+          >
+            {busy ? "Waiting for device…" : "Continue"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }
 

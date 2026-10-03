@@ -14,6 +14,8 @@ import { redis } from "@/lib/redis";
 import QRCode from "qrcode";
 import { decryptSecret, encryptSecret, generateTotpSecret, otpauthUri } from "@/lib/server/security/totp";
 import { checkTwoFactorCode } from "@/lib/auth/two-factor";
+import { MAX_PASSKEYS, deletePasskey, finishPasskeyRegistration, listPasskeys, startPasskeyRegistration } from "@/lib/auth/passkeys";
+import type { PublicKeyCredentialCreationOptionsJSON, RegistrationResponseJSON } from "@simplewebauthn/server";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { UserFacingError } from "@/lib/errors";
@@ -298,8 +300,6 @@ export async function startTwoFactorSetup(): Promise<Result<{ qr: string; secret
     if (!user) throw new UserFacingError("Please sign in again.");
     if (user.twoFactorEnabledAt) throw new UserFacingError("Authenticator app is already on.");
 
-    // reuse a pending secret: React dev mode / double clicks call this twice, and two
-    // different secrets would leave the QR on screen out of sync with the one stored
     const key = pendingTotpKey(userId);
     const created = await redis.set(key, encryptSecret(generateTotpSecret()), "EX", TOTP_SETUP_TTL, "NX");
     const stored = await redis.get(key);
@@ -347,6 +347,55 @@ export async function disableTwoFactor(code: string): Promise<Result> {
       .set({ twoFactorSecret: null, twoFactorEnabledAt: null })
       .where(eq(schema.users.id, userId));
     return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+
+export type PasskeyRow = { id: number; name: string; createdAt: string; lastUsedAt: string | null };
+
+async function passkeyRows(userId: number): Promise<PasskeyRow[]> {
+  const rows = await listPasskeys(userId);
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    createdAt: r.createdAt.toISOString(),
+    lastUsedAt: r.lastUsedAt ? r.lastUsedAt.toISOString() : null,
+  }));
+}
+
+export async function beginAddPasskey(): Promise<Result<PublicKeyCredentialCreationOptionsJSON>> {
+  try {
+    const userId = await requireUser();
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if ((await listPasskeys(userId)).length >= MAX_PASSKEYS) throw new UserFacingError(`You can add up to ${MAX_PASSKEYS} passkeys.`);
+    return { ok: true, data: await startPasskeyRegistration(userId, user.email ?? user.username) };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function finishAddPasskey(response: RegistrationResponseJSON, rawName: string): Promise<Result<PasskeyRow[]>> {
+  try {
+    const userId = await requireUser();
+    const name = String(rawName ?? "").replace(/\s+/g, " ").trim().slice(0, 64) || "Passkey";
+    if (!(await finishPasskeyRegistration(userId, response, name))) {
+      throw new UserFacingError("Couldn't verify that passkey. Please try again.");
+    }
+    return { ok: true, data: await passkeyRows(userId) };
+  } catch (err) {
+    if ((err as { code?: string })?.code === "ER_DUP_ENTRY") return { ok: false, error: "That passkey is already added." };
+    return fail(err);
+  }
+}
+
+export async function removePasskey(id: number): Promise<Result<PasskeyRow[]>> {
+  try {
+    const userId = await requireUser();
+    if (!(await deletePasskey(userId, Number(id)))) throw new UserFacingError("Passkey not found.");
+    return { ok: true, data: await passkeyRows(userId) };
   } catch (err) {
     return fail(err);
   }

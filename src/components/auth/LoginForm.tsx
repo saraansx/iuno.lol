@@ -9,10 +9,11 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { sendOTP } from "@/actions/send-otp";
-import { completeTwoFactorLogin, login } from "@/actions/login";
+import { beginPasskeyLogin, completePasskeyLogin, completeTwoFactorLogin, login } from "@/actions/login";
+import { browserSupportsWebAuthn, startAuthentication } from "@simplewebauthn/browser";
 import TurnstileVerification from "@/components/auth/TurnstileVerification";
 
-type LoginMethod = "password" | "otp";
+type LoginMethod = "password" | "otp" | "passkey";
 
 const LoginForm = () => {
   const [method, setMethod] = useState<LoginMethod>("password");
@@ -59,7 +60,15 @@ const LoginForm = () => {
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>
       ),
     },
+    {
+      id: "passkey",
+      label: "Passkey",
+      icon: (
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg>
+      ),
+    },
   ];
+  const tabIndex = tabs.findIndex((t) => t.id === method);
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -88,8 +97,42 @@ const LoginForm = () => {
     }
   };
 
+  const signInWithPasskey = () => {
+    setError("");
+    setSuccess("");
+    if (!browserSupportsWebAuthn()) {
+      setError("This browser doesn't support passkeys.");
+      return;
+    }
+    startTransition(async () => {
+      const begin = await beginPasskeyLogin();
+      if (!begin.data) {
+        setError(begin.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+      let response;
+      try {
+        response = await startAuthentication({ optionsJSON: begin.data.options });
+      } catch (err) {
+        setError(err instanceof Error && err.name === "NotAllowedError" ? "Passkey sign-in was cancelled." : "Couldn't use a passkey on this device.");
+        return;
+      }
+      const done = await completePasskeyLogin(begin.data.challengeId, response);
+      if (done.error) {
+        setError(done.error);
+        return;
+      }
+      setSuccess(done.success);
+      router.push("/dashboard");
+    });
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (method === "passkey") {
+      signInWithPasskey();
+      return;
+    }
     if (method === "otp" && !otpSent) {
       if (!email) {
         setErrors({ email: "Email cannot be empty." });
@@ -135,6 +178,7 @@ const LoginForm = () => {
       return;
     }
 
+    if (method === "passkey") return;
     startTransition(() => {
       login({ identifier: email, method, password, otpCode, turnstileToken: token })
         .then((data) => {
@@ -239,8 +283,8 @@ const LoginForm = () => {
           className="absolute top-1 bottom-1 bg-[#5b6cf5]/20 rounded-lg shadow-[0_0_15px_rgba(91,108,245,0.1)]"
           initial={false}
           animate={{
-            left: method === "password" ? "4px" : "50%",
-            width: "calc(50% - 4px)",
+            left: `calc(4px + (100% - 8px) * ${tabIndex} / ${tabs.length})`,
+            width: `calc((100% - 8px) / ${tabs.length})`,
           }}
           transition={{ type: "spring", stiffness: 400, damping: 30 }}
         />
@@ -261,15 +305,32 @@ const LoginForm = () => {
         ))}
       </div>
 
-      <FloatingInput
-        id="email"
-        label={method === "otp" ? "Email Address" : "Email or Username"}
-        type={method === "otp" ? "email" : "text"}
-        value={email}
-        onChange={(e) => handleInputChange("email", e.target.value, setEmail)}
-        error={errors.email}
-        autoComplete={method === "otp" ? "email" : "username"}
-      />
+      {method === "passkey" ? (
+        <motion.div
+          key="passkey-fields"
+          initial={{ opacity: 0, x: 10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+          className="bg-[#5b6cf5]/5 border border-[#5b6cf5]/10 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5"
+        >
+          <svg className="text-[#5b6cf5]/70 shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+          </svg>
+          <p className="text-[11px] text-white/50 leading-relaxed">
+            Sign in with your fingerprint, face or PIN.
+          </p>
+        </motion.div>
+      ) : (
+        <FloatingInput
+          id="email"
+          label={method === "otp" ? "Email Address" : "Email or Username"}
+          type={method === "otp" ? "email" : "text"}
+          value={email}
+          onChange={(e) => handleInputChange("email", e.target.value, setEmail)}
+          error={errors.email}
+          autoComplete={method === "otp" ? "email" : "username"}
+        />
+      )}
 
       {method === "password" && (
         <motion.div
@@ -352,6 +413,8 @@ const LoginForm = () => {
       >
         {isPending ? (
           "Processing..."
+        ) : method === "passkey" ? (
+          <>Sign in with passkey <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 10a2 2 0 0 0-2 2c0 1.02-.1 2.51-.26 4"/><path d="M14 13.12c0 2.38 0 6.38-1 8.88"/><path d="M17.29 21.02c.12-.6.43-2.3.5-3.02"/><path d="M2 12a10 10 0 0 1 18-6"/><path d="M2 16h.01"/><path d="M21.8 16c.2-2 .131-5.354 0-6"/><path d="M5 19.5C5.5 18 6 15 6 12a6 6 0 0 1 .34-2"/><path d="M8.65 22c.21-.66.45-1.32.57-2"/><path d="M9 6.8a6 6 0 0 1 9 5.2v2"/></svg></>
         ) : method === "otp" && !otpSent ? (
           <>Send Code <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg></>
         ) : (

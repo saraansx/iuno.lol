@@ -515,6 +515,20 @@ export const userBadgesRelations = relations(userBadges, ({ one }) => ({
   }),
 }))
 
+export const userPasskeys = mysqlTable('user_passkeys', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  credentialId: varchar('credential_id', { length: 512 }).notNull().unique(),
+  publicKey: text('public_key').notNull(),
+  counter: bigint('counter', { mode: 'number' }).default(0).notNull(),
+  transports: varchar('transports', { length: 255 }),
+  name: varchar('name', { length: 64 }).notNull(),
+  lastUsedAt: timestamp('last_used_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('user_passkeys_user_idx').on(table.userId),
+}))
+
 export const userAliases = mysqlTable('user_aliases', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -615,6 +629,7 @@ export const schema = {
   profileFeedback,
   userBadges,
   userAliases,
+  userPasskeys,
   uploadedFiles,
   userBackgrounds,
   imageHostFiles,
