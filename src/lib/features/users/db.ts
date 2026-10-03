@@ -343,6 +343,15 @@ export const getUserById = cache(async (id: number) => {
   return hydrateUser(result[0])
 })
 
+export async function userHasPassword(id: number): Promise<boolean> {
+  const [row] = await db
+    .select({ has: sql<number>`password IS NOT NULL AND password <> ''` })
+    .from(schema.users)
+    .where(eq(schema.users.id, id))
+    .limit(1)
+  return Boolean(Number(row?.has))
+}
+
 export async function getUserForSession(id: number) {
   const result = await db
     .select({

@@ -3,10 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { getSessionUserId } from "@/lib/auth/session";
-import { assertUsernameAvailable, getUserAliases, getUserById } from "@/lib/features/users/db";
-import { validateUsername } from "@/lib/server/security/validation";
-import { profileUpdateRateLimit } from "@/lib/rate-limit";
+import { createSession, getSessionUserId } from "@/lib/auth/session";
+import { assertEmailAvailable, assertUsernameAvailable, getUserAliases, getUserById } from "@/lib/features/users/db";
+import { validateEmail, validatePassword, validateUsername } from "@/lib/server/security/validation";
+import { hashPassword, isPasswordCorrect } from "@/lib/server/security/bcrypt";
+import { checkRateLimit, profileUpdateRateLimit } from "@/lib/rate-limit";
+import { createOTPToken, verifyOTPToken } from "@/lib/auth/otp";
+import { sendTwoFactorTokenEmail } from "@/lib/mail";
+import { redis } from "@/lib/redis";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { UserFacingError } from "@/lib/errors";
@@ -185,6 +189,96 @@ export async function swapAliasWithUsername(id: number): Promise<Result<AliasSta
     ]);
     revalidatePath("/dashboard", "layout");
     return { ok: true, data: { ...(await aliasState(userId)), username: row.alias } };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+const EMAIL_CHANGE_TTL = 10 * 60;
+const pendingEmailKey = (userId: number) => `email_change:${userId}`;
+
+export async function requestEmailChange(raw: string): Promise<Result<{ email: string }>> {
+  try {
+    const userId = await requireUser();
+    const sends = await checkRateLimit(`email_change_send:${userId}`, 5, 15 * 60);
+    if (!sends.ok) throw new UserFacingError("Too many requests. Please wait 15 minutes and try again.");
+
+    const email = String(raw ?? "").toLowerCase().trim();
+    const emailError = validateEmail(email);
+    if (emailError) throw new UserFacingError(emailError);
+
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if (user.email === email) throw new UserFacingError("That's already your email.");
+    await assertEmailAvailable(email);
+
+    const code = await createOTPToken(email);
+    await sendTwoFactorTokenEmail(email, code);
+    await redis.set(pendingEmailKey(userId), email, "EX", EMAIL_CHANGE_TTL);
+    return { ok: true, data: { email } };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function confirmEmailChange(rawCode: string): Promise<Result<{ email: string }>> {
+  try {
+    const userId = await requireUser();
+    const email = await redis.get(pendingEmailKey(userId));
+    if (!email) throw new UserFacingError("Your code expired. Request a new one.");
+
+    const code = String(rawCode ?? "").replace(/\D/g, "");
+    if (code.length !== 6) throw new UserFacingError("Enter the 6-digit code.");
+    const check = await verifyOTPToken(email, code);
+    if (!check.success) throw new UserFacingError(check.error ?? "Invalid code.");
+
+    await assertEmailAvailable(email);
+    await db.update(schema.users).set({ email, emailVerified: true }).where(eq(schema.users.id, userId));
+    await redis.del(pendingEmailKey(userId));
+    return { ok: true, data: { email } };
+  } catch (err) {
+    if ((err as { code?: string })?.code === "ER_DUP_ENTRY") return { ok: false, error: "That email is already in use." };
+    return fail(err);
+  }
+}
+
+function sessionCutoff() {
+  return new Date(Math.floor(Date.now() / 1000) * 1000);
+}
+
+export async function updatePassword(current: string, next: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const attempts = await checkRateLimit(`password_change:${userId}`, 5, 15 * 60);
+    if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes and try again.");
+
+    const nextPassword = String(next ?? "");
+    const ruleError = validatePassword(nextPassword);
+    if (ruleError) throw new UserFacingError(ruleError);
+
+    const [row] = await db
+      .select({ password: schema.users.password })
+      .from(schema.users)
+      .where(eq(schema.users.id, userId))
+      .limit(1);
+    if (!row) throw new UserFacingError("Please sign in again.");
+
+    if (row.password) {
+      const currentPassword = String(current ?? "");
+      if (!currentPassword || currentPassword.length > 128 || !(await isPasswordCorrect(currentPassword, row.password))) {
+        throw new UserFacingError("Current password is incorrect.");
+      }
+      if (await isPasswordCorrect(nextPassword, row.password)) {
+        throw new UserFacingError("New password must be different from the current one.");
+      }
+    }
+
+    await db
+      .update(schema.users)
+      .set({ password: await hashPassword(nextPassword), passwordChangedAt: sessionCutoff() })
+      .where(eq(schema.users.id, userId));
+    await createSession(userId);
+    return { ok: true, data: undefined };
   } catch (err) {
     return fail(err);
   }

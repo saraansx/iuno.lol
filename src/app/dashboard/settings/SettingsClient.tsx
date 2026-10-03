@@ -5,12 +5,17 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, deleteAlias, editAlias, swapAliasWithUsername, updateDisplayName, updateUsername, type AliasState } from "@/actions/account";
+import { addAlias, confirmEmailChange, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState } from "@/actions/account";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
 
-const TABS = [{ id: "names", label: "Names" }] as const;
+const TABS = [
+  { id: "names", label: "Names" },
+  { id: "security", label: "Security" },
+] as const;
+
+export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean };
 const PAGE_SIZE = 10;
 const HANDLE_RE = /^[a-z0-9_.]{2,32}$/;
 const SITE = "iuno.lol";
@@ -30,10 +35,12 @@ export default function SettingsClient({
   initialUsername,
   initialDisplayName,
   initialAliases,
+  security,
 }: {
   initialUsername: string;
   initialDisplayName: string;
   initialAliases: AliasState;
+  security: SecurityInfo;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("names");
 
@@ -41,7 +48,7 @@ export default function SettingsClient({
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-[20px] font-normal text-white tracking-tight">Account settings</h1>
-        <p className="text-white/40 text-[13px] mt-0.5">Manage your username, display name and aliases.</p>
+        <p className="text-white/40 text-[13px] mt-0.5">Manage your names, aliases and email.</p>
       </div>
 
       <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit" role="tablist">
@@ -68,7 +75,14 @@ export default function SettingsClient({
         ))}
       </div>
 
-      <NamesTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} />
+      {tab === "names" ? (
+        <NamesTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} />
+      ) : (
+        <div className="flex flex-col gap-6">
+          <SecurityTab info={security} />
+          <PasswordCard hasPassword={security.hasPassword} />
+        </div>
+      )}
     </div>
   );
 }
@@ -167,6 +181,325 @@ function NamesTab({
         }}
       />
     </div>
+  );
+}
+
+function SecurityTab({ info }: { info: SecurityInfo }) {
+  const [email, setEmail] = useState(info.email);
+  const [verified, setVerified] = useState(info.emailVerified);
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+      <div className="flex items-center gap-2">
+        <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Email</h2>
+        {email && (
+          <span
+            className={`text-[10.5px] rounded-full px-2 py-0.5 border ${
+              verified ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"
+            }`}
+          >
+            {verified ? "Verified" : "Not verified"}
+          </span>
+        )}
+      </div>
+      <p className="text-[12px] text-white/40 mt-1">Used for login and account notifications.</p>
+      <span className="text-[12px] text-white/60 mt-5 mb-1.5">Email</span>
+      <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden">
+        <span className="flex items-center pl-3.5 pr-2.5 text-[#5b6cf5]" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="m22 7-10 6L2 7" />
+          </svg>
+        </span>
+        <span className={`flex-1 min-w-0 flex items-center h-10 pr-3 text-[13px] truncate ${email ? "text-white" : "text-white/30"}`}>
+          {email ?? "No email on this account"}
+        </span>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="shrink-0 px-4 text-[12.5px] border-l border-white/5 text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+        >
+          {email ? "Request email change" : "Add email"}
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {open && (
+          <ChangeEmailModal
+            current={email}
+            onClose={() => setOpen(false)}
+            onDone={(next) => {
+              setEmail(next);
+              setVerified(true);
+              setOpen(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolean }) {
+  const [hasPassword, setHasPassword] = useState(initialHasPassword);
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  // mirrors validatePassword on the server
+  const rules = [
+    { label: "8+ characters", ok: next.length >= 8 },
+    { label: "Uppercase letter", ok: /[A-Z]/.test(next) },
+    { label: "Number", ok: /[0-9]/.test(next) },
+    { label: "Special character", ok: /[^A-Za-z0-9]/.test(next) },
+  ];
+  const strong = rules.every((r) => r.ok);
+  const mismatch = confirm.length > 0 && confirm !== next;
+  const canSubmit = !busy && strong && confirm === next && (!hasPassword || current.length > 0);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setBusy(true);
+    const res = await updatePassword(current, next);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success(hasPassword ? "Password updated. Other devices were signed out." : "Password set. You can now sign in with it.");
+    setHasPassword(true);
+    setCurrent("");
+    setNext("");
+    setConfirm("");
+  }
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+      <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Password</h2>
+      <p className="text-[12px] text-white/40 mt-1">
+        {hasPassword
+          ? "Use a strong password you don't use anywhere else. Updating it signs out your other devices."
+          : "Your account doesn't have a password yet. Set one to sign in with email and password."}
+      </p>
+      <form onSubmit={submit} className="flex flex-col">
+        {hasPassword && (
+          <PasswordField id="pw-current" label="Current password" value={current} onChange={setCurrent} autoComplete="current-password" />
+        )}
+        <PasswordField id="pw-new" label="New password" value={next} onChange={setNext} autoComplete="new-password" describedBy="pw-rules" />
+        <ul id="pw-rules" className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+          {rules.map((r) => (
+            <li key={r.label} className={`flex items-center gap-1.5 text-[11.5px] ${r.ok ? "text-[#a5aef9]" : "text-white/30"}`}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {r.ok ? <path d="M20 6 9 17l-5-5" /> : <circle cx="12" cy="12" r="4" />}
+              </svg>
+              {r.label}
+              <span className="sr-only">{r.ok ? "(met)" : "(not met)"}</span>
+            </li>
+          ))}
+        </ul>
+        <PasswordField
+          id="pw-confirm"
+          label="Confirm new password"
+          value={confirm}
+          onChange={setConfirm}
+          autoComplete="new-password"
+          action={
+            <button
+              type="submit"
+              disabled={!canSubmit}
+              className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
+            >
+              {busy ? "Saving…" : hasPassword ? "Update password" : "Set password"}
+            </button>
+          }
+        />
+        {mismatch && <p className="text-[11px] mt-1.5 text-red-400/80">Passwords don&apos;t match.</p>}
+      </form>
+    </div>
+  );
+}
+
+function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  describedBy,
+  action,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  autoComplete: string;
+  describedBy?: string;
+  action?: React.ReactNode;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <>
+      <label htmlFor={id} className="text-[12px] text-white/60 mt-5 mb-1.5">
+        {label}
+      </label>
+      <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40 transition-colors">
+        <span className="flex items-center pl-3.5 pr-2.5 text-[#5b6cf5]" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="4" y="11" width="16" height="10" rx="2" />
+            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+          </svg>
+        </span>
+        <input
+          id={id}
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
+          maxLength={128}
+          aria-describedby={describedBy}
+          placeholder="••••••••"
+          className="flex-1 min-w-0 bg-transparent h-10 pr-3 text-[13px] text-white outline-none placeholder:text-white/25"
+        />
+        <button
+          type="button"
+          onClick={() => setShow((v) => !v)}
+          aria-label={show ? `Hide ${label.toLowerCase()}` : `Show ${label.toLowerCase()}`}
+          aria-pressed={show}
+          className="shrink-0 w-11 flex items-center justify-center border-l border-white/5 text-white/45 hover:text-white transition-colors cursor-pointer"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {show ? (
+              <path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" />
+            ) : (
+              <>
+                <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+                <circle cx="12" cy="12" r="3" />
+              </>
+            )}
+          </svg>
+        </button>
+        {action}
+      </div>
+    </>
+  );
+}
+
+function ChangeEmailModal({ current, onClose, onDone }: { current: string | null; onClose: () => void; onDone: (email: string) => void }) {
+  const [step, setStep] = useState<"email" | "code">("email");
+  const [value, setValue] = useState("");
+  const [code, setCode] = useState("");
+  const [sentTo, setSentTo] = useState("");
+  const [busy, setBusy] = useState(false);
+  const clean = value.toLowerCase().trim();
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) && clean.length <= 254;
+
+  async function send(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (busy || !validEmail) return;
+    setBusy(true);
+    const res = await requestEmailChange(clean);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    setSentTo(res.data.email);
+    setStep("code");
+    toast.success(`Code sent to ${res.data.email}`);
+  }
+
+  async function confirm(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy || code.length !== 6) return;
+    setBusy(true);
+    const res = await confirmEmailChange(code);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success("Email updated");
+    onDone(res.data.email);
+  }
+
+  const inputCls =
+    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors";
+  const primaryCls =
+    "h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default";
+  const secondaryCls =
+    "h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer disabled:opacity-50";
+
+  return (
+    <ModalShell onClose={onClose} labelledBy="change-email-title">
+      <h3 id="change-email-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        {current ? "Change email" : "Add email"}
+      </h3>
+      {step === "email" ? (
+        <>
+          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+            {current ? <>Currently <span className="text-white/70">{current}</span>. </> : null}
+            We&apos;ll send a 6-digit code to your new email to confirm it.
+          </p>
+          <form onSubmit={send} className="mt-4 flex flex-col gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[12px] text-white/60">New email</span>
+              <input
+                autoFocus
+                type="email"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+                maxLength={254}
+                className={inputCls}
+              />
+            </label>
+            <div className="flex items-center justify-end gap-2">
+              <button type="button" onClick={onClose} className={secondaryCls}>
+                Cancel
+              </button>
+              <button type="submit" disabled={busy || !validEmail} className={primaryCls}>
+                {busy ? "Sending…" : "Send code"}
+              </button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <>
+          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+            Enter the code we sent to <span className="text-white/70">{sentTo}</span>. It expires in 5 minutes.
+          </p>
+          <form onSubmit={confirm} className="mt-4 flex flex-col gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[12px] text-white/60">Verification code</span>
+              <input
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="123456"
+                className={`${inputCls} tracking-[0.4em] text-center`}
+              />
+            </label>
+            <div className="flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setStep("email");
+                  setCode("");
+                }}
+                className="text-[12px] text-white/45 hover:text-white/80 transition-colors cursor-pointer"
+              >
+                Use a different email
+              </button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => send()} disabled={busy} className={secondaryCls}>
+                  Resend
+                </button>
+                <button type="submit" disabled={busy || code.length !== 6} className={primaryCls}>
+                  {busy ? "Checking…" : "Confirm"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </>
+      )}
+    </ModalShell>
   );
 }
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserAliases, getUserById } from "@/lib/features/users/db";
+import { getUserAliases, getUserById, userHasPassword } from "@/lib/features/users/db";
 import { isPremiumActive } from "@/lib/premium";
 import SettingsClient from "./SettingsClient";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const userId = await getSessionUserId();
   if (!userId) redirect("/signin");
-  const [user, aliases] = await Promise.all([getUserById(userId), getUserAliases(userId)]);
+  const [user, aliases, hasPassword] = await Promise.all([getUserById(userId), getUserAliases(userId), userHasPassword(userId)]);
   if (!user) redirect("/signin");
 
   return (
@@ -45,6 +45,7 @@ export default async function SettingsPage() {
           slots: user.aliasTokens ?? 0,
           premium: isPremiumActive(user),
         }}
+        security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword }}
       />
     </div>
   );
