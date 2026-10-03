@@ -27,7 +27,7 @@ export default async function LeaderboardPage({
 }) {
   const params = await searchParams;
   const category: LeaderboardCategory = pick(params.category, LEADERBOARD_CATEGORIES, "views");
-  const period: LeaderboardPeriod = category === "badges" ? "all" : pick(params.period, LEADERBOARD_PERIODS, "all");
+  const period: LeaderboardPeriod = pick(params.period, LEADERBOARD_PERIODS, "all");
   const page = Math.max(1, Math.min(10, Number.parseInt(params.page ?? "1", 10) || 1));
 
   const [entries, userId] = await Promise.all([getLeaderboard(category, period), getSessionUserId()]);

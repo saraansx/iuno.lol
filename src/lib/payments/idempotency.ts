@@ -18,7 +18,7 @@ export function isDuplicateKeyError(err: unknown): boolean {
 }
 
 export async function processPaymentEventOnce(
-  params: { provider: string; eventId: string; userId?: number | null },
+  params: { provider: string; eventId: string; userId?: number | null; plan?: string | null },
   effect: (tx: Tx) => Promise<void>,
 ): Promise<boolean> {
   try {
@@ -27,6 +27,7 @@ export async function processPaymentEventOnce(
         provider: params.provider,
         eventId: params.eventId,
         userId: params.userId ?? null,
+        plan: params.plan ?? null,
       });
       await effect(tx);
     });

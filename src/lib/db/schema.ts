@@ -593,9 +593,11 @@ export const processedPaymentEvents = mysqlTable('processed_payment_events', {
   provider: varchar('provider', { length: 16 }).notNull(),
   eventId: varchar('event_id', { length: 128 }).notNull(),
   userId: int('user_id'),
+  plan: varchar('plan', { length: 32 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   providerEventIdx: uniqueIndex('processed_payment_events_provider_event_idx').on(table.provider, table.eventId),
+  planCreatedIdx: index('processed_payment_events_plan_created_idx').on(table.plan, table.createdAt),
 }))
 
 export const schema = {

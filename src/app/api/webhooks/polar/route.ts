@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ received: true });
       }
       const processed = await processPaymentEventOnce(
-        { provider: "polar", eventId, userId },
+        { provider: "polar", eventId, userId, plan: plan.tag },
         async (tx) => {
           await tx.update(schema.users).set(fieldsForPlan(plan)).where(eq(schema.users.id, userId));
         },

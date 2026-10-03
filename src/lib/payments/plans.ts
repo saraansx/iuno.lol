@@ -31,7 +31,6 @@ export const VERIFIED_PLAN_TAG = "verified_lifetime";
 export const BADGE_TOKEN_PLAN_TAG = "badge_token";
 export const ALIAS_TOKEN_PLAN_TAG = "alias_token";
 
-// alias_tokens stores slots: +1 per purchase, or +4 (1 + 3 bonus) if Premium at purchase time
 export const PREMIUM_ALIAS_SLOTS_PER_TOKEN = 4;
 const ALIAS_SLOTS_SQL = sql.raw(`IF(is_premium, ${PREMIUM_ALIAS_SLOTS_PER_TOKEN}, 1)`);
 
@@ -106,7 +105,6 @@ export function revokeFieldsForPlan(plan: Plan) {
   if (plan.tag === IMAGE_HOST_PLAN_TAG) return { hasImageHost: false };
   if (plan.tag === VERIFIED_PLAN_TAG) return { hasVerified: false };
   if (plan.tag === BADGE_TOKEN_PLAN_TAG) return { badgeTokens: sql`GREATEST(badge_tokens - 1, 0)` };
-  // ponytail: refund uses current Premium status; off by 3 if Premium changed since purchase
   if (plan.tag === ALIAS_TOKEN_PLAN_TAG) return { aliasTokens: sql`GREATEST(alias_tokens - ${ALIAS_SLOTS_SQL}, 0)` };
   return { isPremium: false };
 }

@@ -10,12 +10,17 @@ const PAGE_SIZE = 10;
 
 const CATEGORY_OPTIONS: { id: LeaderboardCategory; label: string }[] = [
   { id: "views", label: "Views" },
+  { id: "likes", label: "Likes" },
+  { id: "comments", label: "Comments" },
   { id: "badges", label: "Custom badges" },
+  { id: "aliases", label: "Aliases" },
 ];
 
-// how each category's score is labelled
 const METRICS: Record<LeaderboardCategory, { unit: string; header: string; empty: string }> = {
   views: { unit: "view", header: "Views", empty: "No views yet" },
+  likes: { unit: "like", header: "Likes", empty: "No likes yet" },
+  comments: { unit: "comment", header: "Comments", empty: "No comments yet" },
+  aliases: { unit: "alias", header: "Aliases", empty: "No aliases yet" },
   badges: { unit: "badge", header: "Badges", empty: "No custom badges yet" },
 };
 
@@ -59,8 +64,7 @@ export default function LeaderboardClient({
   const rows = rest.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const me = currentUserId ? entries.find((e) => e.userId === currentUserId) : undefined;
   const metric = METRICS[category];
-  const timed = category === "views";
-  const periodLabel = timed ? PERIOD_OPTIONS.find((p) => p.id === period)!.label.toLowerCase() : "all time";
+  const periodLabel = PERIOD_OPTIONS.find((p) => p.id === period)!.label.toLowerCase();
 
   function go(next: { category?: string; period?: string; page?: number }) {
     const qs = new URLSearchParams({
@@ -86,7 +90,6 @@ export default function LeaderboardClient({
             onChange={(v) => go({ category: v })}
             icon={<path d="M3 3v18h18M7 15l4-4 3 3 6-6" />}
           />
-          {timed && (
           <FilterSelect
             label="Time span"
             value={period}
@@ -99,19 +102,51 @@ export default function LeaderboardClient({
               </>
             }
           />
-          )}
         </div>
       </div>
 
       {me && <YourRank me={me} ahead={entries[me.rank - 2]} periodLabel={periodLabel} category={category} />}
 
       {entries.length === 0 ? (
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] py-20 px-6 flex flex-col items-center text-center">
-          <TrophyIcon className="text-white/15 mb-4" size={32} />
-          <p className="text-[15px] font-normal text-white tracking-tight">{metric.empty}</p>
-          <p className="text-white/35 text-[13px] mt-1.5 max-w-64">
-            {timed ? `Nobody has views for ${periodLabel}. Check back soon.` : "Nobody owns a custom badge slot yet. Check back soon."}
-          </p>
+        <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.12),rgba(91,108,245,0.03)_45%,transparent_72%)]"
+          />
+          <div className="relative flex flex-col items-center text-center mb-8">
+            <span className="w-11 h-11 rounded-2xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/25 flex items-center justify-center text-[#a5aef9]">
+              <MetricIcon category={category} />
+            </span>
+            <p className="mt-3 text-[15px] font-normal text-white/90 tracking-tight">{metric.empty}</p>
+            <p className="text-white/40 text-[12.5px] mt-1 max-w-xs leading-relaxed">
+              {category === "views"
+                ? `Nobody has views for ${periodLabel}. The top spots are wide open.`
+                : category === "likes"
+                ? `Nobody got a like ${period === "all" ? "yet" : periodLabel}. The top spots are wide open.`
+                : category === "comments"
+                ? `Nobody got a comment ${period === "all" ? "yet" : periodLabel}. The top spots are wide open.`
+                : category === "aliases"
+                ? period === "all"
+                  ? "Nobody owns an alias slot yet. Be the first on the board."
+                  : `Nobody bought an alias ${periodLabel}. Be the first on the board.`
+                : period === "all"
+                ? "Nobody owns a custom badge slot yet. Be the first on the board."
+                : `Nobody bought a custom badge ${periodLabel}. Be the first on the board.`}
+            </p>
+            {(category === "badges" || category === "aliases") && (
+              <Link
+                href={category === "badges" ? "/checkout/badge-token" : "/checkout/alias-token"}
+                className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-[#5b6cf5]/25 px-4 py-2 text-[12.5px] text-white transition-colors"
+              >
+                {category === "badges" ? "Get a custom badge" : "Get an alias"}
+              </Link>
+            )}
+          </div>
+          <ol className="relative grid grid-cols-3 items-end gap-4 max-w-[720px] mx-auto" aria-label="Empty podium">
+            {([2, 1, 3] as const).map((rank) => (
+              <EmptySpot key={`empty-${rank}`} rank={rank} />
+            ))}
+          </ol>
         </div>
       ) : (
         <>
@@ -318,6 +353,28 @@ function YourRank({ me, ahead, periodLabel, category }: { me: LeaderboardEntry; 
 }
 
 function MetricIcon({ category }: { category: LeaderboardCategory }) {
+  if (category === "comments") {
+    return (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+    );
+  }
+  if (category === "aliases") {
+    return (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8" />
+      </svg>
+    );
+  }
+  if (category === "likes") {
+    return (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M7 10v11M15 5.9 14 10h5.8a2 2 0 0 1 1.9 2.5l-2.3 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.8a2 2 0 0 0 1.8-1.1L12 2a3.1 3.1 0 0 1 3 3.9Z" />
+      </svg>
+    );
+  }
   if (category === "badges") {
     return (
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -405,16 +462,6 @@ function VerifiedTag() {
       <VerifiedCheck />
       Verified
     </span>
-  );
-}
-
-function TrophyIcon({ className = "", size = 24, color = "currentColor" }: { className?: string; size?: number; color?: string }) {
-  return (
-    <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
-      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16" />
-      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-    </svg>
   );
 }
 

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const processed = await processPaymentEventOnce(
-      { provider: "razorpay", eventId: paymentId, userId },
+      { provider: "razorpay", eventId: paymentId, userId, plan: plan.tag },
       async (tx) => {
         await tx.update(schema.users).set(fieldsForPlan(plan)).where(eq(schema.users.id, userId));
       },

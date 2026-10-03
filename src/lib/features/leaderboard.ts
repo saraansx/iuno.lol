@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { readWidgetCache, writeWidgetCache } from "@/lib/widget-cache";
 
-export const LEADERBOARD_CATEGORIES = ["views", "badges"] as const;
+export const LEADERBOARD_CATEGORIES = ["views", "likes", "comments", "badges", "aliases"] as const;
 export const LEADERBOARD_PERIODS = ["today", "week", "month", "all"] as const;
 export type LeaderboardCategory = (typeof LEADERBOARD_CATEGORIES)[number];
 export type LeaderboardPeriod = (typeof LEADERBOARD_PERIODS)[number];
@@ -25,10 +25,33 @@ export type LeaderboardEntry = {
 const PERIOD_DAYS: Record<Exclude<LeaderboardPeriod, "all">, number> = { today: 0, week: 6, month: 29 };
 
 async function queryLeaderboard(category: LeaderboardCategory, period: LeaderboardPeriod): Promise<LeaderboardEntry[]> {
-  // badges = custom badge slots owned (badge_tokens), used or not; not time-based
+  const since = period === "all" ? null : PERIOD_DAYS[period];
+  const window = since === null ? sql`1 = 1` : sql`created_at >= DATE_SUB(UTC_DATE(), INTERVAL ${since} DAY)`;
   const scoreSource =
-    category === "badges"
-      ? sql`SELECT id AS user_id, badge_tokens AS score FROM users WHERE badge_tokens > 0`
+    category === "comments"
+      ? sql`SELECT profile_id AS user_id, COUNT(*) AS score FROM profile_comments
+            WHERE author_id <> profile_id AND ${window}
+            GROUP BY profile_id`
+      : category === "aliases"
+      ? since === null
+        ? sql`SELECT id AS user_id, alias_tokens AS score FROM users WHERE alias_tokens > 0`
+        : sql`SELECT e.user_id, SUM(IF(u.is_premium, 4, 1)) AS score FROM processed_payment_events e
+              JOIN users u ON u.id = e.user_id
+              WHERE e.plan = 'alias_token' AND e.created_at >= DATE_SUB(UTC_DATE(), INTERVAL ${since} DAY)
+              GROUP BY e.user_id`
+      : category === "likes"
+      ? since === null
+        ? sql`SELECT id AS user_id, likes_count AS score FROM users WHERE likes_count > 0`
+        : sql`SELECT receiver_id AS user_id, COUNT(*) AS score FROM profile_feedback
+              WHERE type = 'like' AND created_at >= DATE_SUB(UTC_DATE(), INTERVAL ${since} DAY)
+              GROUP BY receiver_id`
+      : category === "badges"
+      ? since === null
+        ? sql`SELECT id AS user_id, badge_tokens AS score FROM users WHERE badge_tokens > 0`
+        : sql`SELECT user_id, COUNT(*) AS score FROM processed_payment_events
+              WHERE plan = 'badge_token' AND user_id IS NOT NULL
+                AND created_at >= DATE_SUB(UTC_DATE(), INTERVAL ${since} DAY)
+              GROUP BY user_id`
       : period === "all"
       ? sql`SELECT id AS user_id, views AS score FROM users WHERE views > 0`
       : sql`SELECT user_id, SUM(count) AS score FROM profile_views
@@ -75,8 +98,7 @@ export async function getLeaderboard(
   category: LeaderboardCategory,
   period: LeaderboardPeriod,
 ): Promise<LeaderboardEntry[]> {
-  // badges ignore the time span, so they share one cache entry
-  const key = `leaderboard:${category}:${category === "badges" ? "all" : period}`;
+  const key = `leaderboard:${category}:${period}`;
   const cached = await readWidgetCache<LeaderboardEntry[]>(key);
   if (cached) return cached;
   const fresh = await queryLeaderboard(category, period);
