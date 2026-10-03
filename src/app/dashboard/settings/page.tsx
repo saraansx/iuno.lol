@@ -5,7 +5,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserAliases, getUserById } from "@/lib/features/users/db";
 import { isPremiumActive } from "@/lib/premium";
-import { aliasSlots } from "@/lib/payments/plans";
 import SettingsClient from "./SettingsClient";
 
 export const metadata: Metadata = {
@@ -43,7 +42,7 @@ export default async function SettingsPage() {
         initialAliases={{
           aliases: aliases.map((a) => ({ id: a.id, alias: a.alias, createdAt: a.createdAt.toISOString() })),
           tokens: user.aliasTokens ?? 0,
-          slots: aliasSlots(user.aliasTokens ?? 0, isPremiumActive(user)),
+          slots: user.aliasTokens ?? 0,
           premium: isPremiumActive(user),
         }}
       />

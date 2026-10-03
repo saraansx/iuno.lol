@@ -308,7 +308,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
           <p className="text-white/40 text-[12px] mt-1">
             Extra handles that redirect to your profile.{" "}
             {state.premium
-              ? `Premium: every alias token gives 4 slots (${state.tokens} token${state.tokens === 1 ? "" : "s"}).`
+              ? "Premium: every alias token you buy adds 4 slots (1 + 3 bonus)."
               : "One alias token = one alias."}{" "}
             {free > 0 ? `${free} free slot${free === 1 ? "" : "s"}.` : "No free slots."}
           </p>

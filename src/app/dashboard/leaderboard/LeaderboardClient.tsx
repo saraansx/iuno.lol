@@ -8,7 +8,16 @@ import type { LeaderboardCategory, LeaderboardEntry, LeaderboardPeriod } from "@
 
 const PAGE_SIZE = 10;
 
-const CATEGORY_OPTIONS: { id: LeaderboardCategory; label: string }[] = [{ id: "views", label: "Views" }];
+const CATEGORY_OPTIONS: { id: LeaderboardCategory; label: string }[] = [
+  { id: "views", label: "Views" },
+  { id: "badges", label: "Custom badges" },
+];
+
+// how each category's score is labelled
+const METRICS: Record<LeaderboardCategory, { unit: string; header: string; empty: string }> = {
+  views: { unit: "view", header: "Views", empty: "No views yet" },
+  badges: { unit: "badge", header: "Badges", empty: "No custom badges yet" },
+};
 
 const PERIOD_OPTIONS: { id: LeaderboardPeriod; label: string }[] = [
   { id: "today", label: "Today" },
@@ -23,7 +32,7 @@ const MEDALS = {
   3: { color: "#d97706", height: "h-[100px]", ring: 84 },
 } as const;
 
-const plural = (n: number) => `${n.toLocaleString()} view${n === 1 ? "" : "s"}`;
+const plural = (n: number, unit = "view") => `${n.toLocaleString()} ${unit}${n === 1 ? "" : "s"}`;
 
 const compact = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
 
@@ -49,7 +58,9 @@ export default function LeaderboardClient({
   const safePage = Math.min(page, pageCount);
   const rows = rest.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
   const me = currentUserId ? entries.find((e) => e.userId === currentUserId) : undefined;
-  const periodLabel = PERIOD_OPTIONS.find((p) => p.id === period)!.label.toLowerCase();
+  const metric = METRICS[category];
+  const timed = category === "views";
+  const periodLabel = timed ? PERIOD_OPTIONS.find((p) => p.id === period)!.label.toLowerCase() : "all time";
 
   function go(next: { category?: string; period?: string; page?: number }) {
     const qs = new URLSearchParams({
@@ -75,6 +86,7 @@ export default function LeaderboardClient({
             onChange={(v) => go({ category: v })}
             icon={<path d="M3 3v18h18M7 15l4-4 3 3 6-6" />}
           />
+          {timed && (
           <FilterSelect
             label="Time span"
             value={period}
@@ -87,16 +99,19 @@ export default function LeaderboardClient({
               </>
             }
           />
+          )}
         </div>
       </div>
 
-      {me && <YourRank me={me} ahead={entries[me.rank - 2]} periodLabel={periodLabel} />}
+      {me && <YourRank me={me} ahead={entries[me.rank - 2]} periodLabel={periodLabel} category={category} />}
 
       {entries.length === 0 ? (
         <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] py-20 px-6 flex flex-col items-center text-center">
           <TrophyIcon className="text-white/15 mb-4" size={32} />
-          <p className="text-[15px] font-normal text-white tracking-tight">No views yet</p>
-          <p className="text-white/35 text-[13px] mt-1.5 max-w-64">Nobody has views for {periodLabel}. Check back soon.</p>
+          <p className="text-[15px] font-normal text-white tracking-tight">{metric.empty}</p>
+          <p className="text-white/35 text-[13px] mt-1.5 max-w-64">
+            {timed ? `Nobody has views for ${periodLabel}. Check back soon.` : "Nobody owns a custom badge slot yet. Check back soon."}
+          </p>
         </div>
       ) : (
         <>
@@ -110,7 +125,7 @@ export default function LeaderboardClient({
                 {([2, 1, 3] as const).map((rank) => {
                   const entry = podium[rank - 1];
                   return entry ? (
-                    <PodiumSpot key={entry.userId} entry={entry} isMe={entry.userId === currentUserId} />
+                    <PodiumSpot key={entry.userId} entry={entry} isMe={entry.userId === currentUserId} category={category} />
                   ) : (
                     <EmptySpot key={`empty-${rank}`} rank={rank} />
                   );
@@ -124,7 +139,7 @@ export default function LeaderboardClient({
               <div className="grid grid-cols-[64px_1fr_auto] px-5 py-3 border-b border-white/5 text-[11px] uppercase tracking-wider text-white/35">
                 <span>Rank</span>
                 <span>User</span>
-                <span>Views</span>
+                <span>{metric.header}</span>
               </div>
               <ol>
                 {rows.map((entry) => (
@@ -151,7 +166,7 @@ export default function LeaderboardClient({
                           <span className="text-[11.5px] text-white/35 truncate">@{entry.username}</span>
                         </span>
                       </span>
-                      <span className="text-[13px] text-white tabular-nums" title={entry.score.toLocaleString()}>
+                      <span className="text-[13px] text-white tabular-nums" title={plural(entry.score, metric.unit)}>
                         {compact.format(entry.score)}
                       </span>
                     </Link>
@@ -195,7 +210,8 @@ export default function LeaderboardClient({
   );
 }
 
-function PodiumBlock({ rank, score, muted = false }: { rank: 1 | 2 | 3; score?: number; muted?: boolean }) {
+function PodiumBlock({ rank, score, muted = false, category = "views" }: { rank: 1 | 2 | 3; score?: number; muted?: boolean; category?: LeaderboardCategory }) {
+  const unit = METRICS[category].unit;
   const medal = MEDALS[rank];
   return (
     <div
@@ -214,16 +230,16 @@ function PodiumBlock({ rank, score, muted = false }: { rank: 1 | 2 | 3; score?: 
         {rank}
       </span>
       {score !== undefined && (
-        <span className="inline-flex items-center gap-1.5 text-[12.5px] tabular-nums text-white/70" title={plural(score)}>
-          <EyeIcon />
-          {compact.format(score)} views
+        <span className="inline-flex items-center gap-1.5 text-[12.5px] tabular-nums text-white/70" title={plural(score, unit)}>
+          <MetricIcon category={category} />
+          {compact.format(score)} {unit}{score === 1 ? "" : "s"}
         </span>
       )}
     </div>
   );
 }
 
-function PodiumSpot({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
+function PodiumSpot({ entry, isMe, category }: { entry: LeaderboardEntry; isMe: boolean; category: LeaderboardCategory }) {
   const rank = entry.rank as 1 | 2 | 3;
   const medal = MEDALS[rank];
   return (
@@ -251,7 +267,7 @@ function PodiumSpot({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean })
           {entry.verified && <VerifiedTag />}
         </span>
       </Link>
-      <PodiumBlock rank={rank} score={entry.score} />
+      <PodiumBlock rank={rank} score={entry.score} category={category} />
     </li>
   );
 }
@@ -278,8 +294,9 @@ function EmptySpot({ rank }: { rank: 1 | 2 | 3 }) {
   );
 }
 
-function YourRank({ me, ahead, periodLabel }: { me: LeaderboardEntry; ahead?: LeaderboardEntry; periodLabel: string }) {
+function YourRank({ me, ahead, periodLabel, category }: { me: LeaderboardEntry; ahead?: LeaderboardEntry; periodLabel: string; category: LeaderboardCategory }) {
   const gap = ahead ? ahead.score - me.score + 1 : 0;
+  const unit = METRICS[category].unit;
   return (
     <div className="flex items-center gap-4 bg-[#0c0c0c] border border-[#5b6cf5]/25 rounded-[20px] px-5 py-4 relative overflow-hidden">
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#5b6cf5]/[0.12] via-transparent to-transparent pointer-events-none" />
@@ -289,15 +306,26 @@ function YourRank({ me, ahead, periodLabel }: { me: LeaderboardEntry; ahead?: Le
       <div className="relative flex flex-col min-w-0">
         <span className="text-[13.5px] text-white/90">Your rank for {periodLabel}</span>
         <span className="text-[12px] text-white/40 truncate">
-          {ahead ? `${plural(gap)} to pass @${ahead.username} for #${ahead.rank}` : "You're on top. Keep it up."}
+          {ahead ? `${plural(gap, unit)} to pass @${ahead.username} for #${ahead.rank}` : "You're on top. Keep it up."}
         </span>
       </div>
       <span className="relative ml-auto inline-flex items-center gap-1.5 text-[13px] text-white tabular-nums">
-        <EyeIcon />
-        {plural(me.score)}
+        <MetricIcon category={category} />
+        {plural(me.score, unit)}
       </span>
     </div>
   );
+}
+
+function MetricIcon({ category }: { category: LeaderboardCategory }) {
+  if (category === "badges") {
+    return (
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+      </svg>
+    );
+  }
+  return <EyeIcon />;
 }
 
 function EyeIcon() {

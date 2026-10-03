@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { readWidgetCache, writeWidgetCache } from "@/lib/widget-cache";
 
-export const LEADERBOARD_CATEGORIES = ["views"] as const;
+export const LEADERBOARD_CATEGORIES = ["views", "badges"] as const;
 export const LEADERBOARD_PERIODS = ["today", "week", "month", "all"] as const;
 export type LeaderboardCategory = (typeof LEADERBOARD_CATEGORIES)[number];
 export type LeaderboardPeriod = (typeof LEADERBOARD_PERIODS)[number];
@@ -24,9 +24,12 @@ export type LeaderboardEntry = {
 
 const PERIOD_DAYS: Record<Exclude<LeaderboardPeriod, "all">, number> = { today: 0, week: 6, month: 29 };
 
-async function queryLeaderboard(period: LeaderboardPeriod): Promise<LeaderboardEntry[]> {
+async function queryLeaderboard(category: LeaderboardCategory, period: LeaderboardPeriod): Promise<LeaderboardEntry[]> {
+  // badges = custom badge slots owned (badge_tokens), used or not; not time-based
   const scoreSource =
-    period === "all"
+    category === "badges"
+      ? sql`SELECT id AS user_id, badge_tokens AS score FROM users WHERE badge_tokens > 0`
+      : period === "all"
       ? sql`SELECT id AS user_id, views AS score FROM users WHERE views > 0`
       : sql`SELECT user_id, SUM(count) AS score FROM profile_views
             WHERE view_date >= DATE_SUB(UTC_DATE(), INTERVAL ${PERIOD_DAYS[period]} DAY)
@@ -72,10 +75,11 @@ export async function getLeaderboard(
   category: LeaderboardCategory,
   period: LeaderboardPeriod,
 ): Promise<LeaderboardEntry[]> {
-  const key = `leaderboard:${category}:${period}`;
+  // badges ignore the time span, so they share one cache entry
+  const key = `leaderboard:${category}:${category === "badges" ? "all" : period}`;
   const cached = await readWidgetCache<LeaderboardEntry[]>(key);
   if (cached) return cached;
-  const fresh = await queryLeaderboard(period);
+  const fresh = await queryLeaderboard(category, period);
   await writeWidgetCache(key, fresh, CACHE_TTL_SECONDS);
   return fresh;
 }
