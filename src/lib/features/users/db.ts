@@ -27,6 +27,7 @@ const userColumns = {
   likesCount: schema.users.likesCount,
   dislikesCount: schema.users.dislikesCount,
   passwordChangedAt: schema.users.passwordChangedAt,
+  twoFactorEnabledAt: schema.users.twoFactorEnabledAt,
   createdAt: schema.users.createdAt,
   updatedAt: schema.users.updatedAt,
   displayName: schema.userSettings.displayName,
@@ -300,6 +301,7 @@ export async function getUserByEmailWithPassword(email: string) {
       email: schema.users.email,
       password: schema.users.password,
       emailVerified: schema.users.emailVerified,
+      twoFactorEnabledAt: schema.users.twoFactorEnabledAt,
     })
     .from(schema.users)
     .where(eq(schema.users.email, email.toLowerCase().trim()))
@@ -315,6 +317,7 @@ export async function getUserByUsernameWithPassword(username: string) {
       email: schema.users.email,
       password: schema.users.password,
       emailVerified: schema.users.emailVerified,
+      twoFactorEnabledAt: schema.users.twoFactorEnabledAt,
     })
     .from(schema.users)
     .where(eq(schema.users.username, username.toLowerCase().trim()))

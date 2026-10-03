@@ -16,8 +16,8 @@ export const VERIFIED_PLAN = {
 } as const;
 
 export const BADGE_TOKEN_PLAN = {
-  USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
-  INR: { symbol: "₹", display: "449", amount: 44900, label: "INR ₹" },
+  USD: { symbol: "$", display: "3.99", amount: 399, label: "USD $" },
+  INR: { symbol: "₹", display: "349", amount: 34900, label: "INR ₹" },
 } as const;
 
 export const ALIAS_TOKEN_PLAN = {

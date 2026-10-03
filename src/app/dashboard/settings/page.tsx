@@ -45,7 +45,7 @@ export default async function SettingsPage() {
           slots: user.aliasTokens ?? 0,
           premium: isPremiumActive(user),
         }}
-        security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword }}
+        security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword, twoFactor: Boolean(user.twoFactorEnabledAt) }}
       />
     </div>
   );

@@ -8,6 +8,7 @@ import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
 import { loginRateLimit } from '@/lib/rate-limit'
 import { headers } from 'next/headers'
+import { createLoginTicket, redeemLoginTicket } from '@/lib/auth/two-factor'
 
 type LoginInput = {
   identifier: string
@@ -77,11 +78,28 @@ export async function login(input: LoginInput) {
       return { error: 'Please verify your email address before logging in.' }
     }
 
+    if (user.twoFactorEnabledAt) {
+      const ticket = await createLoginTicket(user.id)
+      return { twoFactor: true as const, ticket }
+    }
+
     await createSession(user.id)
 
     return { success: 'Logged in successfully!', username: user.username }
   } catch (err: unknown) {
     console.error('[login] Failed:', err)
+    return { error: 'Something went wrong. Please try again.' }
+  }
+}
+
+export async function completeTwoFactorLogin(ticket: string, code: string) {
+  try {
+    const result = await redeemLoginTicket(String(ticket ?? ''), String(code ?? ''))
+    if (!result.ok) return { error: result.error }
+    await createSession(result.userId)
+    return { success: 'Logged in successfully!' }
+  } catch (err: unknown) {
+    console.error('[completeTwoFactorLogin] Failed:', err)
     return { error: 'Something went wrong. Please try again.' }
   }
 }

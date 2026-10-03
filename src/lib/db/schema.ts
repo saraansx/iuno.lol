@@ -38,6 +38,8 @@ export const users = mysqlTable('users', {
   likesCount: int('likes_count').default(0).notNull(),
   dislikesCount: int('dislikes_count').default(0).notNull(),
   passwordChangedAt: timestamp('password_changed_at'),
+  twoFactorSecret: varchar('two_factor_secret', { length: 255 }),
+  twoFactorEnabledAt: timestamp('two_factor_enabled_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({

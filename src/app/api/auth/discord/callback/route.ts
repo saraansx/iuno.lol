@@ -7,6 +7,7 @@ import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
+import { createLoginTicket } from '@/lib/auth/two-factor'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
@@ -142,11 +143,20 @@ export async function GET(req: NextRequest) {
       })
     }
 
+    await addUserToGuild(discordUser.id, accessToken)
+
     if (!loggedInUserId) {
+      const [row] = await db
+        .select({ twoFactorEnabledAt: schema.users.twoFactorEnabledAt })
+        .from(schema.users)
+        .where(eq(schema.users.id, userId))
+        .limit(1)
+      if (row?.twoFactorEnabledAt) {
+        const ticket = await createLoginTicket(userId)
+        return NextResponse.redirect(`${appUrl}/signin?2fa=${encodeURIComponent(ticket)}`)
+      }
       await createSession(userId)
     }
-
-    await addUserToGuild(discordUser.id, accessToken)
 
     return NextResponse.redirect(`${appUrl}/dashboard`)
   } catch (err) {

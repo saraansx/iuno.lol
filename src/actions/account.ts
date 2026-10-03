@@ -11,6 +11,9 @@ import { checkRateLimit, profileUpdateRateLimit } from "@/lib/rate-limit";
 import { createOTPToken, verifyOTPToken } from "@/lib/auth/otp";
 import { sendTwoFactorTokenEmail } from "@/lib/mail";
 import { redis } from "@/lib/redis";
+import QRCode from "qrcode";
+import { decryptSecret, encryptSecret, generateTotpSecret, otpauthUri } from "@/lib/server/security/totp";
+import { checkTwoFactorCode } from "@/lib/auth/two-factor";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { UserFacingError } from "@/lib/errors";
@@ -278,6 +281,71 @@ export async function updatePassword(current: string, next: string): Promise<Res
       .set({ password: await hashPassword(nextPassword), passwordChangedAt: sessionCutoff() })
       .where(eq(schema.users.id, userId));
     await createSession(userId);
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+
+const pendingTotpKey = (userId: number) => `2fa_setup:${userId}`;
+const TOTP_SETUP_TTL = 10 * 60;
+
+export async function startTwoFactorSetup(): Promise<Result<{ qr: string; secret: string }>> {
+  try {
+    const userId = await requireUser();
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if (user.twoFactorEnabledAt) throw new UserFacingError("Authenticator app is already on.");
+
+    // reuse a pending secret: React dev mode / double clicks call this twice, and two
+    // different secrets would leave the QR on screen out of sync with the one stored
+    const key = pendingTotpKey(userId);
+    const created = await redis.set(key, encryptSecret(generateTotpSecret()), "EX", TOTP_SETUP_TTL, "NX");
+    const stored = await redis.get(key);
+    if (!stored) throw new UserFacingError("Couldn't start setup. Please try again.");
+    if (created !== "OK") await redis.expire(key, TOTP_SETUP_TTL);
+    const secret = decryptSecret(stored);
+    const qr = await QRCode.toDataURL(otpauthUri(secret, user.email ?? user.username), { margin: 1, width: 220 });
+    return { ok: true, data: { qr, secret } };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function confirmTwoFactorSetup(code: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const attempts = await checkRateLimit(`2fa_setup_verify:${userId}`, 10, 10 * 60);
+    if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait a few minutes.");
+
+    const stored = await redis.get(pendingTotpKey(userId));
+    if (!stored) throw new UserFacingError("Setup expired. Start again.");
+    const secret = decryptSecret(stored);
+    if (!(await checkTwoFactorCode(userId, String(code ?? ""), secret))) throw new UserFacingError("That code didn't match. Try the newest one.");
+
+    await db
+      .update(schema.users)
+      .set({ twoFactorSecret: stored, twoFactorEnabledAt: new Date() })
+      .where(eq(schema.users.id, userId));
+    await redis.del(pendingTotpKey(userId));
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function disableTwoFactor(code: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const attempts = await checkRateLimit(`2fa_disable:${userId}`, 5, 15 * 60);
+    if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
+    if (!(await checkTwoFactorCode(userId, String(code ?? "")))) throw new UserFacingError("That code didn't match.");
+
+    await db
+      .update(schema.users)
+      .set({ twoFactorSecret: null, twoFactorEnabledAt: null })
+      .where(eq(schema.users.id, userId));
     return { ok: true, data: undefined };
   } catch (err) {
     return fail(err);

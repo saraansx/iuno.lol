@@ -7,9 +7,9 @@ import FloatingInput from "@/components/ui/floating-input-base";
 import Button from "@/components/ui/button";
 import Link from "next/link";
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { sendOTP } from "@/actions/send-otp";
-import { login } from "@/actions/login";
+import { completeTwoFactorLogin, login } from "@/actions/login";
 import TurnstileVerification from "@/components/auth/TurnstileVerification";
 
 type LoginMethod = "password" | "otp";
@@ -28,6 +28,13 @@ const LoginForm = () => {
   const [countdown, setCountdown] = useState(0);
   const [showTurnstileModal, setShowTurnstileModal] = useState(false);
   const [pendingSendOTP, setPendingSendOTP] = useState(false);
+  const searchParams = useSearchParams();
+  const [twoFactorTicket, setTwoFactorTicket] = useState<string | null>(() => searchParams.get("2fa"));
+  const [twoFactorCode, setTwoFactorCode] = useState("");
+
+  React.useEffect(() => {
+    if (searchParams.get("2fa")) window.history.replaceState(null, "", "/signin");
+  }, [searchParams]);
 
   React.useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -131,6 +138,11 @@ const LoginForm = () => {
     startTransition(() => {
       login({ identifier: email, method, password, otpCode, turnstileToken: token })
         .then((data) => {
+          if ("twoFactor" in data && data.twoFactor) {
+            setTwoFactorTicket(data.ticket);
+            setTwoFactorCode("");
+            return;
+          }
           if (data.error) {
             setError(data.error);
           }
@@ -141,6 +153,67 @@ const LoginForm = () => {
         });
     });
   };
+
+  const submitTwoFactor = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!twoFactorTicket || twoFactorCode.length !== 6) return;
+    setError("");
+    startTransition(() => {
+      completeTwoFactorLogin(twoFactorTicket, twoFactorCode).then((data) => {
+        if (data.error) {
+          setError(data.error);
+          if (/expired|sign in again/i.test(data.error)) setTwoFactorTicket(null);
+          return;
+        }
+        setSuccess(data.success);
+        router.push("/dashboard");
+      });
+    });
+  };
+
+  if (twoFactorTicket) {
+    return (
+      <motion.form onSubmit={submitTwoFactor} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col gap-4">
+        <div className="bg-[#5b6cf5]/5 border border-[#5b6cf5]/10 rounded-xl px-3.5 py-3 flex items-start gap-3">
+          <svg className="text-[#5b6cf5]/70 shrink-0 mt-0.5" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="5" y="2" width="14" height="20" rx="2" />
+            <path d="M12 18h.01" />
+          </svg>
+          <p className="text-[12px] text-white/55 leading-relaxed">
+            Two-factor authentication is on. Enter the 6-digit code from your authenticator app.
+          </p>
+        </div>
+        <Input
+          label="Authenticator code"
+          value={twoFactorCode}
+          onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          placeholder="000000"
+          maxLength={6}
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          autoFocus
+          className="!py-2.5 tracking-[0.3em]"
+          icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /></svg>}
+        />
+        <Button type="submit" disabled={isPending || twoFactorCode.length !== 6} className="mt-1 flex items-center justify-center gap-2 !py-2.5">
+          {isPending ? "Verifying..." : "Verify"}
+        </Button>
+        <button
+          type="button"
+          onClick={() => {
+            setTwoFactorTicket(null);
+            setTwoFactorCode("");
+            setError("");
+          }}
+          className="text-[11px] font-medium text-center text-white/30 hover:text-white/50 transition-colors cursor-pointer"
+        >
+          Back to sign in
+        </button>
+        {error && <p className="text-red-400 text-xs mt-1 text-center">{error}</p>}
+        {success && <p className="text-emerald-500 text-xs mt-1 text-center">{success}</p>}
+      </motion.form>
+    );
+  }
 
   const handleMethodSwitch = (newMethod: LoginMethod) => {
     setMethod(newMethod);

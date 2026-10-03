@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, confirmEmailChange, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState } from "@/actions/account";
+import { addAlias, confirmEmailChange, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState } from "@/actions/account";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
@@ -15,7 +15,7 @@ const TABS = [
   { id: "security", label: "Security" },
 ] as const;
 
-export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean };
+export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean };
 const PAGE_SIZE = 10;
 const HANDLE_RE = /^[a-z0-9_.]{2,32}$/;
 const SITE = "iuno.lol";
@@ -81,6 +81,7 @@ export default function SettingsClient({
         <div className="flex flex-col gap-6">
           <SecurityTab info={security} />
           <PasswordCard hasPassword={security.hasPassword} />
+          <TwoFactorCard enabled={security.twoFactor} />
         </div>
       )}
     </div>
@@ -241,6 +242,241 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
   );
 }
 
+function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
+  const [enabled, setEnabled] = useState(initialEnabled);
+  const [modal, setModal] = useState<"setup" | "disable" | null>(null);
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2">
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Authenticator app</h2>
+            <span
+              className={`text-[10.5px] rounded-full px-2 py-0.5 border ${
+                enabled ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"
+              }`}
+            >
+              {enabled ? "On" : "Off"}
+            </span>
+          </div>
+          <p className="text-[12px] text-white/40 mt-1">
+            {enabled
+              ? "Signing in asks for a code from your authenticator app after your password, email code or Discord."
+              : "Add an extra step to sign-in: a 6-digit code from Google Authenticator, Authy, 1Password or similar."}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setModal(enabled ? "disable" : "setup")}
+          className={`shrink-0 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors cursor-pointer ${
+            enabled
+              ? "text-red-300 bg-red-500/10 border-red-500/20 hover:bg-red-500/20"
+              : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+          }`}
+        >
+          {enabled ? "Turn off" : "Set up authenticator app"}
+        </button>
+      </div>
+
+      <div className="mt-5 flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 h-10">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#5b6cf5] shrink-0" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+        </svg>
+        <span className="text-[13px] text-white/85">{enabled ? "Two-factor authentication is on" : "Two-factor authentication is off"}</span>
+      </div>
+
+      <AnimatePresence>
+        {modal === "setup" && (
+          <TwoFactorSetupModal
+            onClose={() => setModal(null)}
+            onDone={() => {
+              setEnabled(true);
+              setModal(null);
+            }}
+          />
+        )}
+        {modal === "disable" && (
+          <TwoFactorDisableModal
+            onClose={() => setModal(null)}
+            onDone={() => {
+              setEnabled(false);
+              setModal(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CodeInput({ value, onChange, id }: { value: string; onChange: (v: string) => void; id: string }) {
+  return (
+    <input
+      id={id}
+      autoFocus
+      inputMode="numeric"
+      autoComplete="one-time-code"
+      value={value}
+      onChange={(e) => onChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
+      placeholder="123456"
+      className="w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25 focus:border-[#5b6cf5]/40 transition-colors tracking-[0.4em] text-center"
+    />
+  );
+}
+
+function TwoFactorSetupModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
+  const [data, setData] = useState<{ qr: string; secret: string } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    startTwoFactorSetup().then((res) => {
+      if (cancelled) return;
+      if (res.ok) setData(res.data);
+      else setLoadError(res.error);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy || code.length !== 6) return;
+    setBusy(true);
+    const res = await confirmTwoFactorSetup(code);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success("Authenticator app is on");
+    onDone();
+  }
+
+  async function copySecret() {
+    if (!data) return;
+    try {
+      await navigator.clipboard.writeText(data.secret);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      toast.error("Couldn't copy. Select the key manually.");
+    }
+  }
+
+  return (
+    <ModalShell onClose={onClose} labelledBy="totp-setup-title">
+      <h3 id="totp-setup-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        Set up authenticator app
+      </h3>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+        Scan the QR code with your authenticator app, then enter the 6-digit code it shows.
+      </p>
+
+      {loadError ? (
+        <p className="mt-5 text-[12.5px] text-red-400/80">{loadError}</p>
+      ) : !data ? (
+        <div className="mt-5 h-[220px] flex items-center justify-center">
+          <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" aria-label="Loading" />
+        </div>
+      ) : (
+        <form onSubmit={submit} className="mt-5 flex flex-col gap-4">
+          <div className="flex justify-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={data.qr} alt="QR code for your authenticator app" width={180} height={180} className="rounded-xl bg-white p-2" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[12px] text-white/60">Can&apos;t scan? Enter this key</span>
+            <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden">
+              <code className="flex-1 min-w-0 flex items-center px-3.5 h-10 text-[12px] text-white/85 tracking-wider truncate">
+                {data.secret.match(/.{1,4}/g)?.join(" ")}
+              </code>
+              <button
+                type="button"
+                onClick={copySecret}
+                className="shrink-0 px-3.5 text-[12px] border-l border-white/5 text-white/70 hover:text-white hover:bg-white/[0.04] transition-colors cursor-pointer"
+              >
+                {copied ? "Copied" : "Copy"}
+              </button>
+            </div>
+          </div>
+          <label htmlFor="totp-setup-code" className="flex flex-col gap-1.5">
+            <span className="text-[12px] text-white/60">Code from the app</span>
+            <CodeInput id="totp-setup-code" value={code} onChange={setCode} />
+          </label>
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={busy || code.length !== 6}
+              className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+            >
+              {busy ? "Checking…" : "Turn on"}
+            </button>
+          </div>
+        </form>
+      )}
+    </ModalShell>
+  );
+}
+
+function TwoFactorDisableModal({ onClose, onDone }: { onClose: () => void; onDone: () => void }) {
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy || code.length !== 6) return;
+    setBusy(true);
+    const res = await disableTwoFactor(code);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success("Authenticator app turned off");
+    onDone();
+  }
+
+  return (
+    <ModalShell onClose={onClose} labelledBy="totp-disable-title" role="alertdialog">
+      <h3 id="totp-disable-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        Turn off authenticator app?
+      </h3>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+        Your account will be less secure. Enter a current code from the app to confirm.
+      </p>
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-3">
+        <label htmlFor="totp-disable-code" className="flex flex-col gap-1.5">
+          <span className="text-[12px] text-white/60">Code from the app</span>
+          <CodeInput id="totp-disable-code" value={code} onChange={setCode} />
+        </label>
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={busy || code.length !== 6}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-red-300 bg-red-500/15 border border-red-500/25 hover:bg-red-500/25 transition-colors cursor-pointer disabled:opacity-50"
+          >
+            {busy ? "Checking…" : "Turn off"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
+  );
+}
+
 function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolean }) {
   const [hasPassword, setHasPassword] = useState(initialHasPassword);
   const [current, setCurrent] = useState("");
@@ -248,7 +484,6 @@ function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolea
   const [confirm, setConfirm] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // mirrors validatePassword on the server
   const rules = [
     { label: "8+ characters", ok: next.length >= 8 },
     { label: "Uppercase letter", ok: /[A-Z]/.test(next) },
