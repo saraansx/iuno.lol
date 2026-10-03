@@ -128,7 +128,7 @@ export async function POST(req: Request) {
         del.append("reqtype", "deletefiles");
         del.append("userhash", userhash);
         del.append("files", body.slice("https://files.catbox.moe/".length));
-        await fetch(CATBOX_API, { method: "POST", body: del });
+        await fetch(CATBOX_API, { method: "POST", body: del, signal: AbortSignal.timeout(15000) });
       } catch {}
       return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }

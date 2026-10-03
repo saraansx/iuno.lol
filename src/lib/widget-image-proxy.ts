@@ -324,7 +324,9 @@ export async function proxyWidgetImage(
         headers: { "Retry-After": String(limit.retryAfterSeconds) },
       });
     }
-  } catch {
+  } catch (err) {
+    console.error(`[${opts.key}] rate limit check failed, blocking request:`, err);
+    return new NextResponse(null, { status: 503, headers: { "Retry-After": "30" } });
   }
 
   try {

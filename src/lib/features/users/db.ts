@@ -5,6 +5,7 @@ import { UserFacingError } from '@/lib/errors'
 import { eq, sql, and, lt, asc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
+import { redis } from '@/lib/redis'
 import { resolveEffectConfig, type EffectConfig } from '@/lib/effect-config'
 import type { CustomBadge } from '@/components/profile/layouts/ProfileBadges'
 
@@ -233,6 +234,10 @@ type CreateUserInput = {
   ip?: string
 }
 
+async function clearProfileExistsCache(userId: number) {
+  await redis.del(`profile_exists:${userId}`).catch(() => {})
+}
+
 export async function createUser(input: CreateUserInput) {
   const username = input.username.toLowerCase().trim()
   const email = input.email.toLowerCase().trim()
@@ -254,6 +259,7 @@ export async function createUser(input: CreateUserInput) {
       return insertedId
     })
 
+    await clearProfileExistsCache(userId)
     return { userId, username }
   } catch (err: unknown) {
     if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
@@ -484,6 +490,7 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
         await tx.insert(schema.userSettings).values({ userId: id })
         return id
       })
+      await clearProfileExistsCache(insertId)
       return insertId
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'code' in err && 'message' in err) {

@@ -29,7 +29,7 @@ async function deleteFromCatbox(fileIds: string[]): Promise<void> {
     form.append("reqtype", "deletefiles");
     form.append("userhash", userhash);
     form.append("files", fileIds.join(" "));
-    await fetch(CATBOX_API, { method: "POST", body: form });
+    await fetch(CATBOX_API, { method: "POST", body: form, signal: AbortSignal.timeout(15000) });
   } catch (error) {
     console.error("[Catbox] delete failed:", error);
   }
