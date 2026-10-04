@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
-import { createSession, getSessionUserId } from "@/lib/auth/session";
+import { createSession, getSessionUserId, revokeAllSessions } from "@/lib/auth/session";
 import { assertEmailAvailable, assertUsernameAvailable, getUserAliases, getUserById } from "@/lib/features/users/db";
 import { validateEmail, validatePassword, validateUsername } from "@/lib/server/security/validation";
 import { hashPassword, isPasswordCorrect } from "@/lib/server/security/bcrypt";
@@ -251,7 +251,7 @@ export async function confirmEmailChange(rawCode: string): Promise<Result<{ emai
 }
 
 function sessionCutoff() {
-  return new Date(Math.floor(Date.now() / 1000) * 1000);
+  return new Date(Date.now() + 1000);
 }
 
 export async function updatePassword(current: string, next: string): Promise<Result> {
@@ -285,6 +285,7 @@ export async function updatePassword(current: string, next: string): Promise<Res
       .update(schema.users)
       .set({ password: await hashPassword(nextPassword), passwordChangedAt: sessionCutoff() })
       .where(eq(schema.users.id, userId));
+    await revokeAllSessions(userId);
     await createSession(userId);
     return { ok: true, data: undefined };
   } catch (err) {

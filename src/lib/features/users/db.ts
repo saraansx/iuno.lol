@@ -516,10 +516,23 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
 
 export async function updatePassword(email: string, passwordUnhashed: string) {
   const passwordHash = await hashPassword(passwordUnhashed)
+  const emailClean = email.toLowerCase().trim()
   await db
     .update(schema.users)
-    .set({ password: passwordHash, passwordChangedAt: new Date() })
-    .where(eq(schema.users.email, email.toLowerCase().trim()))
+    .set({ password: passwordHash, passwordChangedAt: new Date(Date.now() + 1000) })
+    .where(eq(schema.users.email, emailClean))
+  try {
+    const { redis } = await import('@/lib/redis')
+    const [row] = await db.select({ id: schema.users.id }).from(schema.users).where(eq(schema.users.email, emailClean)).limit(1)
+    if (row) {
+      let cursor = '0'
+      do {
+        const [nextCursor, keys] = await redis.scan(cursor, 'MATCH', `sess:${row.id}:*`, 'COUNT', 100)
+        cursor = nextCursor
+        if (keys.length) await redis.del(...keys)
+      } while (cursor !== '0')
+    }
+  } catch {}
 }
 
 interface AnalyticsRow { view_date?: string | Date; count: string | number; }

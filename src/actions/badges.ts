@@ -340,7 +340,6 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
-    // paid badges follow the purchase only, never the Discord role
     if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified)) {
       if (owned.has(badgeId)) {
         await db
