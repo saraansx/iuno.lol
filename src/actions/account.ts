@@ -203,47 +203,100 @@ export async function swapAliasWithUsername(id: number): Promise<Result<AliasSta
 }
 
 const EMAIL_CHANGE_TTL = 10 * 60;
-const pendingEmailKey = (userId: number) => `email_change:${userId}`;
+const emailChangePwOkKey = (userId: number) => `email_change:pw_ok:${userId}`;
+const emailChangeCurrentOkKey = (userId: number) => `email_change:current_ok:${userId}`;
+const emailChangePendingNewKey = (userId: number) => `email_change:pending_new:${userId}`;
 
-export async function requestEmailChange(raw: string): Promise<Result<{ email: string }>> {
+export async function verifyPasswordAndSendCurrentOtp(rawPassword: string): Promise<Result> {
   try {
     const userId = await requireUser();
-    const sends = await checkRateLimit(`email_change_send:${userId}`, 5, 15 * 60);
-    if (!sends.ok) throw new UserFacingError("Too many requests. Please wait 15 minutes and try again.");
-
-    const email = String(raw ?? "").toLowerCase().trim();
-    const emailError = validateEmail(email);
-    if (emailError) throw new UserFacingError(emailError);
+    const sends = await checkRateLimit(`email_change_pw:${userId}`, 5, 15 * 60);
+    if (!sends.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
 
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
+    if (!user.email) throw new UserFacingError("No email on this account.");
+    const [row] = await db.select({ password: schema.users.password }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (!row?.password) throw new UserFacingError("Set a password first to change your email.");
+    {
+      const pw = String(rawPassword ?? "");
+      if (!pw) throw new UserFacingError("Enter your current password.");
+      if (pw.length > 128 || !(await isPasswordCorrect(pw, row.password))) throw new UserFacingError("Current password is incorrect.");
+    }
+    const code = await createOTPToken(user.email);
+    await sendTwoFactorTokenEmail(user.email, code);
+    await redis.set(emailChangePwOkKey(userId), "1", "EX", EMAIL_CHANGE_TTL);
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function verifyCurrentEmailOtp(rawCode: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const pwOk = await redis.get(emailChangePwOkKey(userId));
+    if (!pwOk) throw new UserFacingError("Please verify your password first.");
+    const user = await getUserById(userId);
+    if (!user?.email) throw new UserFacingError("No email on this account.");
+    const code = String(rawCode ?? "").replace(/\D/g, "");
+    if (code.length !== 6) throw new UserFacingError("Enter the 6-digit code.");
+    const check = await verifyOTPToken(user.email, code);
+    if (!check.success) throw new UserFacingError(check.error ?? "Invalid code.");
+    await redis.del(emailChangePwOkKey(userId));
+    await redis.set(emailChangeCurrentOkKey(userId), "1", "EX", EMAIL_CHANGE_TTL);
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function sendNewEmailOtp(raw: string): Promise<Result<{ email: string }>> {
+  try {
+    const userId = await requireUser();
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if (user.email) {
+      const ok = await redis.get(emailChangeCurrentOkKey(userId));
+      if (!ok) throw new UserFacingError("Please verify your current email first.");
+    }
+    const sends = await checkRateLimit(`email_change_send:${userId}`, 5, 15 * 60);
+    if (!sends.ok) throw new UserFacingError("Too many requests. Please wait 15 minutes and try again.");
+    const email = String(raw ?? "").toLowerCase().trim();
+    const emailError = validateEmail(email);
+    if (emailError) throw new UserFacingError(emailError);
     if (user.email === email) throw new UserFacingError("That's already your email.");
     await assertEmailAvailable(email);
-
     const code = await createOTPToken(email);
     await sendTwoFactorTokenEmail(email, code);
-    await redis.set(pendingEmailKey(userId), email, "EX", EMAIL_CHANGE_TTL);
+    await redis.set(emailChangePendingNewKey(userId), email, "EX", EMAIL_CHANGE_TTL);
+    if (user.email) await redis.expire(emailChangeCurrentOkKey(userId), EMAIL_CHANGE_TTL);
     return { ok: true, data: { email } };
   } catch (err) {
     return fail(err);
   }
 }
 
-export async function confirmEmailChange(rawCode: string): Promise<Result<{ email: string }>> {
+export async function confirmNewEmailOtp(rawCode: string): Promise<Result<{ email: string }>> {
   try {
     const userId = await requireUser();
-    const email = await redis.get(pendingEmailKey(userId));
-    if (!email) throw new UserFacingError("Your code expired. Request a new one.");
-
+    const pending = await redis.get(emailChangePendingNewKey(userId));
+    if (!pending) throw new UserFacingError("Your code expired. Request a new one.");
+    const user = await getUserById(userId);
+    if (user?.email) {
+      const ok = await redis.get(emailChangeCurrentOkKey(userId));
+      if (!ok) throw new UserFacingError("Current email verification expired. Start again.");
+    }
     const code = String(rawCode ?? "").replace(/\D/g, "");
     if (code.length !== 6) throw new UserFacingError("Enter the 6-digit code.");
-    const check = await verifyOTPToken(email, code);
+    const check = await verifyOTPToken(pending, code);
     if (!check.success) throw new UserFacingError(check.error ?? "Invalid code.");
-
-    await assertEmailAvailable(email);
-    await db.update(schema.users).set({ email, emailVerified: true }).where(eq(schema.users.id, userId));
-    await redis.del(pendingEmailKey(userId));
-    return { ok: true, data: { email } };
+    await assertEmailAvailable(pending);
+    await db.update(schema.users).set({ email: pending, emailVerified: true }).where(eq(schema.users.id, userId));
+    await redis.del(emailChangePendingNewKey(userId));
+    await redis.del(emailChangeCurrentOkKey(userId));
+    await redis.del(emailChangePwOkKey(userId));
+    return { ok: true, data: { email: pending } };
   } catch (err) {
     if ((err as { code?: string })?.code === "ER_DUP_ENTRY") return { ok: false, error: "That email is already in use." };
     return fail(err);
@@ -251,7 +304,47 @@ export async function confirmEmailChange(rawCode: string): Promise<Result<{ emai
 }
 
 function sessionCutoff() {
-  return new Date(Date.now() + 1000);
+  return new Date();
+}
+
+export async function completeDiscordOnboarding(rawUsername: string, rawPassword: string): Promise<Result<{ username: string }>> {
+  try {
+    const userId = await requireUser();
+    const username = cleanHandle(rawUsername);
+    const password = String(rawPassword ?? "");
+    const pwError = validatePassword(password);
+    if (pwError) throw new UserFacingError(pwError);
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if (!user.needsUsername) throw new UserFacingError("Onboarding already completed.");
+    if (user.username !== username) {
+      const [ownAlias] = await db
+        .select({ id: schema.userAliases.id })
+        .from(schema.userAliases)
+        .where(and(eq(schema.userAliases.userId, userId), eq(schema.userAliases.alias, username)))
+        .limit(1);
+      if (!ownAlias) await assertUsernameAvailable(username);
+      await db.transaction(async (tx) => {
+        if (ownAlias) await tx.delete(schema.userAliases).where(eq(schema.userAliases.id, ownAlias.id));
+        await tx.update(schema.users).set({ username, password: await hashPassword(password), needsUsername: false }).where(eq(schema.users.id, userId));
+      });
+    } else {
+      await db.update(schema.users).set({ password: await hashPassword(password), needsUsername: false }).where(eq(schema.users.id, userId));
+    }
+    const aliases = await getUserAliases(userId);
+    if (user.username !== username) {
+      await Promise.all([
+        refreshProfile(user.username),
+        refreshProfile(username),
+        invalidateLiveStatsCache(user.username),
+        ...aliases.map((a) => refreshProfile(a.alias)),
+      ]);
+    }
+    revalidatePath("/dashboard", "layout");
+    return { ok: true, data: { username } };
+  } catch (err) {
+    return fail(err);
+  }
 }
 
 export async function updatePassword(current: string, next: string): Promise<Result> {
@@ -300,6 +393,8 @@ const TOTP_SETUP_TTL = 10 * 60;
 export async function startTwoFactorSetup(): Promise<Result<{ qr: string; secret: string }>> {
   try {
     const userId = await requireUser();
+    const [pwRow] = await db.select({ password: schema.users.password }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (!pwRow?.password) throw new UserFacingError("Set a password first to use authenticator app.");
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
     if (user.twoFactorEnabledAt) throw new UserFacingError("Authenticator app is already on.");
@@ -372,6 +467,8 @@ async function passkeyRows(userId: number): Promise<PasskeyRow[]> {
 export async function beginAddPasskey(): Promise<Result<PublicKeyCredentialCreationOptionsJSON>> {
   try {
     const userId = await requireUser();
+    const [pwRow] = await db.select({ password: schema.users.password }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (!pwRow?.password) throw new UserFacingError("Set a password first to add passkeys.");
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
     if ((await listPasskeys(userId)).length >= MAX_PASSKEYS) throw new UserFacingError(`You can add up to ${MAX_PASSKEYS} passkeys.`);
@@ -438,6 +535,8 @@ export async function disconnectDiscord(): Promise<Result> {
 export async function setUsernameLoginEnabled(enabled: boolean): Promise<Result<{ enabled: boolean }>> {
   try {
     const userId = await requireUser();
+    const [row] = await db.select({ password: schema.users.password }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (!row?.password) throw new UserFacingError("Set a password first.");
     await db.update(schema.users).set({ usernameLoginEnabled: Boolean(enabled) }).where(eq(schema.users.id, userId));
     return { ok: true, data: { enabled: Boolean(enabled) } };
   } catch (err) {

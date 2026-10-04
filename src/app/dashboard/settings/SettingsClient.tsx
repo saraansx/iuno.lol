@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, beginAddPasskey, confirmEmailChange, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
+import { addAlias, beginAddPasskey, confirmNewEmailOtp, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, sendNewEmailOtp, startTwoFactorSetup, deleteAlias, editAlias, verifyCurrentEmailOtp, verifyPasswordAndSendCurrentOtp, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
 import { browserSupportsWebAuthn, startRegistration } from "@simplewebauthn/browser";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
+import SaveBar from "@/components/dashboard/SaveBar";
 
 const TABS = [
   { id: "general", label: "General" },
@@ -83,13 +84,7 @@ export default function SettingsClient({
       {tab === "general" ? (
         <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} discord={discord} />
       ) : (
-        <div className="flex flex-col gap-6">
-          <SecurityTab info={security} />
-          <PasswordCard hasPassword={security.hasPassword} />
-          <TwoFactorCard enabled={security.twoFactor} />
-          <PasskeysCard initial={security.passkeys} />
-          <UsernameLoginCard initialEnabled={security.usernameLoginEnabled} />
-        </div>
+        <SecurityTabWithSave info={security} />
       )}
     </div>
   );
@@ -118,81 +113,89 @@ function GeneralTab({
   const usernameDirty = cleanUsername !== savedUsername;
   const displayDirty = displayName.trim() !== savedDisplayName;
 
-  async function saveUsername() {
-    if (busy || !usernameDirty) return;
-    if (!usernameValid) return toast.error("2–32 characters: lowercase letters, numbers, _ and . only.");
-    setBusy("username");
-    const res = await updateUsername(cleanUsername);
-    setBusy(null);
-    if (!res.ok) return toast.error(res.error);
-    setUsername(res.data.username);
-    setSavedUsername(res.data.username);
-    toast.success("Username updated");
-    router.refresh();
-  }
-
-  async function saveDisplayName() {
-    if (busy || !displayDirty) return;
-    setBusy("display");
-    const res = await updateDisplayName(displayName);
-    setBusy(null);
-    if (!res.ok) return toast.error(res.error);
-    setDisplayName(res.data.displayName);
-    setSavedDisplayName(res.data.displayName);
-    toast.success("Display name updated");
+  const hasChanges = usernameDirty || displayDirty;
+  const revertAll = () => {
+    setUsername(savedUsername);
+    setDisplayName(savedDisplayName);
+  };
+  async function saveAll() {
+    if (busy) return;
+    if (usernameDirty) {
+      if (!usernameValid) { toast.error("2–32 characters: lowercase letters, numbers, _ and . only."); return; }
+      setBusy("username");
+      const res = await updateUsername(cleanUsername);
+      setBusy(null);
+      if (!res.ok) { toast.error(res.error); return; }
+      setUsername(res.data.username);
+      setSavedUsername(res.data.username);
+      toast.success("Username updated");
+      router.refresh();
+    }
+    if (displayDirty) {
+      setBusy("display");
+      const res = await updateDisplayName(displayName);
+      setBusy(null);
+      if (!res.ok) { toast.error(res.error); return; }
+      setDisplayName(res.data.displayName);
+      setSavedDisplayName(res.data.displayName);
+      toast.success("Display name updated");
+    }
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <FieldCard
-          title="Username"
-          description={`Your handle on ${SITE}/${savedUsername}.`}
-          label="Username"
-          icon={<span className="text-[14px] leading-none">@</span>}
-          value={username}
-          onChange={(v) => setUsername(v.toLowerCase().replace(/[^a-z0-9_.]/g, "").slice(0, 32))}
-          onSave={saveUsername}
-          saveLabel="Save username"
-          dirty={usernameDirty}
-          busy={busy === "username"}
-          hint={usernameDirty && !usernameValid ? "2–32 characters: a–z, 0–9, _ and ." : "Your old link stops working once you change it."}
-          hintError={usernameDirty && !usernameValid}
-          maxLength={32}
-        />
-        <FieldCard
-          title="Display name"
-          description="Shown on your profile. Leave empty to show your username instead."
-          label="Display name"
-          icon={
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
-            </svg>
-          }
-          value={displayName}
-          onChange={(v) => setDisplayName(v.slice(0, 32))}
-          onSave={saveDisplayName}
-          saveLabel="Save display name"
-          dirty={displayDirty}
-          busy={busy === "display"}
-          hint={`${displayName.length}/32`}
-          maxLength={32}
+    <>
+      <div className="flex flex-col gap-6 pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FieldCard
+            title="Username"
+            description={`Your handle on ${SITE}/${savedUsername}.`}
+            label="Username"
+            icon={<span className="text-[14px] leading-none">@</span>}
+            value={username}
+            onChange={(v) => setUsername(v.toLowerCase().replace(/[^a-z0-9_.]/g, "").slice(0, 32))}
+            onSave={saveAll}
+            saveLabel="Save username"
+            dirty={usernameDirty}
+            busy={busy === "username"}
+            hint={usernameDirty && !usernameValid ? "2–32 characters: a–z, 0–9, _ and ." : "Your old link stops working once you change it."}
+            hintError={usernameDirty && !usernameValid}
+            maxLength={32}
+          />
+          <FieldCard
+            title="Display name"
+            description="Shown on your profile. Leave empty to show your username instead."
+            label="Display name"
+            icon={
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1" />
+              </svg>
+            }
+            value={displayName}
+            onChange={(v) => setDisplayName(v.slice(0, 32))}
+            onSave={saveAll}
+            saveLabel="Save display name"
+            dirty={displayDirty}
+            busy={busy === "display"}
+            hint={`${displayName.length}/32`}
+            maxLength={32}
+          />
+        </div>
+
+        <ConnectionsCard initial={discord} savedUsername={savedUsername} />
+
+        <AliasPromo premium={initialAliases.premium} />
+        <AliasesSection
+          initial={initialAliases}
+          onUsernameChange={(u) => {
+            setUsername(u);
+            setSavedUsername(u);
+            router.refresh();
+          }}
         />
       </div>
-
-      <ConnectionsCard initial={discord} savedUsername={savedUsername} />
-
-      <AliasPromo premium={initialAliases.premium} />
-      <AliasesSection
-        initial={initialAliases}
-        onUsernameChange={(u) => {
-          setUsername(u);
-          setSavedUsername(u);
-          router.refresh();
-        }}
-      />
-    </div>
+      <SaveBar show={hasChanges} onSave={saveAll} onRevert={revertAll} />
+    </>
   );
 }
 
@@ -218,7 +221,7 @@ function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnectio
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] overflow-hidden shadow-sm flex flex-col">
-      {/* Minimal username banner — themed */}
+      {}
       <div className="px-6 py-3 border-b border-white/5 flex items-center justify-between">
         <span className="text-[12px] font-normal text-white/50 tracking-tight truncate">@{savedUsername}</span>
         <span className="text-[10px] tracking-[0.14em] uppercase text-white/25 shrink-0 ml-3">Connections</span>
@@ -284,6 +287,33 @@ function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnectio
   );
 }
 
+function SecurityTabWithSave({ info }: { info: SecurityInfo }) {
+  const [usernameLoginEnabled, setUsernameLoginEnabledState] = useState(info.usernameLoginEnabled);
+  const [savedUsernameLoginEnabled, setSavedUsernameLoginEnabled] = useState(info.usernameLoginEnabled);
+  const hasChanges = usernameLoginEnabled !== savedUsernameLoginEnabled;
+  const revertAll = () => setUsernameLoginEnabledState(savedUsernameLoginEnabled);
+  async function saveAll() {
+    if (!hasChanges) return;
+    const res = await setUsernameLoginEnabled(usernameLoginEnabled);
+    if (!res.ok) { toast.error(res.error); return; }
+    setSavedUsernameLoginEnabled(res.data.enabled);
+    setUsernameLoginEnabledState(res.data.enabled);
+    toast.success(res.data.enabled ? "Username login enabled" : "Username login disabled");
+  }
+  return (
+    <>
+      <div className="flex flex-col gap-6 pb-24">
+        <SecurityTab info={info} />
+        <PasswordCard hasPassword={info.hasPassword} />
+        <TwoFactorCard enabled={info.twoFactor} />
+        <PasskeysCard initial={info.passkeys} />
+        <UsernameLoginCard controlledEnabled={usernameLoginEnabled} onToggle={setUsernameLoginEnabledState} />
+      </div>
+      <SaveBar show={hasChanges} onSave={saveAll} onRevert={revertAll} />
+    </>
+  );
+}
+
 function SecurityTab({ info }: { info: SecurityInfo }) {
   const [email, setEmail] = useState(info.email);
   const [verified, setVerified] = useState(info.emailVerified);
@@ -318,7 +348,7 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="shrink-0 px-4 text-[12.5px] border-l border-white/5 text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+          className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 cursor-pointer"
         >
           {email ? "Request email change" : "Add email"}
         </button>
@@ -369,7 +399,7 @@ function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="shrink-0 flex items-center gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+          className="shrink-0 flex items-center gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 cursor-pointer"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
@@ -539,9 +569,7 @@ function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
           type="button"
           onClick={() => setModal(enabled ? "disable" : "setup")}
           className={`shrink-0 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors cursor-pointer ${
-            enabled
-              ? "text-red-300 bg-red-500/10 border-red-500/20 hover:bg-red-500/20"
-              : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
+            enabled ? "text-red-300 bg-red-500/10 border-red-500/20 hover:bg-red-500/20" : "text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30"
           }`}
         >
           {enabled ? "Turn off" : "Set up authenticator app"}
@@ -746,20 +774,8 @@ function TwoFactorDisableModal({ onClose, onDone }: { onClose: () => void; onDon
   );
 }
 
-function UsernameLoginCard({ initialEnabled }: { initialEnabled: boolean }) {
-  const [enabled, setEnabled] = useState(initialEnabled);
-  const [busy, setBusy] = useState(false);
-
-  async function toggle() {
-    if (busy) return;
-    const next = !enabled;
-    setBusy(true);
-    const res = await setUsernameLoginEnabled(next);
-    setBusy(false);
-    if (!res.ok) return toast.error(res.error);
-    setEnabled(res.data.enabled);
-    toast.success(res.data.enabled ? "Username login enabled" : "Username login disabled");
-  }
+function UsernameLoginCard({ controlledEnabled, onToggle }: { controlledEnabled: boolean; onToggle: (v: boolean) => void }) {
+  const enabled = controlledEnabled;
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
@@ -778,9 +794,8 @@ function UsernameLoginCard({ initialEnabled }: { initialEnabled: boolean }) {
           role="switch"
           aria-checked={enabled}
           aria-label="Username login"
-          onClick={toggle}
-          disabled={busy}
-          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors cursor-pointer disabled:opacity-50 ${enabled ? "bg-[#5b6cf5] border-[#5b6cf5]" : "bg-white/[0.08] border-white/10"}`}
+          onClick={() => onToggle(!enabled)}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors cursor-pointer ${enabled ? "bg-[#5b6cf5] border-[#5b6cf5]" : "bg-white/[0.08] border-white/10"}`}
         >
           <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-6" : "translate-x-1"}`} />
         </button>
@@ -936,31 +951,67 @@ function PasswordField({
 }
 
 function ChangeEmailModal({ current, onClose, onDone }: { current: string | null; onClose: () => void; onDone: (email: string) => void }) {
-  const [step, setStep] = useState<"email" | "code">("email");
+  type Step = "password" | "current_code" | "new_email" | "new_code";
+  const [step, setStep] = useState<Step>(current ? "password" : "new_email");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [currentCode, setCurrentCode] = useState("");
   const [value, setValue] = useState("");
-  const [code, setCode] = useState("");
+  const [newCode, setNewCode] = useState("");
   const [sentTo, setSentTo] = useState("");
   const [busy, setBusy] = useState(false);
   const clean = value.toLowerCase().trim();
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean) && clean.length <= 254;
 
-  async function send(e?: React.FormEvent) {
+  async function submitPassword(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (busy) return;
+    if (current && password.length === 0) return toast.error("Enter your current password.");
+    setBusy(true);
+    const res = await verifyPasswordAndSendCurrentOtp(password);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success(`Code sent to ${current}`);
+    setStep("current_code");
+  }
+
+  async function submitCurrentCode(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (busy || currentCode.length !== 6) return;
+    setBusy(true);
+    const res = await verifyCurrentEmailOtp(currentCode);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success("Current email verified");
+    setStep("new_email");
+  }
+
+  async function resendCurrentCode() {
+    if (busy) return;
+    setBusy(true);
+    const res = await verifyPasswordAndSendCurrentOtp(password);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success(`Code resent to ${current}`);
+  }
+
+  async function sendNew(e?: React.FormEvent) {
     e?.preventDefault();
     if (busy || !validEmail) return;
     setBusy(true);
-    const res = await requestEmailChange(clean);
+    const res = await sendNewEmailOtp(clean);
     setBusy(false);
     if (!res.ok) return toast.error(res.error);
     setSentTo(res.data.email);
-    setStep("code");
+    setStep("new_code");
     toast.success(`Code sent to ${res.data.email}`);
   }
 
-  async function confirm(e: React.FormEvent) {
+  async function confirmNew(e: React.FormEvent) {
     e.preventDefault();
-    if (busy || code.length !== 6) return;
+    if (busy || newCode.length !== 6) return;
     setBusy(true);
-    const res = await confirmEmailChange(code);
+    const res = await confirmNewEmailOtp(newCode);
     setBusy(false);
     if (!res.ok) return toast.error(res.error);
     toast.success("Email updated");
@@ -979,72 +1030,91 @@ function ChangeEmailModal({ current, onClose, onDone }: { current: string | null
       <h3 id="change-email-title" className="text-[15px] font-normal text-white/90 tracking-tight">
         {current ? "Change email" : "Add email"}
       </h3>
-      {step === "email" ? (
+
+      {step === "password" && (
         <>
           <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
-            {current ? <>Currently <span className="text-white/70">{current}</span>. </> : null}
-            We&apos;ll send a 6-digit code to your new email to confirm it.
+            First, confirm your current password. We&apos;ll then send a code to <span className="text-white/70">{current}</span>.
           </p>
-          <form onSubmit={send} className="mt-4 flex flex-col gap-3">
+          <form onSubmit={submitPassword} className="mt-4 flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] text-white/60">New email</span>
-              <input
-                autoFocus
-                type="email"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="you@example.com"
-                autoComplete="email"
-                maxLength={254}
-                className={inputCls}
-              />
+              <span className="text-[12px] text-white/60">Current password</span>
+              <div className="flex items-stretch bg-[#161616] border border-white/5 rounded-xl overflow-hidden focus-within:border-[#5b6cf5]/40">
+                <input
+                  autoFocus
+                  type={showPw ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  maxLength={128}
+                  className="flex-1 min-w-0 bg-transparent h-10 px-3.5 text-[13px] text-white outline-none placeholder:text-white/25"
+                />
+                <button type="button" onClick={() => setShowPw((v) => !v)} className="shrink-0 w-10 flex items-center justify-center text-white/40 hover:text-white border-l border-white/5">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d={showPw ? "M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6" : "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"} /><circle cx="12" cy="12" r={showPw ? "0" : "3"} /></svg>
+                </button>
+              </div>
             </label>
+            <p className="text-[11px] text-white/30">You need to enter your current password.</p>
             <div className="flex items-center justify-end gap-2">
-              <button type="button" onClick={onClose} className={secondaryCls}>
-                Cancel
-              </button>
-              <button type="submit" disabled={busy || !validEmail} className={primaryCls}>
-                {busy ? "Sending…" : "Send code"}
-              </button>
+              <button type="button" onClick={onClose} className={secondaryCls}>Cancel</button>
+              <button type="submit" disabled={busy} className={primaryCls}>{busy ? "Sending…" : "Continue"}</button>
             </div>
           </form>
         </>
-      ) : (
+      )}
+
+      {step === "current_code" && (
         <>
-          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
-            Enter the code we sent to <span className="text-white/70">{sentTo}</span>. It expires in 5 minutes.
-          </p>
-          <form onSubmit={confirm} className="mt-4 flex flex-col gap-3">
+          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">Enter the code we sent to <span className="text-white/70">{current}</span>. Expires in 5 minutes.</p>
+          <form onSubmit={submitCurrentCode} className="mt-4 flex flex-col gap-3">
             <label className="flex flex-col gap-1.5">
-              <span className="text-[12px] text-white/60">Verification code</span>
-              <input
-                autoFocus
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                placeholder="123456"
-                className={`${inputCls} tracking-[0.4em] text-center`}
-              />
+              <span className="text-[12px] text-white/60">Code from current email</span>
+              <input autoFocus inputMode="numeric" autoComplete="one-time-code" value={currentCode} onChange={(e) => setCurrentCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" className={`${inputCls} tracking-[0.4em] text-center`} />
             </label>
             <div className="flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setStep("email");
-                  setCode("");
-                }}
-                className="text-[12px] text-white/45 hover:text-white/80 transition-colors cursor-pointer"
-              >
-                Use a different email
-              </button>
+              <button type="button" onClick={() => setStep("password")} className="text-[12px] text-white/45 hover:text-white/80 cursor-pointer">Back</button>
               <div className="flex items-center gap-2">
-                <button type="button" onClick={() => send()} disabled={busy} className={secondaryCls}>
-                  Resend
-                </button>
-                <button type="submit" disabled={busy || code.length !== 6} className={primaryCls}>
-                  {busy ? "Checking…" : "Confirm"}
-                </button>
+                <button type="button" onClick={resendCurrentCode} disabled={busy} className={secondaryCls}>Resend</button>
+                <button type="submit" disabled={busy || currentCode.length !== 6} className={primaryCls}>{busy ? "Checking…" : "Verify"}</button>
+              </div>
+            </div>
+          </form>
+        </>
+      )}
+
+      {step === "new_email" && (
+        <>
+          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+            {current ? <><span className="text-emerald-300/80">Current email verified.</span> Now enter your new email. We&apos;ll send a code there. </> : <>We&apos;ll send a 6-digit code to your new email to confirm it.</>}
+            {current ? <>Currently <span className="text-white/50">{current}</span>.</> : null}
+          </p>
+          <form onSubmit={sendNew} className="mt-4 flex flex-col gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[12px] text-white/60">New email</span>
+              <input autoFocus type="email" value={value} onChange={(e) => setValue(e.target.value)} placeholder="you@example.com" autoComplete="email" maxLength={254} className={inputCls} />
+            </label>
+            <div className="flex items-center justify-end gap-2">
+              <button type="button" onClick={onClose} className={secondaryCls}>Cancel</button>
+              <button type="submit" disabled={busy || !validEmail} className={primaryCls}>{busy ? "Sending…" : "Send code"}</button>
+            </div>
+          </form>
+        </>
+      )}
+
+      {step === "new_code" && (
+        <>
+          <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">Enter the code we sent to <span className="text-white/70">{sentTo}</span>. It expires in 5 minutes.</p>
+          <form onSubmit={confirmNew} className="mt-4 flex flex-col gap-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="text-[12px] text-white/60">Verification code</span>
+              <input autoFocus inputMode="numeric" autoComplete="one-time-code" value={newCode} onChange={(e) => setNewCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="123456" className={`${inputCls} tracking-[0.4em] text-center`} />
+            </label>
+            <div className="flex items-center justify-between gap-2">
+              <button type="button" onClick={() => { setStep("new_email"); setNewCode(""); }} className="text-[12px] text-white/45 hover:text-white/80 cursor-pointer">Use a different email</button>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => sendNew()} disabled={busy} className={secondaryCls}>Resend</button>
+                <button type="submit" disabled={busy || newCode.length !== 6} className={primaryCls}>{busy ? "Checking…" : "Confirm"}</button>
               </div>
             </div>
           </form>

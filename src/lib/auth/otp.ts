@@ -1,7 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { UserFacingError } from '@/lib/errors'
 import { addMinutes } from 'date-fns'
-import { eq } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { randomInt } from 'crypto'
 import bcrypt from 'bcrypt'
 
@@ -25,6 +25,9 @@ export async function createOTPToken(email: string): Promise<string> {
   const hashedOTP  = await hashOTP(otp)
 
   await db.transaction(async (tx) => {
+    const clockRes = (await tx.execute(sql`SELECT NOW() as nowTs`)) as unknown as [{ nowTs: string | Date }[]]
+    const clockRow = (clockRes as unknown as [{ nowTs: string | Date }])[0]
+    const nowMs = new Date((clockRow as { nowTs: string | Date }).nowTs).getTime()
     const existingRows = await tx
       .select()
       .from(schema.otpTokens)
@@ -32,13 +35,16 @@ export async function createOTPToken(email: string): Promise<string> {
       .for("update")
 
     if (existingRows.length > 0) {
-      const timePassed = (Date.now() - existingRows[0].createdAt.getTime()) / 1000
+      const raw = existingRows[0].createdAt
+      const createdAt = raw instanceof Date ? raw : new Date(raw as string)
+      const elapsed = (nowMs - createdAt.getTime()) / 1000
+      const timePassed = elapsed < 0 ? 0 : elapsed
       if (timePassed < 60) {
         throw new UserFacingError(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another OTP.`)
       }
+      await tx.delete(schema.otpTokens).where(eq(schema.otpTokens.email, email))
     }
 
-    await tx.delete(schema.otpTokens).where(eq(schema.otpTokens.email, email))
     await tx.insert(schema.otpTokens).values({ email, token: hashedOTP, expiresAt })
   })
 
