@@ -12,7 +12,7 @@ import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
 
 const TABS = [
-  { id: "names", label: "Names" },
+  { id: "general", label: "General" },
   { id: "security", label: "Security" },
 ] as const;
 
@@ -43,13 +43,13 @@ export default function SettingsClient({
   initialAliases: AliasState;
   security: SecurityInfo;
 }) {
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("names");
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("general");
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-[20px] font-normal text-white tracking-tight">Account settings</h1>
-        <p className="text-white/40 text-[13px] mt-0.5">Manage your names, aliases and email.</p>
+        <p className="text-white/40 text-[13px] mt-0.5">Manage your general account settings, aliases and security.</p>
       </div>
 
       <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit" role="tablist">
@@ -76,8 +76,8 @@ export default function SettingsClient({
         ))}
       </div>
 
-      {tab === "names" ? (
-        <NamesTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} />
+      {tab === "general" ? (
+        <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} />
       ) : (
         <div className="flex flex-col gap-6">
           <SecurityTab info={security} />
@@ -90,7 +90,7 @@ export default function SettingsClient({
   );
 }
 
-function NamesTab({
+function GeneralTab({
   initialUsername,
   initialDisplayName,
   initialAliases,
