@@ -43,11 +43,18 @@ export async function login(input: LoginInput) {
     }
 
     const isEmail = identifier.includes('@')
+    if (!isEmail) {
+      const rateU = await checkRateLimit(`login_username:${identifier.toLowerCase()}`, 10, 10 * 60)
+      if (!rateU.ok) return { error: 'Too many username login attempts. Try again in a few minutes.' }
+    }
     const user = isEmail
       ? await getUserByEmailWithPassword(identifier)
       : await getUserByUsernameWithPassword(identifier)
     if (!user || !user.email) {
       return { error: 'Invalid credentials.' }
+    }
+    if (!isEmail && !user.usernameLoginEnabled) {
+      return { error: 'Username login is disabled. Sign in with your email.' }
     }
 
     const email = user.email

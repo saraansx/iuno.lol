@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, beginAddPasskey, confirmEmailChange, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
+import { addAlias, beginAddPasskey, confirmEmailChange, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, startTwoFactorSetup, deleteAlias, editAlias, requestEmailChange, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
 import { browserSupportsWebAuthn, startRegistration } from "@simplewebauthn/browser";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
@@ -16,7 +16,7 @@ const TABS = [
   { id: "security", label: "Security" },
 ] as const;
 
-export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean; passkeys: PasskeyRow[] };
+export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean; usernameLoginEnabled: boolean; passkeys: PasskeyRow[] };
 const PAGE_SIZE = 10;
 const HANDLE_RE = /^[a-z0-9_.]{2,32}$/;
 const SITE = "iuno.lol";
@@ -32,16 +32,20 @@ const SORT_OPTIONS: { id: AliasSort; label: string }[] = [
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
+export type DiscordConnection = { connected: boolean; username: string | null };
+
 export default function SettingsClient({
   initialUsername,
   initialDisplayName,
   initialAliases,
   security,
+  discord,
 }: {
   initialUsername: string;
   initialDisplayName: string;
   initialAliases: AliasState;
   security: SecurityInfo;
+  discord: DiscordConnection;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("general");
 
@@ -77,13 +81,14 @@ export default function SettingsClient({
       </div>
 
       {tab === "general" ? (
-        <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} />
+        <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} discord={discord} />
       ) : (
         <div className="flex flex-col gap-6">
           <SecurityTab info={security} />
           <PasswordCard hasPassword={security.hasPassword} />
           <TwoFactorCard enabled={security.twoFactor} />
           <PasskeysCard initial={security.passkeys} />
+          <UsernameLoginCard initialEnabled={security.usernameLoginEnabled} />
         </div>
       )}
     </div>
@@ -94,10 +99,12 @@ function GeneralTab({
   initialUsername,
   initialDisplayName,
   initialAliases,
+  discord,
 }: {
   initialUsername: string;
   initialDisplayName: string;
   initialAliases: AliasState;
+  discord: DiscordConnection;
 }) {
   const router = useRouter();
   const [username, setUsername] = useState(initialUsername);
@@ -174,6 +181,8 @@ function GeneralTab({
         />
       </div>
 
+      <ConnectionsCard initial={discord} savedUsername={savedUsername} />
+
       <AliasPromo premium={initialAliases.premium} />
       <AliasesSection
         initial={initialAliases}
@@ -183,6 +192,94 @@ function GeneralTab({
           router.refresh();
         }}
       />
+    </div>
+  );
+}
+
+function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnection; savedUsername: string }) {
+  const [connected, setConnected] = useState(initial.connected);
+  const [username, setUsername] = useState(initial.username);
+  const [busy, setBusy] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const router = useRouter();
+
+  async function handleDisconnect() {
+    if (busy) return;
+    setBusy(true);
+    const res = await disconnectDiscord();
+    setBusy(false);
+    setConfirmOpen(false);
+    if (!res.ok) return toast.error(res.error);
+    setConnected(false);
+    setUsername(null);
+    toast.success("Discord disconnected");
+    router.refresh();
+  }
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] overflow-hidden shadow-sm flex flex-col">
+      {/* Minimal username banner — themed */}
+      <div className="px-6 py-3 border-b border-white/5 flex items-center justify-between">
+        <span className="text-[12px] font-normal text-white/50 tracking-tight truncate">@{savedUsername}</span>
+        <span className="text-[10px] tracking-[0.14em] uppercase text-white/25 shrink-0 ml-3">Connections</span>
+      </div>
+
+      <div className="p-6 flex flex-col gap-4">
+        <div>
+          <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Connections</h2>
+          <p className="text-[12px] text-white/40 mt-1">Link external accounts to your profile.</p>
+        </div>
+
+        <div className="flex items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-3">
+          <span className="w-8 h-8 rounded-xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] shrink-0" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M20.317 4.492c-1.53-.69-3.17-1.2-4.885-1.49a.075.075 0 0 0-.079.036c-.21.369-.444.85-.608 1.23a18.566 18.566 0 0 0-5.487 0 12.36 12.36 0 0 0-.617-1.23A.077.077 0 0 0 9.562 3c-1.714.29-3.354.8-4.885 1.491a.07.07 0 0 0-.032.027C.533 9.093-.32 13.555.099 18.159a.082.082 0 0 0 .031.056 19.9 19.9 0 0 0 5.993 2.98.078.078 0 0 0 .084-.027 14.09 14.09 0 0 0 1.226-1.963.076.076 0 0 0-.041-.104 13.2 13.2 0 0 1-1.872-.878.075.075 0 0 1-.008-.125c.126-.093.252-.19.372-.291a.074.074 0 0 1 .078-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .079.009c.12.102.245.198.372.292a.075.075 0 0 1-.006.125 12.3 12.3 0 0 1-1.873.877.077.077 0 0 0-.041.105c.36.687.772 1.348 1.225 1.962a.077.077 0 0 0 .083.028 19.84 19.84 0 0 0 6.002-2.981.078.078 0 0 0 .031-.055c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028ZM8.02 15.331c-1.183 0-2.157-1.068-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.947 2.38-2.157 2.38Zm7.974 0c-1.183 0-2.157-1.068-2.157-2.38 0-1.312.955-2.38 2.157-2.38 1.21 0 2.176 1.077 2.157 2.38 0 1.312-.947 2.38-2.157 2.38Z" />
+            </svg>
+          </span>
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-[13px] text-white/90 leading-none">Discord</span>
+            <span className="text-[11.5px] truncate mt-1">
+              {connected ? (
+                <span className="text-white/50 truncate">{username ? `@${username}` : "Connected"}</span>
+              ) : (
+                <span className="text-white/30">Not connected</span>
+              )}
+            </span>
+          </div>
+          {connected ? (
+            <button
+              type="button"
+              onClick={() => setConfirmOpen(true)}
+              disabled={busy}
+              className="shrink-0 h-9 rounded-xl px-4 text-[12.5px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.08] hover:text-white transition-colors cursor-pointer disabled:opacity-50"
+            >
+              Disconnect
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => (window.location.href = "/api/auth/discord")}
+              className="shrink-0 h-9 rounded-xl px-4 text-[12.5px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+            >
+              Connect
+            </button>
+          )}
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {confirmOpen && (
+          <ConfirmModal
+            title="Disconnect Discord?"
+            text="Your Discord account will be unlinked. You can reconnect anytime."
+            confirmLabel="Disconnect"
+            busyLabel="Disconnecting…"
+            busy={busy}
+            onCancel={() => setConfirmOpen(false)}
+            onConfirm={handleDisconnect}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -646,6 +743,53 @@ function TwoFactorDisableModal({ onClose, onDone }: { onClose: () => void; onDon
         </div>
       </form>
     </ModalShell>
+  );
+}
+
+function UsernameLoginCard({ initialEnabled }: { initialEnabled: boolean }) {
+  const [enabled, setEnabled] = useState(initialEnabled);
+  const [busy, setBusy] = useState(false);
+
+  async function toggle() {
+    if (busy) return;
+    const next = !enabled;
+    setBusy(true);
+    const res = await setUsernameLoginEnabled(next);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    setEnabled(res.data.enabled);
+    toast.success(res.data.enabled ? "Username login enabled" : "Username login disabled");
+  }
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Username login</h2>
+            <span className={`text-[10.5px] rounded-full px-2 py-0.5 border ${enabled ? "text-[#c7cdfb] bg-[#5b6cf5]/15 border-[#5b6cf5]/25" : "text-white/40 bg-white/[0.03] border-white/10"}`}>
+              {enabled ? "On" : "Off"}
+            </span>
+          </div>
+          <p className="text-[12px] text-white/40 mt-1">Allow signing in with your username instead of only email. Email login always works.</p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={enabled}
+          aria-label="Username login"
+          onClick={toggle}
+          disabled={busy}
+          className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors cursor-pointer disabled:opacity-50 ${enabled ? "bg-[#5b6cf5] border-[#5b6cf5]" : "bg-white/[0.08] border-white/10"}`}
+        >
+          <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-6" : "translate-x-1"}`} />
+        </button>
+      </div>
+      <div className="mt-4 flex items-center gap-2 bg-[#161616] border border-white/5 rounded-xl px-3.5 h-10">
+        <span className="text-[12px] text-white/60">Status:</span>
+        <span className={`text-[12.5px] ${enabled ? "text-white/90" : "text-white/40"}`}>{enabled ? "You can sign in with username or email" : "Username login is off — use email to sign in"}</span>
+      </div>
+    </div>
   );
 }
 

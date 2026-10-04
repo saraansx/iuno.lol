@@ -53,6 +53,7 @@ export default async function SettingsPage() {
         }}
         security={{ email: user.email ?? null, emailVerified: Boolean(user.emailVerified), hasPassword,
           twoFactor: Boolean(user.twoFactorEnabledAt),
+          usernameLoginEnabled: Boolean(user.usernameLoginEnabled),
           passkeys: passkeys.map((p) => ({
             id: p.id,
             name: p.name,
@@ -60,6 +61,7 @@ export default async function SettingsPage() {
             lastUsedAt: p.lastUsedAt ? p.lastUsedAt.toISOString() : null,
           })),
         }}
+        discord={{ connected: Boolean(user.discordId), username: user.discordUsername ?? null }}
       />
     </div>
   );

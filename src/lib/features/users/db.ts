@@ -21,6 +21,7 @@ const userColumns = {
   hasVerified: schema.users.hasVerified,
   badgeTokens: schema.users.badgeTokens,
   aliasTokens: schema.users.aliasTokens,
+  usernameLoginEnabled: schema.users.usernameLoginEnabled,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,
@@ -302,6 +303,7 @@ export async function getUserByEmailWithPassword(email: string) {
       password: schema.users.password,
       emailVerified: schema.users.emailVerified,
       twoFactorEnabledAt: schema.users.twoFactorEnabledAt,
+      usernameLoginEnabled: schema.users.usernameLoginEnabled,
     })
     .from(schema.users)
     .where(eq(schema.users.email, email.toLowerCase().trim()))
@@ -318,6 +320,7 @@ export async function getUserByUsernameWithPassword(username: string) {
       password: schema.users.password,
       emailVerified: schema.users.emailVerified,
       twoFactorEnabledAt: schema.users.twoFactorEnabledAt,
+      usernameLoginEnabled: schema.users.usernameLoginEnabled,
     })
     .from(schema.users)
     .where(eq(schema.users.username, username.toLowerCase().trim()))

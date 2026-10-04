@@ -421,3 +421,26 @@ export async function deleteAlias(id: number): Promise<Result<AliasState>> {
     return fail(err);
   }
 }
+
+export async function disconnectDiscord(): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    if (!user.discordId) throw new UserFacingError("Discord is not connected.");
+    await db.update(schema.users).set({ discordId: null, discordUsername: null }).where(eq(schema.users.id, userId));
+    return { ok: true, data: undefined };
+  } catch (err) {
+    return fail(err);
+  }
+}
+
+export async function setUsernameLoginEnabled(enabled: boolean): Promise<Result<{ enabled: boolean }>> {
+  try {
+    const userId = await requireUser();
+    await db.update(schema.users).set({ usernameLoginEnabled: Boolean(enabled) }).where(eq(schema.users.id, userId));
+    return { ok: true, data: { enabled: Boolean(enabled) } };
+  } catch (err) {
+    return fail(err);
+  }
+}
