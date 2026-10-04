@@ -543,3 +543,35 @@ export async function setUsernameLoginEnabled(enabled: boolean): Promise<Result<
     return fail(err);
   }
 }
+
+export async function getActiveSessions(): Promise<Result<import("@/lib/auth/session").ActiveSession[]>> {
+  try {
+    const userId = await requireUser();
+    const { getActiveSessionsForUser } = await import("@/lib/auth/session");
+    const sessions = await getActiveSessionsForUser(userId);
+    return { ok: true, data: sessions };
+  } catch (err) { return fail(err) as never; }
+}
+
+export async function revokeSessionAction(jti: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const { revokeSession, getCurrentJti } = await import("@/lib/auth/session");
+    const current = await getCurrentJti();
+    if (current && jti === current) throw new UserFacingError("You can't revoke your current session.");
+    const ok = await revokeSession(userId, String(jti ?? ""));
+    if (!ok) throw new UserFacingError("Session not found or already expired.");
+    return { ok: true, data: undefined };
+  } catch (err) { return fail(err); }
+}
+
+export async function revokeOtherSessionsAction(): Promise<Result<{ revoked: number }>> {
+  try {
+    const userId = await requireUser();
+    const { revokeOtherSessions, getCurrentJti } = await import("@/lib/auth/session");
+    const current = await getCurrentJti();
+    if (!current) throw new UserFacingError("Current session not found.");
+    const n = await revokeOtherSessions(userId, current);
+    return { ok: true, data: { revoked: n } };
+  } catch (err) { return fail(err) as never; }
+}

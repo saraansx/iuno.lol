@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
-import { addAlias, beginAddPasskey, confirmNewEmailOtp, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, sendNewEmailOtp, startTwoFactorSetup, deleteAlias, editAlias, verifyCurrentEmailOtp, verifyPasswordAndSendCurrentOtp, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, type AliasState, type PasskeyRow } from "@/actions/account";
+import { addAlias, beginAddPasskey, confirmNewEmailOtp, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, sendNewEmailOtp, startTwoFactorSetup, deleteAlias, editAlias, verifyCurrentEmailOtp, verifyPasswordAndSendCurrentOtp, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, getActiveSessions, revokeSessionAction, revokeOtherSessionsAction, type AliasState, type PasskeyRow } from "@/actions/account";
 import { browserSupportsWebAuthn, startRegistration } from "@simplewebauthn/browser";
 import { toast } from "@/components/ui/toast";
 import AliasPromo from "@/components/dashboard/AliasPromo";
@@ -15,6 +15,7 @@ import SaveBar from "@/components/dashboard/SaveBar";
 const TABS = [
   { id: "general", label: "General" },
   { id: "security", label: "Security" },
+  { id: "sessions", label: "Sessions" },
 ] as const;
 
 export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean; usernameLoginEnabled: boolean; passkeys: PasskeyRow[] };
@@ -83,8 +84,10 @@ export default function SettingsClient({
 
       {tab === "general" ? (
         <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} discord={discord} />
-      ) : (
+      ) : tab === "security" ? (
         <SecurityTabWithSave info={security} />
+      ) : (
+        <SessionsTab />
       )}
     </div>
   );
@@ -1781,5 +1784,98 @@ function ConfirmModal({
         </button>
       </div>
     </ModalShell>
+  );
+}
+
+function SessionsTab() {
+  type SessionRow = { jti: string; ua: string; ip: string | null; createdAt: string | null; current: boolean; expiresAt: string | null };
+  const [sessions, setSessions] = useState<SessionRow[] | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [revoking, setRevoking] = useState<string | null>(null);
+  const [revokingOthers, setRevokingOthers] = useState(false);
+
+  async function load() {
+    setLoading(true);
+    const res = await getActiveSessions();
+    setLoading(false);
+    if (!res.ok) { toast.error(res.error); return; }
+    setSessions(res.data as SessionRow[]);
+  }
+  useEffect(() => { load(); }, []);
+
+  async function revoke(jti: string) {
+    setRevoking(jti);
+    const res = await revokeSessionAction(jti);
+    setRevoking(null);
+    if (!res.ok) return toast.error(res.error);
+    toast.success("Session ended");
+    setSessions((prev) => (prev ? prev.filter((s) => s.jti !== jti) : prev));
+  }
+  async function revokeOthers() {
+    setRevokingOthers(true);
+    const res = await revokeOtherSessionsAction();
+    setRevokingOthers(false);
+    if (!res.ok) return toast.error(res.error);
+    toast.success(res.data.revoked ? `Ended ${res.data.revoked} other session${res.data.revoked === 1 ? "" : "s"}` : "No other sessions");
+    load();
+  }
+
+  function formatDate(iso: string | null) {
+    if (!iso) return "—";
+    try { return new Date(iso).toLocaleString(undefined, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }); } catch { return iso; }
+  }
+
+  const hasOthers = sessions ? sessions.some((s) => !s.current) : false;
+
+  return (
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Active sessions</h2>
+          <p className="text-[12px] text-white/40 mt-1">Devices currently signed in to your account.</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button type="button" onClick={load} disabled={loading} className="h-9 rounded-xl px-4 text-[12.5px] text-white/60 bg-white/[0.04] border border-white/10 hover:bg-white/[0.06] hover:text-white transition-colors cursor-pointer disabled:opacity-50">Refresh</button>
+          {hasOthers && (
+            <button type="button" onClick={revokeOthers} disabled={revokingOthers} className="h-9 rounded-xl px-4 text-[12.5px] text-red-300 bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors cursor-pointer disabled:opacity-50">{revokingOthers ? "Ending…" : "End other sessions"}</button>
+          )}
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="h-24 flex items-center justify-center"><div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" /></div>
+      ) : !sessions || sessions.length === 0 ? (
+        <div className="border border-dashed border-white/[0.08] rounded-xl bg-[#141414]/30 py-8 px-4 text-center"><p className="text-[12.5px] text-white/45">No active sessions found.</p></div>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {sessions.map((s) => (
+            <li key={s.jti} className="flex flex-col sm:flex-row sm:items-center gap-3 bg-[#161616] border border-white/5 rounded-xl px-3.5 py-3">
+              <span className="w-8 h-8 rounded-xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/20 flex items-center justify-center text-[#5b6cf5] shrink-0" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="7" width="18" height="13" rx="2" /><path d="M8 7V5a4 4 0 0 1 8 0v2" /><path d="M12 12h.01" /></svg>
+              </span>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="text-[12.5px] text-white/85 truncate" title={s.ua}>{s.ua}</span>
+                  {s.current && (
+                    <span className="shrink-0 inline-flex items-center gap-1 text-[10px] font-medium tracking-wide px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l5 5L20 7" /></svg>
+                      This device
+                    </span>
+                  )}
+                </span>
+                <span className="text-[11px] text-white/35 truncate mt-0.5">
+                  {s.ip ? s.ip : "Unknown IP"} {s.createdAt ? `· ${formatDate(s.createdAt)}` : ""}
+                </span>
+              </div>
+              {!s.current ? (
+                <button type="button" onClick={() => revoke(s.jti)} disabled={revoking === s.jti} className="shrink-0 h-8 rounded-xl px-3.5 text-[12px] text-red-300 bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors cursor-pointer disabled:opacity-50">{revoking === s.jti ? "Ending…" : "End"}</button>
+              ) : (
+                <span className="shrink-0 text-[11px] text-white/25 hidden sm:block">Current</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
