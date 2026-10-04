@@ -3,6 +3,7 @@ import { getUserById } from "@/lib/features/users/db";
 import { redirect } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
 import { profileFontVariables } from "@/lib/profile-fonts";
+import PickUsernameModal from "@/components/dashboard/PickUsernameModal";
 
 export default async function DashboardLayout({
   children,
@@ -28,6 +29,7 @@ export default async function DashboardLayout({
     >
       {children}
     </DashboardShell>
+    {user?.needsUsername && <PickUsernameModal />}
     </div>
   );
 }

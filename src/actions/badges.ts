@@ -65,6 +65,7 @@ export async function getMyBadges(): Promise<MyBadges> {
   const paid: Record<string, boolean> = {
     premium: isPremiumActive(user),
     "image-host": Boolean(user?.hasImageHost),
+    verified: Boolean(user?.hasVerified),
   };
   for (const [badgeId, owns] of Object.entries(paid)) {
     if (!owns && ownedSet.has(badgeId)) {
@@ -79,7 +80,6 @@ export async function getMyBadges(): Promise<MyBadges> {
       reached.push(badgeId);
     }
   }
-  if (user?.hasVerified && !ownedSet.has("verified")) reached.push("verified");
   for (const id of reached) {
     if (!ownedSet.has(id)) {
       await db.insert(schema.userBadges).values({
@@ -289,7 +289,8 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   const imageHostRoleId = BADGE_ROLE_MAP["image-host"];
   const imageHost = Boolean(user?.hasImageHost);
   const verifiedRoleId = BADGE_ROLE_MAP["verified"];
-  if (user?.hasVerified && verifiedRoleId && !roles.includes(verifiedRoleId)) {
+  const verified = Boolean(user?.hasVerified);
+  if (verified && verifiedRoleId && !roles.includes(verifiedRoleId)) {
     try {
       const put = await fetch(
         `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${verifiedRoleId}`,
@@ -339,7 +340,8 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
-    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost)) {
+    // paid badges follow the purchase only, never the Discord role
+    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified)) {
       if (owned.has(badgeId)) {
         await db
           .delete(schema.userBadges)
@@ -357,9 +359,9 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
       }
       continue;
     }
-    if (badgeId === "premium" || badgeId === "image-host") continue;
+    if (badgeId === "premium" || badgeId === "image-host" || badgeId === "verified") continue;
 
-    if (roles.includes(roleId) || (badgeId === "verified" && user?.hasVerified)) {
+    if (roles.includes(roleId)) {
       if (!owned.has(badgeId)) {
         await db.insert(schema.userBadges).values({
           userId,

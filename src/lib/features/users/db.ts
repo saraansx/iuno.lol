@@ -1,6 +1,5 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
-import { validateUsername } from '@/lib/server/security/validation'
 import { UserFacingError } from '@/lib/errors'
 import { eq, sql, and, lt, asc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
@@ -12,6 +11,7 @@ import type { CustomBadge } from '@/components/profile/layouts/ProfileBadges'
 const userColumns = {
   id: schema.users.id,
   username: schema.users.username,
+  needsUsername: schema.users.needsUsername,
   email: schema.users.email,
   ip: schema.users.ip,
   role: schema.users.role,
@@ -476,19 +476,12 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
     }
   }
 
-  let cleaned = discordUsername.toLowerCase().replace(/[^a-z0-9_.]/g, '')
-  cleaned = cleaned.replace(/^[^a-z0-9]+/, '')
-  const base = cleaned.slice(0, 24) || 'user'
-  let username = base
+  const placeholder = () => `user_${randomBytes(5).toString('hex')}`
+  let username = placeholder()
   let attempt = 0
 
   while (true) {
     try {
-      if (validateUsername(username)) {
-        username = `${base}${randomBytes(2).toString('hex')}`
-        if (++attempt > 10) throw new Error('Could not generate a valid username.')
-        continue
-      }
 
       const insertId = await db.transaction(async (tx) => {
         const [result] = await tx.insert(schema.users).values({
@@ -499,6 +492,7 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
           discordId,
           discordUsername,
           emailVerified: emailVerified ?? false,
+          needsUsername: true,
         })
         const id = (result as { insertId: number }).insertId
         await tx.insert(schema.userSettings).values({ userId: id })
@@ -510,7 +504,7 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
       if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
         const e = err as { code: string, message: string }
         if (e.code === 'ER_DUP_ENTRY' && e.message.includes('username')) {
-          username = `${base}${randomBytes(2).toString('hex')}`
+          username = placeholder()
           if (++attempt > 10) throw new Error('Could not generate a unique username.')
           continue
         }

@@ -22,6 +22,7 @@ import type { EffectConfig } from '@/lib/effect-config'
 export const users = mysqlTable('users', {
   id: int('id').primaryKey().autoincrement(),
   username: varchar('username', { length: 32 }).notNull().unique(),
+  needsUsername: boolean('needs_username').default(false).notNull(),
   email: varchar('email', { length: 255 }).unique(),
   password: varchar('password', { length: 255 }),
   ip: varchar('ip', { length: 45 }),

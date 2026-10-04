@@ -74,7 +74,10 @@ export async function updateUsername(raw: string): Promise<Result<{ username: st
     const username = cleanHandle(raw);
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
-    if (user.username === username) return { ok: true, data: { username } };
+    if (user.username === username) {
+      if (user.needsUsername) await db.update(schema.users).set({ needsUsername: false }).where(eq(schema.users.id, userId));
+      return { ok: true, data: { username } };
+    }
 
     const [ownAlias] = await db
       .select({ id: schema.userAliases.id })
@@ -85,7 +88,7 @@ export async function updateUsername(raw: string): Promise<Result<{ username: st
 
     await db.transaction(async (tx) => {
       if (ownAlias) await tx.delete(schema.userAliases).where(eq(schema.userAliases.id, ownAlias.id));
-      await tx.update(schema.users).set({ username }).where(eq(schema.users.id, userId));
+      await tx.update(schema.users).set({ username, needsUsername: false }).where(eq(schema.users.id, userId));
     });
 
     const aliases = await getUserAliases(userId);

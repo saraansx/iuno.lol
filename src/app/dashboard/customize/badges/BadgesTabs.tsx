@@ -24,11 +24,12 @@ type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone;
 type ContainerStyle = "pill" | "none" | "separate";
 type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
-const APPLY_BADGE_IDS = ["staff", "helper", "verified"];
+const APPLY_BADGE_IDS = ["staff", "helper"];
 
 const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" | "link"; href?: string }> = {
   premium: { label: "Get premium", action: "link", href: "/checkout" },
   "image-host": { label: "Get image host", action: "link", href: "/checkout/image-host" },
+  verified: { label: "Get verified", action: "link", href: "/checkout/verified" },
   donator: { label: "Donate", action: "soon" },
   "bug-hunter": { label: "Report a bug", action: "discord" },
   booster: { label: "Join Discord", action: "discord" },

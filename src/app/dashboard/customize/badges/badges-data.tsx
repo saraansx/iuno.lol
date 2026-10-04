@@ -61,7 +61,7 @@ export const BADGES = [
   {
     id: "verified",
     name: "Verified",
-    description: "Purchase verification, or be a known creator.",
+    description: "Purchase iuno Verified.",
     accent: "#22d3ee",
     filled: true,
     viewBox: "64 64 512 512",

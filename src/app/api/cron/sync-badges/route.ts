@@ -115,10 +115,13 @@ async function handleSync(request: Request) {
       users.map((u) => [u.id, isPremiumActive(u)])
     );
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
-    const boughtVerified = new Set(users.filter((u) => u.hasVerified).map((u) => u.id));
+    const verifiedByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasVerified)]));
+    const PAID_BADGES = ['premium', 'image-host', 'verified'] as const;
+    const isPaidBadge = (badgeId: string) => (PAID_BADGES as readonly string[]).includes(badgeId);
     const ownsPaidBadge = (badgeId: string, uid: number) =>
       badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
+      : badgeId === 'verified' ? verifiedByUserId.get(uid) ?? false
       : true;
     const userByDiscordId = new Map(
       users
@@ -148,7 +151,7 @@ async function handleSync(request: Request) {
     const changedUsernames = new Set<string>();
 
     const paidRoleChanges: Array<{ discordId: string; roleId: string; method: 'PUT' | 'DELETE' }> = [];
-    for (const badgeId of ['premium', 'image-host'] as const) {
+    for (const badgeId of PAID_BADGES) {
       const roleId = BADGE_ROLE_MAP[badgeId];
       if (!roleId) continue;
       for (const [discordId, roles] of memberRoles) {
@@ -158,15 +161,6 @@ async function handleSync(request: Request) {
         const has = roles.includes(roleId);
         if (owns && !has) paidRoleChanges.push({ discordId, roleId, method: 'PUT' });
         if (!owns && has) paidRoleChanges.push({ discordId, roleId, method: 'DELETE' });
-      }
-    }
-    const verifiedRoleId = BADGE_ROLE_MAP['verified'];
-    if (verifiedRoleId) {
-      for (const [discordId, roles] of memberRoles) {
-        const user = userByDiscordId.get(discordId);
-        if (user && boughtVerified.has(user.id) && !roles.includes(verifiedRoleId)) {
-          paidRoleChanges.push({ discordId, roleId: verifiedRoleId, method: 'PUT' });
-        }
       }
     }
     for (const row of rows) {
@@ -180,7 +174,7 @@ async function handleSync(request: Request) {
       }
       const roleId = BADGE_ROLE_MAP[row.badgeId];
       if (!roleId) continue;
-      if (row.badgeId === 'premium' || row.badgeId === 'image-host') {
+      if (isPaidBadge(row.badgeId)) {
         if (!premiumByUserId.has(row.userId)) continue;
         if (ownsPaidBadge(row.badgeId, row.userId)) continue;
         toDeleteIds.push(row.id);
@@ -188,7 +182,6 @@ async function handleSync(request: Request) {
         if (name) changedUsernames.add(name);
         continue;
       }
-      if (row.badgeId === 'verified' && boughtVerified.has(row.userId)) continue;
       const discordId = discordIdByUserId.get(row.userId);
       const roles = discordId ? memberRoles.get(discordId) : undefined;
       if (!roles || !roles.includes(roleId)) {
@@ -204,7 +197,7 @@ async function handleSync(request: Request) {
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
-        if (badgeId === 'premium' || badgeId === 'image-host') continue;
+        if (isPaidBadge(badgeId)) continue;
         const key = `${user.id}:${badgeId}`;
         if (!existingKeys.has(key)) {
           existingKeys.add(key);
