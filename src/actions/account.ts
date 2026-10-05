@@ -649,22 +649,24 @@ export async function confirmDeleteAccount(): Promise<Result> {
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
     const uname = user.username;
-    // hard delete — cascades via FK
-    await db.delete(schema.users).where(eq(schema.users.id, userId));
-    await redis.del(deleteOtpKey(userId));
-    await redis.del(deletePwOkKey(userId));
-    await redis.del(deletePendingEmailKey(userId));
-    // wipe Redis sessions
+    const victimId = userId;
+    const victimUname = uname;
+    // wipe Redis sessions BEFORE deleting user (so requireUser still valid for scan, but use victimId)
     try {
       let cursor = '0';
       do {
-        const [next, keys] = await redis.scan(cursor, 'MATCH', `sess:${userId}:*`, 'COUNT', 100);
+        const [next, keys] = await redis.scan(cursor, 'MATCH', `sess:${victimId}:*`, 'COUNT', 100);
         cursor = next;
         if (keys.length) await redis.del(...keys);
       } while (cursor !== '0');
     } catch {}
-    await purgeCloudflareProfileCache(uname);
-    revalidatePath(`/${uname}`);
+    // hard delete — cascades via FK
+    await db.delete(schema.users).where(eq(schema.users.id, victimId));
+    await redis.del(deleteOtpKey(victimId));
+    await redis.del(deletePwOkKey(victimId));
+    await redis.del(deletePendingEmailKey(victimId));
+    await purgeCloudflareProfileCache(victimUname);
+    revalidatePath(`/${victimUname}`);
     // clear cookie
     const { deleteSession } = await import("@/lib/auth/session");
     await deleteSession();
