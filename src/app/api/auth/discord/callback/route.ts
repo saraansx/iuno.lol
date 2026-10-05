@@ -8,6 +8,7 @@ import * as schema from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 import { createLoginTicket } from '@/lib/auth/two-factor'
+import { discordOAuthRateLimit } from '@/lib/rate-limit'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
@@ -84,6 +85,9 @@ export async function GET(req: NextRequest) {
   const error = searchParams.get('error')
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+
+  const rate = await discordOAuthRateLimit(getClientIp(req.headers))
+  if (!rate.ok) return NextResponse.redirect(`${appUrl}/signin?error=rate_limited`)
 
   if (error) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_denied`)

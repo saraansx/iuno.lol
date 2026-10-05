@@ -1,7 +1,7 @@
 'use server'
 
 import { createVerificationToken, deleteVerificationTokens } from '@/lib/auth/tokens'
-import { assertEmailAvailable, assertUsernameAvailable, deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
+import { deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
@@ -49,9 +49,6 @@ export async function register(input: RegisterInput) {
     }
 
     await cleanupExpiredUnverifiedUsers()
-
-    await assertEmailAvailable(email)
-    await assertUsernameAvailable(username)
 
     await deleteUnverifiedUserByEmail(email)
 

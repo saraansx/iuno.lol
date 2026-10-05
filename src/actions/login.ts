@@ -129,6 +129,10 @@ export async function beginPasskeyLogin() {
 
 export async function completePasskeyLogin(challengeId: string, response: AuthenticationResponseJSON) {
   try {
+    const ip = getClientIp(await headers())
+    const bucket = ipBucket('passkey_complete:ip', ip, 20)
+    const rate = await checkRateLimit(bucket.key, bucket.max, 10 * 60)
+    if (!rate.ok) return { error: 'Too many attempts. Please try again in a few minutes.' }
     const userId = await finishPasskeyLogin(String(challengeId ?? ''), response)
     if (!userId) return { error: "Couldn't sign in with that passkey. Please try again." }
     await createSession(userId)
