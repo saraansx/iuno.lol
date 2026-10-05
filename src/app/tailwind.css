@@ -323,3 +323,16 @@ html::-webkit-scrollbar {
 [data-custom-cursor] * {
   cursor: var(--profile-cursor), auto !important;
 }
+
+/* Prevent caret/text-selection blink on non-editable elements */
+h1, h2, h3, p, span, div {
+  caret-color: transparent;
+}
+input, textarea {
+  caret-color: auto;
+}
+
+/* Never show typewriter caret inside dashboard — only on profile pages */
+.dashboard-no-caret .typewriter-caret {
+  display: none !important;
+}

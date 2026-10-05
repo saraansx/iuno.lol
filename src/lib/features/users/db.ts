@@ -22,6 +22,8 @@ const userColumns = {
   badgeTokens: schema.users.badgeTokens,
   aliasTokens: schema.users.aliasTokens,
   usernameLoginEnabled: schema.users.usernameLoginEnabled,
+  isDisabled: schema.users.isDisabled,
+  disabledAt: schema.users.disabledAt,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,
   views: schema.users.views,

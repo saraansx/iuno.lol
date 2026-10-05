@@ -575,3 +575,109 @@ export async function revokeOtherSessionsAction(): Promise<Result<{ revoked: num
     return { ok: true, data: { revoked: n } };
   } catch (err) { return fail(err) as never; }
 }
+
+// ── Danger zone: disable / delete account ──
+
+export async function toggleDisableAccount(): Promise<Result<{ disabled: boolean }>> {
+  try {
+    const userId = await requireUser();
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    const next = !user.isDisabled;
+    await db.update(schema.users).set({ isDisabled: next, disabledAt: next ? new Date() : null }).where(eq(schema.users.id, userId));
+    if (next) {
+      await db.update(schema.users).set({ isDisabled: true, disabledAt: new Date() }).where(eq(schema.users.id, userId));
+    }
+    // purge profile from search/ISR when disabling
+    const uname = user.username;
+    if (next) {
+      await purgeCloudflareProfileCache(uname);
+      revalidatePath(`/${uname}`);
+    } else {
+      revalidatePath(`/${uname}`);
+    }
+    return { ok: true, data: { disabled: next } };
+  } catch (err) { return fail(err) as never; }
+}
+
+const deletePwOkKey = (userId: number) => `delete_account:pw_ok:${userId}`;
+const deleteOtpKey = (userId: number) => `delete_account:otp_ok:${userId}`;
+const deletePendingEmailKey = (userId: number) => `delete_account:pending_email:${userId}`;
+const DELETE_TTL = 10 * 60;
+
+export async function verifyPasswordForDelete(rawPassword: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const attempts = await checkRateLimit(`delete_pw:${userId}`, 5, 15 * 60);
+    if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
+    const [row] = await db.select({ password: schema.users.password, email: schema.users.email }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
+    if (!row) throw new UserFacingError("Please sign in again.");
+    if (!row.password) throw new UserFacingError("Set a password first to delete your account.");
+    if (!row.email) throw new UserFacingError("No email on this account.");
+    const pw = String(rawPassword ?? "");
+    if (!pw) throw new UserFacingError("Enter your current password.");
+    if (pw.length > 128 || !(await isPasswordCorrect(pw, row.password))) throw new UserFacingError("Current password is incorrect.");
+    const code = await createOTPToken(row.email);
+    await sendTwoFactorTokenEmail(row.email, code);
+    await redis.set(deletePendingEmailKey(userId), row.email, "EX", DELETE_TTL);
+    await redis.set(deletePwOkKey(userId), "1", "EX", DELETE_TTL);
+    return { ok: true, data: undefined };
+  } catch (err) { return fail(err); }
+}
+
+export async function verifyOtpForDelete(rawCode: string): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const pwOk = await redis.get(deletePwOkKey(userId));
+    if (!pwOk) throw new UserFacingError("Please verify your password first.");
+    const email = await redis.get(deletePendingEmailKey(userId));
+    if (!email) throw new UserFacingError("Verification expired. Start again.");
+    const code = String(rawCode ?? "").replace(/\D/g, "");
+    if (code.length !== 6) throw new UserFacingError("Enter the 6-digit code.");
+    const check = await verifyOTPToken(email, code);
+    if (!check.success) throw new UserFacingError(check.error ?? "Invalid code.");
+    await redis.set(deleteOtpKey(userId), "1", "EX", DELETE_TTL);
+    return { ok: true, data: undefined };
+  } catch (err) { return fail(err); }
+}
+
+export async function confirmDeleteAccount(): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    const otpOk = await redis.get(deleteOtpKey(userId));
+    if (!otpOk) throw new UserFacingError("Please verify the code first.");
+    const user = await getUserById(userId);
+    if (!user) throw new UserFacingError("Please sign in again.");
+    const uname = user.username;
+    // hard delete — cascades via FK
+    await db.delete(schema.users).where(eq(schema.users.id, userId));
+    await redis.del(deleteOtpKey(userId));
+    await redis.del(deletePwOkKey(userId));
+    await redis.del(deletePendingEmailKey(userId));
+    // wipe Redis sessions
+    try {
+      let cursor = '0';
+      do {
+        const [next, keys] = await redis.scan(cursor, 'MATCH', `sess:${userId}:*`, 'COUNT', 100);
+        cursor = next;
+        if (keys.length) await redis.del(...keys);
+      } while (cursor !== '0');
+    } catch {}
+    await purgeCloudflareProfileCache(uname);
+    revalidatePath(`/${uname}`);
+    // clear cookie
+    const { deleteSession } = await import("@/lib/auth/session");
+    await deleteSession();
+    return { ok: true, data: undefined };
+  } catch (err) { return fail(err); }
+}
+
+export async function cancelDeleteVerification(): Promise<Result> {
+  try {
+    const userId = await requireUser();
+    await redis.del(deleteOtpKey(userId));
+    await redis.del(deletePwOkKey(userId));
+    await redis.del(deletePendingEmailKey(userId));
+    return { ok: true, data: undefined };
+  } catch (err) { return fail(err); }
+}

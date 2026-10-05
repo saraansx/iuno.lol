@@ -8,14 +8,18 @@ import { createPortal } from "react-dom";
 import { addAlias, beginAddPasskey, confirmNewEmailOtp, disconnectDiscord, finishAddPasskey, removePasskey, confirmTwoFactorSetup, disableTwoFactor, sendNewEmailOtp, startTwoFactorSetup, deleteAlias, editAlias, verifyCurrentEmailOtp, verifyPasswordAndSendCurrentOtp, setUsernameLoginEnabled, swapAliasWithUsername, updateDisplayName, updatePassword, updateUsername, getActiveSessions, revokeSessionAction, revokeOtherSessionsAction, type AliasState, type PasskeyRow } from "@/actions/account";
 import { browserSupportsWebAuthn, startRegistration } from "@simplewebauthn/browser";
 import { toast } from "@/components/ui/toast";
+import dynamic from "next/dynamic";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
 import SaveBar from "@/components/dashboard/SaveBar";
+
+const DangerZoneLazy = dynamic(() => import("./DangerZone"), { ssr: false });
 
 const TABS = [
   { id: "general", label: "General" },
   { id: "security", label: "Security" },
   { id: "sessions", label: "Sessions" },
+  { id: "danger", label: "Danger" },
 ] as const;
 
 export type SecurityInfo = { email: string | null; emailVerified: boolean; hasPassword: boolean; twoFactor: boolean; usernameLoginEnabled: boolean; passkeys: PasskeyRow[] };
@@ -86,8 +90,10 @@ export default function SettingsClient({
         <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} discord={discord} />
       ) : tab === "security" ? (
         <SecurityTabWithSave info={security} />
-      ) : (
+      ) : tab === "sessions" ? (
         <SessionsTab />
+      ) : (
+        <DangerZoneLazy />
       )}
     </div>
   );
@@ -1801,7 +1807,8 @@ function SessionsTab() {
     if (!res.ok) { toast.error(res.error); return; }
     setSessions(res.data as SessionRow[]);
   }
-  useEffect(() => { load(); }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { void load(); }, []);
 
   async function revoke(jti: string) {
     setRevoking(jti);

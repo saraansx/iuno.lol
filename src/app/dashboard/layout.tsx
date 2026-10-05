@@ -19,7 +19,7 @@ export default async function DashboardLayout({
   const user = await getUserById(userId);
 
   return (
-    <div className={`${profileFontVariables} contents`}>
+    <div className={`${profileFontVariables} dashboard-no-caret contents`}>
     <DashboardShell
       username={user?.username ?? undefined}
       userId={user?.id}
