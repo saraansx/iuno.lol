@@ -54,7 +54,7 @@ export async function login(input: LoginInput) {
       return { error: 'Invalid credentials.' }
     }
     if (!isEmail && !user.usernameLoginEnabled) {
-      return { error: 'Username login is disabled. Sign in with your email.' }
+      return { error: 'Invalid credentials.' }
     }
 
     const email = user.email
@@ -130,7 +130,7 @@ export async function beginPasskeyLogin() {
 export async function completePasskeyLogin(challengeId: string, response: AuthenticationResponseJSON) {
   try {
     const userId = await finishPasskeyLogin(String(challengeId ?? ''), response)
-    if (!userId) return { error: "That passkey isn't registered for an iuno.lol account." }
+    if (!userId) return { error: "Couldn't sign in with that passkey. Please try again." }
     await createSession(userId)
     return { success: 'Logged in successfully!' }
   } catch (err: unknown) {

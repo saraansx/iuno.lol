@@ -59,7 +59,6 @@ function useFxVisible(fx: Fx) {
     if (fx.start > 0) {
       sTimer = setTimeout(cycle, fx.start);
     } else {
-      // already visible at t=0 — schedule first hide, then loop
       vTimer = setTimeout(() => {
         if (cancelled) return;
         setVisible(false);
@@ -84,7 +83,6 @@ function FxLayer({ fx }: { fx: Fx }) {
 
   useEffect(() => {
     if (visible) {
-      // Remount <img> so APNG/GIF restarts from frame 0 each cycle.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setMountKey((k) => k + 1);
     }
