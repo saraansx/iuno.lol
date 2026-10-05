@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import { useEffectsCatalog } from "@/lib/collectibles-client";
+import ProfileEffectRenderer from "@/components/profile/layouts/ProfileEffectRenderer";
 
 type ProfileEffectItem = {
   src: string;
@@ -135,21 +136,11 @@ export default function EffectsPicker({
                     </div>
 
                     {selectedEffectData && selectedEffectData.effects && selectedEffectData.effects.length > 0 && (
-                      <div
+                      <ProfileEffectRenderer
+                        effects={selectedEffectData.effects}
+                        hue={effectHue}
                         className="absolute inset-0 pointer-events-none z-20 overflow-hidden"
-                        style={{ filter: `hue-rotate(${effectHue}deg)` }}
-                      >
-                        {selectedEffectData.effects.map((fx, idx) => (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            key={idx}
-                            src={fx.src}
-                            alt="Effect layer"
-                            className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none"
-                            style={{ zIndex: fx.z_index ?? 20 }}
-                          />
-                        ))}
-                      </div>
+                      />
                     )}
 
                     <div className="relative w-12 h-12 z-10 mb-3">

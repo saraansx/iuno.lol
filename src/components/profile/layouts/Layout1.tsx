@@ -46,6 +46,7 @@ import { FONT_FAMILY_VARS } from "@/lib/fonts";
 import type { Layout1Props } from "./Layout1.types";
 import { SHAPE_CLASSES, renderFormattedText, hexToRgba, MOBILE_ANIMATED_BG_MAX_BLUR, subscribeCoarsePointer, isCoarsePointer } from "./Layout1.helpers";
 import { AvatarInner } from "./ProfileAvatar";
+import ProfileEffectRenderer from "./ProfileEffectRenderer";
 
 const FONT_CLASS_MAP = FONT_FAMILY_VARS;
 
@@ -988,24 +989,11 @@ const sectionSurface: React.CSSProperties = {
           )}
 
           {selectedEffect && selectedEffect.effects && selectedEffect.effects.length > 0 && (
-            <div
-              className="absolute inset-0 pointer-events-none z-30 overflow-hidden"
-              style={{
-                borderRadius: `${profileBorderRadius}px`,
-                filter: effectHue ? `hue-rotate(${effectHue}deg)` : undefined,
-              }}
-            >
-              {selectedEffect.effects.map((fx, idx) => (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img loading="lazy"
-                  key={idx}
-                  src={fx.src}
-                  alt="Profile Effect"
-                  className="absolute inset-0 w-full h-full object-cover object-top pointer-events-none"
-                  style={{ zIndex: fx.z_index ?? 30 }}
-                />
-              ))}
-            </div>
+            <ProfileEffectRenderer
+              effects={selectedEffect.effects}
+              hue={effectHue}
+              borderRadius={profileBorderRadius}
+            />
           )}
 
           <div
