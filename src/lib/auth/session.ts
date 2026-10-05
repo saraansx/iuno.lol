@@ -68,7 +68,6 @@ export async function revokeAllSessions(userId: number) {
 
 export async function revokeSession(userId: number, jti: string): Promise<boolean> {
   if (!/^[A-Za-z0-9-]{36}$/.test(jti) && !/^[0-9a-f-]{36}$/i.test(jti)) {
-    // randomUUID is uuid v4, allow generic uuid check
     if (!/^[A-Za-z0-9_-]{10,64}$/.test(jti)) return false
   }
   const key = sessionKey(userId, jti)

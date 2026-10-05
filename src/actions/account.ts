@@ -576,7 +576,6 @@ export async function revokeOtherSessionsAction(): Promise<Result<{ revoked: num
   } catch (err) { return fail(err) as never; }
 }
 
-// ── Danger zone: disable / delete account ──
 
 export async function toggleDisableAccount(): Promise<Result<{ disabled: boolean }>> {
   try {
@@ -588,7 +587,6 @@ export async function toggleDisableAccount(): Promise<Result<{ disabled: boolean
     if (next) {
       await db.update(schema.users).set({ isDisabled: true, disabledAt: new Date() }).where(eq(schema.users.id, userId));
     }
-    // purge profile from search/ISR when disabling
     const uname = user.username;
     if (next) {
       await purgeCloudflareProfileCache(uname);
@@ -651,7 +649,6 @@ export async function confirmDeleteAccount(): Promise<Result> {
     const uname = user.username;
     const victimId = userId;
     const victimUname = uname;
-    // wipe Redis sessions BEFORE deleting user (so requireUser still valid for scan, but use victimId)
     try {
       let cursor = '0';
       do {
@@ -660,14 +657,12 @@ export async function confirmDeleteAccount(): Promise<Result> {
         if (keys.length) await redis.del(...keys);
       } while (cursor !== '0');
     } catch {}
-    // hard delete — cascades via FK
     await db.delete(schema.users).where(eq(schema.users.id, victimId));
     await redis.del(deleteOtpKey(victimId));
     await redis.del(deletePwOkKey(victimId));
     await redis.del(deletePendingEmailKey(victimId));
     await purgeCloudflareProfileCache(victimUname);
     revalidatePath(`/${victimUname}`);
-    // clear cookie
     const { deleteSession } = await import("@/lib/auth/session");
     await deleteSession();
     return { ok: true, data: undefined };

@@ -3,7 +3,7 @@ import { db, schema } from '@/lib/db';
 import { eq, sql, desc, asc } from 'drizzle-orm';
 import { readWidgetCache, writeWidgetCache } from '@/lib/widget-cache';
 
-const BOT_PROFILE_TTL = 120; // seconds — separate from main site caches
+const BOT_PROFILE_TTL = 120;
 
 function unauthorized() {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -79,8 +79,6 @@ export async function GET(req: Request) {
   const uidRaw = searchParams.get('uid')?.trim() || null;
   const include = (searchParams.get('include') || 'full').trim();
 
-  // Bot-only cache — keys prefixed with bot:profile so main site is untouched.
-  // query key is what the bot asked for (discordId / username / uid + include)
   const rawQuery =
     (discordId ? `discord:${discordId}` : username ? `username:${username}` : uidRaw ? `uid:${uidRaw}` : 'none') +
     `:${include}`;
@@ -122,7 +120,6 @@ export async function GET(req: Request) {
       if (username.length > 32 || !/^[a-z0-9_.]+$/.test(username)) {
         return NextResponse.json({ error: 'Invalid username' }, { status: 400 });
       }
-      // username or alias
       const [aliasRow] = await db
         .select({ userId: schema.userAliases.userId })
         .from(schema.userAliases)
@@ -239,12 +236,10 @@ export async function GET(req: Request) {
     };
 
     if (include === 'basic') {
-      // cache bot-only key for 120s (fire-and-forget)
       writeWidgetCache(botCacheKey, base, BOT_PROFILE_TTL).catch(() => {});
       return NextResponse.json(base, { headers: { 'X-Cache': 'MISS' } });
     }
 
-    // Full extras
     async function loadRecentViews() {
       try {
         const r = await db.execute(sql`
