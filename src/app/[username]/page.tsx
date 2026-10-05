@@ -272,7 +272,6 @@ const getProfileRows = cache((username: string) =>
       sectionDescFontSize: userSettings.sectionDescFontSize,
       sectionDescFontWeight: userSettings.sectionDescFontWeight,
       sectionDescLetterSpacing: userSettings.sectionDescLetterSpacing,
-      isDisabled: users.isDisabled,
       musicPlayerArtBg: userSettings.musicPlayerArtBg,
     })
     .from(users)
@@ -293,12 +292,6 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
     notFound()
   }
 
-  const rawUser = userList[0] as typeof userList[0] & { isDisabled?: boolean | number };
-  if (rawUser.isDisabled) {
-    const { getSessionUserId } = await import("@/lib/auth/session");
-    const viewerId = await getSessionUserId();
-    if (viewerId !== rawUser.id) notFound();
-  }
   const user = { ...userList[0], ...resolveEffectConfig(userList[0].effectConfig) }
 
   const selectedEffect = getEffectByUrl(user.profileEffectUrl);

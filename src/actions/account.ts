@@ -577,27 +577,6 @@ export async function revokeOtherSessionsAction(): Promise<Result<{ revoked: num
 }
 
 
-export async function toggleDisableAccount(): Promise<Result<{ disabled: boolean }>> {
-  try {
-    const userId = await requireUser();
-    const user = await getUserById(userId);
-    if (!user) throw new UserFacingError("Please sign in again.");
-    const next = !user.isDisabled;
-    await db.update(schema.users).set({ isDisabled: next, disabledAt: next ? new Date() : null }).where(eq(schema.users.id, userId));
-    if (next) {
-      await db.update(schema.users).set({ isDisabled: true, disabledAt: new Date() }).where(eq(schema.users.id, userId));
-    }
-    const uname = user.username;
-    if (next) {
-      await purgeCloudflareProfileCache(uname);
-      revalidatePath(`/${uname}`);
-    } else {
-      revalidatePath(`/${uname}`);
-    }
-    return { ok: true, data: { disabled: next } };
-  } catch (err) { return fail(err) as never; }
-}
-
 const deletePwOkKey = (userId: number) => `delete_account:pw_ok:${userId}`;
 const deleteOtpKey = (userId: number) => `delete_account:otp_ok:${userId}`;
 const deletePendingEmailKey = (userId: number) => `delete_account:pending_email:${userId}`;
