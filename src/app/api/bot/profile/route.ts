@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { db, schema } from '@/lib/db';
 import { eq, sql, desc, asc } from 'drizzle-orm';
+import { readWidgetCache, writeWidgetCache } from '@/lib/widget-cache';
+
+const BOT_PROFILE_TTL = 120; // seconds — separate from main site caches
 
 function unauthorized() {
   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -75,6 +78,21 @@ export async function GET(req: Request) {
   const username = searchParams.get('username')?.trim().toLowerCase() || null;
   const uidRaw = searchParams.get('uid')?.trim() || null;
   const include = (searchParams.get('include') || 'full').trim();
+
+  // Bot-only cache — keys prefixed with bot:profile so main site is untouched.
+  // query key is what the bot asked for (discordId / username / uid + include)
+  const rawQuery =
+    (discordId ? `discord:${discordId}` : username ? `username:${username}` : uidRaw ? `uid:${uidRaw}` : 'none') +
+    `:${include}`;
+  const botCacheKey = `bot:profile:${rawQuery}`;
+  try {
+    const cached = await readWidgetCache<Record<string, unknown>>(botCacheKey);
+    if (cached) {
+      return NextResponse.json(cached, {
+        headers: { 'X-Cache': 'HIT', 'Cache-Control': 'private, max-age=120' },
+      });
+    }
+  } catch {}
 
   if (!discordId && !username && !uidRaw) {
     return NextResponse.json({ error: 'Provide discordId, username or uid' }, { status: 400 });
@@ -221,7 +239,9 @@ export async function GET(req: Request) {
     };
 
     if (include === 'basic') {
-      return NextResponse.json(base);
+      // cache bot-only key for 120s (fire-and-forget)
+      writeWidgetCache(botCacheKey, base, BOT_PROFILE_TTL).catch(() => {});
+      return NextResponse.json(base, { headers: { 'X-Cache': 'MISS' } });
     }
 
     // Full extras
@@ -285,7 +305,7 @@ export async function GET(req: Request) {
       loadRecentFeedback(),
     ]);
 
-    return NextResponse.json({
+    const full = {
       ...base,
       badges: badgeRows.map((b) => ({ id: b.badgeId, customName: b.customName })),
       customBadges: customBadges.map((b) => ({ id: b.badgeId, customName: b.customName })),
@@ -293,7 +313,9 @@ export async function GET(req: Request) {
       recentViews,
       recentComments,
       recentFeedback,
-    });
+    };
+    writeWidgetCache(botCacheKey, full, BOT_PROFILE_TTL).catch(() => {});
+    return NextResponse.json(full, { headers: { 'X-Cache': 'MISS' } });
   } catch (e) {
     console.error('[bot/profile] failed:', e);
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
