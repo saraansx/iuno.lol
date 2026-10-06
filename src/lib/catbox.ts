@@ -1,6 +1,6 @@
 import "server-only";
 import "@/lib/net-fix";
-import { toCdnUrl } from "@/lib/cdn";
+import { toHostedCdnUrl } from "@/lib/cdn-host";
 
 export { isStoredMediaUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";
 
@@ -32,7 +32,7 @@ export async function uploadToCatbox(
       console.error("[Catbox] upload error:", res.status, body.slice(0, 200));
       return null;
     }
-    return toCdnUrl(body);
+    return toHostedCdnUrl(body);
   } catch (error) {
     console.error("[Catbox] upload failed:", error);
     return null;

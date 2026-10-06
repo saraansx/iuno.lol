@@ -3,7 +3,7 @@ import "@/lib/net-fix";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 import { recordUploadedFile } from "@/lib/catbox-ownership";
-import { toCdnUrl } from "@/lib/cdn";
+import { toHostedCdnUrl } from "@/lib/cdn-host";
 import { detectImageOrVideo, detectAudio } from "@/lib/media-signature";
 import { getUserById } from "@/lib/features/users/db";
 import { isPremiumActive } from "@/lib/premium";
@@ -135,7 +135,7 @@ export async function POST(req: Request) {
     }
 
     await recordUploadedFile(userId, body);
-    return NextResponse.json({ url: toCdnUrl(body) });
+    return NextResponse.json({ url: await toHostedCdnUrl(body) });
 
   } catch (error) {
 

@@ -1,7 +1,7 @@
 import "server-only";
 import "@/lib/net-fix";
 import { recordUploadedFile } from "@/lib/catbox-ownership";
-import { toCdnUrl } from "@/lib/cdn";
+import { toHostedCdnUrl } from "@/lib/cdn-host";
 
 const CATBOX_API = "https://catbox.moe/user/api.php";
 
@@ -60,5 +60,5 @@ export async function uploadBufferToCatbox(
   if (!body) return null;
 
   await recordUploadedFile(userId, body);
-  return toCdnUrl(body);
+  return toHostedCdnUrl(body);
 }

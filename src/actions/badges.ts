@@ -4,7 +4,8 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getCustomBadges } from "@/lib/features/users/db";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
-import { storedFileId, toCdnUrl, CATBOX_BASE } from "@/lib/cdn";
+import { storedFileId, CATBOX_BASE } from "@/lib/cdn";
+import { toHostedCdnUrl } from "@/lib/cdn-host";
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
@@ -123,6 +124,8 @@ export async function createCustomBadge(input: { name: string; iconUrl: string }
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? "" : "s"}.`);
   }
 
+  const customIconUrl = await toHostedCdnUrl(`${CATBOX_BASE}${fileId}`);
+
   await db.transaction(async (tx) => {
     const [user] = await tx
       .select({ tokens: schema.users.badgeTokens })
@@ -140,7 +143,7 @@ export async function createCustomBadge(input: { name: string; iconUrl: string }
       equipped: false,
       equippedAt: null,
       customName: name,
-      customIconUrl: toCdnUrl(`${CATBOX_BASE}${fileId}`),
+      customIconUrl,
     });
   });
 

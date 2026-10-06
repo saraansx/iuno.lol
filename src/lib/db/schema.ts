@@ -606,6 +606,16 @@ export const imageHostActivity = mysqlTable('image_host_activity', {
   userActionCreatedIdx: index('image_host_activity_user_action_created_idx').on(table.userId, table.action, table.createdAt),
 }))
 
+export const cdnFiles = mysqlTable('cdn_files', {
+  id: int('id').primaryKey().autoincrement(),
+  publicId: varchar('public_id', { length: 16 }).notNull().unique(),
+  storageId: varchar('storage_id', { length: 128 }).notNull(),
+  ext: varchar('ext', { length: 8 }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  storageIdx: uniqueIndex('cdn_files_storage_unique').on(table.storageId),
+}))
+
 export const processedPaymentEvents = mysqlTable('processed_payment_events', {
   id: int('id').primaryKey().autoincrement(),
   provider: varchar('provider', { length: 16 }).notNull(),
@@ -673,6 +683,7 @@ export const schema = {
   userBackgrounds,
   imageHostFiles,
   imageHostActivity,
+  cdnFiles,
   processedPaymentEvents,
   usersRelations,
   userSettingsRelations,
