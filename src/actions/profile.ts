@@ -3,7 +3,7 @@
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
+import { getUserById } from "@/lib/features/users/db";
 import {
   isPremiumActive,
   isPremiumOption,
@@ -266,18 +266,6 @@ async function updateGeneralProfileImpl(data: {
       .onDuplicateKeyUpdate({ set: setData });
   }
 
-  const stale: (string | null | undefined)[] = [];
-  if (avatarUrlVal === null) {
-    if (prev?.avatarUrl) stale.push(prev.avatarUrl);
-  } else if (avatarUrlVal && prev?.avatarUrl && prev.avatarUrl !== avatarUrlVal) {
-    stale.push(prev.avatarUrl);
-  }
-  if (bannerImageUrlVal === null) {
-    if (prev?.bannerImageUrl) stale.push(prev.bannerImageUrl);
-  } else if (bannerImageUrlVal && prev?.bannerImageUrl && prev.bannerImageUrl !== bannerImageUrlVal) {
-    stale.push(prev.bannerImageUrl);
-  }
-  if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 
   await invalidateLiveStatsCache(userId);
 
@@ -318,8 +306,6 @@ async function updateBackgroundsImpl(urls: string[]) {
     throw new Error("Invalid media URL.");
   }
 
-  const prev = await getUserBackgrounds(userId);
-
   await db.transaction(async (tx) => {
     await tx.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
     if (clean.length > 0) {
@@ -329,8 +315,6 @@ async function updateBackgroundsImpl(urls: string[]) {
     }
   });
 
-  const removed = prev.filter((u) => !clean.includes(u));
-  if (removed.length > 0) await deleteOwnedCatboxFiles(userId, removed);
 
   await invalidateLiveStatsCache(userId);
 
@@ -868,19 +852,11 @@ async function updateMetadataProfileImpl(data: {
 
   if (Object.keys(setData).length === 0) return { success: true };
 
-  const prev = await getUserById(userId);
-
   await db
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  const stale: (string | null | undefined)[] = [];
-  for (const key of ["embedBackgroundUrl", "embedIconUrl", "faviconUrl", "cursorUrl"] as const) {
-    const old = prev?.[key];
-    if (key in setData && old && setData[key] !== old) stale.push(old);
-  }
-  if (stale.length > 0) await deleteOwnedCatboxFiles(userId, stale);
 
   revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");
@@ -1751,9 +1727,6 @@ async function updateMusicProfileImpl(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  const kept = new Set(sanitizedTracks.flatMap((t) => [t.streamUrl, t.artwork]));
-  const orphaned = prevTracks.flatMap((p) => [p.streamUrl, p.artwork]).filter((u) => u && !kept.has(u));
-  if (orphaned.length > 0) await deleteOwnedCatboxFiles(userId, orphaned);
 
   revalidatePath("/dashboard/customize/music");
   revalidatePath("/dashboard", "layout");
@@ -1833,12 +1806,6 @@ async function saveProfileLinksImpl(data: {
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
 
-  const prevLinks = Array.isArray(user?.links) ? user.links : [];
-  const keptIcons = new Set((sanitizedLinks as ProfileLink[]).map((l) => l.icon));
-  const orphanedIcons = prevLinks
-    .map((p) => (p && typeof p === "object" ? (p as { icon?: unknown }).icon : null))
-    .filter((u): u is string => typeof u === "string" && u.length > 0 && !keptIcons.has(u));
-  if (orphanedIcons.length > 0) await deleteOwnedCatboxFiles(userId, orphanedIcons);
 
   revalidatePath("/dashboard/customize/links");
   revalidatePath("/dashboard", "layout");

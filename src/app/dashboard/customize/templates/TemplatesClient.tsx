@@ -8,8 +8,6 @@ import FilterSelect from "@/components/ui/filter-select";
 
 type Tab = "public" | "favorites" | "mine";
 
-// Shown in the "Use template" confirm popup so the user knows what gets
-// overwritten. Templates only carry style — not avatar, bio, or links content.
 const AFFECTED_SECTIONS = [
   "Layout & structure",
   "Profile card (background, border, blur, shadow)",
@@ -24,7 +22,6 @@ const AFFECTED_SECTIONS = [
   "Join date, views & tooltips",
 ];
 
-// What stays untouched when applying a template — shown in a second dropdown.
 const UNCHANGED_SECTIONS = [
   "Your avatar image",
   "Banner & background images",
