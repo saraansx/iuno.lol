@@ -1,8 +1,6 @@
 import type { FullUser } from "@/lib/features/users/db";
 
 export const TEMPLATE_STYLE_KEYS = [
-  // Media shared via templates. Files are kept on catbox (never deleted) so
-  // these URLs stay valid for everyone who uses the template.
   "avatarUrl",
   "bannerImageUrl",
   "bannerBlend",
@@ -187,13 +185,9 @@ export const TEMPLATE_STYLE_KEYS = [
 
 export type TemplateStyleKey = (typeof TEMPLATE_STYLE_KEYS)[number];
 export type TemplateConfig = Partial<Record<TemplateStyleKey, unknown>> & {
-  // Banner backgrounds live in a separate table (user_backgrounds), so they
-  // ride along as an extra array key rather than a user_settings column.
   backgrounds?: string[];
 };
 
-// "backgrounds" is accepted in the config but is NOT a user_settings column —
-// applyTemplate pulls it out and writes it to the user_backgrounds table.
 export const TEMPLATE_BACKGROUNDS_KEY = "backgrounds";
 
 const KEY_SET = new Set<string>([...TEMPLATE_STYLE_KEYS, TEMPLATE_BACKGROUNDS_KEY]);

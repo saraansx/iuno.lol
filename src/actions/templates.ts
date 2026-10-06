@@ -159,8 +159,6 @@ export async function applyTemplate(id: number) {
   const sanitized = sanitizeTemplateConfig(config);
   if (isTemplateConfigEmpty(sanitized)) throw new Error("Template is empty.");
 
-  // backgrounds is not a user_settings column — pull it out and write it to
-  // the separate user_backgrounds table below.
   const backgrounds = Array.isArray(sanitized.backgrounds) ? sanitized.backgrounds : null;
   delete (sanitized as Record<string, unknown>).backgrounds;
 
