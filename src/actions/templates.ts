@@ -83,7 +83,7 @@ export async function createTemplate(input: {
   if (fullUser.username) {
     try {
       const buf = await screenshotProfile({
-        url: `${SITE_CONFIG.url}/${fullUser.username}`,
+        url: `${SITE_CONFIG.url}/${fullUser.username}/shot`,
       });
       thumbnailUrl = await uploadBufferToCatbox(userId, buf, { ext: "jpg", mime: "image/jpeg" });
     } catch (e) {

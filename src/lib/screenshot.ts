@@ -84,10 +84,7 @@ async function runScreenshot(opts: ScreenshotOptions): Promise<Buffer> {
   try {
     await page.setViewport({ width, height, deviceScaleFactor: 1 });
 
-    const target = new URL(opts.url);
-    target.searchParams.set("screenshot", "1");
-
-    await page.goto(target.toString(), {
+    await page.goto(opts.url, {
       waitUntil: "domcontentloaded",
       timeout: 30000,
     });
