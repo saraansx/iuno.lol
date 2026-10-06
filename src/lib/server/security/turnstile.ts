@@ -40,12 +40,16 @@ export async function verifyTurnstileToken(token: string, ip?: string): Promise<
     });
 
     const data: TurnstileVerifyResponse = await res.json();
-    if (!data.success) return false;
+    if (!data.success) {
+      console.error(
+        `[turnstile] verify failed: codes=${JSON.stringify(data["error-codes"])} hostname=${data.hostname} ipSent=${ip ?? "none"}`
+      );
+      return false;
+    }
 
     const expected = expectedHostname();
     if (expected && data.hostname && data.hostname !== expected) {
-      console.warn(`Turnstile hostname mismatch: got ${data.hostname}, expected ${expected}`);
-      return false;
+      console.warn(`[turnstile] hostname mismatch (not blocking): got ${data.hostname}, expected ${expected}`);
     }
 
     return true;
