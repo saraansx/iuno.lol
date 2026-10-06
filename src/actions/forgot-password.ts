@@ -15,10 +15,12 @@ export async function forgotPassword(email: string, turnstileToken: string) {
       return { error: 'Email is required.' }
     }
 
-    const turnstileError = await assertTurnstile(turnstileToken)
+    const ip = getClientIp(await headers())
+
+    const turnstileError = await assertTurnstile(turnstileToken, ip ?? undefined)
     if (turnstileError) return { error: turnstileError }
 
-    const limited = await authEmailRateLimit(email, getClientIp(await headers()))
+    const limited = await authEmailRateLimit(email, ip)
     if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
     if (limited === 'email') return { success: 'If an account exists, a reset link was sent!' }
 

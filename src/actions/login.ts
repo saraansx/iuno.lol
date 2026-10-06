@@ -31,11 +31,11 @@ export async function login(input: LoginInput) {
       return { error: 'Email or username is required.' }
     }
 
-    const turnstileError = await assertTurnstile(turnstileToken)
-    if (turnstileError) return { error: turnstileError }
-
     const h = await headers()
     const ip = getClientIp(h)
+
+    const turnstileError = await assertTurnstile(turnstileToken, ip ?? undefined)
+    if (turnstileError) return { error: turnstileError }
     const rate = await loginRateLimit(identifier, ip)
     if (!rate.ok) {
       const minutes = Math.ceil(rate.retryAfterSeconds / 60)

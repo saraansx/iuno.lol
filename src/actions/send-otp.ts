@@ -22,12 +22,14 @@ export const sendOTP = async (
       return { error: 'Enter a valid email address.' }
     }
 
-    const turnstileError = await assertTurnstile(turnstileToken)
+    const ip = getClientIp(await headers())
+
+    const turnstileError = await assertTurnstile(turnstileToken, ip ?? undefined)
     if (turnstileError) return { error: turnstileError }
 
     const genericSuccess = { success: 'If an account exists for that email, we sent a code.' }
 
-    const limited = await authEmailRateLimit(clean, getClientIp(await headers()))
+    const limited = await authEmailRateLimit(clean, ip)
     if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
     if (limited === 'email') return genericSuccess
 

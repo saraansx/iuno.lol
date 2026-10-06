@@ -1,4 +1,5 @@
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { SITE_CONFIG } from "@/lib/config";
 
 interface TurnstileVerifyResponse {
   success: boolean;
@@ -7,6 +8,14 @@ interface TurnstileVerifyResponse {
   hostname?: string;
   action?: string;
   cdata?: string;
+}
+
+function expectedHostname(): string | null {
+  try {
+    return new URL(SITE_CONFIG.url).hostname;
+  } catch {
+    return null;
+  }
 }
 
 export async function verifyTurnstileToken(token: string, ip?: string): Promise<boolean> {
@@ -31,7 +40,15 @@ export async function verifyTurnstileToken(token: string, ip?: string): Promise<
     });
 
     const data: TurnstileVerifyResponse = await res.json();
-    return data.success;
+    if (!data.success) return false;
+
+    const expected = expectedHostname();
+    if (expected && data.hostname && data.hostname !== expected) {
+      console.warn(`Turnstile hostname mismatch: got ${data.hostname}, expected ${expected}`);
+      return false;
+    }
+
+    return true;
   } catch (error) {
     console.error("Turnstile verification error:", error);
     return false;

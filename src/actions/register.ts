@@ -34,13 +34,13 @@ export async function register(input: RegisterInput) {
       return { error: 'Please complete the security check.' }
     }
 
-    const isTurnstileValid = await verifyTurnstileToken(turnstileToken)
+    const h = await headers()
+    const ip = getClientIp(h)
+
+    const isTurnstileValid = await verifyTurnstileToken(turnstileToken, ip ?? undefined)
     if (!isTurnstileValid) {
       return { error: 'Invalid security token. Please refresh the page and try again.' }
     }
-
-    const h = await headers()
-    const ip = getClientIp(h)
 
     const rate = await registerRateLimit(email, ip)
     if (!rate.ok) {

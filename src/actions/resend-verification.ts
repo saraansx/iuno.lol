@@ -18,12 +18,14 @@ export async function resendVerification(
       return { error: 'Email is required.' }
     }
 
-    const turnstileError = await assertTurnstile(turnstileToken)
+    const ip = getClientIp(await headers())
+
+    const turnstileError = await assertTurnstile(turnstileToken, ip ?? undefined)
     if (turnstileError) return { error: turnstileError }
 
     const genericSuccess = { success: 'If that email has a pending signup, we sent a verification link.' }
 
-    const limited = await authEmailRateLimit(email, getClientIp(await headers()))
+    const limited = await authEmailRateLimit(email, ip)
     if (limited === 'ip') return { error: 'Too many requests. Please try again in a few minutes.' }
     if (limited === 'email') return genericSuccess
 
