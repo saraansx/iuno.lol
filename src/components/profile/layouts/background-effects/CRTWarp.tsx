@@ -179,8 +179,9 @@ function hexToColor(hex: string): THREE.Color {
   return c;
 }
 
-export function CRTWarpEffect(props: CRTWarpSettings) {
+export function CRTWarpEffect(props: CRTWarpSettings & { frozen?: boolean }) {
   const ctnDom = useRef<HTMLDivElement>(null);
+  const frozen = props.frozen ?? false;
 
   const resolved = {
     color: props.color ?? DEFAULTS.color,
@@ -288,7 +289,11 @@ export function CRTWarpEffect(props: CRTWarpSettings) {
     let lastFrame = 0;
     let time = 0;
     let lastQuality = 0;
+    const freezeStart = performance.now();
     const loop = () => {
+      if (frozen && performance.now() - freezeStart > 1200) {
+        return;
+      }
       raf = requestAnimationFrame(loop);
       if (!visible || document.hidden) return;
       const c = settingsRef.current;
@@ -342,6 +347,7 @@ export function CRTWarpEffect(props: CRTWarpSettings) {
       renderer.forceContextLoss();
       if (renderer.domElement.parentElement === container) container.removeChild(renderer.domElement);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;

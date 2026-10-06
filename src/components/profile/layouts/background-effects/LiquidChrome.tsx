@@ -76,7 +76,7 @@ function hexToRgb01(hex: string): [number, number, number] {
   return v.map((n) => (Number.isFinite(n) ? n : 0) / 255) as [number, number, number];
 }
 
-export function LiquidChromeEffect({ color, speed, amplitude, interactive }: LiquidChromeSettings) {
+export function LiquidChromeEffect({ color, speed, amplitude, interactive, frozen = false }: LiquidChromeSettings & { frozen?: boolean }) {
   const ctnDom = useRef<HTMLDivElement>(null);
   const propsRef = useRef({ color, speed, amplitude, interactive });
 
@@ -142,7 +142,11 @@ export function LiquidChromeEffect({ color, speed, amplitude, interactive }: Liq
 
     const visibility = trackVisibility(ctn);
     let animateId = 0;
+    const freezeStart = performance.now();
     const update = (t: number) => {
+      if (frozen && performance.now() - freezeStart > 1200) {
+        return;
+      }
       animateId = requestAnimationFrame(update);
       if (!visibility.state.visible) return;
       const p = propsRef.current;
@@ -164,6 +168,7 @@ export function LiquidChromeEffect({ color, speed, amplitude, interactive }: Liq
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;

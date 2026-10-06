@@ -5,6 +5,7 @@ import type { WidgetItem } from "@/components/dashboard/customize/widgets/Widget
 export interface Layout1Props {
   profileId: number;
   viewerId: number | null;
+  isScreenshot?: boolean;
   username?: string;
   displayName?: string;
   bio?: string;

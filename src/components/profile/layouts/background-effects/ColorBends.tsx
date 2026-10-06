@@ -50,8 +50,9 @@ function hexToVec3(hex: string): THREE.Vector3 {
   return new THREE.Vector3(parts[0] / 255, parts[1] / 255, parts[2] / 255);
 }
 
-export function ColorBendsEffect(props: ColorBendsSettings) {
+export function ColorBendsEffect(props: ColorBendsSettings & { frozen?: boolean }) {
   const ctnDom = useRef<HTMLDivElement>(null);
+  const frozen = props.frozen ?? false;
 
   const resolved = {
     color: props.color ?? DEFAULTS.color,
@@ -145,7 +146,11 @@ export function ColorBendsEffect(props: ColorBendsSettings) {
     let elapsed = 0;
     let raf = 0;
     const visibility = trackVisibility(container);
+    const freezeStart = performance.now();
     const loop = () => {
+      if (frozen && performance.now() - freezeStart > 1200) {
+        return;
+      }
       raf = requestAnimationFrame(loop);
       const now = performance.now();
       const dt = Math.min((now - lastStamp) / 1000, 0.1);
@@ -192,6 +197,7 @@ export function ColorBendsEffect(props: ColorBendsSettings) {
       renderer.forceContextLoss();
       if (renderer.domElement.parentElement === container) container.removeChild(renderer.domElement);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;

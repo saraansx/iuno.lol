@@ -358,7 +358,8 @@ export function PixelBlastEffect({
   edgeFade,
   ripples,
   liquid,
-}: PixelBlastSettings) {
+  frozen = false,
+}: PixelBlastSettings & { frozen?: boolean }) {
   const ctnDom = useRef<HTMLDivElement>(null);
 
   const v = (variant ?? DEFAULTS.variant).toLowerCase();
@@ -538,7 +539,11 @@ export function PixelBlastEffect({
       visible = entry.isIntersecting;
     });
     io.observe(container);
+    const freezeStart = performance.now();
     const animate = () => {
+      if (frozen && performance.now() - freezeStart > 1200) {
+        return;
+      }
       if (autoPauseOffscreen && !visible) {
         raf = requestAnimationFrame(animate);
         return;
@@ -566,6 +571,7 @@ export function PixelBlastEffect({
       io.disconnect();
       teardown();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [liquid]);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-auto" />;

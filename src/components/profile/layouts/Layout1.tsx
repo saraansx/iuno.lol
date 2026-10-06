@@ -51,6 +51,7 @@ import ProfileEffectRenderer from "./ProfileEffectRenderer";
 const FONT_CLASS_MAP = FONT_FAMILY_VARS;
 
 const Layout1 = ({
+  isScreenshot = false,
   username,
   displayName,
   bio,
@@ -861,8 +862,14 @@ const sectionSurface: React.CSSProperties = {
         <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
         {bannerBackgroundUrl && (
           animatedBackgroundId(bannerBackgroundUrl) ? (
-            <div className="absolute inset-0 z-0 pointer-events-none">
+            <div
+              className="absolute inset-0 z-0 pointer-events-none"
+              style={{
+                filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
+              }}
+            >
               <AnimatedBackground
+                frozen={isScreenshot}
                 id={animatedBackgroundId(bannerBackgroundUrl)!}
                 aurora={{ colors: [auroraColor1, auroraColor2, auroraColor3], speed: auroraSpeed, blend: auroraBlend }}
                 darkveil={{ speed: darkveilSpeed, hueShift: darkveilHueShift, noiseIntensity: darkveilNoise, scanlineFrequency: darkveilScanFreq, scanlineIntensity: darkveilScan, warpAmount: darkveilWarp }}

@@ -152,12 +152,14 @@ export function AuroraEffect({
   colors,
   speed,
   blend,
+  frozen = false,
 }: {
   intensity?: number;
   color?: string;
   colors?: AuroraColors;
   speed?: number | null;
   blend?: number | null;
+  frozen?: boolean;
 }) {
   const ctnDom = useRef<HTMLDivElement>(null);
   const propsRef = useRef({ intensity, color, colors, speed, blend });
@@ -231,7 +233,11 @@ export function AuroraEffect({
 
     const visibility = trackVisibility(ctn);
     let animateId = 0;
+    const freezeStart = performance.now();
     const update = (t: number) => {
+      if (frozen && performance.now() - freezeStart > 1200) {
+        return;
+      }
       animateId = requestAnimationFrame(update);
       if (!visibility.state.visible) return;
       const p = propsRef.current;
@@ -254,6 +260,7 @@ export function AuroraEffect({
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" />;

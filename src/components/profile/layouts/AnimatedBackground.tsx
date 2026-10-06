@@ -22,10 +22,10 @@ interface AuroraSettings {
   blend?: number | null;
 }
 
-export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome, crtwarp }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings; crtwarp?: CRTWarpSettings }) {
+export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome, crtwarp, frozen = false }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings; crtwarp?: CRTWarpSettings; frozen?: boolean }) {
   return (
     <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
-      {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} />}
+      {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} frozen={frozen} />}
 
       {id === "darkveil" && (
         <DarkVeilEffect
@@ -35,6 +35,7 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
           scanlineFrequency={darkveil?.scanlineFrequency}
           scanlineIntensity={darkveil?.scanlineIntensity}
           warpAmount={darkveil?.warpAmount}
+          frozen={frozen}
         />
       )}
 
@@ -50,6 +51,7 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
           edgeFade={pixelblast?.edgeFade}
           ripples={pixelblast?.ripples}
           liquid={pixelblast?.liquid}
+          frozen={frozen}
         />
       )}
 
@@ -68,6 +70,7 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
           iterations={colorbends?.iterations}
           intensity={colorbends?.intensity}
           bandWidth={colorbends?.bandWidth}
+          frozen={frozen}
         />
       )}
 
@@ -77,6 +80,7 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
           speed={liquidchrome?.speed}
           amplitude={liquidchrome?.amplitude}
           interactive={liquidchrome?.interactive}
+          frozen={frozen}
         />
       )}
 
@@ -102,6 +106,7 @@ export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, c
           pointerWarp={crtwarp?.pointerWarp}
           pointerStrength={crtwarp?.pointerStrength}
           paused={crtwarp?.paused}
+          frozen={frozen}
         />
       )}
     </div>

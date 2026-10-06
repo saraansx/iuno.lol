@@ -100,6 +100,8 @@ export interface DarkVeilSettings {
 
 const DEFAULTS = { speed: 0.5, hueShift: 0, noiseIntensity: 0, scanlineFrequency: 0, scanlineIntensity: 0, warpAmount: 0 };
 
+const FREEZE_WARMUP_MS = 1200;
+
 export function DarkVeilEffect({
   speed,
   hueShift,
@@ -107,7 +109,8 @@ export function DarkVeilEffect({
   scanlineFrequency,
   scanlineIntensity,
   warpAmount,
-}: DarkVeilSettings) {
+  frozen = false,
+}: DarkVeilSettings & { frozen?: boolean }) {
   const ctnDom = useRef<HTMLDivElement>(null);
   const propsRef = useRef({ speed, hueShift, noiseIntensity, scanlineFrequency, scanlineIntensity, warpAmount });
 
@@ -162,6 +165,9 @@ export function DarkVeilEffect({
     const visibility = trackVisibility(ctn);
     let animateId = 0;
     const loop = () => {
+      if (frozen && performance.now() - start > FREEZE_WARMUP_MS) {
+        return;
+      }
       animateId = requestAnimationFrame(loop);
       if (!visibility.state.visible) return;
       const p = propsRef.current;
@@ -186,6 +192,7 @@ export function DarkVeilEffect({
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div ref={ctnDom} className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" />;

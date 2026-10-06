@@ -51,6 +51,7 @@ export default async function ProfileView({
       }}
     >
       <Layout1
+        isScreenshot={isScreenshot}
         username={user.username}
         displayName={user.displayName ?? undefined}
         bio={user.bio ?? undefined}
