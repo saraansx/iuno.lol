@@ -625,14 +625,12 @@ export const templates = mysqlTable('templates', {
   name: varchar('name', { length: 64 }).notNull(),
   thumbnailUrl: text('thumbnail_url'),
   config: json('config').$type<Record<string, unknown>>().notNull(),
-  isOfficial: boolean('is_official').default(false).notNull(),
   isPublic: boolean('is_public').default(true).notNull(),
   useCount: int('use_count').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   userIdx: index('templates_user_idx').on(table.userId),
-  officialIdx: index('templates_official_idx').on(table.isOfficial),
   createdIdx: index('templates_created_idx').on(table.createdAt),
 }))
 

@@ -99,8 +99,7 @@ export async function createTemplate(input: {
     name,
     thumbnailUrl,
     config: config as Record<string, unknown>,
-    isOfficial: false,
-    isPublic: input.isPublic !== false,
+        isPublic: input.isPublic !== false,
     useCount: 0,
   });
 
@@ -195,14 +194,26 @@ export type TemplateListItem = {
   slug: string;
   name: string;
   thumbnailUrl: string | null;
-  isOfficial: boolean;
   isPublic: boolean;
   useCount: number;
   createdAt: string;
   creatorId: number | null;
   creatorUsername: string | null;
   favorited?: boolean;
+  favoriteCount: number;
 };
+
+async function getFavoriteCounts(ids: number[]): Promise<Map<number, number>> {
+  const map = new Map<number, number>();
+  if (ids.length === 0) return map;
+  const rows = await db
+    .select({ templateId: schema.templateFavorites.templateId, c: sql<number>`COUNT(*)` })
+    .from(schema.templateFavorites)
+    .where(sql`${schema.templateFavorites.templateId} IN ${ids}`)
+    .groupBy(schema.templateFavorites.templateId);
+  for (const r of rows) map.set(r.templateId, Number(r.c ?? 0));
+  return map;
+}
 
 export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popular"; page?: number; limit?: number; tab?: "public" | "favorites" | "mine" }): Promise<{
   items: TemplateListItem[];
@@ -260,7 +271,6 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
         slug: schema.templates.slug,
         name: schema.templates.name,
         thumbnailUrl: schema.templates.thumbnailUrl,
-        isOfficial: schema.templates.isOfficial,
         isPublic: schema.templates.isPublic,
         useCount: schema.templates.useCount,
         createdAt: schema.templates.createdAt,
@@ -280,14 +290,16 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
       for (const u of usersRows) creatorMapF.set(u.id, u.username);
     }
 
+    const favCountMap = await getFavoriteCounts(favRows.map((r) => r.id));
+
     const favItems: TemplateListItem[] = favRows.map((r) => ({
       id: r.id,
       slug: r.slug,
       name: r.name,
       thumbnailUrl: r.thumbnailUrl ?? null,
-      isOfficial: Boolean(r.isOfficial),
       isPublic: Boolean(r.isPublic),
       useCount: Number(r.useCount ?? 0),
+      favoriteCount: favCountMap.get(r.id) ?? 0,
       createdAt: r.createdAt ? new Date(r.createdAt as unknown as string).toISOString() : new Date().toISOString(),
       creatorId: r.creatorId ?? null,
       creatorUsername: r.creatorId ? (creatorMapF.get(r.creatorId) ?? null) : null,
@@ -316,7 +328,6 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
       slug: schema.templates.slug,
       name: schema.templates.name,
       thumbnailUrl: schema.templates.thumbnailUrl,
-      isOfficial: schema.templates.isOfficial,
       isPublic: schema.templates.isPublic,
       useCount: schema.templates.useCount,
       createdAt: schema.templates.createdAt,
@@ -351,14 +362,16 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
     }
   }
 
+  const favCountMap = await getFavoriteCounts(idList);
+
   const items: TemplateListItem[] = drizzleRows.map((r) => ({
     id: r.id,
     slug: r.slug,
     name: r.name,
     thumbnailUrl: r.thumbnailUrl ?? null,
-    isOfficial: Boolean(r.isOfficial),
     isPublic: Boolean(r.isPublic),
     useCount: Number(r.useCount ?? 0),
+    favoriteCount: favCountMap.get(r.id) ?? 0,
     createdAt: r.createdAt ? new Date(r.createdAt as unknown as string).toISOString() : new Date().toISOString(),
     creatorId: r.creatorId ?? null,
     creatorUsername: r.creatorId ? (creatorMap.get(r.creatorId) ?? null) : null,

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/components/ui/toast";
 import FilterSelect from "@/components/ui/filter-select";
 
@@ -36,14 +36,43 @@ type Tpl = {
   slug: string;
   name: string;
   thumbnailUrl: string | null;
-  isOfficial: boolean;
   isPublic: boolean;
   useCount: number;
   createdAt: string;
   creatorUsername: string | null;
   favorited?: boolean;
+  favoriteCount?: number;
   creatorId?: number | null;
 };
+
+type TemplateAsset = { label: string; url: string };
+
+// Pulls the media URLs out of a template config for the "View assets" popup.
+function extractAssets(config: Record<string, unknown>): TemplateAsset[] {
+  const out: TemplateAsset[] = [];
+  const push = (label: string, v: unknown) => {
+    if (typeof v === "string" && v.length > 0) out.push({ label, url: v });
+  };
+  push("Avatar", config.avatarUrl);
+  push("Banner", config.bannerImageUrl);
+  push("Embed background", config.embedBackgroundUrl);
+  push("Embed icon", config.embedIconUrl);
+  push("Favicon", config.faviconUrl);
+  push("Cursor", config.cursorUrl);
+  if (Array.isArray(config.backgrounds)) {
+    config.backgrounds.forEach((u, i) => push(`Background ${i + 1}`, u));
+  }
+  if (Array.isArray(config.musicTracks)) {
+    config.musicTracks.forEach((t, i) => {
+      if (t && typeof t === "object") {
+        const track = t as { title?: string; streamUrl?: string; artwork?: string };
+        push(`Music ${i + 1}${track.title ? ` — ${track.title}` : ""}`, track.streamUrl);
+        push(`Music ${i + 1} artwork`, track.artwork);
+      }
+    });
+  }
+  return out;
+}
 
 export default function TemplatesClient() {
   const router = useRouter();
@@ -64,6 +93,11 @@ export default function TemplatesClient() {
   const [useKeepOpen, setUseKeepOpen] = useState(false);
   const [favBusy, setFavBusy] = useState<number | null>(null);
   const [visBusy, setVisBusy] = useState<number | null>(null);
+  const [menuId, setMenuId] = useState<number | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<Tpl | null>(null);
+  const [assetsTarget, setAssetsTarget] = useState<Tpl | null>(null);
+  const [assets, setAssets] = useState<TemplateAsset[] | null>(null);
+  const [assetsLoading, setAssetsLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -92,6 +126,38 @@ export default function TemplatesClient() {
     load();
   }, [load]);
 
+  const copyCoverUrl = async (t: Tpl) => {
+    setMenuId(null);
+    if (!t.thumbnailUrl) {
+      toast.error("No cover image");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(t.thumbnailUrl);
+      toast.success("Cover URL copied");
+    } catch {
+      toast.error("Couldn't copy");
+    }
+  };
+
+  const openAssets = async (t: Tpl) => {
+    setMenuId(null);
+    setAssetsTarget(t);
+    setAssets(null);
+    setAssetsLoading(true);
+    try {
+      const r = await fetch(`/api/templates/${t.id}`, { cache: "no-store" });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j?.error ?? "Failed");
+      setAssets(extractAssets((j.config as Record<string, unknown>) ?? {}));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+      setAssetsTarget(null);
+    } finally {
+      setAssetsLoading(false);
+    }
+  };
+
   const doUse = async (id: number) => {
     setUsingId(id);
     try {
@@ -111,7 +177,7 @@ export default function TemplatesClient() {
   const toggleFav = async (t: Tpl) => {
     const next = !t.favorited;
     setFavBusy(t.id);
-    setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, favorited: next } : x)));
+    setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, favorited: next, favoriteCount: Math.max(0, (x.favoriteCount ?? 0) + (next ? 1 : -1)) } : x)));
     try {
       const r = await fetch(`/api/templates/${t.id}/favorite`, { method: next ? "POST" : "DELETE" });
       const j = await r.json().catch(() => ({}));
@@ -121,7 +187,7 @@ export default function TemplatesClient() {
         setTotal((n) => Math.max(0, n - 1));
       }
     } catch (e) {
-      setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, favorited: !next } : x)));
+      setItems((prev) => prev.map((x) => (x.id === t.id ? { ...x, favorited: !next, favoriteCount: Math.max(0, (x.favoriteCount ?? 0) + (next ? -1 : 1)) } : x)));
       toast.error(e instanceof Error ? e.message : "Failed");
     } finally {
       setFavBusy(null);
@@ -309,30 +375,27 @@ export default function TemplatesClient() {
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/15 text-[11px] tracking-widest uppercase">No cover</div>
                   )}
-                  {t.isOfficial && (
-                    <span className="absolute top-2 left-2 text-[10px] tracking-[0.12em] uppercase bg-white/10 border border-white/10 text-white/80 px-2 py-1 rounded-full backdrop-blur">Official</span>
-                  )}
                   {!t.isPublic && (
                     <span className="absolute top-2 left-2 text-[10px] tracking-[0.12em] uppercase bg-black/50 border border-white/10 text-white/70 px-2 py-1 rounded-full backdrop-blur">Private</span>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => toggleFav(t)}
-                    disabled={favBusy === t.id}
-                    aria-label={t.favorited ? "Unfavorite" : "Favorite"}
-                    className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/45 backdrop-blur border border-white/10 flex items-center justify-center hover:bg-black/60 transition disabled:opacity-50"
-                  >
-                    <span className={`text-[15px] leading-none ${t.favorited ? "text-white" : "text-white/40"}`}>{t.favorited ? "♥" : "♡"}</span>
-                  </button>
                 </div>
                 <div className="p-4 flex flex-col gap-3 flex-1">
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium text-white truncate">{t.name}</p>
                     <p className="text-[11px] text-white/35">
-                      {t.creatorUsername ? `@${t.creatorUsername}` : "—"} · {t.useCount} uses
+                      {t.creatorUsername ? `@${t.creatorUsername}` : "—"} · {t.useCount} uses · {t.favoriteCount ?? 0} ♥
                     </p>
                   </div>
                   <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => toggleFav(t)}
+                      disabled={favBusy === t.id}
+                      aria-label={t.favorited ? "Unfavorite" : "Favorite"}
+                      className="h-9 w-9 rounded-xl bg-white/[0.06] border border-white/10 flex items-center justify-center hover:bg-white/[0.1] transition disabled:opacity-50 shrink-0"
+                    >
+                      <span className={`text-[15px] leading-none ${t.favorited ? "text-white" : "text-white/40"}`}>{t.favorited ? "♥" : "♡"}</span>
+                    </button>
                     <button
                       type="button"
                       onClick={() => {
@@ -346,6 +409,42 @@ export default function TemplatesClient() {
                     >
                       {usingId === t.id ? "Applying…" : "Use template"}
                     </button>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setMenuId((cur) => (cur === t.id ? null : t.id))}
+                        aria-label="More options"
+                        className="h-9 w-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 text-white/80 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                          <circle cx="12" cy="5" r="1.6" /><circle cx="12" cy="12" r="1.6" /><circle cx="12" cy="19" r="1.6" />
+                        </svg>
+                      </button>
+                      <AnimatePresence>
+                        {menuId === t.id && (
+                          <>
+                            <button type="button" aria-label="Close menu" className="fixed inset-0 z-[40] cursor-default" onClick={() => setMenuId(null)} />
+                            <motion.div
+                              initial={{ opacity: 0, y: 6 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: 6 }}
+                              transition={{ duration: 0.15, ease: "easeOut" }}
+                              className="absolute right-0 bottom-full mb-1.5 z-[50] w-44 rounded-xl bg-[#161616] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-1 flex flex-col"
+                            >
+                              <button type="button" onClick={() => copyCoverUrl(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+                                Copy URL
+                              </button>
+                              <button type="button" onClick={() => { setMenuId(null); setPreviewTarget(t); }} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+                                Preview
+                              </button>
+                              <button type="button" onClick={() => openAssets(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+                                View assets
+                              </button>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
                     {tab === "mine" && (
                       <>
                         <button
@@ -496,6 +595,60 @@ export default function TemplatesClient() {
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
                 {usingId === useTarget.id ? "Applying…" : "Apply template"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {previewTarget && (
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPreviewTarget(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="relative w-[min(760px,92vw)] max-h-[88vh] rounded-[20px] overflow-hidden bg-[#0c0c0c] border border-white/10">
+            {previewTarget.thumbnailUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={previewTarget.thumbnailUrl} alt={previewTarget.name} className="w-full max-h-[78vh] object-contain bg-black" />
+            ) : (
+              <div className="h-64 flex items-center justify-center text-white/30 text-[12px] uppercase tracking-widest">No cover</div>
+            )}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
+              <p className="text-[13px] text-white/80 truncate">{previewTarget.name}</p>
+              <button type="button" onClick={() => setPreviewTarget(null)} className="h-8 px-4 rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] transition cursor-pointer">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {assetsTarget && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setAssetsTarget(null)}>
+          <div onClick={(e) => e.stopPropagation()} className="w-[min(460px,92vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
+            <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Assets — {assetsTarget.name}</h3>
+            <p className="text-[12px] text-white/40 mt-1">Media files included in this template.</p>
+            <div className="mt-4 max-h-[300px] overflow-y-auto flex flex-col gap-1.5">
+              {assetsLoading ? (
+                <p className="text-[12.5px] text-white/40 py-6 text-center">Loading…</p>
+              ) : assets && assets.length > 0 ? (
+                assets.map((a, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-xl bg-white/[0.02] border border-white/5 px-3 py-2">
+                    <span className="text-[12px] text-white/55 w-28 shrink-0 truncate">{a.label}</span>
+                    <span className="text-[11.5px] text-white/30 truncate flex-1">{a.url}</span>
+                    <button
+                      type="button"
+                      onClick={async () => { try { await navigator.clipboard.writeText(a.url); toast.success("Copied"); } catch { toast.error("Couldn't copy"); } }}
+                      className="shrink-0 h-7 px-2.5 rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[11px] transition cursor-pointer"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[12.5px] text-white/40 py-6 text-center">No media assets in this template.</p>
+              )}
+            </div>
+            <div className="mt-5 flex items-center justify-end">
+              <button type="button" onClick={() => setAssetsTarget(null)} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
+                Close
               </button>
             </div>
           </div>
