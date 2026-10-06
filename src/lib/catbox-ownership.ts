@@ -1,3 +1,4 @@
+import "@/lib/net-fix";
 import { and, eq, inArray } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { storedFileId, isStoredMediaUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";

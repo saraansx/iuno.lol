@@ -280,9 +280,11 @@ const getProfileRows = cache((username: string) =>
     .limit(1)
 )
 
-export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
+export default async function ProfilePage({ params, searchParams }: { params: Promise<{ username: string }>; searchParams: Promise<{ screenshot?: string }> }) {
   const { username: rawUsername } = await params
   const username = rawUsername.toLowerCase().trim()
+  const { screenshot } = await searchParams
+  const isScreenshot = screenshot === "1"
 
   const userList = await getProfileRows(username)
 
@@ -422,7 +424,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         clickEffect={user.clickEffect ?? undefined}
         clickSound={user.clickSound ?? undefined}
         entryTransition={user.entryTransition ?? undefined}
-        enterScreenEnabled={user.enterScreenEnabled ?? undefined}
+        enterScreenEnabled={isScreenshot ? false : (user.enterScreenEnabled ?? undefined)}
         enterScreenText={user.enterScreenText ?? undefined}
         enterScreenFont={user.enterScreenFont ?? undefined}
         enterScreenFontSize={user.enterScreenFontSize ?? undefined}
@@ -570,8 +572,8 @@ export default async function ProfilePage({ params }: { params: Promise<{ userna
         musicPlayerVolume={user.musicPlayerVolume ?? true}
         musicPlayerShuffle={user.musicPlayerShuffle ?? false}
       />
-      <ProfileViewTracker profileId={user.id} />
-      {user.tabTitleAnimated && (
+      {!isScreenshot && <ProfileViewTracker profileId={user.id} />}
+      {!isScreenshot && user.tabTitleAnimated && (
         <TabTitleTypewriter text={formatTabTitle(user.tabTitle, user.username)} />
       )}
     </div>

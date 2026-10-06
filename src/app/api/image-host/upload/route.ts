@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import "@/lib/net-fix";
 import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostUploadRateLimit } from "@/lib/rate-limit";
 import { detectImageOrVideo } from "@/lib/media-signature";

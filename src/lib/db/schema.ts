@@ -618,9 +618,48 @@ export const processedPaymentEvents = mysqlTable('processed_payment_events', {
   planCreatedIdx: index('processed_payment_events_plan_created_idx').on(table.plan, table.createdAt),
 }))
 
+export const templates = mysqlTable('templates', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').references(() => users.id, { onDelete: 'cascade' }),
+  slug: varchar('slug', { length: 80 }).notNull().unique(),
+  name: varchar('name', { length: 64 }).notNull(),
+  thumbnailUrl: text('thumbnail_url'),
+  config: json('config').$type<Record<string, unknown>>().notNull(),
+  isOfficial: boolean('is_official').default(false).notNull(),
+  isPublic: boolean('is_public').default(true).notNull(),
+  useCount: int('use_count').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  userIdx: index('templates_user_idx').on(table.userId),
+  officialIdx: index('templates_official_idx').on(table.isOfficial),
+  createdIdx: index('templates_created_idx').on(table.createdAt),
+}))
+
+export const templatesRelations = relations(templates, ({ one }) => ({
+  user: one(users, { fields: [templates.userId], references: [users.id] }),
+}))
+
+export const templateFavorites = mysqlTable('template_favorites', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  templateId: int('template_id').notNull().references(() => templates.id, { onDelete: 'cascade' }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userTemplateIdx: uniqueIndex('template_fav_user_template_idx').on(table.userId, table.templateId),
+  templateIdx: index('template_fav_template_idx').on(table.templateId),
+}))
+
+export const templateFavoritesRelations = relations(templateFavorites, ({ one }) => ({
+  user: one(users, { fields: [templateFavorites.userId], references: [users.id] }),
+  template: one(templates, { fields: [templateFavorites.templateId], references: [templates.id] }),
+}))
+
 export const schema = {
   users,
   userSettings,
+  templates,
+  templateFavorites,
   otpTokens,
   verificationTokens,
   passwordResetTokens,
@@ -639,6 +678,8 @@ export const schema = {
   processedPaymentEvents,
   usersRelations,
   userSettingsRelations,
+  templatesRelations,
+  templateFavoritesRelations,
   profileCommentsRelations,
   commentLikesRelations,
   profileFeedbackRelations,

@@ -9,12 +9,14 @@ export default function FilterSelect<T extends string>({
   options,
   onChange,
   icon,
+  fullWidth = false,
 }: {
   label: string;
   value: T;
   options: { id: T; label: string }[];
   onChange: (value: T) => void;
   icon?: React.ReactNode;
+  fullWidth?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -66,7 +68,7 @@ export default function FilterSelect<T extends string>({
   }
 
   return (
-    <div ref={rootRef} className="relative" onKeyDown={onKeyDown}>
+    <div ref={rootRef} className={`relative ${fullWidth ? "w-full" : ""}`} onKeyDown={onKeyDown}>
       <button
         ref={buttonRef}
         type="button"
@@ -75,7 +77,7 @@ export default function FilterSelect<T extends string>({
         aria-expanded={open}
         aria-controls={listId}
         aria-label={`${label}: ${current.label}`}
-        className={`flex items-center gap-2.5 bg-[#161616] border rounded-xl h-10 pl-3.5 pr-3 text-[13px] text-white cursor-pointer outline-none transition-colors min-w-[160px] ${
+        className={`flex items-center gap-2.5 bg-[#161616] border rounded-xl h-10 pl-3.5 pr-3 text-[13px] text-white cursor-pointer outline-none transition-colors ${fullWidth ? "w-full" : "min-w-[160px]"} ${
           open ? "border-[#5b6cf5]/40 bg-[#1a1a1a]" : "border-white/5 hover:border-white/10 focus-visible:border-[#5b6cf5]/40"
         }`}
       >
@@ -101,7 +103,7 @@ export default function FilterSelect<T extends string>({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.14, ease: "easeOut" }}
-            className="absolute right-0 top-full mt-2 z-50 min-w-full w-max bg-[#121212] border border-white/10 rounded-xl p-1 shadow-2xl shadow-black/60 origin-top"
+            className={`absolute right-0 top-full mt-2 z-50 bg-[#121212] border border-white/10 rounded-xl p-1 origin-top ${fullWidth ? "left-0 w-full" : "min-w-full w-max"}`}
           >
             {options.map((o, i) => {
               const selected = o.id === value;

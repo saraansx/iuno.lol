@@ -343,6 +343,7 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
       </div>
 
       <div
+        id="template-capture-root"
         className="flex-1 overflow-hidden relative"
         style={{ backgroundColor: pageBgColor || '#0a0a0a' }}
       >

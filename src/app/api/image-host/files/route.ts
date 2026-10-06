@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import "@/lib/net-fix";
 import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";

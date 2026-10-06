@@ -1,4 +1,5 @@
 import "server-only";
+import "@/lib/net-fix";
 import { toCdnUrl } from "@/lib/cdn";
 
 export { isStoredMediaUrl, storedFileId, toCdnUrl, CATBOX_BASE, CDN_BASE } from "@/lib/cdn";

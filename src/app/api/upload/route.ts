@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import "@/lib/net-fix";
 import { getSessionUserId } from "@/lib/auth/session";
 import { uploadRateLimit, uploadPreRateLimit } from "@/lib/rate-limit";
 import { recordUploadedFile } from "@/lib/catbox-ownership";
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     const file = formData.get("fileToUpload");
     const assetType = formData.get("assetType") as string;
 
-    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork", "link-icon", "badge"].includes(assetType)) {
+    if (!(file instanceof File) || !["avatar", "background", "banner", "favicon", "cursor", "embed", "track", "artwork", "link-icon", "badge", "template-cover"].includes(assetType)) {
       return NextResponse.json({ error: "Invalid upload parameters" }, { status: 400 });
     }
 
