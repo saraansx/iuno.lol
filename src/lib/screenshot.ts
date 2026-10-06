@@ -3,6 +3,29 @@ import type { Browser } from "puppeteer";
 
 let browserPromise: Promise<Browser> | null = null;
 
+const IDLE_SHUTDOWN_MS = 30_000;
+let idleTimer: ReturnType<typeof setTimeout> | null = null;
+
+function cancelIdleShutdown(): void {
+  if (idleTimer) {
+    clearTimeout(idleTimer);
+    idleTimer = null;
+  }
+}
+
+function scheduleIdleShutdown(): void {
+  cancelIdleShutdown();
+  idleTimer = setTimeout(() => {
+    idleTimer = null;
+    const p = browserPromise;
+    browserPromise = null;
+    if (p) {
+      p.then((b) => b.close()).catch(() => {});
+    }
+  }, IDLE_SHUTDOWN_MS);
+  idleTimer.unref?.();
+}
+
 async function getBrowser(): Promise<Browser> {
   if (browserPromise) {
     try {
@@ -67,10 +90,12 @@ function releaseSlot(): void {
 
 export async function screenshotProfile(opts: ScreenshotOptions): Promise<Buffer> {
   await acquireSlot();
+  cancelIdleShutdown();
   try {
     return await runScreenshot(opts);
   } finally {
     releaseSlot();
+    if (active === 0) scheduleIdleShutdown();
   }
 }
 
