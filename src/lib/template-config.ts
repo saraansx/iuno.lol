@@ -1,6 +1,20 @@
 import type { FullUser } from "@/lib/features/users/db";
 
 export const TEMPLATE_STYLE_KEYS = [
+  // Media shared via templates. Files are kept on catbox (never deleted) so
+  // these URLs stay valid for everyone who uses the template.
+  "avatarUrl",
+  "bannerImageUrl",
+  "bannerBlend",
+  "bannerBackgroundShuffle",
+  "bannerBackgroundAutoplay",
+  "bannerBackgroundSound",
+  "embedBackgroundUrl",
+  "embedIconUrl",
+  "faviconUrl",
+  "cursorUrl",
+  "musicTracks",
+  "musicPlayerArtBg",
   "profilePreset",
   "wrapInCard",
   "contentWidth",
@@ -172,9 +186,17 @@ export const TEMPLATE_STYLE_KEYS = [
 ] as const;
 
 export type TemplateStyleKey = (typeof TEMPLATE_STYLE_KEYS)[number];
-export type TemplateConfig = Partial<Record<TemplateStyleKey, unknown>>;
+export type TemplateConfig = Partial<Record<TemplateStyleKey, unknown>> & {
+  // Banner backgrounds live in a separate table (user_backgrounds), so they
+  // ride along as an extra array key rather than a user_settings column.
+  backgrounds?: string[];
+};
 
-const KEY_SET = new Set<string>(TEMPLATE_STYLE_KEYS as readonly string[]);
+// "backgrounds" is accepted in the config but is NOT a user_settings column —
+// applyTemplate pulls it out and writes it to the user_backgrounds table.
+export const TEMPLATE_BACKGROUNDS_KEY = "backgrounds";
+
+const KEY_SET = new Set<string>([...TEMPLATE_STYLE_KEYS, TEMPLATE_BACKGROUNDS_KEY]);
 
 export function pickTemplateConfig(user: FullUser): TemplateConfig {
   const out: TemplateConfig = {};
@@ -192,10 +214,17 @@ export function sanitizeTemplateConfig(input: Record<string, unknown>): Template
   const out: TemplateConfig = {};
   for (const [k, v] of Object.entries(input)) {
     if (!KEY_SET.has(k)) continue;
-    out[k as TemplateStyleKey] = v;
+    if (k === TEMPLATE_BACKGROUNDS_KEY) {
+      if (Array.isArray(v)) {
+        const urls = v.filter((u): u is string => typeof u === "string" && u.length > 0).slice(0, 20);
+        if (urls.length > 0) out.backgrounds = urls;
+      }
+      continue;
+    }
+    (out as Record<string, unknown>)[k] = v;
   }
   try {
-    if (JSON.stringify(out).length > 60 * 1024) return {};
+    if (JSON.stringify(out).length > 120 * 1024) return {};
   } catch {
     return {};
   }

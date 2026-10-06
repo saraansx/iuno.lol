@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db, schema } from "@/lib/db";
 import { eq, sql, desc } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { pickTemplateConfig, sanitizeTemplateConfig, isTemplateConfigEmpty } from "@/lib/template-config";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -71,6 +71,8 @@ export async function createTemplate(input: {
   const fullUser = await getUserById(userId);
   if (!fullUser) throw new Error("User not found");
   let config = pickTemplateConfig(fullUser);
+  const ownBackgrounds = await getUserBackgrounds(userId);
+  if (ownBackgrounds.length > 0) config.backgrounds = ownBackgrounds.slice(0, 20);
   if (input.config && typeof input.config === "object") {
     const sanitized = sanitizeTemplateConfig(input.config as Record<string, unknown>);
     if (!isTemplateConfigEmpty(sanitized)) config = sanitized;
@@ -156,14 +158,29 @@ export async function applyTemplate(id: number) {
   const config = (tpl.config as Record<string, unknown>) ?? {};
   const sanitized = sanitizeTemplateConfig(config);
   if (isTemplateConfigEmpty(sanitized)) throw new Error("Template is empty.");
+
+  // backgrounds is not a user_settings column — pull it out and write it to
+  // the separate user_backgrounds table below.
+  const backgrounds = Array.isArray(sanitized.backgrounds) ? sanitized.backgrounds : null;
+  delete (sanitized as Record<string, unknown>).backgrounds;
+
   sanitizeProfileSettings(sanitized as Record<string, unknown>);
 
-  if (Object.keys(sanitized).length === 0) throw new Error("Nothing to apply.");
+  if (Object.keys(sanitized).length > 0) {
+    await db
+      .insert(schema.userSettings)
+      .values({ userId, ...(sanitized as Record<string, unknown>) } as typeof schema.userSettings.$inferInsert)
+      .onDuplicateKeyUpdate({ set: sanitized as Record<string, unknown> });
+  }
 
-  await db
-    .insert(schema.userSettings)
-    .values({ userId, ...(sanitized as Record<string, unknown>) } as typeof schema.userSettings.$inferInsert)
-    .onDuplicateKeyUpdate({ set: sanitized as Record<string, unknown> });
+  if (backgrounds) {
+    await db.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
+    if (backgrounds.length > 0) {
+      await db.insert(schema.userBackgrounds).values(
+        backgrounds.map((url, i) => ({ userId, url, position: i })),
+      );
+    }
+  }
 
   await db
     .execute(sql`UPDATE templates SET use_count = use_count + 1, updated_at = NOW() WHERE id = ${id}`)

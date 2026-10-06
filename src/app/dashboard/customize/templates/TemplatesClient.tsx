@@ -9,25 +9,23 @@ import FilterSelect from "@/components/ui/filter-select";
 type Tab = "public" | "favorites" | "mine";
 
 const AFFECTED_SECTIONS = [
+  "Avatar image",
+  "Banner & background images",
+  "Music tracks (audio & artwork)",
+  "Embed images, favicon & cursor",
   "Layout & structure",
   "Profile card (background, border, blur, shadow)",
   "Background & card effects",
   "Fonts & typography",
   "Text & section colors",
   "Avatar decoration & profile effect",
-  "Badges styling",
-  "Links styling",
-  "Music player styling",
-  "Widgets styling",
+  "Badges, links, music & widgets styling",
   "Join date, views & tooltips",
 ];
 
 const UNCHANGED_SECTIONS = [
-  "Your avatar image",
-  "Banner & background images",
   "Bio & display name",
   "Your links & their URLs",
-  "Music tracks (audio & artwork)",
   "Username & UID",
   "Badges you own",
   "Views, likes & comments",
@@ -390,7 +388,7 @@ export default function TemplatesClient() {
           <button type="button" aria-label="Close" onClick={() => setShareOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-[440px] rounded-[20px] bg-[#0c0c0c] border border-white/10 p-6 shadow-xl">
             <h3 className="text-[15px] font-medium text-white">Share Your Template</h3>
-            <p className="text-[12px] text-white/40 mt-1 leading-relaxed">We&apos;ll take a screenshot of your saved profile — that becomes the cover. Only style is shared, not your bio/links.</p>
+            <p className="text-[12px] text-white/40 mt-1 leading-relaxed">We&apos;ll take a screenshot of your saved profile — that becomes the cover. Your styling, avatar, banner, backgrounds &amp; music are shared — not your bio, links, username or stats.</p>
             <label className="mt-4 block">
               <span className="text-[12px] text-white/50">Layout name</span>
               <input
