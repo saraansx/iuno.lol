@@ -8,6 +8,34 @@ import FilterSelect from "@/components/ui/filter-select";
 
 type Tab = "public" | "favorites" | "mine";
 
+// Shown in the "Use template" confirm popup so the user knows what gets
+// overwritten. Templates only carry style — not avatar, bio, or links content.
+const AFFECTED_SECTIONS = [
+  "Layout & structure",
+  "Profile card (background, border, blur, shadow)",
+  "Background & card effects",
+  "Fonts & typography",
+  "Text & section colors",
+  "Avatar decoration & profile effect",
+  "Badges styling",
+  "Links styling",
+  "Music player styling",
+  "Widgets styling",
+  "Join date, views & tooltips",
+];
+
+// What stays untouched when applying a template — shown in a second dropdown.
+const UNCHANGED_SECTIONS = [
+  "Your avatar image",
+  "Banner & background images",
+  "Bio & display name",
+  "Your links & their URLs",
+  "Music tracks (audio & artwork)",
+  "Username & UID",
+  "Badges you own",
+  "Views, likes & comments",
+];
+
 type Tpl = {
   id: number;
   slug: string;
@@ -36,6 +64,9 @@ export default function TemplatesClient() {
   const [sharePublic, setSharePublic] = useState(true);
   const [sharing, setSharing] = useState(false);
   const [usingId, setUsingId] = useState<number | null>(null);
+  const [useTarget, setUseTarget] = useState<Tpl | null>(null);
+  const [useDetailsOpen, setUseDetailsOpen] = useState(false);
+  const [useKeepOpen, setUseKeepOpen] = useState(false);
   const [favBusy, setFavBusy] = useState<number | null>(null);
   const [visBusy, setVisBusy] = useState<number | null>(null);
 
@@ -73,6 +104,7 @@ export default function TemplatesClient() {
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       toast.success("Template applied!");
+      setUseTarget(null);
       router.refresh();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -308,7 +340,11 @@ export default function TemplatesClient() {
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => doUse(t.id)}
+                      onClick={() => {
+                        setUseDetailsOpen(false);
+                        setUseKeepOpen(false);
+                        setUseTarget(t);
+                      }}
                       disabled={usingId === t.id}
                       className="flex-1 h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:opacity-50 text-white text-[12px] font-normal transition cursor-pointer border border-white/10"
                       style={{ fontFamily: "var(--font-comfortaa)" }}
@@ -392,6 +428,79 @@ export default function TemplatesClient() {
               </button>
               <button type="button" onClick={doShare} disabled={sharing} className="h-10 px-6 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 text-white text-[13px] font-normal disabled:opacity-40 cursor-pointer" style={{ fontFamily: "var(--font-comfortaa)" }}>
                 {sharing ? "Sharing…" : "Share"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {useTarget && (
+        <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { if (usingId === null) setUseTarget(null); }}>
+          <div onClick={(e) => e.stopPropagation()} className="w-[min(440px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
+            <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{useTarget.name}&quot;?</h3>
+            <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+              This overwrites your current <span className="text-white/70">styling</span>. Your avatar, bio, links and music content stay as they are.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setUseDetailsOpen((v) => !v)}
+              className="mt-4 w-full flex items-center justify-between h-10 px-3.5 rounded-xl bg-[#161616] border border-white/5 text-[12.5px] text-white/70 hover:text-white hover:border-white/10 transition cursor-pointer"
+            >
+              <span>What will change?</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${useDetailsOpen ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {useDetailsOpen && (
+              <ul className="mt-2 rounded-xl bg-white/[0.02] border border-white/5 p-3 flex flex-col gap-1.5 max-h-[220px] overflow-y-auto">
+                {AFFECTED_SECTIONS.map((s) => (
+                  <li key={s} className="flex items-center gap-2 text-[12px] text-white/55">
+                    <span className="w-1 h-1 rounded-full bg-[#5b6cf5] shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <button
+              type="button"
+              onClick={() => setUseKeepOpen((v) => !v)}
+              className="mt-2 w-full flex items-center justify-between h-10 px-3.5 rounded-xl bg-[#161616] border border-white/5 text-[12.5px] text-white/70 hover:text-white hover:border-white/10 transition cursor-pointer"
+            >
+              <span>What stays the same?</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${useKeepOpen ? "rotate-180" : ""}`}>
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </button>
+            {useKeepOpen && (
+              <ul className="mt-2 rounded-xl bg-white/[0.02] border border-white/5 p-3 flex flex-col gap-1.5 max-h-[220px] overflow-y-auto">
+                {UNCHANGED_SECTIONS.map((s) => (
+                  <li key={s} className="flex items-center gap-2 text-[12px] text-white/55">
+                    <span className="w-1 h-1 rounded-full bg-emerald-400/70 shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setUseTarget(null)}
+                disabled={usingId !== null}
+                className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => doUse(useTarget.id)}
+                disabled={usingId !== null}
+                className="h-9 rounded-xl px-5 text-[13px] font-normal text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 border border-white/10 transition-colors cursor-pointer disabled:opacity-50"
+                style={{ fontFamily: "var(--font-comfortaa)" }}
+              >
+                {usingId === useTarget.id ? "Applying…" : "Apply template"}
               </button>
             </div>
           </div>
