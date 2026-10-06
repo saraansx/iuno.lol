@@ -45,13 +45,38 @@ type Tpl = {
   creatorId?: number | null;
 };
 
-type TemplateAsset = { label: string; url: string };
+type AssetKind = "image" | "video" | "audio";
+type TemplateAsset = { label: string; url: string; kind: AssetKind; filename: string; size?: number | null };
 
-// Pulls the media URLs out of a template config for the "View assets" popup.
+function fileNameFromUrl(url: string): string {
+  try {
+    const p = new URL(url).pathname.replace(/^\//, "");
+    return decodeURIComponent(p.split("/").pop() || url);
+  } catch {
+    return url;
+  }
+}
+
+function kindFromUrl(url: string): AssetKind {
+  const ext = url.split("?")[0].split(".").pop()?.toLowerCase() ?? "";
+  if (["mp3", "wav", "ogg", "m4a", "flac"].includes(ext)) return "audio";
+  if (["mp4", "webm", "mov", "m4v"].includes(ext)) return "video";
+  return "image";
+}
+
+function formatBytes(n: number | null | undefined): string {
+  if (n == null) return "";
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(2)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+}
+
 function extractAssets(config: Record<string, unknown>): TemplateAsset[] {
   const out: TemplateAsset[] = [];
   const push = (label: string, v: unknown) => {
-    if (typeof v === "string" && v.length > 0) out.push({ label, url: v });
+    if (typeof v === "string" && v.length > 0 && !v.startsWith("animated:")) {
+      out.push({ label, url: v, kind: kindFromUrl(v), filename: fileNameFromUrl(v) });
+    }
   };
   push("Avatar", config.avatarUrl);
   push("Banner", config.bannerImageUrl);
@@ -60,14 +85,14 @@ function extractAssets(config: Record<string, unknown>): TemplateAsset[] {
   push("Favicon", config.faviconUrl);
   push("Cursor", config.cursorUrl);
   if (Array.isArray(config.backgrounds)) {
-    config.backgrounds.forEach((u, i) => push(`Background ${i + 1}`, u));
+    config.backgrounds.forEach((u) => push("Background", u));
   }
   if (Array.isArray(config.musicTracks)) {
-    config.musicTracks.forEach((t, i) => {
+    config.musicTracks.forEach((t) => {
       if (t && typeof t === "object") {
-        const track = t as { title?: string; streamUrl?: string; artwork?: string };
-        push(`Music ${i + 1}${track.title ? ` — ${track.title}` : ""}`, track.streamUrl);
-        push(`Music ${i + 1} artwork`, track.artwork);
+        const track = t as { streamUrl?: string; artwork?: string };
+        push("Audio", track.streamUrl);
+        push("Audio cover", track.artwork);
       }
     });
   }
@@ -149,12 +174,40 @@ export default function TemplatesClient() {
       const r = await fetch(`/api/templates/${t.id}`, { cache: "no-store" });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
-      setAssets(extractAssets((j.config as Record<string, unknown>) ?? {}));
+      const list = extractAssets((j.config as Record<string, unknown>) ?? {});
+      setAssets(list);
+      list.forEach((a, idx) => {
+        fetch(a.url, { method: "HEAD" })
+          .then((res) => {
+            const len = res.headers.get("content-length");
+            if (len) {
+              setAssets((cur) => cur && cur.map((x, i) => (i === idx ? { ...x, size: Number(len) } : x)));
+            }
+          })
+          .catch(() => {});
+      });
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
       setAssetsTarget(null);
     } finally {
       setAssetsLoading(false);
+    }
+  };
+
+  const downloadAsset = async (a: TemplateAsset) => {
+    try {
+      const res = await fetch(a.url);
+      const blob = await res.blob();
+      const href = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = href;
+      link.download = a.filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(href);
+    } catch {
+      window.open(a.url, "_blank", "noopener");
     }
   };
 
@@ -382,9 +435,21 @@ export default function TemplatesClient() {
                 <div className="p-4 flex flex-col gap-3 flex-1">
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium text-white truncate">{t.name}</p>
-                    <p className="text-[11px] text-white/35">
-                      {t.creatorUsername ? `@${t.creatorUsername}` : "—"} · {t.useCount} uses · {t.favoriteCount ?? 0} ♥
-                    </p>
+                    <div className="flex items-center gap-2.5 text-[11px] text-white/35">
+                      <span className="truncate">{t.creatorUsername ? `@${t.creatorUsername}` : "—"}</span>
+                      <span className="flex items-center gap-1 shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
+                        </svg>
+                        {t.useCount}
+                      </span>
+                      <span className="flex items-center gap-1 shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 1.9 4.5 5.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6 3.6 0 5.1 3.9 3.5 7.2C19.5 16.4 12 21 12 21z" />
+                        </svg>
+                        {t.favoriteCount ?? 0}
+                      </span>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -622,34 +687,49 @@ export default function TemplatesClient() {
 
       {assetsTarget && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setAssetsTarget(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="w-[min(460px,92vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
-            <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Assets — {assetsTarget.name}</h3>
-            <p className="text-[12px] text-white/40 mt-1">Media files included in this template.</p>
-            <div className="mt-4 max-h-[300px] overflow-y-auto flex flex-col gap-1.5">
+          <div onClick={(e) => e.stopPropagation()} className="w-[min(640px,94vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Template assets</h3>
+                <p className="text-[12px] text-white/40 mt-1">Browse and download every asset bundled with this template.</p>
+              </div>
+              <button type="button" onClick={() => setAssetsTarget(null)} aria-label="Close" className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] transition cursor-pointer">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="mt-4 max-h-[440px] overflow-y-auto flex flex-col gap-2 pr-0.5">
               {assetsLoading ? (
-                <p className="text-[12.5px] text-white/40 py-6 text-center">Loading…</p>
+                <p className="text-[12.5px] text-white/40 py-10 text-center">Loading…</p>
               ) : assets && assets.length > 0 ? (
                 assets.map((a, i) => (
-                  <div key={i} className="flex items-center gap-2 rounded-xl bg-white/[0.02] border border-white/5 px-3 py-2">
-                    <span className="text-[12px] text-white/55 w-28 shrink-0 truncate">{a.label}</span>
-                    <span className="text-[11.5px] text-white/30 truncate flex-1">{a.url}</span>
+                  <div key={i} className="flex items-center gap-3 rounded-2xl bg-white/[0.02] border border-white/5 p-2.5 hover:bg-white/[0.04] transition-colors">
+                    <div className="w-11 h-11 rounded-xl bg-black/40 border border-white/5 overflow-hidden flex items-center justify-center shrink-0">
+                      {a.kind === "image" ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={a.url} alt={a.label} className="w-full h-full object-cover" />
+                      ) : a.kind === "audio" ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/50"><path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" /></svg>
+                      ) : (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/50"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m10 9 5 3-5 3z" /></svg>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[12.5px] text-white/85 truncate">{a.filename}</p>
+                      <p className="text-[11px] text-white/35">{a.label}{a.size != null ? ` · ${formatBytes(a.size)}` : ""}</p>
+                    </div>
                     <button
                       type="button"
-                      onClick={async () => { try { await navigator.clipboard.writeText(a.url); toast.success("Copied"); } catch { toast.error("Couldn't copy"); } }}
-                      className="shrink-0 h-7 px-2.5 rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[11px] transition cursor-pointer"
+                      onClick={() => downloadAsset(a)}
+                      aria-label="Download"
+                      className="shrink-0 w-9 h-9 rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/25 text-white/80 hover:text-white flex items-center justify-center transition cursor-pointer"
                     >
-                      Copy
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M4 21h16" /></svg>
                     </button>
                   </div>
                 ))
               ) : (
-                <p className="text-[12.5px] text-white/40 py-6 text-center">No media assets in this template.</p>
+                <p className="text-[12.5px] text-white/40 py-10 text-center">No media assets in this template.</p>
               )}
-            </div>
-            <div className="mt-5 flex items-center justify-end">
-              <button type="button" onClick={() => setAssetsTarget(null)} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
-                Close
-              </button>
             </div>
           </div>
         </div>
