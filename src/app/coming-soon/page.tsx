@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -16,69 +16,16 @@ const MORPH_WORDS = [
   "Crafting Your Identity"
 ];
 
-const LAUNCH_AT = Date.UTC(2026, 9, 6, 0, 0, 0);
-
-const UNITS = ["Days", "Hours", "Minutes", "Seconds"] as const;
-
-function remainingParts(msLeft: number) {
-  const total = Math.max(0, Math.floor(msLeft / 1000));
-  return [
-    Math.floor(total / 86400),
-    Math.floor((total % 86400) / 3600),
-    Math.floor((total % 3600) / 60),
-    total % 60,
-  ];
-}
-
 function Countdown() {
-  const [msLeft, setMsLeft] = useState<number | null>(null);
-
-  useEffect(() => {
-    const tick = () => setMsLeft(LAUNCH_AT - Date.now());
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const parts = remainingParts(msLeft ?? 0);
-  const isLive = msLeft !== null && msLeft <= 0;
-
-  if (isLive) {
-    return (
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="text-[#5b6cf5] text-sm font-normal tracking-wide"
-      >
-        We&apos;re live.
-      </motion.p>
-    );
-  }
-
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.6, delay: 0.25 }}
-      className="flex items-center justify-center gap-2 sm:gap-3 select-none"
-      aria-label="Time until launch"
+      className="text-[#5b6cf5] text-sm font-normal tracking-wide"
     >
-      {UNITS.map((unit, i) => (
-        <div key={unit} className="flex items-center gap-2 sm:gap-3">
-          <div className="flex flex-col items-center gap-1 min-w-[52px] sm:min-w-[64px] rounded-2xl bg-white/[0.03] border border-white/[0.06] px-3 py-2.5 backdrop-blur-md">
-            <span className="text-xl sm:text-2xl font-light text-white tabular-nums leading-none">
-              {msLeft === null ? "--" : String(parts[i]).padStart(2, "0")}
-            </span>
-            <span className="text-[10px] uppercase tracking-[0.15em] text-white/30 font-normal">
-              {unit}
-            </span>
-          </div>
-          {i < UNITS.length - 1 && (
-            <span className="text-white/15 text-lg font-light -mt-3">:</span>
-          )}
-        </div>
-      ))}
-    </motion.div>
+      Will be live soon.
+    </motion.p>
   );
 }
 

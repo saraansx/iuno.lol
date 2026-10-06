@@ -114,6 +114,8 @@ export default async function middleware(request: NextRequest) {
     const isProfilePath =
       /^\/[a-z0-9_.]{1,32}$/i.test(path) && !RESERVED_PATHS.has(path.toLowerCase())
 
+    const isScreenshotPath = /^\/[a-z0-9_.]{1,32}\/shot$/i.test(path)
+
     const isPublicAsset =
       path === '/coming-soon' ||
       path === '/api/health' ||
@@ -131,6 +133,7 @@ export default async function middleware(request: NextRequest) {
       path === '/api/image-host/unlock' ||
       path.startsWith('/unlock/') ||
       isProfilePath ||
+      isScreenshotPath ||
       isStaticFile
 
     if (!isPublicAsset) {
