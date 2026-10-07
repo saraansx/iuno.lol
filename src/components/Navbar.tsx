@@ -20,10 +20,39 @@ const tabForPath = (pathname: string) => {
 const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = React.useState(() => tabForPath(pathname));
+  const [hidden, setHidden] = React.useState(false);
   const router = useRouter();
 
   React.useEffect(() => {
     setActiveTab(tabForPath(pathname));
+  }, [pathname]);
+
+  // Hide navbar on scroll down, reveal on scroll up (pricing page only for now)
+  React.useEffect(() => {
+    if (pathname !== '/pricing') {
+      setHidden(false);
+      return;
+    }
+
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Ignore tiny jitters
+      if (Math.abs(currentScrollY - lastScrollY) < 6) return;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 80) {
+        // Scrolling down past the top -> hide
+        setHidden(true);
+      } else {
+        // Scrolling up -> show
+        setHidden(false);
+      }
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
   
   const tabs = ['Helpcenter', 'Leaderboard', 'Pricing', 'FAQ', 'Discord'];
@@ -40,7 +69,15 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
 
   return (
     <>
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-5xl" style={{ fontFamily: "var(--font-comfortaa)" }}>
+      <nav
+        className="fixed top-6 left-1/2 z-50 w-[95%] max-w-5xl transition-transform duration-300 ease-out"
+        style={{
+          fontFamily: "var(--font-comfortaa)",
+          transform: hidden
+            ? "translateX(-50%) translateY(-150%)"
+            : "translateX(-50%) translateY(0)",
+        }}
+      >
         <div className="bg-[#0c0c0c]/85 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-5 h-auto object-contain shrink-0" priority />
