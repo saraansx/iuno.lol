@@ -67,6 +67,7 @@ export async function getMyBadges(): Promise<MyBadges> {
     premium: isPremiumActive(user),
     "image-host": Boolean(user?.hasImageHost),
     verified: Boolean(user?.hasVerified),
+    donator: Boolean(user?.hasDonator),
   };
   for (const [badgeId, owns] of Object.entries(paid)) {
     if (!owns && ownedSet.has(badgeId)) {
@@ -295,6 +296,8 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   const imageHost = Boolean(user?.hasImageHost);
   const verifiedRoleId = BADGE_ROLE_MAP["verified"];
   const verified = Boolean(user?.hasVerified);
+  const donatorRoleId = BADGE_ROLE_MAP["donator"];
+  const donator = Boolean(user?.hasDonator);
   if (verified && verifiedRoleId && !roles.includes(verifiedRoleId)) {
     try {
       const put = await fetch(
@@ -302,6 +305,16 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
         { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
       );
       if (put.ok) roles.push(verifiedRoleId);
+    } catch {
+    }
+  }
+  if (donator && donatorRoleId && !roles.includes(donatorRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${donatorRoleId}`,
+        { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
+      );
+      if (put.ok) roles.push(donatorRoleId);
     } catch {
     }
   }
@@ -345,7 +358,7 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
-    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified)) {
+    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified) || (badgeId === "donator" && !donator)) {
       if (owned.has(badgeId)) {
         await db
           .delete(schema.userBadges)
@@ -363,7 +376,7 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
       }
       continue;
     }
-    if (badgeId === "premium" || badgeId === "image-host" || badgeId === "verified") continue;
+    if (badgeId === "premium" || badgeId === "image-host" || badgeId === "verified" || badgeId === "donator") continue;
 
     if (roles.includes(roleId)) {
       if (!owned.has(badgeId)) {

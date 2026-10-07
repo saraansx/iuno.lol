@@ -7,6 +7,9 @@ import { decryptSecret, verifyTotp } from "@/lib/server/security/totp";
 
 const TICKET_TTL = 5 * 60;
 const MAX_CODE_ATTEMPTS = 5;
+
+export const TWO_FACTOR_TICKET_COOKIE = "iuno_2fa_ticket";
+export const TWO_FACTOR_TICKET_TTL = TICKET_TTL;
 const ticketKey = (ticket: string) => `2fa_ticket:${ticket}`;
 const attemptsKey = (ticket: string) => `2fa_ticket_attempts:${ticket}`;
 const usedStepKey = (userId: number, step: number) => `2fa_used:${userId}:${step}`;

@@ -14,13 +14,14 @@ const AuroraEffect = dynamic(
 );
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, DONATOR_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
   isPremium?: boolean;
   hasImageHost?: boolean;
   hasVerified?: boolean;
+  hasDonator?: boolean;
 }
 
 
@@ -110,6 +111,22 @@ const PRODUCTS = [
     ),
   },
   {
+    id: "donator-badge",
+    title: "Donator Badge",
+    desc: "Support iuno and get an exclusive Donator badge on your profile.",
+    price: { USD: DONATOR_PLAN.USD.display, INR: DONATOR_PLAN.INR.display },
+    href: "/checkout/donator",
+    features: [
+      "Exclusive Donator badge",
+      "Special Discord role",
+      "Support iuno's development",
+      "One-time payment, yours forever",
+    ],
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z" /></svg>
+    ),
+  },
+  {
     id: "custom-badge",
     title: "Custom Badge",
     desc: "Design your own badge with a custom icon and colour.",
@@ -127,7 +144,7 @@ const PRODUCTS = [
   },
 ] as const;
 
-export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false, hasVerified = false }: PricingProps) {
+export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false, hasVerified = false, hasDonator = false }: PricingProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
   const plan = PREMIUM_PLAN[currency];
@@ -400,7 +417,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
           </div>
 
           {}
-          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-[1fr_1.15fr_1fr]">
+          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
             {PRODUCTS.map((product, i) => {
               const isMiddle = i === 1;
               return (
@@ -408,7 +425,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                   key={product.id}
                   className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#0c0c0c] p-6 text-left shadow-sm transition-all ${
                     isMiddle
-                      ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)] md:-translate-y-4"
+                      ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)]"
                       : "border-white/5"
                   }`}
                 >
@@ -447,13 +464,13 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                         </li>
                       ))}
                     </ul>
-                    {(product.id === "image-host" && hasImageHost) || (product.id === "verified-badge" && hasVerified) ? (
+                    {(product.id === "image-host" && hasImageHost) || (product.id === "verified-badge" && hasVerified) || (product.id === "donator-badge" && hasDonator) ? (
                       <button
                         onClick={() => router.push(product.id === "image-host" ? "/dashboard/image-host/overview" : "/dashboard/customize/badges")}
                         className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-sm font-normal text-white ring-1 ring-inset ring-[#5b6cf5]/30 transition-all hover:bg-[#5b6cf5]/25 cursor-pointer"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                        {product.id === "image-host" ? "Open Image Host" : "Verified owned"}
+                        {product.id === "image-host" ? "Open Image Host" : product.id === "verified-badge" ? "Verified owned" : "Donator owned"}
                       </button>
                     ) : (
                       <button

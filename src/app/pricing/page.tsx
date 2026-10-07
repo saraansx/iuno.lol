@@ -17,6 +17,7 @@ export default async function PricingPage() {
       isPremium={!!user?.isPremium}
       hasImageHost={!!user?.hasImageHost}
       hasVerified={!!user?.hasVerified}
+      hasDonator={!!user?.hasDonator}
     />
   );
 }

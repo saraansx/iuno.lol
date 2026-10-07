@@ -7,8 +7,8 @@ import { isPasswordCorrect } from '@/lib/server/security/bcrypt'
 import { assertTurnstile } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
 import { loginRateLimit } from '@/lib/rate-limit'
-import { headers } from 'next/headers'
-import { createLoginTicket, redeemLoginTicket } from '@/lib/auth/two-factor'
+import { headers, cookies } from 'next/headers'
+import { createLoginTicket, redeemLoginTicket, TWO_FACTOR_TICKET_COOKIE } from '@/lib/auth/two-factor'
 import { finishPasskeyLogin, startPasskeyLogin } from '@/lib/auth/passkeys'
 import { checkRateLimit, ipBucket } from '@/lib/rate-limit'
 import type { AuthenticationResponseJSON } from '@simplewebauthn/server'
@@ -29,6 +29,15 @@ export async function login(input: LoginInput) {
 
     if (!identifier) {
       return { error: 'Email or username is required.' }
+    }
+
+    const isEmailFormat = identifier.includes('@')
+    if (
+      identifier.length > 254 ||
+      (isEmailFormat && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) ||
+      (!isEmailFormat && !/^[A-Za-z0-9_.]{1,32}$/.test(identifier))
+    ) {
+      return { error: 'Invalid credentials.' }
     }
 
     const h = await headers()
@@ -102,9 +111,18 @@ export async function login(input: LoginInput) {
   }
 }
 
-export async function completeTwoFactorLogin(ticket: string, code: string) {
+export async function completeTwoFactorLogin(ticket: string | undefined, code: string) {
   try {
-    const result = await redeemLoginTicket(String(ticket ?? ''), String(code ?? ''))
+    const cookieStore = await cookies()
+    const cookieTicket = cookieStore.get(TWO_FACTOR_TICKET_COOKIE)?.value
+    const effectiveTicket = cookieTicket || ticket
+
+    const result = await redeemLoginTicket(String(effectiveTicket ?? ''), String(code ?? ''))
+
+    if (cookieTicket) {
+      cookieStore.set(TWO_FACTOR_TICKET_COOKIE, '', { maxAge: 0, path: '/' })
+    }
+
     if (!result.ok) return { error: result.error }
     await createSession(result.userId)
     return { success: 'Logged in successfully!' }

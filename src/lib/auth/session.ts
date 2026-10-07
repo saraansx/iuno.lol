@@ -170,7 +170,9 @@ const verifySession = cache(async (): Promise<Session | undefined> => {
   try {
     const exists = await redis.get(sessionKey(parsed.data.userId, parsed.data.jti))
     if (!exists) return undefined
-  } catch {}
+  } catch {
+    return undefined
+  }
   const user = await getUserForSession(parsed.data.userId)
   if (!user) return undefined
   if (user.passwordChangedAt) {

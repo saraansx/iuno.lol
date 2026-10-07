@@ -30,7 +30,7 @@ const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" | 
   premium: { label: "Get premium", action: "link", href: "/checkout" },
   "image-host": { label: "Get image host", action: "link", href: "/checkout/image-host" },
   verified: { label: "Get verified", action: "link", href: "/checkout/verified" },
-  donator: { label: "Donate", action: "soon" },
+  donator: { label: "Donate", action: "link", href: "/checkout/donator" },
   "bug-hunter": { label: "Report a bug", action: "discord" },
   booster: { label: "Join Discord", action: "discord" },
   "guild-tag": { label: "Join Discord", action: "discord" },

@@ -7,7 +7,7 @@ import { db } from '@/lib/db'
 import * as schema from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
-import { createLoginTicket } from '@/lib/auth/two-factor'
+import { createLoginTicket, TWO_FACTOR_TICKET_COOKIE, TWO_FACTOR_TICKET_TTL } from '@/lib/auth/two-factor'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
 
 const DISCORD_API = 'https://discord.com/api/v10'
@@ -157,7 +157,15 @@ export async function GET(req: NextRequest) {
         .limit(1)
       if (row?.twoFactorEnabledAt) {
         const ticket = await createLoginTicket(userId)
-        return NextResponse.redirect(`${appUrl}/signin?2fa=${encodeURIComponent(ticket)}`)
+        const twoFactorResponse = NextResponse.redirect(`${appUrl}/signin?2fa=1`)
+        twoFactorResponse.cookies.set(TWO_FACTOR_TICKET_COOKIE, ticket, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          path: '/',
+          maxAge: TWO_FACTOR_TICKET_TTL,
+        })
+        return twoFactorResponse
       }
       await createSession(userId)
     }

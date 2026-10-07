@@ -46,15 +46,13 @@ export function checkRateLimit(key: string, maxAttempts: number, windowSeconds: 
 }
 
 const UNIDENTIFIED_IP_KEY = "noip";
-const UNIDENTIFIED_IP_FACTOR = 5;
-const UNIDENTIFIED_IP_CEILING = 300;
 
 export function ipBucket(prefix: string, ip: string | null, maxPerIp: number) {
   if (ip) return { key: `${prefix}:${ip}`, max: maxPerIp };
 
   return {
     key: `${prefix}:${UNIDENTIFIED_IP_KEY}`,
-    max: Math.min(maxPerIp * UNIDENTIFIED_IP_FACTOR, UNIDENTIFIED_IP_CEILING),
+    max: Math.max(1, Math.floor(maxPerIp / 2)),
   };
 }
 

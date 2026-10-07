@@ -19,6 +19,7 @@ const userColumns = {
   isPremium: schema.users.isPremium,
   hasImageHost: schema.users.hasImageHost,
   hasVerified: schema.users.hasVerified,
+  hasDonator: schema.users.hasDonator,
   badgeTokens: schema.users.badgeTokens,
   aliasTokens: schema.users.aliasTokens,
   usernameLoginEnabled: schema.users.usernameLoginEnabled,

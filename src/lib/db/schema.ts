@@ -31,6 +31,7 @@ export const users = mysqlTable('users', {
   isPremium: boolean('is_premium').default(false).notNull(),
   hasImageHost: boolean('is_image_host').default(false).notNull(),
   hasVerified: boolean('is_verified').default(false).notNull(),
+  hasDonator: boolean('is_donator').default(false).notNull(),
   badgeTokens: int('badge_tokens').default(0).notNull(),
   aliasTokens: int('alias_tokens').default(0).notNull(),
   discordId: varchar('discord_id', { length: 32 }).unique(),

@@ -15,6 +15,10 @@ export async function forgotPassword(email: string, turnstileToken: string) {
       return { error: 'Email is required.' }
     }
 
+    if (email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      return { success: 'If an account exists, a reset link was sent!' }
+    }
+
     const ip = getClientIp(await headers())
 
     const turnstileError = await assertTurnstile(turnstileToken, ip ?? undefined)

@@ -108,7 +108,7 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium,hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium,hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified, hasDonator: schema.users.hasDonator })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
     const premiumByUserId = new Map(
@@ -116,12 +116,14 @@ async function handleSync(request: Request) {
     );
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
     const verifiedByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasVerified)]));
-    const PAID_BADGES = ['premium', 'image-host', 'verified'] as const;
+    const donatorByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasDonator)]));
+    const PAID_BADGES = ['premium', 'image-host', 'verified', 'donator'] as const;
     const isPaidBadge = (badgeId: string) => (PAID_BADGES as readonly string[]).includes(badgeId);
     const ownsPaidBadge = (badgeId: string, uid: number) =>
       badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
       : badgeId === 'verified' ? verifiedByUserId.get(uid) ?? false
+      : badgeId === 'donator' ? donatorByUserId.get(uid) ?? false
       : true;
     const userByDiscordId = new Map(
       users
