@@ -23,6 +23,7 @@ export async function createOTPToken(email: string): Promise<string> {
   const otp        = generateOTP()
   const expiresAt  = addMinutes(new Date(), 5)
   const hashedOTP  = await hashOTP(otp)
+  const staleAttemptKeys: string[] = []
 
   await db.transaction(async (tx) => {
     const clockRes = (await tx.execute(sql`SELECT NOW() as nowTs`)) as unknown as [{ nowTs: string | Date }[]]
@@ -43,10 +44,17 @@ export async function createOTPToken(email: string): Promise<string> {
         throw new UserFacingError(`Please wait ${Math.ceil(60 - timePassed)} seconds before requesting another OTP.`)
       }
       await tx.delete(schema.otpTokens).where(eq(schema.otpTokens.email, email))
+      for (const old of existingRows) {
+        staleAttemptKeys.push(`otp_attempts:${email}:${old.id}`)
+      }
     }
 
     await tx.insert(schema.otpTokens).values({ email, token: hashedOTP, expiresAt })
   })
+
+  if (staleAttemptKeys.length > 0) {
+    await redis.del(...staleAttemptKeys)
+  }
 
   return otp
 }
@@ -86,8 +94,13 @@ export async function verifyOTPToken(email: string, otp: string): Promise<{ succ
     return { success: false, error: `Invalid OTP. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.` }
   }
 
-  await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
+  const deleted = await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
   await redis.del(attemptsKey)
+
+  const affected = (deleted as unknown as { rowsAffected?: number }).rowsAffected ?? 0
+  if (affected < 1) {
+    return { success: false, error: 'Invalid or expired OTP.' }
+  }
 
   return { success: true }
 }
