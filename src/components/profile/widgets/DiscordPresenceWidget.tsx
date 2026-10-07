@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { useDiscordPresence } from "@/lib/hooks/useDiscordPresence";
 import { discordActivityImageUrl } from "@/lib/discord-activity-image";
@@ -60,6 +61,8 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
   const showViewButton = widget.showViewButton !== undefined ? widget.showViewButton : true;
 
   const [hoveredBadge, setHoveredBadge] = useState<{ name: string; x: number; y: number } | null>(null);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [failedIconUrl, setFailedIconUrl] = useState<string | null>(null);
   const [failedThumbnailUrl, setFailedThumbnailUrl] = useState<string | null>(null);
 
@@ -110,7 +113,7 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
 
   return (
     <>
-      {hoveredBadge && (
+      {hoveredBadge && mounted && createPortal(
         <div
           className="fixed pointer-events-none z-[99999] -translate-x-1/2 -translate-y-full mb-2 flex flex-col items-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150"
           style={{
@@ -129,7 +132,8 @@ export default function DiscordPresenceWidget({ widget }: { widget: WidgetItem }
           >
             {hoveredBadge.name}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       <a
