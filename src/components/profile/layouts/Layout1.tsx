@@ -790,7 +790,7 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
     <div className={`w-full flex ${align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center"}`} style={{ overflow: "visible" }}>
       <DescriptionEffect effect={descriptionEffect} glow={descriptionGlowEnabled} glowColor={bioColor ?? "#FFFFFF"}>
         <p
-          className={`leading-relaxed max-w-[90%] break-words ${
+          className={`leading-relaxed max-w-full whitespace-pre-wrap break-words ${
             align === "left" ? "text-left" : align === "right" ? "text-right" : "text-center"
           }`}
           style={{

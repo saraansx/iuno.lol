@@ -109,7 +109,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   if (GATE_ENABLED) {
-    const isStaticFile = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|webp|mp4|webm|json|xml|txt)$/i.test(path)
+    const isStaticFile = /\.(ico|png|jpg|jpeg|svg|css|js|woff2?|webp|mp4|webm|mp3|m4a|ogg|wav|json|xml|txt)$/i.test(path)
 
     const isProfilePath =
       /^\/[a-z0-9_.]{1,32}$/i.test(path) && !RESERVED_PATHS.has(path.toLowerCase())
@@ -130,6 +130,7 @@ export default async function middleware(request: NextRequest) {
       path.startsWith('/api/cron/') ||
       path.startsWith('/api/og/') ||
       path.startsWith('/api/internal/image-host/resolve/') ||
+      path.startsWith('/api/internal/cdn/resolve/') ||
       path === '/api/image-host/unlock' ||
       path.startsWith('/unlock/') ||
       isProfilePath ||
