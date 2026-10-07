@@ -1733,7 +1733,7 @@ async function updateMusicProfileImpl(data: {
   await revalidateOwnProfile(userId);
 
   return {
-    success: true,
+    success: true as const,
     tracks: sanitizedTracks,
     artBg: typeof data.artBg === "boolean" ? data.artBg : undefined,
     volumeControl: typeof data.volumeControl === "boolean" ? data.volumeControl : undefined,
@@ -1897,7 +1897,14 @@ export async function updateProfileWidgets(data: Parameters<typeof updateProfile
 }
 
 export async function updateMusicProfile(data: Parameters<typeof updateMusicProfileImpl>[0]) {
-  return runSafely("music", () => updateMusicProfileImpl(assertPlainObject(data)));
+  try {
+    return await runSafely("music", () => updateMusicProfileImpl(assertPlainObject(data)));
+  } catch (err) {
+    return {
+      success: false as const,
+      error: err instanceof Error && err.message ? err.message : "Couldn't save your music. Try again.",
+    };
+  }
 }
 
 export async function saveProfileLinks(data: Parameters<typeof saveProfileLinksImpl>[0]) {

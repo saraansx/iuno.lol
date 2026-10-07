@@ -306,6 +306,10 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
         onSave={async () => {
           try {
             const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl, shuffle });
+            if (res && "success" in res && res.success === false) {
+              toast.error(res.error);
+              return;
+            }
             if (res?.tracks) setTracks(res.tracks.map(toTrack));
             toast.success("Profile Saved Sucessfully");
             router.refresh();
