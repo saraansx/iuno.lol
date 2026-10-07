@@ -5,7 +5,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getCustomBadges } from "@/lib/features/users/db";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 import { storedFileId, CATBOX_BASE } from "@/lib/cdn";
-import { toHostedCdnUrl } from "@/lib/cdn-host";
+import { toHostedCdnUrl, resolveCdnStorageId } from "@/lib/cdn-host";
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
@@ -109,8 +109,10 @@ export async function createCustomBadge(input: { name: string; iconUrl: string }
   const name = String(input.name ?? "").trim().replace(/\s+/g, " ");
   if (name.length < 1 || name.length > 32) throw new Error("Badge name must be 1–32 characters.");
 
-  const fileId = storedFileId(input.iconUrl);
-  if (!fileId) throw new Error("Upload a badge icon first.");
+  const rawId = storedFileId(input.iconUrl);
+  if (!rawId) throw new Error("Upload a badge icon first.");
+  const publicId = rawId.includes(".") ? rawId.slice(0, rawId.lastIndexOf(".")) : rawId;
+  const fileId = (await resolveCdnStorageId(publicId)) ?? rawId;
   const [upload] = await db
     .select({ id: schema.uploadedFiles.id })
     .from(schema.uploadedFiles)
