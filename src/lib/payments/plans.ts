@@ -11,18 +11,18 @@ export const IMAGE_HOST_PLAN = {
 } as const;
 
 export const VERIFIED_PLAN = {
-  USD: { symbol: "$", display: "9.99", amount: 999, label: "USD $" },
-  INR: { symbol: "₹", display: "949", amount: 94900, label: "INR ₹" },
+  USD: { symbol: "$", display: "8.99", amount: 899, label: "USD $" },
+  INR: { symbol: "₹", display: "849", amount: 84900, label: "INR ₹" },
 } as const;
 
 export const DONATOR_PLAN = {
-  USD: { symbol: "$", display: "4.99", amount: 499, label: "USD $" },
-  INR: { symbol: "₹", display: "449", amount: 44900, label: "INR ₹" },
+  USD: { symbol: "$", display: "3.99", amount: 399, label: "USD $" },
+  INR: { symbol: "₹", display: "349", amount: 34900, label: "INR ₹" },
 } as const;
 
 export const BADGE_TOKEN_PLAN = {
-  USD: { symbol: "$", display: "3.99", amount: 399, label: "USD $" },
-  INR: { symbol: "₹", display: "349", amount: 34900, label: "INR ₹" },
+  USD: { symbol: "$", display: "1.99", amount: 199, label: "USD $" },
+  INR: { symbol: "₹", display: "149", amount: 14900, label: "INR ₹" },
 } as const;
 
 export const ALIAS_TOKEN_PLAN = {

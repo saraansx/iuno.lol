@@ -78,20 +78,19 @@ function CheckIcon() {
 
 const PRODUCTS = [
   {
-    id: "image-host",
-    title: "Image Host",
-    desc: "Upload and share your images with fast, permanent CDN links.",
-    price: { USD: IMAGE_HOST_PLAN.USD.display, INR: IMAGE_HOST_PLAN.INR.display },
-    href: "/checkout/image-host",
+    id: "donator-badge",
+    title: "Donator Badge",
+    desc: "Support iuno and get an exclusive Donator badge on your profile.",
+    price: { USD: DONATOR_PLAN.USD.display, INR: DONATOR_PLAN.INR.display },
+    href: "/checkout/donator",
     features: [
-      "Exclusive Image Host Badge",
-      "Special Discord Server Role",
-      "50GB storage",
-      "Up to 200MB per file upload",
-      "Short share links & password lock",
+      "Exclusive Donator badge",
+      "Special Discord role",
+      "Support iuno's development",
+      "One-time payment, yours forever",
     ],
     icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M1.5 6A2.25 2.25 0 0 1 3.75 3.75h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0z" /></svg>
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z" /></svg>
     ),
   },
   {
@@ -108,22 +107,6 @@ const PRODUCTS = [
     ],
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path fillRule="evenodd" clipRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0 1 12 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 0 1 3.498 1.307 4.491 4.491 0 0 1 1.307 3.497A4.49 4.49 0 0 1 21.75 12a4.49 4.49 0 0 1-1.549 3.397 4.491 4.491 0 0 1-1.307 3.497 4.491 4.491 0 0 1-3.497 1.307A4.49 4.49 0 0 1 12 21.75a4.49 4.49 0 0 1-3.397-1.549 4.49 4.49 0 0 1-3.498-1.306 4.491 4.491 0 0 1-1.307-3.498A4.49 4.49 0 0 1 2.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 0 1 1.307-3.497 4.49 4.49 0 0 1 3.497-1.307zm7.007 6.387a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25z" /></svg>
-    ),
-  },
-  {
-    id: "donator-badge",
-    title: "Donator Badge",
-    desc: "Support iuno and get an exclusive Donator badge on your profile.",
-    price: { USD: DONATOR_PLAN.USD.display, INR: DONATOR_PLAN.INR.display },
-    href: "/checkout/donator",
-    features: [
-      "Exclusive Donator badge",
-      "Special Discord role",
-      "Support iuno's development",
-      "One-time payment, yours forever",
-    ],
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35Z" /></svg>
     ),
   },
   {
@@ -417,7 +400,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
           </div>
 
           {}
-          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 items-stretch gap-4 md:grid-cols-[1fr_1.15fr_1fr]">
             {PRODUCTS.map((product, i) => {
               const isMiddle = i === 1;
               return (
@@ -425,7 +408,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                   key={product.id}
                   className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#0c0c0c] p-6 text-left shadow-sm transition-all ${
                     isMiddle
-                      ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)]"
+                      ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)] md:-translate-y-4"
                       : "border-white/5"
                   }`}
                 >
@@ -464,13 +447,13 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                         </li>
                       ))}
                     </ul>
-                    {(product.id === "image-host" && hasImageHost) || (product.id === "verified-badge" && hasVerified) || (product.id === "donator-badge" && hasDonator) ? (
+                    {(product.id === "verified-badge" && hasVerified) || (product.id === "donator-badge" && hasDonator) ? (
                       <button
-                        onClick={() => router.push(product.id === "image-host" ? "/dashboard/image-host/overview" : "/dashboard/customize/badges")}
+                        onClick={() => router.push("/dashboard/customize/badges")}
                         className="mt-auto flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#5b6cf5]/15 py-2.5 text-sm font-normal text-white ring-1 ring-inset ring-[#5b6cf5]/30 transition-all hover:bg-[#5b6cf5]/25 cursor-pointer"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>
-                        {product.id === "image-host" ? "Open Image Host" : product.id === "verified-badge" ? "Verified owned" : "Donator owned"}
+                        {product.id === "verified-badge" ? "Verified owned" : "Donator owned"}
                       </button>
                     ) : (
                       <button
@@ -492,6 +475,25 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
 
           {}
           <div className="mt-6 flex flex-col gap-4">
+            <TokenCard
+              title="Image Host"
+              price={`${IMAGE_HOST_PLAN[currency].symbol}${IMAGE_HOST_PLAN[currency].display}`}
+              features={[
+                "Exclusive Image Host Badge",
+                "Special Discord Server Role",
+                "50GB storage, 200MB per file",
+                "Short share links & password lock",
+              ]}
+              cta={hasImageHost ? "Open Image Host" : "Get Image Host"}
+              onClick={() =>
+                router.push(
+                  !isAuthenticated ? "/register" : hasImageHost ? "/dashboard/image-host/overview" : "/checkout/image-host",
+                )
+              }
+              icon={
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fillRule="evenodd" clipRule="evenodd" d="M1.5 6A2.25 2.25 0 0 1 3.75 3.75h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0z" /></svg>
+              }
+            />
             <TokenCard
               title="Alias Token"
               price={`${ALIAS_TOKEN_PLAN[currency].symbol}${ALIAS_TOKEN_PLAN[currency].display}`}
