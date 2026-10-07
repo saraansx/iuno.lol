@@ -2,8 +2,17 @@ import { db } from '@/lib/db'
 import { users, userSettings } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { cache } from 'react'
+import { unstable_cache, revalidateTag, revalidatePath } from 'next/cache'
 
-export const getProfileRows = cache((username: string) =>
+export const profileCacheTag = (username: string) => `profile:${username.toLowerCase().trim()}`
+
+export function revalidateProfile(username: string) {
+  if (!username) return
+  revalidateTag(profileCacheTag(username), { expire: 0 })
+  revalidatePath(`/${username}`)
+}
+
+const queryProfileRows = (username: string) =>
   db
     .select({
       embedColor: userSettings.embedColor,
@@ -212,4 +221,12 @@ export const getProfileRows = cache((username: string) =>
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
     .where(eq(users.username, username))
     .limit(1)
-)
+
+export const getProfileRows = cache((username: string) => {
+  const key = username.toLowerCase().trim()
+  return unstable_cache(
+    () => queryProfileRows(key),
+    ['profile-rows', key],
+    { tags: [profileCacheTag(key)] }
+  )()
+})

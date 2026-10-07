@@ -3,7 +3,7 @@
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
-import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 import {
   RECRUITER_REQUIRED,
   getOrCreateInvite,
@@ -46,7 +46,7 @@ export async function checkRecruiterProgress(): Promise<RecruiterState> {
   const state = await refreshRecruiter(userId, discordId);
   if (state.granted) {
     const user = await getUserById(userId);
-    if (user?.username) revalidatePath(`/${user.username}`);
+    if (user?.username) revalidateProfile(user.username);
   }
   return state;
 }

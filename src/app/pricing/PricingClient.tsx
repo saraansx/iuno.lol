@@ -178,7 +178,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
     <main className="bg-black relative" onClick={handleEnterClick} style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
 
-      {/* Blur fade at the top edge — content dissolves under the navbar as it scrolls up */}
+      {}
       <div
         className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
         style={{

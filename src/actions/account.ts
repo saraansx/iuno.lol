@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 import { and, eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { createSession, getSessionUserId, revokeAllSessions } from "@/lib/auth/session";
@@ -45,7 +46,7 @@ function fail(err: unknown): { ok: false; error: string } {
 }
 
 async function refreshProfile(username: string) {
-  revalidatePath(`/${username}`);
+  revalidateProfile(username);
   await purgeCloudflareProfileCache(username);
 }
 
@@ -641,7 +642,7 @@ export async function confirmDeleteAccount(): Promise<Result> {
     await redis.del(deletePwOkKey(victimId));
     await redis.del(deletePendingEmailKey(victimId));
     await purgeCloudflareProfileCache(victimUname);
-    revalidatePath(`/${victimUname}`);
+    revalidateProfile(victimUname);
     const { deleteSession } = await import("@/lib/auth/session");
     await deleteSession();
     return { ok: true, data: undefined };

@@ -7,7 +7,7 @@ import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 import { storedFileId, CATBOX_BASE } from "@/lib/cdn";
 import { toHostedCdnUrl, resolveCdnStorageId } from "@/lib/cdn-host";
 import { randomBytes } from "crypto";
-import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { eq, and, asc, like, sql } from "drizzle-orm";
@@ -36,7 +36,7 @@ function isLocked(badge: BadgeEntry | LevelEntry | ViewEntry | LikeEntry): boole
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
   if (user?.username) {
-    revalidatePath(`/${user.username}`);
+    revalidateProfile(user.username);
     await purgeCloudflareProfileCache(user.username);
   }
 }

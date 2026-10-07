@@ -27,7 +27,6 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
     setActiveTab(tabForPath(pathname));
   }, [pathname]);
 
-  // Hide navbar on scroll down, reveal on scroll up (pricing page only for now)
   React.useEffect(() => {
     if (pathname !== '/pricing') {
       setHidden(false);
@@ -38,14 +37,11 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      // Ignore tiny jitters
       if (Math.abs(currentScrollY - lastScrollY) < 6) return;
 
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
-        // Scrolling down past the top -> hide
         setHidden(true);
       } else {
-        // Scrolling up -> show
         setHidden(false);
       }
       lastScrollY = currentScrollY;

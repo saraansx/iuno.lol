@@ -4,7 +4,7 @@ import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTit
 import { getProfileRows } from './profile-data'
 import ProfileView from './ProfileView'
 
-export const revalidate = 2592000;
+export const revalidate = 604800;
 
 export const dynamicParams = true;
 export async function generateStaticParams() {

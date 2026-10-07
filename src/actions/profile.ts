@@ -18,6 +18,7 @@ import {
   PREMIUM_ENTRY_TRANSITIONS,
 } from "@/lib/premium";
 import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 import { profileUpdateRateLimit, musicSaveRateLimit } from "@/lib/rate-limit";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { cleanYouTubeInput } from "@/lib/youtube";
@@ -39,7 +40,7 @@ import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
 async function revalidateOwnProfile(userId: number) {
   const user = await getUserById(userId);
   if (user?.username) {
-    revalidatePath(`/${user.username}`);
+    revalidateProfile(user.username);
     await purgeCloudflareProfileCache(user.username);
   }
 }
@@ -1460,7 +1461,7 @@ async function updateProfileWidgetsImpl(data: {
 
   revalidatePath("/dashboard/customize/profile/widgets");
   revalidatePath("/dashboard", "layout");
-  revalidatePath(`/${user.username}`);
+  revalidateProfile(user.username);
   await purgeCloudflareProfileCache(user.username);
 
   return { success: true };

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { db, schema } from '@/lib/db'
 import { inArray, isNotNull } from 'drizzle-orm'
-import { revalidatePath } from 'next/cache'
+import { revalidateProfile } from '@/app/[username]/profile-data'
 import { isAuthorizedCron } from '@/lib/cron-auth'
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from '@/lib/badge-roles'
 import { isPremiumActive } from '@/lib/premium'
@@ -235,7 +235,7 @@ async function handleSync(request: Request) {
     }
 
     for (const name of changedUsernames) {
-      revalidatePath(`/${name}`);
+      revalidateProfile(name);
     }
     await purgeProfiles([...changedUsernames]);
 

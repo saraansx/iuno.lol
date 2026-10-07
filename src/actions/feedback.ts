@@ -2,7 +2,7 @@
 
 import { db, schema } from "@/lib/db";
 import { eq, sql, and } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 
 import { getSessionUserId } from "@/lib/auth/session";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
@@ -152,7 +152,7 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
     try {
       if (result.username) {
         await invalidateLiveStatsCache(result.username);
-        revalidatePath(`/${result.username}`);
+        revalidateProfile(result.username);
       }
     } catch (e) {
       console.error("Failed to invalidate cache/revalidate profile:", e);

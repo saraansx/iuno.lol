@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateProfile } from "@/app/[username]/profile-data";
 import { db, schema } from "@/lib/db";
 import { eq, sql, desc } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
@@ -34,7 +35,7 @@ function validateName(name: string): string | null {
 async function revalidateOwnProfile(userId: number) {
   try {
     const user = await getUserById(userId);
-    if (user?.username) revalidatePath(`/${user.username}`);
+    if (user?.username) revalidateProfile(user.username);
   } catch {}
 }
 
