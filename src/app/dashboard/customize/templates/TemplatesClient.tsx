@@ -151,15 +151,12 @@ export default function TemplatesClient() {
     load();
   }, [load]);
 
-  const copyCoverUrl = async (t: Tpl) => {
+  const copyShareUrl = async (t: Tpl) => {
     setMenuId(null);
-    if (!t.thumbnailUrl) {
-      toast.error("No cover image");
-      return;
-    }
+    const url = `${window.location.origin}/template/${t.slug}`;
     try {
-      await navigator.clipboard.writeText(t.thumbnailUrl);
-      toast.success("Cover URL copied");
+      await navigator.clipboard.writeText(url);
+      toast.success("Template link copied");
     } catch {
       toast.error("Couldn't copy");
     }
@@ -496,7 +493,7 @@ export default function TemplatesClient() {
                               transition={{ duration: 0.15, ease: "easeOut" }}
                               className="absolute right-0 bottom-full mb-1.5 z-[50] w-44 rounded-xl bg-[#161616] border border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)] p-1 flex flex-col"
                             >
-                              <button type="button" onClick={() => copyCoverUrl(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+                              <button type="button" onClick={() => copyShareUrl(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
                                 Copy URL
                               </button>
                               <button type="button" onClick={() => { setMenuId(null); setPreviewTarget(t); }} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">

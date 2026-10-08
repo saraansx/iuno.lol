@@ -3,6 +3,7 @@ import { randomBytes } from 'crypto'
 import { cookies } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
+import { sanitizeNextPath, DISCORD_NEXT_COOKIE } from '@/lib/auth/redirect'
 
 export async function GET(req: NextRequest) {
   const clientId    = process.env.DISCORD_CLIENT_ID!
@@ -33,6 +34,17 @@ export async function GET(req: NextRequest) {
     scope:         'identify email guilds.join',
     state,
   })
+
+  const next = sanitizeNextPath(req.nextUrl.searchParams.get('next'))
+  if (next !== '/dashboard') {
+    cookieStore.set(DISCORD_NEXT_COOKIE, next, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 10,
+      path: '/',
+    })
+  }
 
   return NextResponse.redirect(
     `https://discord.com/oauth2/authorize?${params.toString()}`

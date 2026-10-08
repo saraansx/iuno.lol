@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm'
 import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 import { createLoginTicket, TWO_FACTOR_TICKET_COOKIE, TWO_FACTOR_TICKET_TTL } from '@/lib/auth/two-factor'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
+import { sanitizeNextPath, DISCORD_NEXT_COOKIE } from '@/lib/auth/redirect'
 
 const DISCORD_API = 'https://discord.com/api/v10'
 
@@ -149,6 +150,8 @@ export async function GET(req: NextRequest) {
 
     await addUserToGuild(discordUser.id, accessToken)
 
+    const nextPath = sanitizeNextPath((await cookies()).get(DISCORD_NEXT_COOKIE)?.value)
+
     if (!loggedInUserId) {
       const [row] = await db
         .select({ twoFactorEnabledAt: schema.users.twoFactorEnabledAt })
@@ -157,7 +160,7 @@ export async function GET(req: NextRequest) {
         .limit(1)
       if (row?.twoFactorEnabledAt) {
         const ticket = await createLoginTicket(userId)
-        const twoFactorResponse = NextResponse.redirect(`${appUrl}/signin?2fa=1`)
+        const twoFactorResponse = NextResponse.redirect(`${appUrl}/signin?2fa=1${nextPath === "/dashboard" ? "" : `&next=${encodeURIComponent(nextPath)}`}`)
         twoFactorResponse.cookies.set(TWO_FACTOR_TICKET_COOKIE, ticket, {
           httpOnly: true,
           secure: process.env.NODE_ENV === 'production',
@@ -170,7 +173,9 @@ export async function GET(req: NextRequest) {
       await createSession(userId)
     }
 
-    return NextResponse.redirect(`${appUrl}/dashboard`)
+    const response = NextResponse.redirect(`${appUrl}${nextPath}`)
+    response.cookies.delete(DISCORD_NEXT_COOKIE)
+    return response
   } catch (err) {
     console.error('[Discord OAuth]', err)
     return NextResponse.redirect(`${appUrl}/signin?error=discord_failed`)

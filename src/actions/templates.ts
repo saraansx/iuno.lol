@@ -153,8 +153,9 @@ export async function applyTemplate(id: number) {
   const rl = await checkRateLimit(`template:apply:${userId}`, 20, 60);
   if (!rl.ok) throw new Error(`Too fast. Try again in ${rl.retryAfterSeconds}s.`);
 
-  const [tpl] = await db.select({ config: schema.templates.config }).from(schema.templates).where(eq(schema.templates.id, id)).limit(1);
+  const [tpl] = await db.select({ config: schema.templates.config, isPublic: schema.templates.isPublic, userId: schema.templates.userId }).from(schema.templates).where(eq(schema.templates.id, id)).limit(1);
   if (!tpl) throw new Error("Template not found");
+  if (!tpl.isPublic && tpl.userId !== userId) throw new Error("Template not found");
   const config = (tpl.config as Record<string, unknown>) ?? {};
   const sanitized = sanitizeTemplateConfig(config);
   if (isTemplateConfigEmpty(sanitized)) throw new Error("Template is empty.");
