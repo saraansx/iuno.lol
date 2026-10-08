@@ -153,113 +153,109 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
   return (
     <>
       <div className="min-h-screen flex flex-col">
-        <div className="flex-1 flex items-center justify-center px-4 pt-32 pb-16">
-          <div className="w-full max-w-[1100px] grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_360px] gap-10 lg:gap-14 items-center">
-            <div className="min-w-0">
-              <button
-                type="button"
-                onClick={() => setLightboxOpen(true)}
-                className="block w-full aspect-[16/10] rounded-[20px] overflow-hidden bg-[#0c0c0c] border border-white/5 cursor-zoom-in transition hover:border-white/10"
-              >
-                {template.thumbnailUrl ? (
-                  <Image src={template.thumbnailUrl} alt={template.name} width={1120} height={700} className="w-full h-full object-cover" unoptimized />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white/15 text-[11px] tracking-widest uppercase">No cover</div>
-                )}
-              </button>
-            </div>
+        <div className="flex-1 flex items-center px-4 pt-28 pb-12">
+          <div className="w-full max-w-[900px] mx-auto rounded-[22px] bg-[#0a0a0a] border border-white/[0.06] p-5 sm:p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_290px] gap-8 lg:gap-10 items-center">
+              <div className="min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setLightboxOpen(true)}
+                  aria-label={`Preview ${template.name}`}
+                  className="group relative block w-full aspect-[16/10] rounded-[14px] overflow-hidden bg-[#0c0c0c] cursor-zoom-in transition-opacity duration-300 hover:opacity-90"
+                >
+                  {template.thumbnailUrl ? (
+                    <Image
+                      src={template.thumbnailUrl}
+                      alt={template.name}
+                      width={1120}
+                      height={700}
+                      className="w-full h-full object-cover transition duration-500 group-hover:scale-[1.02]"
+                      unoptimized
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white/15 text-[11px] tracking-widest uppercase">No cover</div>
+                  )}
+                </button>
+              </div>
 
-            <div className="flex flex-col">
-              <div className="flex items-center gap-3">
-                <span className="text-[13px] text-white/50 shrink-0">Template by</span>
+              <div className="flex flex-col min-w-0">
                 {template.creatorUsername ? (
-                  <Link href={`/${template.creatorUsername}`} className="flex items-center gap-2 min-w-0 hover:opacity-80 transition-opacity">
-                    <span className="w-7 h-7 rounded-full bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center text-[11px] text-white/70 shrink-0">
+                  <Link href={`/${template.creatorUsername}`} className="flex items-center gap-2.5 w-fit hover:opacity-80 transition-opacity">
+                    <span className="w-6 h-6 rounded-full bg-white/[0.06] border border-white/10 overflow-hidden flex items-center justify-center text-[10px] text-white/70 shrink-0">
                       {template.creatorAvatarUrl ? (
-                        <Image src={template.creatorAvatarUrl} alt={template.creatorUsername} width={28} height={28} className="w-full h-full object-cover" unoptimized />
+                        <Image src={template.creatorAvatarUrl} alt={template.creatorUsername} width={24} height={24} className="w-full h-full object-cover" unoptimized />
                       ) : (
                         (template.creatorUsername[0] ?? "?").toUpperCase()
                       )}
                     </span>
-                    <span className="text-[13px] text-white/80 truncate">@{template.creatorUsername}</span>
+                    <span className="text-[12px] text-white/55 truncate">by @{template.creatorUsername}</span>
                   </Link>
                 ) : (
-                  <span className="text-[13px] text-white/40">Unknown</span>
+                  <span className="text-[12px] text-white/40">Template</span>
                 )}
-              </div>
 
-              <h1 className="mt-4 text-[34px] leading-[1.1] tracking-tight text-white">{template.name}</h1>
-              <p className="mt-2.5 text-[13px] leading-relaxed text-white/45 max-w-[38ch]">
-                Preview this profile setup, apply selected parts to your active profile, or save it for later.
-              </p>
+                <h1 className="mt-2.5 text-[32px] leading-[1.1] tracking-[-0.02em] text-white break-words">{template.name}</h1>
 
-              <div className="mt-5 flex items-center gap-5 text-[12.5px] text-white/45">
-                <span className="flex items-center gap-1.5">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  {useCount} {useCount === 1 ? "use" : "uses"}
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 1.9 4.5 5.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6 3.6 0 5.1 3.9 3.5 7.2C19.5 16.4 12 21 12 21z" />
-                  </svg>
-                  {favoriteCount} {favoriteCount === 1 ? "favorite" : "favorites"}
-                </span>
-              </div>
-
-              <div className="mt-7 flex flex-col gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleApply}
-                  className="h-11 w-full rounded-xl bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/25 text-white text-[13.5px] font-normal transition cursor-pointer"
-                  style={{ fontFamily: "var(--font-comfortaa)" }}
-                >
-                  {isAuthenticated ? "Apply" : "Sign in to apply"}
-                </button>
-                <div className="grid grid-cols-2 gap-2.5">
-                  <button
-                    type="button"
-                    onClick={() => setLightboxOpen(true)}
-                    className="h-11 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-[13px] transition cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" />
+                <div className="mt-3.5 flex items-center gap-3.5 text-[12px] text-white/55">
+                  <span className="flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
                     </svg>
-                    Preview
-                  </button>
-                  <button
-                    type="button"
-                    onClick={copyLink}
-                    className="h-11 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-[13px] transition cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    {useCount} {useCount === 1 ? "use" : "uses"}
+                  </span>
+                  <span className="h-3 w-px bg-white/15" />
+                  <span className="flex items-center gap-1.5">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 21s-7.5-4.6-10-9.3C.4 8.4 1.9 4.5 5.5 4.5c2 0 3.4 1.1 4.5 2.6 1.1-1.5 2.5-2.6 4.5-2.6 3.6 0 5.1 3.9 3.5 7.2C19.5 16.4 12 21 12 21z" />
                     </svg>
-                    Copy URL
-                  </button>
+                    {favoriteCount} {favoriteCount === 1 ? "favorite" : "favorites"}
+                  </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2.5">
+
+                <div className="mt-7 flex flex-col gap-2">
                   <button
                     type="button"
-                    onClick={toggleFavorite}
-                    disabled={busy === "fav"}
-                    className="h-11 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-[13px] transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                    onClick={handleApply}
+                    className="h-11 w-full rounded-xl bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/30 text-white text-[13.5px] font-normal transition cursor-pointer"
+                    style={{ fontFamily: "var(--font-comfortaa)" }}
                   >
-                    <span className={`text-[15px] leading-none ${favorited ? "text-white" : "text-white/45"}`}>{favorited ? "♥" : "♡"}</span>
-                    {favorited ? "Favorited" : "Favorite"}
+                    {isAuthenticated ? "Apply template" : "Sign in to apply"}
                   </button>
-                  <button
-                    type="button"
-                    onClick={doSave}
-                    disabled={busy === "save"}
-                    className="h-11 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white text-[13px] transition cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M4 21h16" />
-                    </svg>
-                    {busy === "save" ? "Saving…" : "Save template"}
-                  </button>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      type="button"
+                      onClick={copyLink}
+                      title="Copy link"
+                      aria-label="Copy link"
+                      className="h-10 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white transition cursor-pointer flex items-center justify-center"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={toggleFavorite}
+                      disabled={busy === "fav"}
+                      title={favorited ? "Remove favorite" : "Favorite"}
+                      aria-label={favorited ? "Remove favorite" : "Favorite"}
+                      className="h-10 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                    >
+                      <span className={`text-[15px] leading-none ${favorited ? "text-white" : "text-white/45"}`}>{favorited ? "♥" : "♡"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={doSave}
+                      disabled={busy === "save"}
+                      title={busy === "save" ? "Saving…" : "Save a copy"}
+                      aria-label="Save a copy"
+                      className="h-10 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50 flex items-center justify-center"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M4 21h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
