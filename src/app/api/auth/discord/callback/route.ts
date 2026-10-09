@@ -9,6 +9,7 @@ import { eq } from 'drizzle-orm'
 import { FETCH_TIMEOUT_MS } from '@/lib/widget-image-proxy'
 import { createLoginTicket, TWO_FACTOR_TICKET_COOKIE, TWO_FACTOR_TICKET_TTL } from '@/lib/auth/two-factor'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
+import { consumeTurnstilePass } from '@/lib/server/security/turnstile-cookie'
 import { sanitizeNextPath, DISCORD_NEXT_COOKIE } from '@/lib/auth/redirect'
 
 const DISCORD_API = 'https://discord.com/api/v10'
@@ -89,6 +90,10 @@ export async function GET(req: NextRequest) {
 
   const rate = await discordOAuthRateLimit(getClientIp(req.headers))
   if (!rate.ok) return NextResponse.redirect(`${appUrl}/signin?error=rate_limited`)
+
+  if (!(await consumeTurnstilePass(getClientIp(req.headers)))) {
+    return NextResponse.redirect(`${appUrl}/signin?error=discord_turnstile_required`)
+  }
 
   if (error) {
     return NextResponse.redirect(`${appUrl}/signin?error=discord_denied`)

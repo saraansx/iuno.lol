@@ -4,6 +4,7 @@ import { cookies } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
 import { discordOAuthRateLimit } from '@/lib/rate-limit'
 import { sanitizeNextPath, DISCORD_NEXT_COOKIE } from '@/lib/auth/redirect'
+import { issueTurnstilePass } from '@/lib/server/security/turnstile-cookie'
 
 export async function GET(req: NextRequest) {
   const clientId    = process.env.DISCORD_CLIENT_ID!
@@ -14,6 +15,19 @@ export async function GET(req: NextRequest) {
   if (!rate.ok) {
     return NextResponse.redirect(
       `${process.env.NEXT_PUBLIC_APP_URL!}/signin?error=discord_rate_limited`
+    )
+  }
+
+  const turnstileToken = req.nextUrl.searchParams.get('turnstileToken')
+  if (!turnstileToken) {
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL!}/signin?error=discord_turnstile_required`
+    )
+  }
+  const passId = await issueTurnstilePass(turnstileToken, rateIp)
+  if (!passId) {
+    return NextResponse.redirect(
+      `${process.env.NEXT_PUBLIC_APP_URL!}/signin?error=discord_turnstile_failed`
     )
   }
 

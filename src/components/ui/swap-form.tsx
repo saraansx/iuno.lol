@@ -113,6 +113,17 @@ export default function SwapForm({
             </div>
           )}
 
+          {(error === "discord_turnstile_required" || error === "discord_turnstile_failed") && (
+            <div className="w-full mb-4 bg-red-400/10 border border-red-400/20 rounded-xl px-3.5 py-2.5 flex items-center gap-3">
+              <svg className="text-red-400 shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/>
+              </svg>
+              <p className="text-red-400 text-xs font-medium">
+                Please complete the security check to continue with Discord.
+              </p>
+            </div>
+          )}
+
           {isSignIn ? (
             <LoginForm />
           ) : (
