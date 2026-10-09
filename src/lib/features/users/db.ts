@@ -1,7 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
 import { UserFacingError } from '@/lib/errors'
-import { eq, sql, and, lt, asc, like } from 'drizzle-orm'
+import { eq, sql, and, lt, gt, asc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
 import { redis } from '@/lib/redis'
@@ -430,6 +430,21 @@ export async function cleanupExpiredUnverifiedUsers() {
         lt(schema.users.createdAt, cutoff)
       )
     )
+}
+
+export async function countRecentUnverifiedByIp(ip: string, windowMs = UNVERIFIED_GRACE_MS) {
+  const cutoff = new Date(Date.now() - windowMs)
+  const rows = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(schema.users)
+    .where(
+      and(
+        eq(schema.users.ip, ip),
+        eq(schema.users.emailVerified, false),
+        gt(schema.users.createdAt, cutoff)
+      )
+    )
+  return Number(rows[0]?.count ?? 0)
 }
 
 export async function markEmailVerified(email: string) {

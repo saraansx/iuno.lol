@@ -1,7 +1,7 @@
 'use server'
 
 import { createVerificationToken, deleteVerificationTokens } from '@/lib/auth/tokens'
-import { deleteUnverifiedUserByEmail, cleanupExpiredUnverifiedUsers, createUser } from '@/lib/features/users/db'
+import { deleteUnverifiedUserByEmail, countRecentUnverifiedByIp, createUser } from '@/lib/features/users/db'
 import { sendVerificationEmail } from '@/lib/mail'
 import { verifyTurnstileToken } from '@/lib/server/security/turnstile'
 import { getClientIp } from '@/lib/server/security/ip'
@@ -16,6 +16,8 @@ type RegisterInput = {
   password: string
   turnstileToken: string
 }
+
+const MAX_UNVERIFIED_PER_IP = 2
 
 export async function register(input: RegisterInput) {
   try {
@@ -48,7 +50,12 @@ export async function register(input: RegisterInput) {
       return { error: `You're being rate limited. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.` }
     }
 
-    await cleanupExpiredUnverifiedUsers()
+    if (ip) {
+      const unverified = await countRecentUnverifiedByIp(ip)
+      if (unverified >= MAX_UNVERIFIED_PER_IP) {
+        return { error: 'Too many pending accounts from your network. Please verify an existing one or try again later.' }
+      }
+    }
 
     await deleteUnverifiedUserByEmail(email)
 

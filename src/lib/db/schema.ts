@@ -47,6 +47,7 @@ export const users = mysqlTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 }, (table) => ({
   unverifiedCleanupIdx: index('unverified_cleanup_idx').on(table.emailVerified, table.createdAt),
+  unverifiedIpIdx: index('unverified_ip_idx').on(table.ip, table.emailVerified, table.createdAt),
 }))
 
 export const userSettings = mysqlTable('user_settings', {
