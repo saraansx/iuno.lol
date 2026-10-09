@@ -70,11 +70,6 @@ export type TemplatePreviewConfig = {
   config: Record<string, unknown>;
 };
 
-/**
- * Config for rendering a live preview. Unlike getPublicTemplateBySlug this returns private
- * templates too, but only for their owner — a preview link must not become a way to read a
- * template that has been hidden.
- */
 export async function getTemplateForPreview(id: number, viewerId: number): Promise<TemplatePreviewConfig | null> {
   if (!Number.isInteger(id) || id <= 0) return null;
 

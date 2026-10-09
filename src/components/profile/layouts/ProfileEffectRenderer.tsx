@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Fx = {
   src: string;
@@ -13,6 +13,8 @@ type Fx = {
   width?: number | null;
   position?: { x: number; y: number } | null;
 };
+
+const DESIGN_WIDTH = 450;
 
 function useFxVisible(fx: Fx) {
   const [visible, setVisible] = useState(() => fx.start === 0);
@@ -77,7 +79,26 @@ function useFxVisible(fx: Fx) {
   return visible;
 }
 
-function FxLayer({ fx }: { fx: Fx }) {
+function useContainerWidth() {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width ?? 0;
+      setWidth((prev) => (Math.abs(prev - w) > 0.5 ? w : prev));
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return [ref, width] as const;
+}
+
+function FxLayer({ fx, containerWidth }: { fx: Fx; containerWidth: number }) {
   const visible = useFxVisible(fx);
   const [mountKey, setMountKey] = useState(0);
 
@@ -94,18 +115,24 @@ function FxLayer({ fx }: { fx: Fx }) {
     fx.position && typeof fx.position.x === "number" && typeof fx.position.y === "number";
   const hasSize = fx.width != null || fx.height != null;
 
-  const style: React.CSSProperties = {
-    zIndex: fx.z_index ?? 30,
-    ...(hasPos || hasSize
-      ? {
-          left: hasPos ? `${fx.position!.x}px` : 0,
-          top: hasPos ? `${fx.position!.y}px` : 0,
-          width: fx.width ? `${fx.width}px` : "100%",
-          height: fx.height ? `${fx.height}px` : "100%",
-          objectFit: "cover" as const,
-        }
-      : {}),
-  };
+  // Before the ResizeObserver reports a width, fall back to the authored size so the
+  // effect still paints on the first frame rather than collapsing to nothing.
+  const layerWidth = containerWidth > 0 ? containerWidth : DESIGN_WIDTH;
+  const authoredWidth = fx.width || DESIGN_WIDTH;
+  const layerHeight = fx.height != null ? (fx.height / authoredWidth) * layerWidth : "100%";
+
+  const style: React.CSSProperties = hasPos || hasSize
+    ? {
+        // Scale the authored canvas to whatever the card actually is, otherwise a card wider
+        // than the authored width clips the effect on one side and leaves a gap on the other.
+        left: hasPos ? `${(fx.position!.x / DESIGN_WIDTH) * layerWidth}px` : 0,
+        top: 0,
+        width: layerWidth,
+        height: layerHeight,
+        objectFit: "cover" as const,
+        objectPosition: "top center" as const,
+      }
+    : {};
 
   return (
     /* eslint-disable-next-line @next/next/no-img-element */
@@ -137,9 +164,12 @@ export default function ProfileEffectRenderer({
   borderRadius?: number;
   className?: string;
 }) {
+  const [containerRef, containerWidth] = useContainerWidth();
+
   if (!effects.length) return null;
   return (
     <div
+      ref={containerRef}
       className={className ?? "absolute inset-0 pointer-events-none z-30 overflow-hidden"}
       style={{
         borderRadius: borderRadius != null ? `${borderRadius}px` : undefined,
@@ -148,7 +178,7 @@ export default function ProfileEffectRenderer({
       aria-hidden
     >
       {effects.map((fx, i) => (
-        <FxLayer key={i} fx={fx} />
+        <FxLayer key={i} fx={fx} containerWidth={containerWidth} />
       ))}
     </div>
   );

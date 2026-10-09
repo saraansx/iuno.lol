@@ -1,12 +1,6 @@
 import { resolveEffectConfig, EFFECT_CONFIG_KEYS } from "@/lib/effect-config";
 import { TEMPLATE_BACKGROUNDS_KEY } from "@/lib/template-config";
 
-/**
- * Template configs store effect settings under a nested `effectConfig` key, while a
- * profile row has them flattened onto the user object. Applying a template overwrites
- * that nested object wholesale, so a preview must resolve it the same way or the
- * preview would promise effect values that applying would then discard.
- */
 export function applyTemplateStyle<T extends object>(
   base: T,
   overrides: Record<string, unknown>,
@@ -35,7 +29,6 @@ export function applyTemplateStyle<T extends object>(
   return out as T;
 }
 
-/** Backgrounds live in their own table, so a template carries them as a plain array. */
 export function templateBackgrounds(overrides: Record<string, unknown>): string[] | null {
   const b = overrides[TEMPLATE_BACKGROUNDS_KEY];
   if (!Array.isArray(b)) return null;

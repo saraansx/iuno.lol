@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Renders the signed-in user's own profile, so it must never be cached or served stale.
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -25,8 +24,6 @@ export default async function TemplatePreviewPage({ params }: Params) {
   if (!Number.isInteger(id) || id <= 0) notFound();
 
   const userId = await getSessionUserId();
-  // There is nothing to preview without a profile to dress up, so send signed-out
-  // visitors through sign-in and back here.
   if (!userId) redirect(`/signin?next=${encodeURIComponent(`/preview/${id}`)}`);
 
   const template = await getTemplateForPreview(id, userId);

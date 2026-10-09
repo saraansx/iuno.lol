@@ -97,8 +97,6 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
     }
   };
 
-  // Preview renders the template on the viewer's own profile, so it needs a session —
-  // signed-out visitors are sent to sign in and returned here afterwards.
   const openPreview = useCallback(() => {
     if (!isAuthenticated) {
       goToSignIn();

@@ -39,8 +39,6 @@ export default async function ProfileView({
 
   const user = { ...baseRow, ...resolveEffectConfig(baseRow.effectConfig) }
 
-  // A preview renders someone's real profile, so it must not inflate their view count,
-  // rewrite their tab title, or replay the enter-screen animation at them.
   const isStatic = isScreenshot || isPreview
 
   const selectedEffect = getEffectByUrl(user.profileEffectUrl);
