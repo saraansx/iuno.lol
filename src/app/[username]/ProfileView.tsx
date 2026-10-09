@@ -5,6 +5,7 @@ import TabTitleTypewriter from '@/components/profile/TabTitleTypewriter'
 import { getEffectByUrl } from '@/lib/collectibles'
 import { getEquippedBadgeIds, getUserBackgrounds, getCustomBadges, getAliasOwner } from '@/lib/features/users/db'
 import { resolveEffectConfig } from '@/lib/effect-config'
+import { applyTemplateStyle } from '@/lib/template-style'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
 import { formatTabTitle, isAllowedOgImage } from '@/lib/og'
 import { getProfileRows } from './profile-data'
@@ -12,9 +13,15 @@ import { getProfileRows } from './profile-data'
 export default async function ProfileView({
   username: rawUsername,
   isScreenshot = false,
+  isPreview = false,
+  styleOverrides = null,
+  backgroundOverride = null,
 }: {
   username: string
   isScreenshot?: boolean
+  isPreview?: boolean
+  styleOverrides?: Record<string, unknown> | null
+  backgroundOverride?: string[] | null
 }) {
   const username = rawUsername.toLowerCase().trim()
 
@@ -26,11 +33,19 @@ export default async function ProfileView({
     notFound()
   }
 
-  const user = { ...userList[0], ...resolveEffectConfig(userList[0].effectConfig) }
+  const baseRow = styleOverrides
+    ? applyTemplateStyle(userList[0], styleOverrides)
+    : userList[0]
+
+  const user = { ...baseRow, ...resolveEffectConfig(baseRow.effectConfig) }
+
+  // A preview renders someone's real profile, so it must not inflate their view count,
+  // rewrite their tab title, or replay the enter-screen animation at them.
+  const isStatic = isScreenshot || isPreview
 
   const selectedEffect = getEffectByUrl(user.profileEffectUrl);
 
-  const [equippedBadges, backgrounds, customBadges] = await Promise.all([
+  const [equippedBadges, storedBackgrounds, customBadges] = await Promise.all([
     getEquippedBadgeIds(user.id),
     getUserBackgrounds(user.id),
     getCustomBadges(user.id),
@@ -51,7 +66,7 @@ export default async function ProfileView({
       }}
     >
       <Layout1
-        isScreenshot={isScreenshot}
+        isScreenshot={isStatic}
         username={user.username}
         displayName={user.displayName ?? undefined}
         bio={user.bio ?? undefined}
@@ -65,7 +80,7 @@ export default async function ProfileView({
         effectHue={user.profileEffectHue ?? 0}
         bannerImageUrl={user.bannerImageUrl ?? undefined}
         bannerBlend={user.bannerBlend ?? false}
-        backgrounds={backgrounds}
+        backgrounds={backgroundOverride ?? storedBackgrounds}
         bannerBackgroundShuffle={user.bannerBackgroundShuffle ?? undefined}
         bannerBackgroundAutoplay={user.bannerBackgroundAutoplay ?? undefined}
         bannerBackgroundSound={user.bannerBackgroundSound ?? false}
@@ -157,7 +172,7 @@ export default async function ProfileView({
         clickEffect={user.clickEffect ?? undefined}
         clickSound={user.clickSound ?? undefined}
         entryTransition={user.entryTransition ?? undefined}
-        enterScreenEnabled={isScreenshot ? false : (user.enterScreenEnabled ?? undefined)}
+        enterScreenEnabled={isStatic ? false : (user.enterScreenEnabled ?? undefined)}
         enterScreenText={user.enterScreenText ?? undefined}
         enterScreenFont={user.enterScreenFont ?? undefined}
         enterScreenFontSize={user.enterScreenFontSize ?? undefined}
@@ -305,8 +320,8 @@ export default async function ProfileView({
         musicPlayerVolume={user.musicPlayerVolume ?? true}
         musicPlayerShuffle={user.musicPlayerShuffle ?? false}
       />
-      {!isScreenshot && <ProfileViewTracker profileId={user.id} />}
-      {!isScreenshot && user.tabTitleAnimated && (
+      {!isStatic && <ProfileViewTracker profileId={user.id} />}
+      {!isStatic && user.tabTitleAnimated && (
         <TabTitleTypewriter text={formatTabTitle(user.tabTitle, user.username)} />
       )}
     </div>

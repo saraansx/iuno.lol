@@ -119,7 +119,6 @@ export default function TemplatesClient() {
   const [favBusy, setFavBusy] = useState<number | null>(null);
   const [visBusy, setVisBusy] = useState<number | null>(null);
   const [menuId, setMenuId] = useState<number | null>(null);
-  const [previewTarget, setPreviewTarget] = useState<Tpl | null>(null);
   const [assetsTarget, setAssetsTarget] = useState<Tpl | null>(null);
   const [assets, setAssets] = useState<TemplateAsset[] | null>(null);
   const [assetsLoading, setAssetsLoading] = useState(false);
@@ -496,7 +495,7 @@ export default function TemplatesClient() {
                               <button type="button" onClick={() => copyShareUrl(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
                                 Copy URL
                               </button>
-                              <button type="button" onClick={() => { setMenuId(null); setPreviewTarget(t); }} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+                              <button type="button" onClick={() => { setMenuId(null); router.push(`/preview/${t.id}`); }} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
                                 Preview
                               </button>
                               <button type="button" onClick={() => openAssets(t)} className="w-full text-left px-3 py-2 rounded-lg text-[12.5px] text-white/75 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
@@ -657,25 +656,6 @@ export default function TemplatesClient() {
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
                 {usingId === useTarget.id ? "Applying…" : "Apply template"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {previewTarget && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setPreviewTarget(null)}>
-          <div onClick={(e) => e.stopPropagation()} className="relative w-[min(760px,92vw)] max-h-[88vh] rounded-[20px] overflow-hidden bg-[#0c0c0c] border border-white/10">
-            {previewTarget.thumbnailUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={previewTarget.thumbnailUrl} alt={previewTarget.name} className="w-full max-h-[78vh] object-contain bg-black" />
-            ) : (
-              <div className="h-64 flex items-center justify-center text-white/30 text-[12px] uppercase tracking-widest">No cover</div>
-            )}
-            <div className="flex items-center justify-between px-4 py-3 border-t border-white/5">
-              <p className="text-[13px] text-white/80 truncate">{previewTarget.name}</p>
-              <button type="button" onClick={() => setPreviewTarget(null)} className="h-8 px-4 rounded-lg bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] transition cursor-pointer">
-                Close
               </button>
             </div>
           </div>

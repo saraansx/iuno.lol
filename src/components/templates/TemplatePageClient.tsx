@@ -45,7 +45,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [busy, setBusy] = useState<"apply" | "save" | "fav" | null>(null);
+  const [busy, setBusy] = useState<"apply" | "fav" | null>(null);
   const [favorited, setFavorited] = useState(template.favorited);
   const [favoriteCount, setFavoriteCount] = useState(template.favoriteCount);
   const [useCount, setUseCount] = useState(template.useCount);
@@ -97,6 +97,16 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
     }
   };
 
+  // Preview renders the template on the viewer's own profile, so it needs a session —
+  // signed-out visitors are sent to sign in and returned here afterwards.
+  const openPreview = useCallback(() => {
+    if (!isAuthenticated) {
+      goToSignIn();
+      return;
+    }
+    router.push(`/preview/${template.id}`);
+  }, [router, template.id, isAuthenticated, goToSignIn]);
+
   const handleApply = () => {
     if (!isAuthenticated) {
       goToSignIn();
@@ -122,34 +132,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
     }
   };
 
-  const doSave = async () => {
-    if (!isAuthenticated) {
-      goToSignIn();
-      return;
-    }
-    setBusy("save");
-    const save = async (name: string) => {
-      const r = await fetch("/api/templates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
-      });
-      return { ok: r.ok, error: (await r.json().catch(() => ({}))).error as string | undefined };
-    };
-    try {
-      let res = await save(template.name);
-      if (!res.ok && res.error?.toLowerCase().includes("already have a template")) {
-        res = await save(`${template.name} 2`);
-      }
-      if (!res.ok) throw new Error(res.error ?? "Failed");
-      toast.success("Saved to your templates");
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
-    } finally {
-      setBusy(null);
-    }
-  };
-
+  
   return (
     <>
       <div className="min-h-screen flex flex-col">
@@ -213,15 +196,25 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                 </div>
 
                 <div className="mt-7 flex flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={handleApply}
-                    className="h-11 w-full rounded-xl bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/30 text-white text-[13.5px] font-normal transition cursor-pointer"
-                    style={{ fontFamily: "var(--font-comfortaa)" }}
-                  >
-                    {isAuthenticated ? "Apply template" : "Sign in to apply"}
-                  </button>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={openPreview}
+                      title="See this template on your own profile"
+                      className="h-11 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white text-[13px] transition cursor-pointer"
+                    >
+                      Preview
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleApply}
+                      className="h-11 rounded-xl bg-[#5b6cf5]/25 hover:bg-[#5b6cf5]/35 border border-[#5b6cf5]/30 text-white text-[13.5px] font-normal transition cursor-pointer"
+                      style={{ fontFamily: "var(--font-comfortaa)" }}
+                    >
+                      {isAuthenticated ? "Apply template" : "Sign in to apply"}
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={copyLink}
@@ -242,18 +235,6 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                       className="h-10 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50 flex items-center justify-center"
                     >
                       <span className={`text-[15px] leading-none ${favorited ? "text-white" : "text-white/45"}`}>{favorited ? "♥" : "♡"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={doSave}
-                      disabled={busy === "save"}
-                      title={busy === "save" ? "Saving…" : "Save a copy"}
-                      aria-label="Save a copy"
-                      className="h-10 rounded-xl bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] text-white/80 hover:text-white transition cursor-pointer disabled:opacity-50 flex items-center justify-center"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 3v12" /><path d="m8 11 4 4 4-4" /><path d="M4 21h16" />
-                      </svg>
                     </button>
                   </div>
                 </div>

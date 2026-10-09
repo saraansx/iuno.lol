@@ -132,6 +132,8 @@ export default async function middleware(request: NextRequest) {
       path.startsWith('/api/internal/image-host/resolve/') ||
       path.startsWith('/api/internal/cdn/resolve/') ||
       path === '/api/image-host/unlock' ||
+      path.startsWith('/template/') ||
+      path.startsWith('/preview/') ||
       path.startsWith('/unlock/') ||
       isProfilePath ||
       isScreenshotPath ||
