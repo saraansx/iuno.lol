@@ -129,7 +129,7 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
       setPendingDiscord(false);
       const nextParam =
         redirectTo === "/dashboard" ? "" : `&next=${encodeURIComponent(redirectTo)}`;
-      window.location.href = `/api/auth/discord?turnstileToken=${encodeURIComponent(token)}${nextParam}`;
+      window.location.href = `/api/auth/discord${nextParam}`;
       return;
     }
 
@@ -157,10 +157,9 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
             .then((data) => {
               if (data.error) {
                 const newErrors: { [key: string]: string } = {};
-                const msg = data.error.toLowerCase();
-                if (msg.includes('email')) {
+                if (data.field === "email") {
                   newErrors.email = data.error;
-                } else if (msg.includes('username')) {
+                } else if (data.field === "username") {
                   newErrors.username = data.error;
                 } else {
                   setError(data.error);

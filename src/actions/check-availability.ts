@@ -1,13 +1,19 @@
 'use server'
 
-import { assertEmailAvailable, assertUsernameAvailable } from '@/lib/features/users/db'
+import { assertUsernameAvailable } from '@/lib/features/users/db'
 import { headers } from 'next/headers'
 import { getClientIp } from '@/lib/server/security/ip'
 import { validateUsername, validateEmail } from '@/lib/server/security/validation'
 import { checkAvailabilityRateLimit } from '@/lib/rate-limit'
 import { UserFacingError } from '@/lib/errors'
 
-export async function checkAvailability({ username, email }: { username: string; email: string }) {
+type AvailabilityResult = {
+  success?: boolean;
+  error?: string;
+  field?: 'username' | 'email';
+}
+
+export async function checkAvailability({ username, email }: { username: string; email: string }): Promise<AvailabilityResult> {
   try {
     const h = await headers()
     const ip = getClientIp(h)
@@ -17,17 +23,16 @@ export async function checkAvailability({ username, email }: { username: string;
     }
 
     const usernameError = validateUsername(username)
-    if (usernameError) return { error: usernameError }
+    if (usernameError) return { error: usernameError, field: 'username' as const }
 
     const emailError = validateEmail(email)
-    if (emailError) return { error: emailError }
+    if (emailError) return { error: emailError, field: 'email' as const }
 
     try {
-      await assertEmailAvailable(email)
       await assertUsernameAvailable(username)
     } catch (err: unknown) {
       if (err instanceof UserFacingError) {
-        return { error: err.message }
+        return { error: err.message, field: 'username' as const }
       }
       throw err
     }

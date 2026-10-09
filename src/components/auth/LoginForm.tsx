@@ -185,7 +185,7 @@ const LoginForm = () => {
       setPendingDiscord(false);
       const nextParam =
         redirectTo === "/dashboard" ? "" : `&next=${encodeURIComponent(redirectTo)}`;
-      window.location.href = `/api/auth/discord?turnstileToken=${encodeURIComponent(token)}${nextParam}`;
+      window.location.href = `/api/auth/discord${nextParam}`;
       return;
     }
 
