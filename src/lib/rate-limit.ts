@@ -107,6 +107,10 @@ export async function commentRateLimit(userId: number) {
   return checkRateLimit(`comment:${userId}`, 5, 2 * 60);
 }
 
+export async function accountActionRateLimit(userId: number) {
+  return checkRateLimit(`account_action:${userId}`, 60, 60);
+}
+
 export async function profileUpdateRateLimit(userId: number) {
   return checkRateLimit(`profile_update:${userId}`, 100, 60);
 }

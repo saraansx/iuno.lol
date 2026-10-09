@@ -19,7 +19,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
   const handleClaim = () => {
     const clean = username.trim().toLowerCase();
-    
+
     if (!clean) {
       setError("Username is required.");
       return;
@@ -32,7 +32,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
       setError("Only letters, numbers, underscores, and dots allowed.");
       return;
     }
-    
+
     setError("");
     router.push(`/register?username=${encodeURIComponent(clean)}`);
   };
@@ -60,7 +60,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
         <Navbar isAuthenticated={isAuthenticated} />
 
         <div className="relative z-10 flex flex-col items-center justify-center pt-48 px-4 text-center">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-[#5b6cf5]/10 backdrop-blur-md border border-[#5b6cf5]/20 px-4 py-1.5 rounded-full flex items-center gap-2 mb-8"

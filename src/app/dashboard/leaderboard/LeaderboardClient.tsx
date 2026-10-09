@@ -32,9 +32,9 @@ const PERIOD_OPTIONS: { id: LeaderboardPeriod; label: string }[] = [
 ];
 
 const MEDALS = {
-  1: { color: "#fbbf24", height: "h-[168px]", ring: 104 },
-  2: { color: "#cbd5e1", height: "h-[128px]", ring: 84 },
-  3: { color: "#d97706", height: "h-[100px]", ring: 84 },
+  1: { color: "#fbbf24", height: "h-[124px]", ring: 104 },
+  2: { color: "#cbd5e1", height: "h-[102px]", ring: 84 },
+  3: { color: "#d97706", height: "h-[88px]", ring: 84 },
 } as const;
 
 const plural = (n: number, unit = "view") => `${n.toLocaleString()} ${unit}${n === 1 ? "" : "s"}`;
@@ -47,12 +47,14 @@ export default function LeaderboardClient({
   period,
   page,
   currentUserId,
+  basePath = "/dashboard/leaderboard",
 }: {
   entries: LeaderboardEntry[];
   category: LeaderboardCategory;
   period: LeaderboardPeriod;
   page: number;
   currentUserId: number | null;
+  basePath?: string;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -72,7 +74,7 @@ export default function LeaderboardClient({
       period: next.period ?? period,
       page: String(next.page ?? 1),
     });
-    startTransition(() => router.push(`/dashboard/leaderboard?${qs}`, { scroll: false }));
+    startTransition(() => router.push(`${basePath}?${qs}`, { scroll: false }));
   }
 
   return (
@@ -108,7 +110,7 @@ export default function LeaderboardClient({
       {me && <YourRank me={me} ahead={entries[me.rank - 2]} periodLabel={periodLabel} category={category} />}
 
       {entries.length === 0 ? (
-        <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10">
+        <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10 pb-6">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.12),rgba(91,108,245,0.03)_45%,transparent_72%)]"
@@ -142,7 +144,7 @@ export default function LeaderboardClient({
               </Link>
             )}
           </div>
-          <ol className="relative grid grid-cols-3 items-end gap-4 max-w-[720px] mx-auto" aria-label="Empty podium">
+          <ol className="relative grid grid-cols-3 items-end gap-3 max-w-[660px] mx-auto" aria-label="Empty podium">
             {([2, 1, 3] as const).map((rank) => (
               <EmptySpot key={`empty-${rank}`} rank={rank} />
             ))}
@@ -151,12 +153,12 @@ export default function LeaderboardClient({
       ) : (
         <>
           {safePage === 1 && (
-            <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-12">
+            <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10 pb-6">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.09),rgba(251,191,36,0.02)_45%,transparent_72%)]"
               />
-              <ol className="relative grid grid-cols-3 items-end gap-4 max-w-[720px] mx-auto">
+              <ol className="relative grid grid-cols-3 items-end gap-3 max-w-[660px] mx-auto">
                 {([2, 1, 3] as const).map((rank) => {
                   const entry = podium[rank - 1];
                   return entry ? (
@@ -250,7 +252,7 @@ function PodiumBlock({ rank, score, muted = false, category = "views" }: { rank:
   const medal = MEDALS[rank];
   return (
     <div
-      className={`relative w-full ${medal.height} rounded-t-2xl border border-b-0 flex flex-col items-center pt-4 gap-2 overflow-hidden`}
+      className={`relative w-full ${medal.height} rounded-2xl border flex flex-col items-center justify-center gap-1 overflow-hidden`}
       style={
         muted
           ? { borderColor: "rgba(255,255,255,0.05)", background: "linear-gradient(to bottom, rgba(255,255,255,0.03), transparent)" }
@@ -260,7 +262,7 @@ function PodiumBlock({ rank, score, muted = false, category = "views" }: { rank:
       {!muted && (
         <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px" style={{ background: `linear-gradient(to right, transparent, ${medal.color}, transparent)` }} />
       )}
-      <span className="text-[40px] font-semibold leading-none" style={{ color: muted ? "rgba(255,255,255,0.1)" : medal.color }}>
+      <span className="text-[32px] font-semibold leading-none" style={{ color: muted ? "rgba(255,255,255,0.1)" : medal.color }}>
         <span className="sr-only">Rank </span>
         {rank}
       </span>

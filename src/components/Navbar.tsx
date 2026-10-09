@@ -13,8 +13,8 @@ interface NavbarProps {
 
 const tabForPath = (pathname: string) => {
   if (pathname === '/pricing' || pathname === '/checkout') return 'Pricing';
-  if (pathname === '/dashboard/leaderboard') return 'Leaderboard';
-  return 'Helpcenter';
+  if (pathname === '/leaderboard' || pathname === '/dashboard/leaderboard') return 'Leaderboard';
+  return null;
 };
 
 const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
@@ -90,6 +90,9 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                   } else if (tab === 'Pricing') {
                     setActiveTab(tab);
                     router.push('/pricing');
+                  } else if (tab === 'Leaderboard') {
+                    setActiveTab(tab);
+                    router.push('/leaderboard');
                   } else {
                     setActiveTab(tab);
                   }

@@ -115,16 +115,12 @@ function FxLayer({ fx, containerWidth }: { fx: Fx; containerWidth: number }) {
     fx.position && typeof fx.position.x === "number" && typeof fx.position.y === "number";
   const hasSize = fx.width != null || fx.height != null;
 
-  // Before the ResizeObserver reports a width, fall back to the authored size so the
-  // effect still paints on the first frame rather than collapsing to nothing.
   const layerWidth = containerWidth > 0 ? containerWidth : DESIGN_WIDTH;
   const authoredWidth = fx.width || DESIGN_WIDTH;
   const layerHeight = fx.height != null ? (fx.height / authoredWidth) * layerWidth : "100%";
 
   const style: React.CSSProperties = hasPos || hasSize
     ? {
-        // Scale the authored canvas to whatever the card actually is, otherwise a card wider
-        // than the authored width clips the effect on one side and leaves a gap on the other.
         left: hasPos ? `${(fx.position!.x / DESIGN_WIDTH) * layerWidth}px` : 0,
         top: 0,
         width: layerWidth,

@@ -8,7 +8,7 @@ import { createSession, getSessionUserId, revokeAllSessions } from "@/lib/auth/s
 import { assertEmailAvailable, assertUsernameAvailable, getUserAliases, getUserById } from "@/lib/features/users/db";
 import { validateEmail, validatePassword, validateUsername } from "@/lib/server/security/validation";
 import { hashPassword, isPasswordCorrect } from "@/lib/server/security/bcrypt";
-import { checkRateLimit, profileUpdateRateLimit } from "@/lib/rate-limit";
+import { accountActionRateLimit, checkRateLimit, profileUpdateRateLimit } from "@/lib/rate-limit";
 import { createOTPToken, verifyOTPToken } from "@/lib/auth/otp";
 import { sendTwoFactorTokenEmail } from "@/lib/mail";
 import { redis } from "@/lib/redis";
@@ -27,6 +27,17 @@ export type AliasState = { aliases: AliasRow[]; tokens: number; slots: number; p
 type Result<T = undefined> = { ok: true; data: T } | { ok: false; error: string };
 
 async function requireUser() {
+  const userId = await getSessionUserId();
+  if (!userId) throw new UserFacingError("Please sign in again.");
+  const rate = await accountActionRateLimit(userId);
+  if (!rate.ok) {
+    const minutes = Math.ceil(rate.retryAfterSeconds / 60);
+    throw new UserFacingError(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? "" : "s"}.`);
+  }
+  return userId;
+}
+
+async function requireEditor() {
   const userId = await getSessionUserId();
   if (!userId) throw new UserFacingError("Please sign in again.");
   const rate = await profileUpdateRateLimit(userId);
@@ -71,7 +82,7 @@ function cleanHandle(raw: string) {
 
 export async function updateUsername(raw: string): Promise<Result<{ username: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const username = cleanHandle(raw);
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
@@ -108,7 +119,7 @@ export async function updateUsername(raw: string): Promise<Result<{ username: st
 
 export async function updateDisplayName(raw: string): Promise<Result<{ displayName: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const displayName = String(raw ?? "").replace(/\s+/g, " ").trim().slice(0, 32);
     await db
       .insert(schema.userSettings)
@@ -124,7 +135,7 @@ export async function updateDisplayName(raw: string): Promise<Result<{ displayNa
 
 export async function addAlias(raw: string): Promise<Result<AliasState>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const alias = cleanHandle(raw);
     await assertUsernameAvailable(alias);
 
@@ -163,7 +174,7 @@ async function getOwnAlias(userId: number, id: number) {
 
 export async function editAlias(id: number, raw: string): Promise<Result<AliasState>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const next = cleanHandle(raw);
     const row = await getOwnAlias(userId, id);
     if (row.alias === next) return { ok: true, data: await aliasState(userId) };
@@ -178,7 +189,7 @@ export async function editAlias(id: number, raw: string): Promise<Result<AliasSt
 
 export async function swapAliasWithUsername(id: number): Promise<Result<AliasState & { username: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const row = await getOwnAlias(userId, id);
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
@@ -210,7 +221,7 @@ const emailChangePendingNewKey = (userId: number) => `email_change:pending_new:$
 
 export async function verifyPasswordAndSendCurrentOtp(rawPassword: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const sends = await checkRateLimit(`email_change_pw:${userId}`, 5, 15 * 60);
     if (!sends.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
 
@@ -235,7 +246,7 @@ export async function verifyPasswordAndSendCurrentOtp(rawPassword: string): Prom
 
 export async function verifyCurrentEmailOtp(rawCode: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const pwOk = await redis.get(emailChangePwOkKey(userId));
     if (!pwOk) throw new UserFacingError("Please verify your password first.");
     const user = await getUserById(userId);
@@ -254,7 +265,7 @@ export async function verifyCurrentEmailOtp(rawCode: string): Promise<Result> {
 
 export async function sendNewEmailOtp(raw: string): Promise<Result<{ email: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
     if (user.email) {
@@ -280,7 +291,7 @@ export async function sendNewEmailOtp(raw: string): Promise<Result<{ email: stri
 
 export async function confirmNewEmailOtp(rawCode: string): Promise<Result<{ email: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const pending = await redis.get(emailChangePendingNewKey(userId));
     if (!pending) throw new UserFacingError("Your code expired. Request a new one.");
     const user = await getUserById(userId);
@@ -310,7 +321,7 @@ function sessionCutoff() {
 
 export async function completeDiscordOnboarding(rawUsername: string, rawPassword: string): Promise<Result<{ username: string }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const username = cleanHandle(rawUsername);
     const password = String(rawPassword ?? "");
     const pwError = validatePassword(password);
@@ -350,7 +361,7 @@ export async function completeDiscordOnboarding(rawUsername: string, rawPassword
 
 export async function updatePassword(current: string, next: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const attempts = await checkRateLimit(`password_change:${userId}`, 5, 15 * 60);
     if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes and try again.");
 
@@ -415,7 +426,7 @@ export async function startTwoFactorSetup(): Promise<Result<{ qr: string; secret
 
 export async function confirmTwoFactorSetup(code: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const attempts = await checkRateLimit(`2fa_setup_verify:${userId}`, 10, 10 * 60);
     if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait a few minutes.");
 
@@ -437,7 +448,7 @@ export async function confirmTwoFactorSetup(code: string): Promise<Result> {
 
 export async function disableTwoFactor(code: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const attempts = await checkRateLimit(`2fa_disable:${userId}`, 5, 15 * 60);
     if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
     if (!(await checkTwoFactorCode(userId, String(code ?? "")))) throw new UserFacingError("That code didn't match.");
@@ -481,7 +492,7 @@ export async function beginAddPasskey(): Promise<Result<PublicKeyCredentialCreat
 
 export async function finishAddPasskey(response: RegistrationResponseJSON, rawName: string): Promise<Result<PasskeyRow[]>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const name = String(rawName ?? "").replace(/\s+/g, " ").trim().slice(0, 64) || "Passkey";
     if (!(await finishPasskeyRegistration(userId, response, name))) {
       throw new UserFacingError("Couldn't verify that passkey. Please try again.");
@@ -495,7 +506,7 @@ export async function finishAddPasskey(response: RegistrationResponseJSON, rawNa
 
 export async function removePasskey(id: number): Promise<Result<PasskeyRow[]>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     if (!(await deletePasskey(userId, Number(id)))) throw new UserFacingError("Passkey not found.");
     return { ok: true, data: await passkeyRows(userId) };
   } catch (err) {
@@ -505,7 +516,7 @@ export async function removePasskey(id: number): Promise<Result<PasskeyRow[]>> {
 
 export async function deleteAlias(id: number): Promise<Result<AliasState>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const [row] = await db
       .select({ alias: schema.userAliases.alias })
       .from(schema.userAliases)
@@ -522,7 +533,7 @@ export async function deleteAlias(id: number): Promise<Result<AliasState>> {
 
 export async function disconnectDiscord(): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const user = await getUserById(userId);
     if (!user) throw new UserFacingError("Please sign in again.");
     if (!user.discordId) throw new UserFacingError("Discord is not connected.");
@@ -535,7 +546,7 @@ export async function disconnectDiscord(): Promise<Result> {
 
 export async function setUsernameLoginEnabled(enabled: boolean): Promise<Result<{ enabled: boolean }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const [row] = await db.select({ password: schema.users.password }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
     if (!row?.password) throw new UserFacingError("Set a password first.");
     await db.update(schema.users).set({ usernameLoginEnabled: Boolean(enabled) }).where(eq(schema.users.id, userId));
@@ -556,7 +567,7 @@ export async function getActiveSessions(): Promise<Result<import("@/lib/auth/ses
 
 export async function revokeSessionAction(jti: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const { revokeSession, getCurrentJti } = await import("@/lib/auth/session");
     const current = await getCurrentJti();
     if (current && jti === current) throw new UserFacingError("You can't revoke your current session.");
@@ -568,7 +579,7 @@ export async function revokeSessionAction(jti: string): Promise<Result> {
 
 export async function revokeOtherSessionsAction(): Promise<Result<{ revoked: number }>> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const { revokeOtherSessions, getCurrentJti } = await import("@/lib/auth/session");
     const current = await getCurrentJti();
     if (!current) throw new UserFacingError("Current session not found.");
@@ -585,7 +596,7 @@ const DELETE_TTL = 10 * 60;
 
 export async function verifyPasswordForDelete(rawPassword: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const attempts = await checkRateLimit(`delete_pw:${userId}`, 5, 15 * 60);
     if (!attempts.ok) throw new UserFacingError("Too many attempts. Please wait 15 minutes.");
     const [row] = await db.select({ password: schema.users.password, email: schema.users.email }).from(schema.users).where(eq(schema.users.id, userId)).limit(1);
@@ -605,7 +616,7 @@ export async function verifyPasswordForDelete(rawPassword: string): Promise<Resu
 
 export async function verifyOtpForDelete(rawCode: string): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const pwOk = await redis.get(deletePwOkKey(userId));
     if (!pwOk) throw new UserFacingError("Please verify your password first.");
     const email = await redis.get(deletePendingEmailKey(userId));
@@ -621,7 +632,7 @@ export async function verifyOtpForDelete(rawCode: string): Promise<Result> {
 
 export async function confirmDeleteAccount(): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     const otpOk = await redis.get(deleteOtpKey(userId));
     if (!otpOk) throw new UserFacingError("Please verify the code first.");
     const user = await getUserById(userId);
@@ -651,7 +662,7 @@ export async function confirmDeleteAccount(): Promise<Result> {
 
 export async function cancelDeleteVerification(): Promise<Result> {
   try {
-    const userId = await requireUser();
+    const userId = await requireEditor();
     await redis.del(deleteOtpKey(userId));
     await redis.del(deletePwOkKey(userId));
     await redis.del(deletePendingEmailKey(userId));
