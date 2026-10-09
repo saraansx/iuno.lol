@@ -369,27 +369,34 @@ export async function updatePassword(current: string, next: string): Promise<Res
     const ruleError = validatePassword(nextPassword);
     if (ruleError) throw new UserFacingError(ruleError);
 
-    const [row] = await db
-      .select({ password: schema.users.password })
-      .from(schema.users)
-      .where(eq(schema.users.id, userId))
-      .limit(1);
-    if (!row) throw new UserFacingError("Please sign in again.");
+    const passwordHash = await hashPassword(nextPassword);
+    const cutoff = sessionCutoff();
 
-    if (row.password) {
-      const currentPassword = String(current ?? "");
-      if (!currentPassword || currentPassword.length > 128 || !(await isPasswordCorrect(currentPassword, row.password))) {
-        throw new UserFacingError("Current password is incorrect.");
-      }
-      if (await isPasswordCorrect(nextPassword, row.password)) {
-        throw new UserFacingError("New password must be different from the current one.");
-      }
-    }
+    await db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({ password: schema.users.password })
+        .from(schema.users)
+        .where(eq(schema.users.id, userId))
+        .limit(1)
+        .for("update");
+      if (!row) throw new UserFacingError("Please sign in again.");
 
-    await db
-      .update(schema.users)
-      .set({ password: await hashPassword(nextPassword), passwordChangedAt: sessionCutoff() })
-      .where(eq(schema.users.id, userId));
+      if (row.password) {
+        const currentPassword = String(current ?? "");
+        if (!currentPassword || currentPassword.length > 128 || !(await isPasswordCorrect(currentPassword, row.password))) {
+          throw new UserFacingError("Current password is incorrect.");
+        }
+        if (await isPasswordCorrect(nextPassword, row.password)) {
+          throw new UserFacingError("New password must be different from the current one.");
+        }
+      }
+
+      await tx
+        .update(schema.users)
+        .set({ password: passwordHash, passwordChangedAt: cutoff })
+        .where(eq(schema.users.id, userId));
+    });
+
     await revokeAllSessions(userId);
     await createSession(userId);
     return { ok: true, data: undefined };
