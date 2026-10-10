@@ -3,15 +3,23 @@ import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
 import { isAuthorizedCron } from '@/lib/cron-auth';
+import { acquireCronLock } from '@/lib/cron-lock';
 
 const SET_KEY = 'profiles_with_pending_views';
 
 const BATCH_SIZE = 500;
 
+const LOCK_TTL_SECONDS = 120;
+
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 async function handler() {
+  const lock = await acquireCronLock('flush-views', LOCK_TTL_SECONDS);
+  if (!lock.acquired) {
+    return NextResponse.json({ success: true, message: 'Flush already running; skipped.' });
+  }
+
   try {
     let totalFlushed = 0;
     let totalProfiles = 0;
@@ -161,6 +169,8 @@ async function handler() {
   } catch (error) {
     console.error('[cron] Bulk flush failed:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await lock.release();
   }
 }
 
