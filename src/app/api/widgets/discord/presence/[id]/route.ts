@@ -72,6 +72,8 @@ interface DiscordUserFields {
 
 const BADGES_CACHE_TTL_SEC = 12 * 60 * 60;
 
+const BADGES_ERROR_TTL_SEC = 60;
+
 const NO_STORE = { "Cache-Control": "no-store, max-age=0" } as const;
 
 const PRESENCE_CACHE_SECONDS = 5;
@@ -246,11 +248,11 @@ export async function GET(
             }
           } else {
             console.error("[Discord User Token Status]", profileRes.status, await profileRes.text());
-            await redis.set(redisBadgesKey, "[]", "EX", 600).catch(() => {});
+            await redis.set(redisBadgesKey, "[]", "EX", BADGES_ERROR_TTL_SEC).catch(() => {});
           }
         } catch (e) {
           console.error("[Discord User Token Profile Error]", e);
-          await redis.set(redisBadgesKey, "[]", "EX", 600).catch(() => {});
+          await redis.set(redisBadgesKey, "[]", "EX", BADGES_ERROR_TTL_SEC).catch(() => {});
         }
       }
     }
