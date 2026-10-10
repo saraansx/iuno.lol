@@ -3,6 +3,7 @@ import { db, schema } from '@/lib/db'
 import { inArray, isNotNull } from 'drizzle-orm'
 import { revalidateProfile } from '@/app/[username]/profile-data'
 import { isAuthorizedCron } from '@/lib/cron-auth'
+import { acquireCronLock } from '@/lib/cron-lock'
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from '@/lib/badge-roles'
 import { isPremiumActive } from '@/lib/premium'
 import { BADGES, EARLY_CUTOFF_UID } from '@/app/dashboard/customize/badges/badges-data'
@@ -32,13 +33,26 @@ async function fetchAllMemberRoles(
     url.searchParams.set('limit', '1000');
     if (after) url.searchParams.set('after', after);
 
-    const res = await fetch(url, {
-      headers: { Authorization: `Bot ${botToken}` },
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) throw new Error(`Discord API error (${res.status})`);
+    let members: Array<{ user?: { id?: string }; roles?: unknown }> | null = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bot ${botToken}` },
+        signal: AbortSignal.timeout(15000),
+      });
 
-    const members = (await res.json()) as Array<{ user?: { id?: string }; roles?: unknown }>;
+      if (res.status === 429 || (res.status >= 500 && res.status < 600)) {
+        const body = (await res.json().catch(() => null)) as { retry_after?: number } | null;
+        const waitSec = (body?.retry_after ?? Number(res.headers.get('retry-after'))) || 1;
+        await new Promise((r) => setTimeout(r, Math.min(waitSec, 10) * 1000));
+        continue;
+      }
+
+      if (!res.ok) throw new Error(`Discord API error (${res.status})`);
+      members = (await res.json()) as Array<{ user?: { id?: string }; roles?: unknown }>;
+      break;
+    }
+
+    if (!members) throw new Error('Discord API error (rate limited, gave up after retries)');
     if (!Array.isArray(members) || members.length === 0) break;
 
     for (const m of members) {
@@ -104,6 +118,11 @@ async function handleSync(request: Request) {
     return NextResponse.json({ error: 'Discord sync is not configured' }, { status: 500 });
   }
 
+  const lock = await acquireCronLock('sync-badges', 360);
+  if (!lock.acquired) {
+    return NextResponse.json({ success: true, message: 'Badge sync already running; skipped.' });
+  }
+
   try {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
@@ -153,12 +172,11 @@ async function handleSync(request: Request) {
     const changedUsernames = new Set<string>();
 
     const paidRoleChanges: Array<{ discordId: string; roleId: string; method: 'PUT' | 'DELETE' }> = [];
-    for (const badgeId of PAID_BADGES) {
-      const roleId = BADGE_ROLE_MAP[badgeId];
-      if (!roleId) continue;
-      for (const [discordId, roles] of memberRoles) {
-        const user = userByDiscordId.get(discordId);
-        if (!user) continue;
+    for (const [discordId, user] of userByDiscordId) {
+      const roles = memberRoles.get(discordId) ?? [];
+      for (const badgeId of PAID_BADGES) {
+        const roleId = BADGE_ROLE_MAP[badgeId];
+        if (!roleId) continue;
         const owns = ownsPaidBadge(badgeId, user.id);
         const has = roles.includes(roleId);
         if (owns && !has) paidRoleChanges.push({ discordId, roleId, method: 'PUT' });
@@ -193,9 +211,8 @@ async function handleSync(request: Request) {
       }
     }
 
-    for (const [discordId, roles] of memberRoles) {
-      const user = userByDiscordId.get(discordId);
-      if (!user) continue;
+    for (const [discordId, user] of userByDiscordId) {
+      const roles = memberRoles.get(discordId) ?? [];
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
@@ -293,5 +310,7 @@ async function handleSync(request: Request) {
   } catch (error) {
     console.error('[cron/sync-badges] failed:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await lock.release();
   }
 }
