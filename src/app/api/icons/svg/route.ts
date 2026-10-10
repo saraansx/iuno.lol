@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 import { ICONIFY_API, brandColorFor, normalizeColorParam } from "@/lib/links";
+import { sanitizeSvg } from "@/lib/server/security/svg-sanitize";
 
 const ICON_NAME_RE = /^[a-z0-9]+[a-z0-9-]*:[a-z0-9][a-z0-9-:]*$/i;
 const MAX_SVG_BYTES = 100_000;
@@ -28,6 +29,7 @@ export async function GET(req: Request) {
   try {
     upstream = await fetch(`${ICONIFY_API}/${prefix}/${rest.join(":")}.svg`, {
       next: { revalidate: 86400 },
+      signal: AbortSignal.timeout(30_000),
     });
   } catch (e) {
     console.error("[icons/svg] upstream fetch failed:", name, e);
@@ -42,12 +44,18 @@ export async function GET(req: Request) {
   }
 
   const raw = await upstream.text();
-  if (!raw || raw.length > MAX_SVG_BYTES || !raw.includes("<svg")) {
+  if (!raw || raw.length > MAX_SVG_BYTES) {
     console.error("[icons/svg] invalid body:", name);
     return new NextResponse("Invalid icon", { status: 502 });
   }
 
-  const svg = raw.replace(/currentColor/g, tint ? `#${tint}` : brandColorFor(name));
+  const sanitized = sanitizeSvg(raw);
+  if (!sanitized.ok) {
+    console.warn(`[icons/svg] rejected icon ${name}: ${sanitized.reason}`);
+    return new NextResponse("Invalid icon", { status: 422 });
+  }
+
+  const svg = sanitized.svg.replace(/currentColor/g, tint ? `#${tint}` : brandColorFor(name));
 
   return svgResponse(svg);
 }

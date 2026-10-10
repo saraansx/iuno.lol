@@ -45,6 +45,7 @@ export async function notifyPremiumPurchase(n: PurchaseNotification): Promise<vo
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
       cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
     });
   } catch (err) {
     console.error(`[notify] Discord webhook (${n.gateway}) failed:`, err);

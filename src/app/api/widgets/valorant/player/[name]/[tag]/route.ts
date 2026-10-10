@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
 import { getRankIconUrl, getAgentIconUrl, getMapSplashUrl } from "@/lib/valorant";
-import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
+import { withWidgetCache, widgetCacheKey } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 export { getRankIconUrl, getAgentIconUrl, getMapSplashUrl };
+
+const VALORANT_CACHE_TTL_SECONDS = 30 * 60;
 
 export interface ValorantPlayerData {
   name: string;
@@ -117,76 +119,81 @@ export async function fetchValorantPlayerData(name: string, tag: string): Promis
     console.warn("[HenrikDev Account API Error]", e);
   }
 
-  try {
-    const mmrRes = await fetch(`https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodedName}/${encodedTag}`, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers,
-      cache: "no-store",
-    });
-
-    if (mmrRes.ok) {
-      const mmrJson = await mmrRes.json();
-      const currentData = mmrJson?.data?.current_data;
-      const highestData = mmrJson?.data?.highest_rank;
-
-      if (currentData) {
-        currentTier = currentData.currenttier || 0;
-        currentTierName = currentData.currenttierpatched || RANK_TIER_NAMES[currentTier] || "Unrated";
-        currentRR = typeof currentData.ranking_in_tier === "number" ? currentData.ranking_in_tier : 0;
-      }
-
-      if (highestData) {
-        highestTier = highestData.tier || currentTier;
-        highestTierName = highestData.patched_tier || RANK_TIER_NAMES[highestTier] || currentTierName;
-      }
-    }
-  } catch (e) {
-    console.warn("[HenrikDev MMR API Error]", e);
-  }
-
   let lastMatchAny: { agent: string; map: string } | undefined;
   let lastMatchComp: { agent: string; map: string } | undefined;
 
-  try {
-    const matchesRes = await fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region}/${encodedName}/${encodedTag}?size=5`, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers,
-      cache: "no-store",
-    });
+  await Promise.all([
+    (async () => {
+      try {
+        const mmrRes = await fetch(`https://api.henrikdev.xyz/valorant/v2/mmr/${region}/${encodedName}/${encodedTag}`, {
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          headers,
+          cache: "no-store",
+        });
 
-    if (matchesRes.ok) {
-      const matchesJson = await matchesRes.json();
-      const matches = matchesJson?.data || [];
+        if (mmrRes.ok) {
+          const mmrJson = await mmrRes.json();
+          const currentData = mmrJson?.data?.current_data;
+          const highestData = mmrJson?.data?.highest_rank;
 
-      for (const match of matches) {
-        const player = match.players?.all_players?.find(
-          (p: { name?: string; tag?: string }) =>
-            p.name?.toLowerCase() === cleanName.toLowerCase() && p.tag?.toLowerCase() === cleanTag.toLowerCase()
-        );
-        if (player) {
-          const char = player.character || "Jett";
-          const map = match.metadata?.map || "Ascent";
-          const mode = match.metadata?.mode || "Match";
-
-          if (!lastMatchAny) {
-            lastMatchAny = { agent: char, map };
-            lastAgentName = char;
-            lastMapName = map;
-            if (player.assets?.card?.small) {
-              const m = String(player.assets.card.small).match(/playercards\/([^/]+)\//);
-              if (m && m[1]) cardId = m[1];
-            }
+          if (currentData) {
+            currentTier = currentData.currenttier || 0;
+            currentTierName = currentData.currenttierpatched || RANK_TIER_NAMES[currentTier] || "Unrated";
+            currentRR = typeof currentData.ranking_in_tier === "number" ? currentData.ranking_in_tier : 0;
           }
 
-          if (!lastMatchComp && (mode.toLowerCase() === "competitive" || match.metadata?.queue?.toLowerCase() === "competitive")) {
-            lastMatchComp = { agent: char, map };
+          if (highestData) {
+            highestTier = highestData.tier || currentTier;
+            highestTierName = highestData.patched_tier || RANK_TIER_NAMES[highestTier] || currentTierName;
           }
         }
+      } catch (e) {
+        console.warn("[HenrikDev MMR API Error]", e);
       }
-    }
-  } catch (e) {
-    console.warn("[HenrikDev Matches API Error]", e);
-  }
+    })(),
+    (async () => {
+      try {
+        const matchesRes = await fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region}/${encodedName}/${encodedTag}?size=5`, {
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          headers,
+          cache: "no-store",
+        });
+
+        if (matchesRes.ok) {
+          const matchesJson = await matchesRes.json();
+          const matches = matchesJson?.data || [];
+
+          for (const match of matches) {
+            const player = match.players?.all_players?.find(
+              (p: { name?: string; tag?: string }) =>
+                p.name?.toLowerCase() === cleanName.toLowerCase() && p.tag?.toLowerCase() === cleanTag.toLowerCase()
+            );
+            if (player) {
+              const char = player.character || "Jett";
+              const map = match.metadata?.map || "Ascent";
+              const mode = match.metadata?.mode || "Match";
+
+              if (!lastMatchAny) {
+                lastMatchAny = { agent: char, map };
+                lastAgentName = char;
+                lastMapName = map;
+                if (player.assets?.card?.small) {
+                  const m = String(player.assets.card.small).match(/playercards\/([^/]+)\//);
+                  if (m && m[1]) cardId = m[1];
+                }
+              }
+
+              if (!lastMatchComp && (mode.toLowerCase() === "competitive" || match.metadata?.queue?.toLowerCase() === "competitive")) {
+                lastMatchComp = { agent: char, map };
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("[HenrikDev Matches API Error]", e);
+      }
+    })(),
+  ]);
 
   if (!fetchedAccount && !currentTier) {
     return null;
@@ -233,13 +240,18 @@ export async function GET(
 
     const data = await withWidgetCache(
       widgetCacheKey("valorant", "player", cleanName, cleanTag),
-      () => fetchValorantPlayerData(cleanName, cleanTag)
+      () => fetchValorantPlayerData(cleanName, cleanTag),
+      VALORANT_CACHE_TTL_SECONDS
     );
     if (!data) {
       return NextResponse.json({ error: "Valorant player not found" }, { status: 404 });
     }
 
-    return NextResponse.json(data, WIDGET_EDGE_CACHE);
+    return NextResponse.json(data, {
+      headers: {
+        "Cache-Control": `public, max-age=0, s-maxage=${VALORANT_CACHE_TTL_SECONDS}, stale-while-revalidate=${VALORANT_CACHE_TTL_SECONDS}`,
+      },
+    });
   } catch (err) {
     console.error("[Valorant Player API Error]", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

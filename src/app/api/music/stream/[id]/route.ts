@@ -39,7 +39,7 @@ export async function GET(
 
     const upstream = await fetch(
       `${EVI_BASE}/api/stream/${encodeURIComponent(songId)}?quality=${quality}`,
-      { headers, cache: "no-store" },
+      { headers, cache: "no-store", signal: AbortSignal.timeout(30_000) },
     );
 
     if ((!upstream.ok && upstream.status !== 206) || !upstream.body) {

@@ -30,7 +30,7 @@ export default function PreviewToolbar({
   const apply = useCallback(async () => {
     setBusy("apply");
     try {
-      const r = await fetch(`/api/templates/${templateId}/apply`, { method: "POST" });
+      const r = await fetch(`/api/templates/${templateId}/apply`, { method: "POST", signal: AbortSignal.timeout(30_000) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       toast.success("Template applied!");

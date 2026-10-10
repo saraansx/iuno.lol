@@ -351,7 +351,7 @@ function BadgeModal({
       const form = new FormData();
       form.append("fileToUpload", file);
       form.append("assetType", "badge");
-      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const res = await fetch("/api/upload", { method: "POST", body: form, signal: AbortSignal.timeout(30_000) });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.url) throw new Error(data?.error ?? "Upload failed.");
       onCreated(await createCustomBadge({ name: trimmed, iconUrl: data.url as string }));

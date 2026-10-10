@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
         ...(process.env.EVI_COOKIE ? { Cookie: process.env.EVI_COOKIE } : {}),
       },
       cache: "no-store",
+      signal: AbortSignal.timeout(30_000),
     });
 
     if (!upstream.ok) {

@@ -3,9 +3,11 @@ import { widgetRateLimit } from "@/lib/widget-guard";
 import { type SpotifyItemData } from "@/lib/spotify";
 import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { readBoundedText } from "@/lib/bounded-html";
 
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
+let tokenInFlight: Promise<string | null> | null = null;
 
 interface SpotifyImage {
   url: string;
@@ -93,6 +95,8 @@ async function getSpotifyAccessToken(): Promise<string | null> {
     return cachedToken;
   }
 
+  if (tokenInFlight) return tokenInFlight;
+
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
@@ -101,35 +105,43 @@ async function getSpotifyAccessToken(): Promise<string | null> {
     return null;
   }
 
+  tokenInFlight = (async () => {
+    try {
+      const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+      const res = await fetch("https://accounts.spotify.com/api/token", {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${authHeader}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: "grant_type=client_credentials",
+        cache: "no-store",
+      });
+
+      if (!res.ok) {
+        console.error("[Spotify Token Error]", res.status, await res.text());
+        return null;
+      }
+
+      const data = (await res.json()) as { access_token?: string; expires_in?: number };
+      if (!data.access_token) {
+        return null;
+      }
+
+      cachedToken = data.access_token;
+      tokenExpiresAt = Date.now() + (data.expires_in || 3600) * 1000;
+      return cachedToken;
+    } catch (err: unknown) {
+      console.error("[Spotify Token Fetch Error]", err);
+      return null;
+    }
+  })();
+
   try {
-    const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-    const res = await fetch("https://accounts.spotify.com/api/token", {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${authHeader}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: "grant_type=client_credentials",
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      console.error("[Spotify Token Error]", res.status, await res.text());
-      return null;
-    }
-
-    const data = (await res.json()) as { access_token?: string; expires_in?: number };
-    if (!data.access_token) {
-      return null;
-    }
-
-    cachedToken = data.access_token;
-    tokenExpiresAt = Date.now() + (data.expires_in || 3600) * 1000;
-    return cachedToken;
-  } catch (err: unknown) {
-    console.error("[Spotify Token Fetch Error]", err);
-    return null;
+    return await tokenInFlight;
+  } finally {
+    tokenInFlight = null;
   }
 }
 
@@ -212,7 +224,8 @@ export async function fetchSpotifyItem(
             cache: "no-store",
           });
           if (embedRes.ok) {
-            const html = await embedRes.text();
+            const html = await readBoundedText(embedRes);
+            if (!html) return null;
             const match = html.match(/<script id="__NEXT_DATA__" type="application\/json">([^<]+)<\/script>/);
             if (match) {
               const parsed = JSON.parse(match[1]);
@@ -251,7 +264,8 @@ export async function fetchSpotifyItem(
           cache: "no-store",
         });
         if (artistPageRes.ok) {
-          const html = await artistPageRes.text();
+          const html = await readBoundedText(artistPageRes);
+          if (!html) return null;
           const followerMatch =
             html.match(/>([0-9,]+)<\/p><p[^>]*>Followers<\/p>/i) ||
             html.match(/([0-9,]+)\s+followers/i);
@@ -309,7 +323,8 @@ export async function fetchSpotifyItem(
             cache: "no-store",
           });
           if (userPageRes.ok) {
-            const html = await userPageRes.text();
+            const html = await readBoundedText(userPageRes);
+            if (!html) return null;
             const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/i);
             const titleTagMatch = html.match(/<title>([^<]+?)(?:\s+on\s+Spotify)?<\/title>/i);
             displayName = ogTitleMatch?.[1] || titleTagMatch?.[1] || id;

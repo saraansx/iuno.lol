@@ -100,14 +100,17 @@ export async function fetchGenshinPlayerData(
   }
 
   try {
-    const res = await fetch(`https://enka.network/api/uid/${cleanUid}?info`, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: {
-        "User-Agent": "iuno-profile-widget/1.0",
-        Accept: "application/json",
-      },
-      cache: "no-store",
-    });
+    const [res, maps] = await Promise.all([
+      fetch(`https://enka.network/api/uid/${cleanUid}?info`, {
+        signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+        headers: {
+          "User-Agent": "iuno-profile-widget/1.0",
+          Accept: "application/json",
+        },
+        cache: "no-store",
+      }),
+      loadEnkaMaps(),
+    ]);
 
     if (!res.ok) {
       return null;
@@ -118,8 +121,6 @@ export async function fetchGenshinPlayerData(
     if (!info || !info.nickname) {
       return null;
     }
-
-    const maps = await loadEnkaMaps();
 
     const avatarAsset = resolveAvatarAsset(info.profilePicture, maps);
     const avatarUrl =

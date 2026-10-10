@@ -65,7 +65,7 @@ async function uploadLinkIcon(file: File): Promise<string> {
   form.append("reqtype", "fileupload");
   form.append("fileToUpload", file);
   form.append("assetType", "link-icon");
-  const res = await fetch("/api/upload", { method: "POST", body: form });
+  const res = await fetch("/api/upload", { method: "POST", body: form, signal: AbortSignal.timeout(30_000) });
   if (!res.ok) {
     const err = await res.json().catch(() => null);
     throw new Error(err?.error || "Failed to upload icon");

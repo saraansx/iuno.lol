@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { widgetRateLimit } from "@/lib/widget-guard";
 import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { readBoundedText } from "@/lib/bounded-html";
+
+const PINTEREST_BUDGET_MS = 20_000;
 
 export interface PinterestUserData {
   username: string;
@@ -23,87 +26,93 @@ export async function fetchPinterestUserData(cleanUsername: string): Promise<Pin
     JSON.stringify({ options: { username: cleanUsername } })
   )}`;
 
-  try {
-    const res = await fetch(resourceUrl, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "application/json, text/javascript, */*, q=0.01",
-        "X-Requested-With": "XMLHttpRequest",
-        "X-Pinterest-AppState": "active",
-        "X-Pinterest-PWS-Handler": "www/[username].js",
-      },
-      cache: "no-store",
-    });
+  const startedAt = Date.now();
+  const overBudget = () => Date.now() - startedAt > PINTEREST_BUDGET_MS;
 
-    if (res.ok) {
-      const text = await res.text();
-      if (text && text.trim().startsWith("{")) {
-        try {
-          const json = JSON.parse(text);
-          const userData = json?.resource_response?.data;
-          if (userData && userData.type === "user") {
-            name = userData.full_name || userData.username || cleanUsername;
-            avatarUrl =
-              userData.image_xlarge_url ||
-              userData.image_large_url ||
-              userData.image_medium_url ||
-              userData.image_small_url ||
-              null;
-            pinCount = typeof userData.pin_count === "number" ? userData.pin_count : null;
-            fetched = true;
+  const UA =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+
+  const [resourceUser, rssInfo] = await Promise.all([
+    (async () => {
+      try {
+        const res = await fetch(resourceUrl, {
+          signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+          headers: {
+            "User-Agent": UA,
+            "Accept": "application/json, text/javascript, */*, q=0.01",
+            "X-Requested-With": "XMLHttpRequest",
+            "X-Pinterest-AppState": "active",
+            "X-Pinterest-PWS-Handler": "www/[username].js",
+          },
+          cache: "no-store",
+        });
+        if (!res.ok) return null;
+        const text = await readBoundedText(res);
+        if (!text || !text.trim().startsWith("{")) return null;
+        const json = JSON.parse(text);
+        const userData = json?.resource_response?.data;
+        return userData && userData.type === "user" ? userData : null;
+      } catch (e) {
+        console.warn("[Pinterest Resource Endpoint Fallback]", e);
+        return null;
+      }
+    })(),
+    (async () => {
+      try {
+        const rssRes = await fetch(
+          `https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/feed.rss`,
+          {
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+            headers: { "User-Agent": UA },
+            cache: "no-store",
           }
-        } catch {
-        }
+        );
+        if (!rssRes.ok) return null;
+        const rssText = await readBoundedText(rssRes);
+        if (!rssText) return null;
+        const imgMatch = rssText.match(/<description>[\s\S]*?src=["'](https:\/\/[^"'>]+pinimg\.com\/[^"'>]+)["']/i);
+        const titleMatch =
+          rssText.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/i) ||
+          rssText.match(/<title>(.*?)<\/title>/i);
+        return { image: imgMatch?.[1] || null, title: titleMatch?.[1] || null };
+      } catch (e) {
+        console.warn("[Pinterest RSS Parse]", e);
+        return null;
       }
-    }
-  } catch (e) {
-    console.warn("[Pinterest Resource Endpoint Fallback]", e);
+    })(),
+  ]);
+
+  if (resourceUser) {
+    name = resourceUser.full_name || resourceUser.username || cleanUsername;
+    avatarUrl =
+      resourceUser.image_xlarge_url ||
+      resourceUser.image_large_url ||
+      resourceUser.image_medium_url ||
+      resourceUser.image_small_url ||
+      null;
+    pinCount = typeof resourceUser.pin_count === "number" ? resourceUser.pin_count : null;
+    fetched = true;
   }
 
-  try {
-    const rssRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/feed.rss`, {
-      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      },
-      cache: "no-store",
-    });
-
-    if (rssRes.ok) {
-      const rssText = await rssRes.text();
-      const imgMatch = rssText.match(/<description>[\s\S]*?src=["'](https:\/\/[^"'>]+pinimg\.com\/[^"'>]+)["']/i);
-      if (imgMatch && imgMatch[1]) {
-        firstPinImage = imgMatch[1];
-      }
-
-      if (!fetched) {
-        const titleMatch = rssText.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/i) || rssText.match(/<title>(.*?)<\/title>/i);
-        if (titleMatch && titleMatch[1]) {
-          name = titleMatch[1].replace(/on Pinterest$/i, "").trim();
-          fetched = true;
-        }
-      }
-    }
-  } catch (e) {
-    console.warn("[Pinterest RSS Parse]", e);
+  if (rssInfo?.image) firstPinImage = rssInfo.image;
+  if (!fetched && rssInfo?.title) {
+    name = rssInfo.title.replace(/on Pinterest$/i, "").trim();
+    fetched = true;
   }
 
-  if (!fetched) {
+  if (!fetched && !overBudget()) {
     try {
       const htmlRes = await fetch(`https://www.pinterest.com/${encodeURIComponent(cleanUsername)}/`, {
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "User-Agent": UA,
         },
         cache: "no-store",
       });
 
       if (htmlRes.ok) {
-        const html = await htmlRes.text();
+        const html = await readBoundedText(htmlRes);
+        if (!html) return null;
         const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
         if (titleMatch && titleMatch[1]) {
           const rawTitle = titleMatch[1].replace(/- Profile \| Pinterest/i, "").trim();

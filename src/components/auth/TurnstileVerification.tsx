@@ -24,7 +24,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
     if (isOpen) {
       const fetchRayId = async () => {
         try {
-          const res = await fetch(window.location.origin, { method: "HEAD" });
+          const res = await fetch(window.location.origin, { method: "HEAD", signal: AbortSignal.timeout(30_000) });
           const cfRay = res.headers.get("cf-ray");
 
           if (cfRay) {

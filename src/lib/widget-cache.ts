@@ -14,7 +14,8 @@ export async function readWidgetCache<T>(key: string): Promise<T | null> {
   try {
     const cached = await redis.get(key);
     if (cached) return JSON.parse(cached) as T;
-  } catch {
+  } catch (err) {
+    console.warn(`[widget-cache] read failed for ${key}:`, err instanceof Error ? err.message : err);
   }
   return null;
 }
@@ -26,9 +27,12 @@ export async function writeWidgetCache(
 ): Promise<void> {
   try {
     await redis.set(key, JSON.stringify(data), "EX", ttlSeconds);
-  } catch {
+  } catch (err) {
+    console.warn(`[widget-cache] write failed for ${key}:`, err instanceof Error ? err.message : err);
   }
 }
+
+const inFlight = new Map<string, Promise<unknown>>();
 
 export async function withWidgetCache<T>(
   key: string,
@@ -38,9 +42,24 @@ export async function withWidgetCache<T>(
   const cached = await readWidgetCache<T>(key);
   if (cached) return cached;
 
-  const fresh = await fetcher();
-  if (fresh !== null && fresh !== undefined) {
-    await writeWidgetCache(key, fresh, ttlSeconds);
-  }
-  return fresh;
+  const existing = inFlight.get(key);
+  if (existing) return existing as Promise<T | null>;
+
+  const run = (async () => {
+    try {
+      const filled = await readWidgetCache<T>(key);
+      if (filled) return filled;
+
+      const fresh = await fetcher();
+      if (fresh !== null && fresh !== undefined) {
+        await writeWidgetCache(key, fresh, ttlSeconds);
+      }
+      return fresh;
+    } finally {
+      inFlight.delete(key);
+    }
+  })();
+
+  inFlight.set(key, run);
+  return run as Promise<T | null>;
 }

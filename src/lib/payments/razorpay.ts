@@ -51,6 +51,7 @@ export async function createRazorpayOrder(params: {
       payment_capture: 1,
     }),
     cache: "no-store",
+    signal: AbortSignal.timeout(30_000),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -63,6 +64,7 @@ export async function fetchRazorpayOrder(orderId: string): Promise<RazorpayOrder
   const res = await fetch(`${RAZORPAY_API}/orders/${encodeURIComponent(orderId)}`, {
     headers: { Authorization: authHeader() },
     cache: "no-store",
+    signal: AbortSignal.timeout(30_000),
   });
   if (!res.ok) return null;
   return (await res.json()) as RazorpayOrder;

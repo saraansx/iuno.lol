@@ -45,7 +45,8 @@ export default function IconifyPickerModal({
     const t = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/icons/search?query=${encodeURIComponent(q)}&limit=48`
+          `/api/icons/search?query=${encodeURIComponent(q)}&limit=48`,
+          { signal: AbortSignal.timeout(30_000) }
         );
         if (!res.ok) throw new Error("search failed");
         const data = await res.json();

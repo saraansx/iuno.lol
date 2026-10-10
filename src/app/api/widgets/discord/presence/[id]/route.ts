@@ -119,6 +119,7 @@ export async function GET(
                 "User-Agent": "iuno-presence-proxy/1.0",
               },
               cache: "no-store",
+              signal: AbortSignal.timeout(30_000),
             }
           );
           if (!res.ok) return null;
@@ -218,7 +219,7 @@ export async function GET(
           const proxyOrigin = (process.env.DISCORD_PROXY_URL || "https://discord.com").replace(/\/$/, "");
           const targetEndpoint = `${proxyOrigin}/api/v9/users/${id}/profile?with_mutual_guilds=false&with_mutual_friends=false&with_mutual_friends_count=false`;
 
-          const profileRes = await fetch(targetEndpoint, { headers });
+          const profileRes = await fetch(targetEndpoint, { headers, signal: AbortSignal.timeout(30_000) });
 
           if (profileRes.ok) {
             const profileData = await profileRes.json();

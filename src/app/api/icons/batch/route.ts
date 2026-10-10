@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserId } from "@/lib/auth/session";
 import { ICONIFY_API, brandColorFor } from "@/lib/links";
+import { sanitizeSvg } from "@/lib/server/security/svg-sanitize";
 
 const ICON_NAME_RE = /^[a-z0-9]+[a-z0-9-]*:[a-z0-9][a-z0-9-:]*$/i;
 const MAX_NAMES = 60;
@@ -20,7 +21,8 @@ function toSvg(
   const body = icon.body.replace(/currentColor/g, brandColorFor(fullName));
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 ${w} ${h}">${body}</svg>`;
   if (svg.length > 100_000) return null;
-  return svg;
+  const sanitized = sanitizeSvg(svg);
+  return sanitized.ok ? sanitized.svg : null;
 }
 
 export async function GET(req: Request) {
@@ -59,7 +61,7 @@ export async function GET(req: Request) {
       try {
         const upstream = await fetch(
           `${ICONIFY_API}/${prefix}.json?icons=${iconNames.map(encodeURIComponent).join(",")}`,
-          { next: { revalidate: 86400 } }
+          { next: { revalidate: 86400 }, signal: AbortSignal.timeout(30_000) }
         );
         if (!upstream.ok) return;
         data = (await upstream.json()) as typeof data;

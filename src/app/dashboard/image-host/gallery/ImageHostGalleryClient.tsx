@@ -281,6 +281,7 @@ export default function ImageHostGalleryClient() {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids: [file.id], favorite: next }),
+        signal: AbortSignal.timeout(30_000),
       });
       if (!res.ok) throw new Error("failed");
       toast.success(next ? "Added to favorites" : "Removed from favorites");

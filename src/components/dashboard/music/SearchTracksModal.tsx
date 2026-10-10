@@ -80,7 +80,7 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
     const fd = new FormData();
     fd.append("fileToUpload", file);
     fd.append("assetType", assetType);
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
+    const res = await fetch("/api/upload", { method: "POST", body: fd, signal: AbortSignal.timeout(30_000) });
     const data = await res.json().catch(() => null);
     if (!res.ok || !data?.url) throw new Error(data?.error || "Upload failed");
     return data.url as string;

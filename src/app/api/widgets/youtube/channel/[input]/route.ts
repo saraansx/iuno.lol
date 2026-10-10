@@ -6,6 +6,8 @@ import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
 
 const API_BASE = "https://www.googleapis.com/youtube/v3";
 
+const YOUTUBE_BUDGET_MS = 20_000;
+
 interface Thumbnail {
   url?: string;
 }
@@ -60,6 +62,8 @@ export async function fetchYouTubeData(
 ): Promise<YouTubeWidgetData | null> {
   const cleanInput = cleanYouTubeInput(rawInput);
   if (!cleanInput) return null;
+
+  const startedAt = Date.now();
 
   const apiKey = process.env.YOUTUBE_API_KEY;
   if (!apiKey) {
@@ -124,7 +128,7 @@ export async function fetchYouTubeData(
   };
 
   const uploadsPlaylist = String(relatedPlaylists.uploads || "");
-  if (uploadsPlaylist) {
+  if (uploadsPlaylist && Date.now() - startedAt < YOUTUBE_BUDGET_MS) {
     const playlistJson = await ytFetch(
       `${API_BASE}/playlistItems?part=contentDetails&maxResults=15&playlistId=${encodeURIComponent(
         uploadsPlaylist
@@ -140,7 +144,7 @@ export async function fetchYouTubeData(
       })
       .filter(Boolean);
 
-    if (videoIds.length > 0) {
+    if (videoIds.length > 0 && Date.now() - startedAt < YOUTUBE_BUDGET_MS) {
       const videoJson = await ytFetch(
         `${API_BASE}/videos?part=snippet,statistics,contentDetails&id=${encodeURIComponent(
           videoIds.join(",")

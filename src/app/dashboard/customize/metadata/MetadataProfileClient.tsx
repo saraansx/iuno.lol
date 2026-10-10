@@ -22,7 +22,7 @@ async function uploadAsset(file: File, type: "favicon" | "cursor" | "embed"): Pr
   formData.append("fileToUpload", file);
   formData.append("assetType", type);
 
-  const res = await fetch("/api/upload", { method: "POST", body: formData });
+  const res = await fetch("/api/upload", { method: "POST", body: formData, signal: AbortSignal.timeout(30_000) });
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.error || `Failed to upload ${type}`);

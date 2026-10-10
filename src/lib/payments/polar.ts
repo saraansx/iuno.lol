@@ -115,6 +115,7 @@ export async function createPolarCheckout(params: {
       products: [getPolarProductId(tag, params.currency ?? "USD")],
       success_url: params.successUrl,
       external_customer_id: String(params.userId),
+    signal: AbortSignal.timeout(30_000),
       ...(params.customerEmail ? { customer_email: params.customerEmail } : {}),
       ...(params.customerIp ? { customer_ip_address: params.customerIp } : {}),
       metadata: { userId: String(params.userId), plan: tag },

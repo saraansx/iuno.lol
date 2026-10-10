@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   try {
     upstream = await fetch(
       `${ICONIFY_API}/search?query=${encodeURIComponent(query)}&limit=48`,
-      { next: { revalidate: 3600 } }
+      { next: { revalidate: 3600 }, signal: AbortSignal.timeout(30_000) }
     );
   } catch {
     return NextResponse.json({ error: "Search failed" }, { status: 502 });

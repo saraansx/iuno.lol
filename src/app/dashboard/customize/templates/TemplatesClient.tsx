@@ -132,7 +132,7 @@ export default function TemplatesClient() {
       sp.set("tab", tab);
       sp.set("page", String(page));
       sp.set("limit", "24");
-      const r = await fetch(`/api/templates?${sp.toString()}`, { cache: "no-store" });
+      const r = await fetch(`/api/templates?${sp.toString()}`, { cache: "no-store", signal: AbortSignal.timeout(30_000) });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error ?? "Failed");
       setItems(j.items ?? []);

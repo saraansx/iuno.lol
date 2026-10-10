@@ -85,7 +85,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
     setFavorited(next);
     setFavoriteCount((c) => Math.max(0, c + (next ? 1 : -1)));
     try {
-      const r = await fetch(`/api/templates/${template.id}/favorite`, { method: next ? "POST" : "DELETE" });
+      const r = await fetch(`/api/templates/${template.id}/favorite`, { method: next ? "POST" : "DELETE", signal: AbortSignal.timeout(30_000) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok) throw new Error(j?.error ?? "Failed");
     } catch (e) {

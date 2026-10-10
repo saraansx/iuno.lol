@@ -25,6 +25,7 @@ export default function UnlockForm({ name }: { name: string }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, password }),
+        signal: AbortSignal.timeout(30_000),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => null);

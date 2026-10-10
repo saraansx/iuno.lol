@@ -3,6 +3,7 @@ import { widgetRateLimit } from "@/lib/widget-guard";
 import { type TikTokUserData, cleanTikTokUsername } from "@/lib/tiktok";
 import { withWidgetCache, widgetCacheKey, WIDGET_EDGE_CACHE } from "@/lib/widget-cache";
 import { FETCH_TIMEOUT_MS } from "@/lib/widget-image-proxy";
+import { readBoundedText } from "@/lib/bounded-html";
 
 const CRAWLER_HEADERS = {
   "User-Agent":
@@ -46,7 +47,8 @@ async function fetchLikesFromCrawler(username: string): Promise<number> {
       cache: "no-store",
     });
     if (!res.ok) return 0;
-    return extractLikesFromHtml(await res.text());
+    const html = await readBoundedText(res);
+    return html ? extractLikesFromHtml(html) : 0;
   } catch {
     return 0;
   }
@@ -81,7 +83,8 @@ export async function fetchTikTokUserData(
     });
 
     if (res.ok) {
-      const html = await res.text();
+      const html = await readBoundedText(res);
+      if (!html) throw new Error("TikTok page exceeded the size limit");
 
       const universalMatch = html.match(
         /<script\s+id="__UNIVERSAL_DATA_FOR_REHYDRATION__"\s+type="application\/json">([\s\S]*?)<\/script>/i
@@ -218,7 +221,9 @@ export async function fetchTikTokUserData(
     });
 
     if (res.ok) {
-      const html = await res.text();
+      const html = await readBoundedText(res);
+      if (!html) return null;
+
       const ogTitleMatch =
         html.match(/<meta\s+[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i) ||
         html.match(/<meta\s+[^>]*content=["']([^"']+)["'][^>]*property=["']og:title["']/i);

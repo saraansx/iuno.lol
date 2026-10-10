@@ -282,6 +282,7 @@ export default function CheckoutClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currency, plan: product }),
+        signal: AbortSignal.timeout(30_000),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.url) {
@@ -312,6 +313,7 @@ export default function CheckoutClient({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currency, plan: product }),
+        signal: AbortSignal.timeout(30_000),
       });
       const orderData = await orderRes.json().catch(() => ({}));
       if (!orderRes.ok) {
