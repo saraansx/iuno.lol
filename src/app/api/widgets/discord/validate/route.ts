@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     if (type === "server") {
       const cleanCode = id.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "");
-      if (!cleanCode || cleanCode.length < 2) {
+      if (!cleanCode || !/^[a-zA-Z0-9-_]{2,32}$/.test(cleanCode)) {
         return NextResponse.json({ ok: false, error: "Invalid Discord invite code format" });
       }
 

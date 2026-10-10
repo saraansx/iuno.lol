@@ -124,6 +124,11 @@ export async function checkAvailabilityRateLimit(ip: string | null) {
   return checkRateLimit(bucket.key, bucket.max, 60);
 }
 
+export async function collectiblesRateLimit(ip: string | null) {
+  const bucket = ipBucket("collectibles", ip, 120);
+  return checkRateLimit(bucket.key, bucket.max, 60);
+}
+
 export async function discordOAuthRateLimit(ip: string | null) {
   const bucket = ipBucket("discord_oauth", ip, 10);
   return checkRateLimit(bucket.key, bucket.max, 10 * 60);

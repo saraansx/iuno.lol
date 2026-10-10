@@ -25,8 +25,8 @@ export async function GET(
   const { code } = await params;
   const cleanCode = (code || "").trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "");
 
-  if (!cleanCode) {
-    return NextResponse.json({ ok: false, error: "Invite code is required" }, { status: 400 });
+  if (!cleanCode || !/^[a-zA-Z0-9-_]{1,32}$/.test(cleanCode)) {
+    return NextResponse.json({ ok: false, error: "Invite code is invalid or expired" }, { status: 404 });
   }
 
   const cacheKey = widgetCacheKey("discord", "invite", cleanCode);
@@ -52,7 +52,8 @@ export async function GET(
     }
 
     if (!res.ok) {
-      return NextResponse.json({ ok: false, error: "Failed to fetch invite details from Discord" }, { status: res.status });
+      console.error("[Discord Invite API] upstream status:", res.status);
+      return NextResponse.json({ ok: false, error: "Failed to fetch invite details from Discord" }, { status: 502 });
     }
 
     const data = await res.json();
