@@ -3,6 +3,7 @@ import { trackVisibility } from "./visibility";
 
 import { useEffect, useRef } from "react";
 import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
+import { prefersReducedMotion } from "@/lib/heavy-fx";
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -180,6 +181,8 @@ export function AuroraEffect({
   useEffect(() => {
     const ctn = ctnDom.current;
     if (!ctn) return;
+
+    if (prefersReducedMotion()) return;
 
     const renderer = new Renderer({
       alpha: true,

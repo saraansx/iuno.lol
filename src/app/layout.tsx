@@ -8,19 +8,22 @@ import ConditionalBackground from "@/components/ConditionalBackground";
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 const comfortaa = localFont({
   src: [{ path: "../../fonts/comfortaa.ttf", weight: "400", style: "normal" }],
   variable: "--font-comfortaa",
+  display: "swap",
   preload: false,
 });
 
 const caviarDreams = localFont({
   src: [{ path: "../../fonts/caviar-dreams.ttf", weight: "400", style: "normal" }],
   variable: "--font-caviar-dreams",
+  display: "swap",
   preload: false,
 });
 
@@ -32,6 +35,7 @@ const poppins = localFont({
     { path: "../../fonts/Poppins-SemiBold.ttf", weight: "600", style: "normal" },
   ],
   variable: "--font-poppins",
+  display: "swap",
   preload: false,
 });
 

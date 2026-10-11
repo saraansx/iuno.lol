@@ -13,6 +13,7 @@ const AuroraEffect = dynamic(
   { ssr: false },
 );
 import { useState } from "react";
+import { useHeavyFxAllowed } from "@/lib/heavy-fx";
 import { motion } from "framer-motion";
 import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, DONATOR_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
@@ -130,6 +131,7 @@ const PRODUCTS = [
 export default function PricingClient({ isAuthenticated = false, isPremium = false, hasImageHost = false, hasVerified = false, hasDonator = false }: PricingProps) {
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
+  const heavyFxAllowed = useHeavyFxAllowed();
   const plan = PREMIUM_PLAN[currency];
 
   const handleEnterClick = (e: React.MouseEvent<HTMLElement>) => {
@@ -237,7 +239,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                     "radial-gradient(66% 80% at 50% 10%, #000 0%, rgba(0,0,0,0.5) 46%, transparent 74%)",
                 }}
               >
-                <AuroraEffect colors={["#4553d6", "#5b6cf5", "#8b7cf6"]} intensity={52} blend={0.72} />
+                {heavyFxAllowed && <AuroraEffect colors={["#4553d6", "#5b6cf5", "#8b7cf6"]} intensity={52} blend={0.72} />}
               </div>
             </div>
           </div>

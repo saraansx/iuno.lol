@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { parseInlineFormatting } from "./entry-transitions/parseInlineFormatting";
 import { FadeBlackTransition } from "./entry-transitions/FadeBlackTransition";
 import { FadeTransition } from "./entry-transitions/FadeTransition";
@@ -42,13 +42,20 @@ export function EntryTransition({
 }: EntryTransitionProps) {
   const [hasEntered, setHasEntered] = useState(!enabled);
   const [isExiting, setIsExiting] = useState(false);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+    };
+  }, []);
 
   if (!enabled || hasEntered) return null;
 
   const handleEnter = () => {
     if (transition && transition !== "none") {
       setIsExiting(true);
-      setTimeout(() => {
+      exitTimerRef.current = setTimeout(() => {
         setHasEntered(true);
         setIsExiting(false);
         onEnter?.();

@@ -145,14 +145,19 @@ export default function GlyphPortal({
       const requested = focusChar ? text.indexOf(focusChar.normalize("NFC")) : -1;
       let offset = 0;
       candidates = []; letters = [];
+      const MAX_INTERIOR_SCANS = 16;
+      let scans = 0;
       for (const char of Array.from(text)) {
         context.font = `${font.fontWeight} 100px ${font.fontFamily}`;
         const m = context.measureText(char);
         letters.push({ index: offset, x: advances[offset] - m.actualBoundingBoxLeft,
           y: -m.actualBoundingBoxAscent, width: m.actualBoundingBoxLeft + m.actualBoundingBoxRight,
           height: m.actualBoundingBoxAscent + m.actualBoundingBoxDescent });
-        const found = interior(context, char, scanFont);
-        if (found) candidates.push({ ...found, x: found.x + advances[offset], index: offset });
+        if (offset === requested || scans < MAX_INTERIOR_SCANS) {
+          const found = interior(context, char, scanFont);
+          if (found) candidates.push({ ...found, x: found.x + advances[offset], index: offset });
+          scans++;
+        }
         offset += char.length;
       }
       target = candidates.find((candidate) => candidate.index === requested) ?? [...candidates].sort((a, b) => b.radius - a.radius || Math.abs(a.x - center.x) - Math.abs(b.x - center.x))[0] ?? null;

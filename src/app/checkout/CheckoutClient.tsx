@@ -14,6 +14,7 @@ const AuroraEffect = dynamic(
   { ssr: false },
 );
 import { CardBrandLogos, RazorpayLogo } from "@/components/checkout/payment-logos";
+import { useHeavyFxAllowed } from "@/lib/heavy-fx";
 import {
   PREMIUM_PLAN,
   IMAGE_HOST_PLAN,
@@ -260,6 +261,7 @@ export default function CheckoutClient({
   const copy = PRODUCT_COPY[product];
   const router = useRouter();
   const [currency, setCurrency] = useState<Currency>("USD");
+  const heavyFxAllowed = useHeavyFxAllowed();
   const [buyFor, setBuyFor] = useState<BuyFor>("personal");
   const [paying, setPaying] = useState(false);
   const [verifying, setVerifying] = useState(false);
@@ -383,7 +385,7 @@ export default function CheckoutClient({
           maskImage: "radial-gradient(90% 70% at 50% 25%, #000 0%, rgba(0,0,0,0.55) 55%, transparent 85%)",
         }}
       >
-        <AuroraEffect colors={["#5b6cf5", "#5b6cf5", "#5b6cf5"]} intensity={48} blend={0.7} />
+        {heavyFxAllowed && <AuroraEffect colors={["#5b6cf5", "#5b6cf5", "#5b6cf5"]} intensity={48} blend={0.7} />}
       </div>
     </div>
   );

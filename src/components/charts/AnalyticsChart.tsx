@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -8,6 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ResponsiveContainer,
 } from 'recharts';
 
 import type { RawViewBin } from '@/lib/features/users/db';
@@ -37,29 +38,10 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
   const [isMounted, setIsMounted] = useState(false);
   const [range, setRange] = useState<RangeId>("7d");
   const rangeInfo = RANGES.find((r) => r.id === range)!;
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  useEffect(() => {
-    if (!isMounted || !containerRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) {
-        setDimensions({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height
-        });
-      }
-    });
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [isMounted]);
 
   const data = useMemo(() => {
     if (!isMounted) return [];
@@ -150,18 +132,17 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
         </div>
       </div>
 
-      <div ref={containerRef} className="h-80 w-full relative">
-        {!isMounted || dimensions.width === 0 ? (
+      <div className="h-80 w-full relative">
+        {!isMounted ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
-          <AreaChart
-            width={dimensions.width}
-            height={dimensions.height}
-            data={data}
-            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
-          >
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart
+              data={data}
+              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            >
               <defs>
                 <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#5b6cf5" stopOpacity={0.3} />
@@ -216,6 +197,7 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
               />
 
             </AreaChart>
+          </ResponsiveContainer>
         )}
       </div>
     </div>

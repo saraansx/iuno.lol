@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import TurnstileVerification from "@/components/auth/TurnstileVerification";
 
@@ -13,33 +13,30 @@ interface DashboardShellProps {
   decorationHue?: number;
 }
 
+const emptySubscribe = () => () => {};
+function useTurnstileCookie(): boolean {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => document.cookie.includes("turnstile_cleared=true"),
+    () => false,
+  );
+}
+
 const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, decorationHue }: DashboardShellProps) => {
-  const [isVerified, setIsVerified] = useState(false);
-  const [showTurnstile, setShowTurnstile] = useState(false);
-
-  useEffect(() => {
-    const checkVerification = () => {
-      if (document.cookie.includes("turnstile_cleared=true")) {
-        setIsVerified(true);
-      } else {
-        setShowTurnstile(true);
-      }
-    };
-
-    Promise.resolve().then(checkVerification);
-  }, []);
+  const cookieVerified = useTurnstileCookie();
+  const [manuallyVerified, setManuallyVerified] = useState(false);
+  const isVerified = cookieVerified || manuallyVerified;
 
   const handleTurnstileSuccess = () => {
     document.cookie = "turnstile_cleared=true; max-age=1800; path=/";
-    setShowTurnstile(false);
-    setIsVerified(true);
+    setManuallyVerified(true);
   };
 
   return (
     <div className="h-screen bg-[#050505] flex overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
       {!isVerified && (
         <TurnstileVerification
-          isOpen={showTurnstile}
+          isOpen={!isVerified}
           onClose={() => {}}
           onSuccess={handleTurnstileSuccess}
         />

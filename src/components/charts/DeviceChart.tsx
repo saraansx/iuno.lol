@@ -1,38 +1,20 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { PieChart, Pie, Cell, Tooltip } from 'recharts';
+import { useSyncExternalStore } from "react";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import type { DeviceStats } from '@/lib/features/users/db';
 
 interface DeviceChartProps {
   stats: DeviceStats;
 }
 
+const emptySubscribe = () => () => {};
+function useMounted(): boolean {
+  return useSyncExternalStore(emptySubscribe, () => true, () => false);
+}
+
 export default function DeviceChart({ stats }: DeviceChartProps) {
-  const [isMounted, setIsMounted] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    setTimeout(() => setIsMounted(true), 0);
-  }, []);
-
-  useEffect(() => {
-    if (!isMounted || !containerRef.current) return;
-
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0];
-      if (entry) {
-        setDimensions({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height
-        });
-      }
-    });
-
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [isMounted]);
+  const isMounted = useMounted();
 
   const data = [
     { name: 'iOS', value: stats.ios, color: '#f472b6' },
@@ -51,13 +33,14 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
         <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>How visitors break down by device type in the last 30 days.</p>
       </div>
 
-      <div ref={containerRef} className="h-48 w-full relative mt-4">
-        {!isMounted || dimensions.width === 0 ? (
+      <div className="h-48 w-full relative mt-4">
+        {!isMounted ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
-          <PieChart width={dimensions.width} height={dimensions.height}>
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
             <Tooltip 
               cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
               content={({ active, payload }) => {
@@ -96,10 +79,11 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
               ))}
             </Pie>
           </PieChart>
+          </ResponsiveContainer>
         )}
       </div>
 
-      {isMounted && dimensions.width > 0 && data.length > 0 && (
+      {isMounted && data.length > 0 && (
         <div className="flex items-center justify-center gap-4 mt-4">
           {data.map((entry) => (
             <div key={entry.name} className="flex items-center gap-1.5">

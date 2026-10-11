@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -59,7 +60,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <Navbar isAuthenticated={isAuthenticated} />
 
-        <div className="relative z-10 flex flex-col items-center justify-center pt-48 px-4 text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center pt-48 pb-32 px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -140,6 +141,37 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
           {error && (
             <p className="text-red-400 text-xs mt-2">{error}</p>
           )}
+
+          {/* Product showcase — dashboard screenshot in a clean window frame. */}
+          <motion.div
+            initial={{ opacity: 0, y: 48, filter: "blur(14px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 1, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
+            className="relative mt-24 w-full max-w-5xl mx-auto"
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -inset-x-24 -top-24 -bottom-10 blur-[90px]"
+              style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
+            />
+            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
+              <div className="flex items-center gap-2 h-9 px-4 bg-[#0e0e10] border-b border-white/5">
+                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                <span className="ml-3 text-[11px] text-white/30 tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>iuno.lol/dashboard</span>
+              </div>
+              <Image
+                src="/showcase/dashboard.png"
+                alt="iuno.lol dashboard preview"
+                width={1920}
+                height={950}
+                className="w-full h-auto select-none"
+                priority
+                draggable={false}
+              />
+            </div>
+          </motion.div>
         </div>
       </main>
     </>
