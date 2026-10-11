@@ -83,7 +83,6 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
 
   useEffect(() => {
     if (step !== "confirm") return;
-    setCooldown(10);
     const id = setInterval(() => setCooldown((c) => (c > 0 ? c - 1 : 0)), 1000);
     return () => clearInterval(id);
   }, [step]);
@@ -107,6 +106,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
     const res = await verifyOtpForDelete(otp);
     setBusy(false);
     if (!res.ok) return toast.error(res.error);
+    setCooldown(10);
     setStep("confirm");
   }
 

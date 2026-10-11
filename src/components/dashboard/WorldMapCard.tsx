@@ -56,7 +56,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
     return { numericCounts, max, ranked, total };
   }, [data]);
 
-  const topFive = ranked.slice(0, 5);
+  const topEight = ranked.slice(0, 8);
 
   const fillFor = (count: number) =>
     count > 0 ? `rgba(${ACCENT}, ${0.18 + 0.62 * (max > 0 ? count / max : 0)})` : "rgba(255,255,255,0.035)";
@@ -183,7 +183,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
           <h3 className="text-[13.5px] font-normal text-white/90 tracking-tight">Top countries</h3>
         </div>
 
-        {topFive.length === 0 ? (
+        {topEight.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center text-center py-10">
             <span className="w-10 h-10 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/20">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
@@ -195,7 +195,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
         ) : (
           <>
             <ul className="mt-4 flex flex-col gap-0.5">
-              {topFive.map((c, i) => (
+              {topEight.map((c, i) => (
                 <li key={c.country} className="flex items-center gap-2.5 py-1.5">
                   <span className="text-[12px] text-white/30 tabular-nums w-3">{i + 1}</span>
                   <Flag code={c.country} />
@@ -205,21 +205,14 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
               ))}
             </ul>
 
-            <div className="mt-auto pt-4 flex flex-col gap-3">
-              {ranked.length > 5 && (
-                <button
-                  type="button"
-                  onClick={() => setAllOpen(true)}
-                  className="text-[12.5px] text-[#8b93f0] hover:text-white transition-colors self-start cursor-pointer"
-                >
-                  View all countries →
-                </button>
-              )}
-              <div className="flex items-center justify-between text-[11px] text-white/30 border-t border-white/5 pt-3">
-                <span>{ranked.length} {ranked.length === 1 ? "country" : "countries"}</span>
-                <span>{total.toLocaleString()} total {total === 1 ? "view" : "views"}</span>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => setAllOpen(true)}
+              className="mt-auto w-full h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-[0_0_15px_rgba(91,108,245,0.1)]"
+            >
+              View all countries
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>
+            </button>
           </>
         )}
       </div>
