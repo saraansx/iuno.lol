@@ -1,8 +1,9 @@
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById, getAnalyticsData, getHourlyViews, getDeviceStats, getUserBackgrounds, getEquippedBadgeIds } from "@/lib/features/users/db";
+import { getUserById, getAnalyticsData, getHourlyViews, getDeviceStats, getCountryViewStats, getUserBackgrounds, getEquippedBadgeIds } from "@/lib/features/users/db";
 import { redirect } from "next/navigation";
 import { Metadata } from "next";
 import { AnalyticsChart, DeviceChart } from "@/components/charts/LazyCharts";
+import { WorldMapCard } from "@/components/dashboard/LazyWorldMap";
 import RecentComments from "@/components/dashboard/RecentComments";
 import RecentFeedback from "@/components/dashboard/RecentFeedback";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
@@ -26,10 +27,11 @@ export default async function DashboardPage() {
   const user = await getUserById(userId);
   const premium = isPremiumActive(user);
 
-  const [rawViews, hourlyViews, deviceStats, commentsRes, feedbackRes, backgrounds, badges] = await Promise.all([
+  const [rawViews, hourlyViews, deviceStats, countryStats, commentsRes, feedbackRes, backgrounds, badges] = await Promise.all([
     user ? getAnalyticsData(user.id) : Promise.resolve([]),
     user ? getHourlyViews(user.id) : Promise.resolve([]),
     user ? getDeviceStats(user.id) : Promise.resolve({ ios: 0, android: 0, windows: 0, mac: 0, other: 0 }),
+    user ? getCountryViewStats(user.id) : Promise.resolve([]),
     getDashboardComments(1, 4),
     getDashboardFeedback(1, 1, 4),
     user ? getUserBackgrounds(user.id) : Promise.resolve([]),
@@ -109,6 +111,10 @@ export default async function DashboardPage() {
         <div className="md:col-span-1 min-w-0 min-h-0">
           <DeviceChart stats={deviceStats} />
         </div>
+      </div>
+
+      <div className="mb-6">
+        <WorldMapCard data={countryStats} />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">

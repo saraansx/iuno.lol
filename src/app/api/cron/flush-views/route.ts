@@ -42,6 +42,26 @@ async function handler() {
       }
       const grabbed = (await grab.exec()) || [];
 
+      const grabCountry = redis.multi();
+      for (const idStr of profileIds) {
+        grabCountry.hgetall(`views_country_pending:${idStr}`);
+        grabCountry.del(`views_country_pending:${idStr}`);
+      }
+      const grabbedCountry = (await grabCountry.exec()) || [];
+      const countryByProfile = new Map<number, Record<string, number>>();
+      for (let i = 0; i < profileIds.length; i++) {
+        const profileId = parseInt(profileIds[i]);
+        if (isNaN(profileId)) continue;
+        const [cErr, cRaw] = grabbedCountry[i * 2] ?? [null, null];
+        if (cErr || !cRaw || typeof cRaw !== 'object') continue;
+        const counts: Record<string, number> = {};
+        for (const [code, val] of Object.entries(cRaw as Record<string, string>)) {
+          const n = parseInt(String(val));
+          if (/^[A-Z]{2}$/.test(code) && n > 0) counts[code] = n;
+        }
+        if (Object.keys(counts).length > 0) countryByProfile.set(profileId, counts);
+      }
+
       const pending: {
         profileId: number;
         total: number;
@@ -132,6 +152,23 @@ async function handler() {
             });
 
             totalFlushed += validChunk.reduce((sum, e) => sum + e.total, 0);
+
+            const countryTuples = validChunk.flatMap((e) => {
+              const counts = countryByProfile.get(e.profileId);
+              if (!counts) return [];
+              return Object.entries(counts).map(([code, n]) => sql`(${e.profileId}, ${code}, ${n})`);
+            });
+            if (countryTuples.length > 0) {
+              try {
+                await db.execute(sql`
+                  INSERT INTO profile_view_countries (user_id, country, count)
+                  VALUES ${sql.join(countryTuples, sql`, `)}
+                  ON DUPLICATE KEY UPDATE count = count + VALUES(count)
+                `);
+              } catch (countryErr) {
+                console.error('[cron] Country flush failed (views already saved); dropping this batch of country counts:', countryErr);
+              }
+            }
           }
         } catch (err) {
           console.error(`[cron] Flush failed for chunk starting at profile ${chunk[0]?.profileId}, restoring to Redis:`, err);
@@ -145,6 +182,11 @@ async function handler() {
               if (e.windows) restore.hincrby(key, 'windows', e.windows);
               if (e.mac) restore.hincrby(key, 'mac', e.mac);
               if (e.other) restore.hincrby(key, 'other', e.other);
+              const countries = countryByProfile.get(e.profileId);
+              if (countries) {
+                const ckey = `views_country_pending:${e.profileId}`;
+                for (const [code, n] of Object.entries(countries)) restore.hincrby(ckey, code, n);
+              }
               restore.sadd(SET_KEY, String(e.profileId));
             }
             await restore.exec();

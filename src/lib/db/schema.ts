@@ -422,6 +422,15 @@ export const profileViewsHourly = mysqlTable('profile_views_hourly', {
   viewHourIdx: index('view_hour_idx').on(table.viewHour),
 }))
 
+export const profileViewCountries = mysqlTable('profile_view_countries', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  country: varchar('country', { length: 2 }).notNull(),
+  count: int('count').default(0).notNull(),
+}, (table) => ({
+  userCountryIdx: uniqueIndex('user_country_idx').on(table.userId, table.country),
+}))
+
 export const profileComments = mysqlTable('profile_comments', {
   id: int('id').primaryKey().autoincrement(),
   profileId: int('profile_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -675,6 +684,7 @@ export const schema = {
   passwordResetTokens,
   profileViews,
   profileViewsHourly,
+  profileViewCountries,
   profileComments,
   commentLikes,
   profileFeedback,

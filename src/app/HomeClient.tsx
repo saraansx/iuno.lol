@@ -79,9 +79,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             >
               Your Internet Presence.
             </motion.h1>
-            {/* Same blur as the profile username "blur" effect (shared .username-blur class:
-                0 → 6px → 0 every 2s). Framer only handles the entrance (opacity + y) so it
-                doesn't fight the CSS filter animation. */}
+            {}
             <motion.h2
               initial={{ opacity: 0, y: 28 }}
               animate={{ opacity: 1, y: 0 }}

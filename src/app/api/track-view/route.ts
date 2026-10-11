@@ -19,6 +19,9 @@ if redis.call('SET', KEYS[1], '1', 'NX', 'EX', ARGV[5]) then
   redis.call('HINCRBY', KEYS[3], 'total', 1)
   redis.call('HINCRBY', KEYS[3], ARGV[1], 1)
   redis.call('SADD', KEYS[4], ARGV[2])
+  if ARGV[6] ~= '-' then
+    redis.call('HINCRBY', KEYS[6], ARGV[6], 1)
+  end
   return 1
 end
 return 0
@@ -93,19 +96,26 @@ export async function POST(request: NextRequest) {
       device = 'mac';
     }
 
+    const rawCountry = (request.headers.get('cf-ipcountry') || '').trim().toUpperCase();
+    const country = /^[A-Z]{2}$/.test(rawCountry) && rawCountry !== 'XX' && rawCountry !== 'T1'
+      ? rawCountry
+      : '-';
+
     const counted = (await redis.eval(
       TRACK_VIEW_SCRIPT,
-      5,
+      6,
       `v:${profileId}:${ipHash}`,
       `v:${profileId}:fp:${fingerprintHash ?? '-'}`,
       `views_pending:${profileId}`,
       'profiles_with_pending_views',
       viewerId !== null ? `v:${profileId}:u:${viewerId}` : `v:${profileId}:u:-`,
+      `views_country_pending:${profileId}`,
       device,
       String(profileId),
       fingerprintHash ? '1' : '0',
       viewerId !== null ? '1' : '0',
       String(VIEW_DEDUP_TTL_SECONDS),
+      country,
     )) as number;
 
     if (counted !== 1) {

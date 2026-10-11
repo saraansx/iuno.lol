@@ -1,7 +1,7 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
 import { UserFacingError } from '@/lib/errors'
-import { eq, sql, and, lt, gt, asc, like } from 'drizzle-orm'
+import { eq, sql, and, lt, gt, asc, desc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
 import { redis } from '@/lib/redis'
@@ -629,6 +629,24 @@ export async function getDeviceStats(userId: number): Promise<DeviceStats> {
     windows: Number(resultRows[0].windows) || 0,
     mac: Number(resultRows[0].mac) || 0,
     other: Number(resultRows[0].other) || 0
+  }
+}
+
+export type CountryViewStat = { country: string; count: number };
+
+export async function getCountryViewStats(userId: number): Promise<CountryViewStat[]> {
+  try {
+    const rows = await db
+      .select({ country: schema.profileViewCountries.country, count: schema.profileViewCountries.count })
+      .from(schema.profileViewCountries)
+      .where(eq(schema.profileViewCountries.userId, userId))
+      .orderBy(desc(schema.profileViewCountries.count));
+    return rows
+      .map((r) => ({ country: String(r.country).toUpperCase(), count: Number(r.count) || 0 }))
+      .filter((r) => /^[A-Z]{2}$/.test(r.country) && r.count > 0);
+  } catch (e) {
+    console.error("[getCountryViewStats] failed:", e);
+    return [];
   }
 }
 
