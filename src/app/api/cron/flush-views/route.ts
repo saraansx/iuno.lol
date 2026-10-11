@@ -11,10 +11,13 @@ const BATCH_SIZE = 500;
 
 const LOCK_TTL_SECONDS = 120;
 
+const TIME_BUDGET_MS = 50_000;
+
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
 async function handler() {
+  const startedAt = Date.now();
   const lock = await acquireCronLock('flush-views', LOCK_TTL_SECONDS);
   if (!lock.acquired) {
     return NextResponse.json({ success: true, message: 'Flush already running; skipped.' });
@@ -24,8 +27,13 @@ async function handler() {
     let totalFlushed = 0;
     let totalProfiles = 0;
     let cursor = '0';
+    let stoppedEarly = false;
 
     do {
+      if (Date.now() - startedAt > TIME_BUDGET_MS) {
+        stoppedEarly = true;
+        break;
+      }
       const [nextCursor, ids] = await redis.sscan(SET_KEY, cursor, 'COUNT', BATCH_SIZE);
       cursor = nextCursor;
       if (ids.length === 0) continue;
@@ -174,20 +182,23 @@ async function handler() {
           console.error(`[cron] Flush failed for chunk starting at profile ${chunk[0]?.profileId}, restoring to Redis:`, err);
           try {
             const restore = redis.pipeline();
+            const safe = (n: number) => Number.isInteger(n) && n > 0;
             for (const e of chunk) {
               const key = `views_pending:${e.profileId}`;
-              restore.hincrby(key, 'total', e.total);
-              if (e.ios) restore.hincrby(key, 'ios', e.ios);
-              if (e.android) restore.hincrby(key, 'android', e.android);
-              if (e.windows) restore.hincrby(key, 'windows', e.windows);
-              if (e.mac) restore.hincrby(key, 'mac', e.mac);
-              if (e.other) restore.hincrby(key, 'other', e.other);
+              if (safe(e.total)) restore.hincrby(key, 'total', e.total);
+              if (safe(e.ios)) restore.hincrby(key, 'ios', e.ios);
+              if (safe(e.android)) restore.hincrby(key, 'android', e.android);
+              if (safe(e.windows)) restore.hincrby(key, 'windows', e.windows);
+              if (safe(e.mac)) restore.hincrby(key, 'mac', e.mac);
+              if (safe(e.other)) restore.hincrby(key, 'other', e.other);
               const countries = countryByProfile.get(e.profileId);
               if (countries) {
                 const ckey = `views_country_pending:${e.profileId}`;
-                for (const [code, n] of Object.entries(countries)) restore.hincrby(ckey, code, n);
+                for (const [code, n] of Object.entries(countries)) {
+                  if (safe(n)) restore.hincrby(ckey, code, n);
+                }
               }
-              restore.sadd(SET_KEY, String(e.profileId));
+              if (safe(e.total)) restore.sadd(SET_KEY, String(e.profileId));
             }
             await restore.exec();
           } catch (restoreErr) {
@@ -197,15 +208,18 @@ async function handler() {
       }
 
       totalProfiles += pending.length;
-    } while (cursor !== '0');
+    } while (cursor !== '0' && Date.now() - startedAt <= TIME_BUDGET_MS);
 
     if (totalProfiles === 0) {
-      return NextResponse.json({ success: true, message: 'No pending views to flush.' });
+      return NextResponse.json({
+        success: true,
+        message: stoppedEarly ? 'Time budget reached; remaining views deferred to next run.' : 'No pending views to flush.',
+      });
     }
 
     return NextResponse.json({
       success: true,
-      message: `Flushed ${totalFlushed} views across ${totalProfiles} profiles.`
+      message: `Flushed ${totalFlushed} views across ${totalProfiles} profiles.${stoppedEarly ? ' Stopped at time budget; rest deferred to next run.' : ''}`
     });
 
   } catch (error) {
