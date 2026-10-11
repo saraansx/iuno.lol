@@ -13,18 +13,21 @@ import { type FullUser } from "@/lib/features/users/db";
 interface SectionBuilderClientProps {
   user: FullUser | null;
   backgrounds?: string[];
+  initialSectioned: boolean;
   initialAbout: AboutSectionData;
   initialLinks: Omit<LinksSectionData, "bigCount"> & { bigCount: number };
 }
 
-export default function SectionBuilderClient({ user, backgrounds, initialAbout, initialLinks }: SectionBuilderClientProps) {
+export default function SectionBuilderClient({ user, backgrounds, initialSectioned, initialAbout, initialLinks }: SectionBuilderClientProps) {
   const router = useRouter();
+  const [sectioned, setSectioned] = useState(initialSectioned);
   const [about, setAbout] = useState<AboutSectionData>(initialAbout);
   const [links, setLinks] = useState<LinksSectionData>(initialLinks);
   const [dragging, setDragging] = useState<"about" | "links" | null>(null);
   const [dropTarget, setDropTarget] = useState<"about" | "links" | null>(null);
 
   const hasChanges =
+    sectioned !== initialSectioned ||
     JSON.stringify({ about, links }) !== JSON.stringify({ about: initialAbout, links: initialLinks });
 
   const patchAbout = (patch: Partial<AboutSectionData>) =>
@@ -90,6 +93,7 @@ export default function SectionBuilderClient({ user, backgrounds, initialAbout, 
   const handleSave = async () => {
     try {
       await updateLayoutProfile({
+        profileStructure: sectioned ? "sectioned" : "standard",
         aboutSectionEnabled: about.hidden === false,
         aboutSectionTitle: about.title,
         aboutSectionDescription: about.description,
@@ -107,12 +111,42 @@ export default function SectionBuilderClient({ user, backgrounds, initialAbout, 
   };
 
   const handleRevert = () => {
+    setSectioned(initialSectioned);
     setAbout(initialAbout);
     setLinks(initialLinks);
   };
 
   return (
     <>
+      <div className="bg-[#0c0c0c] border border-white/5 rounded-[16px] px-5 py-3.5 flex items-center gap-4 shadow-sm">
+        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+            <path d="M12 2v20" />
+            <path d="m8 6 4-4 4 4" />
+            <path d="m8 18 4 4 4-4" />
+          </svg>
+          <div className="flex flex-col min-w-0">
+            <h2 className="text-white font-normal text-[13.5px] tracking-tight leading-tight">Sectioned scroll</h2>
+            <p className="text-[11.5px] text-white/40 leading-tight mt-0.5 truncate">
+              {sectioned
+                ? "Profile splits into screens you scroll through."
+                : "Profile shows as one normal page. Sections still apply."}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setSectioned((v) => !v)}
+          aria-pressed={sectioned}
+          aria-label="Sectioned scroll"
+          className={`w-9 h-[22px] rounded-full relative flex items-center transition-colors shrink-0 cursor-pointer focus:outline-none ${
+            sectioned ? "bg-[#5b6cf5]" : "bg-white/10"
+          }`}
+        >
+          <div className={`w-3.5 h-3.5 rounded-full absolute shadow-sm transition-all bg-white ${sectioned ? "right-[4px]" : "left-[4px]"}`} />
+        </button>
+      </div>
+
       <div className="flex flex-col gap-3">
         {above ? linksRow : aboutRow}
         {above ? aboutRow : linksRow}
@@ -122,6 +156,7 @@ export default function SectionBuilderClient({ user, backgrounds, initialAbout, 
         user={user}
         backgrounds={backgrounds}
         overrides={{
+          profileStructure: sectioned ? "sectioned" : "standard",
           aboutSectionEnabled: about.hidden === false,
           aboutSectionTitle: about.title,
           aboutSectionDescription: about.description,

@@ -509,8 +509,12 @@ const Layout1 = ({
     (w) => w.enabled && (w.placement || "inside") === "outside"
   );
  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
+  const hasMusic =
+    !bannerBackgroundSound &&
+    (musicPlayerStyle === "compact" || musicPlayerStyle === "lyrics" || musicPlayerStyle === "waveform") &&
+    musicTracks.length > 0;
   const aboutVisible =
-    aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets);
+    aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets || hasMusic);
   const linksAboveAbout = linksSectionPosition === "above";
   const linksScreenVisible = sectioned && linksSectionEnabled && bigLinks.length > 0;
   const linksScreenTitle = linksSectionTitle?.trim() || "Links";
@@ -721,12 +725,7 @@ useEffect(() => {
     />
   );
 
-  const showMusicPlayer =
-    !bannerBackgroundSound &&
-    (musicPlayerStyle === "compact" ||
-      musicPlayerStyle === "lyrics" ||
-      musicPlayerStyle === "waveform") &&
-    musicTracks.length > 0;
+  const showMusicPlayer = hasMusic;
 
   const musicPlayerAutoPlay = musicAutoPlay && (!enterScreenEnabled || entered);
   const musicPlayerArtBgOn = musicPlayerArtBg ?? false;
@@ -1116,7 +1115,7 @@ const sectionSurface: React.CSSProperties = {
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}
-              {!sectioned && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), alignment)}</div>}
+              {!sectioned && aboutSectionEnabled && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), alignment)}</div>}
 
             </div>
             </div>
@@ -1133,9 +1132,11 @@ const sectionSurface: React.CSSProperties = {
         </CardTransition>
         </CardEffect>
 
-        {!sectioned && bigLinksSection}
+        {}
+        {!sectioned && linksAboveAbout && linksSectionEnabled && bigLinksSection}
         {!sectioned && outsideWidgets}
-        {!sectioned && musicPlayer}
+        {!sectioned && aboutSectionEnabled && musicPlayer}
+        {!sectioned && !linksAboveAbout && linksSectionEnabled && bigLinksSection}
 
         {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
         {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}

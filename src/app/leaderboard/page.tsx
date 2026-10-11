@@ -46,7 +46,7 @@ export default async function LeaderboardPage({
         />
         <div className="relative flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.2em] text-[#c084fc]">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b93f0] font-medium">
               Top 100
             </p>
             <h1

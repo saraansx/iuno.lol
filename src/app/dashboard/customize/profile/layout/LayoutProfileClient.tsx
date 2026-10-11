@@ -3,7 +3,6 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
-import SectionedProfileSection from "@/components/dashboard/customize/layout/SectionedProfileSection";
 import StandardProfileSection, {
   type ProfilePreset,
 } from "@/components/dashboard/customize/layout/StandardProfileSection";
@@ -46,11 +45,6 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
 
   const initialStructure = user?.profileStructure ?? "standard";
   const structure = overrides.profileStructure ?? initialStructure;
-  const sectioned = structure === "sectioned";
-  const setSectioned = (val: boolean) => {
-    const next = val ? "sectioned" : "standard";
-    updateOverrides({ profileStructure: next === initialStructure ? undefined : next });
-  };
 
   const initialPreset = (user?.profilePreset ?? DEFAULT_PRESET) as ProfilePreset;
 
@@ -140,8 +134,6 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
         className="w-full pb-10 flex flex-col gap-8"
         style={{ paddingRight: "calc(var(--preview-width, 380px) + 2rem)" }}
       >
-        <SectionedProfileSection enabled={sectioned} setEnabled={setSectioned} />
-
         <StandardProfileSection
           preset={preset}
           setPreset={setPreset}
