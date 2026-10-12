@@ -3,6 +3,12 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import OverflowPingPong from "@/components/profile/widgets/OverflowPingPong";
+import {
+  YouTubeLogoIcon,
+  YouTubeSubscribersIcon,
+  YouTubeVideoIcon,
+} from "@/components/profile/widgets/WidgetIcons";
 
 /* -------------------------------------------------------------------------- */
 /*  Inline brand marks                                                        */
@@ -16,14 +22,6 @@ function SpotifyMark({ size = 14 }: { size?: number }) {
   );
 }
 
-function GitHubMark({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-      <path d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.2 3.44 9.6 8.21 11.16.6.11.82-.25.82-.57 0-.28-.01-1.02-.02-2-3.34.71-4.04-1.58-4.04-1.58-.55-1.37-1.33-1.74-1.33-1.74-1.09-.73.08-.72.08-.72 1.2.08 1.84 1.21 1.84 1.21 1.07 1.8 2.81 1.28 3.5.98.11-.76.42-1.28.76-1.57-2.67-.3-5.47-1.3-5.47-5.8 0-1.28.47-2.33 1.23-3.15-.12-.3-.53-1.5.12-3.13 0 0 1-.32 3.3 1.2a11.6 11.6 0 0 1 6 0c2.3-1.52 3.3-1.2 3.3-1.2.65 1.63.24 2.83.12 3.13.77.82 1.23 1.87 1.23 3.15 0 4.51-2.81 5.5-5.49 5.79.43.37.81 1.1.81 2.22 0 1.6-.01 2.9-.01 3.29 0 .32.22.69.83.57A12 12 0 0 0 24 12.29C24 5.78 18.63.5 12 .5z" />
-    </svg>
-  );
-}
-
 function ValorantMark({ size = 14 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="#ff4655" className="shrink-0">
@@ -31,6 +29,16 @@ function ValorantMark({ size = 14 }: { size?: number }) {
     </svg>
   );
 }
+
+function PinterestMark({ size = 26 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="#e60023" className="shrink-0">
+      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
+    </svg>
+  );
+}
+
+const VSCODE_LOGO = "/showcase/vscode.svg";
 
 /* -------------------------------------------------------------------------- */
 /*  Card shell                                                                */
@@ -50,35 +58,32 @@ function Thumb({ gradient, children, round = "rounded-2xl" }: { gradient: string
   );
 }
 
-function Pill({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return (
-    <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-normal ${className}`}>
-      {children}
-    </span>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /*  Mock widget cards (static — purely decorative)                            */
 /* -------------------------------------------------------------------------- */
 
+const SHOWCASE_BADGES = [
+  { id: "premium", name: "Discord Nitro", icon: "https://cdn.discordapp.com/badge-icons/2ba85e8026a8614b640c2837bcdfe21b.png" },
+  { id: "hypesquad_house_1", name: "HypeSquad Bravery", icon: "https://cdn.discordapp.com/badge-icons/8a88d63823d8a71cd5e390baa45efa02.png" },
+  { id: "active_developer", name: "Active Developer", icon: "https://cdn.discordapp.com/badge-icons/6bdc42827a38498929a4920da12695d9.png" },
+  { id: "bug_hunter_level_1", name: "Discord Bug Hunter", icon: "https://cdn.discordapp.com/badge-icons/2717692c7dca7289b35297368a940dd0.png" },
+  { id: "early_supporter", name: "Early Supporter", icon: "https://cdn.discordapp.com/badge-icons/7060786766c9c840eb3019e725d2b358.png" },
+];
+
 function SpotifyCard() {
   return (
     <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#2b2b2b,#0f0f0f)">
-        <span className="text-[22px]">🎧</span>
-      </Thumb>
+      <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
+        <Image src="/showcase/chanel.webp" alt="CHANEL by SAGELUNE" fill sizes="64px" className="object-cover" />
+      </div>
       <div className="min-w-0 flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5">
           <SpotifyMark />
-          <span className="text-[14px] text-white/95 tracking-tight truncate">Blinding Lights</span>
+          <span className="text-[14px] text-white/95 tracking-tight truncate">CHANEL</span>
         </div>
         <div className="flex items-center gap-2.5 text-[12px] text-white/60">
-          <span className="truncate">The Weeknd</span>
-          <span className="text-white/25">•</span>
-          <span className="truncate">After Hours</span>
+          <span className="truncate">SAGELUNE</span>
         </div>
-        <Pill className="bg-[#1ED760]/15 text-[#5ee29a] w-fit mt-0.5">Open Track</Pill>
       </div>
     </div>
   );
@@ -86,17 +91,68 @@ function SpotifyCard() {
 
 function DiscordPresenceCard() {
   return (
-    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
-      <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-full border border-white/10">
-        <Image src="/showcase/mia.jpg" alt="Mia" fill sizes="64px" className="object-cover" />
+    <div className={`${CARD} w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
+      {/* avatar-blur backdrop, like the live preset */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <Image src="/showcase/mia.jpg" alt="" fill sizes="340px" className="w-full h-full object-cover opacity-35 blur-[12px] scale-125" />
+        <div className="absolute inset-0 bg-[#101010]/50" />
       </div>
-      <div className="min-w-0 flex flex-col gap-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-[14px] text-white/95 tracking-tight">Mia</span>
-          <Pill className="bg-white/[0.08] border border-white/10 text-white/80">❤ haunt</Pill>
+      <div className="flex items-center justify-between gap-3.5 min-w-0 w-full relative z-10">
+        <div className="flex items-center gap-3.5 min-w-0 flex-1">
+          <div className="relative shrink-0">
+            <div className="relative w-[74px] h-[74px] overflow-hidden rounded-full bg-[#181818] border border-white/10">
+              <Image src="/showcase/mia.jpg" alt="Mia" fill sizes="74px" className="object-cover" />
+            </div>
+            <div className="absolute z-20 bottom-0.5 right-0.5 w-4 h-4 rounded-full bg-[#101010] flex items-center justify-center">
+              <span className="w-3 h-3 rounded-full bg-[#23a55a]" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+            <OverflowPingPong>
+              <span className="text-[14.5px] font-normal text-white/95 tracking-tight shrink-0">Mia</span>
+              <span className="inline-flex items-center gap-1.5 bg-white/[0.08] border border-white/10 px-2 py-0.5 rounded-[6px] text-[12px] font-medium leading-none text-white/90 shrink-0 ml-1.5">
+                <Image
+                  src="https://cdn.discordapp.com/clan-badges/1511684107707355226/4f9ea046adf640ad9bf837d276b4618a.png?size=32"
+                  alt="iuno clan badge"
+                  width={15}
+                  height={15}
+                  className="object-contain"
+                  unoptimized
+                />
+                <span>iuno</span>
+              </span>
+              <div className="flex items-center gap-1.5 shrink-0 ml-1.5">
+                {SHOWCASE_BADGES.map((badge) => (
+                  <div
+                    key={badge.id}
+                    title={badge.name}
+                    className="relative w-[18px] h-[18px] shrink-0 flex items-center justify-center"
+                  >
+                    <Image
+                      src={badge.icon}
+                      alt={badge.name}
+                      width={18}
+                      height={18}
+                      className="object-contain"
+                      unoptimized
+                    />
+                  </div>
+                ))}
+              </div>
+            </OverflowPingPong>
+
+            <OverflowPingPong>
+              <div className="flex items-center gap-1.5 text-[12.5px] font-normal leading-tight shrink-0 whitespace-nowrap">
+                <span className="relative w-3.5 h-3.5 shrink-0 rounded-[3px] overflow-hidden flex items-center justify-center">
+                  <Image src={VSCODE_LOGO} alt="Visual Studio Code" width={14} height={14} className="object-contain" unoptimized />
+                </span>
+                <span className="text-white/85">Visual Studio Code</span>
+                <span className="text-[12px] text-white/50">• Editing discord.ts</span>
+              </div>
+            </OverflowPingPong>
+          </div>
         </div>
-        <span className="text-[12.5px] text-white/85">Visual Studio Code</span>
-        <span className="text-[11.5px] text-white/45 truncate">Editing widgets-showcase.tsx</span>
       </div>
     </div>
   );
@@ -105,38 +161,43 @@ function DiscordPresenceCard() {
 function GitHubCard() {
   return (
     <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#3a3a3a,#111)" round="rounded-full">
-        <GitHubMark size={26} />
-      </Thumb>
+      <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-full border border-white/10">
+        <Image src="/showcase/saraansx.jpg" alt="saraansx" fill sizes="64px" className="object-cover" />
+      </div>
       <div className="min-w-0 flex flex-col gap-1.5">
-        <span className="text-[14px] text-white/95 tracking-tight">shadcn</span>
+        <span className="text-[14px] text-white/95 tracking-tight">saraansx</span>
         <div className="flex items-center gap-3 text-[11.5px] text-white/55">
-          <span>0 following</span>
-          <span>227 repos</span>
+          <span>1 following</span>
+          <span>4 repos</span>
         </div>
-        <Pill className="bg-white/[0.06] border border-white/10 text-white/80 w-fit mt-0.5">
-          View Profile
-        </Pill>
       </div>
     </div>
   );
 }
 
-function DiscordServerCard() {
+function YouTubeCard() {
   return (
-    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#4b3b2a,#141414)">
-        <span className="text-[22px]">⛏️</span>
+    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
+      <Thumb gradient="linear-gradient(135deg,#3d1114,#141414)" round="rounded-2xl">
+        <YouTubeLogoIcon size={26} className="text-[#FF0000]" />
       </Thumb>
       <div className="min-w-0 flex flex-col gap-1.5">
-        <div className="flex items-center gap-2 text-[11px] text-white/50">
-          <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#23a55a]" /> 1.1M
-          </span>
-          <span>170K online</span>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[14px] text-white/95 tracking-tight truncate">Linus Tech Tips</span>
+          <span className="text-[11.5px] font-mono text-white/40 shrink-0">@LinusTechTips</span>
         </div>
-        <span className="text-[14px] text-white/95 tracking-tight">Minecraft</span>
-        <Pill className="bg-[#5865F2]/20 text-[#aab2ff] w-fit mt-0.5">View Channel</Pill>
+        <div className="flex items-center gap-3 text-[11.5px] text-white/60">
+          <span className="flex items-center gap-1">
+            <YouTubeSubscribersIcon size={13} className="text-white/70" />
+            <span className="text-white/85">16M</span>
+            <span className="text-white/40">subscribers</span>
+          </span>
+          <span className="flex items-center gap-1">
+            <YouTubeVideoIcon size={13} className="text-white/70" />
+            <span className="text-white/85">7K</span>
+            <span className="text-white/40">videos</span>
+          </span>
+        </div>
       </div>
     </div>
   );
@@ -157,22 +218,26 @@ function ValorantCard() {
           <span className="text-white/30">•</span>
           <span>Level 33</span>
         </div>
-        <Pill className="bg-[#ff4655]/20 text-[#ff8a92] w-fit mt-0.5">View Profile</Pill>
       </div>
     </div>
   );
 }
 
-function MinecraftCard() {
+function PinterestCard() {
   return (
-    <div className={`${CARD} w-[280px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#6b4a32,#2a1d14)">
-        <span className="text-[22px]">🟫</span>
+    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
+      <Thumb gradient="linear-gradient(135deg,#3d1114,#141414)" round="rounded-2xl">
+        <PinterestMark size={26} />
       </Thumb>
       <div className="min-w-0 flex flex-col gap-1.5">
-        <span className="text-[14px] text-white/95 tracking-tight">Notch</span>
-        <span className="text-[11.5px] text-white/45">Minecraft</span>
-        <Pill className="bg-[#1ED760]/15 text-[#5ee29a] w-fit mt-0.5">View Profile</Pill>
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span className="text-[14px] text-white/95 tracking-tight truncate">Marta</span>
+          <span className="text-[11.5px] font-mono text-white/40 shrink-0">@marta</span>
+        </div>
+        <div className="flex items-center gap-1 text-[11.5px] text-white/60">
+          <span className="text-white/85">2.3K+</span>
+          <span className="text-white/40">pins</span>
+        </div>
       </div>
     </div>
   );
@@ -220,9 +285,9 @@ const FLOATS: FloatSpec[] = [
   { node: <SpotifyCard />, className: "left-[1%] top-[16%]", rotate: -7, depth: 0.75, delay: 0.05 },
   { node: <DiscordPresenceCard />, className: "left-1/2 -translate-x-1/2 top-[2%]", rotate: 2, depth: 0.4, delay: 0.12 },
   { node: <GitHubCard />, className: "right-[1%] top-[14%]", rotate: 6, depth: 0.7, delay: 0.18 },
-  { node: <DiscordServerCard />, className: "left-[3%] bottom-[12%]", rotate: 5, depth: 0.55, delay: 0.1 },
+  { node: <YouTubeCard />, className: "left-[3%] bottom-[12%]", rotate: 5, depth: 0.55, delay: 0.1 },
   { node: <ValorantCard />, className: "left-1/2 -translate-x-1/2 bottom-[1%]", rotate: -2, depth: 0.85, delay: 0.22 },
-  { node: <MinecraftCard />, className: "right-[2%] bottom-[14%]", rotate: -5, depth: 0.5, delay: 0.15 },
+  { node: <PinterestCard />, className: "right-[2%] bottom-[14%]", rotate: -5, depth: 0.5, delay: 0.15 },
 ];
 
 export default function WidgetShowcase() {
