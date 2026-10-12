@@ -25,16 +25,6 @@ function ValorantMark({ size = 14 }: { size?: number }) {
   );
 }
 
-function PinterestMark({ size = 26 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="#e60023" className="shrink-0">
-      <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.39 18.592.026 11.985.026L12.017 0z" />
-    </svg>
-  );
-}
-
-const VSCODE_LOGO = "/showcase/vscode.svg";
-
 /* -------------------------------------------------------------------------- */
 /*  Card shell                                                                */
 /* -------------------------------------------------------------------------- */
@@ -56,6 +46,8 @@ function Thumb({ gradient, children, round = "rounded-2xl" }: { gradient: string
 /* -------------------------------------------------------------------------- */
 /*  Mock widget cards (static — purely decorative)                            */
 /* -------------------------------------------------------------------------- */
+
+const VSCODE_LOGO = "/showcase/vscode.svg";
 
 const SHOWCASE_BADGES = [
   { id: "premium", name: "Discord Nitro", icon: "https://cdn.discordapp.com/badge-icons/2ba85e8026a8614b640c2837bcdfe21b.png" },
@@ -218,17 +210,17 @@ function ValorantCard() {
 function PinterestCard() {
   return (
     <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#3d1114,#141414)" round="rounded-2xl">
-        <PinterestMark size={26} />
-      </Thumb>
+      <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
+        <Image src="/showcase/ohjoy.jpg" alt="Oh Joy!" fill sizes="64px" className="object-cover" />
+      </div>
       <div className="min-w-0 flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[14px] text-white/95 tracking-tight truncate">Marta</span>
-          <span className="text-[11.5px] font-mono text-white/40 shrink-0">@marta</span>
+          <span className="text-[14px] text-white/95 tracking-tight truncate">Oh Joy!</span>
+          <span className="text-[11.5px] font-mono text-white/40 shrink-0">@ohjoy</span>
         </div>
         <div className="flex items-center gap-1 text-[11.5px] text-white/60">
-          <span className="text-white/85">2.3K+</span>
-          <span className="text-white/40">pins</span>
+          <span className="text-white/85">15.1M</span>
+          <span className="text-white/40">followers</span>
         </div>
       </div>
     </div>
