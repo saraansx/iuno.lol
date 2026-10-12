@@ -39,7 +39,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
   };
   return (
     <>
-      <main className="min-h-screen bg-transparent relative">
+      <main className="min-h-screen bg-transparent relative overflow-x-clip">
         <div className="absolute inset-0 z-0 blur-[3px] pointer-events-none">
           <ColorBends
             colors={["#5b6cf5", "#000000", "#8b93e8"]}
@@ -60,16 +60,8 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <Navbar isAuthenticated={isAuthenticated} />
 
-        <div className="relative z-10 flex flex-col items-center justify-center pt-48 pb-32 px-4 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-            className="bg-[#5b6cf5]/10 backdrop-blur-md border border-[#5b6cf5]/20 px-4 py-1.5 rounded-full flex items-center gap-2 mb-8"
-          >
-            <span className="text-[#5b6cf5] font-medium text-xs">#</span>
-            <span className="text-[#5b6cf5]/80 text-xs font-normal tracking-wide">Craft your identity. Claim your unique handle.</span>
-          </motion.div>
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-40 pb-28 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
 
           <div className="flex flex-col gap-1 md:gap-2 mb-8">
             <motion.h1
@@ -113,7 +105,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.7, delay: 0.66, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)]"
+            className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
           >
             <div className="flex-1 px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
               <span className="text-white/30 font-normal tracking-wide">iuno.lol/</span>
@@ -141,35 +133,39 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
           {error && (
             <p className="text-red-400 text-xs mt-2">{error}</p>
           )}
+          </div>
 
-          {/* Product showcase — dashboard screenshot in a clean window frame. */}
+          {/* Product showcase — outer handles the entrance (framer sets inline transform,
+              so the CSS 3D tilt must live on the inner div or it gets overridden). */}
           <motion.div
-            initial={{ opacity: 0, y: 48, filter: "blur(14px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 1, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="relative mt-24 w-full max-w-5xl mx-auto"
+            initial={{ opacity: 0, x: 48, filter: "blur(14px)" }}
+            animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+            transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative w-full lg:w-[125%]"
           >
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -inset-x-24 -top-24 -bottom-10 blur-[90px]"
-              style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
-            />
-            <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
-              <div className="flex items-center gap-2 h-9 px-4 bg-[#0e0e10] border-b border-white/5">
-                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                <span className="ml-3 text-[11px] text-white/30 tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>iuno.lol/dashboard</span>
-              </div>
-              <Image
-                src="/showcase/dashboard.png"
-                alt="iuno.lol dashboard preview"
-                width={1920}
-                height={950}
-                className="w-full h-auto select-none"
-                priority
-                draggable={false}
+            <div className="home-showcase relative w-full">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -inset-x-24 -top-24 -bottom-10 blur-[90px]"
+                style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
               />
+              <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
+                <div className="flex items-center gap-2 h-9 px-4 bg-[#0e0e10] border-b border-white/5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
+                  <span className="ml-3 text-[11px] text-white/30 tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>iuno.lol/dashboard</span>
+                </div>
+                <Image
+                  src="/showcase/dashboard.png"
+                  alt="iuno.lol dashboard preview"
+                  width={1920}
+                  height={950}
+                  className="w-full h-auto select-none"
+                  priority
+                  draggable={false}
+                />
+              </div>
             </div>
           </motion.div>
         </div>

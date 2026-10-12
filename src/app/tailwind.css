@@ -67,6 +67,17 @@
   will-change: filter;
 }
 
+/* Homepage product showcase — 3D tilt (left edge recedes). Desktop only; flat on mobile.
+   Written as a real rule because Tailwind v4 arbitrary [transform:...] with nested
+   functions did not apply reliably here. */
+@media (min-width: 1024px) {
+  .home-showcase {
+    transform: perspective(1600px) rotateY(-10deg) rotateX(3deg) scale(1.02);
+    transform-origin: center;
+    will-change: transform;
+  }
+}
+
 @keyframes pingpong-scroll {
   0%, 16.66% {
     transform: translateX(0px);
