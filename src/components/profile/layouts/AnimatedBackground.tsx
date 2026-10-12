@@ -24,7 +24,7 @@ interface AuroraSettings {
 
 export default function AnimatedBackground({ id, aurora, darkveil, pixelblast, colorbends, liquidchrome, crtwarp, frozen = false }: { id: AnimatedBackgroundId; aurora?: AuroraSettings; darkveil?: DarkVeilSettings; pixelblast?: PixelBlastSettings; colorbends?: ColorBendsSettings; liquidchrome?: LiquidChromeSettings; crtwarp?: CRTWarpSettings; frozen?: boolean }) {
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505]">
+    <div className="absolute inset-0 w-full h-full overflow-hidden bg-[#050505] pointer-events-none">
       {id === "aurora" && <AuroraEffect intensity={65} color="#8a7bff" colors={aurora?.colors} speed={aurora?.speed} blend={aurora?.blend} frozen={frozen} />}
 
       {id === "darkveil" && (

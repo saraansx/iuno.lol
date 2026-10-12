@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), { ssr: false });
+const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -60,7 +61,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <Navbar isAuthenticated={isAuthenticated} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-40 pb-28 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
+        <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-6 pt-40 pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
 
           <div className="flex flex-col gap-1 md:gap-2 mb-8">
@@ -168,6 +169,10 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        <div className="relative z-10">
+          <WidgetShowcase />
         </div>
       </main>
     </>
