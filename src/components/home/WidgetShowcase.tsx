@@ -4,11 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import OverflowPingPong from "@/components/profile/widgets/OverflowPingPong";
-import {
-  YouTubeLogoIcon,
-  YouTubeSubscribersIcon,
-  YouTubeVideoIcon,
-} from "@/components/profile/widgets/WidgetIcons";
 
 /* -------------------------------------------------------------------------- */
 /*  Inline brand marks                                                        */
@@ -178,24 +173,21 @@ function GitHubCard() {
 function YouTubeCard() {
   return (
     <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
-      <Thumb gradient="linear-gradient(135deg,#3d1114,#141414)" round="rounded-2xl">
-        <YouTubeLogoIcon size={26} className="text-[#FF0000]" />
-      </Thumb>
+      <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
+        <Image src="/showcase/mrbeast.jpg" alt="MrBeast" fill sizes="64px" className="object-cover" />
+      </div>
       <div className="min-w-0 flex flex-col gap-1.5">
         <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-[14px] text-white/95 tracking-tight truncate">Linus Tech Tips</span>
-          <span className="text-[11.5px] font-mono text-white/40 shrink-0">@LinusTechTips</span>
+          <span className="text-[14px] text-white/95 tracking-tight truncate">MrBeast</span>
         </div>
         <div className="flex items-center gap-3 text-[11.5px] text-white/60">
-          <span className="flex items-center gap-1">
-            <YouTubeSubscribersIcon size={13} className="text-white/70" />
-            <span className="text-white/85">16M</span>
-            <span className="text-white/40">subscribers</span>
+          <span>
+            <span className="text-white/85">518M</span>
+            <span className="text-white/40"> subscribers</span>
           </span>
-          <span className="flex items-center gap-1">
-            <YouTubeVideoIcon size={13} className="text-white/70" />
-            <span className="text-white/85">7K</span>
-            <span className="text-white/40">videos</span>
+          <span>
+            <span className="text-white/85">1K</span>
+            <span className="text-white/40"> videos</span>
           </span>
         </div>
       </div>
