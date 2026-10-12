@@ -312,7 +312,7 @@ export default function WidgetShowcase() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-5"
         >
-          Profile Widgets
+          Live widgets
         </motion.span>
 
         <motion.h2
@@ -322,9 +322,9 @@ export default function WidgetShowcase() {
           transition={{ duration: 0.8, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="text-4xl md:text-5xl font-medium tracking-tight text-white mb-6"
         >
-          Bring your profile{" "}
+          Your page,{" "}
           <span className="bg-gradient-to-r from-[#8b93e8] to-[#cdd2ff] bg-clip-text text-transparent">
-            to life
+            but alive
           </span>
           .
         </motion.h2>
@@ -336,9 +336,8 @@ export default function WidgetShowcase() {
           transition={{ duration: 0.7, delay: 0.22, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-xl text-white/50 text-base md:text-lg font-light leading-relaxed"
         >
-          Drop in live widgets — your favourite song, your Valorant rank, your GitHub stats,
-          your Discord presence and more. They keep themselves up to date, so your page always
-          feels alive.
+          Plug in live widgets for your music, games, code, videos and socials.
+          They update on their own, so your profile never sits still.
         </motion.p>
 
         {/* mobile card stack */}
