@@ -276,7 +276,7 @@ const FLOATS: FloatSpec[] = [
 
 export default function WidgetShowcase() {
   return (
-    <section className="relative overflow-hidden py-24 lg:py-0 lg:min-h-[860px] flex items-center">
+    <section id="widgets" className="relative overflow-hidden py-24 lg:py-0 lg:min-h-[860px] flex items-center">
       {/* indigo ambience to match site theme */}
       <div
         aria-hidden

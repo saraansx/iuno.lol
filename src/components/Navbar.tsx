@@ -51,7 +51,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
   
-  const tabs = ['Helpcenter', 'Leaderboard', 'Pricing', 'FAQ', 'Discord'];
+  const tabs = ['Helpcenter', 'Leaderboard', 'Pricing', 'Discord'];
 
   const handleGetStarted = (e: React.MouseEvent) => {
     e.preventDefault();

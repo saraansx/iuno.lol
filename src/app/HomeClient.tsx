@@ -12,6 +12,7 @@ const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), {
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
 const PlanShowcase = dynamic(() => import("@/components/home/PlanShowcase"), { ssr: false });
 const FaqShowcase = dynamic(() => import("@/components/home/FaqShowcase"), { ssr: false });
+const Footer = dynamic(() => import("@/components/Footer"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -187,6 +188,8 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
         <div className="relative z-10">
           <FaqShowcase />
         </div>
+
+        <Footer />
       </main>
     </>
   );

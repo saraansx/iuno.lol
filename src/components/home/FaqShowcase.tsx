@@ -102,7 +102,7 @@ export default function FaqShowcase() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
 
   return (
-    <section className="relative overflow-hidden py-24 lg:py-32">
+    <section id="faq" className="relative overflow-hidden py-24 lg:py-32">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
