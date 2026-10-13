@@ -28,7 +28,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
   }, [pathname]);
 
   React.useEffect(() => {
-    if (pathname !== '/pricing') {
+    if (pathname !== '/pricing' && pathname !== '/') {
       setHidden(false);
       return;
     }

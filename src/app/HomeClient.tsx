@@ -11,6 +11,7 @@ const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"),
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
 const PlanShowcase = dynamic(() => import("@/components/home/PlanShowcase"), { ssr: false });
+const FaqShowcase = dynamic(() => import("@/components/home/FaqShowcase"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -43,6 +44,18 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
   return (
     <>
       <main className="min-h-screen bg-transparent relative overflow-x-clip">
+        <div
+          aria-hidden="true"
+          className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
+          style={{
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
+            WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
+            background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
+          }}
+        />
+
         <Navbar isAuthenticated={isAuthenticated} />
 
         <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-6 pt-40 pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
@@ -169,6 +182,10 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <div className="relative z-10">
           <PlanShowcase />
+        </div>
+
+        <div className="relative z-10">
+          <FaqShowcase />
         </div>
       </main>
     </>
