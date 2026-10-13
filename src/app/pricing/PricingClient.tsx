@@ -1,6 +1,7 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { FREE_FEATURES, PREMIUM_FEATURES } from "@/lib/plan-features";
 import { useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
@@ -529,6 +530,8 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
           </div>
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }

@@ -31,6 +31,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
     const hideOnScroll =
       pathname === "/pricing" ||
       pathname === "/" ||
+      pathname === "/leaderboard" ||
       pathname === "/terms" ||
       pathname === "/privacy" ||
       pathname === "/copyright" ||

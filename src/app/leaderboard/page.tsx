@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import LeaderboardClient from "@/app/dashboard/leaderboard/LeaderboardClient";
 import { isAuthenticated, getSessionUserId } from "@/lib/auth/session";
 import {
@@ -37,6 +38,17 @@ export default async function LeaderboardPage({
 
   return (
     <div className="min-h-screen flex flex-col">
+      <div
+        aria-hidden="true"
+        className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
+        style={{
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+          maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
+        }}
+      />
       <Navbar isAuthenticated={auth} />
 
       <section className="relative w-full max-w-6xl mx-auto px-6 pt-32 pb-14">
@@ -72,6 +84,8 @@ export default async function LeaderboardPage({
           basePath="/leaderboard"
         />
       </main>
+
+      <Footer />
     </div>
   );
 }
