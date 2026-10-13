@@ -12,8 +12,12 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", titleStyle, artistStyle, lyricStyle, lyricColor = "#FFFFFF", shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; lyricStyle?: CSSProperties; lyricColor?: string; shuffle?: boolean }) {
+export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", defaultVolume = 1, onTrackChange, titleStyle, artistStyle, lyricStyle, lyricColor = "#FFFFFF", shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; defaultVolume?: number; onTrackChange?: (index: number) => void; titleStyle?: CSSProperties; artistStyle?: CSSProperties; lyricStyle?: CSSProperties; lyricColor?: string; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    onTrackChange?.(Math.min(index, tracks.length - 1));
+  }, [index, tracks.length, onTrackChange]);
 
   useLayoutEffect(() => {
     if (shuffle && tracks.length > 1) setIndex(Math.floor(Math.random() * tracks.length));
@@ -28,7 +32,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
   const barRef = useRef<HTMLDivElement | null>(null);
   const lyricsRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
-  const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
+  const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef, defaultVolume);
 
   const randomDifferent = useCallback(
     (from: number) => {

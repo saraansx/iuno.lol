@@ -2,10 +2,11 @@
 
 import { useCallback, useId, useRef, useState, type CSSProperties, type RefObject } from "react";
 
-export function useVolume(audioRef: RefObject<HTMLAudioElement | null>) {
-  const [volume, setVolumeState] = useState(1);
+export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialVolume = 1) {
+  const initial = Math.min(1, Math.max(0, initialVolume));
+  const [volume, setVolumeState] = useState(initial);
   const [muted, setMutedState] = useState(false);
-  const volumeRef = useRef(1);
+  const volumeRef = useRef(initial);
   const mutedRef = useRef(false);
 
   const applyVolume = useCallback((audio: HTMLAudioElement | null) => {

@@ -9,6 +9,7 @@ import dynamic from "next/dynamic";
 
 const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), { ssr: false });
 const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"), { ssr: false });
+const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -173,6 +174,10 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <div className="relative z-10">
           <WidgetShowcase />
+        </div>
+
+        <div className="relative z-10">
+          <MusicShowcase />
         </div>
       </main>
     </>
