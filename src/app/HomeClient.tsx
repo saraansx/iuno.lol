@@ -7,9 +7,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-const ColorBends = dynamic(() => import("@/components/effects/ColorBends"), { ssr: false });
 const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"), { ssr: false });
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
+const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
+const PlanShowcase = dynamic(() => import("@/components/home/PlanShowcase"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;
@@ -42,24 +43,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
   return (
     <>
       <main className="min-h-screen bg-transparent relative overflow-x-clip">
-        <div className="absolute inset-0 z-0 blur-[3px] pointer-events-none">
-          <ColorBends
-            colors={["#5b6cf5", "#000000", "#8b93e8"]}
-            rotation={90}
-            speed={0.2}
-            scale={1}
-            frequency={1}
-            warpStrength={1}
-            mouseInfluence={1}
-            noise={0.1}
-            parallax={0.5}
-            iterations={1}
-            intensity={0.4}
-            bandWidth={6}
-            transparent
-          />
-        </div>
-
         <Navbar isAuthenticated={isAuthenticated} />
 
         <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-6 pt-40 pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
@@ -178,6 +161,14 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <div className="relative z-10">
           <MusicShowcase />
+        </div>
+
+        <div className="relative z-10">
+          <LinksShowcase />
+        </div>
+
+        <div className="relative z-10">
+          <PlanShowcase />
         </div>
       </main>
     </>
