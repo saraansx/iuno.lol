@@ -32,16 +32,16 @@ const COLS: { title: string; links: FootLink[] }[] = [
     title: "Contact",
     links: [
       { label: "Discord Server", href: SITE_CONFIG.links.discord, external: true },
-      { label: "Support Email" },
+      { label: "Support Email", href: "mailto:support@iuno.lol" },
     ],
   },
   {
     title: "Legal",
     links: [
-      { label: "Terms of Service" },
-      { label: "Privacy Policy" },
-      { label: "Copyright Policy" },
-      { label: "Refund Policy" },
+      { label: "Terms of Service", href: "/terms" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Copyright Policy", href: "/copyright" },
+      { label: "Refund Policy", href: "/refund" },
     ],
   },
 ];

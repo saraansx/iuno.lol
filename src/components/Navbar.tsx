@@ -28,7 +28,14 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
   }, [pathname]);
 
   React.useEffect(() => {
-    if (pathname !== '/pricing' && pathname !== '/') {
+    const hideOnScroll =
+      pathname === "/pricing" ||
+      pathname === "/" ||
+      pathname === "/terms" ||
+      pathname === "/privacy" ||
+      pathname === "/copyright" ||
+      pathname === "/refund";
+    if (!hideOnScroll) {
       setHidden(false);
       return;
     }

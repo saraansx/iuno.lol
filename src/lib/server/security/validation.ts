@@ -24,7 +24,7 @@ export function validatePassword(password: string): string | null {
 const RESERVED_USERNAMES = new Set([
   'api', 'auth', 'dashboard', 'register', 'signin',
   'login', 'logout', 'signup', 'signout', 'settings', 'account', 'profile',
-  'pricing', 'premium', 'upgrade', 'terms', 'privacy', 'about', 'contact',
+  'pricing', 'premium', 'upgrade', 'terms', 'privacy', 'copyright', 'refund', 'about', 'contact',
   'help', 'support', 'faq', 'blog', 'docs', 'explore', 'search', 'home',
   'admin', 'administrator', 'official', 'staff', 'team', 'mod', 'moderator',
   'security', 'system', 'root', 'iuno', 'billing', 'payment',
