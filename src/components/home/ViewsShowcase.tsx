@@ -332,12 +332,12 @@ export function ViewsDemo() {
               ))}
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <div className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1 overflow-visible">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <EyeIcon /> Total
                 </span>
-                <span className="text-[22px] font-normal text-white tracking-tight">
+                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.total + liveExtra} />
                 </span>
                 {floaters.map((f) => (
@@ -352,19 +352,19 @@ export function ViewsDemo() {
                   </motion.span>
                 ))}
               </div>
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-1">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <BarsIcon /> Avg / day
                 </span>
-                <span className="text-[22px] font-normal text-white tracking-tight">
+                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.avg} />
                 </span>
               </div>
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-1">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <PeakIcon /> Peak
                 </span>
-                <span className="text-[22px] font-normal text-white tracking-tight">
+                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.peak} />
                 </span>
                 <span className="text-[11px] font-mono text-white/30">{range.peakDay}</span>

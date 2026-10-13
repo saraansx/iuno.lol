@@ -16,7 +16,7 @@ const CHIP_SLOTS = [
 
 function Vinyl({ artwork }: { artwork: string }) {
   return (
-    <div className="relative w-[280px] h-[280px] md:w-[340px] md:h-[340px] shrink-0">
+    <div className="relative w-60 h-60 md:w-[340px] md:h-[340px] shrink-0">
       <div
         aria-hidden
         className="absolute -inset-10 rounded-full pointer-events-none"

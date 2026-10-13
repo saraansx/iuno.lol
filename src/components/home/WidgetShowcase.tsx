@@ -59,7 +59,7 @@ const SHOWCASE_BADGES = [
 
 function SpotifyCard() {
   return (
-    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/chanel.webp" alt="CHANEL by SAGELUNE" fill sizes="64px" className="object-cover" />
       </div>
@@ -78,7 +78,7 @@ function SpotifyCard() {
 
 function DiscordPresenceCard() {
   return (
-    <div className={`${CARD} w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
+    <div className={`${CARD} w-full max-w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
       {/* avatar-blur backdrop, like the live preset */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Image src="/showcase/mia.jpg" alt="" fill sizes="340px" className="w-full h-full object-cover opacity-35 blur-[12px] scale-125" />
@@ -147,7 +147,7 @@ function DiscordPresenceCard() {
 
 function GitHubCard() {
   return (
-    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-full border border-white/10">
         <Image src="/showcase/saraansx.jpg" alt="saraansx" fill sizes="64px" className="object-cover" />
       </div>
@@ -164,7 +164,7 @@ function GitHubCard() {
 
 function YouTubeCard() {
   return (
-    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-full max-w-[320px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/mrbeast.jpg" alt="MrBeast" fill sizes="64px" className="object-cover" />
       </div>
@@ -189,7 +189,7 @@ function YouTubeCard() {
 
 function ValorantCard() {
   return (
-    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-full max-w-[320px] p-3.5 flex items-center gap-3.5`}>
       <Thumb gradient="linear-gradient(135deg,#1f6f5c,#0d2420)">
         <ValorantMark size={26} />
       </Thumb>
@@ -209,7 +209,7 @@ function ValorantCard() {
 
 function PinterestCard() {
   return (
-    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/ohjoy.jpg" alt="Oh Joy!" fill sizes="64px" className="object-cover" />
       </div>
@@ -350,3 +350,4 @@ export default function WidgetShowcase() {
     </section>
   );
 }
+
