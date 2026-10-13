@@ -194,13 +194,13 @@ function ValorantCard() {
         <ValorantMark size={26} />
       </Thumb>
       <div className="min-w-0 flex flex-col gap-1.5">
-        <span className="text-[14px] text-white/95 tracking-tight">leni#curet</span>
+        <span className="text-[14px] text-white/95 tracking-tight">TenZ</span>
         <div className="flex items-center gap-3 text-[11.5px] text-white/60">
-          <span>Ascendant 1</span>
+          <span>Radiant</span>
           <span className="text-white/30">•</span>
-          <span>11 RR</span>
+          <span>Sentinels</span>
           <span className="text-white/30">•</span>
-          <span>Level 33</span>
+          <span>Duelist</span>
         </div>
       </div>
     </div>
