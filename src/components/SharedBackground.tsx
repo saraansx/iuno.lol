@@ -19,7 +19,6 @@ const SharedBackground = () => {
         intensity={0.4}
         bandWidth={6}
         transparent
-        allowMobile
       />
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, animate, useMotionValue } from "framer-motion";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -151,84 +151,6 @@ interface Floater {
   n: number;
 }
 
-type Pt = { x: number; y: number };
-
-const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
-
-/** Per-frame tween between point arrays so line, area and dot move in lockstep. */
-function useMorphedPts(target: Pt[], duration = 850) {
-  const [display, setDisplay] = useState<Pt[]>(target);
-  const ref = useRef<Pt[]>(target);
-
-  useEffect(() => {
-    const from = ref.current;
-    if (from === target) return;
-    const start = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      const t = Math.min(1, (now - start) / duration);
-      const e = easeInOutCubic(t);
-      const next = target.map((p, i) => {
-        const f = from[i] ?? p;
-        return { x: f.x + (p.x - f.x) * e, y: f.y + (p.y - f.y) * e };
-      });
-      ref.current = next;
-      setDisplay(next);
-      if (t < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-
-  return display;
-}
-
-function ViewsChart({ rangeIdx }: { rangeIdx: number }) {
-  const target = useMemo(() => toXY(RANGES[rangeIdx].points), [rangeIdx]);
-  const pts = useMorphedPts(target);
-  const line = smoothLine(pts);
-  const area = `${line} L ${W - PAD_X},${H - PAD_BOTTOM} L ${PAD_X},${H - PAD_BOTTOM} Z`;
-  const points = RANGES[rangeIdx].points;
-  const peakIdx = points.indexOf(Math.max(...points));
-  const peak = pts[peakIdx] ?? pts[0];
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" preserveAspectRatio="none" style={{ height: 190 }}>
-      <defs>
-        <linearGradient id="views-area" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#5b6cf5" stopOpacity="0.3" />
-          <stop offset="95%" stopColor="#5b6cf5" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {[0.25, 0.5, 0.75].map((f) => (
-        <line
-          key={f}
-          x1={PAD_X}
-          x2={W - PAD_X}
-          y1={PAD_TOP + f * (H - PAD_TOP - PAD_BOTTOM)}
-          y2={PAD_TOP + f * (H - PAD_TOP - PAD_BOTTOM)}
-          stroke="rgba(255,255,255,0.05)"
-          strokeWidth="1"
-          strokeDasharray="3 3"
-        />
-      ))}
-      <path d={area} fill="url(#views-area)" />
-      <path d={line} fill="none" stroke="#5b6cf5" strokeWidth="2" strokeLinecap="round" />
-      <circle cx={peak.x} cy={peak.y} r="4" fill="#0f0f0f" stroke="#5b6cf5" strokeWidth="2.5" />
-      <motion.circle
-        cx={peak.x}
-        cy={peak.y}
-        fill="none"
-        stroke="#5b6cf5"
-        strokeWidth="1.5"
-        initial={{ r: 4, opacity: 0.8 }}
-        animate={{ r: [4, 14], opacity: [0.8, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
-      />
-    </svg>
-  );
-}
-
 export function ViewsDemo() {
   const [rangeIdx, setRangeIdx] = useState(0);
   const [cursor, setCursor] = useState({ x: 26, y: 18, pressed: false });
@@ -236,6 +158,11 @@ export function ViewsDemo() {
   const [floaters, setFloaters] = useState<Floater[]>([]);
 
   const range = RANGES[rangeIdx];
+  const pts = toXY(range.points);
+  const line = smoothLine(pts);
+  const area = `${line} L ${W - PAD_X},${H - PAD_BOTTOM} L ${PAD_X},${H - PAD_BOTTOM} Z`;
+  const peakIdx = range.points.indexOf(Math.max(...range.points));
+  const peak = pts[peakIdx];
 
   useEffect(() => {
     let stop = false;
@@ -342,27 +269,75 @@ export function ViewsDemo() {
             </div>
 
             <div className="relative">
-              <ViewsChart rangeIdx={rangeIdx} />
+              <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto block" preserveAspectRatio="none" style={{ height: 190 }}>
+                <defs>
+                  <linearGradient id="views-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#5b6cf5" stopOpacity="0.3" />
+                    <stop offset="95%" stopColor="#5b6cf5" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                {[0.25, 0.5, 0.75].map((f) => (
+                  <line
+                    key={f}
+                    x1={PAD_X}
+                    x2={W - PAD_X}
+                    y1={PAD_TOP + f * (H - PAD_TOP - PAD_BOTTOM)}
+                    y2={PAD_TOP + f * (H - PAD_TOP - PAD_BOTTOM)}
+                    stroke="rgba(255,255,255,0.05)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                  />
+                ))}
+                <motion.path
+                  d={area}
+                  animate={{ d: area }}
+                  transition={{ duration: 0.9, ease: "easeInOut" }}
+                  fill="url(#views-area)"
+                />
+                <motion.path
+                  d={line}
+                  animate={{ d: line }}
+                  transition={{ duration: 0.9, ease: "easeInOut" }}
+                  fill="none"
+                  stroke="#5b6cf5"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <motion.circle
+                  cx={peak.x}
+                  cy={peak.y}
+                  r="4"
+                  fill="#0f0f0f"
+                  stroke="#5b6cf5"
+                  strokeWidth="2.5"
+                  animate={{ cx: peak.x, cy: peak.y }}
+                  transition={{ duration: 0.9, ease: "easeInOut" }}
+                />
+                <motion.circle
+                  cx={peak.x}
+                  cy={peak.y}
+                  fill="none"
+                  stroke="#5b6cf5"
+                  strokeWidth="1.5"
+                  initial={{ r: 4, opacity: 0.8 }}
+                  animate={{ cx: peak.x, cy: peak.y, r: [4, 14], opacity: [0.8, 0] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                />
+              </svg>
             </div>
 
-            <motion.div
-              key={range.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="flex items-center justify-between text-[11px] font-mono text-white/30 px-1"
-            >
+            <div className="flex items-center justify-between text-[11px] font-mono text-white/30 px-1">
               {range.xLabels.map((l, i) => (
-                <span key={i}>{l}</span>
+                <span key={`${range.id}-${i}`}>{l}</span>
               ))}
-            </motion.div>
+            </div>
 
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="relative rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1 overflow-visible">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <EyeIcon /> Total
                 </span>
-                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
+                <span className="text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.total + liveExtra} />
                 </span>
                 {floaters.map((f) => (
@@ -377,19 +352,19 @@ export function ViewsDemo() {
                   </motion.span>
                 ))}
               </div>
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-1">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <BarsIcon /> Avg / day
                 </span>
-                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
+                <span className="text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.avg} />
                 </span>
               </div>
-              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-3 sm:p-4 flex flex-col gap-1">
+              <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex flex-col gap-1">
                 <span className="flex items-center gap-1.5 text-[11.5px] font-light text-white/40">
                   <PeakIcon /> Peak
                 </span>
-                <span className="text-lg sm:text-[22px] font-normal text-white tracking-tight">
+                <span className="text-[22px] font-normal text-white tracking-tight">
                   <AnimatedNumber value={range.peak} />
                 </span>
                 <span className="text-[11px] font-mono text-white/30">{range.peakDay}</span>
