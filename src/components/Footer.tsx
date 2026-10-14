@@ -26,7 +26,7 @@ const COLS: { title: string; links: FootLink[] }[] = [
   },
   {
     title: "Resources",
-    links: [{ label: "Help Center" }, { label: "Changelog" }],
+    links: [{ label: "Help Center" }, { label: "Changelog", href: "/changelog" }],
   },
   {
     title: "Contact",

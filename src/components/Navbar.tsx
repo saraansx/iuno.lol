@@ -32,6 +32,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
       pathname === "/pricing" ||
       pathname === "/" ||
       pathname === "/leaderboard" ||
+      pathname === "/changelog" ||
       pathname === "/terms" ||
       pathname === "/privacy" ||
       pathname === "/copyright" ||
