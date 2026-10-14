@@ -59,7 +59,7 @@ const SHOWCASE_BADGES = [
 
 function SpotifyCard() {
   return (
-    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/chanel.webp" alt="CHANEL by SAGELUNE" fill sizes="64px" className="object-cover" />
       </div>
@@ -78,7 +78,7 @@ function SpotifyCard() {
 
 function DiscordPresenceCard() {
   return (
-    <div className={`${CARD} w-full max-w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
+    <div className={`${CARD} w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
       {/* avatar-blur backdrop, like the live preset */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Image src="/showcase/mia.jpg" alt="" fill sizes="340px" className="w-full h-full object-cover opacity-35 blur-[12px] scale-125" />
@@ -147,7 +147,7 @@ function DiscordPresenceCard() {
 
 function GitHubCard() {
   return (
-    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-full border border-white/10">
         <Image src="/showcase/saraansx.jpg" alt="saraansx" fill sizes="64px" className="object-cover" />
       </div>
@@ -164,7 +164,7 @@ function GitHubCard() {
 
 function YouTubeCard() {
   return (
-    <div className={`${CARD} w-full max-w-[320px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/mrbeast.jpg" alt="MrBeast" fill sizes="64px" className="object-cover" />
       </div>
@@ -189,7 +189,7 @@ function YouTubeCard() {
 
 function ValorantCard() {
   return (
-    <div className={`${CARD} w-full max-w-[320px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-[320px] p-3.5 flex items-center gap-3.5`}>
       <Thumb gradient="linear-gradient(135deg,#1f6f5c,#0d2420)">
         <ValorantMark size={26} />
       </Thumb>
@@ -209,7 +209,7 @@ function ValorantCard() {
 
 function PinterestCard() {
   return (
-    <div className={`${CARD} w-full max-w-[300px] p-3.5 flex items-center gap-3.5`}>
+    <div className={`${CARD} w-[300px] p-3.5 flex items-center gap-3.5`}>
       <div className="relative w-[64px] h-[64px] shrink-0 overflow-hidden rounded-2xl border border-white/10">
         <Image src="/showcase/ohjoy.jpg" alt="Oh Joy!" fill sizes="64px" className="object-cover" />
       </div>
@@ -233,7 +233,8 @@ function PinterestCard() {
 
 interface FloatSpec {
   node: ReactNode;
-  className: string; // absolute position
+  className: string; // absolute position (mobile-first, lg = desktop)
+  origin: string; // transform-origin for the mobile down-scale
   rotate: number;
   depth: number; // 0 (back/dim) .. 1 (front)
   delay: number;
@@ -243,7 +244,7 @@ function Floating({ spec }: { spec: FloatSpec }) {
   const opacity = 0.28 + spec.depth * 0.4;
   return (
     <motion.div
-      className={`absolute ${spec.className} pointer-events-none`}
+      className={`absolute ${spec.className} ${spec.origin} scale-[0.6] sm:scale-[0.72] md:scale-[0.85] lg:scale-100 pointer-events-none`}
       style={{ opacity, filter: `blur(${(1 - spec.depth) * 1.2}px)` }}
       initial={{ opacity: 0, y: 24, scale: 0.96 }}
       whileInView={{ opacity, y: 0, scale: 1 }}
@@ -266,17 +267,17 @@ function Floating({ spec }: { spec: FloatSpec }) {
 /* -------------------------------------------------------------------------- */
 
 const FLOATS: FloatSpec[] = [
-  { node: <SpotifyCard />, className: "left-[1%] top-[16%]", rotate: -7, depth: 0.75, delay: 0.05 },
-  { node: <DiscordPresenceCard />, className: "left-1/2 -translate-x-1/2 top-[2%]", rotate: 2, depth: 0.4, delay: 0.12 },
-  { node: <GitHubCard />, className: "right-[1%] top-[14%]", rotate: 6, depth: 0.7, delay: 0.18 },
-  { node: <YouTubeCard />, className: "left-[3%] bottom-[12%]", rotate: 5, depth: 0.55, delay: 0.1 },
-  { node: <ValorantCard />, className: "left-1/2 -translate-x-1/2 bottom-[1%]", rotate: -2, depth: 0.85, delay: 0.22 },
-  { node: <PinterestCard />, className: "right-[2%] bottom-[14%]", rotate: -5, depth: 0.5, delay: 0.15 },
+  { node: <SpotifyCard />, className: "left-[1%] top-[16%]", origin: "origin-top-left", rotate: -7, depth: 0.75, delay: 0.05 },
+  { node: <DiscordPresenceCard />, className: "left-1/2 -translate-x-1/2 top-[2%]", origin: "origin-top", rotate: 2, depth: 0.4, delay: 0.12 },
+  { node: <GitHubCard />, className: "right-[1%] top-[14%]", origin: "origin-top-right", rotate: 6, depth: 0.7, delay: 0.18 },
+  { node: <YouTubeCard />, className: "left-[3%] bottom-[12%]", origin: "origin-bottom-left", rotate: 5, depth: 0.55, delay: 0.1 },
+  { node: <ValorantCard />, className: "left-1/2 -translate-x-1/2 bottom-[1%]", origin: "origin-bottom", rotate: -2, depth: 0.85, delay: 0.22 },
+  { node: <PinterestCard />, className: "right-[2%] bottom-[14%]", origin: "origin-bottom-right", rotate: -5, depth: 0.5, delay: 0.15 },
 ];
 
 export default function WidgetShowcase() {
   return (
-    <section id="widgets" className="relative overflow-hidden py-24 lg:py-0 lg:min-h-[860px] flex items-center">
+    <section id="widgets" className="relative overflow-hidden py-24 min-h-[700px] sm:min-h-[740px] lg:py-0 lg:min-h-[860px] flex items-center">
       {/* indigo ambience to match site theme */}
       <div
         aria-hidden
@@ -286,8 +287,8 @@ export default function WidgetShowcase() {
             "radial-gradient(55% 45% at 50% 55%, rgba(91,108,245,0.16) 0%, rgba(91,108,245,0.05) 50%, transparent 70%)",
         }}
       />
-      {/* floating cards — desktop only */}
-      <div className="hidden lg:block absolute inset-0 max-w-7xl mx-auto">
+      {/* floating cards */}
+      <div className="block absolute inset-0 max-w-7xl mx-auto">
         {FLOATS.map((spec, i) => (
           <Floating key={i} spec={spec} />
         ))}
@@ -339,13 +340,6 @@ export default function WidgetShowcase() {
           Plug in live widgets for your music, games, code, videos and socials.
           They update on their own, so your profile never sits still.
         </motion.p>
-
-        {/* mobile card stack */}
-        <div className="lg:hidden flex flex-col items-center gap-4 mt-12 w-full">
-          <div className="opacity-90"><SpotifyCard /></div>
-          <div className="opacity-90"><ValorantCard /></div>
-          <div className="opacity-90"><DiscordPresenceCard /></div>
-        </div>
       </div>
     </section>
   );

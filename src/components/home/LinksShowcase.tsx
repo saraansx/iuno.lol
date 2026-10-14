@@ -131,7 +131,7 @@ function useDragDemo() {
 }
 
 function useCopyDemo() {
-  const [pos, setPos] = useState({ left: "104%", top: "60%" });
+  const [pos, setPos] = useState({ left: "70%", top: "62%" });
   const [down, setDown] = useState(false);
   const [copied, setCopied] = useState(false);
   const [clicks, setClicks] = useState(0);
@@ -142,7 +142,7 @@ function useCopyDemo() {
     (async () => {
       await wait(2000);
       while (!stop) {
-        setPos({ left: "84%", top: "50%" });
+        setPos({ left: "84%", top: "48%" });
         await wait(850);
         if (stop) return;
         setDown(true);
@@ -154,7 +154,7 @@ function useCopyDemo() {
         await wait(1900);
         if (stop) return;
         setCopied(false);
-        setPos({ left: "104%", top: "60%" });
+        setPos({ left: "62%", top: "62%" });
         await wait(1400);
       }
     })();

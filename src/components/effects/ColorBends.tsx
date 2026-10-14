@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { MAX_COLORS, COLOR_BENDS_FRAG, COLOR_BENDS_VERT } from "@/components/effects/colorBendsShader";
-import { shouldSkipHeavyFx } from "@/lib/heavy-fx";
+import { prefersReducedMotion, shouldSkipHeavyFx } from "@/lib/heavy-fx";
 import "./ColorBends.css";
 
 type ColorBendsProps = {
@@ -23,6 +23,8 @@ type ColorBendsProps = {
   iterations?: number;
   intensity?: number;
   bandWidth?: number;
+  /** Render on phones/tablets too (still respects prefers-reduced-motion). */
+  allowMobile?: boolean;
 };
 
 const frag = COLOR_BENDS_FRAG;
@@ -45,6 +47,7 @@ export default function ColorBends({
   iterations = 1,
   intensity = 1.5,
   bandWidth = 6,
+  allowMobile = false,
 }: ColorBendsProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -58,7 +61,8 @@ export default function ColorBends({
   const pointerSmoothRef = useRef<number>(8);
 
   useEffect(() => {
-    if (shouldSkipHeavyFx()) return;
+    // allowMobile renders on phones too, but still respects reduced-motion.
+    if (allowMobile ? prefersReducedMotion() : shouldSkipHeavyFx()) return;
 
     const container = containerRef.current!;
     const scene = new THREE.Scene();

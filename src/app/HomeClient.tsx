@@ -143,11 +143,6 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             className="relative w-full lg:w-[125%]"
           >
             <div className="home-showcase relative w-full">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute -inset-x-24 -top-24 -bottom-10 blur-[90px]"
-                style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
-              />
               <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
                 <div className="flex items-center gap-2 h-9 px-4 bg-[#0e0e10] border-b border-white/5">
                   <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
