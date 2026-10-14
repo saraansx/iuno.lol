@@ -7,8 +7,7 @@ export function shouldSkipHeavyFx(): boolean {
     return false;
   }
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const phone = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
-  return reducedMotion || phone;
+  return reducedMotion;
 }
 
 export function prefersReducedMotion(): boolean {
