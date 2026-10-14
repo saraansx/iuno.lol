@@ -4,7 +4,7 @@ import ColorBends from "./effects/ColorBends";
 
 const SharedBackground = () => {
   return (
-    <div className="fixed inset-0 w-full h-full z-0 blur-[3px] pointer-events-none">
+    <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
       <ColorBends
         colors={["#5b6cf5", "#000000", "#8b93e8"]}
         rotation={90}
@@ -18,6 +18,7 @@ const SharedBackground = () => {
         iterations={1}
         intensity={0.4}
         bandWidth={6}
+        maxPixelRatio={1.25}
         transparent
       />
     </div>
