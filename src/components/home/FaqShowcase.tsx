@@ -26,10 +26,6 @@ const FAQS = [
     q: "Do profiles track views?",
     a: "Every profile counts views and likes. The leaderboard ranks the top 100 creators so good pages get seen.",
   },
-  {
-    q: "Is there a Discord server?",
-    a: "Yes. Join from the navbar to get help, vote on features and sync your profile badges.",
-  },
 ];
 
 function FaqRow({

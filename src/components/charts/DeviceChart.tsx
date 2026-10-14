@@ -33,13 +33,13 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
         <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>How visitors break down by device type in the last 30 days.</p>
       </div>
 
-      <div className="h-48 w-full relative mt-4">
+      <div className="w-full relative mt-4" style={{ height: 192, minHeight: 192, minWidth: 80 }}>
         {!isMounted ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%" minWidth={80} minHeight={80}>
+          <ResponsiveContainer width="100%" height={192} minWidth={80} minHeight={80}>
             <PieChart>
             <Tooltip 
               cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 1 }}
