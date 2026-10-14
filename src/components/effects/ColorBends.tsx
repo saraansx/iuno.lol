@@ -3,7 +3,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { MAX_COLORS, COLOR_BENDS_FRAG, COLOR_BENDS_VERT } from "@/components/effects/colorBendsShader";
-import { shouldSkipHeavyFx } from "@/lib/heavy-fx";
 import "./ColorBends.css";
 
 type ColorBendsProps = {
@@ -60,8 +59,6 @@ export default function ColorBends({
   const pointerSmoothRef = useRef<number>(8);
 
   useEffect(() => {
-    if (shouldSkipHeavyFx()) return;
-
     const container = containerRef.current!;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);

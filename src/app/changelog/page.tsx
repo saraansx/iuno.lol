@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "What shipped recently on iuno.lol.",
 };
 
-const OWNER = "saraansx";
+const OWNER = "iunolol";
 const REPO = "iuno.lol";
 
 interface GhCommit {
@@ -22,7 +22,6 @@ interface GhCommit {
 interface Item {
   sha: string;
   time: string;
-  label: string;
   text: string;
 }
 
@@ -31,29 +30,10 @@ const SKIP = /^(merge\b|update(\s|$)[^:]*$)/i;
 function classify(raw: string): Item | null {
   const firstLine = raw.split("\n")[0].trim();
   if (!firstLine || SKIP.test(firstLine)) return null;
-  const m = firstLine.match(/^([a-z]+)(\(.+\))?(!)?:\s*(.+)$/i);
-  if (!m) return { sha: "", time: "", label: "Update", text: firstLine };
-  const type = m[1].toLowerCase();
-  const label =
-    type === "feat" ? "New" : type === "fix" ? "Fix" : type === "perf" ? "Faster" : type === "revert" ? "Revert" : "Update";
-  const text = m[4].trim();
+  const m = firstLine.match(/^[a-z]+(\(.+\))?(!)?:\s*(.+)$/i);
+  const text = m ? m[3].trim() : firstLine;
   if (!text) return null;
-  return { sha: "", time: "", label, text: text.charAt(0).toUpperCase() + text.slice(1) };
-}
-
-function labelColor(label: string) {
-  switch (label) {
-    case "New":
-      return "bg-[#5b6cf5]/15 border-[#5b6cf5]/30 text-[#aab2ff]";
-    case "Fix":
-      return "bg-[#4ade80]/10 border-[#4ade80]/25 text-[#4ade80]";
-    case "Faster":
-      return "bg-[#facc15]/10 border-[#facc15]/25 text-[#facc15]";
-    case "Revert":
-      return "bg-[#f87171]/10 border-[#f87171]/25 text-[#f87171]";
-    default:
-      return "bg-white/[0.05] border-white/10 text-white/60";
-  }
+  return { sha: "", time: "", text: text.charAt(0).toUpperCase() + text.slice(1) };
 }
 
 function dayLabel(iso: string) {
@@ -65,7 +45,7 @@ function dayLabel(iso: string) {
     a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   if (sameDay(d, today)) return "Today";
   if (sameDay(d, yesterday)) return "Yesterday";
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
 async function getChanges(): Promise<{ day: string; items: Item[] }[]> {
@@ -73,7 +53,8 @@ async function getChanges(): Promise<{ day: string; items: Item[] }[]> {
     Accept: "application/vnd.github+json",
     "User-Agent": "iuno-changelog/1.0",
   };
-  if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+  if (process.env.GITHUB_CHANGELOG_TOKEN)
+    headers.Authorization = `Bearer ${process.env.GITHUB_CHANGELOG_TOKEN}`;
   const res = await fetch(
     `https://api.github.com/repos/${OWNER}/${REPO}/commits?per_page=40`,
     { headers, next: { revalidate: 3600 } }
@@ -94,7 +75,8 @@ async function getChanges(): Promise<{ day: string; items: Item[] }[]> {
   }
   return [...byDay.entries()]
     .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-    .map(([day, items]) => ({ day, items }));
+    .map(([day, items]) => ({ day, items }))
+    .filter((g) => g.items.length > 0);
 }
 
 export default async function ChangelogPage() {
@@ -102,7 +84,7 @@ export default async function ChangelogPage() {
   const groups = await getChanges();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-black flex flex-col">
       <div
         aria-hidden="true"
         className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
@@ -126,38 +108,42 @@ export default async function ChangelogPage() {
         >
           What shipped
         </h1>
-        <p className="mt-4 max-w-md text-[15px] text-white/45 leading-relaxed">
-          Pulled straight from the repo. Push to main and it shows up here within the hour.
-        </p>
       </section>
 
-      <main className="flex-1 w-full max-w-3xl mx-auto px-6 pb-20">
+      <main className="flex-1 w-full max-w-3xl mx-auto px-6 pb-24">
         {groups.length === 0 ? (
-          <div className="rounded-[20px] border border-white/5 bg-[#0c0c0c] p-8 text-center text-[13.5px] font-light text-white/40">
-            Nothing readable yet. Use messages like feat: add dark mode and they will show up here.
+          <div className="rounded-[20px] border border-white/[0.07] bg-[#151515] p-10 text-center text-[13.5px] font-light text-white/40">
+            Nothing here yet. Updates show up within the hour of a push.
           </div>
         ) : (
           <div className="flex flex-col gap-10">
             {groups.map((g) => (
-              <div key={g.day}>
-                <p className="text-[12px] font-medium text-white/40 mb-3">{dayLabel(g.items[0].time)}</p>
-                <div className="rounded-[20px] border border-white/5 bg-[#0c0c0c] px-6">
-                  {g.items.map((item, i) => (
-                    <div
-                      key={item.sha + i}
-                      className={`flex items-center gap-4 py-4 ${i < g.items.length - 1 ? "border-b border-white/[0.06]" : ""}`}
+              <section key={g.day}>
+                <p className="mb-4 text-[13px] font-medium text-white/45">
+                  {dayLabel(g.items[0].time)}
+                </p>
+                <div className="rounded-[20px] border border-white/[0.07] bg-[#151515] px-6 py-5 flex flex-col gap-3.5">
+                  {g.items.map((item) => (
+                    <a
+                      key={item.sha + item.text}
+                      href={`https://github.com/${OWNER}/${REPO}/commit/${item.sha}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex gap-3 text-[14px] font-light leading-relaxed text-white/65 transition-colors hover:text-white/95"
                     >
-                      <span
-                        className={`shrink-0 text-[11px] font-medium rounded-full border px-2.5 py-0.5 ${labelColor(item.label)}`}
-                      >
-                        {item.label}
+                      <span className="select-none text-white/25 transition-colors group-hover:text-[#5b6cf5]">
+                        -
                       </span>
-                      <span className="flex-1 min-w-0 text-[13.5px] font-light text-white/80">{item.text}</span>
-                      <span className="shrink-0 text-[11px] font-mono text-white/25">{item.sha}</span>
-                    </div>
+                      <span className="min-w-0">
+                        {item.text}
+                        <span className="ml-2 font-mono text-[11px] text-white/20 transition-colors group-hover:text-white/45">
+                          {item.sha}
+                        </span>
+                      </span>
+                    </a>
                   ))}
                 </div>
-              </div>
+              </section>
             ))}
           </div>
         )}

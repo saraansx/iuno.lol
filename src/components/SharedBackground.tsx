@@ -4,7 +4,13 @@ import ColorBends from "./effects/ColorBends";
 
 const SharedBackground = () => {
   return (
-    <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
+    <div
+      className="fixed inset-0 w-full h-full z-0 pointer-events-none"
+      style={{
+        background:
+          "radial-gradient(120% 100% at 20% 10%, #5b6cf5 0%, #080808 55%, #000000 100%)",
+      }}
+    >
       <ColorBends
         colors={["#5b6cf5", "#000000", "#8b93e8"]}
         rotation={90}

@@ -8,6 +8,7 @@ export default function ConditionalBackground() {
 
   if (
     pathname === "/pricing" ||
+    pathname === "/changelog" ||
     pathname === "/terms" ||
     pathname === "/privacy" ||
     pathname === "/copyright" ||
