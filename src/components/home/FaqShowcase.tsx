@@ -99,7 +99,7 @@ function FaqRow({
 }
 
 export default function FaqShowcase() {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
     <section id="faq" className="relative overflow-hidden py-24 lg:py-32">
