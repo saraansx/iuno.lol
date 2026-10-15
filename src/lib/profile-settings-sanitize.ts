@@ -178,12 +178,13 @@ export function sanitizeProfileSettings(setData: Record<string, unknown>) {
         delete setData[key];
         continue;
       }
-      const hex = value.trim().toLowerCase();
-      if (!HEX_COLOR.test(hex)) {
+      const parts = value.split(",").map((part) => part.trim().toLowerCase());
+      const maxParts = key === "borderEffectColor" ? 2 : 1;
+      if (parts.length > maxParts || parts.some((part) => !HEX_COLOR.test(part))) {
         delete setData[key];
         continue;
       }
-      setData[key] = hex;
+      setData[key] = parts.join(",");
     }
   }
 
