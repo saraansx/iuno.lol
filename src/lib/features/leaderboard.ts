@@ -1,6 +1,7 @@
 import "server-only";
 import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { redis } from "@/lib/redis";
 import { readWidgetCache, writeWidgetCache } from "@/lib/widget-cache";
 
 export const LEADERBOARD_CATEGORIES = ["views", "likes", "comments", "badges", "aliases"] as const;
@@ -104,4 +105,18 @@ export async function getLeaderboard(
   const fresh = await queryLeaderboard(category, period);
   await writeWidgetCache(key, fresh, CACHE_TTL_SECONDS);
   return fresh;
+}
+
+export async function invalidateLeaderboardCache(): Promise<void> {
+  try {
+    const pipe = redis.pipeline();
+    for (const category of LEADERBOARD_CATEGORIES) {
+      for (const period of LEADERBOARD_PERIODS) {
+        pipe.del(`leaderboard:${category}:${period}`);
+      }
+    }
+    await pipe.exec();
+  } catch (err) {
+    console.warn("[leaderboard] invalidate failed:", err instanceof Error ? err.message : err);
+  }
 }

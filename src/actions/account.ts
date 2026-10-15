@@ -19,6 +19,7 @@ import { MAX_PASSKEYS, deletePasskey, finishPasskeyRegistration, listPasskeys, s
 import type { PublicKeyCredentialCreationOptionsJSON, RegistrationResponseJSON } from "@simplewebauthn/server";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
+import { invalidateLeaderboardCache } from "@/lib/features/leaderboard";
 import { UserFacingError } from "@/lib/errors";
 import { isPremiumActive } from "@/lib/premium";
 
@@ -108,6 +109,7 @@ export async function updateUsername(raw: string): Promise<Result<{ username: st
       refreshProfile(user.username),
       refreshProfile(username),
       invalidateLiveStatsCache(user.username),
+      invalidateLeaderboardCache(),
       ...aliases.map((a) => refreshProfile(a.alias)),
     ]);
     revalidatePath("/dashboard", "layout");
@@ -205,6 +207,7 @@ export async function swapAliasWithUsername(id: number): Promise<Result<AliasSta
     await Promise.all([
       refreshProfile(row.alias),
       invalidateLiveStatsCache(oldUsername),
+      invalidateLeaderboardCache(),
       ...aliases.map((a) => refreshProfile(a.alias)),
     ]);
     revalidatePath("/dashboard", "layout");
