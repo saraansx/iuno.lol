@@ -5,9 +5,6 @@ import { motion } from "framer-motion";
 import type { ReactNode } from "react";
 import OverflowPingPong from "@/components/profile/widgets/OverflowPingPong";
 
-/* -------------------------------------------------------------------------- */
-/*  Inline brand marks                                                        */
-/* -------------------------------------------------------------------------- */
 
 function SpotifyMark({ size = 14 }: { size?: number }) {
   return (
@@ -25,9 +22,6 @@ function ValorantMark({ size = 14 }: { size?: number }) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Card shell                                                                */
-/* -------------------------------------------------------------------------- */
 
 const CARD =
   "bg-[#101010]/85 backdrop-blur-md border border-white/10 rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.55)]";
@@ -43,9 +37,6 @@ function Thumb({ gradient, children, round = "rounded-2xl" }: { gradient: string
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Mock widget cards (static — purely decorative)                            */
-/* -------------------------------------------------------------------------- */
 
 const VSCODE_LOGO = "/showcase/vscode.svg";
 
@@ -79,7 +70,7 @@ function SpotifyCard() {
 function DiscordPresenceCard() {
   return (
     <div className={`${CARD} w-[340px] h-[104px] p-4 flex items-center justify-between relative overflow-hidden`}>
-      {/* avatar-blur backdrop, like the live preset */}
+      {}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <Image src="/showcase/mia.jpg" alt="" fill sizes="340px" className="w-full h-full object-cover opacity-35 blur-[12px] scale-125" />
         <div className="absolute inset-0 bg-[#101010]/50" />
@@ -225,15 +216,12 @@ function PinterestCard() {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Floating wrapper                                                          */
-/* -------------------------------------------------------------------------- */
 
 interface FloatSpec {
   node: ReactNode;
-  className: string; // absolute position
+  className: string;
   rotate: number;
-  depth: number; // 0 (back/dim) .. 1 (front)
+  depth: number;
   delay: number;
 }
 
@@ -259,9 +247,6 @@ function Floating({ spec }: { spec: FloatSpec }) {
   );
 }
 
-/* -------------------------------------------------------------------------- */
-/*  Section                                                                   */
-/* -------------------------------------------------------------------------- */
 
 const FLOATS: FloatSpec[] = [
   { node: <SpotifyCard />, className: "left-[1%] top-[16%]", rotate: -7, depth: 0.75, delay: 0.05 },
@@ -275,7 +260,7 @@ const FLOATS: FloatSpec[] = [
 export default function WidgetShowcase() {
   return (
     <section id="widgets" className="relative overflow-hidden py-24 lg:py-0 lg:min-h-[860px] flex items-center">
-      {/* indigo ambience to match site theme */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-0"
@@ -284,14 +269,14 @@ export default function WidgetShowcase() {
             "radial-gradient(55% 45% at 50% 55%, rgba(91,108,245,0.16) 0%, rgba(91,108,245,0.05) 50%, transparent 70%)",
         }}
       />
-      {/* floating cards — desktop only */}
+      {}
       <div className="hidden lg:block absolute inset-0 max-w-7xl mx-auto">
         {FLOATS.map((spec, i) => (
           <Floating key={i} spec={spec} />
         ))}
       </div>
 
-      {/* center vignette so the heading reads cleanly over the cards */}
+      {}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[5]"
@@ -301,7 +286,7 @@ export default function WidgetShowcase() {
         }}
       />
 
-      {/* copy */}
+      {}
       <div className="relative z-10 w-full max-w-2xl mx-auto px-6 text-center flex flex-col items-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
@@ -338,7 +323,7 @@ export default function WidgetShowcase() {
           They update on their own, so your profile never sits still.
         </motion.p>
 
-        {/* mobile card stack */}
+        {}
         <div className="lg:hidden flex flex-col items-center gap-4 mt-12 w-full">
           <div className="opacity-90"><SpotifyCard /></div>
           <div className="opacity-90"><ValorantCard /></div>

@@ -32,6 +32,8 @@ const EMBER_COLORS = ["#ffdd88", "#ff9d3c", "#ff5b21", "#ffc46b"];
 const PETAL_COLORS = ["#ffb7c9", "#ff8fab", "#ffc2d4", "#f9a8d4"];
 const FIREWORK_COLORS = ["#5b6cf5", "#f472b6", "#4ade80", "#facc15", "#38bdf8", "#ffffff"];
 
+const SOUND_POOL_SIZE = 3;
+
 const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 function drawHeart(ctx: CanvasRenderingContext2D, size: number) {
@@ -225,29 +227,76 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const resize = () => {
+    let lastW = -1;
+    let lastH = -1;
+    let lastDpr = -1;
+    const applyResize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = window.innerWidth * dpr;
-      canvas.height = window.innerHeight * dpr;
-      canvas.style.width = `${window.innerWidth}px`;
-      canvas.style.height = `${window.innerHeight}px`;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      if (w === lastW && h === lastH && dpr === lastDpr) return;
+      lastW = w;
+      lastH = h;
+      lastDpr = dpr;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
-    resize();
+    let resizeRaf: number | null = null;
+    const resize = () => {
+      if (resizeRaf !== null) return;
+      resizeRaf = requestAnimationFrame(() => {
+        resizeRaf = null;
+        applyResize();
+      });
+    };
+    applyResize();
     window.addEventListener("resize", resize);
 
-    let warmAudio: HTMLAudioElement | null = null;
-    const soundUrl = clickSoundUrl(soundRef.current);
-    if (soundUrl) {
-      try {
-        warmAudio = new Audio(soundUrl);
-        warmAudio.preload = "auto";
-        warmAudio.volume = 0.7;
-        warmAudio.load();
-      } catch {
-        warmAudio = null;
+    let audioPool: HTMLAudioElement[] = [];
+    let audioPoolUrl: string | null = null;
+    let audioIdx = 0;
+
+    const playSound = () => {
+      const url = clickSoundUrl(soundRef.current);
+      if (!url) return;
+      if (url !== audioPoolUrl) {
+        try {
+          const next: HTMLAudioElement[] = [];
+          for (let i = 0; i < SOUND_POOL_SIZE; i++) {
+            const el = new Audio(url);
+            el.preload = "auto";
+            el.volume = 0.7;
+            el.load();
+            next.push(el);
+          }
+          for (const el of audioPool) {
+            try {
+              el.pause();
+            } catch {
+            }
+          }
+          audioPool = next;
+          audioPoolUrl = url;
+          audioIdx = 0;
+        } catch {
+          audioPool = [];
+          audioPoolUrl = null;
+          return;
+        }
       }
-    }
+      if (audioPool.length === 0) return;
+      const el = audioPool[audioIdx];
+      audioIdx = (audioIdx + 1) % audioPool.length;
+      try {
+        el.currentTime = 0;
+        el.play().catch(() => {
+        });
+      } catch {
+      }
+    };
 
     const stopLoop = () => {
       if (rafRef.current !== null) {
@@ -357,35 +406,31 @@ export default function ClickEffects({ effect, sound, scopeRef }: ClickEffectsPr
       }
     };
 
-    const onPointerDown = (e: PointerEvent) => {
+    const onClick = (e: MouseEvent) => {
       const scope = scopeRefRef.current?.current;
       if (scope && !(e.target instanceof Node && scope.contains(e.target))) return;
+      playSound();
       const fx = effectRef.current;
-      const url = clickSoundUrl(soundRef.current);
-      if (url) {
-        try {
-          const audio = new Audio(url);
-          audio.volume = 0.7;
-          audio.play().catch(() => {});
-        } catch {
-        }
-      }
       if (!fx || !isClickEffect(fx) || fx === "none" || reducedMotion) return;
       particlesRef.current.push(...spawn(fx, e.clientX, e.clientY));
       kick();
     };
 
-    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("click", onClick, { passive: true });
     return () => {
-      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("click", onClick);
       window.removeEventListener("resize", resize);
+      if (resizeRaf !== null) cancelAnimationFrame(resizeRaf);
       stopLoop();
       particlesRef.current = [];
-      try {
-        warmAudio?.pause();
-      } catch {
+      for (const el of audioPool) {
+        try {
+          el.pause();
+        } catch {
+        }
       }
-      warmAudio = null;
+      audioPool = [];
+      audioPoolUrl = null;
     };
   }, []);
 

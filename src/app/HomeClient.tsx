@@ -134,8 +134,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
           )}
           </div>
 
-          {/* Product showcase — outer handles the entrance (framer sets inline transform,
-              so the CSS 3D tilt must live on the inner div or it gets overridden). */}
+          {}
           <motion.div
             initial={{ opacity: 0, x: 48, filter: "blur(14px)" }}
             animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}

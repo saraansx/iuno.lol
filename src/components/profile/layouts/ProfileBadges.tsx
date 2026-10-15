@@ -1,25 +1,27 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useMemo } from "react";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
 
 type Badge = (typeof BADGES)[number];
 type LevelStage = (typeof LEVELS)[number];
 type ViewMilestone = (typeof VIEW_MILESTONES)[number];
 type LikeMilestone = (typeof LIKE_MILESTONES)[number];
+type AnyBadge = Badge | LevelStage | ViewMilestone | LikeMilestone;
 
 type BadgeScrollStyle = "none" | "pingpong" | "left" | "right";
 
 export type CustomBadge = { id: string; name: string; iconUrl: string };
 
-function badgeById(id: string): Badge | LevelStage | ViewMilestone | LikeMilestone | null {
-  return (
-    (BADGES as readonly Badge[]).find((b) => b.id === id) ??
-    (LEVELS as readonly LevelStage[]).find((b) => b.id === id) ??
-    (VIEW_MILESTONES as readonly ViewMilestone[]).find((b) => b.id === id) ??
-    (LIKE_MILESTONES as readonly LikeMilestone[]).find((b) => b.id === id) ??
-    null
-  );
+const BADGE_INDEX = new Map<string, AnyBadge>();
+for (const list of [BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES]) {
+  for (const b of list) {
+    if (!BADGE_INDEX.has(b.id)) BADGE_INDEX.set(b.id, b);
+  }
+}
+
+function badgeById(id: string): AnyBadge | null {
+  return BADGE_INDEX.get(id) ?? null;
 }
 
 export function badgeGlowFilter(
@@ -67,11 +69,6 @@ export default function ProfileBadges({
   shimmerEnabled?: boolean | null;
 }) {
   const instanceId = useId().replace(/:/g, "");
-  const badges = badgeIds
-    .map((id) => customBadges.find((c) => c.id === id) ?? badgeById(id))
-    .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | CustomBadge => b !== null);
-  if (badges.length === 0) return null;
-
   const size = Math.min(32, Math.max(12, badgeSize ?? 18));
   const gap = Math.min(24, Math.max(0, badgeSpacing ?? 6));
   const mono = monoEnabled
@@ -81,11 +78,31 @@ export default function ProfileBadges({
     : null;
   const separate = containerStyle === "separate";
 
+  const badges = useMemo(
+    () =>
+      badgeIds
+        .map((id) => customBadges.find((c) => c.id === id) ?? badgeById(id))
+        .filter((b): b is Badge | LevelStage | ViewMilestone | LikeMilestone | CustomBadge => b !== null),
+    [badgeIds, customBadges]
+  );
+
+  const glowByColor = useMemo(() => {
+    const map = new Map<string, string | undefined>();
+    for (const b of badges) {
+      if ("iconUrl" in b) continue;
+      const color = mono ?? b.accent;
+      if (!map.has(color)) map.set(color, badgeGlowFilter(color, glowEnabled, glowStrength));
+    }
+    return map;
+  }, [badges, mono, glowEnabled, glowStrength]);
+
+  if (badges.length === 0) return null;
+
   const renderBadge = (badge: Badge | LevelStage | ViewMilestone | LikeMilestone | CustomBadge, keyPrefix = "") => {
     if ("iconUrl" in badge) return renderCustom(badge, keyPrefix);
     const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge;
     const color = mono ?? badge.accent;
-    const glow = badgeGlowFilter(color, glowEnabled, glowStrength);
+    const glow = glowByColor.get(color);
     const vb = ("viewBox" in badge ? (badge.viewBox as string) : "0 0 24 24") || "0 0 24 24";
     const [mvx, mvy, mvw, mvh] = vb.split(/\s+/).map(Number);
     const vx = Number.isFinite(mvx) ? mvx : 0;
@@ -267,23 +284,6 @@ export default function ProfileBadges({
           {badges.map((b) => renderBadge(b, "b-"))}
         </div>
       </div>
-      <style>{`
-        @keyframes badge-scroll-left {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @keyframes badge-scroll-right {
-          from { transform: translateX(-50%); }
-          to { transform: translateX(0); }
-        }
-        @keyframes badge-scroll-pingpong {
-          from { transform: translateX(0); }
-          to { transform: translateX(-50%); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .badge-scroll-track { animation: none !important; }
-        }
-      `}</style>
     </div>
   );
 }

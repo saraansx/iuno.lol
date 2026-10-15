@@ -347,3 +347,33 @@ input, textarea {
 .dashboard-no-caret .typewriter-caret {
   display: none !important;
 }
+
+/* Shared animation keyframes for the views counter and scrolling badges.
+   Defined once here so components don't re-inject identical <style> blocks on every render. */
+
+/* Digit strip height must match DIGIT_HEIGHT in ViewsCounterAnimation.tsx (1.2em). */
+@keyframes views-digit-roll {
+  from { transform: translateY(0); }
+  to { transform: translateY(calc(-10 * 1.2em)); }
+}
+
+@keyframes views-slot-spin {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(var(--slot-travel)); }
+}
+
+@keyframes badge-scroll-left {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes badge-scroll-right {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+@keyframes badge-scroll-pingpong {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge-scroll-track { animation: none !important; }
+}
