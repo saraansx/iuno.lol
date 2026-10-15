@@ -15,36 +15,41 @@ function PixelInput({
 }) {
   const [draft, setDraft] = useState<string | null>(null);
 
+  const commitDraft = (raw: string) => {
+    if (raw === "") {
+      onChange(0);
+      return;
+    }
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) {
+      onChange(0);
+      return;
+    }
+    onChange(Math.max(0, Math.min(max, parsed)));
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <label className="text-[12.5px] font-medium text-white/90">{label}</label>
       <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3 h-[38px]">
         <input
-          type="number"
-          min={0}
-          max={max}
-          step={0.1}
+          type="text"
+          inputMode="decimal"
           value={draft ?? String(value)}
           onChange={(e) => {
             const raw = e.target.value;
-            if (raw === "") {
-              setDraft(raw);
-              return;
-            }
+            setDraft(raw);
+            if (raw === "" || raw === "." || raw.endsWith(".")) return;
             const parsed = Number(raw);
-            if (!Number.isFinite(parsed)) {
-              setDraft(raw);
-              return;
-            }
-            const clamped = Math.max(0, Math.min(max, parsed));
-            setDraft(clamped === parsed ? raw : String(clamped));
-            onChange(clamped);
+            if (!Number.isFinite(parsed)) return;
+            onChange(Math.max(0, Math.min(max, parsed)));
           }}
           onBlur={() => {
-            if (draft !== null && !Number.isFinite(Number(draft || NaN))) {
-              onChange(0);
-            }
+            if (draft !== null) commitDraft(draft.trim());
             setDraft(null);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
           }}
           className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />

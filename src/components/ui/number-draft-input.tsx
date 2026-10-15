@@ -20,7 +20,6 @@ export default function NumberDraftInput({
   onCommit,
   min = 0,
   max,
-  step,
   disabled,
   prefix,
   suffix,
@@ -29,6 +28,22 @@ export default function NumberDraftInput({
   const [draft, setDraft] = useState<string | null>(null);
 
   const clamp = (n: number) => Math.min(max ?? n, Math.max(min, n));
+
+  const isIntermediate = (raw: string) =>
+    raw === "" || raw === "-" || raw === "." || raw === "-." || raw.endsWith(".");
+
+  const commitDraft = (raw: string) => {
+    if (raw === "") {
+      onCommit(min);
+      return;
+    }
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) {
+      onCommit(min);
+      return;
+    }
+    onCommit(clamp(parsed));
+  };
 
   return (
     <div
@@ -39,33 +54,26 @@ export default function NumberDraftInput({
     >
       {prefix && <span className="text-[13px] text-white/30 mr-2">{prefix}</span>}
       <input
-        type="number"
+        type="text"
+        inputMode="decimal"
         disabled={disabled}
-        min={min}
-        max={max}
-        step={step}
         value={draft ?? String(value)}
         onChange={(e) => {
           const raw = e.target.value;
-          if (raw === "") {
-            setDraft(raw);
-            onCommit(min);
-            return;
-          }
+          // Let the user type freely — never rewrite what they typed.
+          // Keep the raw text visible, only push a clamped value for live preview.
+          setDraft(raw);
+          if (isIntermediate(raw)) return;
           const parsed = Number(raw);
-          if (!Number.isFinite(parsed)) {
-            setDraft(raw);
-            return;
-          }
-          const clamped = clamp(parsed);
-          setDraft(clamped === parsed ? raw : String(clamped));
-          onCommit(clamped);
+          if (!Number.isFinite(parsed)) return;
+          onCommit(clamp(parsed));
         }}
         onBlur={() => {
-          if (draft !== null && (draft === "" || !Number.isFinite(Number(draft)))) {
-            onCommit(min);
-          }
+          if (draft !== null) commitDraft(draft.trim());
           setDraft(null);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") (e.target as HTMLInputElement).blur();
         }}
         className="w-full bg-transparent text-[13px] text-white focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
