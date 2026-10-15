@@ -363,13 +363,14 @@ input, textarea {
 }
 
 /* "Speeding" counter pulse (blur + stretch). Runs as one declarative animation
-   instead of 60 per-frame JS writes; keyframe values mirror sin(t·PI) at 25% steps. */
+   instead of 60 per-frame JS writes; keyframe values mirror sin(t·PI) at 25% steps.
+   `none`, not blur(0px): the minifier rewrites blur(0px) to blur(), which some browsers reject. */
 @keyframes views-speed-pulse {
-  0% { filter: blur(0px); transform: scaleX(1); }
+  0% { filter: none; transform: scaleX(1); }
   25% { filter: blur(4.95px); transform: scaleX(1.245); }
   50% { filter: blur(7px); transform: scaleX(1.35); }
   75% { filter: blur(4.95px); transform: scaleX(1.245); }
-  100% { filter: blur(0px); transform: scaleX(1); }
+  100% { filter: none; transform: scaleX(1); }
 }
 
 @keyframes badge-scroll-left {
