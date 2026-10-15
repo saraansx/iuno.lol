@@ -290,8 +290,6 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
     setIsDragging(false);
   }, []);
 
-  // Coalesce mouse moves into at most one width update per frame, and only while
-  // a drag is actually in progress.
   const applyDrag = useCallback(() => {
     const drag = dragRef.current;
     if (!drag) return;
@@ -346,7 +344,6 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
       window.removeEventListener("pointercancel", onUp);
       window.removeEventListener("blur", onWindowBlur);
       document.removeEventListener("visibilitychange", onVisibility);
-      // Restores body cursor/user-select if the panel unmounts mid-drag.
       endDrag();
     };
   }, [isDragging, applyDrag, endDrag]);
