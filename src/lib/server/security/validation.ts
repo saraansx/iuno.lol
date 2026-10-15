@@ -25,6 +25,7 @@ const RESERVED_USERNAMES = new Set([
   'api', 'auth', 'dashboard', 'register', 'signin',
   'login', 'logout', 'signup', 'signout', 'settings', 'account', 'profile',
   'pricing', 'premium', 'upgrade', 'terms', 'privacy', 'copyright', 'refund', 'about', 'contact',
+  'leaderboard', 'checkout',
   'help', 'support', 'faq', 'blog', 'docs', 'explore', 'search', 'home', 'changelog',
   'admin', 'administrator', 'official', 'staff', 'team', 'mod', 'moderator',
   'security', 'system', 'root', 'iuno', 'billing', 'payment',
