@@ -4,6 +4,8 @@ import { sql } from 'drizzle-orm';
 import { redis } from '@/lib/redis';
 import { isAuthorizedCron } from '@/lib/cron-auth';
 import { acquireCronLock } from '@/lib/cron-lock';
+import { revalidateProfile } from '@/app/[username]/profile-data';
+import { liveStatsCacheKey } from '@/lib/live-stats-cache';
 
 const SET_KEY = 'profiles_with_pending_views';
 
@@ -28,6 +30,7 @@ async function handler() {
     let totalProfiles = 0;
     let cursor = '0';
     let stoppedEarly = false;
+    const changedUsernames = new Set<string>();
 
     do {
       if (Date.now() - startedAt > TIME_BUDGET_MS) {
@@ -113,10 +116,13 @@ async function handler() {
 
         try {
           const rows = await db.execute(
-            sql`SELECT id FROM users WHERE id IN (${sql.join(chunk.map(e => sql`${e.profileId}`), sql`, `)})`
+            sql`SELECT id, username FROM users WHERE id IN (${sql.join(chunk.map(e => sql`${e.profileId}`), sql`, `)})`
           );
-          const resultRows = (rows as unknown as [Array<{ id: number | string }>])[0];
-          const existing = new Set((resultRows || []).map(r => Number(r.id)));
+          const resultRows = (rows as unknown as [Array<{ id: number | string; username: string }>])[0];
+          const usernameById = new Map<number, string>(
+            (resultRows || []).map(r => [Number(r.id), String(r.username)]),
+          );
+          const existing = new Set(usernameById.keys());
 
           const validChunk = chunk.filter(e => existing.has(e.profileId));
 
@@ -177,6 +183,11 @@ async function handler() {
                 console.error('[cron] Country flush failed (views already saved); dropping this batch of country counts:', countryErr);
               }
             }
+
+            for (const e of validChunk) {
+              const name = usernameById.get(e.profileId);
+              if (name) changedUsernames.add(name);
+            }
           }
         } catch (err) {
           console.error(`[cron] Flush failed for chunk starting at profile ${chunk[0]?.profileId}, restoring to Redis:`, err);
@@ -215,6 +226,21 @@ async function handler() {
         success: true,
         message: stoppedEarly ? 'Time budget reached; remaining views deferred to next run.' : 'No pending views to flush.',
       });
+    }
+
+    if (changedUsernames.size > 0) {
+      try {
+        for (const name of changedUsernames) revalidateProfile(name);
+      } catch (revalErr) {
+        console.error('[cron] Failed to revalidate profiles after view flush:', revalErr);
+      }
+      try {
+        const pipe = redis.pipeline();
+        for (const name of changedUsernames) pipe.del(liveStatsCacheKey(name));
+        await pipe.exec();
+      } catch (liveErr) {
+        console.error('[cron] Failed to clear live-stats cache after view flush:', liveErr);
+      }
     }
 
     return NextResponse.json({

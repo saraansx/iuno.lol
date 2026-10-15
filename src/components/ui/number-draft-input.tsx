@@ -60,8 +60,6 @@ export default function NumberDraftInput({
         value={draft ?? String(value)}
         onChange={(e) => {
           const raw = e.target.value;
-          // Let the user type freely — never rewrite what they typed.
-          // Keep the raw text visible, only push a clamped value for live preview.
           setDraft(raw);
           if (isIntermediate(raw)) return;
           const parsed = Number(raw);
