@@ -430,17 +430,18 @@ const Layout1 = ({
   }, [initialDislikes]);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && username && viewerId !== -1) {
-      const controller = new AbortController();
+    if (typeof window === "undefined" || !username || viewerId === -1) return;
+    const controller = new AbortController();
+    const loadLive = () => {
       fetch(`/api/profile/live?username=${encodeURIComponent(username)}`, {
         signal: controller.signal,
       })
         .then(res => res.json())
         .then(data => {
           if (data && !data.error) {
-            setLiveViews(data.views ?? views);
-            setLikesCount(data.likesCount ?? initialLikes);
-            setDislikesCount(data.dislikesCount ?? initialDislikes);
+            if (data.views !== undefined) setLiveViews(data.views);
+            if (data.likesCount !== undefined) setLikesCount(data.likesCount);
+            if (data.dislikesCount !== undefined) setDislikesCount(data.dislikesCount);
           }
         })
         .catch(err => {
@@ -448,12 +449,16 @@ const Layout1 = ({
             console.error("Failed to fetch live profile data:", err);
           }
         });
+    };
 
-      return () => {
-        controller.abort();
-      };
-    }
-  }, [username, views, initialLikes, initialDislikes, viewerId]);
+    loadLive();
+    const interval = window.setInterval(loadLive, 60000);
+
+    return () => {
+      controller.abort();
+      window.clearInterval(interval);
+    };
+  }, [username, viewerId]);
 
   const formattedJoinDate = React.useMemo(() => {
     if (!createdAt) return null;
