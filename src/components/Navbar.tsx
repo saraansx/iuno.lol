@@ -83,13 +83,13 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             : "translateX(-50%) translateY(0)",
         }}
       >
-        <div className="bg-[#0c0c0c]/85 backdrop-blur-xl border border-white/10 rounded-full px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-          <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+        <div className="bg-[#0c0c0c]/85 backdrop-blur-xl border border-white/10 rounded-full px-4 sm:px-6 py-3 flex items-center justify-between shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <Link href="/" className="flex items-center gap-1.5 shrink-0 hover:opacity-80 transition-opacity">
             <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-5 h-auto object-contain shrink-0" priority />
             <span className="font-light text-white tracking-tight text-base" style={{ fontFamily: "var(--font-comfortaa)" }}>Iuno<span className="text-[#5b6cf5] lowercase">.lol</span></span>
           </Link>
 
-          <div className="hidden md:flex items-center gap-1 bg-[#5b6cf5]/3 rounded-full p-1 border border-[#5b6cf5]/10 relative">
+          <div className="hidden lg:flex shrink-0 items-center gap-1 bg-[#5b6cf5]/3 rounded-full p-1 border border-[#5b6cf5]/10 relative">
             {tabs.map((tab) => (
               <button
                 key={tab}
@@ -125,11 +125,11 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
             ))}
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 shrink-0">
             {isAuthenticated ? (
               <button
                 onClick={() => router.push('/dashboard')}
-                className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"
+                className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -141,14 +141,14 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
               <>
                 <button
                   onClick={handleSignIn}
-                  className="text-sm font-medium text-white/60 hover:text-white transition-all cursor-pointer"
+                  className="whitespace-nowrap py-2 sm:py-0 text-sm font-medium text-white/60 hover:text-white transition-all cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Sign In
                 </button>
                 <button
                   onClick={handleGetStarted}
-                  className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+                  className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Get Started

@@ -86,7 +86,7 @@ function FaqRow({
             transition={{ duration: 0.32, ease: EASE }}
             className="overflow-hidden"
           >
-            <p className="pb-6 pr-10 text-[13.5px] font-light leading-relaxed text-white/45">{a}</p>
+            <p className="pb-6 pr-6 sm:pr-10 text-[13.5px] font-light leading-relaxed text-white/45">{a}</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -98,7 +98,7 @@ export default function FaqShowcase() {
   const [openIdx, setOpenIdx] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="relative overflow-hidden py-24 lg:py-32">
+    <section id="faq" className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -107,7 +107,7 @@ export default function FaqShowcase() {
             "radial-gradient(45% 35% at 50% 30%, rgba(91,108,245,0.1) 0%, transparent 70%)",
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-6 flex flex-col items-center">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -142,7 +142,7 @@ export default function FaqShowcase() {
           Everything people usually ask before claiming a link.
         </motion.p>
 
-        <div className="w-full max-w-2xl mt-12 rounded-[20px] border border-white/5 bg-[#0c0c0c] px-6 shadow-sm">
+        <div className="w-full max-w-2xl mt-12 rounded-[20px] border border-white/5 bg-[#0c0c0c] px-4 sm:px-6 shadow-sm">
           {FAQS.map((f, i) => (
             <FaqRow
               key={f.q}

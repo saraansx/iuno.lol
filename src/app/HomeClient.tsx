@@ -59,7 +59,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
 
         <Navbar isAuthenticated={isAuthenticated} />
 
-        <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-6 pt-40 pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-14 lg:gap-6 items-center">
+        <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-5 sm:px-6 pt-32 sm:pt-40 pb-16 sm:pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-10 sm:gap-14 lg:gap-6 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
 
           <div className="flex flex-col gap-1 md:gap-2 mb-8">
@@ -67,7 +67,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
               initial={{ opacity: 0, y: 28, filter: "blur(16px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.8, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
-              className="text-4xl md:text-6xl font-medium text-white tracking-tight drop-shadow-sm"
+              className="text-4xl md:text-6xl font-medium text-white tracking-tight drop-shadow-sm text-balance"
             >
               Your Internet Presence.
             </motion.h1>
@@ -86,7 +86,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.7, delay: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-2xl text-white/50 text-lg md:text-xl font-light leading-relaxed mb-3"
+            className="max-w-2xl text-white/50 text-[17px] sm:text-xl font-light leading-relaxed mb-3"
           >
             Custom backgrounds, animated effects, Discord widgets, and more to help your page stand out, completely free.
           </motion.p>
@@ -106,8 +106,8 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             transition={{ duration: 0.7, delay: 0.66, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
           >
-            <div className="flex-1 px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
-              <span className="text-white/30 font-normal tracking-wide">iuno.lol/</span>
+            <div className="flex-1 min-w-0 px-3 sm:px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
+              <span className="text-white/30 font-normal tracking-wide shrink-0">iuno.lol/</span>
               <input
                 type="text"
                 placeholder="username"
@@ -123,7 +123,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             </div>
             <button
               onClick={handleClaim}
-              className="bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
+              className="shrink-0 bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 sm:px-7 py-2.5 rounded-xl font-normal text-sm transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
               style={{ fontFamily: "var(--font-comfortaa)" }}
             >
               Claim
@@ -144,15 +144,20 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
             <div className="home-showcase relative w-full">
               <div
                 aria-hidden
-                className="pointer-events-none absolute -inset-x-24 -top-24 -bottom-10 blur-[90px]"
+                className="pointer-events-none absolute -inset-x-10 -top-16 -bottom-6 blur-[60px] sm:-inset-x-24 sm:-top-24 sm:-bottom-10 sm:blur-[90px]"
                 style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
               />
               <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
-                <div className="flex items-center gap-2 h-9 px-4 bg-[#0e0e10] border-b border-white/5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
-                  <span className="ml-3 text-[11px] text-white/30 tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>iuno.lol/dashboard</span>
+                <div className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 px-3 sm:px-4 bg-[#0e0e10] border-b border-white/5">
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
+                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
+                  <span
+                    className="ml-1.5 sm:ml-3 min-w-0 flex-1 truncate text-[10px] sm:text-[11px] text-white/30 tracking-wide"
+                    style={{ fontFamily: "var(--font-comfortaa)" }}
+                  >
+                    iuno.lol/dashboard
+                  </span>
                 </div>
                 <Image
                   src="/showcase/dashboard.png"

@@ -259,7 +259,7 @@ const FLOATS: FloatSpec[] = [
 
 export default function WidgetShowcase() {
   return (
-    <section id="widgets" className="relative overflow-hidden py-24 lg:py-0 lg:min-h-[860px] flex items-center">
+    <section id="widgets" className="relative overflow-hidden py-16 sm:py-24 lg:py-0 lg:min-h-[860px] flex items-center">
       {}
       <div
         aria-hidden
@@ -287,7 +287,7 @@ export default function WidgetShowcase() {
       />
 
       {}
-      <div className="relative z-10 w-full max-w-2xl mx-auto px-6 text-center flex flex-col items-center">
+      <div className="relative z-10 w-full max-w-2xl mx-auto px-5 sm:px-6 text-center flex flex-col items-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -65,7 +65,7 @@ export default function MusicShowcase() {
   });
 
   return (
-    <section className="relative overflow-hidden py-24 lg:py-32">
+    <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -74,7 +74,7 @@ export default function MusicShowcase() {
             "radial-gradient(55% 40% at 50% 30%, rgba(91,108,245,0.1) 0%, transparent 70%)",
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -110,13 +110,13 @@ export default function MusicShowcase() {
           with a player that matches your colors.
         </motion.p>
 
-        <div className="relative w-full max-w-5xl mt-16 grid lg:grid-cols-[1fr_1.15fr] gap-12 items-center">
+        <div className="relative w-full max-w-5xl mt-16 grid grid-cols-1 lg:grid-cols-[1fr_1.15fr] gap-12 items-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.94 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, delay: 0.1, ease: EASE }}
-            className="relative flex justify-center"
+            className="relative flex justify-center min-w-0"
           >
             <Vinyl artwork={track.artwork ?? "/showcase/chanel.webp"} />
             {chips.map((chip, i) => (
@@ -136,7 +136,7 @@ export default function MusicShowcase() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.9, delay: 0.2, ease: EASE }}
-            className="w-full max-w-[520px] mx-auto lg:mx-0 text-left"
+            className="w-full max-w-[520px] min-w-0 mx-auto lg:mx-0 text-left"
           >
             <LyricsMusicPlayer
               tracks={SHOWCASE_TRACKS}

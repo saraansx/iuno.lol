@@ -50,7 +50,7 @@ export default function Footer() {
   return (
     <footer className="relative z-10 mt-8">
       <div className="w-full">
-        <div className="border-t border-white/5 bg-black px-6 md:px-10 pt-14 pb-10">
+        <div className="border-t border-white/5 bg-black px-5 sm:px-6 md:px-10 pt-14 pb-10">
           <div className="flex flex-col md:flex-row md:items-start justify-between gap-10">
           <nav className="flex flex-wrap gap-10 md:gap-14" aria-label="Footer">
             {COLS.map((col) => (
@@ -67,7 +67,7 @@ export default function Footer() {
                             href={l.href}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[12.5px] font-light text-white/50 hover:text-white transition-colors cursor-pointer"
+                            className="inline-block py-1 md:py-0 text-[12.5px] font-light text-white/50 hover:text-white transition-colors cursor-pointer"
                           >
                             {l.label}
                           </a>
@@ -76,7 +76,7 @@ export default function Footer() {
                         <li key={l.label}>
                           <Link
                             href={l.href}
-                            className="text-[12.5px] font-light text-white/50 hover:text-white transition-colors cursor-pointer"
+                            className="inline-block py-1 md:py-0 text-[12.5px] font-light text-white/50 hover:text-white transition-colors cursor-pointer"
                           >
                             {l.label}
                           </Link>

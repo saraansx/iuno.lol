@@ -27,7 +27,7 @@ const PREMIUM_PICKS = PREMIUM_FEATURES;
 
 export default function PlanShowcase() {
   return (
-    <section className="relative overflow-hidden py-24 lg:py-32">
+    <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -36,7 +36,7 @@ export default function PlanShowcase() {
             "radial-gradient(50% 38% at 50% 35%, rgba(91,108,245,0.1) 0%, transparent 70%)",
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}

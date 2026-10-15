@@ -171,7 +171,7 @@ function ManagerCard() {
   const byId = new Map(ROWS.map((r) => [r.id, r]));
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
+    <div className="min-w-0 bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className="text-[14px] font-normal text-white/90 tracking-tight">Your links</h3>
         <span className="text-[11px] font-mono text-white/35">4 links</span>
@@ -235,7 +235,7 @@ function ShareCard() {
   const { pos, down, copied, clicks } = useCopyDemo();
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
+    <div className="min-w-0 bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
       <h3 className="text-[14px] font-normal text-white/90 tracking-tight">Share it once</h3>
 
       <div className="relative rounded-2xl border border-white/[0.07] bg-white/[0.03] pl-3 pr-1.5 py-1.5 flex items-center gap-2.5 overflow-visible">
@@ -331,7 +331,7 @@ function ShareCard() {
 
 export default function LinksShowcase() {
   return (
-    <section className="relative overflow-hidden py-24 lg:py-32">
+    <section className="relative overflow-hidden py-16 sm:py-24 lg:py-32">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -340,7 +340,7 @@ export default function LinksShowcase() {
             "radial-gradient(50% 38% at 50% 32%, rgba(91,108,245,0.1) 0%, transparent 70%)",
         }}
       />
-      <div className="relative max-w-7xl mx-auto px-6 flex flex-col items-center text-center">
+      <div className="relative max-w-7xl mx-auto px-5 sm:px-6 flex flex-col items-center text-center">
         <motion.span
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -381,7 +381,7 @@ export default function LinksShowcase() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.9, delay: 0.15, ease: EASE }}
-          className="w-full max-w-5xl mt-16 grid lg:grid-cols-[1.25fr_1fr] gap-4 text-left pointer-events-none"
+          className="w-full max-w-5xl mt-16 grid grid-cols-1 lg:grid-cols-[1.25fr_1fr] gap-4 text-left pointer-events-none"
         >
           <ManagerCard />
           <ShareCard />
