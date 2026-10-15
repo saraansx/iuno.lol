@@ -5,6 +5,9 @@ import { Suspense } from "react";
 export const metadata: Metadata = {
   title: "Register",
   description: "Create your iuno.lol account",
+  alternates: {
+    canonical: "/register",
+  },
 };
 
 export default function RegisterPage() {

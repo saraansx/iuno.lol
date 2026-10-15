@@ -6,6 +6,9 @@ import { isAuthenticated } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "Refund Policy",
   description: "How refunds work on iuno.lol.",
+  alternates: {
+    canonical: "/refund",
+  },
 };
 
 export default async function RefundPage() {

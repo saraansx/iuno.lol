@@ -6,6 +6,9 @@ import { getUserById } from "@/lib/features/users/db";
 export const metadata: Metadata = {
   title: "Pricing",
   description: "Simple, free pricing for iuno.lol.",
+  alternates: {
+    canonical: "/pricing",
+  },
 };
 
 export default async function PricingPage() {

@@ -42,6 +42,9 @@ export async function generateMetadata(
     title: { absolute: formatTabTitle(row.tabTitle, row.username) },
     description,
     icons: { icon: row.faviconUrl || '/Favicon.png' },
+    alternates: {
+      canonical: `/${row.username}`,
+    },
     openGraph: {
       title,
       description,

@@ -14,6 +14,9 @@ import {
 export const metadata: Metadata = {
   title: "Leaderboard",
   description: "The most viewed profiles on iuno.lol",
+  alternates: {
+    canonical: "/leaderboard",
+  },
 };
 
 function pick<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {

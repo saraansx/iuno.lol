@@ -6,6 +6,9 @@ import { isAuthenticated } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "What iuno.lol collects, why, and the choices you have.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default async function PrivacyPage() {

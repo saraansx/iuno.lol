@@ -6,6 +6,9 @@ import { isAuthenticated } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "Copyright Policy",
   description: "How iuno.lol handles copyright reports and counter notices.",
+  alternates: {
+    canonical: "/copyright",
+  },
 };
 
 export default async function CopyrightPage() {

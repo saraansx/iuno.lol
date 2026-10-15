@@ -6,6 +6,9 @@ import { isAuthenticated } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "The rules for using iuno.lol.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default async function TermsPage() {

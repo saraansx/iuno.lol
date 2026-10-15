@@ -26,6 +26,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: { absolute: `${tpl.name} — ${SITE_CONFIG.name}` },
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title: tpl.name,
       description,

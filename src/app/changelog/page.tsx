@@ -6,6 +6,9 @@ import { isAuthenticated } from "@/lib/auth/session";
 export const metadata: Metadata = {
   title: "Changelog",
   description: "What shipped recently on iuno.lol.",
+  alternates: {
+    canonical: "/changelog",
+  },
 };
 
 const OWNER = "iunolol";

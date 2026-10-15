@@ -42,6 +42,7 @@ const poppins = localFont({
 import { SITE_CONFIG } from "@/lib/config";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_CONFIG.url),
   title: {
     default: SITE_CONFIG.name,
     template: `${SITE_CONFIG.name} - %s`,

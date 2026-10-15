@@ -4,6 +4,9 @@ import ForgotPasswordClient from "./ForgotPasswordClient";
 export const metadata: Metadata = {
   title: "Forgot Password",
   description: "Reset your iuno.lol account password",
+  alternates: {
+    canonical: "/forgot-password",
+  },
 };
 
 export default function ForgotPasswordPage() {
