@@ -33,6 +33,11 @@ export default function Page() {
         </Breadcrumb>
       </div>
 
+      <div className="flex flex-col gap-1 pb-2 w-full pt-2">
+        <h1 className="text-[20px] font-normal text-white tracking-tight">Overview</h1>
+        <p className="text-white/40 text-[13px] mt-0.5">Overview of your hosted images.</p>
+      </div>
+
       <ImageHostOverviewClient />
     </div>
   );

@@ -48,6 +48,7 @@ export default function LeaderboardClient({
   page,
   currentUserId,
   basePath = "/dashboard/leaderboard",
+  showHeader = true,
 }: {
   entries: LeaderboardEntry[];
   category: LeaderboardCategory;
@@ -55,6 +56,7 @@ export default function LeaderboardClient({
   page: number;
   currentUserId: number | null;
   basePath?: string;
+  showHeader?: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -80,10 +82,12 @@ export default function LeaderboardClient({
   return (
     <div className={`flex flex-col gap-6 pb-6 transition-opacity ${pending ? "opacity-60" : ""}`} aria-busy={pending}>
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-[20px] font-normal text-white tracking-tight">Leaderboard</h1>
-          <p className="text-white/40 text-[13px] mt-0.5">The top 100 creators on iuno.lol. Pick a category and a time span.</p>
-        </div>
+        {showHeader && (
+          <div>
+            <h1 className="text-[20px] font-normal text-white tracking-tight">Leaderboard</h1>
+            <p className="text-white/40 text-[13px] mt-0.5">The top 100 creators on iuno.lol. Pick a category and a time span.</p>
+          </div>
+        )}
         <div className="flex items-center gap-2">
           <FilterSelect
             label="Category"

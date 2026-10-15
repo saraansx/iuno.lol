@@ -85,6 +85,7 @@ export default async function LeaderboardPage({
           page={page}
           currentUserId={userId ?? null}
           basePath="/leaderboard"
+          showHeader={false}
         />
       </main>
 

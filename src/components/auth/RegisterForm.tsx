@@ -408,7 +408,7 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
       </div>
 
       <div className="space-y-1.5">
-        <h2 className="text-[17px] font-medium text-white/90 tracking-tight">Check your email</h2>
+        <h1 className="text-[17px] font-medium text-white/90 tracking-tight">Check your email</h1>
         <p className="text-white/40 text-[13px] font-light leading-relaxed max-w-60 mx-auto">
           We&apos;ve sent a link to <span className="text-white/70 font-normal">{email}</span> to verify your account.
         </p>

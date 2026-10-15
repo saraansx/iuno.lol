@@ -91,7 +91,7 @@ const NewPasswordForm = () => {
           </svg>
         </div>
         
-        <h2 className="text-xl font-medium text-white mb-2">Password Updated</h2>
+        <h1 className="text-xl font-medium text-white mb-2">Password Updated</h1>
         <p className="text-white/40 text-sm leading-relaxed max-w-70 mb-8">
           Your password has been successfully reset. You can now log in with your new credentials.
         </p>

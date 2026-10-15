@@ -41,7 +41,7 @@ export default function DangerZone() {
       <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-[13.5px] font-normal text-white/90 tracking-tight">Delete account</h3>
+            <h2 className="text-[13.5px] font-normal text-white/90 tracking-tight">Delete account</h2>
             <p className="text-[12px] text-white/35 mt-1">This will permanently delete your account and all data.</p>
           </div>
           <button
@@ -130,7 +130,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
 
   return (
     <ModalShell onClose={handleCancel} labelledBy="delete-account-title" role="alertdialog">
-      <h3 id="delete-account-title" className="text-[15px] font-normal text-white/90 tracking-tight">Delete account?</h3>
+      <h2 id="delete-account-title" className="text-[15px] font-normal text-white/90 tracking-tight">Delete account?</h2>
       {step === "password" && (
         <>
           <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">Enter your password. We will send a 6-digit code to your email.</p>

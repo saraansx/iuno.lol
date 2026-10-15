@@ -48,6 +48,11 @@ export default async function Page() {
         </Breadcrumb>
       </div>
 
+      <div className="flex flex-col gap-1 pb-2 w-full pt-2" style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}>
+        <h1 className="text-[20px] font-normal text-white tracking-tight">Weather</h1>
+        <p className="text-white/40 text-[13px] mt-0.5">Configure your weather widget.</p>
+      </div>
+
       <WeatherClient user={user} />
     </div>
   );

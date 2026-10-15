@@ -547,7 +547,7 @@ export default function TemplatesClient() {
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
           <button type="button" aria-label="Close" onClick={() => setShareOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
           <div className="relative w-full max-w-[440px] rounded-[20px] bg-[#0c0c0c] border border-white/10 p-6 shadow-xl">
-            <h3 className="text-[15px] font-medium text-white">Share Your Template</h3>
+            <h2 className="text-[15px] font-medium text-white">Share Your Template</h2>
             <p className="text-[12px] text-white/40 mt-1 leading-relaxed">We&apos;ll take a screenshot of your saved profile — that becomes the cover. Your styling, avatar, banner, backgrounds &amp; music are shared — not your bio, links, username or stats.</p>
             <label className="mt-4 block">
               <span className="text-[12px] text-white/50">Layout name</span>
@@ -592,7 +592,7 @@ export default function TemplatesClient() {
       {useTarget && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { if (usingId === null) setUseTarget(null); }}>
           <div onClick={(e) => e.stopPropagation()} className="w-[min(440px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
-            <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{useTarget.name}&quot;?</h3>
+            <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{useTarget.name}&quot;?</h2>
             <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
               This overwrites your current <span className="text-white/70">styling</span>. Your avatar, bio, links and music content stay as they are.
             </p>
@@ -667,7 +667,7 @@ export default function TemplatesClient() {
           <div onClick={(e) => e.stopPropagation()} className="w-[min(640px,94vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Template assets</h3>
+                <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Template assets</h2>
                 <p className="text-[12px] text-white/40 mt-1">Browse and download every asset bundled with this template.</p>
               </div>
               <button type="button" onClick={() => setAssetsTarget(null)} aria-label="Close" className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/[0.06] transition cursor-pointer">
@@ -715,7 +715,7 @@ export default function TemplatesClient() {
       {deleteTarget && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setDeleteTarget(null)}>
           <div onClick={(e) => e.stopPropagation()} className="w-[min(420px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
-            <h3 className="text-[15px] font-normal text-white/90 tracking-tight">Delete template?</h3>
+            <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Delete template?</h2>
             <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">Delete &quot;{deleteTarget.name}&quot;? This cannot be undone.</p>
             <div className="mt-5 flex items-center justify-end gap-2">
               <button

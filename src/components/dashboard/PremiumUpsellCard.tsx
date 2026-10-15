@@ -94,9 +94,9 @@ function ComparePlansModal({ onClose, onPurchase }: { onClose: () => void; onPur
       >
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
-            <h3 id="compare-plans-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+            <h2 id="compare-plans-title" className="text-[15px] font-normal text-white/90 tracking-tight">
               Compare plans
-            </h3>
+            </h2>
             <p className="text-[12px] text-white/40 mt-1">One payment, Premium is yours forever.</p>
           </div>
           <div className="flex items-center gap-2">

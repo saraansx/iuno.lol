@@ -91,7 +91,7 @@ const ForgotPasswordForm = () => {
           </svg>
         </div>
         
-        <h2 className="text-xl font-medium text-white mb-2">Check Your Email</h2>
+        <h1 className="text-xl font-medium text-white mb-2">Check Your Email</h1>
         <p className="text-white/40 text-sm leading-relaxed max-w-70 mb-8">
           A password reset link has been sent to your email address.
         </p>
