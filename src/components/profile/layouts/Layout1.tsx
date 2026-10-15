@@ -1086,6 +1086,7 @@ const sectionSurface: React.CSSProperties = {
                   shapeClass={shapeClass}
                   selectedDecoration={selectedDecoration}
                   decorationHue={decorationHue}
+                  altText={display}
                 />
               </div>
 

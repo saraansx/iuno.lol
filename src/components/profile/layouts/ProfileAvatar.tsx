@@ -7,11 +7,13 @@ export const AvatarInner = ({
   shapeClass,
   selectedDecoration,
   decorationHue,
+  altText,
 }: {
   avatarUrl?: string | null;
   shapeClass: string;
   selectedDecoration?: Decoration | null;
   decorationHue: number;
+  altText?: string;
 }) => (
   <div className="relative w-[88px] h-[88px]">
     <div
@@ -30,7 +32,7 @@ export const AvatarInner = ({
             playsInline
           />
         ) : (
-          <Image src={avatarUrl} alt="Avatar" fill sizes="88px" className="object-cover" unoptimized priority />
+          <Image src={avatarUrl} alt={altText || "Avatar"} fill sizes="88px" className="object-cover" unoptimized priority />
         )
       ) : (
         <svg
