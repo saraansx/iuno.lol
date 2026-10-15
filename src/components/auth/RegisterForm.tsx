@@ -2,6 +2,7 @@
 
 import React, {  useState  } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import FloatingInput from "@/components/ui/floating-input-base";
 import Button from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
@@ -349,7 +350,16 @@ const RegisterForm = ({ onSuccessStateChange }: RegisterFormProps) => {
             <svg className="absolute w-3.5 h-3.5 text-[#5b6cf5] opacity-0 peer-checked:opacity-100 transition-opacity" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </div>
           <span className="text-xs text-white/70 font-medium group-hover:text-white transition-colors">
-            I accept the <span className="text-[#5b6cf5] font-semibold">Terms of Service</span>
+            I accept the{" "}
+            <Link
+              href="/terms"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="text-[#5b6cf5] font-semibold hover:underline underline-offset-2"
+            >
+              Terms of Service
+            </Link>
           </span>
         </label>
         {errors.tos && (
