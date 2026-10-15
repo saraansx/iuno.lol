@@ -269,36 +269,87 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
   const MIN_WIDTH = 300;
   const MAX_WIDTH = 600;
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+  const dragRef = useRef<{ pointerId: number; el: HTMLDivElement; raf: number | null; x: number } | null>(null);
+  const restoreRef = useRef<{ cursor: string; userSelect: string } | null>(null);
+
+  const endDrag = useCallback(() => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    if (drag.raf !== null) cancelAnimationFrame(drag.raf);
+    try {
+      if (drag.el.hasPointerCapture(drag.pointerId)) drag.el.releasePointerCapture(drag.pointerId);
+    } catch {
+    }
+    const restore = restoreRef.current;
+    if (restore) {
+      document.body.style.cursor = restore.cursor;
+      document.body.style.userSelect = restore.userSelect;
+      restoreRef.current = null;
+    }
+    dragRef.current = null;
+    setIsDragging(false);
+  }, []);
+
+  // Coalesce mouse moves into at most one width update per frame, and only while
+  // a drag is actually in progress.
+  const applyDrag = useCallback(() => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    drag.raf = null;
+    const next = Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, window.innerWidth - drag.x));
+    setWidth((prev) => (prev === next ? prev : next));
+  }, []);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
+    const el = e.currentTarget;
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {
+    }
+    dragRef.current = { pointerId: e.pointerId, el, raf: null, x: e.clientX };
+    restoreRef.current = { cursor: document.body.style.cursor, userSelect: document.body.style.userSelect };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
     setIsDragging(true);
   }, []);
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isDragging) return;
-      const newWidth = window.innerWidth - e.clientX;
-      setWidth(Math.max(MIN_WIDTH, Math.min(MAX_WIDTH, newWidth)));
+    if (!isDragging) return;
+
+    const onMove = (e: PointerEvent) => {
+      const drag = dragRef.current;
+      if (!drag || e.pointerId !== drag.pointerId) return;
+      drag.x = e.clientX;
+      if (drag.raf === null) drag.raf = requestAnimationFrame(applyDrag);
+    };
+    const onUp = (e: PointerEvent) => {
+      const drag = dragRef.current;
+      if (drag && e.pointerId !== drag.pointerId) return;
+      endDrag();
+    };
+    const onWindowBlur = () => endDrag();
+    const onVisibility = () => {
+      if (document.hidden) endDrag();
     };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    if (isDragging) {
-      document.addEventListener("mousemove", handleMouseMove);
-      document.addEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "col-resize";
-      document.body.style.userSelect = "none";
-    }
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    window.addEventListener("blur", onWindowBlur);
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.cursor = "";
-      document.body.style.userSelect = "";
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("blur", onWindowBlur);
+      document.removeEventListener("visibilitychange", onVisibility);
+      // Restores body cursor/user-select if the panel unmounts mid-drag.
+      endDrag();
     };
-  }, [isDragging]);
+  }, [isDragging, applyDrag, endDrag]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--preview-width', `${width}px`);
@@ -326,8 +377,8 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
       style={{ width: `${width}px` }}
     >
       <div
-        onMouseDown={handleMouseDown}
-        className={`absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
+        onPointerDown={handlePointerDown}
+        className={`absolute left-0 top-0 bottom-0 w-1.5 touch-none cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
           isDragging ? "bg-white/5" : ""
         }`}
       >
