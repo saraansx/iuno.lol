@@ -55,3 +55,6 @@ next-env.d.ts
 # graphify output (regenerated on every run)
 graphify-out/
 
+# personal maintenance scripts (local only, never commit)
+scripts/cleanup-unused-media.mjs
+
