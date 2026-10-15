@@ -5,7 +5,8 @@ import { getUserById } from "@/lib/features/users/db";
 
 export const metadata: Metadata = {
   title: "Pricing",
-  description: "Simple, free pricing for iuno.lol.",
+  description:
+    "Free forever for the core features. Premium is $4.99 once - lifetime access, no subscriptions. Compare plans on iuno.lol.",
   alternates: {
     canonical: "/pricing",
   },

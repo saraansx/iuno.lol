@@ -3,7 +3,11 @@ import HomeClient from "./HomeClient";
 import { isAuthenticated } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
-  description: "iuno.lol - Your ultimate platform for internet presence.",
+  title: {
+    absolute: "iuno.lol - One Link for Your Whole Internet Presence",
+  },
+  description:
+    "Create your free iuno.lol page - all your links, music player, Discord/Steam/Spotify widgets, animated effects and full theming in one place. Claim iuno.lol/yourname.",
   alternates: {
     canonical: "/",
   },
