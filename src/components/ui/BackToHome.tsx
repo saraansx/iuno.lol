@@ -20,7 +20,7 @@ export default function BackToHome() {
         priority
       />
       <span className="font-light text-white tracking-tight text-base uppercase" style={{ fontFamily: "var(--font-comfortaa)" }}>
-        uno<span className="text-[#5b6cf5] lowercase text-lg">.lol</span>
+        iuno<span className="text-[#5b6cf5] lowercase text-lg">.lol</span>
       </span>
     </Link>
   );
