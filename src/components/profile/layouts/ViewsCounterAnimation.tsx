@@ -56,12 +56,12 @@ function DigitalRoll({ value, duration }: { value: number; duration: number }) {
                 animation: `views-digit-roll ${duration}ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 70}ms both`,
               }}
             >
-              {DIGITS.map((n) => (
-                <span key={n} style={{ height: `${DIGIT_HEIGHT}em` }}>
+              {DIGITS.map((n, i) => (
+                <span key={`d-${i}`} style={{ height: `${DIGIT_HEIGHT}em` }}>
                   {n}
                 </span>
               ))}
-              <span style={{ height: `${DIGIT_HEIGHT}em` }}>{target}</span>
+              <span key="target" style={{ height: `${DIGIT_HEIGHT}em` }}>{target}</span>
             </span>
           </span>
         );
@@ -99,12 +99,12 @@ function SlotRoll({ value, duration }: { value: number; duration: number }) {
                 ["--slot-travel" as string]: `-${travel}em`,
               }}
             >
-              {column.map((n) => (
-                <span key={n} style={{ height: `${DIGIT_HEIGHT}em` }}>
+              {column.map((n, i) => (
+                <span key={`c-${i}`} style={{ height: `${DIGIT_HEIGHT}em` }}>
                   {n}
                 </span>
               ))}
-              <span style={{ height: `${DIGIT_HEIGHT}em` }}>{target}</span>
+              <span key="target" style={{ height: `${DIGIT_HEIGHT}em` }}>{target}</span>
             </span>
           </span>
         );
@@ -122,7 +122,6 @@ export default function ViewsCounterAnimation({
   const target = Math.max(0, Math.floor(value));
   const duration = Math.max(0, rawDuration) || 1000;
   const numRef = useRef<HTMLSpanElement | null>(null);
-  const fxRef = useRef<HTMLSpanElement | null>(null);
   const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -130,28 +129,22 @@ export default function ViewsCounterAnimation({
     const num = numRef.current;
     if (!animated || !num) return;
 
-    const fx = style === "speeding" ? fxRef.current : null;
     const start = performance.now();
-    num.textContent = "0";
+    let lastText = "0";
+    num.textContent = lastText;
 
     const tick = (now: number) => {
       const t = Math.min((now - start) / duration, 1);
-      num.textContent = String(Math.floor(target * easeOutQuad(t)));
-
-      if (fx) {
-        const intensity = Math.sin(t * Math.PI);
-        fx.style.filter = intensity > 0.02 ? `blur(${(intensity * 7).toFixed(2)}px)` : "";
-        fx.style.transform = intensity > 0.02 ? `scaleX(${(1 + intensity * 0.35).toFixed(3)})` : "";
+      const text = String(Math.floor(target * easeOutQuad(t)));
+      if (text !== lastText) {
+        lastText = text;
+        num.textContent = text;
       }
 
       if (t < 1) {
         rafRef.current = requestAnimationFrame(tick);
       } else {
         num.textContent = String(target);
-        if (fx) {
-          fx.style.filter = "";
-          fx.style.transform = "";
-        }
       }
     };
 
@@ -168,11 +161,11 @@ export default function ViewsCounterAnimation({
 
   return (
     <span
-      ref={fxRef}
       className="inline-block"
       style={{
         transformOrigin: "left center",
         fontVariantNumeric: "tabular-nums",
+        animation: style === "speeding" ? `views-speed-pulse ${duration}ms linear` : undefined,
       }}
     >
       <span ref={numRef}>{target > 0 ? 0 : target}</span>

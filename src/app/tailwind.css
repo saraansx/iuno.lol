@@ -362,6 +362,16 @@ input, textarea {
   100% { transform: translateY(var(--slot-travel)); }
 }
 
+/* "Speeding" counter pulse (blur + stretch). Runs as one declarative animation
+   instead of 60 per-frame JS writes; keyframe values mirror sin(t·PI) at 25% steps. */
+@keyframes views-speed-pulse {
+  0% { filter: blur(0px); transform: scaleX(1); }
+  25% { filter: blur(4.95px); transform: scaleX(1.245); }
+  50% { filter: blur(7px); transform: scaleX(1.35); }
+  75% { filter: blur(4.95px); transform: scaleX(1.245); }
+  100% { filter: blur(0px); transform: scaleX(1); }
+}
+
 @keyframes badge-scroll-left {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
