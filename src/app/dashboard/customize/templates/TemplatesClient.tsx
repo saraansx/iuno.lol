@@ -428,12 +428,21 @@ export default function TemplatesClient() {
                   {!t.isPublic && (
                     <span className="absolute top-2 left-2 text-[10px] tracking-[0.12em] uppercase bg-black/50 border border-white/10 text-white/70 px-2 py-1 rounded-full backdrop-blur">Private</span>
                   )}
+                  {t.requiresPremium && (
+                    <span className="absolute top-2.5 right-2.5 rounded-full bg-[#c9a45c] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#241a06] shadow-[0_2px_12px_rgba(0,0,0,0.45)]">Premium</span>
+                  )}
                 </div>
                 <div className="p-4 flex flex-col gap-3 flex-1">
                   <div className="min-w-0">
                     <p className="text-[13px] font-medium text-white truncate">{t.name}</p>
                     <div className="flex items-center gap-2.5 text-[11px] text-white/35">
                       <span className="truncate">{t.creatorUsername ? `@${t.creatorUsername}` : "—"}</span>
+                      {t.requiresPremium && (
+                        <span className="inline-flex items-center gap-1 shrink-0 rounded-full bg-white/[0.06] border border-white/10 px-2 py-0.5 text-[10px] font-medium text-[#c9a45c]">
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 6.6L21 11l-6.8 2.4L12 20l-2.2-6.6L3 11l6.8-2.4z" /></svg>
+                          Premium
+                        </span>
+                      )}
                       <span className="flex items-center gap-1 shrink-0">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
@@ -594,6 +603,11 @@ export default function TemplatesClient() {
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { if (usingId === null) setUseTarget(null); }}>
           <div onClick={(e) => e.stopPropagation()} className="w-[min(440px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
             <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{useTarget.name}&quot;?</h2>
+            {useTarget.requiresPremium && (
+              <p className="mt-2 rounded-xl bg-[#c9a45c]/10 border border-[#c9a45c]/30 px-3 py-2 text-[12px] text-[#e3c57c] leading-relaxed">
+                This template uses Premium features. You need Premium to apply it.
+              </p>
+            )}
             <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
               This overwrites your current <span className="text-white/70">styling</span>. Your avatar, bio, links and music content stay as they are.
             </p>

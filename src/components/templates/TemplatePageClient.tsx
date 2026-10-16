@@ -157,6 +157,9 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white/15 text-[11px] tracking-widest uppercase">No cover</div>
                   )}
+                  {template.requiresPremium && (
+                    <span className="absolute top-3 right-3 rounded-full bg-[#c9a45c] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#241a06] shadow-[0_2px_12px_rgba(0,0,0,0.45)]">Premium</span>
+                  )}
                 </button>
               </div>
 
@@ -178,7 +181,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
 
                 <h1 className="mt-2.5 text-[32px] leading-[1.1] tracking-[-0.02em] text-white break-words">{template.name}</h1>
                 {template.requiresPremium && (
-                  <span className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/15 border border-amber-300/30 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-amber-200">
+                  <span className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-[#c9a45c] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#241a06]">
                     Premium
                   </span>
                 )}
@@ -294,7 +297,7 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
             >
               <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{template.name}&quot;?</h2>
               {template.requiresPremium && (
-                <p className="mt-2 rounded-xl bg-amber-400/10 border border-amber-300/25 px-3 py-2 text-[12px] text-amber-200 leading-relaxed">
+                <p className="mt-2 rounded-xl bg-[#c9a45c]/10 border border-[#c9a45c]/30 px-3 py-2 text-[12px] text-[#e3c57c] leading-relaxed">
                   This template uses Premium features. You need Premium to apply it.
                 </p>
               )}
