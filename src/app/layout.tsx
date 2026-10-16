@@ -51,6 +51,27 @@ export const metadata: Metadata = {
   icons: {
     icon: "/Favicon.png",
   },
+  openGraph: {
+    type: "website",
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: "/Showcasee.png",
+        width: 1672,
+        height: 941,
+        alt: "iuno.lol - One Link for Your Whole Internet Presence",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: [
+      {
+        url: "/Showcasee.png",
+        alt: "iuno.lol - One Link for Your Whole Internet Presence",
+      },
+    ],
+  },
 };
 
 const organization = {

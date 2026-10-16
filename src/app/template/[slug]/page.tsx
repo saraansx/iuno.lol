@@ -22,6 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const creator = tpl.creatorUsername ? `@${tpl.creatorUsername}` : "iuno.lol";
   const description = `Preview "${tpl.name}" by ${creator} — ${tpl.useCount} uses, ${tpl.favoriteCount} favorites. Apply it to your iuno.lol profile in one click.`;
   const url = `${SITE_CONFIG.url}/template/${tpl.slug}`;
+  const ogImage = tpl.thumbnailUrl || "/Showcasee.png";
 
   return {
     title: { absolute: `${tpl.name} — ${SITE_CONFIG.name}` },
@@ -34,14 +35,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       description,
       url,
       siteName: SITE_CONFIG.name,
-      images: tpl.thumbnailUrl ? [{ url: tpl.thumbnailUrl }] : undefined,
+      images: [{ url: ogImage }],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: tpl.name,
       description,
-      images: tpl.thumbnailUrl ? [tpl.thumbnailUrl] : undefined,
+      images: [ogImage],
     },
   };
 }
