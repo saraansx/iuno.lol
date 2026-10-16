@@ -311,7 +311,8 @@ const Layout1 = ({
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
-  const display = displayName || username;
+  const display = displayName?.trim() ? displayName : undefined;
+  const hasAvatar = Boolean(avatarUrl?.trim());
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
   const [liveViews, setLiveViews] = useState(views);
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
@@ -1086,6 +1087,7 @@ const sectionSurface: React.CSSProperties = {
                       }
                 }
               >
+                {hasAvatar && (
                 <AvatarInner
                   avatarUrl={avatarUrl}
                   shapeClass={shapeClass}
@@ -1093,6 +1095,7 @@ const sectionSurface: React.CSSProperties = {
                   decorationHue={decorationHue}
                   altText={display}
                 />
+                )}
               </div>
 
             <div
