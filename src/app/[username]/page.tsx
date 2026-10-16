@@ -3,6 +3,10 @@ import { SITE_CONFIG } from '@/lib/config'
 import { buildOgImageUrl, OG_WIDTH, OG_HEIGHT, normalizeEmbedColor, formatTabTitle } from '@/lib/og'
 import { getProfileRows } from './profile-data'
 import ProfileView from './ProfileView'
+import JsonLd from '@/components/seo/JsonLd'
+
+const absoluteUrl = (url: string) =>
+  /^https?:\/\//i.test(url) ? url : `${SITE_CONFIG.url}${url.startsWith('/') ? '' : '/'}${url}`
 
 export const revalidate = 604800;
 
@@ -63,6 +67,33 @@ export async function generateMetadata(
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ username: string }> }) {
-  const { username } = await params
-  return <ProfileView username={username} />
+  const { username: rawUsername } = await params
+  const username = rawUsername.toLowerCase().trim()
+
+  const rows = await getProfileRows(username)
+  const row = rows[0]
+
+  const profileJsonLd = row
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'ProfilePage',
+        url: `${SITE_CONFIG.url}/${row.username}`,
+        name: row.displayName?.trim() || `@${row.username}`,
+        mainEntity: {
+          '@type': 'Person',
+          name: row.displayName?.trim() || row.username,
+          alternateName: `@${row.username}`,
+          url: `${SITE_CONFIG.url}/${row.username}`,
+          ...(row.avatarUrl ? { image: absoluteUrl(row.avatarUrl) } : {}),
+          ...(row.bio?.trim() ? { description: row.bio.trim() } : {}),
+        },
+      }
+    : null
+
+  return (
+    <>
+      {profileJsonLd && <JsonLd data={profileJsonLd} />}
+      <ProfileView username={username} />
+    </>
+  )
 }

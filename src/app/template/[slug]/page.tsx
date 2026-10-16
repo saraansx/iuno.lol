@@ -64,6 +64,7 @@ export default async function TemplatePage({ params }: Params) {
     creatorUsername: tpl.creatorUsername,
     creatorAvatarUrl: tpl.creatorAvatarUrl,
     favorited: favorite.favorited,
+    requiresPremium: tpl.requiresPremium,
   };
 
   return (

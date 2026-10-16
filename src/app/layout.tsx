@@ -4,6 +4,8 @@ import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
 import ConditionalBackground from "@/components/ConditionalBackground";
+import JsonLd from "@/components/seo/JsonLd";
+import { SITE_CONFIG } from "@/lib/config";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -39,8 +41,6 @@ const poppins = localFont({
   preload: false,
 });
 
-import { SITE_CONFIG } from "@/lib/config";
-
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.url),
   title: {
@@ -51,6 +51,34 @@ export const metadata: Metadata = {
   icons: {
     icon: "/Favicon.png",
   },
+};
+
+const organization = {
+  "@type": "Organization",
+  "@id": `${SITE_CONFIG.url}/#organization`,
+  name: SITE_CONFIG.name,
+  url: SITE_CONFIG.url,
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_CONFIG.url}/Favicon.png`,
+    width: 512,
+    height: 512,
+  },
+};
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    organization,
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_CONFIG.url}/#website`,
+      name: SITE_CONFIG.name,
+      url: SITE_CONFIG.url,
+      description: SITE_CONFIG.description,
+      publisher: { "@id": `${SITE_CONFIG.url}/#organization` },
+    },
+  ],
 };
 
 export default function RootLayout({
@@ -64,6 +92,7 @@ export default function RootLayout({
       className={`${geistMono.variable} ${poppins.variable} ${inter.variable} ${comfortaa.variable} ${caviarDreams.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#080808] text-white relative" style={{ fontFamily: "var(--font-comfortaa)" }}>
+        <JsonLd data={siteJsonLd} />
         <ConditionalBackground />
         <Toaster />
         <div className="relative z-10 flex-1 flex flex-col">

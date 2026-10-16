@@ -1,4 +1,17 @@
 import type { FullUser } from "@/lib/features/users/db";
+import {
+  PREMIUM_BACKGROUND_EFFECTS,
+  PREMIUM_BORDER_EFFECTS,
+  PREMIUM_CARD_EFFECTS,
+  PREMIUM_CARD_TRANSITIONS,
+  PREMIUM_TEXT_EFFECTS,
+  PREMIUM_CURSOR_TRAILS,
+  PREMIUM_CLICK_EFFECTS,
+  PREMIUM_CLICK_SOUNDS,
+  PREMIUM_ENTRY_TRANSITIONS,
+  isPremiumOption,
+} from "@/lib/premium";
+import { animatedBackgroundId, isPremiumBackgroundId } from "@/lib/animated-background";
 
 export const TEMPLATE_STYLE_KEYS = [
   "avatarUrl",
@@ -227,4 +240,54 @@ export function sanitizeTemplateConfig(input: Record<string, unknown>): Template
 
 export function isTemplateConfigEmpty(c: TemplateConfig): boolean {
   return Object.keys(c).length === 0;
+}
+
+const PREMIUM_VIEWS_ANIMATIONS = new Set(["digitalroll", "slotroll", "speeding"]);
+
+function isNonEmptyString(v: unknown): v is string {
+  return typeof v === "string" && v.trim() !== "";
+}
+
+export function templateRequiresPremium(c: Record<string, unknown>): boolean {
+  const opt = (key: string, set: ReadonlySet<string>) => {
+    const v = c[key];
+    return typeof v === "string" && isPremiumOption(set, v.trim());
+  };
+
+  if (opt("backgroundEffect", PREMIUM_BACKGROUND_EFFECTS)) return true;
+  if (opt("borderEffect", PREMIUM_BORDER_EFFECTS)) return true;
+  if (opt("cardEffect", PREMIUM_CARD_EFFECTS)) return true;
+  if (opt("cardTransition", PREMIUM_CARD_TRANSITIONS)) return true;
+  if (opt("usernameEffect", PREMIUM_TEXT_EFFECTS)) return true;
+  if (opt("descriptionEffect", PREMIUM_TEXT_EFFECTS)) return true;
+  if (opt("cursorTrail", PREMIUM_CURSOR_TRAILS)) return true;
+  if (opt("clickEffect", PREMIUM_CLICK_EFFECTS)) return true;
+  if (opt("clickSound", PREMIUM_CLICK_SOUNDS)) return true;
+  if (opt("entryTransition", PREMIUM_ENTRY_TRANSITIONS)) return true;
+
+  const viewsAnim = c["viewsAnimationStyle"];
+  if (typeof viewsAnim === "string" && PREMIUM_VIEWS_ANIMATIONS.has(viewsAnim.trim())) return true;
+
+  if (isNonEmptyString(c["faviconUrl"])) return true;
+  if (isNonEmptyString(c["cursorUrl"])) return true;
+  if (isNonEmptyString(c["tabTitle"])) return true;
+  if (c["tabTitleAnimated"] === true) return true;
+
+  const backgrounds = c["backgrounds"];
+  if (Array.isArray(backgrounds)) {
+    if (backgrounds.length > 1) return true;
+    for (const url of backgrounds) {
+      if (typeof url !== "string") continue;
+      const pid = animatedBackgroundId(url);
+      if (pid && isPremiumBackgroundId(pid)) return true;
+    }
+  }
+
+  const widgets = c["widgets"];
+  if (Array.isArray(widgets) && widgets.length > 3) return true;
+
+  const tracks = c["musicTracks"];
+  if (Array.isArray(tracks) && tracks.length > 1) return true;
+
+  return false;
 }

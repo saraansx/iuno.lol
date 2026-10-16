@@ -6,8 +6,9 @@ import { db, schema } from "@/lib/db";
 import { eq, sql, desc } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
-import { pickTemplateConfig, sanitizeTemplateConfig, isTemplateConfigEmpty } from "@/lib/template-config";
+import { pickTemplateConfig, sanitizeTemplateConfig, isTemplateConfigEmpty, templateRequiresPremium } from "@/lib/template-config";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
+import { isPremiumActive } from "@/lib/premium";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { screenshotProfile } from "@/lib/screenshot";
 import { uploadBufferToCatbox } from "@/lib/upload-buffer";
@@ -160,6 +161,11 @@ export async function applyTemplate(id: number) {
   const sanitized = sanitizeTemplateConfig(config);
   if (isTemplateConfigEmpty(sanitized)) throw new Error("Template is empty.");
 
+  const applier = await getUserById(userId);
+  if (!isPremiumActive(applier) && templateRequiresPremium(sanitized as Record<string, unknown>)) {
+    throw new Error("This template uses Premium features. Upgrade to Premium to use it.");
+  }
+
   const backgrounds = Array.isArray(sanitized.backgrounds) ? sanitized.backgrounds : null;
   delete (sanitized as Record<string, unknown>).backgrounds;
 
@@ -203,6 +209,7 @@ export type TemplateListItem = {
   creatorUsername: string | null;
   favorited?: boolean;
   favoriteCount: number;
+  requiresPremium: boolean;
 };
 
 async function getFavoriteCounts(ids: number[]): Promise<Map<number, number>> {
@@ -277,6 +284,7 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
         useCount: schema.templates.useCount,
         createdAt: schema.templates.createdAt,
         creatorId: schema.templates.userId,
+        config: schema.templates.config,
       })
       .from(schema.templateFavorites)
       .innerJoin(schema.templates, eq(schema.templateFavorites.templateId, schema.templates.id))
@@ -306,6 +314,7 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
       creatorId: r.creatorId ?? null,
       creatorUsername: r.creatorId ? (creatorMapF.get(r.creatorId) ?? null) : null,
       favorited: true,
+      requiresPremium: templateRequiresPremium(sanitizeTemplateConfig(((r.config as Record<string, unknown>) ?? {}) as Record<string, unknown>) as Record<string, unknown>),
     }));
 
     return { items: favItems, total: favTotal };
@@ -334,6 +343,7 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
       useCount: schema.templates.useCount,
       createdAt: schema.templates.createdAt,
       creatorId: schema.templates.userId,
+      config: schema.templates.config,
     })
     .from(schema.templates)
     .where(baseWhere)
@@ -378,6 +388,7 @@ export async function listTemplates(opts?: { q?: string; sort?: "newest" | "popu
     creatorId: r.creatorId ?? null,
     creatorUsername: r.creatorId ? (creatorMap.get(r.creatorId) ?? null) : null,
     favorited: favSet.has(r.id),
+    requiresPremium: templateRequiresPremium(sanitizeTemplateConfig(((r.config as Record<string, unknown>) ?? {}) as Record<string, unknown>) as Record<string, unknown>),
   }));
 
   return { items, total };

@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import HomeClient from "./HomeClient";
 import { isAuthenticated } from "@/lib/auth/session";
+import JsonLd from "@/components/seo/JsonLd";
+import { HOME_FAQS } from "@/components/home/faq-data";
 
 export const metadata: Metadata = {
   title: {
@@ -13,7 +15,25 @@ export const metadata: Metadata = {
   },
 };
 
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: HOME_FAQS.map((f) => ({
+    "@type": "Question",
+    name: f.q,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: f.a,
+    },
+  })),
+};
+
 export default async function HomePage() {
   const isAuth = await isAuthenticated();
-  return <HomeClient isAuthenticated={isAuth} />;
+  return (
+    <>
+      <JsonLd data={faqJsonLd} />
+      <HomeClient isAuthenticated={isAuth} />
+    </>
+  );
 }

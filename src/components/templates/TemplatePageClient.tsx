@@ -18,6 +18,7 @@ export type PublicTemplateView = {
   creatorUsername: string | null;
   creatorAvatarUrl: string | null;
   favorited: boolean;
+  requiresPremium: boolean;
 };
 
 const AFFECTED_SECTIONS = [
@@ -176,6 +177,11 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
                 )}
 
                 <h1 className="mt-2.5 text-[32px] leading-[1.1] tracking-[-0.02em] text-white break-words">{template.name}</h1>
+                {template.requiresPremium && (
+                  <span className="mt-2 inline-flex w-fit items-center gap-1 rounded-full bg-amber-400/15 border border-amber-300/30 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.12em] text-amber-200">
+                    Premium
+                  </span>
+                )}
 
                 <div className="mt-3.5 flex items-center gap-3.5 text-[12px] text-white/55">
                   <span className="flex items-center gap-1.5">
@@ -287,6 +293,11 @@ export default function TemplatePageClient({ template, isAuthenticated }: Templa
               className="w-[min(440px,92vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6"
             >
               <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{template.name}&quot;?</h2>
+              {template.requiresPremium && (
+                <p className="mt-2 rounded-xl bg-amber-400/10 border border-amber-300/25 px-3 py-2 text-[12px] text-amber-200 leading-relaxed">
+                  This template uses Premium features. You need Premium to apply it.
+                </p>
+              )}
               <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
                 This overwrites your current <span className="text-white/70">styling</span>. Your avatar, bio, links and music content stay as they are.
               </p>

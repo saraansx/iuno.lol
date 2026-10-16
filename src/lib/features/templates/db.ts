@@ -4,6 +4,7 @@ import { cache } from "react";
 import { eq, sql } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
+import { sanitizeTemplateConfig, templateRequiresPremium } from "@/lib/template-config";
 
 export type PublicTemplate = {
   id: number;
@@ -16,6 +17,7 @@ export type PublicTemplate = {
   creatorUsername: string | null;
   creatorAvatarUrl: string | null;
   favoriteCount: number;
+  requiresPremium: boolean;
 };
 
 export const getPublicTemplateBySlug = cache(async (slug: string): Promise<PublicTemplate | null> => {
@@ -34,6 +36,7 @@ export const getPublicTemplateBySlug = cache(async (slug: string): Promise<Publi
       creatorId: schema.templates.userId,
       creatorUsername: schema.users.username,
       creatorAvatarUrl: schema.userSettings.avatarUrl,
+      config: schema.templates.config,
     })
     .from(schema.templates)
     .leftJoin(schema.users, eq(schema.users.id, schema.templates.userId))
@@ -59,6 +62,7 @@ export const getPublicTemplateBySlug = cache(async (slug: string): Promise<Publi
     creatorUsername: row.creatorUsername ?? null,
     creatorAvatarUrl: row.creatorAvatarUrl ?? null,
     favoriteCount: Number(fav?.c ?? 0),
+    requiresPremium: templateRequiresPremium(sanitizeTemplateConfig(((row.config as Record<string, unknown>) ?? {}) as Record<string, unknown>)),
   };
 });
 

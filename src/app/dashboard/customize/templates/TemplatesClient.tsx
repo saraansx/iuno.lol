@@ -43,6 +43,7 @@ type Tpl = {
   favorited?: boolean;
   favoriteCount?: number;
   creatorId?: number | null;
+  requiresPremium?: boolean;
 };
 
 type AssetKind = "image" | "video" | "audio";
