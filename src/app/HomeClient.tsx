@@ -1,6 +1,9 @@
 "use client";
 
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import FaqShowcase from "@/components/home/FaqShowcase";
+import PlanShowcase from "@/components/home/PlanShowcase";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -10,9 +13,6 @@ import dynamic from "next/dynamic";
 const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"), { ssr: false });
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
-const PlanShowcase = dynamic(() => import("@/components/home/PlanShowcase"), { ssr: false });
-const FaqShowcase = dynamic(() => import("@/components/home/FaqShowcase"), { ssr: false });
-const Footer = dynamic(() => import("@/components/Footer"), { ssr: false });
 
 interface HomeProps {
   isAuthenticated?: boolean;

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import LegalLayout, { LegalSection } from "@/components/legal/LegalLayout";
 import { isAuthenticated } from "@/lib/auth/session";
 
@@ -104,6 +105,7 @@ export default async function PrivacyPage() {
           </p>
         </LegalSection>
       </LegalLayout>
+      <Footer />
     </>
   );
 }

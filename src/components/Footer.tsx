@@ -18,6 +18,7 @@ const COLS: { title: string; links: FootLink[] }[] = [
   {
     title: "General",
     links: [
+      { label: "Home", href: "/" },
       { label: "Login", href: "/signin" },
       { label: "Sign Up", href: "/register" },
       { label: "Pricing", href: "/pricing" },
@@ -26,7 +27,10 @@ const COLS: { title: string; links: FootLink[] }[] = [
   },
   {
     title: "Resources",
-    links: [{ label: "Help Center" }, { label: "Changelog", href: "/changelog" }],
+    links: [
+      { label: "FAQ", href: "/#faq" },
+      { label: "Changelog", href: "/changelog" },
+    ],
   },
   {
     title: "Contact",

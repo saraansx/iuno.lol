@@ -4,7 +4,7 @@ import React from "react";
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/config';
 
 interface NavbarProps {
@@ -21,7 +21,6 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = React.useState(() => tabForPath(pathname));
   const [hidden, setHidden] = React.useState(false);
-  const router = useRouter();
 
   React.useEffect(() => {
     setActiveTab(tabForPath(pathname));
@@ -60,17 +59,12 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
   
-  const tabs = ['Helpcenter', 'Leaderboard', 'Pricing', 'Discord'];
-
-  const handleGetStarted = (e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push('/register');
-  };
-
-  const handleSignIn = (e: React.MouseEvent) => {
-    e.preventDefault();
-    router.push('/signin');
-  };
+  const tabs: { label: string; href: string; external?: boolean }[] = [
+    { label: 'Helpcenter', href: '/#faq' },
+    { label: 'Leaderboard', href: '/leaderboard' },
+    { label: 'Pricing', href: '/pricing' },
+    { label: 'Discord', href: SITE_CONFIG.links.discord, external: true },
+  ];
 
   return (
     <>
@@ -90,45 +84,52 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
           </Link>
 
           <div className="hidden lg:flex shrink-0 items-center gap-1 bg-[#5b6cf5]/3 rounded-full p-1 border border-[#5b6cf5]/10 relative">
-            {tabs.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  if (tab === 'Discord') {
-                    window.open(SITE_CONFIG.links.discord, '_blank');
-                  } else if (tab === 'Pricing') {
-                    setActiveTab(tab);
-                    router.push('/pricing');
-                  } else if (tab === 'Leaderboard') {
-                    setActiveTab(tab);
-                    router.push('/leaderboard');
-                  } else {
-                    setActiveTab(tab);
-                  }
-                }}
-                className={`px-5 py-1.5 rounded-full text-[13px] font-light transition-all relative z-10 cursor-pointer ${
-                  activeTab === tab 
-                    ? "text-white" 
-                    : "text-white/60 hover:text-white"
-                }`}
-                style={{ fontFamily: "var(--font-comfortaa)" }}
-              >
-                {activeTab === tab && (
-                  <motion.div
-                    layoutId="navbar-bubble"
-                    className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
-                    transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
-                  />
-                )}
-                <span className="relative z-10">{tab}</span>
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const tabClassName = `px-5 py-1.5 rounded-full text-[13px] font-light transition-all relative z-10 cursor-pointer ${
+                activeTab === tab.label
+                  ? "text-white"
+                  : "text-white/60 hover:text-white"
+              }`;
+              const content = (
+                <>
+                  {activeTab === tab.label && (
+                    <motion.div
+                      layoutId="navbar-bubble"
+                      className="absolute inset-0 bg-[#5b6cf5]/20 shadow-[0_0_15px_rgba(91,108,245,0.1)] rounded-full z-0"
+                      transition={{ type: "spring", bounce: 0.35, duration: 0.6 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                </>
+              );
+              return tab.external ? (
+                <a
+                  key={tab.label}
+                  href={tab.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={tabClassName}
+                  style={{ fontFamily: "var(--font-comfortaa)" }}
+                >
+                  {content}
+                </a>
+              ) : (
+                <Link
+                  key={tab.label}
+                  href={tab.href}
+                  className={tabClassName}
+                  style={{ fontFamily: "var(--font-comfortaa)" }}
+                >
+                  {content}
+                </Link>
+              );
+            })}
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
             {isAuthenticated ? (
-              <button
-                onClick={() => router.push('/dashboard')}
+              <Link
+                href="/dashboard"
                 className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"
                 style={{ fontFamily: "var(--font-comfortaa)" }}
               >
@@ -136,23 +137,23 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
                   <path d="M2 17L12 22L22 17"/><path d="M2 12L12 17L22 12"/><path d="M12 2L2 7L12 12L22 7L12 2Z"/>
                 </svg>
                 Dashboard
-              </button>
+              </Link>
             ) : (
               <>
-                <button
-                  onClick={handleSignIn}
+                <Link
+                  href="/signin"
                   className="whitespace-nowrap py-2 sm:py-0 text-sm font-medium text-white/60 hover:text-white transition-all cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Sign In
-                </button>
-                <button
-                  onClick={handleGetStarted}
+                </Link>
+                <Link
+                  href="/register"
                   className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Get Started
-                </button>
+                </Link>
               </>
             )}
           </div>

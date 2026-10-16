@@ -130,16 +130,16 @@ export default function SwapForm({
                 {isSignIn ? (
                   <>
                     Don&apos;t have an account?{" "}
-                    <button type="button" onClick={() => switchMode("register")} className={toggleClassName}>
+                    <Link href="/register" onClick={() => switchMode("register")} className={toggleClassName}>
                       Create one
-                    </button>
+                    </Link>
                   </>
                 ) : (
                   <>
                     Already have an account?{" "}
-                    <button type="button" onClick={() => switchMode("signin")} className={toggleClassName}>
+                    <Link href="/signin" onClick={() => switchMode("signin")} className={toggleClassName}>
                       Sign in
-                    </button>
+                    </Link>
                   </>
                 )}
               </p>
