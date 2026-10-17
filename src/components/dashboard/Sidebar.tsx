@@ -105,7 +105,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
 
           <button 
             onClick={() => setOpen(!open)}
-            className={`absolute transition-all duration-300 p-1.5 rounded-lg flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#5b6cf5]/10 text-[#5b6cf5] border border-[#5b6cf5]/20 hover:bg-[#5b6cf5]/20'}`}
+            className={`absolute transition-all duration-300 p-1.5 rounded-lg hidden md:flex items-center justify-center shrink-0 z-20 ${open ? 'right-4 text-white/30 hover:text-white/80 hover:bg-white/5' : 'left-[15px] bg-[#5b6cf5]/10 text-[#5b6cf5] border border-[#5b6cf5]/20 hover:bg-[#5b6cf5]/20'}`}
             title="Toggle Sidebar"
           >
             {open ? (
@@ -359,7 +359,7 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
         <div
           onMouseDown={handleMouseDown}
           title="Drag to resize sidebar"
-          className={`absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
+          className={`hidden md:block absolute right-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
             isDragging ? "bg-white/5" : ""
           }`}
         >

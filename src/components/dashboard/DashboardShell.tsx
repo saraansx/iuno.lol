@@ -33,7 +33,7 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
   };
 
   return (
-    <div className="h-screen bg-[#050505] flex overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
+    <div className="h-screen bg-[#050505] flex flex-col md:flex-row overflow-hidden" style={{ fontFamily: "var(--font-comfortaa)" }}>
       {!isVerified && (
         <TurnstileVerification
           isOpen={!isVerified}
@@ -44,10 +44,10 @@ const DashboardShell = ({ children, username, userId, avatarUrl, decorationUrl, 
 
       <Sidebar username={username} userId={userId} avatarUrl={avatarUrl} decorationUrl={decorationUrl} decorationHue={decorationHue} />
 
-      <main className="flex-1 p-4 pl-0 flex">
-        <div className="flex-1 bg-[#0c0c0c] border border-white/4 rounded-[2.5rem] relative overflow-hidden">
+      <main className="flex-1 min-h-0 p-3 sm:p-4 md:pl-0 flex">
+        <div className="flex-1 min-w-0 bg-[#0c0c0c] border border-white/4 rounded-[1.5rem] sm:rounded-[2.5rem] relative overflow-hidden">
 
-          <div className="absolute inset-0 px-12 py-10 overflow-y-auto custom-scrollbar">
+          <div className="absolute inset-0 px-4 sm:px-8 lg:px-12 py-6 sm:py-8 lg:py-10 overflow-y-auto custom-scrollbar">
             {children}
           </div>
         </div>

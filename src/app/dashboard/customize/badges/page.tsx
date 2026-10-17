@@ -18,7 +18,7 @@ export default async function Page() {
   const user = userId ? await getUserById(userId) : null;
   const backgrounds = userId ? await getUserBackgrounds(userId) : [];  return (
     <div className="flex flex-col gap-8 h-full">
-      <div className="border-b border-white/4 pb-5 -mx-12 px-12">
+      <div className="border-b border-white/4 pb-5 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>

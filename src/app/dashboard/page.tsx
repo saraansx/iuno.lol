@@ -57,7 +57,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8" style={{ fontFamily: "var(--font-comfortaa)" }}>
-      <div className="border-b border-white/4 pb-5 -mx-12 px-12">
+      <div className="border-b border-white/4 pb-5 -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
         <Breadcrumb>
           <BreadcrumbList className="text-[13px] gap-2">
             <BreadcrumbItem>
@@ -72,7 +72,7 @@ export default async function DashboardPage() {
         <p className="text-white/30 text-sm mt-1">Here is an overview of your statistics.</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "USER ID", value: user?.id ? String(user.id) : "—", icon: <span className="font-normal text-lg">#</span>, color: "#5b6cf5" },
           { label: "TOTAL VIEWS", value: user?.views != null ? String(user.views) : "0", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>, color: "#5b6cf5" },

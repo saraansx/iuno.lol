@@ -97,10 +97,10 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
   }, [maxViews]);
 
   return (
-    <div className={`bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full relative transition-opacity duration-300 opacity-100`}>
+    <div className={`bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6 w-full relative transition-opacity duration-300 opacity-100`}>
 
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Views</h2>
           <div className="flex items-center gap-1.5 bg-[#5b6cf5]/10 border border-[#5b6cf5]/20 px-2.5 py-1 rounded-full">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -109,12 +109,12 @@ export default function AnalyticsChart({ totalViews, initialData, hourlyData = [
             </svg>
             <span className="text-[#5b6cf5] text-xs font-bold leading-none" title="All-time views">{totalViews}</span>
           </div>
-          <span className="text-xs text-white/35">
+          <span className="text-xs text-white/35 whitespace-nowrap">
             {rangeTotal} in {rangeInfo.long.toLowerCase()}
           </span>
         </div>
 
-        <div role="group" aria-label="Chart range" className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1">
+        <div role="group" aria-label="Chart range" className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 self-start sm:self-auto">
           {RANGES.map((r) => (
             <button
               key={r.id}

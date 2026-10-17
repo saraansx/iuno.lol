@@ -64,7 +64,7 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_300px] gap-4 items-stretch">
       {}
-      <div className="relative bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm overflow-hidden">
+      <div className="relative bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm overflow-hidden">
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">World map</h2>
         <p className="text-white/40 text-[13px] mt-0.5">A visual spread of where your profile traffic is coming from.</p>
 
@@ -96,6 +96,10 @@ export default function WorldMapCard({ data }: { data: CountryViewStat[] }) {
                           setHover(null);
                           if (zoom.isDragging) zoom.dragEnd();
                         }}
+                        onTouchStart={zoom.dragStart}
+                        onTouchMove={zoom.dragMove}
+                        onTouchEnd={zoom.dragEnd}
+                        onTouchCancel={zoom.dragEnd}
                       >
                         <g transform={zoom.toString()}>
                           <Mercator<WorldFeature>

@@ -27,7 +27,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
   const displayData = data.length > 0 ? data : [{ name: 'No Data', value: 1, color: '#333333' }];
 
   return (
-    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full h-full relative transition-opacity duration-300 opacity-100 flex flex-col">
+    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6 w-full h-full relative transition-opacity duration-300 opacity-100 flex flex-col">
       <div className="mb-4">
         <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Devices</h2>
         <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>How visitors break down by device type in the last 30 days.</p>
@@ -84,7 +84,7 @@ export default function DeviceChart({ stats }: DeviceChartProps) {
       </div>
 
       {isMounted && data.length > 0 && (
-        <div className="flex items-center justify-center gap-4 mt-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2 sm:gap-4 mt-4">
           {data.map((entry) => (
             <div key={entry.name} className="flex items-center gap-1.5">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />

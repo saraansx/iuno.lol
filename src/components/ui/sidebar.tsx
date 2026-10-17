@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface SidebarContextProps {
   open: boolean;
@@ -101,52 +103,68 @@ export const DesktopSidebar = ({
   );
 };
 
-export const MobileSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<"div">) => {
-  const { open, setOpen } = useSidebar();
+export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
+  const [open, setOpen] = useState(false);
+
   return (
     <>
-      <div
-        className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden  items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
-        )}
-        {...props}
-      >
-        <div className="flex justify-end z-20 w-full">
-          <Menu
-            className="text-neutral-800 dark:text-neutral-200"
-            onClick={() => setOpen(!open)}
-          />
-        </div>
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeInOut",
-              }}
-              className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
-                className
-              )}
-            >
-              <div
-                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200"
-                onClick={() => setOpen(!open)}
-              >
-                <X />
-              </div>
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="md:hidden flex items-center justify-between gap-3 h-14 px-4 bg-[#050505] border-b border-white/[0.06] shrink-0">
+        <Link href="/" className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
+          <Image src="/Favicon.png" alt="Iuno Logo" width={512} height={512} className="w-6 h-auto object-contain shrink-0" />
+          <span className="font-normal text-white tracking-tight text-lg" style={{ fontFamily: "var(--font-comfortaa)" }}>
+            Iuno<span className="text-[#5b6cf5] lowercase">.lol</span>
+          </span>
+        </Link>
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open menu"
+          aria-expanded={open}
+          className="p-2 -mr-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
       </div>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setOpen(false)}
+              aria-hidden="true"
+              className="fixed inset-0 z-[90] bg-black/60 md:hidden"
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ duration: 0.28, ease: "easeInOut" }}
+              className="fixed left-0 top-0 z-[100] h-full w-[82%] max-w-[300px] bg-[#0a0a0a] border-r border-white/[0.08] md:hidden"
+            >
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="Close menu"
+                className="absolute right-3 top-3 z-10 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div
+                className="h-full flex flex-col"
+                onClickCapture={(e) => {
+                  if ((e.target as Element).closest("a")) setOpen(false);
+                }}
+              >
+                {children}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };
