@@ -54,7 +54,7 @@ export default async function LeaderboardPage({
       />
       <Navbar isAuthenticated={auth} />
 
-      <section className="relative w-full max-w-6xl mx-auto px-6 pt-32 pb-14">
+      <section className="relative w-full max-w-6xl mx-auto px-4 sm:px-6 pt-32 pb-14">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-[340px] bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.16),rgba(91,108,245,0.05)_42%,transparent_72%)]"
@@ -77,7 +77,7 @@ export default async function LeaderboardPage({
         </div>
       </section>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-6 pb-16">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 pb-16">
         <LeaderboardClient
           entries={entries}
           category={category}

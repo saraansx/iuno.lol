@@ -32,9 +32,9 @@ const PERIOD_OPTIONS: { id: LeaderboardPeriod; label: string }[] = [
 ];
 
 const MEDALS = {
-  1: { color: "#fbbf24", height: "h-[124px]", ring: 104 },
-  2: { color: "#cbd5e1", height: "h-[102px]", ring: 84 },
-  3: { color: "#d97706", height: "h-[88px]", ring: 84 },
+  1: { color: "#fbbf24", height: "h-[84px] sm:h-[124px]", ring: "clamp(60px, 19vw, 104px)", ringFont: "clamp(24px, 7.4vw, 40px)" },
+  2: { color: "#cbd5e1", height: "h-[70px] sm:h-[102px]", ring: "clamp(50px, 16vw, 84px)", ringFont: "clamp(20px, 6.4vw, 32px)" },
+  3: { color: "#d97706", height: "h-[62px] sm:h-[88px]", ring: "clamp(50px, 16vw, 84px)", ringFont: "clamp(20px, 6.4vw, 32px)" },
 } as const;
 
 const plural = (n: number, unit = "view") => `${n.toLocaleString()} ${unit}${n === 1 ? "" : "s"}`;
@@ -88,7 +88,7 @@ export default function LeaderboardClient({
             <p className="text-white/40 text-[13px] mt-0.5">The top 100 creators on iuno.lol. Pick a category and a time span.</p>
           </div>
         )}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <FilterSelect
             label="Category"
             value={category}
@@ -114,7 +114,7 @@ export default function LeaderboardClient({
       {me && <YourRank me={me} ahead={entries[me.rank - 2]} periodLabel={periodLabel} category={category} />}
 
       {entries.length === 0 ? (
-        <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10 pb-6">
+        <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-4 sm:px-6 pt-8 sm:pt-10 pb-6">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(91,108,245,0.12),rgba(91,108,245,0.03)_45%,transparent_72%)]"
@@ -148,7 +148,7 @@ export default function LeaderboardClient({
               </Link>
             )}
           </div>
-          <ol className="relative grid grid-cols-3 items-end gap-3 max-w-[660px] mx-auto" aria-label="Empty podium">
+          <ol className="relative grid grid-cols-3 items-end gap-2 sm:gap-3 max-w-[660px] mx-auto" aria-label="Empty podium">
             {([2, 1, 3] as const).map((rank) => (
               <EmptySpot key={`empty-${rank}`} rank={rank} />
             ))}
@@ -157,12 +157,12 @@ export default function LeaderboardClient({
       ) : (
         <>
           {safePage === 1 && (
-            <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-6 pt-10 pb-6">
+            <div className="relative overflow-hidden bg-[#0c0c0c] border border-white/5 rounded-[20px] px-4 sm:px-6 pt-8 sm:pt-10 pb-6">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[720px] h-80 bg-[radial-gradient(ellipse_at_top,rgba(251,191,36,0.09),rgba(251,191,36,0.02)_45%,transparent_72%)]"
               />
-              <ol className="relative grid grid-cols-3 items-end gap-3 max-w-[660px] mx-auto">
+              <ol className="relative grid grid-cols-3 items-end gap-2 sm:gap-3 max-w-[660px] mx-auto">
                 {([2, 1, 3] as const).map((rank) => {
                   const entry = podium[rank - 1];
                   return entry ? (
@@ -177,7 +177,7 @@ export default function LeaderboardClient({
 
           {rows.length > 0 && (
             <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] overflow-hidden">
-              <div className="grid grid-cols-[64px_1fr_auto] px-5 py-3 border-b border-white/5 text-[11px] uppercase tracking-wider text-white/35">
+              <div className="grid grid-cols-[40px_1fr_auto] sm:grid-cols-[64px_1fr_auto] px-3.5 sm:px-5 py-3 border-b border-white/5 text-[11px] uppercase tracking-wider text-white/35">
                 <span>Rank</span>
                 <span>User</span>
                 <span>{metric.header}</span>
@@ -188,16 +188,16 @@ export default function LeaderboardClient({
                     <Link
                       href={`/${entry.username}`}
                       target="_blank"
-                      className={`grid grid-cols-[64px_1fr_auto] items-center px-5 py-3 transition-colors hover:bg-white/[0.03] ${
+                      className={`grid grid-cols-[40px_1fr_auto] sm:grid-cols-[64px_1fr_auto] items-center px-3.5 sm:px-5 py-3 transition-colors hover:bg-white/[0.03] ${
                         entry.userId === currentUserId ? "bg-[#5b6cf5]/[0.07]" : ""
                       }`}
                     >
-                      <span className="text-[13px] text-white/50 tabular-nums">#{entry.rank}</span>
+                      <span className="text-[12px] sm:text-[13px] text-white/50 tabular-nums">#{entry.rank}</span>
                       <span className="flex items-center gap-3 min-w-0">
                         <Avatar entry={entry} size={36} />
                         <span className="flex flex-col min-w-0">
                           <span className="flex items-center gap-1.5 min-w-0">
-                            <span className="text-[13.5px] text-white/90 truncate">{entry.displayName ?? entry.username}</span>
+                            <span className="min-w-0 text-[13.5px] text-white/90 truncate">{entry.displayName ?? entry.username}</span>
                             {entry.premium && <PremiumTag />}
                             {entry.verified && <VerifiedTag />}
                             {entry.userId === currentUserId && (
@@ -218,11 +218,11 @@ export default function LeaderboardClient({
           )}
 
           {pageCount > 1 && (
-            <nav aria-label="Leaderboard pages" className="flex items-center justify-between gap-3">
+            <nav aria-label="Leaderboard pages" className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <span className="text-[12px] text-white/35">
                 Ranks {3 + (safePage - 1) * PAGE_SIZE + 1}–{3 + (safePage - 1) * PAGE_SIZE + rows.length} of {entries.length}
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex flex-wrap items-center justify-center gap-1">
                 <PageButton disabled={safePage === 1} onClick={() => go({ page: safePage - 1 })} label="Previous page">
                   <path d="m15 18-6-6 6-6" />
                 </PageButton>
@@ -266,12 +266,12 @@ function PodiumBlock({ rank, score, muted = false, category = "views" }: { rank:
       {!muted && (
         <div aria-hidden="true" className="absolute inset-x-6 top-0 h-px" style={{ background: `linear-gradient(to right, transparent, ${medal.color}, transparent)` }} />
       )}
-      <span className="text-[32px] font-semibold leading-none" style={{ color: muted ? "rgba(255,255,255,0.1)" : medal.color }}>
+      <span className="text-[24px] sm:text-[32px] font-semibold leading-none" style={{ color: muted ? "rgba(255,255,255,0.1)" : medal.color }}>
         <span className="sr-only">Rank </span>
         {rank}
       </span>
       {score !== undefined && (
-        <span className="inline-flex items-center gap-1.5 text-[12.5px] tabular-nums text-white/70" title={plural(score, unit)}>
+        <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-[12.5px] tabular-nums text-white/70" title={plural(score, unit)}>
           <MetricIcon category={category} />
           {compact.format(score)} {unit}{score === 1 ? "" : "s"}
         </span>
@@ -285,8 +285,8 @@ function PodiumSpot({ entry, isMe, category }: { entry: LeaderboardEntry; isMe: 
   const medal = MEDALS[rank];
   return (
     <li className="flex flex-col items-center min-w-0">
-      <Link href={`/${entry.username}`} target="_blank" className="group flex flex-col items-center min-w-0 max-w-full mb-5 px-1">
-        {rank === 1 ? <TrophyFilled className="mb-3" color={medal.color} /> : <MedalFilled className="mb-3" color={medal.color} rank={rank} />}
+      <Link href={`/${entry.username}`} target="_blank" className="group flex flex-col items-center min-w-0 max-w-full mb-3 sm:mb-5 px-0.5 sm:px-1">
+        {rank === 1 ? <TrophyFilled className="mb-2 sm:mb-3" color={medal.color} /> : <MedalFilled className="mb-2 sm:mb-3" color={medal.color} rank={rank} />}
         <span
           className="rounded-full transition-transform duration-200 group-hover:-translate-y-0.5"
           style={{
@@ -295,15 +295,15 @@ function PodiumSpot({ entry, isMe, category }: { entry: LeaderboardEntry; isMe: 
             boxShadow: `0 0 ${rank === 1 ? 18 : 10}px ${medal.color}${rank === 1 ? "33" : "1f"}`,
           }}
         >
-          <Avatar entry={entry} size={medal.ring} ringless />
+          <Avatar entry={entry} size={medal.ring} fontSize={medal.ringFont} ringless />
         </span>
-        <span className="mt-3 text-[14.5px] text-white truncate max-w-full">{entry.displayName ?? entry.username}</span>
-        <span className="text-[11.5px] text-white/35 truncate max-w-full">
+        <span className="mt-2 sm:mt-3 text-[13px] sm:text-[14.5px] text-white truncate max-w-full">{entry.displayName ?? entry.username}</span>
+        <span className="text-[10.5px] sm:text-[11.5px] text-white/35 truncate max-w-full">
           @{entry.username}
           {isMe && <span className="text-[#a5aef9]"> · You</span>}
         </span>
         {}
-        <span className="mt-2 h-[22px] flex items-center justify-center gap-1.5">
+        <span className="mt-1.5 sm:mt-2 h-[20px] sm:h-[22px] flex items-center justify-center gap-1.5">
           {entry.premium && <PremiumTag />}
           {entry.verified && <VerifiedTag />}
         </span>
@@ -317,18 +317,18 @@ function EmptySpot({ rank }: { rank: 1 | 2 | 3 }) {
   const medal = MEDALS[rank];
   return (
     <li className="flex flex-col items-center min-w-0" aria-label={`Rank ${rank} is open`}>
-      <div className="flex flex-col items-center mb-5">
+      <div className="flex flex-col items-center mb-3 sm:mb-5">
         <span
           className="rounded-full border-2 border-dashed border-white/10 flex items-center justify-center text-white/20"
-          style={{ width: medal.ring + 12, height: medal.ring + 12 }}
+          style={{ width: `calc(${medal.ring} + 12px)`, height: `calc(${medal.ring} + 12px)` }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
           </svg>
         </span>
-        <span className="mt-3 text-[13px] text-white/35">Open spot</span>
-        <span className="text-[11.5px] text-white/20">Could be you</span>
-        <span className="mt-2 h-[22px]" aria-hidden="true" />
+        <span className="mt-2 sm:mt-3 text-[12px] sm:text-[13px] text-white/35">Open spot</span>
+        <span className="text-[10.5px] sm:text-[11.5px] text-white/20">Could be you</span>
+        <span className="mt-1.5 sm:mt-2 h-[20px] sm:h-[22px]" aria-hidden="true" />
       </div>
       <PodiumBlock rank={rank} muted />
     </li>
@@ -339,7 +339,7 @@ function YourRank({ me, ahead, periodLabel, category }: { me: LeaderboardEntry; 
   const gap = ahead ? ahead.score - me.score + 1 : 0;
   const unit = METRICS[category].unit;
   return (
-    <div className="flex items-center gap-4 bg-[#0c0c0c] border border-[#5b6cf5]/25 rounded-[20px] px-5 py-4 relative overflow-hidden">
+    <div className="flex flex-wrap items-center gap-3 sm:gap-4 bg-[#0c0c0c] border border-[#5b6cf5]/25 rounded-[20px] px-4 sm:px-5 py-4 relative overflow-hidden">
       <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-r from-[#5b6cf5]/[0.12] via-transparent to-transparent pointer-events-none" />
       <span className="relative w-11 h-11 shrink-0 rounded-2xl bg-[#5b6cf5]/15 border border-[#5b6cf5]/25 flex items-center justify-center text-[15px] text-white tabular-nums">
         #{me.rank}
@@ -350,7 +350,7 @@ function YourRank({ me, ahead, periodLabel, category }: { me: LeaderboardEntry; 
           {ahead ? `${plural(gap, unit)} to pass @${ahead.username} for #${ahead.rank}` : "You're on top. Keep it up."}
         </span>
       </div>
-      <span className="relative ml-auto inline-flex items-center gap-1.5 text-[13px] text-white tabular-nums">
+      <span className="relative ml-auto inline-flex items-center gap-1.5 text-[12.5px] sm:text-[13px] text-white tabular-nums whitespace-nowrap">
         <MetricIcon category={category} />
         {plural(me.score, unit)}
       </span>
@@ -400,17 +400,24 @@ function EyeIcon() {
   );
 }
 
-function Avatar({ entry, size, ringless = false }: { entry: LeaderboardEntry; size: number; ringless?: boolean }) {
+function Avatar({ entry, size, fontSize, ringless = false }: { entry: LeaderboardEntry; size: number | string; fontSize?: number | string; ringless?: boolean }) {
   const initial = (entry.displayName ?? entry.username).charAt(0).toUpperCase();
+  const fs = fontSize ?? (typeof size === "number" ? Math.round(size * 0.38) : undefined);
   return (
     <span
       className={`shrink-0 rounded-full overflow-hidden bg-[#161616] flex items-center justify-center text-white/70 ${ringless ? "" : "border border-white/10"}`}
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}
+      style={{ width: size, height: size, ...(fs !== undefined ? { fontSize: fs } : {}) }}
       aria-hidden="true"
     >
       {entry.avatarUrl ? (
         /* eslint-disable-next-line @next/next/no-img-element */
-        <img src={entry.avatarUrl} alt="" width={size} height={size} loading="lazy" className="w-full h-full object-cover" />
+        <img
+          src={entry.avatarUrl}
+          alt=""
+          {...(typeof size === "number" ? { width: size, height: size } : {})}
+          loading="lazy"
+          className="w-full h-full object-cover"
+        />
       ) : (
         initial
       )}
@@ -455,18 +462,24 @@ function PremiumDiamond({ size = 13 }: { size?: number }) {
 
 function PremiumTag() {
   return (
-    <span className="inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-[10.5px] text-[#e9d5ff] bg-[#c084fc]/12 border border-[#c084fc]/25">
+    <span
+      title="Premium"
+      className="inline-flex items-center gap-1 shrink-0 rounded-full px-1.5 sm:px-2 py-0.5 text-[10.5px] text-[#e9d5ff] bg-[#c084fc]/12 border border-[#c084fc]/25"
+    >
       <PremiumDiamond size={11} />
-      Premium
+      <span className="hidden sm:inline">Premium</span>
     </span>
   );
 }
 
 function VerifiedTag() {
   return (
-    <span className="inline-flex items-center gap-1 shrink-0 rounded-full px-2 py-0.5 text-[10.5px] text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25">
+    <span
+      title="Verified"
+      className="inline-flex items-center gap-1 shrink-0 rounded-full px-1.5 sm:px-2 py-0.5 text-[10.5px] text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25"
+    >
       <VerifiedCheck />
-      Verified
+      <span className="hidden sm:inline">Verified</span>
     </span>
   );
 }
