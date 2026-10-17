@@ -1,6 +1,5 @@
 import { Metadata } from "next";
 import HomeClient from "./HomeClient";
-import { isAuthenticated } from "@/lib/auth/session";
 import JsonLd from "@/components/seo/JsonLd";
 import { HOME_FAQS } from "@/components/home/faq-data";
 
@@ -53,12 +52,11 @@ const faqJsonLd = {
   })),
 };
 
-export default async function HomePage() {
-  const isAuth = await isAuthenticated();
+export default function HomePage() {
   return (
     <>
       <JsonLd data={faqJsonLd} />
-      <HomeClient isAuthenticated={isAuth} />
+      <HomeClient />
     </>
   );
 }

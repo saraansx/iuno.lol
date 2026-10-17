@@ -17,10 +17,28 @@ const tabForPath = (pathname: string) => {
   return null;
 };
 
-const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
+const Navbar = ({ isAuthenticated }: NavbarProps) => {
   const pathname = usePathname();
   const [activeTab, setActiveTab] = React.useState(() => tabForPath(pathname));
   const [hidden, setHidden] = React.useState(false);
+  const serverAuthProvided = isAuthenticated !== undefined;
+  const [clientAuth, setClientAuth] = React.useState(false);
+
+  React.useEffect(() => {
+    if (serverAuthProvided) return;
+    let cancelled = false;
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d?.authenticated) setClientAuth(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [serverAuthProvided]);
+
+  const showDashboard = serverAuthProvided ? isAuthenticated : clientAuth;
 
   React.useEffect(() => {
     setActiveTab(tabForPath(pathname));
@@ -127,7 +145,7 @@ const Navbar = ({ isAuthenticated = false }: NavbarProps) => {
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6 shrink-0">
-            {isAuthenticated ? (
+            {showDashboard ? (
               <Link
                 href="/dashboard"
                 className="whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white px-6 py-2 rounded-full text-sm font-normal transition-all shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer flex items-center gap-2"

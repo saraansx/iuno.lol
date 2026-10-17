@@ -14,11 +14,7 @@ const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"),
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
 
-interface HomeProps {
-  isAuthenticated?: boolean;
-}
-
-export default function Home({ isAuthenticated = false }: HomeProps) {
+export default function Home() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -57,7 +53,7 @@ export default function Home({ isAuthenticated = false }: HomeProps) {
           }}
         />
 
-        <Navbar isAuthenticated={isAuthenticated} />
+        <Navbar />
 
         <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-5 sm:px-6 pt-32 sm:pt-40 pb-16 sm:pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-10 sm:gap-14 lg:gap-6 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
