@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, type DragEvent } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BADGES, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "./badges-data";
 import Link from "next/link";
@@ -87,28 +87,24 @@ function OwnedRow({
   onAction,
   dragging,
   dropTarget,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  onMoveByKey,
 }: {
   badge: { id: string; name: string; description: string };
   icon: React.ReactNode;
   onAction: () => void;
   dragging: boolean;
   dropTarget: boolean;
-  onDragStart: (e: DragEvent, id: string) => void;
-  onDragOver: (e: DragEvent, id: string) => void;
-  onDrop: (id: string) => void;
-  onDragEnd: () => void;
+  onPointerDown: (e: React.PointerEvent<HTMLElement>, id: string) => void;
+  onPointerMove: (e: React.PointerEvent<HTMLElement>) => void;
+  onPointerUp: () => void;
+  onMoveByKey: (id: string, delta: number) => void;
 }) {
   return (
     <div
-      draggable
-      onDragStart={(e) => onDragStart(e, badge.id)}
-      onDragOver={(e) => onDragOver(e, badge.id)}
-      onDrop={() => onDrop(badge.id)}
-      onDragEnd={onDragEnd}
+      data-badge-row={badge.id}
       className={`group flex items-center gap-3 p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
         dragging
           ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
@@ -117,7 +113,25 @@ function OwnedRow({
             : "border-white/5"
       }`}
     >
-      <div className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors shrink-0">
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={`Reorder ${badge.name}`}
+        onPointerDown={(e) => onPointerDown(e, badge.id)}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowUp") {
+            e.preventDefault();
+            onMoveByKey(badge.id, -1);
+          } else if (e.key === "ArrowDown") {
+            e.preventDefault();
+            onMoveByKey(badge.id, 1);
+          }
+        }}
+        className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors shrink-0 touch-none p-1.5 -m-1.5 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/50"
+      >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="9" cy="12" r="1" />
           <circle cx="9" cy="5" r="1" />
@@ -524,36 +538,52 @@ export default function BadgesTabs({
   }, []);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
+  const dragFromRef = useRef<string | null>(null);
 
-  function handleRowDragStart(e: DragEvent, id: string) {
-    e.dataTransfer.setData("text/plain", id);
-    e.dataTransfer.effectAllowed = "move";
-    setDragId(id);
+  function reorderBadge(from: string, to: string) {
+    if (from === to) return;
+    setEquipped((prev) => {
+      const fromIdx = prev.indexOf(from);
+      const toIdx = prev.indexOf(to);
+      if (fromIdx < 0 || toIdx < 0) return prev;
+      const next = [...prev];
+      next.splice(toIdx, 0, ...next.splice(fromIdx, 1));
+      return next;
+    });
   }
 
-  function handleRowDragOver(e: DragEvent, id: string) {
+  function moveBadgeBy(id: string, delta: number) {
+    setEquipped((prev) => {
+      const i = prev.indexOf(id);
+      const j = i + delta;
+      if (i < 0 || j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      next.splice(j, 0, ...next.splice(i, 1));
+      return next;
+    });
+  }
+
+  function handleRowPointerDown(e: React.PointerEvent<HTMLElement>, id: string) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
-    if (id !== dragId) setDropId(id);
-  }
-
-  function handleRowDrop(id: string) {
-    if (dragId && dragId !== id) {
-      const from = dragId;
-      setEquipped((prev) => {
-        const fromIdx = prev.indexOf(from);
-        const toIdx = prev.indexOf(id);
-        if (fromIdx < 0 || toIdx < 0) return prev;
-        const next = [...prev];
-        next.splice(toIdx, 0, ...next.splice(fromIdx, 1));
-        return next;
-      });
-    }
-    setDragId(null);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragFromRef.current = id;
+    setDragId(id);
     setDropId(null);
   }
 
-  function handleRowDragEnd() {
+  function handleRowPointerMove(e: React.PointerEvent<HTMLElement>) {
+    if (!dragFromRef.current) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const row = el?.closest("[data-badge-row]") as HTMLElement | null;
+    const id = row?.getAttribute("data-badge-row") ?? null;
+    setDropId(id && id !== dragFromRef.current ? id : null);
+  }
+
+  function handleRowPointerUp() {
+    const from = dragFromRef.current;
+    if (from && dropId) reorderBadge(from, dropId);
+    dragFromRef.current = null;
     setDragId(null);
     setDropId(null);
   }
@@ -757,13 +787,13 @@ export default function BadgesTabs({
       style={tab === "customize" ? { paddingRight: "calc(var(--preview-width,380px) + 2rem)" } : undefined}
     >
       {tab === "yours" && <CustomBadgePromo />}
-      <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit">
+      <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-full sm:w-fit max-w-full overflow-x-auto custom-scrollbar">
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
-            className={`rounded-full px-5 py-2 text-[13.5px] font-normal transition-all relative cursor-pointer ${
+            className={`shrink-0 whitespace-nowrap rounded-full px-3 sm:px-5 py-2 text-[12.5px] sm:text-[13.5px] font-normal transition-all relative cursor-pointer ${
               tab === t.id ? "text-white" : "text-white/40 hover:text-white/70"
             }`}
           >
@@ -852,10 +882,10 @@ export default function BadgesTabs({
                       onAction={() => toggleBadge(cb.id)}
                       dragging={dragId === cb.id}
                       dropTarget={dropId === cb.id}
-                      onDragStart={handleRowDragStart}
-                      onDragOver={handleRowDragOver}
-                      onDrop={handleRowDrop}
-                      onDragEnd={handleRowDragEnd}
+                      onPointerDown={handleRowPointerDown}
+                      onPointerMove={handleRowPointerMove}
+                      onPointerUp={handleRowPointerUp}
+                      onMoveByKey={moveBadgeBy}
                     />
                   );
                 }
@@ -869,10 +899,10 @@ export default function BadgesTabs({
                     onAction={() => toggleBadge(badge.id)}
                     dragging={dragId === badge.id}
                     dropTarget={dropId === badge.id}
-                    onDragStart={handleRowDragStart}
-                    onDragOver={handleRowDragOver}
-                    onDrop={handleRowDrop}
-                    onDragEnd={handleRowDragEnd}
+                    onPointerDown={handleRowPointerDown}
+                    onPointerMove={handleRowPointerMove}
+                    onPointerUp={handleRowPointerUp}
+                    onMoveByKey={moveBadgeBy}
                   />
                 );
               })}
@@ -960,7 +990,7 @@ export default function BadgesTabs({
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Badge Customization</h2>
             <p className="text-white/40 text-[11.5px] mt-0.5">Tune the glow behind your profile badges</p>
           </div>
-          <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm p-6 flex flex-col gap-6">
+          <div className="bg-[#0c0c0c] border border-white/5 rounded-2xl shadow-sm p-4 sm:p-6 flex flex-col gap-6">
             <div className="flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1">
                 <span className="text-[13px] font-medium text-white/90">Glow</span>
@@ -1152,7 +1182,7 @@ export default function BadgesTabs({
               <label className="text-[12.5px] font-medium text-white/90">
                 Scroll style
               </label>
-              <div className="flex items-center gap-1 bg-[#161616] border border-white/5 rounded-xl p-1 w-fit flex-wrap">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-1 bg-[#161616] border border-white/5 rounded-xl p-1 w-full sm:w-fit">
                 {(
                   [
                     { id: "none", label: "None" },
@@ -1165,7 +1195,7 @@ export default function BadgesTabs({
                     key={opt.id}
                     type="button"
                     onClick={() => setScrollStyle(opt.id)}
-                    className={`rounded-lg px-4 py-1.5 text-[12.5px] font-normal transition-colors cursor-pointer ${
+                    className={`rounded-lg px-2 sm:px-4 py-1.5 text-[12px] sm:text-[12.5px] font-normal whitespace-nowrap text-center transition-colors cursor-pointer ${
                       scrollStyle === opt.id
                         ? "bg-[#5b6cf5]/20 text-white"
                         : "text-white/40 hover:text-white/70"
