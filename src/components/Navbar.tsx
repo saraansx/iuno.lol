@@ -1,9 +1,9 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { SITE_CONFIG } from '@/lib/config';
 
@@ -76,6 +76,30 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
+
+  // Mobile 3-dot menu — the only way to reach the other pages below lg
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  React.useEffect(() => {
+    if (!menuOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [menuOpen]);
   
   const tabs: { label: string; href: string; external?: boolean }[] = [
     { label: 'Helpcenter', href: '/#faq' },
@@ -160,7 +184,7 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
               <>
                 <Link
                   href="/signin"
-                  className="whitespace-nowrap py-2 sm:py-0 text-sm font-medium text-white/60 hover:text-white transition-all cursor-pointer"
+                  className="hidden sm:inline-flex whitespace-nowrap py-2 sm:py-0 text-sm font-medium text-white/60 hover:text-white transition-all cursor-pointer"
                   style={{ fontFamily: "var(--font-comfortaa)" }}
                 >
                   Sign In
@@ -174,6 +198,89 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
                 </Link>
               </>
             )}
+            <div ref={menuRef} className="relative shrink-0 lg:hidden">
+              <button
+                type="button"
+                onClick={() => setMenuOpen((o) => !o)}
+                aria-label="Open menu"
+                aria-expanded={menuOpen}
+                className="w-9 h-9 flex items-center justify-center text-[#ececec] hover:text-white transition-colors cursor-pointer"
+              >
+                <span className="relative block w-[18px] h-[18px]" aria-hidden="true">
+                  <motion.span
+                    className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+                    initial={false}
+                    animate={menuOpen ? { top: 8, rotate: 45 } : { top: 3, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                  <motion.span
+                    className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+                    initial={false}
+                    animate={menuOpen ? { top: 8, opacity: 0, scaleX: 0 } : { top: 8, opacity: 1, scaleX: 1 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                  />
+                  <motion.span
+                    className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+                    initial={false}
+                    animate={menuOpen ? { top: 8, rotate: -45 } : { top: 13, rotate: 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                </span>
+              </button>
+              <AnimatePresence>
+                {menuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="absolute right-0 top-[calc(100%+10px)] w-56 rounded-2xl bg-[#0c0c0c] border border-white/10 shadow-[0_16px_48px_rgba(0,0,0,0.5)] p-1.5 z-50"
+                    style={{ fontFamily: "var(--font-comfortaa)" }}
+                  >
+                    {!showDashboard && (
+                      <Link
+                        href="/signin"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-3.5 py-2.5 rounded-xl text-sm font-light text-white/90 hover:text-white hover:bg-white/5 transition-all"
+                      >
+                        Sign In
+                      </Link>
+                    )}
+                    {tabs.map((tab) => {
+                      const row = (
+                        <>
+                          <span>{tab.label}</span>
+                          {activeTab === tab.label && (
+                            <span className="w-1 h-1 rounded-full bg-[#5b6cf5] shrink-0" />
+                          )}
+                        </>
+                      );
+                      const cls = `flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-light transition-all ${
+                        activeTab === tab.label
+                          ? "text-white bg-white/5"
+                          : "text-white/85 hover:text-white hover:bg-white/5"
+                      }`;
+                      return tab.external ? (
+                        <a
+                          key={tab.label}
+                          href={tab.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={cls}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          {row}
+                        </a>
+                      ) : (
+                        <Link key={tab.label} href={tab.href} className={cls} onClick={() => setMenuOpen(false)}>
+                          {row}
+                        </Link>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </nav>

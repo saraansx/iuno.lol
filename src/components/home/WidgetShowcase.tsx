@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import OverflowPingPong from "@/components/profile/widgets/OverflowPingPong";
 
 
@@ -257,6 +257,51 @@ const FLOATS: FloatSpec[] = [
   { node: <PinterestCard />, className: "right-[2%] bottom-[14%]", rotate: -5, depth: 0.5, delay: 0.15 },
 ];
 
+// The collage is laid out at a slightly narrower stage (950px instead of 1280px) and
+// scale-fitted below lg, so small viewports get the desktop composition ~35% larger
+// without cropping the edge cards.
+const WIDGET_STAGE_W = 950;
+const WIDGET_STAGE_H = 860;
+
+function WidgetStage() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(() =>
+    typeof window === "undefined" ? 0.5 : Math.min(1, (window.innerWidth - 40) / WIDGET_STAGE_W)
+  );
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const update = () => setScale(Math.min(1, el.clientWidth / WIDGET_STAGE_W));
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="relative mx-auto mt-10 w-full"
+      style={{ height: Math.round(WIDGET_STAGE_H * scale) }}
+    >
+      <div
+        className="absolute left-1/2 top-0"
+        style={{
+          width: WIDGET_STAGE_W,
+          height: WIDGET_STAGE_H,
+          transformOrigin: "top center",
+          transform: `translateX(-50%) scale(${scale})`,
+        }}
+      >
+        {FLOATS.map((spec, i) => (
+          <Floating key={i} spec={spec} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function WidgetShowcase() {
   return (
     <section id="widgets" className="relative overflow-hidden py-16 sm:py-24 lg:py-0 lg:min-h-[860px] flex items-center">
@@ -324,10 +369,8 @@ export default function WidgetShowcase() {
         </motion.p>
 
         {}
-        <div className="lg:hidden flex flex-col items-center gap-4 mt-12 w-full">
-          <div className="opacity-90"><SpotifyCard /></div>
-          <div className="opacity-90"><ValorantCard /></div>
-          <div className="opacity-90"><DiscordPresenceCard /></div>
+        <div className="lg:hidden w-full">
+          <WidgetStage />
         </div>
       </div>
     </section>
