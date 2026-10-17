@@ -324,8 +324,8 @@ export default function TemplatesClient() {
   return (
     <div className="flex flex-col gap-6 pb-10">
       {}
-      <div className="flex items-center gap-1.5">
-        <div className="inline-flex items-center gap-1 rounded-full bg-white/[0.02] border border-white/[0.06] p-1 relative">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1.5">
+        <div className="flex items-center gap-1 rounded-full bg-white/[0.02] border border-white/[0.06] p-1 relative w-full sm:w-auto max-w-full overflow-x-auto custom-scrollbar">
           {tabs.map((t) => (
             <button
               key={t.id}
@@ -334,7 +334,7 @@ export default function TemplatesClient() {
                 setTab(t.id);
                 setPage(1);
               }}
-              className={`relative z-10 px-4 py-1.5 rounded-full text-[13px] font-light transition cursor-pointer ${tab === t.id ? "text-white" : "text-white/60 hover:text-white"}`}
+              className={`relative z-10 shrink-0 flex-1 sm:flex-none whitespace-nowrap px-2.5 sm:px-4 py-1.5 rounded-full text-center text-[12.5px] sm:text-[13px] font-light transition cursor-pointer ${tab === t.id ? "text-white" : "text-white/60 hover:text-white"}`}
               style={{ fontFamily: "var(--font-comfortaa)" }}
             >
               {tab === t.id && (
@@ -355,7 +355,7 @@ export default function TemplatesClient() {
             setSharePublic(true);
             setShareOpen(true);
           }}
-          className="ml-auto h-9 px-5 rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal transition border border-white/10 cursor-pointer"
+          className="w-full sm:w-auto sm:ml-auto shrink-0 h-9 px-5 rounded-xl sm:rounded-full bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[13px] font-normal whitespace-nowrap transition border border-white/10 cursor-pointer"
           style={{ fontFamily: "var(--font-comfortaa)" }}
         >
           Share Your Template
@@ -457,7 +457,7 @@ export default function TemplatesClient() {
                       </span>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
                       onClick={() => toggleFav(t)}
@@ -475,7 +475,7 @@ export default function TemplatesClient() {
                         setUseTarget(t);
                       }}
                       disabled={usingId === t.id}
-                      className="flex-1 h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:opacity-50 text-white text-[12px] font-normal transition cursor-pointer border border-white/10"
+                      className="flex-1 min-w-[120px] h-9 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:opacity-50 text-white text-[12px] font-normal transition cursor-pointer border border-white/10"
                       style={{ fontFamily: "var(--font-comfortaa)" }}
                     >
                       {usingId === t.id ? "Applying…" : "Use template"}
@@ -523,11 +523,11 @@ export default function TemplatesClient() {
                           onClick={() => toggleVisibility(t)}
                           disabled={visBusy === t.id}
                           title={t.isPublic ? "Make private" : "Make public"}
-                          className="h-9 px-3 rounded-xl bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] transition cursor-pointer disabled:opacity-50"
+                          className="h-9 px-3 rounded-xl bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] whitespace-nowrap transition cursor-pointer disabled:opacity-50"
                         >
                           {visBusy === t.id ? "…" : t.isPublic ? "Make private" : "Make public"}
                         </button>
-                        <button type="button" onClick={() => setDeleteTarget(t)} className="h-9 px-3 rounded-xl bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] transition cursor-pointer">
+                        <button type="button" onClick={() => setDeleteTarget(t)} className="h-9 px-3 rounded-xl bg-white/[0.06] border border-white/10 text-white/70 hover:text-white text-[12px] whitespace-nowrap transition cursor-pointer">
                           Delete
                         </button>
                       </>
@@ -556,7 +556,7 @@ export default function TemplatesClient() {
       {shareOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center p-4">
           <button type="button" aria-label="Close" onClick={() => setShareOpen(false)} className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-[440px] rounded-[20px] bg-[#0c0c0c] border border-white/10 p-6 shadow-xl">
+          <div className="relative w-full max-w-[440px] max-h-[85vh] overflow-y-auto rounded-[20px] bg-[#0c0c0c] border border-white/10 p-6 shadow-xl">
             <h2 className="text-[15px] font-medium text-white">Share Your Template</h2>
             <p className="text-[12px] text-white/40 mt-1 leading-relaxed">We&apos;ll take a screenshot of your saved profile — that becomes the cover. Your styling, avatar, banner, backgrounds &amp; music are shared — not your bio, links, username or stats.</p>
             <label className="mt-4 block">
@@ -601,7 +601,7 @@ export default function TemplatesClient() {
 
       {useTarget && (
         <div className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => { if (usingId === null) setUseTarget(null); }}>
-          <div onClick={(e) => e.stopPropagation()} className="w-[min(440px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
+          <div onClick={(e) => e.stopPropagation()} className="w-[min(440px,90vw)] max-h-[85vh] overflow-y-auto bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6">
             <h2 className="text-[15px] font-normal text-white/90 tracking-tight">Apply &quot;{useTarget.name}&quot;?</h2>
             {useTarget.requiresPremium && (
               <p className="mt-2 rounded-xl bg-[#c9a45c]/10 border border-[#c9a45c]/30 px-3 py-2 text-[12px] text-[#e3c57c] leading-relaxed">
