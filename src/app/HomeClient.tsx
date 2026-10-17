@@ -6,7 +6,7 @@ import FaqShowcase from "@/components/home/FaqShowcase";
 import PlanShowcase from "@/components/home/PlanShowcase";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
@@ -14,24 +14,14 @@ const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"),
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
 
-export default function Home() {
+interface HomeProps {
+  isAuthenticated?: boolean;
+}
+
+export default function Home({ isAuthenticated = false }: HomeProps) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
-  const [isAuth, setIsAuth] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    let alive = true;
-    fetch("/api/auth/me", { credentials: "same-origin" })
-      .then((r) => (r.ok ? r.json() : { authenticated: false }))
-      .then((d) => {
-        if (alive && typeof d?.authenticated === "boolean") setIsAuth(d.authenticated);
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
 
   const handleClaim = () => {
     const clean = username.trim().toLowerCase();
@@ -67,7 +57,7 @@ export default function Home() {
           }}
         />
 
-        <Navbar isAuthenticated={isAuth} />
+        <Navbar isAuthenticated={isAuthenticated} />
 
         <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-5 sm:px-6 pt-32 sm:pt-40 pb-16 sm:pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-10 sm:gap-14 lg:gap-6 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
