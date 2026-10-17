@@ -51,7 +51,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-100 flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -65,7 +65,7 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 5 }}
             transition={{ duration: 0.2 }}
-            className="relative w-full max-w-sm bg-[#050505]/95 backdrop-blur-3xl border border-white/10 rounded-[20px] overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.7)] p-6"
+            className="relative w-full max-w-sm bg-[#050505]/95 backdrop-blur-3xl border border-white/10 rounded-[20px] overflow-hidden shadow-[0_25px_50px_rgba(0,0,0,0.7)] p-4 sm:p-6"
           >
             <div className="mb-6">
               <div className="flex items-center justify-between mb-1">
@@ -81,14 +81,14 @@ const TurnstileVerification: React.FC<TurnstileVerificationProps> = ({ isOpen, o
             </div>
 
             <div className="mb-6">
-              <div className="w-full bg-white/2 border border-white/5 rounded-xl p-4 flex flex-col items-center justify-center min-h-22.5 relative overflow-hidden shadow-inner">
+              <div className="w-full bg-white/2 border border-white/5 rounded-xl p-2 sm:p-4 flex flex-col items-center justify-center min-h-22.5 relative overflow-hidden shadow-inner">
                 <Turnstile
                   siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                   onSuccess={onSuccess}
                   options={{
                     theme: "dark"
                   }}
-                  className="scale-[0.9] origin-center"
+                  className="origin-center scale-[0.8] min-[380px]:scale-90 sm:scale-100"
                 />
               </div>
             </div>

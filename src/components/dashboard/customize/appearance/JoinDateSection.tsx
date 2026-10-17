@@ -20,7 +20,7 @@ export default function JoinDateSection({
   joinDateFormatOptions,
 }: JoinDateSectionProps) {
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

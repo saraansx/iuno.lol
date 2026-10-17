@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 interface GeneralInfoSectionProps {
   displayName: string;
   setDisplayName: (val: string) => void;
@@ -24,6 +25,15 @@ export default function GeneralInfoSection({
 }: GeneralInfoSectionProps) {
   const [showFormattingHelp, setShowFormattingHelp] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!showFormattingHelp) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowFormattingHelp(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [showFormattingHelp]);
 
   const insertFormat = (prefix: string, suffix: string) => {
     const textarea = textareaRef.current;
@@ -63,7 +73,7 @@ export default function GeneralInfoSection({
   };
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-7 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-7 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="relative w-10 h-10 flex items-center justify-center">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="absolute">
@@ -77,7 +87,7 @@ export default function GeneralInfoSection({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center px-1">
             <label className="text-[12.5px] font-medium text-white/90">Display Name</label>
@@ -142,7 +152,7 @@ export default function GeneralInfoSection({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setShowFormattingHelp(!showFormattingHelp)}
+              onClick={() => setShowFormattingHelp(true)}
               className="flex items-center gap-1.5 text-[11px] text-white/40 hover:text-[#5b6cf5] transition-colors cursor-pointer"
             >
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -153,41 +163,6 @@ export default function GeneralInfoSection({
             </button>
           </div>
         </div>
-
-        {showFormattingHelp && (
-          <div className="bg-[#111111] border border-white/10 rounded-xl p-3.5 flex flex-col gap-2.5 text-xs text-white/70 shadow-sm transition-all">
-            <div className="flex items-center justify-between">
-              <p className="text-[11.5px] font-medium text-white/90">Text Formatting Options:</p>
-              <span className="text-[10px] text-white/30">Markdown supported</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="font-bold text-white">Bold</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">**text**</code>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="italic text-white">Italics</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">*text* or _text_</code>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="underline text-white">Underline</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">__text__</code>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="line-through text-white">Strikethrough</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">~~text~~</code>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="text-white flex items-center gap-1.5"><span className="text-[12px] opacity-70">•</span> Bullet List</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">- text or • text</code>
-              </div>
-              <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
-                <span className="text-white/60 text-[11px]">Subtext / Small Text</span>
-                <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">-# text</code>
-              </div>
-            </div>
-          </div>
-        )}
 
         <div className="w-full bg-[#161616] border border-white/5 rounded-xl overflow-hidden flex flex-col focus-within:border-white/10 transition-colors">
           <textarea
@@ -257,6 +232,79 @@ export default function GeneralInfoSection({
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showFormattingHelp && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setShowFormattingHelp(false)}
+            className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-md flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="formatting-guide-title"
+              className="w-[min(480px,92vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto custom-scrollbar"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col">
+                  <h2 id="formatting-guide-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+                    Formatting Guide
+                  </h2>
+                  <p className="text-[12.5px] text-white/40 mt-0.5">Markdown is supported in your description.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowFormattingHelp(false)}
+                  aria-label="Close formatting guide"
+                  title="Close"
+                  className="p-1 -mr-1 -mt-1 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-colors cursor-pointer shrink-0"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="font-bold text-white">Bold</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">**text**</code>
+                </div>
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="italic text-white">Italics</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">*text* or _text_</code>
+                </div>
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="underline text-white">Underline</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">__text__</code>
+                </div>
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="line-through text-white">Strikethrough</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">~~text~~</code>
+                </div>
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="text-white flex items-center gap-1.5"><span className="text-[12px] opacity-70">•</span> Bullet List</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">- text or • text</code>
+                </div>
+                <div className="flex items-center justify-between bg-white/5 px-3 py-2 rounded-lg border border-white/5">
+                  <span className="text-white/60 text-[11px]">Subtext / Small Text</span>
+                  <code className="text-[#5b6cf5] bg-black/40 px-1.5 py-0.5 rounded font-mono">-# text</code>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

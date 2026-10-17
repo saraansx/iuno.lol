@@ -66,14 +66,14 @@ const ProfileCustomizeNav = () => {
   const pathname = usePathname();
 
   return (
-    <div className="bg-[#161616] border border-white/5 rounded-2xl p-1.5 flex items-center gap-1 w-max overflow-x-auto custom-scrollbar shadow-sm">
+    <div className="bg-[#161616] border border-white/5 rounded-2xl p-1.5 flex items-center gap-1 w-full sm:w-max max-w-full overflow-x-auto custom-scrollbar shadow-sm">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (
           <Link
             key={tab.label}
             href={tab.href}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-normal transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[13px] font-normal transition-all shrink-0 whitespace-nowrap ${
               isActive
                 ? "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer"
                 : "text-white/40 hover:text-white/70 hover:bg-white/5 cursor-pointer"

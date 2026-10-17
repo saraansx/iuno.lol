@@ -15,11 +15,12 @@ interface LinksSectionRowProps {
   data: LinksSectionData;
   onChange: (patch: Partial<LinksSectionData>) => void;
   dragHandleProps?: {
-    onDragStart: (e: React.DragEvent) => void;
-    onDragEnd: () => void;
+    onPointerDown: (e: React.PointerEvent) => void;
+    onPointerMove: (e: React.PointerEvent) => void;
+    onPointerUp: (e: React.PointerEvent) => void;
+    onPointerCancel: (e: React.PointerEvent) => void;
+    onKeyDown: (e: React.KeyboardEvent) => void;
   };
-  onDragOverRow?: (e: React.DragEvent) => void;
-  onDropRow?: (e: React.DragEvent) => void;
   dropHighlight?: boolean;
   isDragging?: boolean;
 }
@@ -28,8 +29,6 @@ export default function LinksSectionRow({
   data,
   onChange,
   dragHandleProps,
-  onDragOverRow,
-  onDropRow,
   dropHighlight,
   isDragging,
 }: LinksSectionRowProps) {
@@ -38,16 +37,20 @@ export default function LinksSectionRow({
 
   return (
     <div
-      onDragOver={onDragOverRow}
-      onDrop={onDropRow}
+      data-section="links"
       className={`bg-[#0c0c0c] border rounded-[16px] transition-all duration-150 select-none ${hidden ? "opacity-40" : ""} ${isDragging ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]" : dropHighlight ? "border-[#5b6cf5] shadow-lg shadow-[#5b6cf5]/10" : "border-white/5"}`}
     >
       <div className="flex items-center gap-3.5 px-4 py-3.5">
         <span
-          draggable={!!dragHandleProps}
-          onDragStart={dragHandleProps?.onDragStart}
-          onDragEnd={dragHandleProps?.onDragEnd}
-          className={dragHandleProps ? "cursor-grab active:cursor-grabbing flex shrink-0" : "flex shrink-0"}
+          role={dragHandleProps ? "button" : undefined}
+          tabIndex={dragHandleProps ? 0 : undefined}
+          aria-label={dragHandleProps ? "Reorder section" : undefined}
+          onPointerDown={dragHandleProps?.onPointerDown}
+          onPointerMove={dragHandleProps?.onPointerMove}
+          onPointerUp={dragHandleProps?.onPointerUp}
+          onPointerCancel={dragHandleProps?.onPointerCancel}
+          onKeyDown={dragHandleProps?.onKeyDown}
+          className={dragHandleProps ? "cursor-grab active:cursor-grabbing touch-none flex shrink-0 p-2 -m-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60" : "flex shrink-0"}
         >
           <svg className="text-white/20 shrink-0" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
             <circle cx="9" cy="5" r="1.6" />

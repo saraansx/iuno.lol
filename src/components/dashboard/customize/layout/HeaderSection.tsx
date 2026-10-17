@@ -14,7 +14,7 @@ const BADGES_PLACEMENT = "Header footer";
 
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (
-    <div className="flex items-center gap-1.5 w-[130px] shrink-0">
+    <div className="flex items-center gap-1.5 w-full sm:w-[130px] shrink-0">
       <span className={`text-[12.5px] font-medium ${disabled ? "text-white/35" : "text-white/90"}`}>
         {text}
       </span>
@@ -76,7 +76,7 @@ export default function HeaderSection({
   const selected = AVATAR_OPTIONS.find((o) => o.id === avatarPlacement);
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <svg
@@ -103,7 +103,7 @@ export default function HeaderSection({
       </div>
 
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
           <RowLabel text="Avatar" hint="Where the avatar sits relative to your name." />
           <div className="relative flex-1" ref={dropdownRef}>
             <button
@@ -164,7 +164,7 @@ export default function HeaderSection({
           </div>
         </div>
 
-        <div className="flex items-center gap-4 opacity-40 pointer-events-none select-none">
+        <div className="flex flex-col gap-2.5 opacity-40 pointer-events-none select-none sm:flex-row sm:items-center sm:gap-4">
           <RowLabel text="Badges" hint="Not available yet." disabled />
           <InertDropdown value={BADGES_PLACEMENT} />
         </div>

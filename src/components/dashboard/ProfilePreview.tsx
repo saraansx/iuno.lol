@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, type CSSProperties } from "react";
 import Layout1 from "@/components/profile/layouts/Layout1";
 import type { Decoration } from "@/components/dashboard/DecorationPicker";
 
@@ -265,6 +265,7 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
   const panelRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [scrollerW, setScrollerW] = useState(0);
+  const [open, setOpen] = useState(false);
 
   const MIN_WIDTH = 300;
   const MAX_WIDTH = 600;
@@ -349,9 +350,19 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
   }, [isDragging, applyDrag, endDrag]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--preview-width', `${width}px`);
+    const root = document.documentElement;
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const apply = () => {
+      // On mobile the preview is a full-screen overlay, so no side gutter is needed.
+      // "-2rem" cancels the "+ 2rem" the pages add, giving phones symmetric padding.
+      root.style.setProperty("--preview-width", mq.matches ? `${width}px` : "-2rem");
+      if (mq.matches) setOpen(false);
+    };
+    apply();
+    mq.addEventListener("change", apply);
     return () => {
-      document.documentElement.style.removeProperty('--preview-width');
+      mq.removeEventListener("change", apply);
+      root.style.removeProperty("--preview-width");
     };
   }, [width]);
 
@@ -368,14 +379,40 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
   const forceCardWidth = scrollerW > 0 ? Math.max(260, Math.floor(scrollerW - 24)) : undefined;
 
   return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open profile preview"
+        title="Open preview"
+        className={`lg:hidden fixed bottom-6 right-4 z-50 h-12 w-12 rounded-full bg-[#5b6cf5] text-white flex items-center justify-center transition-all duration-300 ease-out ${
+          open ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100 active:scale-95"
+        }`}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
+
+      <div
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+        className={`lg:hidden fixed inset-0 z-[69] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ease-out ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      />
+
     <div
       ref={panelRef}
-      className="bg-[#0c0c0c] fixed right-0 top-4 bottom-4 z-40 flex flex-col border-y border-l border-white/5"
-      style={{ width: `${width}px` }}
+      className={`bg-[#0c0c0c] fixed inset-0 z-[70] flex flex-col w-full lg:w-[var(--panel-w)] lg:z-40 lg:left-auto lg:top-4 lg:bottom-4 lg:border-y lg:border-l lg:border-white/5 transition-[opacity,transform] duration-300 ease-out ${
+        open ? "opacity-100 translate-y-0" : "opacity-0 translate-y-full pointer-events-none"
+      } lg:opacity-100 lg:translate-y-0 lg:pointer-events-auto`}
+      style={{ "--panel-w": `${width}px` } as CSSProperties}
     >
       <div
         onPointerDown={handlePointerDown}
-        className={`absolute left-0 top-0 bottom-0 w-1.5 touch-none cursor-col-resize z-50 group transition-colors hover:bg-white/5 ${
+        className={`absolute left-0 top-0 bottom-0 w-1.5 touch-none cursor-col-resize z-50 group transition-colors hover:bg-white/5 hidden lg:block ${
           isDragging ? "bg-white/5" : ""
         }`}
       >
@@ -388,6 +425,18 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
         <p className="text-[11px] uppercase tracking-[0.15em] text-white/20 font-normal">
           Preview
         </p>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          aria-label="Close preview"
+          title="Close preview"
+          className="lg:hidden p-1 -mr-1 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/5 transition-colors"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
       </div>
 
       <div
@@ -648,6 +697,7 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
         </div>
       </div>
     </div>
+    </>
   );
 };
 

@@ -56,7 +56,7 @@ const CARD_OPACITY_MAX = 100;
 
 function RowLabel({ text, hint, disabled }: { text: string; hint: string; disabled?: boolean }) {
   return (
-    <div className="flex items-center gap-1.5 w-[130px] shrink-0">
+    <div className="flex items-center gap-1.5 w-full sm:w-[130px] shrink-0">
       <span className={`text-[12.5px] font-medium ${disabled ? "text-white/35" : "text-white/90"}`}>
         {text}
       </span>
@@ -108,7 +108,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
     ((displayOpacity - CARD_OPACITY_MIN) / (CARD_OPACITY_MAX - CARD_OPACITY_MIN)) * 100;
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
           <svg
@@ -201,7 +201,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
       <div className="h-px w-full bg-white/5" />
 
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
           <RowLabel
             text="Alignment"
             hint="Whether the card's content is aligned left, centred or right."
@@ -235,7 +235,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
             <RowLabel
               text="Content width"
               hint={`How wide the card is, between ${CONTENT_WIDTH_MIN} and ${CONTENT_WIDTH_MAX}px.`}
@@ -266,13 +266,13 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
             </div>
           </div>
           {contentWidth < CONTENT_WIDTH_MIN && (
-            <span className="text-[11.5px] text-[#e2894b] pl-[146px]">
+            <span className="text-[11.5px] text-[#e2894b] pl-0 sm:pl-[146px]">
               Minimum is {CONTENT_WIDTH_MIN} px
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
           <RowLabel
             text="Wrap in card"
             hint="Off removes the card background, border and shadow, leaving the content on the page."
@@ -296,7 +296,7 @@ const displayWidth = Math.min(CONTENT_WIDTH_MAX, Math.max(CONTENT_WIDTH_MIN, con
         </div>
 
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:gap-4">
           <RowLabel
             text="Card opacity"
             hint={`How solid the card is, between ${CARD_OPACITY_MIN}% and ${CARD_OPACITY_MAX}%.`}

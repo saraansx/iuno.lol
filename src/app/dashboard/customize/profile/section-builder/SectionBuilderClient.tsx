@@ -35,33 +35,45 @@ export default function SectionBuilderClient({ user, backgrounds, initialSection
   const patchLinks = (patch: Partial<LinksSectionData>) =>
     setLinks((prev) => ({ ...prev, ...patch }));
 
-  const dragStart =
-    (kind: "about" | "links") => (e: React.DragEvent) => {
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/section", kind);
+  const toggleOrder = () => patchLinks({ aboveAbout: !links.aboveAbout });
+
+  const readSectionAt = (x: number, y: number): "about" | "links" | null => {
+    const el = document.elementFromPoint(x, y) as HTMLElement | null;
+    const kind = el?.closest?.("[data-section]")?.getAttribute("data-section");
+    return kind === "about" || kind === "links" ? kind : null;
+  };
+
+  const handlePointerDown =
+    (kind: "about" | "links") => (e: React.PointerEvent) => {
+      e.preventDefault();
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
       setDragging(kind);
+      setDropTarget(null);
     };
 
-  const dragEnd = () => {
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragging) return;
+    setDropTarget(readSectionAt(e.clientX, e.clientY));
+  };
+
+  const handlePointerUp =
+    (kind: "about" | "links") => (e: React.PointerEvent) => {
+      const target = readSectionAt(e.clientX, e.clientY);
+      if (target && target !== kind) toggleOrder();
+      setDragging(null);
+      setDropTarget(null);
+    };
+
+  const handlePointerCancel = () => {
     setDragging(null);
     setDropTarget(null);
   };
 
-  const dragOver =
-    (target: "about" | "links") => (e: React.DragEvent) => {
+  const handleHandleKeyDown = (e: React.KeyboardEvent) => {
+    if (["ArrowUp", "ArrowDown", "Enter", " "].includes(e.key)) {
       e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      setDropTarget(target);
-    };
-
-  const dropOn = (target: "about" | "links") => (e: React.DragEvent) => {
-    e.preventDefault();
-    const kind = e.dataTransfer.getData("text/section");
-    if ((kind === "about" || kind === "links") && kind !== target) {
-      patchLinks({ aboveAbout: !links.aboveAbout });
+      toggleOrder();
     }
-    setDragging(null);
-    setDropTarget(null);
   };
 
   const above = links.aboveAbout;
@@ -70,9 +82,13 @@ export default function SectionBuilderClient({ user, backgrounds, initialSection
     <AboutSectionRow
       data={about}
       onChange={patchAbout}
-      dragHandleProps={{ onDragStart: dragStart("about"), onDragEnd: dragEnd }}
-      onDragOverRow={dragOver("about")}
-      onDropRow={dropOn("about")}
+      dragHandleProps={{
+        onPointerDown: handlePointerDown("about"),
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerUp("about"),
+        onPointerCancel: handlePointerCancel,
+        onKeyDown: handleHandleKeyDown,
+      }}
       dropHighlight={dragging === "links" && dropTarget === "about"}
       isDragging={dragging === "about"}
     />
@@ -82,9 +98,13 @@ export default function SectionBuilderClient({ user, backgrounds, initialSection
     <LinksSectionRow
       data={links}
       onChange={patchLinks}
-      dragHandleProps={{ onDragStart: dragStart("links"), onDragEnd: dragEnd }}
-      onDragOverRow={dragOver("links")}
-      onDropRow={dropOn("links")}
+      dragHandleProps={{
+        onPointerDown: handlePointerDown("links"),
+        onPointerMove: handlePointerMove,
+        onPointerUp: handlePointerUp("links"),
+        onPointerCancel: handlePointerCancel,
+        onKeyDown: handleHandleKeyDown,
+      }}
       dropHighlight={dragging === "about" && dropTarget === "links"}
       isDragging={dragging === "links"}
     />

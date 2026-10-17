@@ -2,7 +2,6 @@
 import { cn } from "@/lib/utils";
 import { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -117,12 +116,31 @@ export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
         </Link>
         <button
           type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Open menu"
+          onClick={() => setOpen((o) => !o)}
+          aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="p-2 -mr-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+          className="relative z-[110] w-9 h-9 -mr-1.5 flex items-center justify-center text-white/70 hover:text-white transition-colors"
         >
-          <Menu className="w-5 h-5" />
+          <span className="relative block w-[18px] h-[18px]" aria-hidden="true">
+            <motion.span
+              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              initial={false}
+              animate={open ? { top: 8, rotate: 45 } : { top: 3, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            />
+            <motion.span
+              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              initial={false}
+              animate={open ? { top: 8, opacity: 0, scaleX: 0 } : { top: 8, opacity: 1, scaleX: 1 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+            />
+            <motion.span
+              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              initial={false}
+              animate={open ? { top: 8, rotate: -45 } : { top: 13, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            />
+          </span>
         </button>
       </div>
 
@@ -145,14 +163,6 @@ export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
               transition={{ duration: 0.28, ease: "easeInOut" }}
               className="fixed left-0 top-0 z-[100] h-full w-[82%] max-w-[300px] bg-[#0a0a0a] border-r border-white/[0.08] md:hidden"
             >
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close menu"
-                className="absolute right-3 top-3 z-10 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
               <div
                 className="h-full flex flex-col"
                 onClickCapture={(e) => {

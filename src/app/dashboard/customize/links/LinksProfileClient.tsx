@@ -557,8 +557,8 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
         className="flex flex-col gap-8 w-full"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col">
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
                 Your links ({count}/{MAX_LINKS})
@@ -573,7 +573,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
               disabled={count >= MAX_LINKS}
               onClick={openAdd}
               title={count >= MAX_LINKS ? `You can only add ${MAX_LINKS} links` : undefined}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal whitespace-nowrap transition-all duration-200 ${
                 count >= MAX_LINKS
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
                   : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
@@ -651,7 +651,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
           )}
         </div>
 
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
           <div className="flex flex-col">
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
               Link appearance

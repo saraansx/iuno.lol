@@ -502,7 +502,7 @@ export default function AssetsSection({
   }
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex items-center gap-3">
         <div className="relative w-10 h-10 flex items-center justify-center">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="absolute">
@@ -518,8 +518,8 @@ export default function AssetsSection({
       </div>
 
       <div className="flex flex-col gap-8">
-        <div className="flex gap-10 items-start">
-          <div className="flex items-center gap-5 shrink-0">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10 lg:items-start">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 w-full lg:w-auto lg:shrink-0">
             <div className="relative shrink-0">
               <div className={`w-[88px] h-[88px] bg-[#161616] border border-white/10 flex items-center justify-center overflow-hidden transition-all relative ${
                 avatarShape === "square" ? "rounded-lg" :
@@ -559,7 +559,7 @@ export default function AssetsSection({
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2.5 w-80">
+            <div className="flex flex-col gap-2.5 w-full lg:w-80">
               <div className="flex gap-2 w-full">
                 <button
                   onClick={() => setAvatarModalOpen(true)}
@@ -611,9 +611,9 @@ export default function AssetsSection({
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 w-full lg:w-auto">
             <label className="text-[12.5px] font-medium text-white/90">Profile Picture Shape</label>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-3">
               <div className="flex flex-col items-center gap-2 cursor-pointer" onClick={() => setAvatarShape("square")}>
                 <div className={`w-14 h-14 rounded-lg border flex items-center justify-center transition-colors ${avatarShape === "square" ? "border-[1.5px] border-[#5b6cf5] bg-[#5b6cf5]/5 shadow-[0_0_10px_rgba(91,108,245,0.15)]" : "border-white/10 border-dashed hover:border-white/20"}`}>
                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={avatarShape === "square" ? "#5b6cf5" : "white"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -642,12 +642,12 @@ export default function AssetsSection({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-4">
           <div className="flex flex-col gap-2">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex flex-col">
-                <h3 className="text-white font-normal text-[16px] tracking-tight">Backgrounds</h3>
-                <p className="text-white/40 text-[13px] mt-0.5">Images or videos that play behind your page.</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col min-w-0">
+                <h3 className="text-white font-normal text-[15px] sm:text-[16px] tracking-tight">Backgrounds</h3>
+                <p className="text-white/40 text-[12px] sm:text-[13px] mt-0.5">Images or videos that play behind your page.</p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <div className="relative shrink-0">
@@ -821,12 +821,12 @@ export default function AssetsSection({
           </div>
 
           <div className="flex flex-col gap-2 h-full">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex flex-col">
-                <h3 className="text-white font-normal text-[16px] tracking-tight">Banner</h3>
-                <p className="text-white/40 text-[13px] mt-0.5">Wide image shown at the top of your page.</p>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col min-w-0">
+                <h3 className="text-white font-normal text-[15px] sm:text-[16px] tracking-tight">Banner</h3>
+                <p className="text-white/40 text-[12px] sm:text-[13px] mt-0.5">Wide image shown at the top of your page.</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0 pt-1">
+              <div className="flex items-center gap-2 shrink-0 sm:pt-1">
                 <span className="text-[12px] text-white/50">Blend</span>
                 <button
                   type="button"
@@ -914,7 +914,7 @@ export default function AssetsSection({
         </div>
 
         <div className="flex flex-col gap-3 pt-1">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
             <span className="text-[12.5px] font-medium text-white/90">Animated backgrounds</span>
             <span className="text-[11px] text-white/30">Loop forever, no upload needed</span>
           </div>

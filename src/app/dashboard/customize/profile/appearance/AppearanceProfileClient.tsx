@@ -310,7 +310,7 @@ export default function AppearanceProfileClient({ user, backgrounds }: { user: F
         className="w-full pb-10 flex flex-col gap-6"
         style={{ paddingRight: 'calc(var(--preview-width, 380px) + 2rem)' }}
       >
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-8 shadow-sm">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-8 shadow-sm">
           <div className="flex flex-col gap-5">
             <div className="flex items-center gap-3">
               <svg
@@ -332,7 +332,7 @@ export default function AppearanceProfileClient({ user, backgrounds }: { user: F
               </h2>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex flex-col gap-3 flex-1">
                 {renderSectionRow(profileCardItems[0], (
                   <div className="grid grid-cols-2 gap-4">
