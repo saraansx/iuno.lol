@@ -64,9 +64,14 @@ const tabs = [
 
 const ProfileCustomizeNav = () => {
   const pathname = usePathname();
+  const hasActiveTab = tabs.some((tab) => tab.href === pathname);
+
+  // Pages that aren't part of this tab set (e.g. Widgets) would otherwise show a
+  // bar with nothing highlighted. Those pages have their own breadcrumb + sidebar nav.
+  if (!hasActiveTab) return null;
 
   return (
-    <div className="bg-[#161616] border border-white/5 rounded-2xl p-1.5 flex items-center gap-1 w-full sm:w-max max-w-full overflow-x-auto custom-scrollbar shadow-sm">
+    <div className="bg-[#161616] border border-white/5 rounded-2xl p-1.5 flex items-center gap-1 w-full max-w-full overflow-x-auto custom-scrollbar shadow-sm">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (

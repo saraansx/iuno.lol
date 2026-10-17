@@ -122,44 +122,68 @@ export default function WidgetsCustomization({
   const [widgets, setWidgets] = useState<WidgetItem[]>(initialWidgets);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
-  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const widgetsRef = useRef<WidgetItem[]>(widgets);
+  const dragFromRef = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     setWidgets(initialWidgets);
   }, [initialWidgets]);
 
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    setDraggedIdx(index);
-    e.dataTransfer.effectAllowed = "move";
-  };
+  useEffect(() => {
+    widgetsRef.current = widgets;
+  }, [widgets]);
 
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    if (draggedIdx === null || draggedIdx === index) return;
-    setDragOverIdx(index);
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    if (draggedIdx === null || draggedIdx === dropIndex) {
-      setDraggedIdx(null);
-      setDragOverIdx(null);
-      return;
-    }
-    const updated = [...widgets];
-    const [draggedItem] = updated.splice(draggedIdx, 1);
-    updated.splice(dropIndex, 0, draggedItem);
-
+  const reorderWidgets = (from: number, to: number) => {
+    const current = widgetsRef.current;
+    if (from === to || from < 0 || to < 0 || from >= current.length || to >= current.length) return;
+    const updated = [...current];
+    const [moved] = updated.splice(from, 1);
+    updated.splice(to, 0, moved);
+    widgetsRef.current = updated;
     setWidgets(updated);
-    setDraggedIdx(null);
-    setDragOverIdx(null);
-    onWidgetsChange?.(updated);
   };
 
-  const handleDragEnd = () => {
+  // Pointer-based reordering: HTML5 drag-and-drop never fires on touch screens.
+  const handleGripPointerDown = (e: React.PointerEvent<HTMLDivElement>, index: number) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    isDraggingRef.current = true;
+    dragFromRef.current = index;
+    setDraggedIdx(index);
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handleGripPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || dragFromRef.current === null) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+    const row = el?.closest("[data-widget-id]") as HTMLElement | null;
+    if (!row) return;
+    const overIdx = widgetsRef.current.findIndex((w) => w.id === row.dataset.widgetId);
+    if (overIdx === -1 || overIdx === dragFromRef.current) return;
+    reorderWidgets(dragFromRef.current, overIdx);
+    dragFromRef.current = overIdx;
+    setDraggedIdx(overIdx);
+  };
+
+  const handleGripPointerUp = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    dragFromRef.current = null;
     setDraggedIdx(null);
-    setDragOverIdx(null);
+    if (e.currentTarget.hasPointerCapture?.(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    onWidgetsChange?.(widgetsRef.current);
+  };
+
+  const handleGripKeyDown = (e: React.KeyboardEvent<HTMLDivElement>, index: number) => {
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
+    e.preventDefault();
+    const to = e.key === "ArrowUp" ? index - 1 : index + 1;
+    if (to < 0 || to >= widgetsRef.current.length) return;
+    reorderWidgets(index, to);
+    onWidgetsChange?.(widgetsRef.current);
   };
 
   useEffect(() => {
@@ -375,9 +399,9 @@ export default function WidgetsCustomization({
   return (
     <>
       <div className="flex flex-col gap-8">
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="flex flex-col min-w-0">
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
                 Your widgets ({count}/{maxWidgets})
               </h2>
@@ -390,7 +414,7 @@ export default function WidgetsCustomization({
               type="button"
               disabled={isAddDisabled}
               onClick={() => setIsModalOpen(true)}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
+              className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal whitespace-nowrap shrink-0 w-full sm:w-auto transition-all duration-200 ${
                 isAddDisabled
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
                   : "bg-[#5b6cf5]/15 hover:bg-[#5b6cf5]/25 border border-[#5b6cf5]/20 text-white cursor-pointer active:scale-95"
@@ -416,21 +440,25 @@ export default function WidgetsCustomization({
               {widgets.map((w, index) => (
                 <div
                   key={w.id}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragOver={(e) => handleDragOver(e, index)}
-                  onDrop={(e) => handleDrop(e, index)}
-                  onDragEnd={handleDragEnd}
-                  className={`group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
+                  data-widget-id={w.id}
+                  className={`group flex items-center justify-between gap-3 p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 select-none ${
                     draggedIdx === index
-                      ? "opacity-35 border-[#5b6cf5]/40 scale-[0.99]"
-                      : dragOverIdx === index
-                      ? "border-[#5b6cf5] bg-[#161616] shadow-lg shadow-[#5b6cf5]/10"
+                      ? "border-[#5b6cf5]/60 bg-[#161616] shadow-lg shadow-[#5b6cf5]/10 scale-[0.99]"
                       : "border-white/5"
                   }`}
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="cursor-grab active:cursor-grabbing text-white/20 group-hover:text-white/60 transition-colors">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      aria-label="Reorder widget"
+                      onPointerDown={(e) => handleGripPointerDown(e, index)}
+                      onPointerMove={handleGripPointerMove}
+                      onPointerUp={handleGripPointerUp}
+                      onPointerCancel={handleGripPointerUp}
+                      onKeyDown={(e) => handleGripKeyDown(e, index)}
+                      className="shrink-0 p-2 -m-2 cursor-grab active:cursor-grabbing touch-none text-white/20 group-hover:text-white/60 focus:text-white/70 focus:outline-none transition-colors"
+                    >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="9" cy="12" r="1" />
                         <circle cx="9" cy="5" r="1" />
@@ -441,7 +469,7 @@ export default function WidgetsCustomization({
                       </svg>
                     </div>
 
-                    <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center">
+                    <div className="w-9 h-9 shrink-0 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center">
                       {w.platform === "discord" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#5865F2">
                           <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" />
@@ -491,9 +519,9 @@ export default function WidgetsCustomization({
                       )}
                     </div>
 
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[13.5px] font-normal text-white/95 tracking-tight">
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[13.5px] font-normal text-white/95 tracking-tight truncate">
                           {w.type === "presence"
                             ? "Discord Presence"
                             : w.type === "server"
@@ -535,18 +563,18 @@ export default function WidgetsCustomization({
                             : "Genshin Impact"}
                         </span>
                         {!w.enabled && (
-                          <span className="px-2 py-0.5 rounded-[6px] bg-red-500/[0.08] border border-red-500/15 text-[11.5px] text-red-400 font-light tracking-normal leading-none">
+                          <span className="shrink-0 px-2 py-0.5 rounded-[6px] bg-red-500/[0.08] border border-red-500/15 text-[11.5px] text-red-400 font-light tracking-normal leading-none">
                             Disabled
                           </span>
                         )}
                       </div>
-                      <span className="text-[11.5px] font-mono text-white/35">
+                      <span className="text-[11.5px] font-mono text-white/35 truncate">
                         {w.targetId}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <div className="relative" ref={openMenuId === w.id ? menuRef : null}>
                       <button
                         type="button"

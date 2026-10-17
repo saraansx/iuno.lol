@@ -119,25 +119,27 @@ export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
           onClick={() => setOpen((o) => !o)}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
-          className="relative z-[110] w-9 h-9 -mr-1.5 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+          className={`w-9 h-9 -mr-1.5 flex items-center justify-center text-white/70 hover:text-white transition-colors ${
+            open ? "relative z-[110]" : ""
+          }`}
         >
           <span className="relative block w-[18px] h-[18px]" aria-hidden="true">
             <motion.span
-              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              className="absolute left-0 top-0 w-[18px] h-[2px] rounded-full bg-current"
               initial={false}
-              animate={open ? { top: 8, rotate: 45 } : { top: 3, rotate: 0 }}
+              animate={open ? { y: 8, rotate: 45 } : { y: 0, rotate: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             />
             <motion.span
-              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              className="absolute left-0 top-1/2 -mt-px w-[18px] h-[2px] rounded-full bg-current"
               initial={false}
-              animate={open ? { top: 8, opacity: 0, scaleX: 0 } : { top: 8, opacity: 1, scaleX: 1 }}
+              animate={open ? { opacity: 0, scaleX: 0 } : { opacity: 1, scaleX: 1 }}
               transition={{ duration: 0.15, ease: "easeOut" }}
             />
             <motion.span
-              className="absolute left-0 w-[18px] h-[2px] rounded-full bg-current"
+              className="absolute left-0 bottom-0 w-[18px] h-[2px] rounded-full bg-current"
               initial={false}
-              animate={open ? { top: 8, rotate: -45 } : { top: 13, rotate: 0 }}
+              animate={open ? { y: -8, rotate: -45 } : { y: 0, rotate: 0 }}
               transition={{ type: "spring", stiffness: 500, damping: 30 }}
             />
           </span>
@@ -169,7 +171,9 @@ export const MobileSidebar = ({ children }: React.ComponentProps<"div">) => {
                   if ((e.target as Element).closest("a")) setOpen(false);
                 }}
               >
-                {children}
+                <SidebarProvider open animate={false}>
+                  {children}
+                </SidebarProvider>
               </div>
             </motion.div>
           </>

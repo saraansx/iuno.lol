@@ -542,7 +542,7 @@ export default function SearchTracksModal({
   return (
     <AnimatePresence>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -558,14 +558,14 @@ export default function SearchTracksModal({
             transition={{ duration: 0.15 }}
             className={`relative w-full ${results.length > 0 ? "max-w-[900px]" : "max-w-[560px]"} max-h-[85vh] flex flex-col bg-[#0c0c0c] border border-white/10 rounded-[24px] shadow-2xl z-10 overflow-hidden transition-all duration-200`}
           >
-            <div className="px-6 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
+            <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-4 border-b border-white/[0.06] shrink-0">
               <h3 className="text-[15px] font-normal text-white tracking-tight">Search Tracks</h3>
               <p className="text-[12.5px] text-white/40 mt-0.5">
                 Select a track to preview audio and lyrics, then add it.
               </p>
             </div>
 
-            <div className="px-6 py-4 flex-1 min-h-0 overflow-y-auto">
+            <div className="px-4 sm:px-6 py-4 flex-1 min-h-0 overflow-y-auto">
               {view === "choose" ? (
                 <div className="flex flex-col gap-3 py-1">
                   <button
@@ -651,8 +651,8 @@ export default function SearchTracksModal({
                   <p className="text-[12.5px] text-white/40 mt-1">{error}</p>
                 </div>
               ) : results.length > 0 && selectedTrack ? (
-                <div className="flex gap-4 py-3 min-h-0">
-                  <div className="flex flex-col gap-1.5 flex-1 min-w-0 basis-0">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 py-3 min-h-0">
+                  <div className="flex flex-col gap-1.5 min-w-0 flex-none sm:flex-1 sm:basis-0">
                     {results.slice(0, 4).map((t) => {
                       const rowDur = formatDuration(t.duration);
                       const isSelected = t.id === selectedTrack.id;
@@ -684,7 +684,7 @@ export default function SearchTracksModal({
                     })}
                   </div>
 
-                  <div className="flex-1 min-w-0 basis-0 self-start flex flex-col rounded-2xl border border-white/[0.07] bg-[#101010]/80 backdrop-blur-md overflow-hidden">
+                  <div className="min-w-0 flex-none sm:flex-1 sm:basis-0 self-stretch sm:self-start flex flex-col rounded-2xl border border-white/[0.07] bg-[#101010]/80 backdrop-blur-md overflow-hidden">
                     <div className="flex items-center gap-3 px-4 pt-3.5 pb-3 border-b border-white/[0.06] shrink-0">
                       <span className="w-11 h-11 rounded-xl bg-[#161616] border border-white/10 flex items-center justify-center shrink-0 overflow-hidden">
                         <Artwork src={selectedTrack.artwork} />

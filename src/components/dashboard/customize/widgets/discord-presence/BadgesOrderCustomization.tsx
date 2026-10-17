@@ -142,7 +142,7 @@ export default function BadgesOrderCustomization({
   const activeDraggingBadge = sortedBadges.find((b) => b.id === activeDragId);
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6 select-none relative">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6 select-none relative">
       <div>
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
           Badges & Order

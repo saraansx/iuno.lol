@@ -353,7 +353,7 @@ export default function AddWidgetModal({
 
       <div
         ref={modalRef}
-        className="relative w-full max-w-[440px] bg-[#0c0c0c] border border-white/10 rounded-[24px] p-6 shadow-2xl z-10 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200"
+        className="relative w-full max-w-[440px] max-h-[85vh] overflow-y-auto bg-[#0c0c0c] border border-white/10 rounded-[24px] p-4 sm:p-6 shadow-2xl z-10 flex flex-col gap-5 animate-in fade-in zoom-in-95 duration-200"
       >
         <div className="flex items-start justify-between">
           <div className="flex flex-col">
@@ -366,7 +366,7 @@ export default function AddWidgetModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
+            className="shrink-0 w-8 h-8 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 flex items-center justify-center text-white/40 hover:text-white/80 transition-colors cursor-pointer"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18M6 6l12 12" />

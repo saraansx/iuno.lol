@@ -38,7 +38,7 @@ const SaveBar = ({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 20, scale: 0.95 }}
           transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-          className="fixed bottom-20 lg:bottom-12 left-4 right-4 lg:left-[260px] lg:right-[var(--preview-width,380px)] z-50 flex justify-center pointer-events-none"
+          className="fixed bottom-20 lg:bottom-12 left-4 right-4 lg:left-[260px] lg:right-[var(--preview-width,0px)] z-50 flex justify-center pointer-events-none"
         >
           <div className="bg-[#111111] border border-white/[0.08] rounded-[14px] pl-5 pr-2 py-2 flex items-center gap-6 pointer-events-auto">
             <div className="flex items-center gap-2.5">

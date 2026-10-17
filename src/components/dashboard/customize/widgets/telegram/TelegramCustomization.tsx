@@ -34,7 +34,7 @@ export default function TelegramCustomization({
   onShowViewButtonChange,
 }: TelegramCustomizationProps) {
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
       <div>
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
           Telegram Settings

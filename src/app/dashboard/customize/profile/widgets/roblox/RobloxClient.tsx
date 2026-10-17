@@ -175,7 +175,7 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
     <>
       <div className="w-full flex flex-col gap-6 pb-24">
         <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+          <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Account</h2>
               <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
@@ -205,7 +205,7 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
             </div>
           </div>
 
-          <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
+          <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
             <div>
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Preview</h2>
               <p className="text-[12.5px] font-normal text-white/40 mt-0.5">
@@ -213,7 +213,7 @@ export default function RobloxClient({ user }: { user: FullUser | null }) {
               </p>
             </div>
 
-            <div className="w-full flex-1 flex items-center justify-start p-6 bg-[#141414]/40 border border-white/5 rounded-2xl min-h-[180px]">
+            <div className="w-full flex-1 flex items-center justify-start p-4 sm:p-6 bg-[#141414]/40 border border-white/5 rounded-2xl min-h-[180px]">
               {!isValidInput ? (
                 <div className="flex flex-col items-center justify-center text-center py-4 w-full">
                   <div className="w-8 h-8 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-center text-white/30 mb-2">

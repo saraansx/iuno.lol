@@ -178,7 +178,7 @@ interface PlayerStyleSectionProps {
 
 export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg, setArtBg, volumeControl, setVolumeControl, shuffle, setShuffle, trackCount }: PlayerStyleSectionProps) {
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="10" />

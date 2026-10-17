@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
@@ -67,6 +67,53 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
     });
   };
 
+  const trackDragId = useRef<string | null>(null);
+
+  const trackIdAt = (x: number, y: number): string | null => {
+    const el = document.elementFromPoint(x, y) as HTMLElement | null;
+    return el?.closest?.("[data-track-id]")?.getAttribute("data-track-id") ?? null;
+  };
+
+  const handleTrackPointerDown = (id: string) => (e: React.PointerEvent) => {
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    trackDragId.current = id;
+    setDragId(id);
+    setDropId(null);
+  };
+
+  const handleTrackPointerMove = (e: React.PointerEvent) => {
+    const from = trackDragId.current;
+    if (!from) return;
+    const over = trackIdAt(e.clientX, e.clientY);
+    if (over && over !== from) {
+      moveTrack(from, over);
+      setDropId(over);
+    }
+  };
+
+  const handleTrackPointerEnd = () => {
+    trackDragId.current = null;
+    setDragId(null);
+    setDropId(null);
+  };
+
+  const handleTrackKeyDown = (id: string) => (e: React.KeyboardEvent) => {
+    const dir = e.key === "ArrowUp" ? -1 : e.key === "ArrowDown" ? 1 : 0;
+    if (!dir) return;
+    e.preventDefault();
+    setTracks((prev) => {
+      const idx = prev.findIndex((t) => t.id === id);
+      const nextIdx = idx + dir;
+      if (idx < 0 || nextIdx < 0 || nextIdx >= prev.length) return prev;
+      const copy = [...prev];
+      const [moved] = copy.splice(idx, 1);
+      if (!moved) return prev;
+      copy.splice(nextIdx, 0, moved);
+      return copy;
+    });
+  };
+
   const normTrack = (t: Track) => ({
     id: t.id,
     title: t.title,
@@ -127,8 +174,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
         )}
         {!backgroundSoundOn && (
         <>
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-6">
-          <div className="flex items-center justify-between">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex flex-col">
               <h2 className="text-[14px] font-normal text-white/90 tracking-tight">
                 Your tracks ({count}/{maxTracks})
@@ -143,7 +190,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
               disabled={count >= maxTracks}
               onClick={() => setModalOpen(true)}
               title={count >= maxTracks ? `You can only add ${maxTracks} track${maxTracks === 1 ? "" : "s"}` : undefined}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal transition-all duration-200 ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-normal whitespace-nowrap shrink-0 transition-all duration-200 ${
                 count >= maxTracks
                   ? "bg-white/5 border border-white/5 text-white/30 cursor-not-allowed"
                   : "bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] cursor-pointer active:scale-95"
@@ -159,32 +206,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
               {tracks.map((track) => (
                 <div
                   key={track.id}
-                  draggable
-                  onDragStart={(e) => {
-                    e.dataTransfer.effectAllowed = "move";
-                    e.dataTransfer.setData("text/plain", track.id);
-                    setDragId(track.id);
-                  }}
-                  onDragEnd={() => {
-                    setDragId(null);
-                    setDropId(null);
-                  }}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = "move";
-                    if (dragId && dragId !== track.id) {
-                      setDropId(track.id);
-                      moveTrack(dragId, track.id);
-                    }
-                  }}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const from = e.dataTransfer.getData("text/plain") || dragId;
-                    if (from) moveTrack(from, track.id);
-                    setDragId(null);
-                    setDropId(null);
-                  }}
-                  className={`group flex items-center justify-between p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 cursor-grab active:cursor-grabbing ${
+                  data-track-id={track.id}
+                  className={`group flex items-center justify-between gap-3 p-3.5 bg-[#141414]/70 hover:bg-[#161616] border rounded-2xl transition-all duration-150 ${
                     dragId === track.id
                       ? "opacity-40 border-white/20"
                       : dropId === track.id
@@ -192,8 +215,18 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
                         : "border-white/5"
                   }`}
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className="text-white/20 group-hover:text-white/60 transition-colors">
+                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`Reorder ${track.title}`}
+                      onPointerDown={handleTrackPointerDown(track.id)}
+                      onPointerMove={handleTrackPointerMove}
+                      onPointerUp={handleTrackPointerEnd}
+                      onPointerCancel={handleTrackPointerEnd}
+                      onKeyDown={handleTrackKeyDown(track.id)}
+                      className="touch-none cursor-grab active:cursor-grabbing p-2 -m-2 rounded-md text-white/20 hover:text-white/60 transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b6cf5]/60"
+                    >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <circle cx="9" cy="12" r="1" />
                         <circle cx="9" cy="5" r="1" />
@@ -202,7 +235,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
                         <circle cx="15" cy="5" r="1" />
                         <circle cx="15" cy="19" r="1" />
                       </svg>
-                    </div>
+                    </span>
 
                     <div className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center overflow-hidden shrink-0">
                       {track.artwork ? (
@@ -214,11 +247,11 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
                       )}
                     </div>
 
-                    <div className="flex flex-col">
-                      <span className="text-[13.5px] font-normal text-white/95 tracking-tight">
+                    <div className="flex flex-col min-w-0">
+                      <span className="text-[13.5px] font-normal text-white/95 tracking-tight truncate">
                         {track.title}
                       </span>
-                      <span className="text-[11.5px] font-mono text-white/35">
+                      <span className="text-[11.5px] font-mono text-white/35 truncate">
                         {track.artist}
                       </span>
                     </div>
