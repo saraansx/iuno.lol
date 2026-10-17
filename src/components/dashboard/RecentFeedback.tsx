@@ -95,14 +95,14 @@ export default function RecentFeedback({
   const hasMore = activeTab === "received" ? receivedHasMore : givenHasMore;
 
   return (
-    <div className="h-[500px] bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 w-full relative flex flex-col">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div>
+    <div className="h-[400px] sm:h-[500px] bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6 w-full relative flex flex-col">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4 shrink-0">
+        <div className="min-w-0">
           <h2 className="text-white font-medium text-lg tracking-wide" style={{ fontFamily: "var(--font-comfortaa)" }}>Recent feedback</h2>
           <p className="text-white/30 text-xs mt-1" style={{ fontFamily: "var(--font-comfortaa)" }}>Likes and dislikes you received and gave.</p>
         </div>
 
-        <div className="flex border border-white/5 rounded-full p-1 gap-1">
+        <div className="flex border border-white/5 rounded-full p-1 gap-1 self-start sm:self-auto shrink-0">
           {([
             { id: "received" as const, label: `Received ${receivedTotal}` },
             { id: "given" as const, label: `Given ${givenTotal}` },
@@ -110,7 +110,7 @@ export default function RecentFeedback({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all relative z-10 cursor-pointer ${
+              className={`px-4 py-1.5 rounded-full text-[13px] font-normal transition-all relative z-10 cursor-pointer whitespace-nowrap ${
                 activeTab === tab.id
                   ? "text-white"
                   : "text-white/40 hover:text-white/60"

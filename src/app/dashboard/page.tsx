@@ -81,19 +81,19 @@ export default async function DashboardPage() {
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-white/2 border border-white/4 rounded-[20px] p-4 flex items-center gap-4 hover:border-white/8 transition-colors"
+            className="bg-white/2 border border-white/4 rounded-2xl sm:rounded-[20px] p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:border-white/8 transition-colors"
           >
             <div
-              className="w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center"
+              className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 rounded-xl sm:rounded-2xl flex items-center justify-center"
               style={{ backgroundColor: `${stat.color}15`, color: stat.color }}
             >
               {stat.icon}
             </div>
-            <div className="flex flex-col gap-1 overflow-hidden">
-              <span className="text-[11px] uppercase tracking-wider text-white/50 font-normal">
+            <div className="flex flex-col gap-1 min-w-0 flex-1">
+              <span className="text-[10px] sm:text-[11px] uppercase tracking-wide sm:tracking-wider text-white/50 font-normal whitespace-nowrap">
                 {stat.label}
               </span>
-              <span className="text-white text-base font-normal leading-none truncate">
+              <span className="text-white text-[15px] sm:text-base font-normal leading-none truncate">
                 {stat.value}
               </span>
             </div>
@@ -103,12 +103,12 @@ export default async function DashboardPage() {
 
       <ProfileCompletion steps={completionSteps} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <div className="md:col-span-2 min-w-0 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="lg:col-span-2 min-w-0 min-h-0">
           <AnalyticsChart totalViews={user?.views || 0} initialData={rawViews} hourlyData={hourlyViews} />
       </div>
 
-        <div className="md:col-span-1 min-w-0 min-h-0">
+        <div className="lg:col-span-1 min-w-0 min-h-0">
           <DeviceChart stats={deviceStats} />
         </div>
       </div>
