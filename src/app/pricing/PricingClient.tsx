@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { MorphingText } from "@/components/ui/morphing-text";
 import { BlurTextEffect } from "@/components/ui/blur-text-effect";
 import GlyphPortal from "@/components/ui/glyph-portal";
+import TopFade from "@/components/ui/top-fade";
 import dynamic from "next/dynamic";
 
 const AuroraEffect = dynamic(
@@ -181,17 +182,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
     <main className="bg-black relative" onClick={handleEnterClick} style={{ fontFamily: "var(--font-comfortaa)" }}>
       <Navbar isAuthenticated={isAuthenticated} />
 
-      {}
-      <div
-        className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
-        style={{
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
-        }}
-      />
+      <TopFade />
 
       {}
       <style>{`

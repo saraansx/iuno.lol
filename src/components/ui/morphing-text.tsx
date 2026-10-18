@@ -64,13 +64,15 @@ const useMorphingText = (texts: string[]) => {
   }, []);
 
   useEffect(() => {
-    let animationFrameId: number;
+    let animationFrameId = 0;
+    let visible = true;
 
     const animate = () => {
+      if (!visible || document.hidden) return;
       animationFrameId = requestAnimationFrame(animate);
 
       const newTime = new Date();
-      const dt = (newTime.getTime() - timeRef.current.getTime()) / 1000;
+      const dt = Math.min(0.05, (newTime.getTime() - timeRef.current.getTime()) / 1000);
       timeRef.current = newTime;
 
       cooldownRef.current -= dt;
@@ -79,9 +81,35 @@ const useMorphingText = (texts: string[]) => {
       else doCooldown();
     };
 
-    animate();
+    const start = () => {
+      cancelAnimationFrame(animationFrameId);
+      timeRef.current = new Date();
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    const el = text1Ref.current;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        if (visible) start();
+        else cancelAnimationFrame(animationFrameId);
+      },
+      { rootMargin: "120px" },
+    );
+    if (el) io.observe(el);
+
+    const onVisibility = () => {
+      if (document.hidden) cancelAnimationFrame(animationFrameId);
+      else if (visible) start();
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    start();
+
     return () => {
       cancelAnimationFrame(animationFrameId);
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [doMorph, doCooldown]);
 
@@ -120,7 +148,7 @@ const SvgFilters: React.FC = () => (
 export const MorphingText: React.FC<MorphingTextProps> = ({ texts, className }) => (
   <div
     className={cn(
-      "relative mx-auto h-16 w-full max-w-3xl text-center font-sans text-[40pt] leading-none font-bold filter-[url(#threshold)_blur(0.6px)] md:h-24 lg:text-[6rem]",
+      "morph-threshold relative mx-auto h-16 w-full max-w-3xl text-center font-sans text-[40pt] leading-none font-bold filter-[url(#threshold)_blur(0.6px)] md:h-24 lg:text-[6rem]",
       className
     )}
   >

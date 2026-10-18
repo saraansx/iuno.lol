@@ -188,7 +188,7 @@ export function AuroraEffect({
       alpha: true,
       premultipliedAlpha: true,
       antialias: true,
-      dpr: Math.min(window.devicePixelRatio || 1, 2),
+      dpr: Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.25 : 2),
     });
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
@@ -236,6 +236,7 @@ export function AuroraEffect({
 
     const visibility = trackVisibility(ctn);
     let animateId = 0;
+    let lastDraw = 0;
     const freezeStart = performance.now();
     const update = (t: number) => {
       if (frozen && performance.now() - freezeStart > 1200) {
@@ -243,6 +244,8 @@ export function AuroraEffect({
       }
       animateId = requestAnimationFrame(update);
       if (!visibility.state.visible) return;
+      if (window.innerWidth < 768 && t - lastDraw < 32) return;
+      lastDraw = t;
       const p = propsRef.current;
       const it =Math.min(1, Math.max(0, p.intensity / 100));
       const speedFactor = p.speed ?? (0.2 + it * 1.3);

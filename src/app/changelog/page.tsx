@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TopFade from "@/components/ui/top-fade";
 import { isAuthenticated } from "@/lib/auth/session";
 
 export const metadata: Metadata = {
@@ -88,17 +89,7 @@ export default async function ChangelogPage() {
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
-      <div
-        aria-hidden="true"
-        className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
-        style={{
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
-        }}
-      />
+      <TopFade />
       <Navbar isAuthenticated={auth} />
 
       <section className="relative w-full max-w-3xl mx-auto px-6 pt-36 pb-10">

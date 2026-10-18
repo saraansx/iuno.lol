@@ -388,6 +388,13 @@ input, textarea {
   textarea {
     font-size: 16px;
   }
+
+  /* Morphing headings: the SVG `#threshold` pass re-runs over the whole node on
+     every frame of the blur animation. Phones can't afford that while scrolling,
+     so they keep the blur morph without the extra filter pass. */
+  .morph-threshold {
+    filter: blur(0.6px) !important;
+  }
 }
 
 @keyframes badge-scroll-left {

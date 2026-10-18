@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import TopFade from "@/components/ui/top-fade";
 
 export default function LegalLayout({
   eyebrow,
@@ -15,17 +16,7 @@ export default function LegalLayout({
 }) {
   return (
     <main className="min-h-screen bg-black relative">
-      <div
-        aria-hidden="true"
-        className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
-        style={{
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
-          maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
-        }}
-      />
+      <TopFade />
       <div className="relative z-10 max-w-3xl mx-auto px-6 pt-36 pb-24">
         <p className="text-[11px] font-medium tracking-[0.32em] text-[#8b93e8] uppercase mb-4">
           {eyebrow}

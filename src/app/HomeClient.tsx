@@ -2,6 +2,7 @@
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TopFade from "@/components/ui/top-fade";
 import FaqShowcase from "@/components/home/FaqShowcase";
 import PlanShowcase from "@/components/home/PlanShowcase";
 import Image from "next/image";
@@ -41,11 +42,7 @@ export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-transparent relative overflow-x-clip">
-        {}
-        <div
-          aria-hidden="true"
-          className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none bg-gradient-to-b from-black/70 via-black/25 to-transparent"
-        />
+        <TopFade />
 
         <Navbar />
 
