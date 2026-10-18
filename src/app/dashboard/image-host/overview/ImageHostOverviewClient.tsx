@@ -161,12 +161,12 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
   }, [maxCount]);
 
   return (
-    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 h-full">
-      <div className="flex items-start justify-between gap-4 mb-6">
-        <div>
+    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6 h-full">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-6">
+        <div className="min-w-0">
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Uploads</h2>
           <p className="text-white/30 text-[12px] mt-1">{RANGE_SUBTITLE[range]}</p>
-          <div className="mt-2 flex items-center gap-3 text-[11px] text-white/40">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-white/40">
             <span className="flex items-center gap-1.5">
               <span className="h-0.5 w-3 rounded bg-[#5b6cf5]" />Uploads
               <span className="tabular-nums text-white/70">{totalCount}</span>
@@ -177,12 +177,12 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 shrink-0">
+        <div className="grid grid-cols-4 sm:flex items-center gap-1 bg-white/5 border border-white/10 rounded-xl p-1 shrink-0 w-full sm:w-auto">
           {RANGES.map((r) => (
             <button
               key={r.key}
               onClick={() => setRange(r.key)}
-              className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${
+              className={`px-2 sm:px-3 py-1 rounded-lg text-xs font-medium text-center whitespace-nowrap transition-colors ${
                 range === r.key ? "bg-[#5b6cf5]/20 text-white" : "text-white/50 hover:text-white/80"
               }`}
             >
@@ -192,13 +192,13 @@ function UploadsChart({ entries }: { entries: UploadEntry[] }) {
         </div>
       </div>
 
-      <div ref={containerRef} className="h-72 w-full relative">
+      <div ref={containerRef} className="h-56 sm:h-72 w-full relative">
         {dimensions.width === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-5 h-5 border-2 border-white/10 border-t-[#5b6cf5] rounded-full animate-spin" />
           </div>
         ) : (
-          <AreaChart key={range} width={dimensions.width} height={dimensions.height} data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+          <AreaChart key={range} width={dimensions.width} height={dimensions.height} data={data} margin={{ top: 10, right: 10, left: -20, bottom: 24 }}>
             <defs>
               <linearGradient id="colorUploads" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#5b6cf5" stopOpacity={0.3} />
@@ -280,7 +280,7 @@ function FileTypesChart({ data }: { data: { name: string; value: number; color: 
   const displayData = data.length > 0 ? data : [{ name: "No uploads", value: 1, color: "#333333" }];
 
   return (
-    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6 flex flex-col h-full">
+    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col h-full">
       <div>
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">File types</h2>
         <p className="text-white/30 text-[12px] mt-1">How your uploads break down by type.</p>
@@ -387,10 +387,10 @@ function ActivityRow({ item }: { item: ActivityEntry }) {
   const meta = fileTypeMeta(item.kind);
   const action = ACTIVITY_META[item.action] ?? ACTIVITY_META.upload;
   const isDelete = item.action === "delete";
-  const rowClass = "flex items-center gap-3 px-3 h-11 border-t border-white/[0.04] first:border-t-0 transition-colors";
+  const rowClass = "flex items-center gap-2 sm:gap-3 px-2 sm:px-3 h-11 border-t border-white/[0.04] first:border-t-0 transition-colors";
   const content = (
     <>
-      <span className="flex items-center gap-2 w-[104px] shrink-0">
+      <span className="flex items-center gap-2 w-[92px] sm:w-[104px] shrink-0">
         <span
           className="w-6 h-6 rounded-md flex items-center justify-center shrink-0"
           style={{ color: action.color, backgroundColor: `${action.color}1a` }}
@@ -460,15 +460,15 @@ function RecentActivity() {
   };
 
   return (
-    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-6">
+    <div className="bg-[#0f0f0f] border border-white/5 rounded-[20px] p-4 sm:p-6">
       <div>
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Recent activity</h2>
         <p className="text-white/30 text-[12px] mt-1">Your latest uploads and deletions.</p>
       </div>
 
       <div className="mt-4">
-        <div className="flex items-center gap-3 px-3 pb-2 border-b border-white/5 text-[10px] uppercase tracking-wider text-white/30 font-medium">
-          <span className="w-[104px] shrink-0">Action</span>
+        <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 pb-2 border-b border-white/5 text-[10px] uppercase tracking-wider text-white/30 font-medium">
+          <span className="w-[92px] sm:w-[104px] shrink-0">Action</span>
           <span className="flex-1 min-w-0">Name</span>
           <span className="w-[64px] shrink-0 hidden sm:block">Type</span>
           <span className="w-16 shrink-0 text-right">Size</span>

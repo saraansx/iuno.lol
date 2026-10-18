@@ -239,7 +239,7 @@ export default function ImageHostUploadClient() {
         <p className="text-white/30 text-[13px] mt-1">Drop files to upload them straight to your image host.</p>
       </div>
 
-      <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm">
+      <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm">
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Drop files here</h2>
           <p className="text-white/30 text-[12px] mt-1">
@@ -254,7 +254,7 @@ export default function ImageHostUploadClient() {
           onDragEnter={onDragEnter}
           onDragOver={onDragOver}
           onDragLeave={onDragLeave}
-          className={`mt-4 flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-6 py-16 text-center transition-colors ${
+          className={`mt-4 flex w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed px-4 py-10 sm:px-6 sm:py-16 text-center transition-colors ${
             isDragging ? "border-[#5b6cf5]/60 bg-[#5b6cf5]/5" : "border-white/10 hover:border-white/20 hover:bg-white/[0.02]"
           }`}
         >
@@ -270,7 +270,7 @@ export default function ImageHostUploadClient() {
       </div>
 
       {items.length > 0 && (
-        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm">
+        <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm">
           <div>
             <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Uploads ({items.length})</h2>
             <p className="text-white/30 text-[12px] mt-1">
@@ -280,7 +280,7 @@ export default function ImageHostUploadClient() {
 
           <div className="mt-5 flex flex-col gap-3">
             {items.map((it) => (
-              <div key={it.id} className="flex items-center gap-4 rounded-xl border border-white/5 bg-[#111111] px-4 py-3.5">
+              <div key={it.id} className="flex items-center gap-3 sm:gap-4 rounded-xl border border-white/5 bg-[#111111] px-3 sm:px-4 py-3.5">
                 <span
                   className={`shrink-0 ${it.status === "error" ? "text-red-400/70" : "text-[#5b6cf5]"}`}
                   aria-label={it.status === "error" ? "Failed" : it.status === "done" ? "Uploaded" : "Uploading"}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -276,6 +276,20 @@ export default function CheckoutClient({
   const [payMethod, setPayMethod] = useState<"razorpay" | "card">("razorpay");
   const [cardLoading, setCardLoading] = useState(false);
 
+  const ctaRef = useRef<HTMLButtonElement | null>(null);
+  const [ctaInView, setCtaInView] = useState(false);
+
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setCtaInView(entry.isIntersecting),
+      { rootMargin: "0px 0px -56px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [succeeded]);
+
   const startPolarCheckout = async () => {
     if (cardLoading) return;
     setCardLoading(true);
@@ -463,7 +477,7 @@ export default function CheckoutClient({
         )}
       </AnimatePresence>
 
-      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-24 pt-28 lg:pt-36">
+      <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-32 pt-28 lg:pb-24 lg:pt-36">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1.25fr_1fr] lg:items-start">
           {}
           <motion.div
@@ -490,8 +504,8 @@ export default function CheckoutClient({
             <p className="mb-4 text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">What&apos;s included</p>
             <ul className="flex flex-col gap-2.5">
               {copy.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-3 text-[13px] font-light text-white/60">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
+                <li key={feature} className="flex items-start gap-3 text-[13px] font-light text-white/60">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-[3px] shrink-0"><path d="M20 6 9 17l-5-5" /></svg>
                   {feature}
                 </li>
               ))}
@@ -503,7 +517,7 @@ export default function CheckoutClient({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-6 backdrop-blur-xl lg:sticky lg:top-28"
+            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-5 sm:p-6 backdrop-blur-xl lg:sticky lg:top-28"
           >
             <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
 
@@ -588,6 +602,7 @@ export default function CheckoutClient({
             ) : (
               <div className="mt-5">
                 <button
+                  ref={ctaRef}
                   onClick={() => setPayOpen(true)}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/20 py-3 text-sm font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-all hover:bg-[#5b6cf5]/30 disabled:cursor-not-allowed disabled:opacity-50"
                 >
@@ -700,6 +715,31 @@ export default function CheckoutClient({
           </motion.div>
         </div>
       </div>
+
+      {}
+      {canBuy && !ctaInView && (
+        <div
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-black/85 px-4 pt-3 backdrop-blur-xl lg:hidden"
+          style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
+        >
+          <div className="mx-auto flex w-full max-w-6xl items-center gap-3">
+            <div className="min-w-0">
+              <p className="text-[10px] font-normal uppercase tracking-[0.16em] text-white/35">Total</p>
+              <p className="text-[15px] font-medium leading-tight text-white">
+                {plan.symbol}{plan.display}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPayOpen(true)}
+              className="ml-auto flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#5b6cf5]/25 px-5 text-[13.5px] font-normal text-white shadow-[0_0_15px_rgba(91,108,245,0.1)] transition-colors hover:bg-[#5b6cf5]/35"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+              Checkout
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

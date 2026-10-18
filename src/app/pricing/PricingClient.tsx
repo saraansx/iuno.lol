@@ -312,7 +312,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
 
           {}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end text-left">
-            <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm text-left flex flex-col">
+            <div className="w-full bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm text-left flex flex-col">
               <p className="text-[14px] font-normal text-white/90 tracking-tight mb-1">Free</p>
               <p className="text-[12.5px] font-light text-white/40 mb-4">Everything you need to start.</p>
               <div className="flex items-baseline gap-1.5 mb-6">
@@ -340,7 +340,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 {isAuthenticated ? "Go to Dashboard" : "Get Started"}
               </button>
             </div>
-            <div className="w-full bg-[#0c0c0c] border border-[#5b6cf5]/40 rounded-[20px] p-6 text-left flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(91,108,245,0.12)]">
+            <div className="w-full bg-[#0c0c0c] border border-[#5b6cf5]/40 rounded-[20px] p-5 sm:p-6 text-left flex flex-col relative overflow-hidden shadow-[0_0_30px_rgba(91,108,245,0.12)]">
               <div className="absolute inset-0 bg-gradient-to-b from-[#5b6cf5]/[0.07] via-transparent to-transparent pointer-events-none" />
               <div className="relative flex flex-col h-full">
                 <div className="flex items-center justify-between mb-1">
@@ -421,7 +421,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
               return (
                 <div
                   key={product.id}
-                  className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#0c0c0c] p-6 text-left shadow-sm transition-all ${
+                  className={`group relative flex flex-col overflow-hidden rounded-[20px] border bg-[#0c0c0c] p-5 sm:p-6 text-left shadow-sm transition-all ${
                     isMiddle
                       ? "border-[#5b6cf5]/40 shadow-[0_0_30px_rgba(91,108,245,0.12)] md:-translate-y-4"
                       : "border-white/5"
@@ -439,7 +439,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                     <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5b6cf5]/15 text-[#8b7cf6]">
                       {product.icon}
                     </span>
-                    <div className="mt-5 flex items-baseline justify-between gap-3">
+                    <div className="mt-5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                       <p className="text-[15px] font-normal tracking-tight text-white/90">
                         {product.title}
                       </p>

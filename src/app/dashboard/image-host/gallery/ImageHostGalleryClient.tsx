@@ -345,7 +345,7 @@ export default function ImageHostGalleryClient() {
   };
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Gallery</h2>
@@ -765,15 +765,15 @@ function Pagination({
   return (
     <nav
       aria-label="Gallery pagination"
-      className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3"
+      className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-white/5 bg-white/[0.02] px-4 py-3"
     >
-      <p className="text-[12px] text-white/40 tabular-nums">
+      <p className="text-[12px] text-white/40 tabular-nums text-center sm:text-left">
         Showing {start}—{end} of {total} {total === 1 ? "entry" : "entries"}
       </p>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center justify-center sm:justify-end gap-1.5 sm:gap-2">
         <button type="button" onClick={() => onGo(page - 1)} disabled={disabled || page === 0} className={navPill}>
           <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M7 1 2 5l5 4z" /></svg>
-          Previous
+          <span className="hidden sm:inline">Previous</span>
         </button>
         {pageList(page, pageCount).map((p, i) =>
           p === "gap" ? (
@@ -786,7 +786,7 @@ function Pagination({
               disabled={disabled}
               aria-label={`Page ${p + 1}`}
               aria-current={p === page ? "page" : undefined}
-              className={`${pill} min-w-14 ${
+              className={`${pill} min-w-9 sm:min-w-14 ${
                 p === page
                   ? "bg-[#5b6cf5]/20 text-[#aab4ff]"
                   : "text-white/45 hover:bg-[#5b6cf5]/10 hover:text-white"
@@ -797,7 +797,7 @@ function Pagination({
           ),
         )}
         <button type="button" onClick={() => onGo(page + 1)} disabled={disabled || page >= pageCount - 1} className={navPill}>
-          Next
+          <span className="hidden sm:inline">Next</span>
           <svg width="8" height="8" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><path d="M3 1l5 4-5 4z" /></svg>
         </button>
       </div>
