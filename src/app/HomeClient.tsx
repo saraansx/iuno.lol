@@ -41,16 +41,10 @@ export default function Home() {
   return (
     <>
       <main className="min-h-screen bg-transparent relative overflow-x-clip">
+        {}
         <div
           aria-hidden="true"
-          className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none"
-          style={{
-            backdropFilter: "blur(12px)",
-            WebkitBackdropFilter: "blur(12px)",
-            maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-            WebkitMaskImage: "linear-gradient(to bottom, black 35%, transparent 100%)",
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.55), transparent)",
-          }}
+          className="fixed top-0 left-0 right-0 z-40 h-28 pointer-events-none bg-gradient-to-b from-black/70 via-black/25 to-transparent"
         />
 
         <Navbar />
@@ -100,7 +94,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.7, delay: 0.66, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-md bg-white/2 backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
+            className="w-full max-w-md bg-white/[0.04] sm:bg-white/2 sm:backdrop-blur-xl border border-white/8 rounded-2xl p-1.5 flex items-center gap-2 group focus-within:border-[#5b6cf5]/30 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] mx-auto lg:mx-0"
           >
             <div className="flex-1 min-w-0 px-3 sm:px-4 py-2 flex items-center gap-1 text-sm" style={{ fontFamily: "var(--font-comfortaa)" }}>
               <span className="text-white/30 font-normal tracking-wide shrink-0">iuno.lol/</span>
@@ -140,7 +134,7 @@ export default function Home() {
             <div className="home-showcase relative w-full">
               <div
                 aria-hidden
-                className="pointer-events-none absolute -inset-x-10 -top-16 -bottom-6 blur-[60px] sm:-inset-x-24 sm:-top-24 sm:-bottom-10 sm:blur-[90px]"
+                className="pointer-events-none absolute -inset-x-10 -top-16 -bottom-6 sm:-inset-x-24 sm:-top-24 sm:-bottom-10"
                 style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
               />
               <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">

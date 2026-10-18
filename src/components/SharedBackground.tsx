@@ -4,7 +4,10 @@ import ColorBends from "./effects/ColorBends";
 
 const SharedBackground = () => {
   return (
-    <div className="fixed inset-0 w-full h-full z-0 pointer-events-none">
+    <div
+      className="fixed left-0 right-0 top-0 z-0 h-screen w-full pointer-events-none"
+      style={{ height: "100lvh" }}
+    >
       <ColorBends
         colors={["#5b6cf5", "#000000", "#8b93e8"]}
         rotation={90}

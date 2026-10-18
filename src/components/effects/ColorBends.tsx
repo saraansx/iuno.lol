@@ -110,8 +110,10 @@ export default function ColorBends({
     container.appendChild(renderer.domElement);
 
     const timer = new THREE.Timer();
+    let lowPower = window.innerWidth < 768;
 
     const handleResize = () => {
+      lowPower = window.innerWidth < 768;
       const w = container.clientWidth || 1;
       const h = container.clientHeight || 1;
       renderer.setSize(w, h, false);
@@ -125,12 +127,18 @@ export default function ColorBends({
     resizeObserverRef.current = ro;
 
     let isVisible = !document.hidden;
+    let lastPaint = 0;
 
-    const loop = () => {
+    const loop = (now = performance.now()) => {
       if (!isVisible) {
         rafRef.current = null;
         return;
       }
+      if (lowPower && now - lastPaint < 33) {
+        rafRef.current = requestAnimationFrame(loop);
+        return;
+      }
+      lastPaint = now;
       timer.update();
       const dt = timer.getDelta();
       const elapsed = timer.getElapsed();

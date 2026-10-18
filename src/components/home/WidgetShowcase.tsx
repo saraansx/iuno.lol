@@ -24,7 +24,7 @@ function ValorantMark({ size = 14 }: { size?: number }) {
 
 
 const CARD =
-  "bg-[#101010]/85 backdrop-blur-md border border-white/10 rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.55)]";
+  "bg-[#101010]/85 lg:backdrop-blur-md border border-white/10 rounded-[24px] shadow-[0_20px_60px_rgba(0,0,0,0.55)]";
 
 function Thumb({ gradient, children, round = "rounded-2xl" }: { gradient: string; children?: ReactNode; round?: string }) {
   return (
