@@ -2,6 +2,7 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
 import { redirect } from "next/navigation";
 import DashboardShell from "@/components/dashboard/DashboardShell";
+import { UnsavedChangesProvider } from "@/components/dashboard/UnsavedChangesProvider";
 import { profileFontVariables } from "@/lib/profile-fonts";
 import PickUsernameModal from "@/components/dashboard/PickUsernameModal";
 
@@ -20,6 +21,7 @@ export default async function DashboardLayout({
 
   return (
     <div className={`${profileFontVariables} dashboard-no-caret contents`}>
+    <UnsavedChangesProvider>
     <DashboardShell
       username={user?.username ?? undefined}
       userId={user?.id}
@@ -30,6 +32,7 @@ export default async function DashboardLayout({
       {children}
     </DashboardShell>
     {user?.needsUsername && <PickUsernameModal />}
+    </UnsavedChangesProvider>
     </div>
   );
 }

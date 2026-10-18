@@ -704,6 +704,7 @@ export default function DiscordPresenceClient({ user }: { user: FullUser | null 
 
       <SaveBar
         show={isChanged || !isEditing}
+        dirty={isChanged}
         onSave={handleSaveWidgetConfirm}
         onRevert={handleRevert}
         saveLabel={isEditing ? "Save" : "Add widget"}

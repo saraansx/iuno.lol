@@ -4,6 +4,7 @@ import { useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import SaveBar from "@/components/dashboard/SaveBar";
+import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
 import { type FullUser } from "@/lib/features/users/db";
 import WidgetsCustomization, { type WidgetItem } from "@/components/dashboard/customize/widgets/WidgetsCustomization";
 import WidgetBorderCustomization from "@/components/dashboard/customize/widgets/WidgetBorderCustomization";
@@ -110,6 +111,7 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
 
 export default function WidgetsProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
+  const unsavedChanges = useUnsavedChanges();
   const { overrides, updateOverrides, clearOverrides, scheduleClear } = useCustomizeProfile();
   const [, startTransition] = useTransition();
 
@@ -231,7 +233,13 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
             </div>
             <button
               type="button"
-              onClick={() => router.push("/pricing")}
+              onClick={() => {
+                if (unsavedChanges?.isDirty) {
+                  unsavedChanges.block();
+                  return;
+                }
+                router.push("/pricing");
+              }}
               className="shrink-0 self-stretch sm:self-center text-center whitespace-nowrap bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer"
             >
               Get Premium

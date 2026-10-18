@@ -120,6 +120,44 @@
   }
 }
 
+/* SaveBar refuses to let unsaved edits walk away. */
+@keyframes savebar-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px); }
+  30% { transform: translateX(7px); }
+  45% { transform: translateX(-5px); }
+  60% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+.savebar-label-blocked {
+  display: none;
+}
+
+.savebar-shake {
+  animation: savebar-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.savebar-shake .savebar-dot {
+  background-color: #ef4444;
+}
+
+.savebar-shake .savebar-label-normal {
+  display: none;
+}
+
+.savebar-shake .savebar-label-blocked {
+  display: inline;
+  color: #fca5a5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .savebar-shake {
+    animation: none;
+  }
+}
+
 /* Global scrollbar — applies to the whole page and any container */
 ::-webkit-scrollbar {
   width: 6px;

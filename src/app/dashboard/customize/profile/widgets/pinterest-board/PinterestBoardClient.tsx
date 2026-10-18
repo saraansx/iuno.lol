@@ -314,6 +314,7 @@ export default function PinterestBoardClient({ user }: { user: FullUser | null }
 
       <SaveBar
         show={isChanged || !isEditing}
+        dirty={isChanged}
         onSave={handleSaveWidgetConfirm}
         onRevert={handleRevert}
         saveLabel={isEditing ? "Save" : "Add widget"}

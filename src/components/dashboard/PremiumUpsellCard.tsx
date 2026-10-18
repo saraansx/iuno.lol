@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUnsavedChanges } from "./UnsavedChangesProvider";
 import { PREMIUM_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 import { FREE_FEATURES, PREMIUM_FEATURES } from "@/lib/plan-features";
 
@@ -15,8 +16,15 @@ export default function PremiumUpsellCard({
   description?: string;
 }) {
   const router = useRouter();
+  const unsavedChanges = useUnsavedChanges();
   const [compareOpen, setCompareOpen] = useState(false);
-  const goCheckout = () => router.push("/checkout");
+  const goCheckout = () => {
+    if (unsavedChanges?.isDirty) {
+      unsavedChanges.block();
+      return;
+    }
+    router.push("/checkout");
+  };
 
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm relative overflow-hidden">

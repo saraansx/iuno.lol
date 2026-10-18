@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/actions/logout";
 import { Sidebar as AceSidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
+import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
@@ -52,6 +53,7 @@ const SIDEBAR_MAX_WIDTH = 260;
 
 const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded }: SidebarContentProps) => {
   const { open, setOpen, animate } = useSidebar();
+  const unsavedChanges = useUnsavedChanges();
   const [width, setWidth] = useState(SIDEBAR_MAX_WIDTH);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -344,7 +346,13 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
               display: animate ? (open ? "flex" : "none") : "flex",
               opacity: animate ? (open ? 1 : 0) : 1,
             }}
-            onClick={() => logout()}
+            onClick={() => {
+              if (unsavedChanges?.isDirty) {
+                unsavedChanges.block();
+                return;
+              }
+              logout();
+            }}
             className="h-8 w-8 items-center justify-center rounded-lg border border-transparent text-white/20 hover:border-red-400/25 hover:bg-red-400/8 hover:text-red-400/60 transition-all cursor-pointer shrink-0"
             title="Sign out"
           >

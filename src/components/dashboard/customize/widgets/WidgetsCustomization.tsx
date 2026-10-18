@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
 import AddWidgetModal from "./AddWidgetModal";
 import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon, TikTokLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
 
@@ -118,6 +119,7 @@ export default function WidgetsCustomization({
   onWidgetsChange,
 }: WidgetsCustomizationProps) {
   const router = useRouter();
+  const unsavedChanges = useUnsavedChanges();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [widgets, setWidgets] = useState<WidgetItem[]>(initialWidgets);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -196,6 +198,10 @@ export default function WidgetsCustomization({
   }, []);
 
   const handleAddWidget = (widget: { platform: string; type: string; useLinked: boolean; customId: string }) => {
+    if (unsavedChanges?.isDirty) {
+      unsavedChanges.block();
+      return;
+    }
     if (widget.platform === "discord") {
       if (widget.type === "presence") {
         router.push(

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import NextImage from "next/image";
 import SaveBar from "@/components/dashboard/SaveBar";
+import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import PlayerStyleSection, { type MusicPlayerStyle } from "@/components/dashboard/music/PlayerStyleSection";
 import SearchTracksModal, { type SearchTrack } from "@/components/dashboard/music/SearchTracksModal";
@@ -38,6 +39,7 @@ function sanitizeStyle(raw: string | null | undefined): MusicPlayerStyle {
 
 export default function MusicProfileClient({ user, backgrounds }: { user: FullUser | null; backgrounds?: string[] }) {
   const router = useRouter();
+  const unsavedChanges = useUnsavedChanges();
   const initialTracks: Track[] = (user?.musicTracks ?? []).map(toTrack);
   const initialPlayerStyle = sanitizeStyle(user?.musicPlayerStyle);
   const initialArtBg = user?.musicPlayerArtBg ?? false;
@@ -311,7 +313,13 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
             </div>
             <button
               type="button"
-              onClick={() => router.push("/pricing")}
+              onClick={() => {
+                if (unsavedChanges?.isDirty) {
+                  unsavedChanges.block();
+                  return;
+                }
+                router.push("/pricing");
+              }}
               className="shrink-0 self-center bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 text-white text-[12.5px] font-normal rounded-xl px-3.5 py-2 transition-colors cursor-pointer"
             >
               Get Premium

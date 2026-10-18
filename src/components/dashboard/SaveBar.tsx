@@ -1,7 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useEffect, useId, useRef, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUnsavedChanges } from "./UnsavedChangesProvider";
 
 interface SaveBarProps {
   show: boolean;
@@ -9,6 +10,12 @@ interface SaveBarProps {
   onRevert: () => void;
   saveLabel?: string;
   revertLabel?: string;
+  /**
+   * Whether there are actually unsaved edits. Defaults to `show`.
+   * Widget pages also show this bar while adding a widget, where `show` is
+   * true even before anything changed.
+   */
+  dirty?: boolean;
 }
 
 const SaveBar = ({
@@ -17,8 +24,36 @@ const SaveBar = ({
   onRevert,
   saveLabel = "Save",
   revertLabel = "Revert",
+  dirty = show,
 }: SaveBarProps) => {
   const [isPending, startTransition] = useTransition();
+  const guard = useUnsavedChanges();
+  const registrationId = useId();
+  const blockSignal = guard?.blockSignal ?? 0;
+  const pillRef = useRef<HTMLDivElement | null>(null);
+
+  const hasUnsavedChanges = show && dirty;
+  const register = guard?.register;
+
+  // Tell the dashboard guard whether this page has unsaved work.
+  useEffect(() => {
+    if (!register) return;
+    register(registrationId, hasUnsavedChanges);
+    return () => register(registrationId, false);
+  }, [register, registrationId, hasUnsavedChanges]);
+
+  // A blocked navigation makes the bar turn red and shake. Done on the DOM so
+  // repeated attempts restart the animation without extra renders.
+  useEffect(() => {
+    if (!blockSignal) return;
+    const pill = pillRef.current;
+    if (!pill) return;
+    pill.classList.remove("savebar-shake");
+    void pill.offsetWidth;
+    pill.classList.add("savebar-shake");
+    const timer = setTimeout(() => pill.classList.remove("savebar-shake"), 1800);
+    return () => clearTimeout(timer);
+  }, [blockSignal]);
 
   const handleSave = () => {
     startTransition(async () => {
@@ -40,14 +75,18 @@ const SaveBar = ({
           transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
           className="fixed bottom-20 lg:bottom-12 left-4 right-4 lg:left-[260px] lg:right-[var(--preview-width,0px)] z-50 flex justify-center pointer-events-none"
         >
-          <div className="bg-[#111111] border border-white/[0.08] rounded-[14px] pl-5 pr-2 py-2 flex items-center gap-6 pointer-events-auto">
-            <div className="flex items-center gap-2.5">
+          <div
+            ref={pillRef}
+            className="bg-[#111111] border border-white/[0.08] rounded-[14px] pl-5 pr-2 py-2 flex items-center gap-6 pointer-events-auto transition-colors duration-200"
+          >
+            <div className="flex items-center gap-2.5" role="status" aria-live="polite">
               <div className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5b6cf5] opacity-50" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#5b6cf5]" />
+                <span className="savebar-dot animate-ping absolute inline-flex h-full w-full rounded-full bg-[#5b6cf5] opacity-50" />
+                <span className="savebar-dot relative inline-flex rounded-full h-2 w-2 bg-[#5b6cf5]" />
               </div>
-              <span className="text-[13px] text-white/80 font-medium tracking-wide">
-                Unsaved changes
+              <span className="text-[13px] font-medium tracking-wide text-white/80">
+                <span className="savebar-label-normal">Unsaved changes</span>
+                <span className="savebar-label-blocked">Save or revert first</span>
               </span>
             </div>
 
