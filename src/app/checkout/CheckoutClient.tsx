@@ -414,7 +414,7 @@ export default function CheckoutClient({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-7 backdrop-blur-xl"
+            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/95 p-7 lg:bg-[#0c0c0c]/70 lg:backdrop-blur-xl"
           >
             <div className="flex items-center gap-4">
               {}
@@ -517,7 +517,7 @@ export default function CheckoutClient({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: "easeOut" }}
-            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/70 p-5 sm:p-6 backdrop-blur-xl lg:sticky lg:top-28"
+            className="rounded-[20px] border border-white/[0.06] bg-[#0c0c0c]/95 p-5 sm:p-6 lg:bg-[#0c0c0c]/70 lg:backdrop-blur-xl lg:sticky lg:top-28"
           >
             <p className="text-[11px] font-normal uppercase tracking-[0.18em] text-white/35">Order summary</p>
 
@@ -719,7 +719,7 @@ export default function CheckoutClient({
       {}
       {canBuy && !ctaInView && (
         <div
-          className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-black/85 px-4 pt-3 backdrop-blur-xl lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-40 border-t border-white/[0.06] bg-[#050505]/95 px-4 pt-3 lg:hidden"
           style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom))" }}
         >
           <div className="mx-auto flex w-full max-w-6xl items-center gap-3">

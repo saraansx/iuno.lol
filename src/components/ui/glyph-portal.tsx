@@ -108,6 +108,7 @@ export default function GlyphPortal({
     const picker = section.querySelector<HTMLSelectElement>("[data-gp-select]")!;
     const root = scrollParent(section);
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const touchDevice = window.matchMedia("(pointer: coarse)");
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d", { willReadFrequently: true });
     let disposed = false, raf = 0, dirty = true, active = true, ready = false;
@@ -195,7 +196,7 @@ export default function GlyphPortal({
     };
 
     const paint = (progress: number) => {
-      const isStatic = motion.matches || !browserFrameSeen || stalled || !target;
+      const isStatic = motion.matches || touchDevice.matches || !browserFrameSeen || stalled || !target;
       const p = isStatic ? 0 : progress;
       const t = clamp(p / 0.6);
       const eased = t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2;
@@ -254,7 +255,7 @@ export default function GlyphPortal({
       section.style.setProperty("--gp-word-bottom", `${H * .46 + bounds.height * startScale / 2}px`);
       section.dataset.gpReady = "true";
       paintDirty = true;
-      section.dataset.gpMotion = !motion.matches && browserFrameSeen && !stalled && target ? "on" : "off";
+      section.dataset.gpMotion = !motion.matches && !touchDevice.matches && browserFrameSeen && !stalled && target ? "on" : "off";
 
     };
 
@@ -319,6 +320,7 @@ export default function GlyphPortal({
     window.addEventListener("resize", resize);
     window.visualViewport?.addEventListener("resize", resize);
     motion.addEventListener("change", motionChange);
+    touchDevice.addEventListener("change", motionChange);
     frame();
     schedule();
     return () => {
@@ -330,6 +332,7 @@ export default function GlyphPortal({
       window.removeEventListener("resize", resize);
       window.visualViewport?.removeEventListener("resize", resize);
       motion.removeEventListener("change", motionChange);
+      touchDevice.removeEventListener("change", motionChange);
       choices.removeEventListener("pointerover", choose);
       choices.removeEventListener("click", choose);
       choices.removeEventListener("focusin", choose);

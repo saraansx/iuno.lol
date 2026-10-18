@@ -388,13 +388,22 @@ input, textarea {
   textarea {
     font-size: 16px;
   }
+}
 
-  /* Morphing headings: the SVG `#threshold` pass re-runs over the whole node on
-     every frame of the blur animation. Phones can't afford that while scrolling,
-     so they keep the blur morph without the extra filter pass. */
-  .morph-threshold {
-    filter: blur(0.6px) !important;
-  }
+/* Rotating headline swap: one compositor-only animation per phrase instead of
+   the old per-frame blur pass. */
+@keyframes morph-word-in {
+  from { opacity: 0; transform: translateY(0.22em); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* One compositor-only animation per phrase swap (instead of a per-frame blur). */
+.morph-word {
+  animation: morph-word-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .morph-word { animation: none; }
 }
 
 @keyframes badge-scroll-left {
