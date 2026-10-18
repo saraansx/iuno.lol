@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useRef, useState, type CSSProperties, type RefObject } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type RefObject } from "react";
 
 export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialVolume = 1) {
   const initial = Math.min(1, Math.max(0, initialVolume));
@@ -29,8 +29,18 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
   };
 
   const toggleMute = () => {
-    mutedRef.current = !mutedRef.current;
-    setMutedState(mutedRef.current);
+    if (mutedRef.current || volumeRef.current === 0) {
+      // Currently silent: restore sound (and an audible level if volume was 0).
+      mutedRef.current = false;
+      setMutedState(false);
+      if (volumeRef.current === 0) {
+        volumeRef.current = 0.5;
+        setVolumeState(0.5);
+      }
+    } else {
+      mutedRef.current = true;
+      setMutedState(true);
+    }
     applyVolume(audioRef.current);
   };
 
@@ -53,8 +63,46 @@ export function VolumeButton({
   color?: string;
 }) {
   const barRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const [drag, setDrag] = useState(false);
+  const [touch, setTouch] = useState(false);
+  const [open, setOpen] = useState(false);
   const glowId = useId().replace(/:/g, "");
+
+  // Phones have no hover, so the hover-to-reveal slider is unreachable there.
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: coarse)");
+    const apply = () => setTouch(mq.matches);
+    apply();
+    mq.addEventListener?.("change", apply);
+    return () => mq.removeEventListener?.("change", apply);
+  }, []);
+
+  // Tap anywhere else to dismiss the touch slider.
+  useEffect(() => {
+    if (!touch || !open) return;
+    const onDown = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [touch, open]);
+
+  const handleIconClick = () => {
+    if (!touch) {
+      toggleMute();
+      return;
+    }
+    // First tap reveals the slider; once it is open the icon mutes.
+    if (!open) setOpen(true);
+    else toggleMute();
+  };
+
+  const sliderClass = open
+    ? "w-[132px] opacity-100 mr-1.5"
+    : touch
+      ? "w-0 opacity-0"
+      : "w-0 opacity-0 group-hover/vol:w-[132px] group-hover/vol:opacity-100 group-hover/vol:mr-1.5 focus-within:w-[132px] focus-within:opacity-100 focus-within:mr-1.5";
 
   const fromClientX = (clientX: number) => {
     const el = barRef.current;
@@ -67,13 +115,15 @@ export function VolumeButton({
 
   return (
     <div
+      ref={rootRef}
       className={`${fixed ? "fixed top-5 left-5 z-50" : "absolute top-2 left-2 z-20"} group/vol flex items-center rounded-2xl border border-white/10 bg-transparent backdrop-blur-2xl transition-shadow duration-300 p-1.5`}
       style={{ "--volume-icon": color } as CSSProperties}
     >
       <button
         type="button"
-        onClick={toggleMute}
-        title={silent ? "Unmute" : "Mute"}
+        onClick={handleIconClick}
+        title={touch ? (open ? (silent ? "Unmute" : "Mute") : "Volume") : silent ? "Unmute" : "Mute"}
+        aria-expanded={touch ? open : undefined}
         className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--volume-icon)] transition-transform duration-200 cursor-pointer active:scale-95 shrink-0"
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" filter={`url(#vol-glow-${glowId})`}>
@@ -97,7 +147,7 @@ export function VolumeButton({
           )}
         </svg>
       </button>
-      <div className="overflow-hidden transition-all duration-300 ease-out w-0 opacity-0 group-hover/vol:w-[132px] group-hover/vol:opacity-100 group-hover/vol:mr-1.5 focus-within:w-[132px] focus-within:opacity-100 focus-within:mr-1.5 h-9 flex items-center">
+      <div className={`overflow-hidden transition-all duration-300 ease-out h-9 flex items-center ${sliderClass}`}>
         <div
           ref={barRef}
           role="slider"
@@ -106,6 +156,7 @@ export function VolumeButton({
           aria-valuemax={100}
           aria-valuenow={Math.round((muted ? 0 : volume) * 100)}
           tabIndex={0}
+          style={{ touchAction: "none" }}
           onPointerDown={(e) => {
             (e.currentTarget as Element).setPointerCapture?.(e.pointerId);
             setDrag(true);
@@ -118,7 +169,7 @@ export function VolumeButton({
             if (e.key === "ArrowRight" || e.key === "ArrowUp") setVolume(volume + 0.05);
             if (e.key === "ArrowLeft" || e.key === "ArrowDown") setVolume(volume - 0.05);
           }}
-          className="w-28 h-4 flex items-center cursor-pointer outline-none"
+          className="w-28 h-9 flex items-center cursor-pointer outline-none select-none"
         >
           <div className="relative w-full h-1.5 rounded-full bg-white/15">
             <div className="absolute inset-y-0 left-0 rounded-full bg-[var(--volume-icon)] shadow-[0_0_8px_var(--volume-icon)]" style={{ width: `${(muted ? 0 : volume) * 100}%` }}>

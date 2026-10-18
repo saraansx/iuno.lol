@@ -390,6 +390,18 @@ input, textarea {
   }
 }
 
+/* Glowing profile names keep a fixed 280px cap on desktop (overflow is left
+   visible so the glow is never clipped), so long display names used to run off
+   the card on phones. Wrap them inside the card instead. */
+@media (max-width: 639px) {
+  .profile-name-glow {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
+  }
+}
+
 /* Rotating headline swap: one compositor-only animation per phrase instead of
    the old per-frame blur pass. */
 @keyframes morph-word-in {

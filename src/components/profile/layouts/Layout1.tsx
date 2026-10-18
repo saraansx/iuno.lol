@@ -311,7 +311,7 @@ const Layout1 = ({
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
-  const display = displayName?.trim() ? displayName : undefined;
+  const display = displayName?.trim() ? displayName : username?.trim() ? username : undefined;
   const hasAvatar = Boolean(avatarUrl?.trim());
   const hasBanner = Boolean(bannerImageUrl && bannerImageUrl.trim() !== "");
   const [liveViews, setLiveViews] = useState(views);
@@ -942,7 +942,7 @@ const sectionSurface: React.CSSProperties = {
 
         {paged && (
           <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[60]">
-            <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 pointer-events-auto">
+            <div className="absolute right-1.5 sm:right-6 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2.5 pointer-events-auto">
               {Array.from({ length: screenCount }, (_, i) => (
                 <button
                   key={i}
@@ -960,11 +960,11 @@ const sectionSurface: React.CSSProperties = {
           </div>
         )}
 
-        <div className="w-full min-h-screen flex items-center justify-center px-6">
-        <div className="w-[var(--card-w)] max-w-[100vw] flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
-        <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-[100vw]">
-        <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-[100vw]">
-        <div className="w-[var(--card-w)] max-w-[100vw] relative flex flex-col items-center overflow-visible z-10">
+        <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6">
+        <div className="w-[var(--card-w)] max-w-full flex flex-col items-center z-10" style={{ "--card-w": cardWidth } as React.CSSProperties}>
+        <CardEffect effect={cardEffect} className="w-[var(--card-w)] max-w-full">
+        <CardTransition transition={cardTransition} className="w-[var(--card-w)] max-w-full">
+        <div className="w-[var(--card-w)] max-w-full relative flex flex-col items-center overflow-visible z-10">
           <BorderEffect
             effect={borderEffect}
             color={borderEffectColor}
@@ -1108,7 +1108,7 @@ const sectionSurface: React.CSSProperties = {
                 <div className={`relative flex ${justifyClass}`} style={{ overflow: "visible" }}>
                   <span className="relative group/uid flex" style={{ overflow: "visible" }}>
                   <UsernameEffect effect={usernameEffect} glow={usernameGlowEnabled} glowColor={usernameColor ?? "#FFFFFF"}>
-                    <h1 className={usernameGlowEnabled ? `tracking-tight mb-2 max-w-[280px] ${textAlignClass}` : `tracking-tight mb-2 max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF", textShadow: textGlowShadow(usernameColor ?? "#FFFFFF", usernameGlowEnabled), overflow: "visible", whiteSpace: usernameGlowEnabled ? "nowrap" : undefined, textOverflow: usernameGlowEnabled ? "clip" : undefined }}>
+                    <h1 className={usernameGlowEnabled ? `profile-name-glow tracking-tight mb-2 max-w-[280px] sm:whitespace-nowrap ${textAlignClass}` : `tracking-tight mb-2 max-w-full sm:max-w-[200px] truncate ${textAlignClass}`} style={{ fontFamily: fontClassMap[usernameFont] || "var(--font-inter)", fontSize: `${usernameFontSize}px`, fontWeight: usernameFontWeight, letterSpacing: `${usernameLetterSpacing}px`, color: usernameColor ?? "#FFFFFF", textShadow: textGlowShadow(usernameColor ?? "#FFFFFF", usernameGlowEnabled) }}>
                       {display}
                     </h1>
                   </UsernameEffect>
@@ -1130,11 +1130,11 @@ const sectionSurface: React.CSSProperties = {
             </div>
 
             {smallLinksSection}
-            {insideWidgets("w-full px-6 pb-16")}
+            {insideWidgets("w-full px-6 pb-4 sm:pb-16")}
           </div>
 
-          {detailSlot("bottom-profile", badgeClass, { except: ["feedback"] })}
-          {detailSlot("bottom-profile", BADGE_CLASSES.cardRight, { only: ["feedback"] })}
+          {detailSlot("bottom-profile", `${badgeClass} max-sm:static max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4`, { except: ["feedback"] })}
+          {detailSlot("bottom-profile", `${BADGE_CLASSES.cardRight} max-sm:static max-sm:w-full max-sm:mt-2 max-sm:px-6 max-sm:pb-4 max-sm:justify-end`, { only: ["feedback"] })}
 
         </div>
 
@@ -1147,15 +1147,15 @@ const sectionSurface: React.CSSProperties = {
         {!sectioned && aboutSectionEnabled && musicPlayer}
         {!sectioned && !linksAboveAbout && linksSectionEnabled && bigLinksSection}
 
-        {detailSlot("bottom-page", BADGE_CLASSES.page, { except: ["feedback"] })}
-        {detailSlot("bottom-page", BADGE_CLASSES.pageRight, { only: ["feedback"] })}
+        {detailSlot("bottom-page", `${BADGE_CLASSES.page} max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, { except: ["feedback"] })}
+        {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:justify-end`, { only: ["feedback"] })}
         </div>
         </div>
 
         {linksScreenVisible && linksAboveAbout && (
-          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+          <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16">
             <div
-              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
               style={{ "--card-w": cardWidth } as React.CSSProperties}
             >
               <div className="mb-3 text-left">
@@ -1191,9 +1191,9 @@ const sectionSurface: React.CSSProperties = {
         )}
 
         {paged && (
-          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+          <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16">
             <div
-              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
               style={{ "--card-w": cardWidth } as React.CSSProperties}
             >
               {aboutVisible && (
@@ -1240,9 +1240,9 @@ const sectionSurface: React.CSSProperties = {
         )}
 
         {linksScreenVisible && !linksAboveAbout && (
-          <div className="w-full min-h-screen flex items-center justify-center px-6 py-16">
+          <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16">
             <div
-              className="w-[var(--card-w)] max-w-[100vw] shrink-0 flex flex-col z-10"
+              className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
               style={{ "--card-w": cardWidth } as React.CSSProperties}
             >
               <div className="mb-3 text-left">
