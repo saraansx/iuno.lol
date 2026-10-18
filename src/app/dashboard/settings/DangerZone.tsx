@@ -38,8 +38,8 @@ export default function DangerZone() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-4">
+      <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
           <div>
             <h2 className="text-[13.5px] font-normal text-white/90 tracking-tight">Delete account</h2>
             <p className="text-[12px] text-white/35 mt-1">This will permanently delete your account and all data.</p>
@@ -47,7 +47,7 @@ export default function DangerZone() {
           <button
             type="button"
             onClick={() => setDeleteOpen(true)}
-            className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-4 h-8 text-[12.5px] font-normal text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors cursor-pointer"
+            className="shrink-0 self-start inline-flex items-center gap-1.5 rounded-full px-4 h-8 text-[12.5px] font-normal text-red-400 bg-red-500/10 border border-red-500/20 hover:bg-red-500/15 transition-colors cursor-pointer"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M10 11v6M14 11v6" /></svg>
             Delete account
@@ -144,7 +144,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
                 </button>
               </div>
             </label>
-            <div className="flex items-center justify-end gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <button type="button" onClick={handleCancel} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">Cancel</button>
               <button type="submit" disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">{busy ? "Sending…" : "Send code"}</button>
             </div>
@@ -172,7 +172,7 @@ function DeleteAccountModal({ onClose, onDeleted }: { onClose: () => void; onDel
       {step === "confirm" && (
         <>
           <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">This will <span className="text-red-300">permanently delete</span> your account and all data. This cannot be undone.</p>
-          <div className="mt-4 flex items-center justify-end gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
             <button type="button" onClick={handleCancel} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer" disabled={deleting}>Cancel</button>
             <button type="button" onClick={handleConfirm} disabled={cooldown > 0 || deleting} className={primaryCls}>{deleting ? "Deleting…" : cooldown > 0 ? `Confirm (${cooldown}s)` : "Confirm — delete my account"}</button>
           </div>

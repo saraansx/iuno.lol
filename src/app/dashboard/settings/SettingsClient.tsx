@@ -38,6 +38,9 @@ const SORT_OPTIONS: { id: AliasSort; label: string }[] = [
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
+const formatDateShort = (iso: string) =>
+  new Date(iso).toLocaleDateString(undefined, { day: "2-digit", month: "2-digit", year: "numeric" });
+
 export type DiscordConnection = { connected: boolean; username: string | null };
 
 export default function SettingsClient({
@@ -62,7 +65,10 @@ export default function SettingsClient({
         <p className="text-white/40 text-[13px] mt-0.5">Manage your general account settings, aliases and security.</p>
       </div>
 
-      <div className="flex items-center gap-1 bg-[#0c0c0c] border border-white/5 rounded-full p-1 w-fit" role="tablist">
+      <div
+        className="no-scrollbar flex w-full max-w-full items-center gap-1 overflow-x-auto bg-[#0c0c0c] border border-white/5 rounded-full p-1 sm:w-fit sm:overflow-visible"
+        role="tablist"
+      >
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -70,7 +76,7 @@ export default function SettingsClient({
             role="tab"
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
-            className={`rounded-full px-5 py-2 text-[13.5px] font-normal transition-all relative cursor-pointer ${
+            className={`shrink-0 whitespace-nowrap rounded-full px-3.5 sm:px-5 py-2 text-[12.5px] sm:text-[13.5px] font-normal transition-all relative cursor-pointer ${
               tab === t.id ? "text-white" : "text-white/40 hover:text-white/70"
             }`}
           >
@@ -231,12 +237,12 @@ function ConnectionsCard({ initial, savedUsername }: { initial: DiscordConnectio
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] overflow-hidden shadow-sm flex flex-col">
       {}
-      <div className="px-6 py-3 border-b border-white/5 flex items-center justify-between">
+      <div className="px-5 sm:px-6 py-3 border-b border-white/5 flex items-center justify-between">
         <span className="text-[12px] font-normal text-white/50 tracking-tight truncate">@{savedUsername}</span>
         <span className="text-[10px] tracking-[0.14em] uppercase text-white/25 shrink-0 ml-3">Connections</span>
       </div>
 
-      <div className="p-6 flex flex-col gap-4">
+      <div className="p-5 sm:p-6 flex flex-col gap-4">
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Connections</h2>
           <p className="text-[12px] text-white/40 mt-1">Link external accounts to your profile.</p>
@@ -329,7 +335,7 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <div className="flex items-center gap-2">
         <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Email</h2>
         {email && (
@@ -357,9 +363,16 @@ function SecurityTab({ info }: { info: SecurityInfo }) {
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 cursor-pointer"
+          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 cursor-pointer"
         >
-          {email ? "Request email change" : "Add email"}
+          {email ? (
+            <>
+              <span className="sm:hidden">Change</span>
+              <span className="hidden sm:inline">Request email change</span>
+            </>
+          ) : (
+            "Add email"
+          )}
         </button>
       </div>
 
@@ -399,7 +412,7 @@ function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
   }
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Passkeys</h2>
@@ -408,7 +421,7 @@ function PasskeysCard({ initial }: { initial: PasskeyRow[] }) {
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="shrink-0 flex items-center gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 cursor-pointer"
+          className="shrink-0 flex items-center justify-center sm:justify-start gap-1.5 h-9 rounded-xl px-4 text-[13px] font-normal border transition-colors text-white bg-[#5b6cf5]/20 border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 cursor-pointer"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M12 5v14M5 12h14" />
@@ -555,7 +568,7 @@ function TwoFactorCard({ enabled: initialEnabled }: { enabled: boolean }) {
   const [modal, setModal] = useState<"setup" | "disable" | null>(null);
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
@@ -787,7 +800,7 @@ function UsernameLoginCard({ controlledEnabled, onToggle }: { controlledEnabled:
   const enabled = controlledEnabled;
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -809,9 +822,9 @@ function UsernameLoginCard({ controlledEnabled, onToggle }: { controlledEnabled:
           <span className={`inline-block h-5 w-5 rounded-full bg-white shadow transition-transform ${enabled ? "translate-x-6" : "translate-x-1"}`} />
         </button>
       </div>
-      <div className="mt-4 flex items-center gap-2 bg-[#161616] border border-white/5 rounded-xl px-3.5 h-10">
+      <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 bg-[#161616] border border-white/5 rounded-xl px-3.5 min-h-10 py-2">
         <span className="text-[12px] text-white/60">Status:</span>
-        <span className={`text-[12.5px] ${enabled ? "text-white/90" : "text-white/40"}`}>{enabled ? "You can sign in with username or email" : "Username login is off — use email to sign in"}</span>
+        <span className={`text-[12.5px] leading-snug ${enabled ? "text-white/90" : "text-white/40"}`}>{enabled ? "You can sign in with username or email" : "Username login is off — use email to sign in"}</span>
       </div>
     </div>
   );
@@ -849,7 +862,7 @@ function PasswordCard({ hasPassword: initialHasPassword }: { hasPassword: boolea
   }
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Password</h2>
       <p className="text-[12px] text-white/40 mt-1">
         {hasPassword
@@ -1164,7 +1177,7 @@ function FieldCard({
 }) {
   const id = `field-${label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col">
       <h2 className="text-[14px] font-normal text-white/90 tracking-tight">{title}</h2>
       <p className="text-[12px] text-white/40 mt-1">{description}</p>
       <label htmlFor={id} className="text-[12px] text-white/60 mt-5 mb-1.5">
@@ -1190,9 +1203,14 @@ function FieldCard({
         <button
           type="submit"
           disabled={!dirty || busy}
-          className="shrink-0 px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
+          className="shrink-0 px-3.5 sm:px-4 text-[12.5px] border-l border-white/5 transition-colors cursor-pointer text-white bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 disabled:bg-transparent disabled:text-white/30 disabled:cursor-default"
         >
-          {busy ? "Saving…" : saveLabel}
+          {busy ? "Saving…" : (
+            <>
+              <span className="sm:hidden">Save</span>
+              <span className="hidden sm:inline">{saveLabel}</span>
+            </>
+          )}
         </button>
       </form>
       {hint && <p className={`text-[11px] mt-1.5 ${hintError ? "text-red-400/80" : "text-white/30"}`}>{hint}</p>}
@@ -1256,7 +1274,7 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
   }
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] shadow-sm p-6 flex flex-col gap-4">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] shadow-sm p-5 sm:p-6 flex flex-col gap-4">
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -1359,7 +1377,10 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
                       Your profile
                       <span className="text-[10.5px] rounded-full px-2 py-0.5 text-[#c7cdfb] bg-[#5b6cf5]/15 border border-[#5b6cf5]/25">Redirect</span>
                     </span>
-                    <span className="text-[12px] text-white/40 tabular-nums whitespace-nowrap">{formatDate(a.createdAt)}</span>
+                    <span className="text-[12px] text-white/40 tabular-nums whitespace-nowrap">
+                      <span className="md:hidden">{formatDateShort(a.createdAt)}</span>
+                      <span className="hidden md:inline">{formatDate(a.createdAt)}</span>
+                    </span>
                     <AliasMenu
                       alias={a.alias}
                       onEdit={() => setEditing({ id: a.id, alias: a.alias })}
@@ -1371,10 +1392,16 @@ function AliasesSection({ initial, onUsernameChange }: { initial: AliasState; on
               </ul>
             )}
             <div className="flex items-center justify-between gap-3 px-5 py-3 border-t border-white/5">
-              <span className="text-[11.5px] text-white/35">
+              <span className="text-[11.5px] text-white/35 whitespace-nowrap">
                 {filtered.length === 0
                   ? "0 entries"
-                  : `Showing ${(safePage - 1) * PAGE_SIZE + 1}–${(safePage - 1) * PAGE_SIZE + rows.length} of ${filtered.length}`}
+                  : (
+                    <>
+                      <span className="hidden sm:inline">Showing </span>
+                      {(safePage - 1) * PAGE_SIZE + 1}–{(safePage - 1) * PAGE_SIZE + rows.length}
+                      <span> of {filtered.length}</span>
+                    </>
+                  )}
               </span>
               <div className="flex items-center gap-1">
                 <button
@@ -1835,7 +1862,7 @@ function SessionsTab() {
   const hasOthers = sessions ? sessions.some((s) => !s.current) : false;
 
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-4">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
         <div>
           <h2 className="text-[14px] font-normal text-white/90 tracking-tight">Active sessions</h2>

@@ -28,7 +28,7 @@ export default function AliasPromo({ premium }: { premium: boolean }) {
       <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/65 to-black/35" aria-hidden="true" />
       <div className="absolute inset-0 bg-[#5b6cf5]/[0.06]" aria-hidden="true" />
 
-      <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5 p-6">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center gap-5 p-5 sm:p-6">
         <div className="flex items-start gap-4 flex-1 min-w-0">
           <Image src="/Favicon.png" alt="Iuno Logo" width={44} height={44} className="shrink-0 w-11 h-11 object-contain" />
           <div className="min-w-0">
