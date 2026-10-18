@@ -257,9 +257,6 @@ const FLOATS: FloatSpec[] = [
   { node: <PinterestCard />, className: "right-[2%] bottom-[14%]", rotate: -5, depth: 0.5, delay: 0.15 },
 ];
 
-// The collage is laid out at a slightly narrower stage (950px instead of 1280px) and
-// scale-fitted below lg, so small viewports get the desktop composition ~35% larger
-// without cropping the edge cards.
 const WIDGET_STAGE_W = 950;
 const WIDGET_STAGE_H = 860;
 

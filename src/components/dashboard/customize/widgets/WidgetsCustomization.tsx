@@ -145,7 +145,6 @@ export default function WidgetsCustomization({
     setWidgets(updated);
   };
 
-  // Pointer-based reordering: HTML5 drag-and-drop never fires on touch screens.
   const handleGripPointerDown = (e: React.PointerEvent<HTMLDivElement>, index: number) => {
     if (e.pointerType === "mouse" && e.button !== 0) return;
     isDraggingRef.current = true;

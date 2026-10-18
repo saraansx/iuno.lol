@@ -77,7 +77,6 @@ const Navbar = ({ isAuthenticated }: NavbarProps) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
 
-  // Mobile 3-dot menu — the only way to reach the other pages below lg
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
 

@@ -66,8 +66,6 @@ const ProfileCustomizeNav = () => {
   const pathname = usePathname();
   const hasActiveTab = tabs.some((tab) => tab.href === pathname);
 
-  // Pages that aren't part of this tab set (e.g. Widgets) would otherwise show a
-  // bar with nothing highlighted. Those pages have their own breadcrumb + sidebar nav.
   if (!hasActiveTab) return null;
 
   return (

@@ -353,8 +353,6 @@ createdAt, widgets,     musicTracks = [], musicPlayerStyle = "compact", musicPla
     const root = document.documentElement;
     const mq = window.matchMedia("(min-width: 1024px)");
     const apply = () => {
-      // On mobile the preview is a full-screen overlay, so no side gutter is needed.
-      // "-2rem" cancels the "+ 2rem" the pages add, giving phones symmetric padding.
       root.style.setProperty("--preview-width", mq.matches ? `${width}px` : "-2rem");
       if (mq.matches) setOpen(false);
     };
