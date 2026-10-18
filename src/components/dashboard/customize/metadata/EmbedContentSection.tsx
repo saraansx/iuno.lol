@@ -37,7 +37,7 @@ export default function EmbedContentSection({
   clearEmbedIcon,
 }: EmbedContentSectionProps) {
   return (
-    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-6 shadow-sm flex flex-col gap-5">
+    <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-5 sm:p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5b6cf5" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -91,7 +91,7 @@ export default function EmbedContentSection({
         <p className="text-[12px] text-white/35">The stripe down the side of the embed.</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="flex flex-col gap-2">
         <label className="text-[12.5px] font-medium text-white/90">Card background</label>
         {embedBackgroundUrl ? (
