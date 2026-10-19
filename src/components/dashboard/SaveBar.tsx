@@ -10,11 +10,6 @@ interface SaveBarProps {
   onRevert: () => void;
   saveLabel?: string;
   revertLabel?: string;
-  /**
-   * Whether there are actually unsaved edits. Defaults to `show`.
-   * Widget pages also show this bar while adding a widget, where `show` is
-   * true even before anything changed.
-   */
   dirty?: boolean;
 }
 
@@ -35,15 +30,12 @@ const SaveBar = ({
   const hasUnsavedChanges = show && dirty;
   const register = guard?.register;
 
-  // Tell the dashboard guard whether this page has unsaved work.
   useEffect(() => {
     if (!register) return;
     register(registrationId, hasUnsavedChanges);
     return () => register(registrationId, false);
   }, [register, registrationId, hasUnsavedChanges]);
 
-  // A blocked navigation makes the bar turn red and shake. Done on the DOM so
-  // repeated attempts restart the animation without extra renders.
   useEffect(() => {
     if (!blockSignal) return;
     const pill = pillRef.current;

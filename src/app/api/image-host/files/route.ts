@@ -4,6 +4,7 @@ import { requireImageHostUser } from "@/lib/features/image-host/access";
 import { imageHostMutateRateLimit } from "@/lib/rate-limit";
 import { IMAGE_HOST_QUOTA_BYTES } from "@/lib/image-host";
 import { purgeCloudflareFiles } from "@/lib/cloudflare";
+import { storageDeleteKeys } from "@/lib/storage";
 import {
   listImageHostFiles,
   setImageHostFavorite,
@@ -11,7 +12,6 @@ import {
   type ImageHostFilter,
 } from "@/lib/features/image-host/db";
 
-const CATBOX_API = "https://catbox.moe/user/api.php";
 const FILTERS: ImageHostFilter[] = ["all", "image", "video", "favorite"];
 const MAX_IDS = 100;
 
@@ -95,16 +95,10 @@ export async function DELETE(req: Request) {
 
     const { deletedIds, orphanedStorageIds, deletedUrls, usedBytes } = await deleteImageHostFiles(userId, ids);
 
-    const userhash = process.env.CATBOX_USERHASH;
-    if (userhash && orphanedStorageIds.length > 0) {
-      try {
-        const del = new FormData();
-        del.append("reqtype", "deletefiles");
-        del.append("userhash", userhash);
-        del.append("files", orphanedStorageIds.join(" "));
-        await fetch(CATBOX_API, { method: "POST", body: del, signal: AbortSignal.timeout(15000) });
-      } catch (e) {
-        console.error("[image-host] Catbox delete error:", e);
+    if (orphanedStorageIds.length > 0) {
+      const result = await storageDeleteKeys(orphanedStorageIds);
+      if (result.failed.length > 0) {
+        console.error(`[image-host] ${result.failed.length} file(s) not deleted from storage`);
       }
     }
 

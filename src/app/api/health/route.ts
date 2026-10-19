@@ -5,6 +5,7 @@ import { redis } from '@/lib/redis';
 import { razorpayConfigured } from '@/lib/payments/razorpay';
 import { polarConfigured } from '@/lib/payments/polar';
 import { CDN_BASE, IMAGE_HOST_BASE } from '@/lib/cdn';
+import { storageConfigured, storageRawBase } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,10 +68,14 @@ async function checkCache(): Promise<boolean> {
 }
 
 async function checkMedia(): Promise<boolean> {
-  if (!process.env.CATBOX_USERHASH) return false;
+  if (!storageConfigured()) return false;
   return cached('media', async () => {
-    const [hostUp, cdnUp] = await Promise.all([probe(IMAGE_HOST_BASE), probe(CDN_BASE)]);
-    return hostUp && cdnUp;
+    const [hostUp, cdnUp, rawUp] = await Promise.all([
+      probe(IMAGE_HOST_BASE),
+      probe(CDN_BASE),
+      probe(storageRawBase()),
+    ]);
+    return hostUp && cdnUp && rawUp;
   });
 }
 

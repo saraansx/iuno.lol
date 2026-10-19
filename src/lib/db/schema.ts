@@ -552,15 +552,6 @@ export const userAliases = mysqlTable('user_aliases', {
   userIdx: index('user_aliases_user_idx').on(table.userId),
 }))
 
-export const uploadedFiles = mysqlTable('uploaded_files', {
-  id: int('id').primaryKey().autoincrement(),
-  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  url: varchar('url', { length: 255 }).notNull().unique(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => ({
-  userIdx: index('uploaded_files_user_idx').on(table.userId),
-}))
-
 export const userBackgrounds = mysqlTable('user_backgrounds', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -616,16 +607,6 @@ export const imageHostActivity = mysqlTable('image_host_activity', {
 }, (table) => ({
   userCreatedIdx: index('image_host_activity_user_created_idx').on(table.userId, table.createdAt),
   userActionCreatedIdx: index('image_host_activity_user_action_created_idx').on(table.userId, table.action, table.createdAt),
-}))
-
-export const cdnFiles = mysqlTable('cdn_files', {
-  id: int('id').primaryKey().autoincrement(),
-  publicId: varchar('public_id', { length: 16 }).notNull().unique(),
-  storageId: varchar('storage_id', { length: 128 }).notNull(),
-  ext: varchar('ext', { length: 8 }).notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-}, (table) => ({
-  storageIdx: uniqueIndex('cdn_files_storage_unique').on(table.storageId),
 }))
 
 export const processedPaymentEvents = mysqlTable('processed_payment_events', {
@@ -692,11 +673,9 @@ export const schema = {
   userBadges,
   userAliases,
   userPasskeys,
-  uploadedFiles,
   userBackgrounds,
   imageHostFiles,
   imageHostActivity,
-  cdnFiles,
   processedPaymentEvents,
   usersRelations,
   userSettingsRelations,

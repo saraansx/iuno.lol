@@ -28,8 +28,6 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
     applyVolume(audioRef.current);
   }, [applyVolume, audioRef]);
 
-  // Keep the slider in sync when the profile owner changes the default volume
-  // in the dashboard preview. Visitors can still adjust it afterwards.
   const [prevInitial, setPrevInitial] = useState(initial);
   if (prevInitial !== initial) {
     setPrevInitial(initial);
@@ -37,7 +35,6 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
     if (initial > 0) setMutedState(false);
   }
 
-  // Push the new default onto the audio element too.
   useEffect(() => {
     volumeRef.current = initial;
     if (initial > 0) mutedRef.current = false;
@@ -46,7 +43,6 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
 
   const toggleMute = () => {
     if (mutedRef.current || volumeRef.current === 0) {
-      // Currently silent: restore sound (and an audible level if volume was 0).
       mutedRef.current = false;
       setMutedState(false);
       if (volumeRef.current === 0) {
@@ -85,7 +81,6 @@ export function VolumeButton({
   const [open, setOpen] = useState(false);
   const glowId = useId().replace(/:/g, "");
 
-  // Phones have no hover, so the hover-to-reveal slider is unreachable there.
   useEffect(() => {
     const mq = window.matchMedia("(pointer: coarse)");
     const apply = () => setTouch(mq.matches);
@@ -94,7 +89,6 @@ export function VolumeButton({
     return () => mq.removeEventListener?.("change", apply);
   }, []);
 
-  // Tap anywhere else to dismiss the touch slider.
   useEffect(() => {
     if (!touch || !open) return;
     const onDown = (e: PointerEvent) => {
@@ -109,7 +103,6 @@ export function VolumeButton({
       toggleMute();
       return;
     }
-    // First tap reveals the slider; once it is open the icon mutes.
     if (!open) setOpen(true);
     else toggleMute();
   };

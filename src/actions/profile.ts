@@ -30,10 +30,9 @@ import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { EFFECT_CONFIG_KEYS, packEffectConfig, pickEffectConfig, type EffectConfig } from "@/lib/effect-config";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
-import { uploadToCatbox } from "@/lib/catbox";
 import { isStoredMediaUrl } from "@/lib/cdn";
+import { storageDeleteOwned, storagePut } from "@/lib/storage";
 import { animatedBackgroundId, isAnimatedBackgroundUrl, isPremiumBackgroundId } from "@/lib/animated-background";
-import { deleteOwnedCatboxFiles, recordUploadedFile } from "@/lib/catbox-ownership";
 import { MAX_LINKS, sanitizeProfileLink, type ProfileLink } from "@/lib/links";
 import { CLICK_EFFECTS, CLICK_SOUNDS } from "@/lib/click-effects";
 
@@ -307,6 +306,14 @@ async function updateBackgroundsImpl(urls: string[]) {
     throw new Error("Invalid media URL.");
   }
 
+  const previousBackgrounds = await db
+    .select({ url: schema.userBackgrounds.url })
+    .from(schema.userBackgrounds)
+    .where(eq(schema.userBackgrounds.userId, userId));
+  const removedBackgrounds = previousBackgrounds
+    .map((row) => row.url)
+    .filter((url) => !clean.includes(url));
+
   await db.transaction(async (tx) => {
     await tx.delete(schema.userBackgrounds).where(eq(schema.userBackgrounds.userId, userId));
     if (clean.length > 0) {
@@ -315,6 +322,10 @@ async function updateBackgroundsImpl(urls: string[]) {
       );
     }
   });
+
+  if (removedBackgrounds.length > 0) {
+    await storageDeleteOwned(userId, removedBackgrounds).catch(() => {});
+  }
 
 
   await invalidateLiveStatsCache(userId);
@@ -1514,9 +1525,8 @@ async function cacheTrackAudio(userId: number, id: string): Promise<string | nul
     }
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length === 0 || buf.length > 25 * 1024 * 1024) return null;
-    const url = await uploadToCatbox(buf, `track_${id}.mp3`, "audio/mpeg");
-    if (url) await recordUploadedFile(userId, url);
-    return url;
+    const stored = await storagePut(buf, { userId, ext: "mp3", mime: "audio/mpeg" });
+    return stored?.rawUrl ?? null;
   } catch (error) {
     console.error("[Music Cache] audio failed:", error);
     return null;
@@ -1553,9 +1563,8 @@ async function cacheTrackArtwork(userId: number, artwork: string | null | undefi
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.length === 0 || buf.length > 5 * 1024 * 1024) return null;
     const ext = contentType.includes("png") ? "png" : contentType.includes("webp") ? "webp" : "jpg";
-    const url = await uploadToCatbox(buf, `art_${artId}.${ext}`, contentType);
-    if (url) await recordUploadedFile(userId, url);
-    return url;
+    const stored = await storagePut(buf, { userId, ext, mime: contentType });
+    return stored?.rawUrl ?? null;
   } catch (error) {
     console.error("[Music Cache] artwork failed:", error);
     return null;
@@ -1837,7 +1846,7 @@ async function deleteLinkIconFilesImpl(urls: string[]) {
 
   const clean = [...new Set(Array.isArray(urls) ? urls.filter((u) => typeof u === "string") : [])].slice(0, 10);
   if (clean.length === 0) return { success: true };
-  await deleteOwnedCatboxFiles(userId, clean);
+  await storageDeleteOwned(userId, clean);
   return { success: true };
 }
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireImageHostUser } from "@/lib/features/image-host/access";
-import { CATBOX_BASE } from "@/lib/cdn";
+import { storageFetchObject } from "@/lib/storage";
 import { getImageHostFileForUser } from "@/lib/features/image-host/db";
 
 export const dynamic = "force-dynamic";
@@ -26,11 +26,11 @@ export async function GET(_req: Request, { params }: { params: Promise<{ id: str
     const storageId = file?.storageId;
     if (!file || !storageId) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const upstream = await fetch(`${CATBOX_BASE}${storageId}`, {
+    const upstream = await storageFetchObject(storageId, {
       headers: { "User-Agent": "iuno-cdn/1.0" },
       signal: AbortSignal.timeout(60000),
     });
-    if (!upstream.ok || !upstream.body) {
+    if (!upstream || !upstream.ok || !upstream.body) {
       return NextResponse.json({ error: "File unavailable" }, { status: 502 });
     }
 

@@ -12,13 +12,9 @@ import {
 } from "react";
 
 interface UnsavedChangesContextValue {
-  /** True while at least one SaveBar is reporting unsaved edits. */
   isDirty: boolean;
-  /** Increments whenever a blocked navigation should shake the SaveBar. */
   blockSignal: number;
-  /** Registers (or clears) one SaveBar's dirty state. */
   register: (id: string, dirty: boolean) => void;
-  /** Ask the SaveBar to shake (used by non-anchor actions such as sign out). */
   block: () => void;
 }
 
@@ -53,7 +49,6 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
     isDirtyRef.current = isDirty;
   }, [isDirty]);
 
-  // Closing the tab or refreshing: native browser prompt.
   useEffect(() => {
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
       if (!isDirtyRef.current) return;
@@ -64,8 +59,6 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, []);
 
-  // In-app links (sidebar, logo, cards): block the click before Next's <Link>
-  // handler sees it and ask the SaveBar to shake.
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       if (!isDirtyRef.current) return;
@@ -87,7 +80,6 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
         return;
       }
       if (url.protocol !== "http:" && url.protocol !== "https:") return;
-      // Same page (for example a hash link) loses nothing.
       if (
         url.origin === window.location.origin &&
         url.pathname === window.location.pathname &&
@@ -105,8 +97,6 @@ export function UnsavedChangesProvider({ children }: { children: ReactNode }) {
     return () => document.removeEventListener("click", onClick, true);
   }, [block]);
 
-  // Browser back/forward: park a duplicate history entry on the current page
-  // so the popstate handler can stay put and shake instead of leaving.
   useEffect(() => {
     if (!isDirty) return;
 

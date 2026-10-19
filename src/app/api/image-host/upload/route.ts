@@ -10,9 +10,8 @@ import {
   imageHostKind,
 } from "@/lib/image-host";
 import { recordImageHostFile, getImageHostUsedBytes } from "@/lib/features/image-host/db";
+import { storageConfigured, storageDeleteKeys, storagePut } from "@/lib/storage";
 import { redis } from "@/lib/redis";
-
-const CATBOX_API = "https://catbox.moe/user/api.php";
 
 export const maxDuration = 60;
 
@@ -86,31 +85,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const userhash = process.env.CATBOX_USERHASH;
-    if (!userhash) {
+    if (!storageConfigured()) {
       return NextResponse.json({ error: "Upload storage is not configured." }, { status: 500 });
     }
 
-    const catboxForm = new FormData();
-    catboxForm.append("reqtype", "fileupload");
-    catboxForm.append("userhash", userhash);
-    catboxForm.append("fileToUpload", file.slice(0, file.size, detected.mime), `media_${Date.now()}.${detected.ext}`);
-
-    let catboxRes: Response;
-    let body: string;
-    try {
-      catboxRes = await fetch(CATBOX_API, {
-        method: "POST",
-        body: catboxForm,
-        signal: AbortSignal.timeout(55000),
-      });
-      body = (await catboxRes.text()).trim();
-    } catch (e) {
-      console.error("[image-host] Catbox network error:", e);
-      return NextResponse.json({ error: "Couldn't reach the upload server. Try again." }, { status: 502 });
-    }
-    if (!catboxRes.ok || !body.startsWith("https://files.catbox.moe/")) {
-      console.error("[image-host] Catbox upload error:", catboxRes.status, body.slice(0, 200));
+    const stored = await storagePut(Buffer.from(await file.arrayBuffer()), {
+      ext: detected.ext,
+      mime: detected.mime,
+    });
+    if (!stored) {
       return NextResponse.json({ error: "Upload rejected by storage. Try again." }, { status: 502 });
     }
 
@@ -118,28 +101,22 @@ export async function POST(req: Request) {
     for (let attempt = 0; attempt < 3 && !verified; attempt++) {
       if (attempt > 0) await new Promise((r) => setTimeout(r, 1500));
       try {
-        const check = await fetch(body, { headers: { Range: "bytes=0-0" }, signal: AbortSignal.timeout(10000) });
+        const check = await fetch(stored.rawUrl, { headers: { Range: "bytes=0-0" }, signal: AbortSignal.timeout(10000) });
         const sample = check.ok || check.status === 206 ? await check.arrayBuffer().catch(() => null) : null;
         if (sample && sample.byteLength > 0) verified = true;
       } catch (e) {
-        console.error(`[image-host] Catbox verify attempt ${attempt + 1} error:`, body, e);
+        console.error(`[image-host] storage verify attempt ${attempt + 1} error:`, stored.rawUrl, e);
       }
     }
     if (!verified) {
-      try {
-        const del = new FormData();
-        del.append("reqtype", "deletefiles");
-        del.append("userhash", userhash);
-        del.append("files", body.slice("https://files.catbox.moe/".length));
-        await fetch(CATBOX_API, { method: "POST", body: del, signal: AbortSignal.timeout(15000) });
-      } catch {}
+      console.error("[image-host] storage verify error:", stored.rawUrl);
+      await storageDeleteKeys([stored.key]);
       return NextResponse.json({ error: "Upload got corrupted in transit. Try again." }, { status: 502 });
     }
 
-    const storageId = body.slice("https://files.catbox.moe/".length);
     const url = await recordImageHostFile({
       userId,
-      storageId,
+      storageId: stored.key,
       ext: detected.ext,
       name: sanitizeName(file.name),
       size: file.size,

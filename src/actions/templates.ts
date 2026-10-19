@@ -11,8 +11,8 @@ import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { isPremiumActive } from "@/lib/premium";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { screenshotProfile } from "@/lib/screenshot";
-import { uploadBufferToCatbox } from "@/lib/upload-buffer";
-import { deleteOwnedCatboxFiles } from "@/lib/catbox-ownership";
+import { uploadUserMedia } from "@/lib/upload-buffer";
+import { storageDeleteOwned } from "@/lib/storage";
 import { SITE_CONFIG } from "@/lib/config";
 
 function slugify(name: string): string {
@@ -89,7 +89,7 @@ export async function createTemplate(input: {
       const buf = await screenshotProfile({
         url: `${SITE_CONFIG.url}/${fullUser.username}/shot`,
       });
-      thumbnailUrl = await uploadBufferToCatbox(userId, buf, { ext: "jpg", mime: "image/jpeg" });
+      thumbnailUrl = await uploadUserMedia(userId, buf, { ext: "jpg", mime: "image/jpeg" });
     } catch (e) {
       console.error("[createTemplate] cover screenshot failed:", e);
     }
@@ -123,7 +123,7 @@ export async function deleteTemplate(id: number) {
   await db.delete(schema.templates).where(eq(schema.templates.id, id));
 
   if (row.thumbnailUrl && row.userId) {
-    await deleteOwnedCatboxFiles(row.userId, [row.thumbnailUrl]).catch(() => {});
+    await storageDeleteOwned(row.userId, [row.thumbnailUrl]).catch(() => {});
   }
 
   revalidatePath("/dashboard/customize/templates");

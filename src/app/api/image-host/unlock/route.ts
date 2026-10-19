@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { checkRateLimit, ipBucket } from "@/lib/rate-limit";
 import { getClientIp } from "@/lib/server/security/ip";
 import { isPasswordCorrect } from "@/lib/server/security/bcrypt";
-import { CATBOX_BASE } from "@/lib/cdn";
+import { storageFetchObject } from "@/lib/storage";
 import { getImageHostFileAccess } from "@/lib/features/image-host/db";
 import { FILE_PASSWORD_MAX, PUBLIC_NAME_RE } from "@/lib/features/image-host/unlock";
 
@@ -33,11 +33,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Wrong password" }, { status: 403 });
     }
 
-    const upstream = await fetch(`${CATBOX_BASE}${file.storageId}`, {
+    const upstream = await storageFetchObject(file.storageId, {
       headers: { "User-Agent": "iuno-cdn/1.0" },
       signal: AbortSignal.timeout(55000),
     });
-    if (!upstream.ok || !upstream.body) {
+    if (!upstream || !upstream.ok || !upstream.body) {
       return NextResponse.json({ error: "File unavailable. Try again." }, { status: 502 });
     }
 

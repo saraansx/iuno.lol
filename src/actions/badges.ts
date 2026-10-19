@@ -4,8 +4,8 @@ import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getCustomBadges } from "@/lib/features/users/db";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
-import { storedFileId, CATBOX_BASE } from "@/lib/cdn";
-import { toHostedCdnUrl, resolveCdnStorageId } from "@/lib/cdn-host";
+import { storedFileId } from "@/lib/cdn";
+import { isStorageKeyUsableBy, storageRawUrl } from "@/lib/storage";
 import { randomBytes } from "crypto";
 import { revalidateProfile } from "@/app/[username]/profile-data";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
@@ -110,16 +110,8 @@ export async function createCustomBadge(input: { name: string; iconUrl: string }
   const name = String(input.name ?? "").trim().replace(/\s+/g, " ");
   if (name.length < 1 || name.length > 32) throw new Error("Badge name must be 1–32 characters.");
 
-  const rawId = storedFileId(input.iconUrl);
-  if (!rawId) throw new Error("Upload a badge icon first.");
-  const publicId = rawId.includes(".") ? rawId.slice(0, rawId.lastIndexOf(".")) : rawId;
-  const fileId = (await resolveCdnStorageId(publicId)) ?? rawId;
-  const [upload] = await db
-    .select({ id: schema.uploadedFiles.id })
-    .from(schema.uploadedFiles)
-    .where(and(eq(schema.uploadedFiles.userId, userId), eq(schema.uploadedFiles.url, `${CATBOX_BASE}${fileId}`)))
-    .limit(1);
-  if (!upload) throw new Error("Upload a badge icon first.");
+  const key = storedFileId(input.iconUrl);
+  if (!key || !isStorageKeyUsableBy(userId, key)) throw new Error("Upload a badge icon first.");
 
   const rate = await profileUpdateRateLimit(userId);
   if (!rate.ok) {
@@ -127,7 +119,7 @@ export async function createCustomBadge(input: { name: string; iconUrl: string }
     throw new Error(`You're updating too fast. Please wait ${minutes} minute${minutes === 1 ? "" : "s"}.`);
   }
 
-  const customIconUrl = await toHostedCdnUrl(`${CATBOX_BASE}${fileId}`);
+  const customIconUrl = storageRawUrl(key);
 
   await db.transaction(async (tx) => {
     const [user] = await tx

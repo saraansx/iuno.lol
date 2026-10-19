@@ -56,5 +56,11 @@ next-env.d.ts
 graphify-out/
 
 # personal maintenance scripts (local only, never commit)
-scripts/cleanup-unused-media.mjs
+scripts/migrate-catbox-to-r2.mjs
+scripts/catbox-proxy-worker.js
+scripts/r2-orphans.mjs
+r2-migration.report.json
+r2-migration.report.*.json
+r2-orphans.report.json
+r2-orphans.report.*.json
 

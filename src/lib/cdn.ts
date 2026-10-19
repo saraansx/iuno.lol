@@ -6,6 +6,14 @@ export const IMAGE_HOST_BASE = "https://host.iuno.lol/";
 
 const STORED_MEDIA_HOSTS = new Set(["files.catbox.moe", "cdn.iuno.lol"]);
 
+const r2PublicBase = process.env.R2_PUBLIC_BASE?.trim();
+if (r2PublicBase) {
+  try {
+    STORED_MEDIA_HOSTS.add(new URL(r2PublicBase).hostname.toLowerCase());
+  } catch {
+  }
+}
+
 function hostnameOf(url: string | null | undefined): string | null {
   if (!url) return null;
   try {
