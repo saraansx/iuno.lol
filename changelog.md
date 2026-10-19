@@ -2,6 +2,7 @@
 
 ## October 19, 2026
 
+- Mobile is now fully fixed across the site, from phones up to desktop.
 - Added an **unsaved-changes guard** to the dashboard. If you try to leave with edits, the save bar shakes red and asks you to save or revert first.
 - Fixed the music volume control on touch screens. Tapping the icon now opens the slider, and a second tap mutes.
 - Cleaned up mobile layouts for profiles, widgets, badges, templates and the image host so nothing overflows or stretches.
