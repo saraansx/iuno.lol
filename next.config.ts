@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/changelog": ["./changelog.md"],
   },
+  async rewrites() {
+    return [{ source: "/sitemap", destination: "/sitemap.xml" }];
+  },
   experimental: {
     proxyClientMaxBodySize: "210mb",
     serverActions: {

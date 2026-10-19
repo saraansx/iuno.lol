@@ -36,6 +36,6 @@ export default async function middleware() {
 
 export const config = {
   matcher: [
-    '/((?!api/cron|_next/static|_next/image|favicon.ico).*)',
+    '/((?!api/cron|_next/static|_next/image|favicon.ico|robots\\.txt|sitemap).*)',
   ],
 }
