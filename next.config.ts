@@ -2,6 +2,9 @@
 
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  outputFileTracingIncludes: {
+    "/changelog": ["./changelog.md"],
+  },
   experimental: {
     proxyClientMaxBodySize: "210mb",
     serverActions: {

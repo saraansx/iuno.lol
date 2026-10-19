@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import type { ReactNode } from "react";
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import TopFade from "@/components/ui/top-fade";
@@ -12,80 +15,150 @@ export const metadata: Metadata = {
   },
 };
 
-const OWNER = "iunolol";
-const REPO = "iuno.lol";
+const CHANGELOG_PATH = path.join(process.cwd(), "changelog.md");
 
-interface GhCommit {
-  sha: string;
-  commit: {
-    message: string;
-    author?: { date?: string } | null;
-  };
+type Entry =
+  | { kind: "bullet"; text: string }
+  | { kind: "heading"; text: string }
+  | { kind: "text"; text: string };
+
+interface Section {
+  title: string;
+  entries: Entry[];
 }
 
-interface Item {
-  sha: string;
-  time: string;
-  text: string;
-}
+const INLINE_PATTERN = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)\s]+\))/g;
 
-const SKIP = /^(merge\b|update(\s|$)[^:]*$)/i;
-
-function classify(raw: string): Item | null {
-  const firstLine = raw.split("\n")[0].trim();
-  if (!firstLine || SKIP.test(firstLine)) return null;
-  const m = firstLine.match(/^[a-z]+(\(.+\))?(!)?:\s*(.+)$/i);
-  const text = m ? m[3].trim() : firstLine;
-  if (!text) return null;
-  return { sha: "", time: "", text: text.charAt(0).toUpperCase() + text.slice(1) };
-}
-
-function dayLabel(iso: string) {
-  const d = new Date(iso);
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-  const sameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
-  if (sameDay(d, today)) return "Today";
-  if (sameDay(d, yesterday)) return "Yesterday";
-  return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
-}
-
-async function getChanges(): Promise<{ day: string; items: Item[] }[]> {
-  const headers: Record<string, string> = {
-    Accept: "application/vnd.github+json",
-    "User-Agent": "iuno-changelog/1.0",
-  };
-  if (process.env.GITHUB_CHANGELOG_TOKEN)
-    headers.Authorization = `Bearer ${process.env.GITHUB_CHANGELOG_TOKEN}`;
-  const res = await fetch(
-    `https://api.github.com/repos/${OWNER}/${REPO}/commits?per_page=40`,
-    { headers, next: { revalidate: 3600 } }
-  );
-  if (!res.ok) return [];
-  const commits = (await res.json()) as GhCommit[];
-  const byDay = new Map<string, Item[]>();
-  for (const c of commits) {
-    const item = classify(c.commit.message);
-    if (!item) continue;
-    const time = c.commit.author?.date ?? "";
-    if (!time) continue;
-    item.sha = c.sha.slice(0, 7);
-    item.time = time;
-    const key = time.slice(0, 10);
-    if (!byDay.has(key)) byDay.set(key, []);
-    byDay.get(key)!.push(item);
+function readChangelog(): string {
+  try {
+    return readFileSync(CHANGELOG_PATH, "utf8");
+  } catch {
+    return "";
   }
-  return [...byDay.entries()]
-    .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-    .map(([day, items]) => ({ day, items }))
-    .filter((g) => g.items.length > 0);
+}
+
+function parseChangelog(markdown: string): Section[] {
+  const lines = markdown.replace(/\r\n?/g, "\n").split("\n");
+  const sections: Section[] = [];
+  let current: Section | null = null;
+  let paragraph: string[] = [];
+
+  const ensureSection = (): Section => {
+    if (!current) {
+      current = { title: "", entries: [] };
+      sections.push(current);
+    }
+    return current;
+  };
+
+  const flushParagraph = () => {
+    if (paragraph.length === 0) return;
+    ensureSection().entries.push({ kind: "text", text: paragraph.join(" ") });
+    paragraph = [];
+  };
+
+  for (const raw of lines) {
+    const line = raw.trim();
+
+    if (!line) {
+      flushParagraph();
+      continue;
+    }
+
+    if (line.startsWith("# ")) {
+      flushParagraph();
+      continue;
+    }
+
+    if (line.startsWith("## ")) {
+      flushParagraph();
+      current = { title: line.slice(3).trim(), entries: [] };
+      sections.push(current);
+      continue;
+    }
+
+    if (line.startsWith("### ")) {
+      flushParagraph();
+      ensureSection().entries.push({ kind: "heading", text: line.slice(4).trim() });
+      continue;
+    }
+
+    if (/^[-*]\s+/.test(line)) {
+      flushParagraph();
+      ensureSection().entries.push({ kind: "bullet", text: line.replace(/^[-*]\s+/, "") });
+      continue;
+    }
+
+    paragraph.push(line);
+  }
+
+  flushParagraph();
+
+  return sections.filter((section) => section.entries.length > 0);
+}
+
+function safeHref(href: string): string | null {
+  return /^(https?:\/\/|\/|#|mailto:|tel:)/i.test(href) ? href : null;
+}
+
+function renderInline(text: string, keyPrefix: string): ReactNode[] {
+  const nodes: ReactNode[] = [];
+  let last = 0;
+  let index = 0;
+
+  for (const match of text.matchAll(INLINE_PATTERN)) {
+    const start = match.index ?? 0;
+    if (start > last) nodes.push(text.slice(last, start));
+
+    const token = match[0];
+    const key = `${keyPrefix}-${index++}`;
+
+    if (token.startsWith("**")) {
+      nodes.push(
+        <strong key={key} className="font-medium text-white/90">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    } else if (token.startsWith("`")) {
+      nodes.push(
+        <code
+          key={key}
+          className="rounded bg-white/[0.06] px-1.5 py-0.5 font-mono text-[12.5px] text-white/80"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    } else {
+      const link = token.match(/^\[([^\]]+)\]\(([^)\s]+)\)$/);
+      const href = link ? safeHref(link[2]) : null;
+
+      if (link && href) {
+        const external = /^https?:\/\//i.test(href);
+        nodes.push(
+          <a
+            key={key}
+            href={href}
+            {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            className="text-[#8b93f0] underline decoration-[#8b93f0]/30 underline-offset-2 transition-colors hover:text-white hover:decoration-white/30"
+          >
+            {link[1]}
+          </a>
+        );
+      } else {
+        nodes.push(token);
+      }
+    }
+
+    last = start + token.length;
+  }
+
+  if (last < text.length) nodes.push(text.slice(last));
+  return nodes;
 }
 
 export default async function ChangelogPage() {
   const auth = await isAuthenticated();
-  const groups = await getChanges();
+  const sections = parseChangelog(readChangelog());
 
   return (
     <div className="min-h-screen bg-black flex flex-col">
@@ -93,9 +166,7 @@ export default async function ChangelogPage() {
       <Navbar isAuthenticated={auth} />
 
       <section className="relative w-full max-w-3xl mx-auto px-6 pt-36 pb-10">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b93f0] font-medium">
-          Changelog
-        </p>
+        <p className="text-[11px] uppercase tracking-[0.2em] text-[#8b93f0] font-medium">Changelog</p>
         <h1
           className="mt-3 text-5xl md:text-6xl font-semibold text-white tracking-[-0.03em] leading-[0.95]"
           style={{ fontFamily: "var(--font-poppins)" }}
@@ -104,38 +175,51 @@ export default async function ChangelogPage() {
         </h1>
       </section>
 
-      <main className="flex-1 w-full max-w-3xl mx-auto px-6 pb-24">
-        {groups.length === 0 ? (
+      <main className="flex-1 w-full max-w-3xl mx-auto px-4 sm:px-6 pb-24">
+        {sections.length === 0 ? (
           <div className="rounded-[20px] border border-white/[0.07] bg-[#151515] p-10 text-center text-[13.5px] font-light text-white/40">
-            Nothing here yet. Updates show up within the hour of a push.
+            Nothing here yet. Add an entry to changelog.md.
           </div>
         ) : (
           <div className="flex flex-col gap-10">
-            {groups.map((g) => (
-              <section key={g.day}>
-                <p className="mb-4 text-[13px] font-medium text-white/45">
-                  {dayLabel(g.items[0].time)}
-                </p>
-                <div className="rounded-[20px] border border-white/[0.07] bg-[#151515] px-6 py-5 flex flex-col gap-3.5">
-                  {g.items.map((item) => (
-                    <a
-                      key={item.sha + item.text}
-                      href={`https://github.com/${OWNER}/${REPO}/commit/${item.sha}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group flex gap-3 text-[14px] font-light leading-relaxed text-white/65 transition-colors hover:text-white/95"
-                    >
-                      <span className="select-none text-white/25 transition-colors group-hover:text-[#5b6cf5]">
-                        -
-                      </span>
-                      <span className="min-w-0">
-                        {item.text}
-                        <span className="ml-2 font-mono text-[11px] text-white/20 transition-colors group-hover:text-white/45">
-                          {item.sha}
-                        </span>
-                      </span>
-                    </a>
-                  ))}
+            {sections.map((section, sectionIndex) => (
+              <section key={`${sectionIndex}-${section.title}`}>
+                {section.title ? (
+                  <p className="mb-4 text-[13px] font-medium text-white/45">{section.title}</p>
+                ) : null}
+                <div className="flex flex-col gap-3.5 rounded-[20px] border border-white/[0.07] bg-[#151515] px-5 py-5 sm:px-6">
+                  {section.entries.map((entry, entryIndex) => {
+                    const key = `${sectionIndex}-${entryIndex}`;
+
+                    if (entry.kind === "heading") {
+                      return (
+                        <p key={key} className="text-[13px] font-medium break-words text-white/80">
+                          {renderInline(entry.text, key)}
+                        </p>
+                      );
+                    }
+
+                    if (entry.kind === "text") {
+                      return (
+                        <p
+                          key={key}
+                          className="text-[14px] font-light leading-relaxed break-words text-white/65"
+                        >
+                          {renderInline(entry.text, key)}
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={key}
+                        className="flex gap-3 text-[14px] font-light leading-relaxed break-words text-white/65"
+                      >
+                        <span className="select-none text-white/25">-</span>
+                        <span className="min-w-0">{renderInline(entry.text, key)}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             ))}
