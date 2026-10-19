@@ -271,6 +271,7 @@ export interface Layout1Props {
   musicAutoPlay?: boolean;
   musicPlayerArtBg?: boolean | null;
   musicPlayerVolume?: boolean | null;
+  musicPlayerDefaultVolume?: number | null;
   musicPlayerVolumeFixed?: boolean;
   musicPlayerShuffle?: boolean | null;
 }

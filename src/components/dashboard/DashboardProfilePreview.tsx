@@ -288,6 +288,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       musicPlayerStyle={deferredOverrides.musicPlayerStyle ?? user?.musicPlayerStyle ?? "compact"}
       musicPlayerArtBg={deferredOverrides.musicPlayerArtBg ?? user?.musicPlayerArtBg ?? false}
       musicPlayerVolume={deferredOverrides.musicPlayerVolume ?? user?.musicPlayerVolume ?? true}
+      musicPlayerDefaultVolume={deferredOverrides.musicPlayerDefaultVolume ?? user?.musicPlayerDefaultVolume ?? 100}
       musicPlayerVolumeFixed={true}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
       links={(deferredOverrides.links as import("@/lib/links").ProfileLink[] | undefined) ?? (user?.links as import("@/lib/links").ProfileLink[] | undefined) ?? []}

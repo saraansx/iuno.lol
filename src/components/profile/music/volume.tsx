@@ -17,7 +17,7 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
     } catch {}
   }, []);
 
-  const setVolume = (v: number) => {
+  const setVolume = useCallback((v: number) => {
     const c = Math.min(1, Math.max(0, v));
     volumeRef.current = c;
     setVolumeState(c);
@@ -26,7 +26,23 @@ export function useVolume(audioRef: RefObject<HTMLAudioElement | null>, initialV
       setMutedState(false);
     }
     applyVolume(audioRef.current);
-  };
+  }, [applyVolume, audioRef]);
+
+  // Keep the slider in sync when the profile owner changes the default volume
+  // in the dashboard preview. Visitors can still adjust it afterwards.
+  const [prevInitial, setPrevInitial] = useState(initial);
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
+    setVolumeState(initial);
+    if (initial > 0) setMutedState(false);
+  }
+
+  // Push the new default onto the audio element too.
+  useEffect(() => {
+    volumeRef.current = initial;
+    if (initial > 0) mutedRef.current = false;
+    applyVolume(audioRef.current);
+  }, [initial, applyVolume, audioRef]);
 
   const toggleMute = () => {
     if (mutedRef.current || volumeRef.current === 0) {

@@ -206,6 +206,7 @@ const queryProfileRows = (username: string) =>
       musicTracks: userSettings.musicTracks,
       musicPlayerStyle: userSettings.musicPlayerStyle,
       musicPlayerVolume: userSettings.musicPlayerVolume,
+      musicPlayerDefaultVolume: userSettings.musicPlayerDefaultVolume,
       musicPlayerShuffle: userSettings.musicPlayerShuffle,
       sectionTitleFont: userSettings.sectionTitleFont,
       sectionTitleFontSize: userSettings.sectionTitleFontSize,

@@ -316,6 +316,7 @@ export default async function ProfileView({
         musicPlayerStyle={user.musicPlayerStyle ?? undefined}
         musicPlayerArtBg={user.musicPlayerArtBg ?? false}
         musicPlayerVolume={user.musicPlayerVolume ?? true}
+        musicPlayerDefaultVolume={user.musicPlayerDefaultVolume ?? 100}
         musicPlayerShuffle={user.musicPlayerShuffle ?? false}
       />
       {!isStatic && <ProfileViewTracker profileId={user.id} />}

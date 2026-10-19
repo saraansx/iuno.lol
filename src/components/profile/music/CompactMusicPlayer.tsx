@@ -12,7 +12,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
+export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", defaultVolume = 1, titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; defaultVolume?: number; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
 
   useLayoutEffect(() => {
@@ -29,7 +29,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   const autoNextRef = useRef(false);
   const barRef = useRef<HTMLDivElement | null>(null);
   const [dragging, setDragging] = useState(false);
-  const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef);
+  const { volume, muted, setVolume, toggleMute, applyVolume } = useVolume(audioRef, defaultVolume);
 
   const randomDifferent = useCallback(
     (from: number) => {

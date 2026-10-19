@@ -1607,6 +1607,7 @@ async function updateMusicProfileImpl(data: {
   playerStyle?: string;
   artBg?: boolean;
   volumeControl?: boolean;
+  defaultVolume?: number;
   shuffle?: boolean;
 }) {
   const userId = await getSessionUserId();
@@ -1713,11 +1714,17 @@ async function updateMusicProfileImpl(data: {
   const playerStyle =
     data.playerStyle === "lyrics" ? "lyrics" : data.playerStyle === "waveform" ? "waveform" : "compact";
 
+  const defaultVolume =
+    typeof data.defaultVolume === "number" && Number.isFinite(data.defaultVolume)
+      ? Math.round(Math.min(100, Math.max(0, data.defaultVolume)))
+      : undefined;
+
   const setData: Record<string, unknown> = {
     musicTracks: sanitizedTracks.length > 0 ? sanitizedTracks : null,
     musicPlayerStyle: playerStyle,
     ...(typeof data.artBg === "boolean" ? { musicPlayerArtBg: data.artBg } : {}),
     ...(typeof data.volumeControl === "boolean" ? { musicPlayerVolume: data.volumeControl } : {}),
+    ...(defaultVolume !== undefined ? { musicPlayerDefaultVolume: defaultVolume } : {}),
     ...(typeof data.shuffle === "boolean" ? { musicPlayerShuffle: data.shuffle } : {}),
   };
 
@@ -1738,6 +1745,7 @@ async function updateMusicProfileImpl(data: {
     tracks: sanitizedTracks,
     artBg: typeof data.artBg === "boolean" ? data.artBg : undefined,
     volumeControl: typeof data.volumeControl === "boolean" ? data.volumeControl : undefined,
+    defaultVolume,
     shuffle: typeof data.shuffle === "boolean" ? data.shuffle : undefined,
   };
 }

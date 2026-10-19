@@ -103,6 +103,7 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   enterScreenLetterSpacing: { min: -5, max: 20 },
   enterScreenOpacity: { min: 10, max: 100 },
   enterScreenBlur: { min: 0, max: 40 },
+  musicPlayerDefaultVolume: { min: 0, max: 100, int: true },
 
   widgetBorderWidth: { min: 0, max: 20 },
   widgetBorderRadius: { min: 0, max: 100 },

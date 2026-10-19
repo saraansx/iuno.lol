@@ -171,6 +171,7 @@ export const TEMPLATE_STYLE_KEYS = [
   "musicPlayerStyle",
   "musicPlayerArtBg",
   "musicPlayerVolume",
+  "musicPlayerDefaultVolume",
   "musicPlayerShuffle",
   "joinDateEnabled",
   "joinDateFormat",
