@@ -64,7 +64,7 @@ export default function OverflowPingPong({
       ref={containerRef}
       className={`relative w-full min-w-0 overflow-hidden ${
         scrollShift > 0
-          ? "[mask-image:linear-gradient(to_right,black_calc(100%-16px),transparent_100%)]"
+          ? "[mask-image:linear-gradient(to_right,black_calc(100%_-_16px),transparent_100%)]"
           : ""
       } ${className}`}
     >

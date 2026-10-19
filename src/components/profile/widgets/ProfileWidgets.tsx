@@ -14,6 +14,7 @@ const SteamWidget = dynamic(() => import("./SteamWidget"));
 const GenshinWidget = dynamic(() => import("./GenshinWidget"));
 const TwitchWidget = dynamic(() => import("./TwitchWidget"));
 const SpotifyWidget = dynamic(() => import("./SpotifyWidget"));
+const AppleMusicWidget = dynamic(() => import("./AppleMusicWidget"));
 const TikTokWidget = dynamic(() => import("./TikTokWidget"));
 const InstagramWidget = dynamic(() => import("./InstagramWidget"));
 const YouTubeWidget = dynamic(() => import("./YouTubeWidget"));
@@ -55,6 +56,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.platform === "spotify" || w.type?.startsWith("spotify-")) {
     return <SpotifyWidget widget={w} />;
+  }
+  if (w.platform === "apple-music" || w.type?.startsWith("apple-music-")) {
+    return <AppleMusicWidget widget={w} />;
   }
   if (w.type === "tiktok-profile" || w.platform === "tiktok") {
     return <TikTokWidget widget={w} />;

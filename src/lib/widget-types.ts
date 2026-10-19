@@ -10,6 +10,7 @@ export const PLATFORM_WIDGET_TYPES: Record<string, string[]> = {
     "spotify-artist",
     "spotify-user",
   ],
+  "apple-music": ["apple-music-track", "apple-music-album", "apple-music-artist"],
   twitch: ["twitch-channel"],
   github: ["github-user", "github-repo"],
   pinterest: ["pinterest-profile", "pinterest-board"],

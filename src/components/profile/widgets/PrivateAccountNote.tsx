@@ -1,9 +1,5 @@
 import { LockIcon } from "./WidgetIcons";
 
-/**
- * Shown in place of the stats row when a provider reports the profile as
- * private, since Instagram does not expose private account stats.
- */
 export default function PrivateAccountNote({
   label = "Private account · stats unavailable",
   className = "",

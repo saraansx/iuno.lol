@@ -85,6 +85,12 @@ export interface WidgetItem {
   instagramShowPosts?: boolean;
   instagramShowVerifiedBadge?: boolean;
   instagramShowBackground?: boolean;
+  appleMusicShowArtist?: boolean;
+  appleMusicShowAlbum?: boolean;
+  appleMusicShowReleaseYear?: boolean;
+  appleMusicShowTrackCount?: boolean;
+  appleMusicShowGenre?: boolean;
+  appleMusicShowBackground?: boolean;
   youtubeMode?: 'channel' | 'latest-video';
   youtubeImageSource?: 'channel-avatar' | 'video-thumbnail';
   youtubeShowSubscribers?: boolean;
@@ -279,6 +285,12 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/instagram?id=${encodeURIComponent(widget.customId)}`
       );
+    } else if (widget.platform === "apple-music") {
+      router.push(
+        `/dashboard/customize/profile/widgets/apple-music?type=${encodeURIComponent(
+          widget.type
+        )}&id=${encodeURIComponent(widget.customId)}`
+      );
     } else if (widget.platform === "youtube") {
       router.push(
         `/dashboard/customize/profile/widgets/youtube?id=${encodeURIComponent(widget.customId)}`
@@ -389,6 +401,12 @@ export default function WidgetsCustomization({
         `/dashboard/customize/profile/widgets/instagram?widgetId=${encodeURIComponent(
           w.id
         )}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "apple-music") {
+      router.push(
+        `/dashboard/customize/profile/widgets/apple-music?widgetId=${encodeURIComponent(
+          w.id
+        )}&type=${encodeURIComponent(w.type)}&id=${encodeURIComponent(w.targetId)}`
       );
     } else if (w.platform === "youtube") {
       router.push(
@@ -530,6 +548,10 @@ export default function WidgetsCustomization({
                         <TikTokLogoIcon size={18} className="w-[18px] h-[18px] text-white" />
                       ) : w.platform === "instagram" ? (
                         <InstagramLogoIcon size={18} className="w-[18px] h-[18px] text-white" />
+                      ) : w.platform === "apple-music" ? (
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#FC3C44">
+                          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                        </svg>
                       ) : w.platform === "youtube" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#FF0000">
                           <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -582,6 +604,12 @@ export default function WidgetsCustomization({
                             ? "TikTok Profile"
                             : w.type === "instagram-profile" || w.platform === "instagram"
                             ? "Instagram Profile"
+                            : w.type === "apple-music-track"
+                            ? "Apple Music Track"
+                            : w.type === "apple-music-album"
+                            ? "Apple Music Album"
+                            : w.type === "apple-music-artist"
+                            ? "Apple Music Artist"
                             : w.type === "youtube-profile" || w.platform === "youtube"
                             ? "YouTube"
                             : "Genshin Impact"}

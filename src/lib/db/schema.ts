@@ -321,6 +321,12 @@ export const userSettings = mysqlTable('user_settings', {
     instagramShowPosts?: boolean;
     instagramShowVerifiedBadge?: boolean;
     instagramShowBackground?: boolean;
+    appleMusicShowArtist?: boolean;
+    appleMusicShowAlbum?: boolean;
+    appleMusicShowReleaseYear?: boolean;
+    appleMusicShowTrackCount?: boolean;
+    appleMusicShowGenre?: boolean;
+    appleMusicShowBackground?: boolean;
     youtubeMode?: 'channel' | 'latest-video';
     youtubeImageSource?: 'channel-avatar' | 'video-thumbnail';
     youtubeShowSubscribers?: boolean;

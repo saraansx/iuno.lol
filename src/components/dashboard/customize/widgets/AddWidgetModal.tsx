@@ -8,6 +8,7 @@ import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
+import { isValidAppleMusicId, parseAppleMusicInput } from "@/lib/apple-music";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { PLATFORM_WIDGET_TYPES } from "@/lib/widget-types";
 
@@ -26,6 +27,7 @@ const PLATFORMS = [
   { id: "instagram", name: "Instagram" },
   { id: "youtube", name: "YouTube" },
   { id: "spotify", name: "Spotify" },
+  { id: "apple-music", name: "Apple Music" },
   { id: "twitch", name: "Twitch" },
   { id: "github", name: "GitHub" },
   { id: "pinterest", name: "Pinterest" },
@@ -45,6 +47,12 @@ const SPOTIFY_TYPES = [
   { id: "spotify-user" as const, name: "Spotify User", placeholder: "User link, URI, or ID (e.g. spotify)" },
 ];
 
+const APPLE_MUSIC_TYPES = [
+  { id: "apple-music-track" as const, name: "Apple Music Track", placeholder: "Track link or ID" },
+  { id: "apple-music-album" as const, name: "Apple Music Album", placeholder: "Album link or ID" },
+  { id: "apple-music-artist" as const, name: "Apple Music Artist", placeholder: "Artist link or ID" },
+];
+
 export default function AddWidgetModal({
   isOpen,
   onClose,
@@ -56,6 +64,7 @@ export default function AddWidgetModal({
   const [platformChoice, setPlatformChoice] = useState<string | null>(null);
   const [isPlatformDropdownOpen, setIsPlatformDropdownOpen] = useState(false);
   const [isSpotifyTypeDropdownOpen, setIsSpotifyTypeDropdownOpen] = useState(false);
+  const [isAppleMusicTypeDropdownOpen, setIsAppleMusicTypeDropdownOpen] = useState(false);
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [tiktokUsername, setTiktokUsername] = useState("");
@@ -63,6 +72,7 @@ export default function AddWidgetModal({
   const [youtubeInput, setYoutubeInput] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
   const [spotifyInput, setSpotifyInput] = useState("");
+  const [appleMusicInput, setAppleMusicInput] = useState("");
   const [githubUsername, setGithubUsername] = useState("");
   const [githubRepo, setGithubRepo] = useState("");
   const [pinterestUsername, setPinterestUsername] = useState("");
@@ -78,6 +88,7 @@ export default function AddWidgetModal({
   const modalRef = useRef<HTMLDivElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const spotifyTypeDropdownRef = useRef<HTMLDivElement>(null);
+  const appleMusicTypeDropdownRef = useRef<HTMLDivElement>(null);
 
   const firstOpenPlatform =
     PLATFORMS.find((p) => PLATFORM_WIDGET_TYPES[p.id])?.id || "discord";
@@ -111,6 +122,9 @@ export default function AddWidgetModal({
       if (spotifyTypeDropdownRef.current && !spotifyTypeDropdownRef.current.contains(e.target as Node)) {
         setIsSpotifyTypeDropdownOpen(false);
       }
+      if (appleMusicTypeDropdownRef.current && !appleMusicTypeDropdownRef.current.contains(e.target as Node)) {
+        setIsAppleMusicTypeDropdownOpen(false);
+      }
     };
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -131,6 +145,7 @@ export default function AddWidgetModal({
   const isInstagram = selectedPlatform === "instagram";
   const isYouTube = selectedPlatform === "youtube";
   const isSpotify = selectedPlatform === "spotify";
+  const isAppleMusic = selectedPlatform === "apple-music";
   const isTwitch = selectedPlatform === "twitch";
   const isGitHub = selectedPlatform === "github";
   const isPinterest = selectedPlatform === "pinterest";
@@ -161,6 +176,8 @@ export default function AddWidgetModal({
     ? cleanYouTubeInput(youtubeInput)
     : isSpotify
     ? spotifyInput.trim()
+    : isAppleMusic
+    ? parseAppleMusicInput(appleMusicInput).id
     : isTwitch
     ? twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, "")
     : isGitHub
@@ -200,6 +217,8 @@ export default function AddWidgetModal({
       ? /^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(cleanYouTubeInput(youtubeInput))
       : isSpotify
       ? spotifyInput.trim().length >= 3
+      : isAppleMusic
+      ? isValidAppleMusicId(parseAppleMusicInput(appleMusicInput).id)
       : isTwitch
       ? /^[a-zA-Z0-9_]{3,25}$/.test(twitchUsername.trim().replace(/^https?:\/\/(www\.)?twitch\.tv\//i, "").replace(/\/$/, ""))
       : isGitHub
@@ -283,6 +302,21 @@ export default function AddWidgetModal({
         type: resolvedType,
         useLinked: false,
         customId: resolvedId,
+      });
+      onClose();
+    } else if (isAppleMusic) {
+      const parsed = parseAppleMusicInput(appleMusicInput);
+      const resolvedType = widgetType.startsWith("apple-music-")
+        ? widgetType
+        : parsed.type
+          ? `apple-music-${parsed.type}`
+          : "apple-music-track";
+
+      onAdd({
+        platform: selectedPlatform,
+        type: resolvedType,
+        useLinked: false,
+        customId: parsed.id,
       });
       onClose();
     } else if (isTwitch) {
@@ -415,6 +449,10 @@ export default function AddWidgetModal({
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
                   </svg>
+                ) : selectedPlatform === "apple-music" ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                  </svg>
                 ) : selectedPlatform === "twitch" ? (
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
                     <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
@@ -504,6 +542,10 @@ export default function AddWidgetModal({
                         ) : platform.id === "spotify" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#1ED760" className="shrink-0">
                             <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.307a.754.754 0 0 1-1.037.249c-2.836-1.733-6.406-2.126-10.61-1.165a.755.755 0 1 1-.338-1.472c4.603-1.051 8.563-.604 11.736 1.341.365.223.478.7.249 1.047zm1.469-3.264a.944.944 0 0 1-1.298.312c-3.246-1.996-8.196-2.574-12.037-1.408a.945.945 0 0 1-.557-1.805c4.385-1.332 9.835-.688 13.58 1.614.417.256.547.801.312 1.287zm.126-3.41c-3.892-2.311-10.312-2.525-14.027-1.397a1.132 1.132 0 1 1-.659-2.167c4.272-1.298 11.363-1.05 15.842 1.609a1.134 1.134 0 0 1-1.156 1.955z" />
+                          </svg>
+                        ) : platform.id === "apple-music" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
                           </svg>
                         ) : platform.id === "twitch" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#9146FF" className="shrink-0">
@@ -689,6 +731,94 @@ export default function AddWidgetModal({
               </div>
               <p className="text-[11px] text-white/30 leading-normal mt-0.5">
                 Paste the full Spotify share link (open.spotify.com/...), URI (spotify:track:...), or ID.
+              </p>
+            </div>
+          </>
+        )}
+
+        {isAppleMusic && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="relative" ref={appleMusicTypeDropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsAppleMusicTypeDropdownOpen(!isAppleMusicTypeDropdownOpen)}
+                  className="w-full flex items-center justify-between bg-[#161616] border border-white/5 rounded-xl px-4 py-2.5 text-[13.5px] text-white/90 hover:border-white/10 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FC3C44" className="shrink-0">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
+                    </svg>
+                    <span>{APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.name || "Apple Music Track"}</span>
+                  </div>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className={`text-white/40 transition-transform duration-200 ${isAppleMusicTypeDropdownOpen ? "rotate-180" : ""}`}
+                  >
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </button>
+
+                {isAppleMusicTypeDropdownOpen && (
+                  <div className="absolute top-[calc(100%+6px)] left-0 right-0 p-1 bg-[#161616] border border-white/10 rounded-xl shadow-xl z-50 flex flex-col gap-0.5">
+                    {APPLE_MUSIC_TYPES.map((typeOption) => {
+                      return (
+                        <button
+                          key={typeOption.id}
+                          type="button"
+                          onClick={() => {
+                            setWidgetType(typeOption.id);
+                            setIsAppleMusicTypeDropdownOpen(false);
+                          }}
+                          className={`flex items-center justify-between px-3.5 py-2 rounded-lg text-[13px] transition-colors ${
+                            widgetType === typeOption.id
+                              ? "bg-white/10 text-white font-normal cursor-pointer"
+                              : "text-white/50 hover:bg-white/5 hover:text-white cursor-pointer"
+                          }`}
+                        >
+                          <span>{typeOption.name}</span>
+                          {widgetType === typeOption.id ? (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#FC3C44]" />
+                          ) : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+              <label className="text-[12px] font-normal text-white/60">
+                {APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.name || "Apple Music Item"} Link or ID
+              </label>
+              <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                <input
+                  type="text"
+                  value={appleMusicInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setAppleMusicInput(value);
+                    const detected = parseAppleMusicInput(value).type;
+                    if (detected) setWidgetType(`apple-music-${detected}`);
+                  }}
+                  placeholder={
+                    APPLE_MUSIC_TYPES.find((t) => t.id === widgetType)?.placeholder ||
+                    "music.apple.com/... or store ID"
+                  }
+                  className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                />
+              </div>
+              <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                Paste a track, album or artist link — the type is detected automatically.
               </p>
             </div>
           </>

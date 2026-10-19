@@ -26,6 +26,7 @@ import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
+import { cleanAppleMusicInput, isValidAppleMusicId } from "@/lib/apple-music";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
@@ -1103,6 +1104,12 @@ async function updateProfileWidgetsImpl(data: {
     instagramShowPosts?: boolean;
     instagramShowVerifiedBadge?: boolean;
     instagramShowBackground?: boolean;
+    appleMusicShowArtist?: boolean;
+    appleMusicShowAlbum?: boolean;
+    appleMusicShowReleaseYear?: boolean;
+    appleMusicShowTrackCount?: boolean;
+    appleMusicShowGenre?: boolean;
+    appleMusicShowBackground?: boolean;
     youtubeMode?: "channel" | "latest-video";
     youtubeImageSource?: "channel-avatar" | "video-thumbnail";
     youtubeShowSubscribers?: boolean;
@@ -1169,6 +1176,8 @@ async function updateProfileWidgetsImpl(data: {
         ? "tiktok"
         : w.platform === "instagram"
         ? "instagram"
+        : w.platform === "apple-music"
+        ? "apple-music"
         : w.platform === "youtube"
         ? "youtube"
         : w.platform === "telegram"
@@ -1211,6 +1220,12 @@ async function updateProfileWidgetsImpl(data: {
         ? "tiktok-profile"
         : w.type === "instagram-profile" || w.platform === "instagram"
         ? "instagram-profile"
+        : w.type === "apple-music-track"
+        ? "apple-music-track"
+        : w.type === "apple-music-album"
+        ? "apple-music-album"
+        : w.type === "apple-music-artist"
+        ? "apple-music-artist"
         : w.type === "youtube-profile" || w.platform === "youtube"
         ? "youtube-profile"
         : w.type === "telegram-profile" || w.platform === "telegram"
@@ -1308,6 +1323,11 @@ async function updateProfileWidgetsImpl(data: {
       targetId = cleanInstagramUsername(String(w.targetId || "")).slice(0, 30);
       if (!targetId || !isValidInstagramUsername(targetId)) {
         throw new Error("Invalid Instagram username format");
+      }
+    } else if (platform === "apple-music") {
+      targetId = cleanAppleMusicInput(String(w.targetId || "")).slice(0, 20);
+      if (!targetId || !isValidAppleMusicId(targetId)) {
+        throw new Error("Invalid Apple Music link or ID");
       }
     } else if (platform === "youtube") {
       targetId = cleanYouTubeInput(String(w.targetId || "")).slice(0, 30);
@@ -1440,6 +1460,12 @@ async function updateProfileWidgetsImpl(data: {
       instagramShowPosts: w.instagramShowPosts !== undefined ? Boolean(w.instagramShowPosts) : true,
       instagramShowVerifiedBadge: w.instagramShowVerifiedBadge !== undefined ? Boolean(w.instagramShowVerifiedBadge) : true,
       instagramShowBackground: w.instagramShowBackground !== undefined ? Boolean(w.instagramShowBackground) : false,
+      appleMusicShowArtist: w.appleMusicShowArtist !== undefined ? Boolean(w.appleMusicShowArtist) : true,
+      appleMusicShowAlbum: w.appleMusicShowAlbum !== undefined ? Boolean(w.appleMusicShowAlbum) : true,
+      appleMusicShowReleaseYear: w.appleMusicShowReleaseYear !== undefined ? Boolean(w.appleMusicShowReleaseYear) : true,
+      appleMusicShowTrackCount: w.appleMusicShowTrackCount !== undefined ? Boolean(w.appleMusicShowTrackCount) : true,
+      appleMusicShowGenre: w.appleMusicShowGenre !== undefined ? Boolean(w.appleMusicShowGenre) : true,
+      appleMusicShowBackground: w.appleMusicShowBackground !== undefined ? Boolean(w.appleMusicShowBackground) : false,
       youtubeMode: (w.youtubeMode === "latest-video" ? "latest-video" : "channel") as "channel" | "latest-video",
       youtubeImageSource: (w.youtubeImageSource === "video-thumbnail" ? "video-thumbnail" : "channel-avatar") as "channel-avatar" | "video-thumbnail",
       youtubeShowSubscribers: w.youtubeShowSubscribers !== undefined ? Boolean(w.youtubeShowSubscribers) : true,

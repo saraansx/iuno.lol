@@ -1,5 +1,9 @@
 # Changelog
 
+## October 20, 2026
+
+- Added an **Apple Music widget**. Show any track, album or artist with its artwork, name, artist, release year and track count.
+
 ## October 19, 2026
 
 - Added an **Instagram widget**. Show any public profile with its photo, follower/following/post counts and verification badge.
