@@ -93,6 +93,11 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.tiktokShowVideos === target.tiktokShowVideos &&
       item.tiktokShowVerifiedBadge === target.tiktokShowVerifiedBadge &&
       item.tiktokShowBackground === target.tiktokShowBackground &&
+      item.instagramShowFollowers === target.instagramShowFollowers &&
+      item.instagramShowFollowing === target.instagramShowFollowing &&
+      item.instagramShowPosts === target.instagramShowPosts &&
+      item.instagramShowVerifiedBadge === target.instagramShowVerifiedBadge &&
+      item.instagramShowBackground === target.instagramShowBackground &&
       item.youtubeMode === target.youtubeMode &&
       item.youtubeImageSource === target.youtubeImageSource &&
       item.youtubeShowSubscribers === target.youtubeShowSubscribers &&

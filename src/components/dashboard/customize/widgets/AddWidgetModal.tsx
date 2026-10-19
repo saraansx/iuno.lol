@@ -7,6 +7,7 @@ import { parseSpotifyIdentifier } from "@/lib/spotify";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
+import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { PLATFORM_WIDGET_TYPES } from "@/lib/widget-types";
 
@@ -22,6 +23,7 @@ const PLATFORMS = [
   { id: "none", name: "None" },
   { id: "discord", name: "Discord" },
   { id: "tiktok", name: "TikTok" },
+  { id: "instagram", name: "Instagram" },
   { id: "youtube", name: "YouTube" },
   { id: "spotify", name: "Spotify" },
   { id: "twitch", name: "Twitch" },
@@ -57,6 +59,7 @@ export default function AddWidgetModal({
   const [customDiscordId, setCustomDiscordId] = useState("");
   const [serverId, setServerId] = useState("");
   const [tiktokUsername, setTiktokUsername] = useState("");
+  const [instagramUsername, setInstagramUsername] = useState("");
   const [youtubeInput, setYoutubeInput] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
   const [spotifyInput, setSpotifyInput] = useState("");
@@ -125,6 +128,7 @@ export default function AddWidgetModal({
 
   const isDiscord = selectedPlatform === "discord";
   const isTikTok = selectedPlatform === "tiktok";
+  const isInstagram = selectedPlatform === "instagram";
   const isYouTube = selectedPlatform === "youtube";
   const isSpotify = selectedPlatform === "spotify";
   const isTwitch = selectedPlatform === "twitch";
@@ -151,6 +155,8 @@ export default function AddWidgetModal({
       : serverId.trim()
     : isTikTok
     ? tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, "")
+    : isInstagram
+    ? cleanInstagramUsername(instagramUsername)
     : isYouTube
     ? cleanYouTubeInput(youtubeInput)
     : isSpotify
@@ -188,6 +194,8 @@ export default function AddWidgetModal({
         : serverId.trim().replace(/^https?:\/\/(www\.)?(discord\.gg|discord\.com\/invite)\//i, "").length >= 2
       : isTikTok
       ? /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
+      : isInstagram
+      ? isValidInstagramUsername(cleanInstagramUsername(instagramUsername))
       : isYouTube
       ? /^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(cleanYouTubeInput(youtubeInput))
       : isSpotify
@@ -242,6 +250,14 @@ export default function AddWidgetModal({
       });
       onClose();
     } else if (isTikTok) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isInstagram) {
       onAdd({
         platform: selectedPlatform,
         type: widgetType,
@@ -475,6 +491,12 @@ export default function AddWidgetModal({
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-white shrink-0">
                             <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.43c.03-.03.07-.07.1-.1a6.3 6.3 0 0 0 1.87-4.52V8.71a8.28 8.28 0 0 0 4.76 1.49v-3.46a4.87 4.87 0 0 1-1-.05z" />
                           </svg>
+                        ) : platform.id === "instagram" ? (
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="text-white shrink-0">
+                            <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+                            <circle cx="12" cy="12" r="4.4" />
+                            <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none" />
+                          </svg>
                         ) : platform.id === "youtube" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
                             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -544,6 +566,28 @@ export default function AddWidgetModal({
             </div>
             <p className="text-[11px] text-white/30 leading-normal mt-0.5">
               Your TikTok username or profile URL (e.g. &apos;charlidamelio&apos; or tiktok.com/@charlidamelio).
+            </p>
+          </div>
+        )}
+
+        {isInstagram && (
+          <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+            <label className="text-[12px] font-normal text-white/60">Instagram Username</label>
+            <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+              <input
+                type="text"
+                value={instagramUsername}
+                onChange={(e) => setInstagramUsername(e.target.value)}
+                placeholder="e.g. instagram"
+                maxLength={60}
+                className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+              Your Instagram username or profile URL (e.g. &apos;instagram&apos; or instagram.com/instagram).
+            </p>
+            <p className="text-[11px] leading-normal text-amber-400/80">
+              Private profiles do not expose stats — those widgets show a warning instead.
             </p>
           </div>
         )}

@@ -25,6 +25,7 @@ import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
+import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
@@ -1097,6 +1098,11 @@ async function updateProfileWidgetsImpl(data: {
     tiktokShowVideos?: boolean;
     tiktokShowVerifiedBadge?: boolean;
     tiktokShowBackground?: boolean;
+    instagramShowFollowers?: boolean;
+    instagramShowFollowing?: boolean;
+    instagramShowPosts?: boolean;
+    instagramShowVerifiedBadge?: boolean;
+    instagramShowBackground?: boolean;
     youtubeMode?: "channel" | "latest-video";
     youtubeImageSource?: "channel-avatar" | "video-thumbnail";
     youtubeShowSubscribers?: boolean;
@@ -1161,6 +1167,8 @@ async function updateProfileWidgetsImpl(data: {
         ? "spotify"
         : w.platform === "tiktok"
         ? "tiktok"
+        : w.platform === "instagram"
+        ? "instagram"
         : w.platform === "youtube"
         ? "youtube"
         : w.platform === "telegram"
@@ -1201,6 +1209,8 @@ async function updateProfileWidgetsImpl(data: {
         ? "spotify-user"
         : w.type === "tiktok-profile" || w.platform === "tiktok"
         ? "tiktok-profile"
+        : w.type === "instagram-profile" || w.platform === "instagram"
+        ? "instagram-profile"
         : w.type === "youtube-profile" || w.platform === "youtube"
         ? "youtube-profile"
         : w.type === "telegram-profile" || w.platform === "telegram"
@@ -1293,6 +1303,11 @@ async function updateProfileWidgetsImpl(data: {
         .slice(0, 50);
       if (!targetId || !/^[a-zA-Z0-9_.-]{1,50}$/.test(targetId)) {
         throw new Error("Invalid TikTok username format");
+      }
+    } else if (platform === "instagram") {
+      targetId = cleanInstagramUsername(String(w.targetId || "")).slice(0, 30);
+      if (!targetId || !isValidInstagramUsername(targetId)) {
+        throw new Error("Invalid Instagram username format");
       }
     } else if (platform === "youtube") {
       targetId = cleanYouTubeInput(String(w.targetId || "")).slice(0, 30);
@@ -1420,6 +1435,11 @@ async function updateProfileWidgetsImpl(data: {
       tiktokShowVideos: w.tiktokShowVideos !== undefined ? Boolean(w.tiktokShowVideos) : true,
       tiktokShowVerifiedBadge: w.tiktokShowVerifiedBadge !== undefined ? Boolean(w.tiktokShowVerifiedBadge) : true,
       tiktokShowBackground: w.tiktokShowBackground !== undefined ? Boolean(w.tiktokShowBackground) : true,
+      instagramShowFollowers: w.instagramShowFollowers !== undefined ? Boolean(w.instagramShowFollowers) : true,
+      instagramShowFollowing: w.instagramShowFollowing !== undefined ? Boolean(w.instagramShowFollowing) : true,
+      instagramShowPosts: w.instagramShowPosts !== undefined ? Boolean(w.instagramShowPosts) : true,
+      instagramShowVerifiedBadge: w.instagramShowVerifiedBadge !== undefined ? Boolean(w.instagramShowVerifiedBadge) : true,
+      instagramShowBackground: w.instagramShowBackground !== undefined ? Boolean(w.instagramShowBackground) : false,
       youtubeMode: (w.youtubeMode === "latest-video" ? "latest-video" : "channel") as "channel" | "latest-video",
       youtubeImageSource: (w.youtubeImageSource === "video-thumbnail" ? "video-thumbnail" : "channel-avatar") as "channel-avatar" | "video-thumbnail",
       youtubeShowSubscribers: w.youtubeShowSubscribers !== undefined ? Boolean(w.youtubeShowSubscribers) : true,

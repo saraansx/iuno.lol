@@ -15,6 +15,7 @@ const GenshinWidget = dynamic(() => import("./GenshinWidget"));
 const TwitchWidget = dynamic(() => import("./TwitchWidget"));
 const SpotifyWidget = dynamic(() => import("./SpotifyWidget"));
 const TikTokWidget = dynamic(() => import("./TikTokWidget"));
+const InstagramWidget = dynamic(() => import("./InstagramWidget"));
 const YouTubeWidget = dynamic(() => import("./YouTubeWidget"));
 const TelegramWidget = dynamic(() => import("./TelegramWidget"));
 const RobloxWidget = dynamic(() => import("./RobloxWidget"));
@@ -57,6 +58,9 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "tiktok-profile" || w.platform === "tiktok") {
     return <TikTokWidget widget={w} />;
+  }
+  if (w.type === "instagram-profile" || w.platform === "instagram") {
+    return <InstagramWidget widget={w} />;
   }
   if (w.type === "youtube-profile" || w.platform === "youtube") {
     return <YouTubeWidget widget={w} />;

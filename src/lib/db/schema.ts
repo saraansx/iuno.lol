@@ -316,6 +316,11 @@ export const userSettings = mysqlTable('user_settings', {
     tiktokShowVideos?: boolean;
     tiktokShowVerifiedBadge?: boolean;
     tiktokShowBackground?: boolean;
+    instagramShowFollowers?: boolean;
+    instagramShowFollowing?: boolean;
+    instagramShowPosts?: boolean;
+    instagramShowVerifiedBadge?: boolean;
+    instagramShowBackground?: boolean;
     youtubeMode?: 'channel' | 'latest-video';
     youtubeImageSource?: 'channel-avatar' | 'video-thumbnail';
     youtubeShowSubscribers?: boolean;

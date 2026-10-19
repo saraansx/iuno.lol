@@ -1,9 +1,11 @@
 export default function WidgetUnavailable({
   imageShape,
   label,
+  description,
 }: {
   imageShape?: string;
   label?: string;
+  description?: string;
 }) {
   const shapeClass =
     imageShape === "square"
@@ -39,7 +41,7 @@ export default function WidgetUnavailable({
             Couldn&apos;t load
           </span>
           <span className="text-[12.5px] font-normal leading-tight text-white/40 truncate">
-            {label ? `This ${label} is unavailable` : "This content is unavailable"}
+            {description ?? (label ? `This ${label} is unavailable` : "This content is unavailable")}
           </span>
         </div>
       </div>
