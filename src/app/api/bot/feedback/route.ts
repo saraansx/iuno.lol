@@ -167,13 +167,6 @@ export async function POST(req: Request) {
   const type = String(body.type ?? '').trim().toLowerCase();
 
   if (type === 'like' || type === 'dislike') {
-    if (giverId === receiverId) {
-      return NextResponse.json(
-        { error: 'You cannot rate your own profile.', code: 'self_feedback' },
-        { status: 400 },
-      );
-    }
-
     const [targetSettings] = await db
       .select({ feedbackEnabled: schema.userSettings.feedbackEnabled })
       .from(schema.userSettings)

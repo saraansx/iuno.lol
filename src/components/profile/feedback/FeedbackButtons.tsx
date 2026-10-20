@@ -69,16 +69,6 @@ export default function FeedbackButtons({
       return;
     }
 
-    const isAddingFeedback = intent === "like" ? !hasLiked : !hasDisliked;
-    if (viewerId === profileId && isAddingFeedback) {
-      toast.error(
-        intent === "like"
-          ? "You can't like your own profile."
-          : "You can't dislike your own profile."
-      );
-      return;
-    }
-
     const prev = {
       likes: likesCount,
       dislikes: dislikesCount,

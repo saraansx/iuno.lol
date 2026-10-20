@@ -31,15 +31,6 @@ export async function submitFeedbackAction(userId: number, type: 'like' | 'disli
     return { success: false, error: "Invalid profile." };
   }
 
-  if (sessionUserId === userId && (type === "like" || type === "dislike")) {
-    return {
-      success: false,
-      error: type === "like"
-        ? "You can't like your own profile."
-        : "You can't dislike your own profile.",
-    };
-  }
-
   const [targetSettings] = await db
     .select({ feedbackEnabled: schema.userSettings.feedbackEnabled })
     .from(schema.userSettings)
