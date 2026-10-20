@@ -308,6 +308,7 @@ export default async function ProfileView({
         linksSocialBackground={user.linksSocialBackground ?? undefined}
         linksBorderRadius={user.linksBorderRadius ?? undefined}
         linksIconSize={user.linksIconSize ?? undefined}
+        linksIconGap={user.linksIconGap ?? undefined}
         linksFont={user.linksFont ?? undefined}
         linksFontSize={user.linksFontSize ?? undefined}
         linksFontWeight={user.linksFontWeight ?? undefined}

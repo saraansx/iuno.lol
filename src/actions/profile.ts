@@ -1811,6 +1811,7 @@ async function saveProfileLinksImpl(data: {
   socialBackground?: boolean;
   borderRadius?: number;
   iconSize?: number;
+  iconGap?: number;
 }) {
   const userId = await getSessionUserId();
 
@@ -1861,6 +1862,11 @@ async function saveProfileLinksImpl(data: {
     const s = Number(data.iconSize);
     if (!Number.isFinite(s)) throw new Error("Invalid icon size.");
     setData.linksIconSize = Math.min(32, Math.max(12, Math.round(s)));
+  }
+  if (data.iconGap !== undefined) {
+    const g = Number(data.iconGap);
+    if (!Number.isFinite(g)) throw new Error("Invalid icon gap.");
+    setData.linksIconGap = Math.min(24, Math.max(0, Math.round(g)));
   }
 
   sanitizeProfileSettings(setData);

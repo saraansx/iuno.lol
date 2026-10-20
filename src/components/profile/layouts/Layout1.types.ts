@@ -262,6 +262,7 @@ export interface Layout1Props {
   linksSocialBackground?: boolean | null;
   linksBorderRadius?: number | null;
   linksIconSize?: number | null;
+  linksIconGap?: number | null;
   linksFont?: string | null;
   linksFontSize?: number | null;
   linksFontWeight?: number | null;

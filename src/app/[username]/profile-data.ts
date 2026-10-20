@@ -182,6 +182,7 @@ const queryProfileRows = (username: string) =>
       linksSocialBackground: userSettings.linksSocialBackground,
       linksBorderRadius: userSettings.linksBorderRadius,
       linksIconSize: userSettings.linksIconSize,
+      linksIconGap: userSettings.linksIconGap,
       linksFont: userSettings.linksFont,
       linksFontSize: userSettings.linksFontSize,
       linksFontWeight: userSettings.linksFontWeight,

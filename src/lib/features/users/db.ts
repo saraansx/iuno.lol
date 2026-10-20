@@ -228,6 +228,7 @@ const userColumns = {
   linksSocialBackground: schema.userSettings.linksSocialBackground,
   linksBorderRadius: schema.userSettings.linksBorderRadius,
   linksIconSize: schema.userSettings.linksIconSize,
+  linksIconGap: schema.userSettings.linksIconGap,
   widgets: schema.userSettings.widgets,
   links: schema.userSettings.links,
 } as const

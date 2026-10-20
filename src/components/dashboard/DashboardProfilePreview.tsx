@@ -300,6 +300,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       linksSocialBackground={deferredOverrides.linksSocialBackground ?? user?.linksSocialBackground ?? true}
       linksBorderRadius={deferredOverrides.linksBorderRadius ?? user?.linksBorderRadius ?? 16}
       linksIconSize={deferredOverrides.linksIconSize ?? user?.linksIconSize ?? 17}
+      linksIconGap={deferredOverrides.linksIconGap ?? user?.linksIconGap ?? 10}
     />
   );
 }

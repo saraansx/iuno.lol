@@ -5,6 +5,7 @@
 - Added an **Apple Music widget**. Show any track, album or artist with its artwork, name, artist, release year and track count.
 - Banner uploads now open a **crop tool**, so you can choose exactly which part of the image shows on your profile.
 - Long widget titles and subtitles now scroll back and forth instead of getting cut off.
+- Link icon boxes now scale with the icon size, and a new **spacing slider** controls the gap between them.
 
 ## October 19, 2026
 

@@ -508,18 +508,20 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
   const initialSocial = user?.linksSocialBackground ?? true;
   const initialRadius = clampInt(user?.linksBorderRadius, 16, 0, 32);
   const initialIconSize = clampInt(user?.linksIconSize, 17, 12, 32);
+  const initialIconGap = clampInt(user?.linksIconGap, 10, 0, 24);
 
   const [alignment, setAlignment] = useState<"left" | "center" | "right">(initialAlignment);
   const [social, setSocial] = useState<boolean>(initialSocial);
   const [radius, setRadius] = useState<number>(initialRadius);
   const [iconSize, setIconSize] = useState<number>(initialIconSize);
+  const [iconGap, setIconGap] = useState<number>(initialIconGap);
 
-  const normState = (l: ProfileLink[], a: string, s: boolean, r: number, i: number) =>
-    JSON.stringify({ links: l, alignment: a, social: s, radius: r, iconSize: i });
+  const normState = (l: ProfileLink[], a: string, s: boolean, r: number, i: number, g: number) =>
+    JSON.stringify({ links: l, alignment: a, social: s, radius: r, iconSize: i, iconGap: g });
 
   const hasChanges =
-    normState(links, alignment, social, radius, iconSize) !==
-    normState(initialLinks, initialAlignment, initialSocial, initialRadius, initialIconSize);
+    normState(links, alignment, social, radius, iconSize, iconGap) !==
+    normState(initialLinks, initialAlignment, initialSocial, initialRadius, initialIconSize, initialIconGap);
 
   const openAdd = () => {
     if (links.length >= MAX_LINKS) return;
@@ -761,6 +763,35 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
               />
             </div>
           </div>
+
+          <div className="flex flex-col gap-2.5">
+            <div className="flex items-center justify-between">
+              <label className="text-[12.5px] font-medium text-white/90">Icon spacing</label>
+              <span className="text-[12px] text-white/40 font-mono">{iconGap}px</span>
+            </div>
+            <div className="relative flex items-center h-5 group w-full">
+              <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="absolute h-full bg-[#5b6cf5]"
+                  style={{ width: `${(iconGap / 24) * 100}%` }}
+                />
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={24}
+                step={1}
+                value={iconGap}
+                onChange={(e) => setIconGap(Number(e.target.value))}
+                aria-label="Icon spacing"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+              />
+              <div
+                className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+                style={{ left: `calc(${(iconGap / 24) * 100}% - 8px)` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -773,6 +804,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
           linksSocialBackground: social,
           linksBorderRadius: radius,
           linksIconSize: iconSize,
+          linksIconGap: iconGap,
         }}
       />
 
@@ -786,6 +818,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
               socialBackground: social,
               borderRadius: radius,
               iconSize,
+              iconGap,
             });
             toast.success("Profile Saved Sucessfully");
             router.refresh();
@@ -810,6 +843,7 @@ export default function LinksProfileClient({ user, backgrounds }: { user: FullUs
           setSocial(initialSocial);
           setRadius(initialRadius);
           setIconSize(initialIconSize);
+          setIconGap(initialIconGap);
         }}
       />
 

@@ -257,6 +257,7 @@ export const userSettings = mysqlTable('user_settings', {
   linksSocialBackground: boolean('links_social_background').default(true),
   linksBorderRadius: int('links_border_radius').default(16),
   linksIconSize: int('links_icon_size').default(17),
+  linksIconGap: int('links_icon_gap').default(10),
   widgets: json('widgets').$type<Array<{
     id: string;
     platform: string;

@@ -12,6 +12,7 @@ interface ProfileLinksProps {
   socialBackground?: boolean | null;
   borderRadius?: number | null;
   iconSize?: number | null;
+  iconGap?: number | null;
 }
 
 const ALIGN_JUSTIFY: Record<string, string> = {
@@ -29,7 +30,7 @@ function ExternalArrow({ size = 13 }: { size?: number }) {
   );
 }
 
-export default function ProfileLinks({ links, titleStyle, showTooltip = true, alignment, socialBackground, borderRadius, iconSize }: ProfileLinksProps) {
+export default function ProfileLinks({ links, titleStyle, showTooltip = true, alignment, socialBackground, borderRadius, iconSize, iconGap }: ProfileLinksProps) {
   const items = (links ?? []).filter((l) => l && l.url && l.title);
   if (items.length === 0) return null;
 
@@ -37,6 +38,9 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
   const social = socialBackground ?? true;
   const radius = typeof borderRadius === "number" && Number.isFinite(borderRadius) ? Math.min(32, Math.max(0, borderRadius)) : 16;
   const size = typeof iconSize === "number" && Number.isFinite(iconSize) ? Math.min(32, Math.max(12, iconSize)) : 17;
+  const gap = typeof iconGap === "number" && Number.isFinite(iconGap) ? Math.min(24, Math.max(0, iconGap)) : 10;
+  const iconBox = social ? Math.round(size * 1.8 + 13) : size + 4;
+  const rowIconBox = social ? Math.round(size * 1.1 + 17) : size + 4;
 
   const tooltip = (title: string) =>
     showTooltip ? (
@@ -51,7 +55,7 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
     ) : null;
 
   return (
-    <div className={`w-full flex flex-wrap items-stretch gap-2.5 ${justify}`}>
+    <div className={`w-full flex flex-wrap items-stretch ${justify}`} style={{ gap: `${gap}px` }}>
       {items.map((link) => {
         const color = link.color ?? null;
         return link.variant === "small" ? (
@@ -61,8 +65,8 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
             target="_blank"
             rel="noopener noreferrer"
             aria-label={link.title}
-            className={`group relative flex w-11 h-11 items-center justify-center rounded-xl border cursor-pointer ${social ? "border-white/10 bg-white/[0.04] text-white/80" : "border-transparent bg-transparent text-white/80"}`}
-            style={{ borderRadius: radius }}
+            className={`group relative flex shrink-0 items-center justify-center border cursor-pointer ${social ? "border-white/10 bg-white/[0.04] text-white/80" : "border-transparent bg-transparent text-white/80"}`}
+            style={{ borderRadius: radius, width: iconBox, height: iconBox }}
           >
             {tooltip(link.title)}
             <LinkIcon icon={link.icon} size={size} color={color} />
@@ -78,8 +82,8 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
           >
             {tooltip(link.title)}
             <span
-              className={`flex w-9 h-9 shrink-0 items-center justify-center rounded-xl border ${social ? "border-white/10 bg-white/[0.05] text-white/85" : "border-transparent bg-transparent text-white/85"}`}
-              style={{ borderRadius: Math.min(radius, 12) }}
+              className={`flex shrink-0 items-center justify-center border ${social ? "border-white/10 bg-white/[0.05] text-white/85" : "border-transparent bg-transparent text-white/85"}`}
+              style={{ borderRadius: Math.min(radius, 12), width: rowIconBox, height: rowIconBox }}
             >
               <LinkIcon icon={link.icon} size={size} color={color} />
             </span>
