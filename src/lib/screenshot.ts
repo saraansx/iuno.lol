@@ -1,5 +1,7 @@
 import "server-only";
 
+import { nerveGetBinary } from "@/lib/nerve";
+
 export type ScreenshotOptions = {
   url: string;
   width?: number;
@@ -7,7 +9,30 @@ export type ScreenshotOptions = {
   settleMs?: number;
 };
 
-export async function screenshotProfile(opts: ScreenshotOptions): Promise<Buffer> {
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, Math.round(value)));
+
+async function screenshotViaNerve(opts: ScreenshotOptions): Promise<Buffer | null> {
+  const width = clamp(opts.width ?? 1200, 320, 3840);
+  const height = clamp(opts.height ?? 1500, 240, 2160);
+  const delaySeconds = clamp(Math.ceil((opts.settleMs ?? 2800) / 1000), 0, 20);
+
+  return nerveGetBinary(
+    "/v1/screenshot",
+    {
+      url: opts.url,
+      width,
+      height,
+      delay: delaySeconds,
+      format: "jpeg",
+      quality: 82,
+      scale: 1,
+    },
+    40_000,
+  );
+}
+
+async function screenshotViaCloudflare(opts: ScreenshotOptions): Promise<Buffer> {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const token = process.env.CLOUDFLARE_BROWSER_TOKEN;
   if (!accountId || !token) {
@@ -45,4 +70,19 @@ export async function screenshotProfile(opts: ScreenshotOptions): Promise<Buffer
   const buf = Buffer.from(await res.arrayBuffer());
   if (buf.length === 0) throw new Error("Cloudflare screenshot returned empty body");
   return buf;
+}
+
+export async function screenshotProfile(opts: ScreenshotOptions): Promise<Buffer> {
+  const nerveBuf = await screenshotViaNerve(opts).catch((err) => {
+    console.warn(
+      "[screenshot] Nerve request threw:",
+      err instanceof Error ? err.message : err,
+    );
+    return null;
+  });
+
+  if (nerveBuf && nerveBuf.length > 0) return nerveBuf;
+
+  console.warn("[screenshot] Nerve unavailable, falling back to Cloudflare");
+  return screenshotViaCloudflare(opts);
 }
