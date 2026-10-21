@@ -45,7 +45,10 @@ export async function generateMetadata(
   return {
     title: { absolute: formatTabTitle(row.tabTitle, row.username) },
     description,
-    icons: { icon: row.faviconUrl || '/Favicon.png' },
+    icons: {
+      icon: row.faviconUrl || '/favicon-96.png',
+      apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    },
     alternates: {
       canonical: `/${row.username}`,
     },

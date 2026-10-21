@@ -29,7 +29,6 @@ export default function EditTrackModal({
   return (
     <AnimatePresence>
       {open && track && (
-        // Keyed by track so opening a different track starts from a clean form without a reset effect.
         <EditTrackForm key={track.id} track={track} onClose={onClose} onSave={onSave} />
       )}
     </AnimatePresence>
@@ -53,7 +52,6 @@ function EditTrackForm({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Blob previews must be revoked or they leak for the life of the tab.
   useEffect(() => {
     if (!picked) return;
     return () => URL.revokeObjectURL(picked.url);

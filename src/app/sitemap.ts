@@ -3,70 +3,54 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { SITE_CONFIG } from "@/lib/config";
 
+const SITE_LAST_UPDATED = new Date("2026-10-21T00:00:00.000Z");
+
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   {
     url: SITE_CONFIG.url,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "daily",
     priority: 1,
   },
   {
-    url: `${SITE_CONFIG.url}/register`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.9,
-  },
-  {
-    url: `${SITE_CONFIG.url}/signin`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.8,
-  },
-  {
     url: `${SITE_CONFIG.url}/pricing`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "weekly",
     priority: 0.9,
   },
   {
     url: `${SITE_CONFIG.url}/leaderboard`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "daily",
     priority: 0.7,
   },
   {
     url: `${SITE_CONFIG.url}/changelog`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "weekly",
     priority: 0.6,
   },
   {
-    url: `${SITE_CONFIG.url}/forgot-password`,
-    lastModified: new Date(),
-    changeFrequency: "monthly",
-    priority: 0.2,
-  },
-  {
     url: `${SITE_CONFIG.url}/terms`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "yearly",
     priority: 0.3,
   },
   {
     url: `${SITE_CONFIG.url}/privacy`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "yearly",
     priority: 0.3,
   },
   {
     url: `${SITE_CONFIG.url}/refund`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "yearly",
     priority: 0.3,
   },
   {
     url: `${SITE_CONFIG.url}/copyright`,
-    lastModified: new Date(),
+    lastModified: SITE_LAST_UPDATED,
     changeFrequency: "yearly",
     priority: 0.3,
   },

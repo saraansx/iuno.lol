@@ -20,7 +20,6 @@ export function parseLRC(text: string): LyricLine[] {
   }));
 }
 
-/** Turn stored lyric lines back into LRC text so they can be edited by hand. */
 export function toLRC(lines: LyricLine[] | null | undefined): string {
   if (!lines?.length) return "";
   return lines

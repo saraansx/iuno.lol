@@ -268,7 +268,6 @@ async function updateGeneralProfileImpl(data: {
       .onDuplicateKeyUpdate({ set: setData });
   }
 
-
   await invalidateLiveStatsCache(userId);
 
   revalidatePath("/dashboard/customize/profile/general");
@@ -328,7 +327,6 @@ async function updateBackgroundsImpl(urls: string[]) {
   if (removedBackgrounds.length > 0) {
     await storageDeleteOwned(userId, removedBackgrounds).catch(() => {});
   }
-
 
   await invalidateLiveStatsCache(userId);
 
@@ -870,7 +868,6 @@ async function updateMetadataProfileImpl(data: {
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
-
 
   revalidatePath("/dashboard/customize/metadata");
   revalidatePath("/dashboard", "layout");
@@ -1737,8 +1734,6 @@ async function updateMusicProfileImpl(data: {
 
       const prev = prevTracks.find((p) => p.id === id);
       if (prev && isStoredMediaUrl(prev.streamUrl)) {
-        // Keep the cached media, but let a newly uploaded cover replace the old one.
-        // Only stored URLs are trusted here; pasted external artwork still falls back to the cache.
         const artwork = isStoredMediaUrl(t.artwork) ? (t.artwork as string) : (prev.artwork ?? null);
         return {
           id,
@@ -1792,7 +1787,6 @@ async function updateMusicProfileImpl(data: {
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
-
 
   revalidatePath("/dashboard/customize/music");
   revalidatePath("/dashboard", "layout");
@@ -1878,7 +1872,6 @@ async function saveProfileLinksImpl(data: {
     .insert(schema.userSettings)
     .values({ userId, ...setData })
     .onDuplicateKeyUpdate({ set: setData });
-
 
   revalidatePath("/dashboard/customize/links");
   revalidatePath("/dashboard", "layout");
