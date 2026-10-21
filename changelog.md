@@ -3,6 +3,7 @@
 ## October 21, 2026
 
 - You can now like or dislike your own profile. One vote per account, same as everyone else.
+- Template covers are now captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
 
 ## October 20, 2026
 
