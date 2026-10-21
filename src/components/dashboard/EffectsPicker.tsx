@@ -146,7 +146,7 @@ export default function EffectsPicker({
                     <div className="relative w-12 h-12 z-10 mb-3">
                       <div className={`absolute inset-0 overflow-hidden border-2 border-[#111] bg-[#1b1b1b] ${avatarShapeClass}`}>
                         {avatarUrl ? (
-                          <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
+                          <Image src={avatarUrl} alt="Avatar preview" fill sizes="48px" unoptimized className="object-cover" />
                         ) : (
                           <div className="absolute inset-0 flex items-center justify-center text-white/20">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -238,6 +238,7 @@ export default function EffectsPicker({
                                 src={previewImage}
                                 alt={item.name}
                                 fill
+                                sizes="120px"
                                 unoptimized
                                 className="object-contain p-1"
                               />

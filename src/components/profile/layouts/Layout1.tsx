@@ -909,6 +909,7 @@ const sectionSurface: React.CSSProperties = {
                 src={bannerBackgroundUrl}
                 alt="Background"
                 fill
+                sizes="100vw"
                 draggable={false}
                 className="object-cover"
                 style={{
@@ -1043,6 +1044,7 @@ const sectionSurface: React.CSSProperties = {
                     src={bannerImageUrl!}
                     alt="Banner"
                     fill
+                    sizes="100vw"
                     draggable={false}
                     className="object-cover"
                     unoptimized

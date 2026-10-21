@@ -538,7 +538,7 @@ export default function AssetsSection({
                       playsInline
                     />
                   ) : (
-                    <Image src={avatarUrl} alt="Avatar" fill className="object-cover" unoptimized />
+                    <Image src={avatarUrl} alt="Avatar" fill sizes="96px" className="object-cover" unoptimized />
                   )
                 ) : (
                   <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -552,6 +552,7 @@ export default function AssetsSection({
                     src={selectedDecoration.url}
                     alt={selectedDecoration.name}
                     fill
+                    sizes="72px"
                     unoptimized
                     className="object-contain"
                     style={{ filter: `hue-rotate(${decorationHue}deg)` }}
@@ -768,7 +769,7 @@ export default function AssetsSection({
                         ) : isVideoUrl(url) ? (
                           <video src={url} className="absolute inset-0 w-full h-full object-cover" muted loop playsInline />
                         ) : (
-                          <Image src={url} alt="" fill unoptimized className="absolute inset-0 w-full h-full object-cover" />
+                          <Image src={url} alt="" fill sizes="200px" unoptimized className="absolute inset-0 w-full h-full object-cover" />
                         )}
                       </div>
                       <button type="button" onClick={() => setBgSelected(i)} className="flex-1 min-w-0 text-left cursor-pointer">

@@ -208,7 +208,7 @@ export default function RecentComments({
               <div key={comment.id} className="group flex items-center gap-3 p-3 rounded-[20px] border border-white/5 bg-[#141414] hover:bg-[#1a1a1a] transition-colors">
                 <div className="w-8 h-8 rounded-full bg-white/10 shrink-0 overflow-hidden relative">
                   {comment.author.avatarUrl ? (
-                    <Image src={comment.author.avatarUrl} alt={comment.author.username} fill className="object-cover" />
+                    <Image src={comment.author.avatarUrl} alt={comment.author.username} fill sizes="32px" className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-[12px] font-medium text-white/50">
                       {comment.author.username.charAt(0).toUpperCase()}

@@ -235,6 +235,7 @@ export default function DiscordServerClient({ user }: { user: FullUser | null })
                         src={bannerUrl}
                         alt="Server banner"
                         fill
+                        sizes="(max-width: 600px) 100vw, 400px"
                         className="object-cover opacity-60 filter blur-[0.5px]"
                         loading="eager"
                         unoptimized

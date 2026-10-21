@@ -54,7 +54,7 @@ export default function EmbedPreviewSection({
             {}
             <div className="mt-1.5 relative w-full aspect-[1200/630] rounded-lg overflow-hidden bg-[#0a0a0a] border border-white/5">
               {savedAutoCard && !embedBackgroundUrl && !embedIconUrl ? (
-                <Image src={savedAutoCard} alt="" fill className="object-cover" unoptimized priority />
+                <Image src={savedAutoCard} alt="" fill sizes="(max-width: 768px) 100vw, 560px" className="object-cover" unoptimized priority />
               ) : (
                 <div className="absolute inset-0">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

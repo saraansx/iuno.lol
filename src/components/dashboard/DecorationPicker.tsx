@@ -110,7 +110,7 @@ export default function DecorationPicker({
                 <div className="relative h-28 w-28">
                   <div className={`absolute inset-0 overflow-hidden border border-white/10 bg-[#1b1b1b] shadow-inner ${avatarShapeClass}`}>
                     {avatarUrl ? (
-                      <Image src={avatarUrl} alt="Avatar preview" fill unoptimized className="object-cover" />
+                      <Image src={avatarUrl} alt="Avatar preview" fill sizes="48px" unoptimized className="object-cover" />
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center text-white">
                         <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor">
@@ -126,6 +126,7 @@ export default function DecorationPicker({
                         src={selectedDecoration.url}
                         alt={selectedDecoration.name}
                         fill
+                        sizes="72px"
                         unoptimized
                         className="object-contain"
                         style={{ filter: `hue-rotate(${decorationHue}deg)` }}
@@ -205,7 +206,7 @@ export default function DecorationPicker({
                   >
                     <div className="relative min-h-0 flex-1 w-full flex items-center justify-center">
                       <div className="relative h-16 w-16 transition-transform duration-200 group-hover:scale-105">
-                        <Image src={item.url} alt={item.name} fill unoptimized className="object-contain" style={{ filter: isSelected ? `hue-rotate(${decorationHue}deg)` : "none" }} />
+                        <Image src={item.url} alt={item.name} fill sizes="64px" unoptimized className="object-contain" style={{ filter: isSelected ? `hue-rotate(${decorationHue}deg)` : "none" }} />
                       </div>
                     </div>
                     <p className="mt-1.5 truncate text-[12px] font-semibold text-white/90 w-full text-center">{item.name}</p>
