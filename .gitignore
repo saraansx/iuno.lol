@@ -54,3 +54,4 @@ next-env.d.ts
 
 # graphify output (regenerated on every run)
 graphify-out/
+scripts

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "cleanup:r2": "node scripts/r2-orphan-cleanup.mjs",
+    "cleanup:r2:delete": "node scripts/r2-orphan-cleanup.mjs --delete --yes"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
