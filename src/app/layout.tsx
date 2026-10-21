@@ -56,9 +56,9 @@ export const metadata: Metadata = {
     siteName: SITE_CONFIG.name,
     images: [
       {
-        url: "/Showcasee.png",
-        width: 1672,
-        height: 941,
+        url: "/showcase.jpg",
+        width: 1200,
+        height: 630,
         alt: "iuno.lol - One Link for Your Whole Internet Presence",
       },
     ],
@@ -67,7 +67,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     images: [
       {
-        url: "/Showcasee.png",
+        url: "/showcase.jpg",
         alt: "iuno.lol - One Link for Your Whole Internet Presence",
       },
     ],

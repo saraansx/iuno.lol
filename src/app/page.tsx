@@ -6,7 +6,7 @@ import { HOME_FAQS } from "@/components/home/faq-data";
 const TITLE = "iuno.lol - One Link for Your Whole Internet Presence";
 const DESCRIPTION =
   "Create your free iuno.lol page - all your links, music player, Discord/Steam/Spotify widgets, animated effects and full theming in one place. Claim iuno.lol/yourname.";
-const OG_IMAGE = "/Showcasee.png";
+const OG_IMAGE = "/showcase.jpg";
 
 export const metadata: Metadata = {
   title: {
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: OG_IMAGE,
-        width: 1672,
-        height: 941,
+        width: 1200,
+        height: 630,
         alt: TITLE,
       },
     ],
