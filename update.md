@@ -14,3 +14,4 @@
 - Long widget titles and subtitles now scroll back and forth instead of getting cut off.
 - Template covers are captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
 - Widgets, profile links and dashboard settings all save and preview consistently across the editor and the public profile.
+- View counts are now protected from fake traffic. Only real browsers can add a view

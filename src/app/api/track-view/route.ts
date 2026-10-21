@@ -4,6 +4,7 @@ import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
 import { getClientIp, ipDedupKey } from '@/lib/server/security/ip';
 import { viewTrackRateLimit } from '@/lib/rate-limit';
+import { verifyTurnstileToken } from '@/lib/server/security/turnstile';
 import { SITE_CONFIG } from '@/lib/config';
 import { db, schema } from '@/lib/db';
 import { eq } from 'drizzle-orm';
@@ -86,7 +87,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { profileId, fingerprint } = body;
+    const { profileId, fingerprint, turnstileToken } = body;
 
     if (!profileId || typeof profileId !== 'number' || !Number.isInteger(profileId) || profileId < 1) {
       return NextResponse.json({ error: 'Invalid profileId' }, { status: 400 });
@@ -145,14 +146,34 @@ export async function POST(request: NextRequest) {
       ? rawCountry
       : '-';
 
+    const ipKey = `v:${profileId}:${ipHash}`;
+    const fpKey = `v:${profileId}:fp:${fingerprintHash ?? '-'}`;
+    const userKey = viewerId !== null ? `v:${profileId}:u:${viewerId}` : `v:${profileId}:u:-`;
+
+    const probeKeys = [ipKey];
+    if (fingerprintHash) probeKeys.push(fpKey);
+    if (viewerId !== null) probeKeys.push(userKey);
+    if (await redis.exists(...probeKeys)) {
+      return NextResponse.json({ success: true, message: 'Already viewed recently' });
+    }
+
+    if (process.env.TURNSTILE_SECRET_KEY) {
+      if (typeof turnstileToken !== 'string' || turnstileToken.length === 0) {
+        return NextResponse.json({ success: true, message: 'Ignored' });
+      }
+      if (!(await verifyTurnstileToken(turnstileToken, ip))) {
+        return NextResponse.json({ success: true, message: 'Ignored' });
+      }
+    }
+
     const counted = (await redis.eval(
       TRACK_VIEW_SCRIPT,
       6,
-      `v:${profileId}:${ipHash}`,
-      `v:${profileId}:fp:${fingerprintHash ?? '-'}`,
+      ipKey,
+      fpKey,
       `views_pending:${profileId}`,
       'profiles_with_pending_views',
-      viewerId !== null ? `v:${profileId}:u:${viewerId}` : `v:${profileId}:u:-`,
+      userKey,
       `views_country_pending:${profileId}`,
       device,
       String(profileId),

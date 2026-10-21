@@ -4,6 +4,8 @@
 
 - You can now like or dislike your own profile. One vote per account, same as everyone else.
 - Template covers are now captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
+- View counts are now protected from fake traffic. Scripted requests are ignored, and the same visitor counts once per week.
+- The view check runs in the background, so profile pages stay fast and never wait for it.
 
 ## October 20, 2026
 

@@ -15,7 +15,7 @@ export const AvatarInner = ({
   decorationHue: number;
   altText?: string;
 }) => (
-  <div className="relative w-[88px] h-[88px]">
+  <div className="relative w-[88px] h-[88px] select-none">
     <div
       className={`absolute inset-0 bg-[#0a0a0a] border border-white/5 flex items-center justify-center overflow-hidden shrink-0 shadow-xl ${shapeClass}`}
     >
@@ -32,7 +32,7 @@ export const AvatarInner = ({
             playsInline
           />
         ) : (
-          <Image src={avatarUrl} alt={altText || "Avatar"} fill sizes="88px" className="object-cover" unoptimized priority />
+          <Image src={avatarUrl} alt={altText || "Avatar"} fill sizes="88px" draggable={false} className="object-cover" unoptimized priority />
         )
       ) : (
         <svg
@@ -61,6 +61,7 @@ export const AvatarInner = ({
           sizes="104px"
           unoptimized
           priority
+          draggable={false}
           className="object-contain"
           style={{ filter: `hue-rotate(${decorationHue}deg)` }}
         />

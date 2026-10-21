@@ -867,7 +867,8 @@ const sectionSurface: React.CSSProperties = {
           onEnter={handleEntered}
         />
 
-        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden">
+        {}
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden select-none">
         {bannerBackgroundUrl && (
           animatedBackgroundId(bannerBackgroundUrl) ? (
             <div
@@ -908,6 +909,7 @@ const sectionSurface: React.CSSProperties = {
                 src={bannerBackgroundUrl}
                 alt="Background"
                 fill
+                draggable={false}
                 className="object-cover"
                 style={{
                   filter: profileBackgroundBlur > 0 ? `blur(${profileBackgroundBlur}px)` : undefined,
@@ -930,7 +932,7 @@ const sectionSurface: React.CSSProperties = {
         </div>
 
         {backgroundEffectAboveContainer && (
-        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none z-[90]">
+        <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] overflow-hidden pointer-events-none select-none z-[90]">
         <BackgroundEffect
           effect={backgroundEffect ?? "none"}
           intensity={backgroundEffectIntensity}
@@ -1017,7 +1019,7 @@ const sectionSurface: React.CSSProperties = {
           >
             {hasBanner && (
               <div
-                className="w-full h-[160px] overflow-hidden relative shrink-0"
+                className="w-full h-[160px] overflow-hidden relative shrink-0 select-none"
                 style={{
                   borderTopLeftRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
                   borderTopRightRadius: `${Math.max(0, profileBorderRadius - profileBorderWidth)}px`,
@@ -1041,6 +1043,7 @@ const sectionSurface: React.CSSProperties = {
                     src={bannerImageUrl!}
                     alt="Banner"
                     fill
+                    draggable={false}
                     className="object-cover"
                     unoptimized
                     priority
