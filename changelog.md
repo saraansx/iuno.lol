@@ -6,6 +6,7 @@
 - Template covers are now captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
 - View counts are now protected from fake traffic. Scripted requests are ignored, and the same visitor counts once per week.
 - The view check runs in the background, so profile pages stay fast and never wait for it.
+- Dragging on a profile no longer paints the background in your browser's selection colour, and profile photos, banners and backgrounds can no longer be dragged or selected by accident.
 
 ## October 20, 2026
 

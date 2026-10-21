@@ -15,3 +15,4 @@
 - Template covers are captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
 - Widgets, profile links and dashboard settings all save and preview consistently across the editor and the public profile.
 - View counts are now protected from fake traffic. Only real browsers can add a view
+- Profile backgrounds, banners and avatars can no longer be selected or dragged, so dragging on a page no longer turns the background into your browser's highlight colour.
