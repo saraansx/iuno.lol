@@ -4,7 +4,6 @@ import localFont from "next/font/local";
 import "./tailwind.css";
 import { Toaster } from "@/components/ui/toast";
 import ConditionalBackground from "@/components/ConditionalBackground";
-import AssistantWidget from "@/components/assistant/AssistantWidget";
 import JsonLd from "@/components/seo/JsonLd";
 import { SITE_CONFIG } from "@/lib/config";
 
@@ -124,7 +123,6 @@ export default function RootLayout({
         <div className="relative z-10 flex-1 flex flex-col">
           {children}
         </div>
-        <AssistantWidget />
       </body>
     </html>
   );

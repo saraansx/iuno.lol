@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { logout } from "@/actions/logout";
 import { Sidebar as AceSidebar, SidebarBody, useSidebar } from "@/components/ui/sidebar";
 import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
+import AssistantDialog from "@/components/assistant/AssistantDialog";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
@@ -46,12 +47,13 @@ interface SidebarContentProps {
   pathname: string;
   expandedItems: Record<string, boolean>;
   toggleExpanded: (label: string) => void;
+  onOpenAssistant: () => void;
 }
 
 const SIDEBAR_MIN_WIDTH = 200;
 const SIDEBAR_MAX_WIDTH = 260;
 
-const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded }: SidebarContentProps) => {
+const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decorationHue, navItems, pathname, expandedItems, toggleExpanded, onOpenAssistant }: SidebarContentProps) => {
   const { open, setOpen, animate } = useSidebar();
   const unsavedChanges = useUnsavedChanges();
   const [width, setWidth] = useState(SIDEBAR_MAX_WIDTH);
@@ -277,6 +279,31 @@ const SidebarContent = ({ username, userId, avatarUrl, decorationUrl, decoration
           </Link>
         )}
 
+        <button
+          type="button"
+          onClick={onOpenAssistant}
+          className={`rounded-xl border border-white/[0.07] bg-white/[0.03] hover:bg-white/[0.06] hover:border-white/10 flex items-center transition-colors cursor-pointer text-left ${open ? 'gap-2.5 px-3 py-2.5' : 'p-[9px]'} overflow-hidden relative w-full group`}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-white/35 group-hover:text-[#5b6cf5] transition-colors" aria-hidden="true">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z" />
+          </svg>
+          <motion.span
+            animate={{
+              width: animate ? (open ? "auto" : 0) : "auto",
+              opacity: animate ? (open ? 1 : 0) : 1,
+              marginLeft: animate ? (open ? "10px" : "0px") : "10px",
+            }}
+            className="text-[13px] text-white/60 group-hover:text-white transition-colors font-normal tracking-tight whitespace-nowrap overflow-hidden"
+          >
+            Ask iuno AI
+          </motion.span>
+          {open && (
+            <span className="ml-auto shrink-0 rounded border border-white/10 px-1.5 py-0.5 text-[10px] text-white/25 group-hover:text-white/40 transition-colors">
+              ctrl K
+            </span>
+          )}
+        </button>
+
         <Link
           href="/dashboard/settings"
           aria-current={pathname.startsWith("/dashboard/settings") ? "page" : undefined}
@@ -389,6 +416,19 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
     "Image Host": pathname.startsWith("/dashboard/image-host"),
   }));
   const [open, setOpen] = useState(true);
+  const [assistantOpen, setAssistantOpen] = useState(false);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setAssistantOpen((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   const toggleExpanded = (label: string) => {
     setExpandedItems((prev) => ({ ...prev, [label]: !prev[label] }));
@@ -453,19 +493,23 @@ const Sidebar = ({ username, userId, avatarUrl, decorationUrl, decorationHue = 0
   ];
 
   return (
-    <AceSidebar open={open} setOpen={setOpen}>
-      <SidebarContent
-        username={username}
-        userId={userId}
-        avatarUrl={avatarUrl}
-        decorationUrl={decorationUrl}
-        decorationHue={decorationHue}
-        navItems={navItems}
-        pathname={pathname}
-        expandedItems={expandedItems}
-        toggleExpanded={toggleExpanded}
-      />
-    </AceSidebar>
+    <>
+      <AceSidebar open={open} setOpen={setOpen}>
+        <SidebarContent
+          username={username}
+          userId={userId}
+          avatarUrl={avatarUrl}
+          decorationUrl={decorationUrl}
+          decorationHue={decorationHue}
+          navItems={navItems}
+          pathname={pathname}
+          expandedItems={expandedItems}
+          toggleExpanded={toggleExpanded}
+          onOpenAssistant={() => setAssistantOpen(true)}
+        />
+      </AceSidebar>
+      <AssistantDialog open={assistantOpen} onClose={() => setAssistantOpen(false)} />
+    </>
   );
 };
 
