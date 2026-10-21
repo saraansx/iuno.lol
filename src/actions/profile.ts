@@ -1737,11 +1737,14 @@ async function updateMusicProfileImpl(data: {
 
       const prev = prevTracks.find((p) => p.id === id);
       if (prev && isStoredMediaUrl(prev.streamUrl)) {
+        // Keep the cached media, but let a newly uploaded cover replace the old one.
+        // Only stored URLs are trusted here; pasted external artwork still falls back to the cache.
+        const artwork = isStoredMediaUrl(t.artwork) ? (t.artwork as string) : (prev.artwork ?? null);
         return {
           id,
           title,
           artist,
-          artwork: prev.artwork ?? null,
+          artwork,
           album,
           duration,
           streamUrl: prev.streamUrl ?? null,

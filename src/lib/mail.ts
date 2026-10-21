@@ -1,6 +1,7 @@
 import resend from './resend';
 
-const SENDER = 'iuno.lol <noreply@iuno.lol>';
+const SENDER = 'iuno.lol <support@iuno.lol>';
+const REPLY_TO = 'support@iuno.lol';
 const FONT = "'Comfortaa', system-ui, -apple-system, sans-serif";
 
 function shell(inner: string) {
@@ -22,6 +23,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   const confirmLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/new-verification?token=${token}`;
   const { error } = await resend.emails.send({
     from: SENDER,
+    replyTo: REPLY_TO,
     to: email,
     subject: 'Verify your account — iuno.lol',
     html: shell(`
@@ -41,6 +43,7 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   const { error } = await resend.emails.send({
     from: SENDER,
+    replyTo: REPLY_TO,
     to: email,
     subject: 'Your code — iuno.lol',
     html: shell(`
@@ -63,6 +66,7 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
   const resetLink = `${process.env.NEXT_PUBLIC_APP_URL}/auth/new-password?token=${token}`;
   const { error } = await resend.emails.send({
     from: SENDER,
+    replyTo: REPLY_TO,
     to: email,
     subject: 'Reset your password — iuno.lol',
     html: shell(`

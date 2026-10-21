@@ -8,6 +8,7 @@
 - **Banner crop tool.** Banner uploads now open a crop tool, so you can choose exactly which part of the image shows on your profile.
 - **Icon spacing slider.** Link icons now scale their background box with the icon size, and a new slider controls the gap between them. Small icons no longer sit in oversized boxes.
 - **Like your own profile.** You can now like or dislike your own profile — one vote per account, same as everyone else.
+- **Edit your tracks.** Songs you uploaded can now be edited — change the cover, title, artist or lyrics without deleting the track and uploading it again.
 
 ## Improvements
 

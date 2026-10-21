@@ -9,6 +9,7 @@ import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import PlayerStyleSection, { type MusicPlayerStyle } from "@/components/dashboard/music/PlayerStyleSection";
 import SearchTracksModal, { type SearchTrack } from "@/components/dashboard/music/SearchTracksModal";
+import EditTrackModal from "@/components/dashboard/music/EditTrackModal";
 import { updateMusicProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import PremiumLock from "@/components/ui/premium-lock";
@@ -49,6 +50,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingTrack, setEditingTrack] = useState<Track | null>(null);
   const [playerStyle, setPlayerStyle] = useState<MusicPlayerStyle>(initialPlayerStyle);
   const [artBg, setArtBg] = useState<boolean>(initialArtBg);
   const [volumeControl, setVolumeControl] = useState<boolean>(initialVolumeControl);
@@ -122,8 +124,10 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
     id: t.id,
     title: t.title,
     artist: t.artist,
+    artwork: t.artwork ?? null,
     album: t.album ?? null,
     duration: t.duration ?? null,
+    lyrics: t.lyrics ?? null,
   });
 
   const hasChanges =
@@ -262,17 +266,33 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => removeTrack(track.id)}
-                    title="Remove track"
-                    className="w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 flex items-center justify-center text-white/50 hover:text-red-400 transition-colors cursor-pointer"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  </button>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    {track.id.startsWith("custom-") && (
+                      <button
+                        type="button"
+                        onClick={() => setEditingTrack(track)}
+                        title="Edit track"
+                        className="w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] border border-white/5 hover:border-white/15 flex items-center justify-center text-white/50 hover:text-white/90 transition-colors cursor-pointer"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20h9" />
+                          <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => removeTrack(track.id)}
+                      title="Remove track"
+                      className="w-8 h-8 rounded-xl bg-white/[0.03] hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 flex items-center justify-center text-white/50 hover:text-red-400 transition-colors cursor-pointer"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -376,6 +396,18 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onSelect={addTrack}
+      />
+
+      <EditTrackModal
+        open={editingTrack !== null}
+        track={editingTrack}
+        onClose={() => setEditingTrack(null)}
+        onSave={(patch) => {
+          if (!editingTrack) return;
+          const id = editingTrack.id;
+          setTracks((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+          setEditingTrack(null);
+        }}
       />
     </>
   );

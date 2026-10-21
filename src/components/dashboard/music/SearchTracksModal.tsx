@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import NextImage from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { parseLRC, type LyricLine } from "./lrc";
 
 export type SearchTrack = {
   id: string;
@@ -14,8 +15,6 @@ export type SearchTrack = {
   streamUrl?: string | null;
   lyrics?: Array<{ text: string; start: number; end: number }> | null;
 };
-
-type LyricLine = { text: string; start: number; end: number };
 
 function formatDuration(sec: number | null | undefined): string | null {
   if (typeof sec !== "number" || !Number.isFinite(sec) || sec <= 0) return null;
@@ -45,26 +44,6 @@ function Artwork({ src }: { src: string | null }) {
       className="w-full h-full object-cover"
     />
   );
-}
-
-function parseLRC(text: string): Array<{ text: string; start: number; end: number }> {
-  const lines: Array<{ text: string; start: number }> = [];
-  for (const raw of text.split("\n")) {
-    const m = raw.match(/\[(\d{1,3}):(\d{2})(?:[.:](\d{1,3}))?\]\s*(.*)/);
-    if (!m || !m[4]?.trim()) continue;
-    let ms = (parseInt(m[1]) * 60 + parseInt(m[2])) * 1000;
-    const frac = m[3] ?? "";
-    if (frac.length === 3) ms += parseInt(frac);
-    else if (frac.length === 2) ms += parseInt(frac) * 10;
-    else if (frac.length === 1) ms += parseInt(frac) * 100;
-    lines.push({ text: m[4].trim().slice(0, 300), start: ms });
-  }
-  lines.sort((a, b) => a.start - b.start);
-  return lines.slice(0, 300).map((l, i) => ({
-    text: l.text,
-    start: l.start,
-    end: lines[i + 1]?.start ?? l.start + 4000,
-  }));
 }
 
 function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
