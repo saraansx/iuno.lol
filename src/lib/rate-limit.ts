@@ -124,6 +124,12 @@ export async function checkAvailabilityRateLimit(ip: string | null) {
   return checkRateLimit(bucket.key, bucket.max, 60);
 }
 
+const VIEW_TRACK_WINDOW = 10 * 60;
+
+export async function viewTrackRateLimit(ip: string) {
+  return checkRateLimit(`view:ip:${ip}`, 60, VIEW_TRACK_WINDOW);
+}
+
 export async function collectiblesRateLimit(ip: string | null) {
   const bucket = ipBucket("collectibles", ip, 120);
   return checkRateLimit(bucket.key, bucket.max, 60);

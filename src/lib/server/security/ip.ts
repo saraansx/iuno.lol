@@ -24,3 +24,15 @@ function isValidIp(ip: string): boolean {
   if (!ip || ip.length > 45 || ip === 'unknown') return false;
   return /^[0-9a-fA-F:.]+$/.test(ip);
 }
+
+export function ipDedupKey(ip: string): string {
+  if (!ip.includes(':')) return ip;
+
+  const [head, tail] = ip.toLowerCase().split('::');
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const zeros = tail === undefined ? 0 : Math.max(8 - left.length - right.length, 0);
+  const groups = [...left, ...Array<string>(zeros).fill('0'), ...right];
+
+  return groups.length >= 4 ? groups.slice(0, 4).join(':') : ip;
+}

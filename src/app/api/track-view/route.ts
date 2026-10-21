@@ -2,11 +2,38 @@ import { NextRequest, NextResponse } from 'next/server';
 import { redis } from '@/lib/redis';
 import { createHash } from 'crypto';
 import { decrypt } from '@/lib/server/security/jwt';
-import { getClientIp } from '@/lib/server/security/ip';
+import { getClientIp, ipDedupKey } from '@/lib/server/security/ip';
+import { viewTrackRateLimit } from '@/lib/rate-limit';
+import { SITE_CONFIG } from '@/lib/config';
 import { db, schema } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
 const VIEW_DEDUP_TTL_SECONDS = 60 * 60 * 24 * 7;
+
+const SITE_ORIGIN = new URL(SITE_CONFIG.url).origin;
+
+const ALLOWED_ORIGINS = new Set([SITE_ORIGIN, SITE_ORIGIN.replace('://', '://www.')]);
+
+const AUTOMATION_UA =
+  /googlebot|bingbot|yandex|baiduspider|duckduckbot|slurp|facebookexternalhit|twitterbot|discordbot|telegrambot|curl|wget|python-requests|python-urllib|go-http|okhttp|axios|node-fetch|headlesschrome|phantomjs|selenium|puppeteer|playwright/i;
+
+function isAllowedOrigin(origin: string): boolean {
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  return process.env.NODE_ENV !== 'production' && /^http:\/\/localhost(:\d+)?$/.test(origin);
+}
+
+function looksLikeRealBrowser(request: NextRequest): boolean {
+  const userAgent = (request.headers.get('user-agent') || '').trim();
+  if (!userAgent || AUTOMATION_UA.test(userAgent)) return false;
+
+  const fetchSite = request.headers.get('sec-fetch-site');
+  if (fetchSite && fetchSite !== 'same-origin') return false;
+
+  const origin = request.headers.get('origin');
+  if (origin && !isAllowedOrigin(origin)) return false;
+
+  return true;
+}
 
 const TRACK_VIEW_SCRIPT = `
 if redis.call('SET', KEYS[1], '1', 'NX', 'EX', ARGV[5]) then
@@ -49,6 +76,15 @@ async function profileExists(profileId: number): Promise<boolean> {
 
 export async function POST(request: NextRequest) {
   try {
+    if (!looksLikeRealBrowser(request)) {
+      return NextResponse.json({ success: true, message: 'Ignored' });
+    }
+
+    const contentType = (request.headers.get('content-type') || '').toLowerCase();
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json({ error: 'Unsupported Media Type' }, { status: 415 });
+    }
+
     const body = await request.json();
     const { profileId, fingerprint } = body;
 
@@ -59,6 +95,14 @@ export async function POST(request: NextRequest) {
     const ip = getClientIp(request.headers);
     if (!ip) {
       return NextResponse.json({ success: true, message: 'Unidentified visitor ignored' });
+    }
+
+    const ipRate = await viewTrackRateLimit(ip);
+    if (!ipRate.ok) {
+      return NextResponse.json(
+        { success: true, message: 'Too many views from this network' },
+        { status: 429, headers: { 'Retry-After': String(ipRate.retryAfterSeconds) } },
+      );
     }
 
     const sessionCookie = request.cookies.get('iuno_session')?.value;
@@ -77,7 +121,7 @@ export async function POST(request: NextRequest) {
     }
 
     const userAgent = request.headers.get('user-agent') || '';
-    const ipHash = shortHash(`${ip}|${userAgent}`);
+    const ipHash = shortHash(ipDedupKey(ip));
 
     const fingerprintHash =
       typeof fingerprint === 'string' && fingerprint.length > 0 && fingerprint.length <= 128
