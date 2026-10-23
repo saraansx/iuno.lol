@@ -1,4 +1,4 @@
-# New Update: V1.0.1
+# New Update: V1.0.2
 
 **Released: October 23, 2026**
 
@@ -9,6 +9,7 @@
 - **Separate section bio.** Each section can have its own bio, so your card bio stays exactly as it is.
 - **Create section shortcuts.** The Widgets, Music and Links pages now warn you when nothing is showing and link straight to the section builder.
 - **Apple Music widget.** Show any track, album or artist with its artwork, name, artist, release year and track count. Paste a link and the type is detected on its own, or pick it yourself.
+- **SoundCloud widget.** Show any SoundCloud artist with their photo, follower count, track count and verification badge. Paste a handle or profile link and it updates live.
 - **Banner crop tool.** Banner uploads now open a crop tool, so you can choose exactly which part of the image shows on your profile.
 - **Icon spacing slider.** Link icons now scale their background box with the icon size, and a new slider controls the gap between them. Small icons no longer sit in oversized boxes.
 - **Like your own profile.** You can now like or dislike your own profile — one vote per account, same as everyone else.

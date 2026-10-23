@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useUnsavedChanges } from "@/components/dashboard/UnsavedChangesProvider";
 import AddWidgetModal from "./AddWidgetModal";
-import { GenshinLogoIcon, InstagramLogoIcon, RobloxLogoIcon, TelegramLogoIcon, TikTokLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
+import { GenshinLogoIcon, InstagramLogoIcon, RobloxLogoIcon, SoundcloudLogoIcon, TelegramLogoIcon, TikTokLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
 
 export interface WidgetItem {
   id: string;
@@ -85,6 +85,13 @@ export interface WidgetItem {
   instagramShowPosts?: boolean;
   instagramShowVerifiedBadge?: boolean;
   instagramShowBackground?: boolean;
+  soundcloudShowFollowers?: boolean;
+  soundcloudShowTracks?: boolean;
+  soundcloudShowVerifiedBadge?: boolean;
+  soundcloudShowBackground?: boolean;
+  soundcloudShowPlays?: boolean;
+  soundcloudShowLikes?: boolean;
+  soundcloudShowDuration?: boolean;
   appleMusicShowArtist?: boolean;
   appleMusicShowAlbum?: boolean;
   appleMusicShowReleaseYear?: boolean;
@@ -285,6 +292,10 @@ export default function WidgetsCustomization({
       router.push(
         `/dashboard/customize/profile/widgets/instagram?id=${encodeURIComponent(widget.customId)}`
       );
+    } else if (widget.platform === "soundcloud") {
+      router.push(
+        `/dashboard/customize/profile/widgets/soundcloud?type=${encodeURIComponent(widget.type)}&id=${encodeURIComponent(widget.customId)}`
+      );
     } else if (widget.platform === "apple-music") {
       router.push(
         `/dashboard/customize/profile/widgets/apple-music?type=${encodeURIComponent(
@@ -401,6 +412,12 @@ export default function WidgetsCustomization({
         `/dashboard/customize/profile/widgets/instagram?widgetId=${encodeURIComponent(
           w.id
         )}&id=${encodeURIComponent(w.targetId)}`
+      );
+    } else if (w.platform === "soundcloud") {
+      router.push(
+        `/dashboard/customize/profile/widgets/soundcloud?widgetId=${encodeURIComponent(
+          w.id
+        )}&type=${encodeURIComponent(w.type)}&id=${encodeURIComponent(w.targetId)}`
       );
     } else if (w.platform === "apple-music") {
       router.push(
@@ -548,6 +565,8 @@ export default function WidgetsCustomization({
                         <TikTokLogoIcon size={18} className="w-[18px] h-[18px] text-white" />
                       ) : w.platform === "instagram" ? (
                         <InstagramLogoIcon size={18} className="w-[18px] h-[18px] text-white" />
+                      ) : w.platform === "soundcloud" ? (
+                        <SoundcloudLogoIcon size={18} className="w-[18px] h-[18px] text-[#FF5500]" />
                       ) : w.platform === "apple-music" ? (
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="#FC3C44">
                           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.6 5.4v8.4a2.85 2.85 0 1 1-1.8-2.64V8.1l-5.4 1.14v5.1a2.85 2.85 0 1 1-1.8-2.64V7.5c0-.42.3-.78.71-.86l7.2-1.5c.5-.11.99.27.99.78z" />
@@ -604,6 +623,10 @@ export default function WidgetsCustomization({
                             ? "TikTok Profile"
                             : w.type === "instagram-profile" || w.platform === "instagram"
                             ? "Instagram Profile"
+                            : w.type === "soundcloud-track"
+                            ? "SoundCloud Track"
+                            : w.type === "soundcloud-profile" || w.platform === "soundcloud"
+                            ? "SoundCloud Artist"
                             : w.type === "apple-music-track"
                             ? "Apple Music Track"
                             : w.type === "apple-music-album"

@@ -27,6 +27,12 @@ import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
 import { cleanAppleMusicInput, isValidAppleMusicId } from "@/lib/apple-music";
+import {
+  cleanSoundcloudHandle,
+  cleanSoundcloudTrackPath,
+  isValidSoundcloudHandle,
+  isValidSoundcloudTrackPath,
+} from "@/lib/soundcloud";
 import { normalizeProfileSections } from "@/lib/profile-sections";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
@@ -1107,6 +1113,13 @@ async function updateProfileWidgetsImpl(data: {
     instagramShowPosts?: boolean;
     instagramShowVerifiedBadge?: boolean;
     instagramShowBackground?: boolean;
+    soundcloudShowFollowers?: boolean;
+    soundcloudShowTracks?: boolean;
+    soundcloudShowVerifiedBadge?: boolean;
+    soundcloudShowBackground?: boolean;
+    soundcloudShowPlays?: boolean;
+    soundcloudShowLikes?: boolean;
+    soundcloudShowDuration?: boolean;
     appleMusicShowArtist?: boolean;
     appleMusicShowAlbum?: boolean;
     appleMusicShowReleaseYear?: boolean;
@@ -1179,6 +1192,8 @@ async function updateProfileWidgetsImpl(data: {
         ? "tiktok"
         : w.platform === "instagram"
         ? "instagram"
+        : w.platform === "soundcloud"
+        ? "soundcloud"
         : w.platform === "apple-music"
         ? "apple-music"
         : w.platform === "youtube"
@@ -1223,6 +1238,10 @@ async function updateProfileWidgetsImpl(data: {
         ? "tiktok-profile"
         : w.type === "instagram-profile" || w.platform === "instagram"
         ? "instagram-profile"
+        : w.type === "soundcloud-track"
+        ? "soundcloud-track"
+        : w.type === "soundcloud-profile" || w.platform === "soundcloud"
+        ? "soundcloud-profile"
         : w.type === "apple-music-track"
         ? "apple-music-track"
         : w.type === "apple-music-album"
@@ -1326,6 +1345,18 @@ async function updateProfileWidgetsImpl(data: {
       targetId = cleanInstagramUsername(String(w.targetId || "")).slice(0, 30);
       if (!targetId || !isValidInstagramUsername(targetId)) {
         throw new Error("Invalid Instagram username format");
+      }
+    } else if (platform === "soundcloud") {
+      if (type === "soundcloud-track") {
+        targetId = cleanSoundcloudTrackPath(String(w.targetId || ""));
+        if (!targetId || !isValidSoundcloudTrackPath(targetId)) {
+          throw new Error("Invalid SoundCloud track link");
+        }
+      } else {
+        targetId = cleanSoundcloudHandle(String(w.targetId || "")).slice(0, 64);
+        if (!targetId || !isValidSoundcloudHandle(targetId)) {
+          throw new Error("Invalid SoundCloud artist handle format");
+        }
       }
     } else if (platform === "apple-music") {
       targetId = cleanAppleMusicInput(String(w.targetId || "")).slice(0, 20);
@@ -1463,6 +1494,13 @@ async function updateProfileWidgetsImpl(data: {
       instagramShowPosts: w.instagramShowPosts !== undefined ? Boolean(w.instagramShowPosts) : true,
       instagramShowVerifiedBadge: w.instagramShowVerifiedBadge !== undefined ? Boolean(w.instagramShowVerifiedBadge) : true,
       instagramShowBackground: w.instagramShowBackground !== undefined ? Boolean(w.instagramShowBackground) : false,
+      soundcloudShowFollowers: w.soundcloudShowFollowers !== undefined ? Boolean(w.soundcloudShowFollowers) : true,
+      soundcloudShowTracks: w.soundcloudShowTracks !== undefined ? Boolean(w.soundcloudShowTracks) : true,
+      soundcloudShowVerifiedBadge: w.soundcloudShowVerifiedBadge !== undefined ? Boolean(w.soundcloudShowVerifiedBadge) : true,
+      soundcloudShowBackground: w.soundcloudShowBackground !== undefined ? Boolean(w.soundcloudShowBackground) : false,
+      soundcloudShowPlays: w.soundcloudShowPlays !== undefined ? Boolean(w.soundcloudShowPlays) : true,
+      soundcloudShowLikes: w.soundcloudShowLikes !== undefined ? Boolean(w.soundcloudShowLikes) : true,
+      soundcloudShowDuration: w.soundcloudShowDuration !== undefined ? Boolean(w.soundcloudShowDuration) : true,
       appleMusicShowArtist: w.appleMusicShowArtist !== undefined ? Boolean(w.appleMusicShowArtist) : true,
       appleMusicShowAlbum: w.appleMusicShowAlbum !== undefined ? Boolean(w.appleMusicShowAlbum) : true,
       appleMusicShowReleaseYear: w.appleMusicShowReleaseYear !== undefined ? Boolean(w.appleMusicShowReleaseYear) : true,

@@ -2,12 +2,18 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { GenshinLogoIcon, RobloxLogoIcon, TelegramLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
+import { GenshinLogoIcon, RobloxLogoIcon, SoundcloudLogoIcon, TelegramLogoIcon, WeatherConditionIcon } from "@/components/profile/widgets/WidgetIcons";
 import { parseSpotifyIdentifier } from "@/lib/spotify";
 import { cleanYouTubeInput } from "@/lib/youtube";
 import { cleanTelegramUsername, isValidTelegramUsername } from "@/lib/telegram";
 import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
+import {
+  cleanSoundcloudHandle,
+  cleanSoundcloudTrackPath,
+  isValidSoundcloudHandle,
+  isValidSoundcloudTrackPath,
+} from "@/lib/soundcloud";
 import { isValidAppleMusicId, parseAppleMusicInput } from "@/lib/apple-music";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { PLATFORM_WIDGET_TYPES } from "@/lib/widget-types";
@@ -25,6 +31,7 @@ const PLATFORMS = [
   { id: "discord", name: "Discord" },
   { id: "tiktok", name: "TikTok" },
   { id: "instagram", name: "Instagram" },
+  { id: "soundcloud", name: "SoundCloud" },
   { id: "youtube", name: "YouTube" },
   { id: "spotify", name: "Spotify" },
   { id: "apple-music", name: "Apple Music" },
@@ -69,6 +76,8 @@ export default function AddWidgetModal({
   const [serverId, setServerId] = useState("");
   const [tiktokUsername, setTiktokUsername] = useState("");
   const [instagramUsername, setInstagramUsername] = useState("");
+  const [soundcloudHandle, setSoundcloudHandle] = useState("");
+  const [soundcloudTrack, setSoundcloudTrack] = useState("");
   const [youtubeInput, setYoutubeInput] = useState("");
   const [twitchUsername, setTwitchUsername] = useState("");
   const [spotifyInput, setSpotifyInput] = useState("");
@@ -143,6 +152,7 @@ export default function AddWidgetModal({
   const isDiscord = selectedPlatform === "discord";
   const isTikTok = selectedPlatform === "tiktok";
   const isInstagram = selectedPlatform === "instagram";
+  const isSoundcloud = selectedPlatform === "soundcloud";
   const isYouTube = selectedPlatform === "youtube";
   const isSpotify = selectedPlatform === "spotify";
   const isAppleMusic = selectedPlatform === "apple-music";
@@ -161,6 +171,7 @@ export default function AddWidgetModal({
   const isGitHubRepo = widgetType === "github-repo";
   const isPinterestProfile = widgetType === "pinterest-profile";
   const isPinterestBoard = widgetType === "pinterest-board";
+  const isSoundcloudTrack = widgetType === "soundcloud-track";
 
   const targetId = isDiscord
     ? isPresence
@@ -172,6 +183,10 @@ export default function AddWidgetModal({
     ? tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, "")
     : isInstagram
     ? cleanInstagramUsername(instagramUsername)
+    : isSoundcloud
+    ? isSoundcloudTrack
+      ? cleanSoundcloudTrackPath(soundcloudTrack)
+      : cleanSoundcloudHandle(soundcloudHandle)
     : isYouTube
     ? cleanYouTubeInput(youtubeInput)
     : isSpotify
@@ -213,6 +228,10 @@ export default function AddWidgetModal({
       ? /^[a-zA-Z0-9_.-]{1,24}$/.test(tiktokUsername.trim().replace(/^https?:\/\/(www\.)?tiktok\.com\/@?/i, "").replace(/^@/, "").replace(/\/$/, ""))
       : isInstagram
       ? isValidInstagramUsername(cleanInstagramUsername(instagramUsername))
+      : isSoundcloud
+      ? isSoundcloudTrack
+        ? isValidSoundcloudTrackPath(cleanSoundcloudTrackPath(soundcloudTrack))
+        : isValidSoundcloudHandle(cleanSoundcloudHandle(soundcloudHandle))
       : isYouTube
       ? /^(UC[\w-]{22}|@?[a-zA-Z0-9_.-]{3,30})$/.test(cleanYouTubeInput(youtubeInput))
       : isSpotify
@@ -277,6 +296,14 @@ export default function AddWidgetModal({
       });
       onClose();
     } else if (isInstagram) {
+      onAdd({
+        platform: selectedPlatform,
+        type: widgetType,
+        useLinked: false,
+        customId: targetId,
+      });
+      onClose();
+    } else if (isSoundcloud) {
       onAdd({
         platform: selectedPlatform,
         type: widgetType,
@@ -485,6 +512,8 @@ export default function AddWidgetModal({
                   </svg>
                 ) : selectedPlatform === "genshin" ? (
                   <GenshinLogoIcon size={18} className="w-[18px] h-[18px] text-[#5b6cf5] shrink-0" />
+                ) : selectedPlatform === "soundcloud" ? (
+                  <SoundcloudLogoIcon size={18} className="w-[18px] h-[18px] text-[#FF5500] shrink-0" />
                 ) : null}
                 <span>{PLATFORMS.find((p) => p.id === selectedPlatform)?.name || "Select platform"}</span>
               </div>
@@ -535,6 +564,8 @@ export default function AddWidgetModal({
                             <circle cx="12" cy="12" r="4.4" />
                             <circle cx="17.4" cy="6.6" r="1.15" fill="currentColor" stroke="none" />
                           </svg>
+                        ) : platform.id === "soundcloud" ? (
+                          <SoundcloudLogoIcon size={16} className="w-4 h-4 text-[#FF5500] shrink-0" />
                         ) : platform.id === "youtube" ? (
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" className="shrink-0">
                             <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
@@ -632,6 +663,74 @@ export default function AddWidgetModal({
               Private profiles do not expose stats — those widgets show a warning instead.
             </p>
           </div>
+        )}
+
+        {isSoundcloud && (
+          <>
+            <div className="flex flex-col gap-2">
+              <label className="text-[12px] font-normal text-white/60">Type</label>
+              <div className="flex items-center gap-1.5 p-1 bg-[#161616] border border-white/5 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("soundcloud-profile")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    !isSoundcloudTrack
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  SoundCloud Artist
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setWidgetType("soundcloud-track")}
+                  className={`flex-1 py-2 px-3 rounded-lg text-[12.5px] font-normal transition-all ${
+                    isSoundcloudTrack
+                      ? "bg-white/[0.08] text-white shadow-sm cursor-pointer"
+                      : "text-white/40 hover:text-white/70 cursor-pointer"
+                  }`}
+                >
+                  SoundCloud Track
+                </button>
+              </div>
+            </div>
+
+            {isSoundcloudTrack ? (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">SoundCloud Track Link</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={soundcloudTrack}
+                    onChange={(e) => setSoundcloudTrack(e.target.value)}
+                    placeholder="e.g. soundcloud.com/kehlanimusic/lights-on"
+                    maxLength={300}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Full track link or &apos;artist/track-name&apos;.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-1.5 animate-in fade-in duration-150">
+                <label className="text-[12px] font-normal text-white/60">SoundCloud Handle</label>
+                <div className="flex items-center bg-[#161616] border border-white/5 rounded-xl px-3.5 h-[40px] focus-within:border-white/15 transition-colors">
+                  <input
+                    type="text"
+                    value={soundcloudHandle}
+                    onChange={(e) => setSoundcloudHandle(e.target.value)}
+                    placeholder="e.g. kehlanimusic"
+                    maxLength={80}
+                    className="w-full bg-transparent text-[13px] font-mono text-white placeholder:text-white/20 focus:outline-none"
+                  />
+                </div>
+                <p className="text-[11px] text-white/30 leading-normal mt-0.5">
+                  Your SoundCloud artist handle or profile URL (e.g. &apos;kehlanimusic&apos; or soundcloud.com/kehlanimusic).
+                </p>
+              </div>
+            )}
+          </>
         )}
 
         {isYouTube && (

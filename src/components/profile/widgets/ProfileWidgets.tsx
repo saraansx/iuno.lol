@@ -17,6 +17,8 @@ const SpotifyWidget = dynamic(() => import("./SpotifyWidget"));
 const AppleMusicWidget = dynamic(() => import("./AppleMusicWidget"));
 const TikTokWidget = dynamic(() => import("./TikTokWidget"));
 const InstagramWidget = dynamic(() => import("./InstagramWidget"));
+const SoundcloudWidget = dynamic(() => import("./SoundcloudWidget"));
+const SoundcloudTrackWidget = dynamic(() => import("./SoundcloudTrackWidget"));
 const YouTubeWidget = dynamic(() => import("./YouTubeWidget"));
 const TelegramWidget = dynamic(() => import("./TelegramWidget"));
 const RobloxWidget = dynamic(() => import("./RobloxWidget"));
@@ -65,6 +67,12 @@ function renderWidget(w: WidgetItem) {
   }
   if (w.type === "instagram-profile" || w.platform === "instagram") {
     return <InstagramWidget widget={w} />;
+  }
+  if (w.type === "soundcloud-track") {
+    return <SoundcloudTrackWidget widget={w} />;
+  }
+  if (w.type === "soundcloud-profile" || w.platform === "soundcloud") {
+    return <SoundcloudWidget widget={w} />;
   }
   if (w.type === "youtube-profile" || w.platform === "youtube") {
     return <YouTubeWidget widget={w} />;

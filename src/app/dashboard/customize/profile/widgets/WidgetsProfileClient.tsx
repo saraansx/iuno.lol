@@ -98,6 +98,13 @@ function areWidgetsEqual(a: WidgetItem[], b: WidgetItem[]): boolean {
       item.instagramShowPosts === target.instagramShowPosts &&
       item.instagramShowVerifiedBadge === target.instagramShowVerifiedBadge &&
       item.instagramShowBackground === target.instagramShowBackground &&
+      item.soundcloudShowFollowers === target.soundcloudShowFollowers &&
+      item.soundcloudShowTracks === target.soundcloudShowTracks &&
+      item.soundcloudShowVerifiedBadge === target.soundcloudShowVerifiedBadge &&
+      item.soundcloudShowBackground === target.soundcloudShowBackground &&
+      item.soundcloudShowPlays === target.soundcloudShowPlays &&
+      item.soundcloudShowLikes === target.soundcloudShowLikes &&
+      item.soundcloudShowDuration === target.soundcloudShowDuration &&
       item.appleMusicShowArtist === target.appleMusicShowArtist &&
       item.appleMusicShowAlbum === target.appleMusicShowAlbum &&
       item.appleMusicShowReleaseYear === target.appleMusicShowReleaseYear &&

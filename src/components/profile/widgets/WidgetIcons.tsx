@@ -930,6 +930,153 @@ export function WeatherConditionMarkerIcon({
   );
 }
 
+export function SoundcloudLogoIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M23.999 14.165c-.052 1.796-1.612 3.169-3.4 3.169h-8.18a.68.68 0 0 1-.675-.683V7.862a.747.747 0 0 1 .452-.724s.75-.513 2.333-.513a5.364 5.364 0 0 1 2.763.755 5.433 5.433 0 0 1 2.57 3.54c.282-.08.574-.121.868-.12.884 0 1.73.358 2.347.992s.948 1.49.922 2.373ZM10.721 8.421c.247 2.98.427 5.697 0 8.672a.264.264 0 0 1-.53 0c-.395-2.946-.22-5.718 0-8.672a.264.264 0 0 1 .53 0ZM9.072 9.448c.285 2.659.37 4.986-.006 7.655a.277.277 0 0 1-.55 0c-.331-2.63-.256-5.02 0-7.655a.277.277 0 0 1 .556 0Zm-1.663-.257c.27 2.726.39 5.171 0 7.904a.266.266 0 0 1-.532 0c-.38-2.69-.257-5.21 0-7.904a.266.266 0 0 1 .532 0Zm-1.647.77a26.108 26.108 0 0 1-.008 7.147.272.272 0 0 1-.542 0 27.955 27.955 0 0 1 0-7.147.275.275 0 0 1 .55 0Zm-1.67 1.769c.421 1.865.228 3.5-.029 5.388a.257.257 0 0 1-.514 0c-.21-1.858-.398-3.549 0-5.389a.272.272 0 0 1 .543 0Zm-1.655-.273c.388 1.897.26 3.508-.01 5.412-.026.28-.514.283-.54 0-.244-1.878-.347-3.54-.01-5.412a.283.283 0 0 1 .56 0Zm-1.668.911c.4 1.268.257 2.292-.026 3.572a.257.257 0 0 1-.514 0c-.241-1.262-.354-2.312-.023-3.572a.283.283 0 0 1 .563 0Z" />
+    </svg>
+  );
+}
+
+export function SoundcloudVerifiedIcon({
+  size = 14,
+  className = "w-3.5 h-3.5",
+  ...props
+}: WidgetIconProps) {
+  return <VerifiedBadgeIcon size={size} className={className} {...props} />;
+}
+
+export function SoundcloudFollowersIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+    </svg>
+  );
+}
+
+export function SoundcloudTrackIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 3v12.55A4 4 0 1 0 14 19V7h6V3h-8z" />
+    </svg>
+  );
+}
+
+export function SoundcloudPlayIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l10.6-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14z" />
+    </svg>
+  );
+}
+
+export function SoundcloudLikeIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  );
+}
+
+export function SoundcloudDurationIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
+
+export function SoundcloudPlaylistIcon({
+  size = 13,
+  className = "w-[13px] h-[13px]",
+  ...props
+}: WidgetIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      className={`shrink-0 ${className}`}
+      {...props}
+    >
+      <path d="M3 6h12v2H3V6zm0 5h12v2H3v-2zm0 5h8v2H3v-2z" />
+      <path d="M17 17.5V9.2l4-1v2.1l-2 .5v6.7a2.5 2.5 0 1 1-2-2.45z" />
+    </svg>
+  );
+}
+
 export function WeatherConditionIcon({
   kind = "cloudy",
   isDay = true,

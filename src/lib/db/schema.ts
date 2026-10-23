@@ -329,6 +329,13 @@ export const userSettings = mysqlTable('user_settings', {
     instagramShowPosts?: boolean;
     instagramShowVerifiedBadge?: boolean;
     instagramShowBackground?: boolean;
+    soundcloudShowFollowers?: boolean;
+    soundcloudShowTracks?: boolean;
+    soundcloudShowVerifiedBadge?: boolean;
+    soundcloudShowBackground?: boolean;
+    soundcloudShowPlays?: boolean;
+    soundcloudShowLikes?: boolean;
+    soundcloudShowDuration?: boolean;
     appleMusicShowArtist?: boolean;
     appleMusicShowAlbum?: boolean;
     appleMusicShowReleaseYear?: boolean;

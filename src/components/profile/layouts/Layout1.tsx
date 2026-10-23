@@ -1275,7 +1275,7 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
           </div>
         )}
 
-        {customSections.map((section) => (
+        {sectioned && customSections.map((section) => (
           <div
             key={section.id}
             className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16"
