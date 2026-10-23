@@ -5,6 +5,8 @@ import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 import MusicProfileClient from "./MusicProfileClient";
+import SectionCategoryNotice from "@/components/dashboard/SectionCategoryNotice";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 
 export const metadata: Metadata = {
   title: "Music",
@@ -20,6 +22,9 @@ export default async function Page() {
 
   const user = await getUserById(userId);
   const backgrounds = await getUserBackgrounds(userId);
+  const hasMusicSection = normalizeProfileSections(user?.profileSections).some((section) =>
+    section.categories.includes("music")
+  );
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -62,6 +67,7 @@ export default async function Page() {
           </div>
           <p className="text-white/40 text-[13px] mt-0.5">Add songs to your profile playlist</p>
         </div>
+        {!hasMusicSection && <SectionCategoryNotice category="music" />}
       </div>
 
       <MusicProfileClient user={user} backgrounds={backgrounds} />

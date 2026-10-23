@@ -9,6 +9,7 @@ import { applyTemplateStyle } from '@/lib/template-style'
 import { CURSOR_HOTSPOT } from '@/lib/cursor'
 import { formatTabTitle, isAllowedOgImage } from '@/lib/og'
 import { getProfileRows } from './profile-data'
+import { normalizeProfileSections } from '@/lib/profile-sections'
 
 export default async function ProfileView({
   username: rawUsername,
@@ -293,6 +294,7 @@ export default async function ProfileView({
         linksSectionTitle={user.linksSectionTitle ?? undefined}
         linksSectionDescription={user.linksSectionDescription ?? undefined}
         linksSectionPosition={user.linksSectionPosition ?? undefined}
+        profileSections={normalizeProfileSections(user.profileSections)}
         widgetsSectionEnabled={user.widgetsSectionEnabled ?? undefined}
         contentAlignment={user.contentAlignment ?? undefined}
         avatarPlacement={user.avatarPlacement ?? undefined}

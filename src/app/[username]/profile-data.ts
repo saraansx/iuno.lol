@@ -127,6 +127,7 @@ const queryProfileRows = (username: string) =>
       linksSectionTitle: userSettings.linksSectionTitle,
       linksSectionDescription: userSettings.linksSectionDescription,
       linksSectionPosition: userSettings.linksSectionPosition,
+      profileSections: userSettings.profileSections,
       widgetsSectionEnabled: userSettings.widgetsSectionEnabled,
       contentAlignment: userSettings.contentAlignment,
       avatarPlacement: userSettings.avatarPlacement,

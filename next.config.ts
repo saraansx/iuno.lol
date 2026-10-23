@@ -2,6 +2,16 @@
 
 const nextConfig: NextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  async redirects() {
+    return [
+      {
+        has: [{ type: "host", value: "www.iuno.lol" }],
+        source: "/:path*",
+        destination: "https://iuno.lol/:path*",
+        permanent: true,
+      },
+    ];
+  },
   outputFileTracingIncludes: {
     "/changelog": ["./changelog.md"],
   },

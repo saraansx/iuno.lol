@@ -8,6 +8,7 @@ import type { Decoration } from "@/components/dashboard/DecorationPicker";
 import type { ProfileEffect } from "@/components/dashboard/EffectsPicker";
 import { getMyBadges } from "@/actions/badges";
 import { effectSkuFromUrl, useProfileEffect } from "@/lib/collectibles-client";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 
@@ -237,6 +238,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       linksSectionTitle={deferredOverrides.linksSectionTitle ?? user?.linksSectionTitle ?? undefined}
       linksSectionDescription={deferredOverrides.linksSectionDescription ?? user?.linksSectionDescription ?? undefined}
       linksSectionPosition={deferredOverrides.linksSectionPosition ?? user?.linksSectionPosition ?? "below"}
+      profileSections={normalizeProfileSections(deferredOverrides.profileSections ?? user?.profileSections)}
       widgetsSectionEnabled={deferredOverrides.widgetsSectionEnabled ?? user?.widgetsSectionEnabled ?? true}
       contentAlignment={deferredOverrides.contentAlignment ?? user?.contentAlignment ?? DEFAULT_FRAME.contentAlignment}
       avatarPlacement={deferredOverrides.avatarPlacement ?? user?.avatarPlacement ?? DEFAULT_FRAME.avatarPlacement}

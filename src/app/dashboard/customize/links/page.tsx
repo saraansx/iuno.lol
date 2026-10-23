@@ -4,6 +4,8 @@ import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import LinksProfileClient from "./LinksProfileClient";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
+import SectionCategoryNotice from "@/components/dashboard/SectionCategoryNotice";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -21,6 +23,9 @@ export default async function Page() {
 
   const user = await getUserById(userId);
   const backgrounds = await getUserBackgrounds(userId);
+  const hasLinksSection = normalizeProfileSections(user?.profileSections).some((section) =>
+    section.categories.includes("links")
+  );
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -72,6 +77,7 @@ export default async function Page() {
         </div>
 
         <ProfileCustomizeNav />
+        {!hasLinksSection && <SectionCategoryNotice category="links" />}
       </div>
 
       <LinksProfileClient user={user} backgrounds={backgrounds} />

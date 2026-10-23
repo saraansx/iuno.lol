@@ -5,6 +5,8 @@ import Link from "next/link";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
 import WidgetsProfileClient from "./WidgetsProfileClient";
+import SectionCategoryNotice from "@/components/dashboard/SectionCategoryNotice";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 
 export const metadata: Metadata = {
   title: "Widgets",
@@ -15,6 +17,9 @@ export default async function Page() {
   const userId = await getSessionUserId();
   const user = userId ? await getUserById(userId) : null;
   const backgrounds = userId ? await getUserBackgrounds(userId) : [];
+  const hasWidgetsSection = normalizeProfileSections(user?.profileSections).some((section) =>
+    section.categories.includes("widgets")
+  );
 
   return (
     <div className="flex flex-col gap-8 h-full">
@@ -66,6 +71,7 @@ export default async function Page() {
         </div>
 
         <ProfileCustomizeNav />
+        {!hasWidgetsSection && <SectionCategoryNotice category="widgets" />}
       </div>
 
       <WidgetsProfileClient user={user} backgrounds={backgrounds} />

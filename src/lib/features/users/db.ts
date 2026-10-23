@@ -220,6 +220,7 @@ const userColumns = {
   linksSectionTitle: schema.userSettings.linksSectionTitle,
   linksSectionDescription: schema.userSettings.linksSectionDescription,
   linksSectionPosition: schema.userSettings.linksSectionPosition,
+  profileSections: schema.userSettings.profileSections,
   linksFont: schema.userSettings.linksFont,
   linksFontSize: schema.userSettings.linksFontSize,
   linksFontWeight: schema.userSettings.linksFontWeight,

@@ -27,6 +27,7 @@ import { cleanRobloxInput, isValidRobloxInput } from "@/lib/roblox";
 import { cleanWeatherLocation, isValidWeatherLocation } from "@/lib/weather";
 import { cleanInstagramUsername, isValidInstagramUsername } from "@/lib/instagram";
 import { cleanAppleMusicInput, isValidAppleMusicId } from "@/lib/apple-music";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
@@ -650,6 +651,7 @@ async function updateLayoutProfileImpl(data: {
   linksSectionTitle?: string;
   linksSectionDescription?: string;
   linksSectionPosition?: string;
+  profileSections?: unknown;
   widgetsSectionEnabled?: boolean;
   profilePreset?: string;
   wrapInCard?: boolean;
@@ -725,6 +727,10 @@ async function updateLayoutProfileImpl(data: {
 
   if (data.widgetsSectionEnabled !== undefined) {
     setData.widgetsSectionEnabled = data.widgetsSectionEnabled;
+  }
+
+  if (data.profileSections !== undefined) {
+    setData.profileSections = normalizeProfileSections(data.profileSections);
   }
 
   if (data.wrapInCard !== undefined) setData.wrapInCard = data.wrapInCard;

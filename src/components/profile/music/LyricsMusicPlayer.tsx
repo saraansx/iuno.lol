@@ -89,7 +89,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     if (existing) {
       if (!existing.paused) return undefined;
       setLoading(true);
-      return existing.play().catch(() => { setLoading(false); });
+      return existing.play().catch((err) => { setLoading(false); throw err; });
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
@@ -148,7 +148,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
     audio.addEventListener("pause", onPause);
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
-    return audio.play().catch(() => { onError(); });
+    return audio.play().catch((err) => { onError(); throw err; });
   }, [tracks, applyVolume, shuffle, randomDifferent, startRaf, stopRaf]);
 
   const ensureAndPlay = useCallback(
@@ -202,7 +202,7 @@ export default function LyricsMusicPlayer({ tracks, autoPlay = false, artBg = tr
       setPlaying(false);
       return;
     }
-    ensureAndPlay();
+    ensureAndPlay()?.catch(() => {});
   };
 
   const step = (dir: 1 | -1) => {

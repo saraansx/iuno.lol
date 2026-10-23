@@ -203,6 +203,7 @@ export interface Layout1Props {
   linksSectionTitle?: string;
   linksSectionDescription?: string;
   linksSectionPosition?: string;
+  profileSections?: import("@/lib/profile-sections").ProfileSection[];
   widgetsSectionEnabled?: boolean;
   contentAlignment?: string;
   avatarPlacement?: string;

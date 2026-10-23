@@ -1,9 +1,13 @@
 # New Update: V1.0.1
 
-**Released: October 21, 2026**
+**Released: October 23, 2026**
 
 ## What's new
 
+- **Profile sections.** Build your own sections with a title, an optional description and up to three categories — Bio, Links, Widgets and Music. Only the categories you include show on your profile.
+- **Sectioned scroll.** Switch between a normal one-page profile and sectioned scroll, where every section gets its own screen.
+- **Separate section bio.** Each section can have its own bio, so your card bio stays exactly as it is.
+- **Create section shortcuts.** The Widgets, Music and Links pages now warn you when nothing is showing and link straight to the section builder.
 - **Apple Music widget.** Show any track, album or artist with its artwork, name, artist, release year and track count. Paste a link and the type is detected on its own, or pick it yourself.
 - **Banner crop tool.** Banner uploads now open a crop tool, so you can choose exactly which part of the image shows on your profile.
 - **Icon spacing slider.** Link icons now scale their background box with the icon size, and a new slider controls the gap between them. Small icons no longer sit in oversized boxes.
@@ -12,6 +16,9 @@
 
 ## Improvements
 
+- Music now starts on your first click or tap when your browser blocks autoplay by default, instead of staying silent.
+- Section warnings are smaller and sit inline, and the section menu is cleaner with just Edit and Delete.
+- Fixed the profile card bio overlapping the UID and date row.
 - Long widget titles and subtitles now scroll back and forth instead of getting cut off.
 - Template covers are captured faster, with a backup screenshot service so a cover still gets generated if the main one is down.
 - Widgets, profile links and dashboard settings all save and preview consistently across the editor and the public profile.

@@ -247,10 +247,9 @@ const Layout1 = ({
   aboutSectionEnabled = true,
   aboutSectionTitle,
   aboutSectionDescription,
-  linksSectionEnabled = true,
   linksSectionTitle,
-  linksSectionDescription,
   linksSectionPosition,
+  profileSections,
   widgetsSectionEnabled = true,
   contentAlignment,
   avatarPlacement,
@@ -511,7 +510,6 @@ const Layout1 = ({
   const sectioned = profileStructure === "sectioned";
   const smallLinks = (links ?? []).filter((l) => l && l.variant === "small");
   const bigLinks = (links ?? []).filter((l) => l && l.variant !== "small");
-  const aboutText = bio?.trim() || "";
   const aboutSubtitle = aboutSectionDescription?.trim() || "";
   const hasOutsideWidgets = (widgets ?? []).some(
     (w) => w.enabled && (w.placement || "inside") === "outside"
@@ -521,13 +519,18 @@ const Layout1 = ({
     !bannerBackgroundSound &&
     (musicPlayerStyle === "compact" || musicPlayerStyle === "lyrics" || musicPlayerStyle === "waveform") &&
     musicTracks.length > 0;
-  const aboutVisible =
-    aboutSectionEnabled && (aboutText.length > 0 || aboutSubtitle.length > 0 || aboutHasWidgets || hasMusic);
+  const customSections = (profileSections ?? []).filter(
+    (section) => section && section.title.trim().length > 0 && section.categories.length > 0
+  );
+  const linksInSections = customSections.some((section) => section.categories.includes("links"));
+  const widgetsInSections = customSections.some((section) => section.categories.includes("widgets"));
+  const aboutVisible = false;
+  const linksScreenVisible = false;
   const linksAboveAbout = linksSectionPosition === "above";
-  const linksScreenVisible = sectioned && linksSectionEnabled && bigLinks.length > 0;
   const linksScreenTitle = linksSectionTitle?.trim() || "Links";
-  const linksScreenSubtitle = linksSectionDescription?.trim() || "";
-  const screenCount = sectioned ? 1 + (aboutVisible ? 1 : 0) + (linksScreenVisible ? 1 : 0) : 1;
+  const screenCount = sectioned
+    ? 1 + (aboutVisible ? 1 : 0) + (linksScreenVisible ? 1 : 0) + customSections.length
+    : 1;
   const paged = sectioned && screenCount > 1;
 
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -816,21 +819,6 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
       </DescriptionEffect>
     </div>
   );
-
-const sectionSurface: React.CSSProperties = {
-    backdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
-    WebkitBackdropFilter: cardBlur > 0 ? `blur(${cardBlur}px)` : undefined,
-    borderRadius: `${profileBorderRadius}px`,
-    border:
-      profileBorderWidth > 0
-        ? `${profileBorderWidth}px solid ${hexToRgba(profileBorderColor, profileBorderOpacity)}`
-        : "1px solid rgba(255,255,255,0.08)",
-    background: hexToRgba(profileBgColor, profileBgOpacity),
-    boxShadow:
-      profileShadowOpacity > 0
-        ? `0 0 24px ${hexToRgba(profileShadowColor, profileShadowOpacity)}`
-        : undefined,
-  };
 
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
@@ -1132,13 +1120,15 @@ const sectionSurface: React.CSSProperties = {
                 </div>
               )}
               {detailSlot("beside", `mt-1 ${textAlignClass} ${justifyClass}`)}
-              {!sectioned && aboutSectionEnabled && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), alignment)}</div>}
+              {aboutSectionEnabled && bio?.trim() && <div className="mt-1.5 w-full">{textBlock(bio.trim(), alignment)}</div>}
 
             </div>
             </div>
 
-            {smallLinksSection}
-            {insideWidgets("w-full px-6 pb-4 sm:pb-16")}
+            {linksInSections && smallLinksSection}
+            {widgetsInSections && insideWidgets("w-full px-6")}
+            {}
+            <div className="w-full pb-4 sm:pb-16" aria-hidden />
           </div>
 
           {detailSlot("bottom-profile", `${badgeClass} max-sm:static max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4`, { except: ["feedback"] })}
@@ -1150,10 +1140,67 @@ const sectionSurface: React.CSSProperties = {
         </CardEffect>
 
         {}
-        {!sectioned && linksAboveAbout && linksSectionEnabled && bigLinksSection}
-        {!sectioned && outsideWidgets}
-        {!sectioned && aboutSectionEnabled && musicPlayer}
-        {!sectioned && !linksAboveAbout && linksSectionEnabled && bigLinksSection}
+        {!sectioned &&
+          customSections.map((section) => (
+            <div
+              key={section.id}
+              className="w-full flex justify-center px-4 sm:px-6 mt-10"
+            >
+              <div
+                className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
+                style={{ "--card-w": cardWidth } as React.CSSProperties}
+              >
+                <div className="mb-3 text-left">
+                  <h2
+                    style={{
+                      fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
+                      fontSize: `${sectionTitleFontSize}px`,
+                      fontWeight: sectionTitleFontWeight,
+                      letterSpacing: `${sectionTitleLetterSpacing}px`,
+                      color: sectionTitleColor ?? "#FFFFFF",
+                    }}
+                  >
+                    {section.title}
+                  </h2>
+                  {section.description?.trim() && (
+                    <p
+                      className="mt-0.5 opacity-50"
+                      style={{
+                        fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
+                        fontSize: `${sectionDescFontSize}px`,
+                        fontWeight: sectionDescFontWeight,
+                        letterSpacing: `${sectionDescLetterSpacing}px`,
+                        color: sectionDescColor,
+                      }}
+                    >
+                      {renderFormattedText(section.description)}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-6">
+                  {section.categories.includes("bio") && section.bio?.trim() && (
+                    <p
+                      className="whitespace-pre-wrap"
+                      style={{
+                        fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+                        fontSize: `${bioFontSize}px`,
+                        fontWeight: bioFontWeight,
+                        letterSpacing: `${bioLetterSpacing}px`,
+                        color: bioColor ?? "#FFFFFF",
+                      }}
+                    >
+                      {renderFormattedText(section.bio)}
+                    </p>
+                  )}
+
+                  {section.categories.includes("links") && bigLinksSection}
+                  {section.categories.includes("widgets") && outsideWidgets}
+                  {section.categories.includes("music") && musicPlayer}
+                </div>
+              </div>
+            </div>
+          ))}
 
         {detailSlot("bottom-page", `${BADGE_CLASSES.page} max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, { except: ["feedback"] })}
         {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:justify-end`, { only: ["feedback"] })}
@@ -1178,27 +1225,13 @@ const sectionSurface: React.CSSProperties = {
                 >
                   {linksScreenTitle}
                 </h2>
-                {linksScreenSubtitle && (
-                  <p
-                    className="mt-0.5 opacity-50"
-                    style={{
-                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
-                      fontSize: `${sectionDescFontSize}px`,
-                      fontWeight: sectionDescFontWeight,
-                      letterSpacing: `${sectionDescLetterSpacing}px`,
-                      color: sectionDescColor,
-                    }}
-                  >
-                    {renderFormattedText(linksScreenSubtitle)}
-                  </p>
-                )}
               </div>
               {bigLinksSection}
             </div>
           </div>
         )}
 
-        {paged && (
+        {paged && aboutVisible && (
           <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16">
             <div
               className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
@@ -1234,11 +1267,6 @@ const sectionSurface: React.CSSProperties = {
                     )}
                   </div>
 
-                  {aboutText && (
-                    <div className="relative w-full p-6" style={sectionSurface}>
-                      {textBlock(aboutText, "left")}
-                    </div>
-                  )}
                   {aboutHasWidgets && outsideWidgets}
                   {musicPlayer}
                 </>
@@ -1246,6 +1274,67 @@ const sectionSurface: React.CSSProperties = {
             </div>
           </div>
         )}
+
+        {customSections.map((section) => (
+          <div
+            key={section.id}
+            className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16"
+          >
+            <div
+              className="w-[var(--card-w)] max-w-full shrink-0 flex flex-col z-10"
+              style={{ "--card-w": cardWidth } as React.CSSProperties}
+            >
+              <div className="mb-3 text-left">
+                <h2
+                  style={{
+                    fontFamily: fontClassMap[sectionTitleFont] || "var(--font-inter)",
+                    fontSize: `${sectionTitleFontSize}px`,
+                    fontWeight: sectionTitleFontWeight,
+                    letterSpacing: `${sectionTitleLetterSpacing}px`,
+                    color: sectionTitleColor ?? "#FFFFFF",
+                  }}
+                >
+                  {section.title}
+                </h2>
+                {section.description?.trim() && (
+                  <p
+                    className="mt-0.5 opacity-50"
+                    style={{
+                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
+                      fontSize: `${sectionDescFontSize}px`,
+                      fontWeight: sectionDescFontWeight,
+                      letterSpacing: `${sectionDescLetterSpacing}px`,
+                      color: sectionDescColor,
+                    }}
+                  >
+                    {renderFormattedText(section.description)}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-6">
+                {section.categories.includes("bio") && section.bio?.trim() && (
+                  <p
+                    className="whitespace-pre-wrap"
+                    style={{
+                      fontFamily: fontClassMap[bioFont] || "var(--font-inter)",
+                      fontSize: `${bioFontSize}px`,
+                      fontWeight: bioFontWeight,
+                      letterSpacing: `${bioLetterSpacing}px`,
+                      color: bioColor ?? "#FFFFFF",
+                    }}
+                  >
+                    {renderFormattedText(section.bio)}
+                  </p>
+                )}
+
+                {section.categories.includes("links") && bigLinksSection}
+                {section.categories.includes("widgets") && outsideWidgets}
+                {section.categories.includes("music") && musicPlayer}
+              </div>
+            </div>
+          </div>
+        ))}
 
         {linksScreenVisible && !linksAboveAbout && (
           <div className="w-full min-h-screen flex items-center justify-center px-4 sm:px-6 py-16">
@@ -1265,20 +1354,6 @@ const sectionSurface: React.CSSProperties = {
                 >
                   {linksScreenTitle}
                 </h2>
-                {linksScreenSubtitle && (
-                  <p
-                    className="mt-0.5 opacity-50"
-                    style={{
-                      fontFamily: fontClassMap[sectionDescFont] || "var(--font-inter)",
-                      fontSize: `${sectionDescFontSize}px`,
-                      fontWeight: sectionDescFontWeight,
-                      letterSpacing: `${sectionDescLetterSpacing}px`,
-                      color: sectionDescColor,
-                    }}
-                  >
-                    {renderFormattedText(linksScreenSubtitle)}
-                  </p>
-                )}
               </div>
               {bigLinksSection}
             </div>

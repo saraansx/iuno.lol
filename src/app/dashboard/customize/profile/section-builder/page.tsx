@@ -2,9 +2,9 @@ import { Metadata } from "next";
 import { redirect } from "next/navigation";
 import ProfileCustomizeNav from "@/components/dashboard/ProfileCustomizeNav";
 import SectionBuilderClient from "./SectionBuilderClient";
-import WidgetsNotice from "./WidgetsNotice";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById, getUserBackgrounds } from "@/lib/features/users/db";
+import { normalizeProfileSections } from "@/lib/profile-sections";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator, BreadcrumbEllipsis } from "@/components/ui/breadcrumb";
 import Link from "next/link";
 
@@ -97,8 +97,8 @@ export default async function Page() {
             bigCount: bigLinksCount,
             aboveAbout: user?.linksSectionPosition === "above",
           }}
+          initialSections={normalizeProfileSections(user?.profileSections)}
         />
-        <WidgetsNotice />
       </div>
     </div>
   );

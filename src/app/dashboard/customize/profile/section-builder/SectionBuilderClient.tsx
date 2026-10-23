@@ -2,125 +2,66 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import AboutSectionRow, { type AboutSectionData } from "./AboutSectionRow";
-import LinksSectionRow, { type LinksSectionData } from "./LinksSectionRow";
+import { Plus } from "lucide-react";
+import { Reorder } from "framer-motion";
+import { type AboutSectionData } from "./AboutSectionRow";
+import CustomSectionRow from "./CustomSectionRow";
+import CreateSectionModal from "./CreateSectionModal";
 import SaveBar from "@/components/dashboard/SaveBar";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
 import { updateLayoutProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import { type FullUser } from "@/lib/features/users/db";
-
+import type { LinksSectionData } from "./LinksSectionRow";
+import type { ProfileSection } from "@/lib/profile-sections";
 interface SectionBuilderClientProps {
   user: FullUser | null;
   backgrounds?: string[];
   initialSectioned: boolean;
   initialAbout: AboutSectionData;
   initialLinks: Omit<LinksSectionData, "bigCount"> & { bigCount: number };
+  initialSections: ProfileSection[];
 }
 
-export default function SectionBuilderClient({ user, backgrounds, initialSectioned, initialAbout, initialLinks }: SectionBuilderClientProps) {
+export default function SectionBuilderClient({
+  user,
+  backgrounds,
+  initialSectioned,
+  initialAbout,
+  initialLinks,
+  initialSections,
+}: SectionBuilderClientProps) {
   const router = useRouter();
   const [sectioned, setSectioned] = useState(initialSectioned);
-  const [about, setAbout] = useState<AboutSectionData>(initialAbout);
-  const [links, setLinks] = useState<LinksSectionData>(initialLinks);
-  const [dragging, setDragging] = useState<"about" | "links" | null>(null);
-  const [dropTarget, setDropTarget] = useState<"about" | "links" | null>(null);
+  const [sections, setSections] = useState<ProfileSection[]>(initialSections);
+  const [createOpen, setCreateOpen] = useState(false);
 
   const hasChanges =
     sectioned !== initialSectioned ||
-    JSON.stringify({ about, links }) !== JSON.stringify({ about: initialAbout, links: initialLinks });
+    JSON.stringify(sections) !== JSON.stringify(initialSections);
 
-  const patchAbout = (patch: Partial<AboutSectionData>) =>
-    setAbout((prev) => ({ ...prev, ...patch }));
-  const patchLinks = (patch: Partial<LinksSectionData>) =>
-    setLinks((prev) => ({ ...prev, ...patch }));
+  const patchSection = (id: string, patch: Partial<ProfileSection>) =>
+    setSections((prev) => prev.map((section) => (section.id === id ? { ...section, ...patch } : section)));
 
-  const toggleOrder = () => patchLinks({ aboveAbout: !links.aboveAbout });
+  const removeSection = (id: string) =>
+    setSections((prev) => prev.filter((section) => section.id !== id));
 
-  const readSectionAt = (x: number, y: number): "about" | "links" | null => {
-    const el = document.elementFromPoint(x, y) as HTMLElement | null;
-    const kind = el?.closest?.("[data-section]")?.getAttribute("data-section");
-    return kind === "about" || kind === "links" ? kind : null;
-  };
-
-  const handlePointerDown =
-    (kind: "about" | "links") => (e: React.PointerEvent) => {
-      e.preventDefault();
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-      setDragging(kind);
-      setDropTarget(null);
-    };
-
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (!dragging) return;
-    setDropTarget(readSectionAt(e.clientX, e.clientY));
-  };
-
-  const handlePointerUp =
-    (kind: "about" | "links") => (e: React.PointerEvent) => {
-      const target = readSectionAt(e.clientX, e.clientY);
-      if (target && target !== kind) toggleOrder();
-      setDragging(null);
-      setDropTarget(null);
-    };
-
-  const handlePointerCancel = () => {
-    setDragging(null);
-    setDropTarget(null);
-  };
-
-  const handleHandleKeyDown = (e: React.KeyboardEvent) => {
-    if (["ArrowUp", "ArrowDown", "Enter", " "].includes(e.key)) {
-      e.preventDefault();
-      toggleOrder();
+  const usedCategories = (excludeId?: string) => {
+    const map: Record<string, string> = {};
+    for (const section of sections) {
+      if (section.id === excludeId) continue;
+      for (const category of section.categories) {
+        if (!map[category]) map[category] = section.title || "Untitled section";
+      }
     }
+    return map;
   };
-
-  const above = links.aboveAbout;
-
-  const aboutRow = (
-    <AboutSectionRow
-      data={about}
-      onChange={patchAbout}
-      dragHandleProps={{
-        onPointerDown: handlePointerDown("about"),
-        onPointerMove: handlePointerMove,
-        onPointerUp: handlePointerUp("about"),
-        onPointerCancel: handlePointerCancel,
-        onKeyDown: handleHandleKeyDown,
-      }}
-      dropHighlight={dragging === "links" && dropTarget === "about"}
-      isDragging={dragging === "about"}
-    />
-  );
-
-  const linksRow = (
-    <LinksSectionRow
-      data={links}
-      onChange={patchLinks}
-      dragHandleProps={{
-        onPointerDown: handlePointerDown("links"),
-        onPointerMove: handlePointerMove,
-        onPointerUp: handlePointerUp("links"),
-        onPointerCancel: handlePointerCancel,
-        onKeyDown: handleHandleKeyDown,
-      }}
-      dropHighlight={dragging === "about" && dropTarget === "links"}
-      isDragging={dragging === "links"}
-    />
-  );
 
   const handleSave = async () => {
     try {
       await updateLayoutProfile({
         profileStructure: sectioned ? "sectioned" : "standard",
-        aboutSectionEnabled: about.hidden === false,
-        aboutSectionTitle: about.title,
-        aboutSectionDescription: about.description,
-        linksSectionEnabled: links.hidden === false,
-        linksSectionTitle: links.title,
-        linksSectionDescription: links.description,
-        linksSectionPosition: links.aboveAbout ? "above" : "below",
+        profileSections: sections,
       });
       toast.success("Profile Saved Sucessfully");
       router.refresh();
@@ -132,8 +73,7 @@ export default function SectionBuilderClient({ user, backgrounds, initialSection
 
   const handleRevert = () => {
     setSectioned(initialSectioned);
-    setAbout(initialAbout);
-    setLinks(initialLinks);
+    setSections(initialSections);
   };
 
   return (
@@ -167,27 +107,77 @@ export default function SectionBuilderClient({ user, backgrounds, initialSection
         </button>
       </div>
 
-      <div className="flex flex-col gap-3">
-        {above ? linksRow : aboutRow}
-        {above ? aboutRow : linksRow}
+      <div className="flex items-center gap-3 pt-1">
+        <span className="text-[10.5px] font-medium uppercase tracking-[0.18em] text-white/35 shrink-0">
+          Profile sections ({sections.length})
+        </span>
+        <span className="h-px flex-1 bg-white/[0.07]" />
+
+        <button
+          type="button"
+          onClick={() => setCreateOpen(true)}
+          className="flex items-center gap-2 rounded-xl bg-[#5b6cf5]/20 hover:bg-[#5b6cf5]/30 px-3.5 py-2 text-[13px] font-normal text-white transition-all cursor-pointer shrink-0 whitespace-nowrap"
+        >
+          <Plus size={15} strokeWidth={2.5} />
+          Create section
+        </button>
       </div>
+
+      {sections.length === 0 ? (
+        <button
+          type="button"
+          onClick={() => setCreateOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 rounded-[16px] border border-dashed border-white/10 bg-white/[0.015] hover:bg-white/[0.03] px-4 py-7 transition-colors cursor-pointer"
+        >
+          <span className="text-[13px] text-white/60">No sections yet</span>
+          <span className="text-[11.5px] text-white/30">
+            Create your first section — About, Socials, Links, Music or anything else.
+          </span>
+        </button>
+      ) : (
+        <Reorder.Group
+          axis="y"
+          values={sections}
+          onReorder={setSections}
+          as="div"
+          className="flex flex-col gap-3"
+        >
+          {sections.map((section) => (
+            <CustomSectionRow
+              key={section.id}
+              data={section}
+              onChange={(patch) => patchSection(section.id, patch)}
+              onDelete={() => removeSection(section.id)}
+              usedCategories={usedCategories(section.id)}
+            />
+          ))}
+        </Reorder.Group>
+      )}
 
       <DashboardProfilePreview
         user={user}
         backgrounds={backgrounds}
         overrides={{
           profileStructure: sectioned ? "sectioned" : "standard",
-          aboutSectionEnabled: about.hidden === false,
-          aboutSectionTitle: about.title,
-          aboutSectionDescription: about.description,
-          linksSectionEnabled: links.hidden === false,
-          linksSectionTitle: links.title,
-          linksSectionDescription: links.description,
-          linksSectionPosition: links.aboveAbout ? "above" : "below",
+          aboutSectionEnabled: initialAbout.hidden === false,
+          aboutSectionTitle: initialAbout.title,
+          aboutSectionDescription: initialAbout.description,
+          linksSectionEnabled: !initialLinks.hidden,
+          linksSectionTitle: initialLinks.title,
+          linksSectionDescription: initialLinks.description,
+          linksSectionPosition: initialLinks.aboveAbout ? "above" : "below",
+          profileSections: sections,
         }}
       />
 
       <SaveBar show={hasChanges} onSave={handleSave} onRevert={handleRevert} />
+
+      <CreateSectionModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        usedCategories={usedCategories()}
+        onCreate={(section) => setSections((prev) => [...prev, section])}
+      />
     </>
   );
 }

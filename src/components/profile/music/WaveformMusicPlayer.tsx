@@ -89,7 +89,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     if (existing) {
       if (!existing.paused) return undefined;
       setLoading(true);
-      return existing.play().catch(() => { setLoading(false); });
+      return existing.play().catch((err) => { setLoading(false); throw err; });
     }
     const t = tracks[Math.min(target, tracks.length - 1)] ?? null;
     if (!t) return undefined;
@@ -145,7 +145,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
     audio.addEventListener("pause", onPause);
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("error", onError);
-    return audio.play().catch(() => { onError(); });
+    return audio.play().catch((err) => { onError(); throw err; });
   }, [tracks, applyVolume, shuffle, randomDifferent]);
 
   const ensureAndPlay = useCallback(
@@ -199,7 +199,7 @@ export default function WaveformMusicPlayer({ tracks, autoPlay = false, artBg = 
       setPlaying(false);
       return;
     }
-    ensureAndPlay();
+    ensureAndPlay()?.catch(() => {});
   };
 
   const step = (dir: 1 | -1) => {

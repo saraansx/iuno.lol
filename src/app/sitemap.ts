@@ -3,6 +3,8 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "@/lib/db";
 import { SITE_CONFIG } from "@/lib/config";
 
+export const revalidate = 3600;
+
 const SITE_LAST_UPDATED = new Date("2026-10-21T00:00:00.000Z");
 
 const STATIC_PAGES: MetadataRoute.Sitemap = [

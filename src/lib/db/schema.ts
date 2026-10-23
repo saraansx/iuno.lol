@@ -249,6 +249,13 @@ export const userSettings = mysqlTable('user_settings', {
   linksSectionTitle: text('links_section_title'),
   linksSectionDescription: text('links_section_description'),
   linksSectionPosition: mysqlEnum('links_section_position', ['above', 'below']).default('below'),
+  profileSections: json('profile_sections').$type<Array<{
+    id: string;
+    title: string;
+    description?: string;
+    bio?: string;
+    categories: Array<'bio' | 'links' | 'widgets' | 'music'>;
+  }>>(),
   linksFont: text('links_font'),
   linksFontSize: float('links_font_size').default(13.5),
   linksFontWeight: int('links_font_weight').default(400),
