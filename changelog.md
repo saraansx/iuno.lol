@@ -1,12 +1,16 @@
 # Changelog
 
+## October 24, 2026
+
+- Added a **SoundCloud widget**. Show a SoundCloud artist with their photo, follower and track counts, and verification badge.
+- SoundCloud widgets can also show a **single track** with its artwork, plays, likes and duration.
+
 ## October 23, 2026
 
 - Added **profile sections**. Create your own sections with a title, an optional description and up to three categories — Bio, Links, Widgets and Music. Only the categories you include show on your profile.
 - Sections can include their own bio, so your card bio stays exactly as it is.
 - Sections can be **dragged** up or down with the grip handle to change their order.
 - You can switch between a normal one-page profile and **sectioned scroll**, where each section gets its own screen.
-- Added a **SoundCloud widget**. Show a SoundCloud artist with their photo, follower and track counts, and verification badge.
 - The Widgets, Music and Links pages now show a small warning with a **Create section** shortcut when no section uses that category yet.
 - Music now starts on your first click or tap when your browser blocks autoplay by default.
 - Fixed the profile card bio overlapping the UID and date row.
