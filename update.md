@@ -7,6 +7,10 @@
 - **SoundCloud widget.** Show any SoundCloud artist with their photo, follower count, track count and verification badge. Paste a handle or profile link and it updates live.
 - **SoundCloud tracks.** Show a single SoundCloud track with its artwork, plays, likes and duration. Paste the track link and it fills in on its own.
 
+## Improvements
+
+- Fixed profile sections showing up twice on normal one-page profiles.
+
 ---
 
 # Previous Update: V1.0.1

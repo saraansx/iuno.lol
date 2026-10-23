@@ -4,6 +4,7 @@
 
 - Added a **SoundCloud widget**. Show a SoundCloud artist with their photo, follower and track counts, and verification badge.
 - SoundCloud widgets can also show a **single track** with its artwork, plays, likes and duration.
+- Fixed profile sections showing up twice on normal one-page profiles.
 
 ## October 23, 2026
 
