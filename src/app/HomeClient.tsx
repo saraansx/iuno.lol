@@ -5,7 +5,7 @@ import Footer from "@/components/Footer";
 import TopFade from "@/components/ui/top-fade";
 import FaqShowcase from "@/components/home/FaqShowcase";
 import PlanShowcase from "@/components/home/PlanShowcase";
-import Image from "next/image";
+import ShowcaseProfileCard from "@/components/home/ShowcaseProfileCard";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -134,27 +134,8 @@ export default function Home() {
                 className="pointer-events-none absolute -inset-x-10 -top-16 -bottom-6 sm:-inset-x-24 sm:-top-24 sm:-bottom-10"
                 style={{ background: "radial-gradient(45% 45% at 50% 25%, rgba(91,108,245,0.35) 0%, rgba(91,108,245,0.08) 45%, transparent 72%)" }}
               />
-              <div className="relative rounded-xl overflow-hidden border border-white/10 bg-[#0a0a0a] ring-1 ring-white/[0.04] shadow-[0_40px_120px_rgba(0,0,0,0.7)]">
-                <div className="flex items-center gap-1.5 sm:gap-2 h-8 sm:h-9 px-3 sm:px-4 bg-[#0e0e10] border-b border-white/5">
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
-                  <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white/15 shrink-0" />
-                  <span
-                    className="ml-1.5 sm:ml-3 min-w-0 flex-1 truncate text-[10px] sm:text-[11px] text-white/30 tracking-wide"
-                    style={{ fontFamily: "var(--font-comfortaa)" }}
-                  >
-                    iuno.lol/dashboard
-                  </span>
-                </div>
-                <Image
-                  src="/showcase/dashboard.png"
-                  alt="iuno.lol dashboard preview"
-                  width={1920}
-                  height={950}
-                  className="w-full h-auto select-none"
-                  priority
-                  draggable={false}
-                />
+              <div className="relative flex justify-center">
+                <ShowcaseProfileCard />
               </div>
             </div>
           </motion.div>
