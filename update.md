@@ -10,6 +10,7 @@
 ## Improvements
 
 - Fixed profile sections showing up twice on normal one-page profiles.
+- The homepage now shows two showcase profiles
 
 ---
 
