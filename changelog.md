@@ -6,6 +6,8 @@
 - SoundCloud widgets can also show a **single track** with its artwork, plays, likes and duration.
 - Fixed profile sections showing up twice on normal one-page profiles.
 - The homepage now shows **two showcase profiles**
+- Fixed views, likes and the comments button staying behind on the first screen in sectioned scroll. They now follow you to every section.
+- Fixed cursor trails not working past the first section in sectioned scroll.
 
 ## October 23, 2026
 

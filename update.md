@@ -11,6 +11,8 @@
 
 - Fixed profile sections showing up twice on normal one-page profiles.
 - The homepage now shows two showcase profiles
+- Views, likes and the comments button now stay on screen in every section when sectioned scroll is on, instead of being left on the first screen.
+- Cursor trails now work on every section in sectioned scroll, not just the first one.
 
 ---
 

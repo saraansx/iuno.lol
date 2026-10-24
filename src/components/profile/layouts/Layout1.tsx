@@ -822,6 +822,34 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
 
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
+  const pageCornerDetails = (
+    <>
+      {detailSlot("bottom-page", `${BADGE_CLASSES.page} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, { except: ["feedback"] })}
+      {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:pb-3 max-sm:justify-end`, { only: ["feedback"] })}
+    </>
+  );
+
+  const commentsButton = commentsEnabled && (
+    <div
+      className="absolute top-6 right-6 z-50 pointer-events-auto animate-in fade-in zoom-in duration-300"
+      style={{ '--comment-icon': otherColor } as React.CSSProperties}
+    >
+      <button
+        onClick={() => setIsCommentsModalOpen(true)}
+        className="w-12 h-12 rounded-2xl bg-transparent backdrop-blur-md border border-white/10 flex items-center justify-center hover:border-white/25 hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] group focus:outline-none"
+      >
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" filter="url(#comment-icon-glow)" className="text-[var(--comment-icon)] group-active:scale-95 transition-transform opacity-80 group-hover:opacity-100">
+          <defs>
+            <filter id="comment-icon-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="currentColor" floodOpacity="0.9" />
+            </filter>
+          </defs>
+          <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="currentColor" stroke="none" />
+        </svg>
+      </button>
+    </div>
+  );
+
   return (
     <div
       ref={scrollerRef}
@@ -931,7 +959,17 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
         </div>
         )}
 
-        <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
+        {sectioned ? (
+          // Sectioned profiles scroll inside this div, so page-anchored UI rides a sticky viewport layer
+          // instead of staying behind on the first screen.
+          <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[80] flex flex-col justify-end">
+            <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
+            {commentsButton}
+            {pageCornerDetails}
+          </div>
+        ) : (
+          <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
+        )}
         <ClickEffects effect={clickEffect} sound={clickSound} scopeRef={clickScopeRef} />
 
         {paged && (
@@ -1202,8 +1240,7 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
             </div>
           ))}
 
-        {detailSlot("bottom-page", `${BADGE_CLASSES.page} max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, { except: ["feedback"] })}
-        {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:justify-end`, { only: ["feedback"] })}
+        {!sectioned && pageCornerDetails}
         </div>
         </div>
 
@@ -1360,26 +1397,7 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
           </div>
         )}
 
-        {commentsEnabled && (
-          <div
-            className="absolute top-6 right-6 z-50 animate-in fade-in zoom-in duration-300"
-            style={{ '--comment-icon': otherColor } as React.CSSProperties}
-          >
-            <button
-              onClick={() => setIsCommentsModalOpen(true)}
-              className="w-12 h-12 rounded-2xl bg-transparent backdrop-blur-md border border-white/10 flex items-center justify-center hover:border-white/25 hover:scale-105 transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] group focus:outline-none"
-            >
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" filter="url(#comment-icon-glow)" className="text-[var(--comment-icon)] group-active:scale-95 transition-transform opacity-80 group-hover:opacity-100">
-                <defs>
-                  <filter id="comment-icon-glow" x="-50%" y="-50%" width="200%" height="200%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="2.5" floodColor="currentColor" floodOpacity="0.9" />
-                  </filter>
-                </defs>
-                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" fill="currentColor" stroke="none" />
-              </svg>
-            </button>
-          </div>
-        )}
+        {!sectioned && commentsButton}
 
         {}
         {commentsEverOpened && <CommentsModal
