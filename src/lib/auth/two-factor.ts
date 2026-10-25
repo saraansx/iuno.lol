@@ -39,7 +39,7 @@ export async function createLoginTicket(userId: number): Promise<string> {
   return ticket;
 }
 
-export type TicketResult = { ok: true; userId: number } | { ok: false; error: string };
+export type TicketResult = { ok: true; userId: number } | { ok: false; error: string; retryable?: true };
 
 export async function redeemLoginTicket(ticket: string, code: string): Promise<TicketResult> {
   if (!/^[A-Za-z0-9_-]{20,64}$/.test(ticket)) return { ok: false, error: "Your sign-in expired. Please start again." };
@@ -56,7 +56,7 @@ export async function redeemLoginTicket(ticket: string, code: string): Promise<T
 
   if (!(await checkTwoFactorCode(userId, code))) {
     const left = MAX_CODE_ATTEMPTS - attempts;
-    return { ok: false, error: left > 0 ? `Invalid code. ${left} attempt${left === 1 ? "" : "s"} left.` : "Invalid code." };
+    return { ok: false, retryable: true, error: left > 0 ? `Invalid code. ${left} attempt${left === 1 ? "" : "s"} left.` : "Invalid code." };
   }
 
   await redis.del(ticketKey(ticket), attemptsKey(ticket));

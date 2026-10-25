@@ -20,7 +20,7 @@ import type { PublicKeyCredentialCreationOptionsJSON, RegistrationResponseJSON }
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { invalidateLeaderboardCache } from "@/lib/features/leaderboard";
-import { UserFacingError } from "@/lib/errors";
+import { duplicateKey, UserFacingError } from "@/lib/errors";
 import { isPremiumActive } from "@/lib/premium";
 
 export type AliasRow = { id: number; alias: string; createdAt: string };
@@ -49,10 +49,17 @@ async function requireEditor() {
   return userId;
 }
 
+const DUPLICATE_MESSAGES: Record<string, string> = {
+  users_username_unique: "That username is already taken.",
+  user_aliases_alias_unique: "That username is already taken.",
+  users_email_unique: "That email is already in use.",
+  user_passkeys_credential_id_unique: "That passkey is already added.",
+};
+
 function fail(err: unknown): { ok: false; error: string } {
   if (err instanceof UserFacingError) return { ok: false, error: err.message };
-  const e = err as { code?: string; cause?: { code?: string } };
-  if (e?.code === "ER_DUP_ENTRY" || e?.cause?.code === "ER_DUP_ENTRY") return { ok: false, error: "That username is already taken." };
+  const dupMessage = DUPLICATE_MESSAGES[duplicateKey(err) ?? ""];
+  if (dupMessage) return { ok: false, error: dupMessage };
   console.error("[account] action failed:", err);
   return { ok: false, error: "Something went wrong. Please try again." };
 }
@@ -313,13 +320,12 @@ export async function confirmNewEmailOtp(rawCode: string): Promise<Result<{ emai
     await redis.del(emailChangePwOkKey(userId));
     return { ok: true, data: { email: pending } };
   } catch (err) {
-    if ((err as { code?: string })?.code === "ER_DUP_ENTRY") return { ok: false, error: "That email is already in use." };
     return fail(err);
   }
 }
 
 function sessionCutoff() {
-  return new Date();
+  return new Date(Math.floor(Date.now() / 1000) * 1000 - 1000);
 }
 
 export async function completeDiscordOnboarding(rawUsername: string, rawPassword: string): Promise<Result<{ username: string }>> {
@@ -509,7 +515,6 @@ export async function finishAddPasskey(response: RegistrationResponseJSON, rawNa
     }
     return { ok: true, data: await passkeyRows(userId) };
   } catch (err) {
-    if ((err as { code?: string })?.code === "ER_DUP_ENTRY") return { ok: false, error: "That passkey is already added." };
     return fail(err);
   }
 }

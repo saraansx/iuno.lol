@@ -13,6 +13,11 @@
 - The homepage now shows two showcase profiles
 - Views, likes and the comments button now stay on screen in every section when sectioned scroll is on, instead of being left on the first screen.
 - Cursor trails now work on every section in sectioned scroll, not just the first one.
+- Email code login works again. A correct code was always being reported as wrong.
+- Changing your password keeps you signed in on the device you changed it on. Other devices are still signed out for safety.
+- Discord sign-ins with an authenticator app now allow up to 5 tries at the code. A single typo no longer sends you back to the start.
+- Clear messages when your email or username is already taken, on signup and in settings. No more "Something went wrong" or the wrong field being named.
+- Private templates are now truly private. Only the creator can view their settings.
 
 ---
 

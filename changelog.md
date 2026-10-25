@@ -8,6 +8,11 @@
 - The homepage now shows **two showcase profiles**
 - Fixed views, likes and the comments button staying behind on the first screen in sectioned scroll. They now follow you to every section.
 - Fixed cursor trails not working past the first section in sectioned scroll.
+- Fixed logging in with an email code. Correct codes were being rejected as wrong.
+- Changing your password no longer signs you out of the device you changed it on. Other devices are still signed out.
+- Signing in with Discord now gives you up to 5 tries at your authenticator code, instead of making you start over after one typo.
+- Signing up with an email or username that's already taken now tells you clearly which one it is, instead of "Something went wrong" or naming the wrong one.
+- Fixed private templates. Their settings could be viewed by anyone with the template's ID; now only the creator can see them.
 
 ## October 23, 2026
 

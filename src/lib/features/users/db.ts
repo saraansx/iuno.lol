@@ -1,6 +1,6 @@
 import { db, schema } from '@/lib/db'
 import { hashPassword } from '@/lib/server/security/bcrypt'
-import { UserFacingError } from '@/lib/errors'
+import { duplicateKey, UserFacingError } from '@/lib/errors'
 import { eq, sql, and, lt, gt, asc, desc, like } from 'drizzle-orm'
 import { randomBytes } from 'crypto'
 import { cache } from 'react'
@@ -269,13 +269,9 @@ export async function createUser(input: CreateUserInput) {
     await clearProfileExistsCache(userId)
     return { userId, username }
   } catch (err: unknown) {
-    if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
-      const e = err as { code: string; message: string }
-      if (e.code === 'ER_DUP_ENTRY') {
-        if (e.message.includes('email')) throw new UserFacingError('An account with that email already exists.')
-        if (e.message.includes('username')) throw new UserFacingError('That username is already taken.')
-      }
-    }
+    const key = duplicateKey(err)
+    if (key === 'users_email_unique') throw new UserFacingError('An account with that email already exists.')
+    if (key === 'users_username_unique') throw new UserFacingError('That username is already taken.')
     throw err
   }
 }
@@ -523,13 +519,10 @@ export async function upsertDiscordUser(input: UpsertDiscordUserInput): Promise<
       await clearProfileExistsCache(insertId)
       return insertId
     } catch (err: unknown) {
-      if (err && typeof err === 'object' && 'code' in err && 'message' in err) {
-        const e = err as { code: string, message: string }
-        if (e.code === 'ER_DUP_ENTRY' && e.message.includes('username')) {
-          username = placeholder()
-          if (++attempt > 10) throw new Error('Could not generate a unique username.')
-          continue
-        }
+      if (duplicateKey(err) === 'users_username_unique') {
+        username = placeholder()
+        if (++attempt > 10) throw new Error('Could not generate a unique username.')
+        continue
       }
       throw err
     }

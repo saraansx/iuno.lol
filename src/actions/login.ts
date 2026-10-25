@@ -119,7 +119,7 @@ export async function completeTwoFactorLogin(ticket: string | undefined, code: s
 
     const result = await redeemLoginTicket(String(effectiveTicket ?? ''), String(code ?? ''))
 
-    if (cookieTicket) {
+    if (cookieTicket && !(!result.ok && result.retryable)) {
       cookieStore.set(TWO_FACTOR_TICKET_COOKIE, '', { maxAge: 0, path: '/' })
     }
 

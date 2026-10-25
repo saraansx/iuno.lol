@@ -59,15 +59,7 @@ export async function register(input: RegisterInput) {
 
     await deleteUnverifiedUserByEmail(email)
 
-    try {
-      await createUser({ username, email, password, ip: ip ?? undefined })
-    } catch (err: unknown) {
-      if (err instanceof UserFacingError && /email/i.test(err.message)) {
-        console.warn('[register] signup blocked: email already registered')
-        return { success: 'Account created! Please verify your email.' }
-      }
-      throw err
-    }
+    await createUser({ username, email, password, ip: ip ?? undefined })
 
     try {
       const token = await createVerificationToken(email)

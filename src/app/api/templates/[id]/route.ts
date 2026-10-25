@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { deleteTemplate, setTemplateVisibility } from "@/actions/templates";
+import { getSessionUserId } from "@/lib/auth/session";
 
 export async function DELETE(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const { id: raw } = await ctx.params;
@@ -38,10 +39,12 @@ export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> 
   const id = parseInt(raw, 10);
   if (!Number.isInteger(id) || id <= 0) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   const [row] = await db
-    .select({ id: schema.templates.id, slug: schema.templates.slug, name: schema.templates.name, thumbnailUrl: schema.templates.thumbnailUrl, config: schema.templates.config, useCount: schema.templates.useCount, userId: schema.templates.userId, createdAt: schema.templates.createdAt })
+    .select({ id: schema.templates.id, slug: schema.templates.slug, name: schema.templates.name, thumbnailUrl: schema.templates.thumbnailUrl, config: schema.templates.config, isPublic: schema.templates.isPublic, useCount: schema.templates.useCount, userId: schema.templates.userId, createdAt: schema.templates.createdAt })
     .from(schema.templates)
     .where(eq(schema.templates.id, id))
     .limit(1);
-  if (!row) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!row || (!row.isPublic && row.userId !== (await getSessionUserId()))) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
   return NextResponse.json(row);
 }
