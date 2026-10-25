@@ -18,6 +18,7 @@
 - Discord sign-ins with an authenticator app now allow up to 5 tries at the code. A single typo no longer sends you back to the start.
 - Clear messages when your email or username is already taken, on signup and in settings. No more "Something went wrong" or the wrong field being named.
 - Private templates are now truly private. Only the creator can view their settings.
+- Razorpay purchases are now always delivered, even if you close the page right after paying.
 
 ---
 

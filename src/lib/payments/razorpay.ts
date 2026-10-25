@@ -25,7 +25,7 @@ function authHeader(): string {
   return "Basic " + Buffer.from(`${keyId}:${keySecret}`).toString("base64");
 }
 
-interface RazorpayOrder {
+export interface RazorpayOrder {
   id: string;
   amount: number;
   currency: string;
@@ -77,12 +77,18 @@ export function verifyRazorpaySignature(params: {
 }): boolean {
   const { keySecret } = credentials();
   if (!keySecret) return false;
-  const expected = crypto
-    .createHmac("sha256", keySecret)
-    .update(`${params.orderId}|${params.paymentId}`)
-    .digest("hex");
-  const a = Buffer.from(expected);
-  const b = Buffer.from(params.signature);
+  return hmacMatches(keySecret, `${params.orderId}|${params.paymentId}`, params.signature);
+}
+
+export function verifyRazorpayWebhook(body: string, signature: string | null): boolean {
+  const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
+  if (!secret || !signature) return false;
+  return hmacMatches(secret, body, signature);
+}
+
+function hmacMatches(secret: string, data: string, signature: string): boolean {
+  const a = Buffer.from(crypto.createHmac("sha256", secret).update(data).digest("hex"));
+  const b = Buffer.from(signature);
   if (a.length !== b.length) return false;
   return crypto.timingSafeEqual(a, b);
 }

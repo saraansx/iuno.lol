@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
-import { eq } from "drizzle-orm";
-import { db, schema } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getPlan, fieldsForPlan, isCurrency, type Currency } from "@/lib/payments/plans";
-import { grantPlanPerks } from "@/lib/payments/fulfill";
+import { fulfillRazorpayOrder } from "@/lib/payments/fulfill";
 import { fetchRazorpayOrder, verifyRazorpaySignature } from "@/lib/payments/razorpay";
-import { processPaymentEventOnce } from "@/lib/payments/idempotency";
-import { notifyPremiumPurchase } from "@/lib/notify/discord";
 
 const bodySchema = z.object({
   razorpay_order_id: z.string().min(1).max(64),
@@ -44,59 +39,20 @@ export async function POST(request: NextRequest) {
   }
 
   const order = await fetchRazorpayOrder(orderId);
-  const plan = getPlan(order?.notes?.plan);
-  if (
-    !order ||
-    order.notes?.userId !== String(userId) ||
-    !plan
-  ) {
-    return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
-  }
-  const currency = order.currency;
-  if (!isCurrency(currency) || order.amount !== plan.prices[currency as Currency].amount) {
-    return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
-  }
-  if (order.status !== "paid") {
+  if (!order || order.notes?.userId !== String(userId)) {
     return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
   }
 
   try {
-    const processed = await processPaymentEventOnce(
-      { provider: "razorpay", eventId: paymentId, userId, plan: plan.tag },
-      async (tx) => {
-        await tx.update(schema.users).set(fieldsForPlan(plan)).where(eq(schema.users.id, userId));
-      },
-    );
-
-    if (!processed) {
-      return NextResponse.json({ success: true });
+    if (!(await fulfillRazorpayOrder(order, paymentId))) {
+      return NextResponse.json({ error: "Payment could not be verified." }, { status: 400 });
     }
-    await grantPlanPerks(userId, plan);
   } catch (err) {
     console.error("[checkout/verify] failed to upgrade user:", err);
     return NextResponse.json(
       { error: "Payment succeeded but we couldn't update your account. Contact support." },
       { status: 500 },
     );
-  }
-
-  try {
-    const [row] = await db
-      .select({ username: schema.users.username, email: schema.users.email })
-      .from(schema.users)
-      .where(eq(schema.users.id, userId))
-      .limit(1);
-    await notifyPremiumPurchase({
-      gateway: "razorpay",
-      product: plan.name,
-      userId,
-      username: row?.username,
-      email: row?.email,
-      amount: `${plan.prices[currency as Currency].symbol}${plan.prices[currency as Currency].display}`,
-      currency,
-    });
-  } catch (err) {
-    console.error("[checkout/verify] notify failed:", err);
   }
 
   return NextResponse.json({ success: true });

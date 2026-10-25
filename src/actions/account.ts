@@ -22,6 +22,7 @@ import { invalidateLiveStatsCache } from "@/lib/live-stats-cache";
 import { invalidateLeaderboardCache } from "@/lib/features/leaderboard";
 import { duplicateKey, UserFacingError } from "@/lib/errors";
 import { isPremiumActive } from "@/lib/premium";
+import { aliasSlots } from "@/lib/payments/plans";
 
 export type AliasRow = { id: number; alias: string; createdAt: string };
 export type AliasState = { aliases: AliasRow[]; tokens: number; slots: number; premium: boolean };
@@ -76,7 +77,7 @@ async function aliasState(userId: number): Promise<AliasState> {
   return {
     aliases: rows.map((r) => ({ id: r.id, alias: r.alias, createdAt: r.createdAt.toISOString() })),
     tokens,
-    slots: tokens,
+    slots: aliasSlots(tokens, premium),
     premium,
   };
 }
@@ -158,7 +159,7 @@ export async function addAlias(raw: string): Promise<Result<AliasState>> {
         .select({ used: sql<number>`COUNT(*)` })
         .from(schema.userAliases)
         .where(eq(schema.userAliases.userId, userId));
-      if (Number(used) >= (user?.tokens ?? 0)) {
+      if (Number(used) >= aliasSlots(user?.tokens ?? 0, Boolean(user?.isPremium))) {
         throw new UserFacingError("No free alias slot. Buy an alias token first.");
       }
       await tx.insert(schema.userAliases).values({ userId, alias });

@@ -13,6 +13,7 @@
 - Signing in with Discord now gives you up to 5 tries at your authenticator code, instead of making you start over after one typo.
 - Signing up with an email or username that's already taken now tells you clearly which one it is, instead of "Something went wrong" or naming the wrong one.
 - Fixed private templates. Their settings could be viewed by anyone with the template's ID; now only the creator can see them.
+- Fixed Razorpay payments not being delivered when the checkout page was closed too early. Your purchase now arrives even if you leave right after paying.
 
 ## October 23, 2026
 
