@@ -4,7 +4,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import ProfileBadges, { type CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 
-// Static copies of real profile cards for the homepage hero. No DB or API calls.
 const FONT = "var(--font-comfortaa)";
 const MUTED = "#878a93";
 const ROTATE_MS = 4000;
@@ -24,8 +23,8 @@ const Emoji = ({ src, alt }: { src: string; alt: string }) => (
 type Showcase = {
   uid: number;
   name: string;
-  dir: string; // folder under /public/showcase holding avatar.png + the banner
-  banner: string; // filename inside dir; .mp4 renders as a muted looping video
+  dir: string;
+  banner: string;
   badges: string[];
   customBadges?: CustomBadge[];
   location: string;
@@ -197,8 +196,6 @@ function Card({ p }: { p: Showcase }) {
   );
 }
 
-// All cards share one grid cell and crossfade, so there's no layout jump and every image is preloaded.
-// Hover/focus pauses the loop (WCAG 2.2.2).
 export default function ShowcaseProfileCard() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);

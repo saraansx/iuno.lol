@@ -97,8 +97,7 @@ export async function verifyOTPToken(email: string, otp: string): Promise<{ succ
   const deleted = await db.delete(schema.otpTokens).where(eq(schema.otpTokens.id, row.id))
   await redis.del(attemptsKey)
 
-  const affected = (deleted as unknown as { rowsAffected?: number }).rowsAffected ?? 0
-  if (affected < 1) {
+  if (deleted[0].affectedRows < 1) {
     return { success: false, error: 'Invalid or expired OTP.' }
   }
 

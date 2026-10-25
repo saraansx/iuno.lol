@@ -25,7 +25,6 @@ function proxied(url: string): string {
   return url ? `/api/widgets/soundcloud/image?url=${encodeURIComponent(url)}` : "";
 }
 
-/** Shared track card used by the public widget and the dashboard preview. */
 export default function SoundcloudTrackCard({
   track,
   options,

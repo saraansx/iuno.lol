@@ -37,7 +37,6 @@ const SOUNDCLOUD_HOST_RE = /^https?:\/\/(?:www\.|m\.)?soundcloud\.com\//i;
 const TRACK_PATH_RE = /^[a-zA-Z0-9_-]{2,64}\/[a-zA-Z0-9_-]{1,200}$/;
 const RESERVED_SECOND_SEGMENTS = new Set(["sets", "tracks", "albums", "likes", "reposts", "followers", "following", "popular-tracks"]);
 
-/** Normalizes a SoundCloud track link into "artist/track-slug". */
 export function cleanSoundcloudTrackPath(input: string): string {
   if (!input) return "";
   const parts = input

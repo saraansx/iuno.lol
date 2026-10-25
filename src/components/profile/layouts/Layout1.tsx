@@ -960,8 +960,6 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
         )}
 
         {sectioned ? (
-          // Sectioned profiles scroll inside this div, so page-anchored UI rides a sticky viewport layer
-          // instead of staying behind on the first screen.
           <div className="sticky top-0 h-screen w-full shrink-0 -mb-[100vh] pointer-events-none z-[80] flex flex-col justify-end">
             <CursorTrail trail={cursorTrail} color={cursorTrailColor} />
             {commentsButton}
