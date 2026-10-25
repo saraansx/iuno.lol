@@ -62,8 +62,11 @@ export default function MediaCropModal({
       throw new Error("No 2d context");
     }
 
-    canvas.width = pixelCrop.width;
-    canvas.height = pixelCrop.height;
+    const MAX_SIDE = 1600;
+    const scale = Math.min(1, MAX_SIDE / Math.max(pixelCrop.width, pixelCrop.height));
+    canvas.width = Math.round(pixelCrop.width * scale);
+    canvas.height = Math.round(pixelCrop.height * scale);
+    ctx.imageSmoothingQuality = "high";
 
     ctx.drawImage(
       image,
@@ -73,8 +76,8 @@ export default function MediaCropModal({
       pixelCrop.height,
       0,
       0,
-      pixelCrop.width,
-      pixelCrop.height
+      canvas.width,
+      canvas.height
     );
 
     return new Promise((resolve, reject) => {
@@ -83,9 +86,9 @@ export default function MediaCropModal({
           reject(new Error("Canvas is empty"));
           return;
         }
-        const file = new File([blob], "cropped-media.png", { type: "image/png" });
-        resolve(file);
-      }, "image/png");
+        const ext = blob.type === "image/webp" ? "webp" : "png";
+        resolve(new File([blob], `cropped-media.${ext}`, { type: blob.type }));
+      }, "image/webp", 0.9);
     });
   };
 

@@ -33,9 +33,12 @@ const COLS: { title: string; links: FootLink[] }[] = [
     ],
   },
   {
-    title: "Contact",
+    title: "Socials",
     links: [
       { label: "Discord Server", href: SITE_CONFIG.links.discord, external: true },
+      { label: "X", href: "https://x.com/getiuno", external: true },
+      { label: "Instagram", href: "https://www.instagram.com/getiuno/", external: true },
+      { label: "Threads", href: "https://www.threads.com/@getiuno", external: true },
       { label: "Support Email", href: "mailto:support@iuno.lol" },
     ],
   },
