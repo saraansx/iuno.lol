@@ -8,6 +8,7 @@
 - SoundCloud widgets can also show a **single track** with its artwork, plays, likes and duration.
 - The homepage now shows **two showcase profiles**
 - The footer's **Contact** section is now **Socials**, with links to our X, Instagram and Threads.
+- Added **featured profiles** to the homepage. A scrolling strip of community profiles sits at the bottom of the first screen; hover it to pause, and click any profile to open it.
 
 ### Improvements
 

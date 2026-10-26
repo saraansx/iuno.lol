@@ -6,6 +6,7 @@ import TopFade from "@/components/ui/top-fade";
 import FaqShowcase from "@/components/home/FaqShowcase";
 import PlanShowcase from "@/components/home/PlanShowcase";
 import ShowcaseProfileCard from "@/components/home/ShowcaseProfileCard";
+import FeaturedProfiles from "@/components/home/FeaturedProfiles";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -46,7 +47,9 @@ export default function Home() {
 
         <Navbar />
 
-        <div className="relative z-10 min-h-[100svh] max-w-7xl mx-auto px-5 sm:px-6 pt-32 sm:pt-40 pb-16 sm:pb-20 grid lg:grid-cols-[1fr_1.3fr] gap-10 sm:gap-14 lg:gap-6 items-center">
+        {}
+        <div className="relative z-10 min-h-[100svh] flex flex-col">
+        <div className="flex-1 w-full max-w-7xl mx-auto px-5 sm:px-6 pt-32 sm:pt-40 pb-8 grid lg:grid-cols-[1fr_1.3fr] gap-10 sm:gap-14 lg:gap-6 items-center">
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
 
           <div className="flex flex-col gap-1 md:gap-2 mb-8">
@@ -139,6 +142,9 @@ export default function Home() {
               </div>
             </div>
           </motion.div>
+        </div>
+
+        <FeaturedProfiles />
         </div>
 
         <div className="relative z-10">

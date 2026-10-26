@@ -8,6 +8,7 @@
 - **SoundCloud tracks.** Show a single SoundCloud track with its artwork, plays, likes and duration. Paste the track link and it fills in on its own.
 - **Two showcase profiles.** The homepage now switches between 2 profiles
 - **Socials.** The footer's Contact section is now Socials, with links to our X, Instagram and Threads.
+- **Featured profiles.** The homepage now has a scrolling strip of community profiles right on the first screen. Hover to pause, click to visit.
 
 ## Improvements
 
