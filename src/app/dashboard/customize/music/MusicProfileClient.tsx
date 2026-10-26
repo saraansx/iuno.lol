@@ -14,6 +14,7 @@ import { updateMusicProfile } from "@/actions/profile";
 import { toast } from "@/components/ui/toast";
 import PremiumLock from "@/components/ui/premium-lock";
 import { isPremiumActive } from "@/lib/premium";
+import { isVideoUrl } from "@/lib/utils/media";
 import { type FullUser } from "@/lib/features/users/db";
 
 type Track = SearchTrack;
@@ -139,7 +140,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const count = tracks.length;
-  const backgroundSoundOn = user?.bannerBackgroundSound ?? false;
+  const backgroundSoundOn = Boolean(user?.bannerBackgroundSound) && (backgrounds ?? []).some(isVideoUrl);
   const isPremium = isPremiumActive(user);
   const maxTracks = isPremium ? PREMIUM_TRACKS : FREE_TRACKS;
 

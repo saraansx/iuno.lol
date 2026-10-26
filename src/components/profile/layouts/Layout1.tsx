@@ -517,8 +517,10 @@ const Layout1 = ({
     (w) => w.enabled && (w.placement || "inside") === "outside"
   );
  const aboutHasWidgets = widgetsSectionEnabled && hasOutsideWidgets;
+  const bgSoundBlocksMusic =
+    bannerBackgroundSound && ((backgrounds ?? []).some(isVideoUrl) || isVideoUrl(bgPreviewUrl));
   const hasMusic =
-    !bannerBackgroundSound &&
+    !bgSoundBlocksMusic &&
     (musicPlayerStyle === "compact" || musicPlayerStyle === "lyrics" || musicPlayerStyle === "waveform") &&
     musicTracks.length > 0;
   const customSections = (profileSections ?? []).filter(

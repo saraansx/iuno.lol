@@ -16,6 +16,8 @@
 
 - Fixed embed card backgrounds and icons not showing when your profile link was shared. If yours shows a blank card, upload your embed images again.
 - Fixed some new accounts getting a very large UID. Those accounts now have normal UIDs.
+- Fixed the badges page sometimes staying on the old tab on mobile when you tapped Badge Customization.
+- Fixed the music page saying "Background sound is on" when your backgrounds were only images, with no way to turn it off.
 
 ## October 24, 2026
 

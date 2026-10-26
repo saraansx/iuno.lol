@@ -3,7 +3,7 @@
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { getSessionUserId } from "@/lib/auth/session";
-import { getUserById } from "@/lib/features/users/db";
+import { getUserBackgrounds, getUserById } from "@/lib/features/users/db";
 import {
   isPremiumActive,
   isPremiumOption,
@@ -1813,7 +1813,11 @@ async function updateMusicProfileImpl(data: {
     }),
   );
 
-  if (sanitizedTracks.length > 0 && user.bannerBackgroundSound) {
+  if (
+    sanitizedTracks.length > 0 &&
+    user.bannerBackgroundSound &&
+    (await getUserBackgrounds(userId)).some(isVideoUrl)
+  ) {
     throw new Error("Turn off background sound to use the music player.");
   }
 
