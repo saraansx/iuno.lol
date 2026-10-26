@@ -70,6 +70,10 @@ export default function AvatarUploadModal({ open, onClose, onApply }: AvatarUplo
       setErrorMsg("Video uploads are not supported for avatars. Images and GIFs only.");
       return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMsg("File must be less than 5MB");
+      return;
+    }
 
     setRawSelectedFile(file);
     if (file.type.includes("gif")) {

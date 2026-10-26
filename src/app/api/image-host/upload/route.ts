@@ -13,7 +13,7 @@ import { recordImageHostFile, getImageHostUsedBytes } from "@/lib/features/image
 import { storageConfigured, storageDeleteKeys, storagePut } from "@/lib/storage";
 import { redis } from "@/lib/redis";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 function sanitizeName(raw: string): string {
   const cleaned = raw.replace(/[\u0000-\u001f]/g, "").trim().slice(0, 255);

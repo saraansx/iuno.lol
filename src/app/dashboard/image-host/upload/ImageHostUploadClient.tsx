@@ -129,7 +129,7 @@ export default function ImageHostUploadClient() {
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/image-host/upload");
-    xhr.timeout = 120_000;
+    xhr.timeout = 15 * 60_000;
 
     let lastTime = 0;
     let lastLoaded = 0;

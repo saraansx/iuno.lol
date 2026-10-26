@@ -92,6 +92,10 @@ export default function MediaUploadModal({
       setErrorMsg("Videos aren't supported here. Please choose an image.");
       return;
     }
+    if (file.size > limitMB * 1024 * 1024) {
+      setErrorMsg(`File must be less than ${limitMB}MB`);
+      return;
+    }
     if (!cropShape || file.type.startsWith("video") || file.type.includes("gif")) {
       processFile(file);
       return;

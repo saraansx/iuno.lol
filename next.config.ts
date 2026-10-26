@@ -16,7 +16,8 @@ const nextConfig: NextConfig = {
     "/changelog": ["./changelog.md"],
   },
   experimental: {
-    proxyClientMaxBodySize: "210mb",
+    // Image host files are up to IMAGE_HOST_MAX_FILE_MB (500MB) plus multipart overhead.
+    proxyClientMaxBodySize: "510mb",
     serverActions: {
       bodySizeLimit: "30mb",
     },

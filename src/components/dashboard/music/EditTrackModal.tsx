@@ -13,7 +13,7 @@ type Patch = {
   lyrics: Array<{ text: string; start: number; end: number }> | null;
 };
 
-const MAX_COVER_MB = 4;
+const MAX_COVER_MB = 5;
 
 export default function EditTrackModal({
   open,

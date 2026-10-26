@@ -487,7 +487,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
               features={[
                 "Exclusive Image Host Badge",
                 "Special Discord Server Role",
-                "50GB storage, 200MB per file",
+                "50GB storage, 500MB per file",
                 "Short share links & password lock",
               ]}
               cta={hasImageHost ? "Open Image Host" : "Get Image Host"}

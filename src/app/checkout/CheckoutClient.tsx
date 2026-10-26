@@ -112,7 +112,7 @@ const PREMIUM_FEATURES = [
 const IMAGE_HOST_FEATURES = [
   "Unlocks the Image Host dashboard",
   "50 GB of storage",
-  "Up to 200 MB per file",
+  "Up to 500 MB per file",
   "Images & videos with short share links",
   "Password-protected files",
   "Gallery, favorites & activity log",

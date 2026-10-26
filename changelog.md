@@ -2,18 +2,35 @@
 
 ## October 24, 2026
 
+### New
+
 - Added a **SoundCloud widget**. Show a SoundCloud artist with their photo, follower and track counts, and verification badge.
 - SoundCloud widgets can also show a **single track** with its artwork, plays, likes and duration.
-- Fixed profile sections showing up twice on normal one-page profiles.
 - The homepage now shows **two showcase profiles**
+- The footer's **Contact** section is now **Socials**, with links to our X, Instagram and Threads.
+
+### Improvements
+
+- The image host now accepts files up to **500MB** each, up from 200MB.
+- Upload limits are now exact everywhere. A file over the limit is rejected as soon as you pick it, instead of after it has finished uploading.
+- Music cover art can now be up to 5MB when editing a track, the same as when uploading one.
+
+### Fixes
+
+- Fixed profile sections showing up twice on normal one-page profiles.
 - Fixed views, likes and the comments button staying behind on the first screen in sectioned scroll. They now follow you to every section.
 - Fixed cursor trails not working past the first section in sectioned scroll.
 - Fixed logging in with an email code. Correct codes were being rejected as wrong.
-- Changing your password no longer signs you out of the device you changed it on. Other devices are still signed out.
-- Signing in with Discord now gives you up to 5 tries at your authenticator code, instead of making you start over after one typo.
-- Signing up with an email or username that's already taken now tells you clearly which one it is, instead of "Something went wrong" or naming the wrong one.
+- Fixed changing your password signing you out of the device you changed it on. Other devices are still signed out.
+- Fixed Discord sign-ins with an authenticator app allowing only one try at the code. You now get up to 5.
+- Fixed signup and settings showing "Something went wrong", or naming the wrong field, when an email or username was already taken.
+- Fixed Razorpay purchases not being delivered when the checkout page was closed too early. Your purchase now arrives even if you leave right after paying.
+- Fixed photos under 5MB being rejected after cropping. Cropped avatars, banners and embed images are now saved much smaller.
+- Fixed alias tokens giving different slots depending on when you bought Premium, and refunds taking away more than the purchase gave. Each token now gives 4 slots with Premium or 1 without.
+
+### Security
+
 - Fixed private templates. Their settings could be viewed by anyone with the template's ID; now only the creator can see them.
-- Fixed Razorpay payments not being delivered when the checkout page was closed too early. Your purchase now arrives even if you leave right after paying.
 
 ## October 23, 2026
 

@@ -6,19 +6,31 @@
 
 - **SoundCloud widget.** Show any SoundCloud artist with their photo, follower count, track count and verification badge. Paste a handle or profile link and it updates live.
 - **SoundCloud tracks.** Show a single SoundCloud track with its artwork, plays, likes and duration. Paste the track link and it fills in on its own.
+- **Two showcase profiles.** The homepage now switches between 2 profiles
+- **Socials.** The footer's Contact section is now Socials, with links to our X, Instagram and Threads.
 
 ## Improvements
 
-- Fixed profile sections showing up twice on normal one-page profiles.
-- The homepage now shows two showcase profiles
-- Views, likes and the comments button now stay on screen in every section when sectioned scroll is on, instead of being left on the first screen.
+- **Bigger image host uploads.** Files can now be up to 500MB each, up from 200MB.
+- **Exact upload limits.** Every upload checks the size as soon as you pick a file, so you no longer wait for a big file to upload only to be told it's too large.
+- **Track covers.** Cover art can now be up to 5MB when editing a track, the same as when uploading one.
+
+## Fixes
+
+- Profile sections no longer show up twice on normal one-page profiles.
+- In sectioned scroll, views, likes and the comments button now stay on screen in every section instead of being left on the first one.
 - Cursor trails now work on every section in sectioned scroll, not just the first one.
 - Email code login works again. A correct code was always being reported as wrong.
-- Changing your password keeps you signed in on the device you changed it on. Other devices are still signed out for safety.
+- Changing your password keeps you signed in on the device you changed it on. Other devices are still signed out.
 - Discord sign-ins with an authenticator app now allow up to 5 tries at the code. A single typo no longer sends you back to the start.
-- Clear messages when your email or username is already taken, on signup and in settings. No more "Something went wrong" or the wrong field being named.
-- Private templates are now truly private. Only the creator can view their settings.
+- Signup and settings now tell you exactly whether your email or your username is taken, instead of "Something went wrong" or naming the wrong field.
 - Razorpay purchases are now always delivered, even if you close the page right after paying.
+- Photos under 5MB are no longer rejected after cropping. Cropped avatars, banners and embed images are now saved much smaller.
+- Alias tokens now give the same slots no matter when you bought Premium (4 with Premium, 1 without), and refunds only take back what the token gave.
+
+## Security
+
+- **Private templates are private.** Their settings could be viewed by anyone with the template's ID. Now only the creator can see them.
 
 ---
 

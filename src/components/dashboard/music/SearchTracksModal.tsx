@@ -46,6 +46,9 @@ function Artwork({ src }: { src: string | null }) {
   );
 }
 
+const MAX_AUDIO_MB = 15;
+const MAX_COVER_MB = 5;
+
 function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
   const [audioFile, setAudioFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -54,6 +57,16 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
   const [lrc, setLrc] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const pickUnder = (file: File | undefined, maxMB: number, label: string): File | null => {
+    if (!file) return null;
+    if (file.size > maxMB * 1024 * 1024) {
+      setError(`${label} must be ${maxMB}MB or smaller.`);
+      return null;
+    }
+    setError(null);
+    return file;
+  };
 
   const uploadOne = async (file: File, assetType: string) => {
     const fd = new FormData();
@@ -118,7 +131,7 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
           type="file"
           accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/ogg,audio/flac,audio/wav,audio/*"
           className="hidden"
-          onChange={(e) => setAudioFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => setAudioFile(pickUnder(e.target.files?.[0], MAX_AUDIO_MB, "The audio file"))}
         />
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 mb-2">
           <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
@@ -158,7 +171,7 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+          onChange={(e) => setCoverFile(pickUnder(e.target.files?.[0], MAX_COVER_MB, "The cover"))}
         />
         <span className="w-9 h-9 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-center shrink-0 overflow-hidden">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="text-white/40">
@@ -167,7 +180,7 @@ function UploadTrackForm({ onDone }: { onDone: (track: SearchTrack) => void }) {
         </span>
         <span className="flex flex-col">
           <span className="text-[13px] text-white/80">{coverFile ? coverFile.name : "Cover art"}</span>
-          <span className="text-[11.5px] text-white/35">Square image works best · required</span>
+          <span className="text-[11.5px] text-white/35">Square image works best · up to {MAX_COVER_MB}MB · required</span>
         </span>
       </label>
 
