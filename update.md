@@ -10,6 +10,8 @@
 - **Socials.** The footer's Contact section is now Socials, with links to our X, Instagram and Threads.
 - **Featured profiles.** The homepage now has a scrolling strip of community profiles right on the first screen. Hover to pause, click to visit.
 - **Choose a corner for profile details.** Put each detail in the left or right corner at the top of your profile, the bottom of your profile, or the bottom of the page.
+- **Halloween 2026 badge.** Open your badges page between October 26 and November 2 to claim it. It stays on your account for good, but can't be earned after November 2.
+- **Early role on Discord.** Early badge holders now get the Early role in our Discord server.
 
 ## Improvements
 
@@ -17,6 +19,8 @@
 - **Bigger backgrounds.** Free accounts can now upload backgrounds up to 20MB, up from 10MB.
 - **Exact upload limits.** Every upload checks the size as soon as you pick a file, so you no longer wait for a big file to upload only to be told it's too large.
 - **Track covers.** Cover art can now be up to 5MB when editing a track, the same as when uploading one.
+- **Clearer Early badge.** It now shows "Not available" for anyone who can't earn it, instead of only a lock icon.
+- **Cleaner badge icons.** Badge icons on the badges page no longer have a glow behind them.
 
 ## Fixes
 

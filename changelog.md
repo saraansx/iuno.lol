@@ -1,5 +1,17 @@
 # Changelog
 
+## October 26, 2026
+
+### New
+
+- Added the **Halloween 2026** badge. Open your badges page between October 26 and November 2 to claim it, and it stays on your account for good. After November 2 it can no longer be earned.
+- Early badge holders now get the **Early** role in our Discord server.
+
+### Improvements
+
+- The Early badge now shows **Not available** for anyone who can't earn it, instead of only a lock icon.
+- Badge icons on the badges page no longer have a glow behind them.
+
 ## October 24, 2026
 
 ### New

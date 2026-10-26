@@ -52,8 +52,6 @@ export type DetailKey =
 
 export type DetailSide = "left" | "right";
 
-// Corner chosen per detail. A missing side means the slot's normal spot
-// (bottom slots: feedback right, the rest left; top: right).
 export type DetailLayout = {
   sides: Partial<Record<DetailKey, DetailSide>>;
 };
@@ -67,7 +65,6 @@ export function detailSide(layout: DetailLayout, key: DetailKey, slot: DetailPla
 }
 
 export function normalizeDetailLayout(raw: unknown): DetailLayout {
-  // Stored and template data is untrusted: only known keys with "left"/"right" survive.
   const src = (raw && typeof raw === "object" ? raw : {}) as { sides?: unknown };
   const sides: Partial<Record<DetailKey, DetailSide>> = {};
   if (src.sides && typeof src.sides === "object") {

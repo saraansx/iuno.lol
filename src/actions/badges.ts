@@ -11,7 +11,7 @@ import { revalidateProfile } from "@/app/[username]/profile-data";
 import { profileUpdateRateLimit } from "@/lib/rate-limit";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { eq, and, asc, like, sql } from "drizzle-orm";
-import { BADGES, EARLY_CUTOFF_UID, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES } from "@/app/dashboard/customize/badges/badges-data";
+import { BADGES, EARLY_CUTOFF_UID, HALLOWEEN_2026, LEVELS, VIEW_MILESTONES, LIKE_MILESTONES, isHalloween2026Active } from "@/app/dashboard/customize/badges/badges-data";
 import { ROLE_BADGE_MAP, BADGE_ROLE_MAP } from "@/lib/badge-roles";
 import { isPremiumActive } from "@/lib/premium";
 import { RECRUITER_BADGE_ID, refreshRecruiter } from "@/lib/recruiter";
@@ -55,6 +55,7 @@ export async function getMyBadges(): Promise<MyBadges> {
   const totalLikes = user?.likesCount ?? 0;
   const reachedLikes = LIKE_MILESTONES.filter((m) => totalLikes >= m.likes).map((m) => m.id);
   const reached = [...reachedViews, ...reachedLikes];
+  if (isHalloween2026Active()) reached.push(HALLOWEEN_2026.id);
 
   const rows = await db
     .select({ badgeId: schema.userBadges.badgeId, equipped: schema.userBadges.equipped })

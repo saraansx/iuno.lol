@@ -13,7 +13,6 @@ import CustomBadgePromo from "@/components/dashboard/CustomBadgePromo";
 import CustomBadgesSection from "./CustomBadgesSection";
 import type { CustomBadge } from "@/components/profile/layouts/ProfileBadges";
 import DashboardProfilePreview from "@/components/dashboard/DashboardProfilePreview";
-import { badgeGlowFilter } from "@/components/profile/layouts/ProfileBadges";
 import { type FullUser } from "@/lib/features/users/db";
 
 type Badge = (typeof BADGES)[number];
@@ -47,7 +46,7 @@ const ROWS: Array<{ slice: [number, number?]; cols: "md:grid-cols-3" | "md:grid-
   { slice: [6, 9], cols: "md:grid-cols-3" },
   { slice: [9, 12], cols: "md:grid-cols-3" },
   { slice: [12, 15], cols: "md:grid-cols-3" },
-  { slice: [15], cols: "md:grid-cols-2" },
+  { slice: [15], cols: "md:grid-cols-3" },
 ];
 
 function badgeById(id: string): AnyBadge | null {
@@ -62,7 +61,6 @@ function badgeById(id: string): AnyBadge | null {
 
 function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
   const isFilled = "filled" in badge || "level" in badge || "views" in badge || "likes" in badge;
-  const glow = badgeGlowFilter(badge.accent);
   return (
     <svg
       width={size}
@@ -74,7 +72,6 @@ function BadgeIcon({ badge, size = 26 }: { badge: AnyBadge; size?: number }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className="shrink-0"
-      style={glow ? { filter: glow } : undefined}
     >
       {badge.icon}
     </svg>
@@ -191,9 +188,23 @@ function BadgeCell({
       <div className="flex items-center gap-3">
         <BadgeIcon badge={badge} />
         <span className="text-[14px] font-medium text-white tracking-tight min-w-0 truncate">{badge.name}</span>
+        {"tag" in badge && (
+          <span
+            className="shrink-0 text-[11px] font-normal rounded-md px-2 py-0.5 border"
+            style={{ color: badge.accent, borderColor: `${badge.accent}55`, backgroundColor: `${badge.accent}1a` }}
+          >
+            {badge.tag}
+          </span>
+        )}
         <span className="ml-auto shrink-0 flex items-center gap-2">
           {isLocked && (
-            <span className="text-white/30" title={badge.id === "early" ? "Only the first 100 members can earn this badge" : "Locked — sync your Discord roles to unlock"}>
+            <span className="text-white/30" title={
+              badge.id === "early"
+                ? "Only the first 100 members can earn this badge"
+                : badge.id === "halloween-2026"
+                  ? "Only claimable during Halloween 2026 (Oct 26 – Nov 2)"
+                  : "Locked — sync your Discord roles to unlock"
+            }>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -250,7 +261,7 @@ function BadgeCell({
               {ctaLabel ?? CTA_BUTTONS[badge.id].label}
             </button>
           )}
-          {isLocked && (badge.id === "owner" || badge.id === "developer" || badge.id === "early") && (
+          {isLocked && (badge.id === "owner" || badge.id === "developer" || badge.id === "early" || badge.id === "halloween-2026") && (
             <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
               Not available
             </span>
@@ -300,7 +311,6 @@ function LevelsCard({ owned, equipped, onToggle }: { owned: string[]; equipped: 
                 fill={stage.accent}
                 stroke="none"
                 className="shrink-0"
-                style={{ filter: badgeGlowFilter(stage.accent) }}
               >
                 {stage.icon}
               </svg>
@@ -373,7 +383,6 @@ function ViewsCard({ owned, equipped, totalViews, onToggle }: { owned: string[];
                 fill={milestone.accent}
                 stroke="none"
                 className="shrink-0"
-                style={{ filter: badgeGlowFilter(milestone.accent) }}
               >
                 {milestone.icon}
               </svg>
@@ -442,7 +451,6 @@ function LikesCard({ owned, equipped, totalLikes, onToggle }: { owned: string[];
                 fill={milestone.accent}
                 stroke="none"
                 className="shrink-0"
-                style={{ filter: badgeGlowFilter(milestone.accent) }}
               >
                 {milestone.icon}
               </svg>

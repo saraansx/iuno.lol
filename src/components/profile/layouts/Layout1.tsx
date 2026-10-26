@@ -670,8 +670,6 @@ useEffect(() => {
         showFeedbackPublicly={showFeedbackPublicly}
         glowEnabled={iconsGlowEnabled && (feedbackIconGlow ?? false)}
         glowColor={detailGlowColor}
-        // Default className is absolutely positioned; inside a detail row it would sit on top of
-        // other details sharing the corner.
         className="flex items-center gap-2.5"
       />
     ),
