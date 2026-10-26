@@ -20,6 +20,7 @@ export const ROLE_BADGE_MAP: Record<string, string> = {
   "1550934747356598283": "level-30",
   "1550934640385331230": "level-40",
   "1550934783075553402": "level-50",
+  "1564233009320693830": "early",
 };
 
 export const BADGE_ROLE_MAP: Record<string, string> = Object.fromEntries(

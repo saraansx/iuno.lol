@@ -1,6 +1,6 @@
 # New Update: V1.0.2
 
-**Released: October 24, 2026**
+**Released: October 26, 2026**
 
 ## What's new
 

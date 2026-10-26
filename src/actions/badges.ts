@@ -338,6 +338,18 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     }
   }
 
+  const earlyRoleId = BADGE_ROLE_MAP["early"];
+  if (userId <= EARLY_CUTOFF_UID && earlyRoleId && !roles.includes(earlyRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${earlyRoleId}`,
+        { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
+      );
+      if (put.ok) roles.push(earlyRoleId);
+    } catch {
+    }
+  }
+
   const owned = new Set(
     (
       await db
@@ -348,6 +360,7 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   );
 
   for (const [roleId, badgeId] of Object.entries(ROLE_BADGE_MAP)) {
+    if (badgeId === "early") continue;
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 

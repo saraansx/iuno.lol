@@ -12,7 +12,7 @@ import { syncAllRecruiterInvites } from '@/lib/recruiter'
 
 export const maxDuration = 300;
 
-const MAPPED_BADGE_IDS = [...new Set(Object.values(ROLE_BADGE_MAP)), 'early'];
+const MAPPED_BADGE_IDS = [...new Set(Object.values(ROLE_BADGE_MAP))];
 
 function isComingSoon(badgeId: string): boolean {
   const badge = (BADGES as readonly { id: string }[]).find((b) => b.id === badgeId) as
@@ -143,7 +143,9 @@ async function handleSync(request: Request) {
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
       : badgeId === 'verified' ? verifiedByUserId.get(uid) ?? false
       : badgeId === 'donator' ? donatorByUserId.get(uid) ?? false
+      : badgeId === 'early' ? uid <= EARLY_CUTOFF_UID
       : true;
+    const SITE_ROLE_BADGES = [...PAID_BADGES, 'early'] as const;
     const userByDiscordId = new Map(
       users
         .filter((u): u is typeof u & { discordId: string } => !!u.discordId)
@@ -174,7 +176,7 @@ async function handleSync(request: Request) {
     const paidRoleChanges: Array<{ discordId: string; roleId: string; method: 'PUT' | 'DELETE' }> = [];
     for (const [discordId, user] of userByDiscordId) {
       const roles = memberRoles.get(discordId) ?? [];
-      for (const badgeId of PAID_BADGES) {
+      for (const badgeId of SITE_ROLE_BADGES) {
         const roleId = BADGE_ROLE_MAP[badgeId];
         if (!roleId) continue;
         const owns = ownsPaidBadge(badgeId, user.id);
@@ -216,7 +218,7 @@ async function handleSync(request: Request) {
       for (const roleId of roles) {
         const badgeId = ROLE_BADGE_MAP[roleId];
         if (!badgeId || isComingSoon(badgeId)) continue;
-        if (isPaidBadge(badgeId)) continue;
+        if (isPaidBadge(badgeId) || badgeId === 'early') continue;
         const key = `${user.id}:${badgeId}`;
         if (!existingKeys.has(key)) {
           existingKeys.add(key);
