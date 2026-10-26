@@ -15,6 +15,8 @@ const FEATURED = [
   { username: "axmyouknow", avatar: "https://cdn.iuno.lol/u69_1792705562634_oksdsq.png" },
   { username: "kqll", avatar: null },
   { username: "zenitx", avatar: "https://cdn.iuno.lol/u110_1792431895108_7ikn30.png" },
+  { username: "xylen", avatar: "https://cdn.iuno.lol/u196_1792874022167_3b73ny.png" },
+  { username: "katrixgamerz", avatar: "https://cdn.iuno.lol/u207_1793013244566_qenogy.webp" },
 ];
 
 function Row({ copy }: { copy: boolean }) {
