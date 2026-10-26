@@ -1,3 +1,4 @@
+import type { DetailLayout } from "@/components/profile/layouts/ProfilePresetLayout";
 
 export type EffectConfig = {
   auroraColor1: string | null;
@@ -58,6 +59,7 @@ export type EffectConfig = {
   crtwarpPointerWarp: boolean;
   crtwarpPointerStrength: number;
   crtwarpPaused: boolean;
+  detailLayout: DetailLayout | null;
 };
 
 const EFFECT_DEFAULTS: EffectConfig = {
@@ -119,6 +121,7 @@ const EFFECT_DEFAULTS: EffectConfig = {
   crtwarpPointerWarp: true,
   crtwarpPointerStrength: 0.5,
   crtwarpPaused: false,
+  detailLayout: null,
 };
 
 export const EFFECT_CONFIG_KEYS = Object.keys(EFFECT_DEFAULTS) as (keyof EffectConfig)[];

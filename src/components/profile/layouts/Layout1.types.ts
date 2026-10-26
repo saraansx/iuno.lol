@@ -213,6 +213,7 @@ export interface Layout1Props {
   uidPlacement?: string;
   viewsPlacement?: string;
   feedbackPlacement?: string;
+  detailLayout?: unknown;
   selectedEffect?: {
     id: string;
     name: string;

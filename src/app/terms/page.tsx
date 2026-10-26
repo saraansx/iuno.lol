@@ -116,7 +116,7 @@ export default async function TermsPage() {
           </p>
           <p>
             Tracks accept MP3, M4A, OGG, FLAC and WAV up to 15MB. Backgrounds go up to
-            10MB free, videos up to 100MB on Premium. Badge icons must be original work
+            20MB free, videos up to 100MB on Premium. Badge icons must be original work
             you made.
           </p>
         </LegalSection>

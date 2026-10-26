@@ -38,6 +38,7 @@ import { DEFAULT_EMBED_COLOR } from "@/lib/og";
 import { isVideoUrl } from "@/lib/utils/media";
 import { sanitizeProfileSettings } from "@/lib/profile-settings-sanitize";
 import { EFFECT_CONFIG_KEYS, packEffectConfig, pickEffectConfig, type EffectConfig } from "@/lib/effect-config";
+import { normalizeDetailLayout } from "@/components/profile/layouts/ProfilePresetLayout";
 import { purgeCloudflareProfileCache } from "@/lib/cloudflare";
 import { isStoredMediaUrl } from "@/lib/cdn";
 import { storageDeleteOwned, storagePut } from "@/lib/storage";
@@ -669,6 +670,7 @@ async function updateLayoutProfileImpl(data: {
   uidPlacement?: string;
   viewsPlacement?: string;
   feedbackPlacement?: string;
+  detailLayout?: unknown;
   contentAlignment?: string;
   avatarPlacement?: string;
 }) {
@@ -756,6 +758,13 @@ async function updateLayoutProfileImpl(data: {
       throw new Error(`Invalid ${field}`);
     }
     setData[field] = value;
+  }
+
+  if (data.detailLayout !== undefined) {
+    const prev = await getUserById(userId);
+    setData.effectConfig = packEffectConfig(pickEffectConfig(prev), {
+      detailLayout: normalizeDetailLayout(data.detailLayout),
+    });
   }
 
   if (data.contentAlignment !== undefined) {

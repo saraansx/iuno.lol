@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     const isTinyAsset = assetType === "favicon" || assetType === "cursor" || assetType === "link-icon" || assetType === "badge";
     const premium = assetType === "background" && isPremiumActive(await getUserById(userId));
     const maxSize = assetType === "background"
-      ? (premium ? PREMIUM_BACKGROUND_MB : 10) * 1024 * 1024
+      ? (premium ? PREMIUM_BACKGROUND_MB : 20) * 1024 * 1024
       : assetType === "track"
       ? 15 * 1024 * 1024
       : isTinyAsset

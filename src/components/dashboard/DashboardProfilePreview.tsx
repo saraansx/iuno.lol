@@ -248,6 +248,7 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       uidPlacement={deferredOverrides.uidPlacement ?? user?.uidPlacement ?? DEFAULT_DETAILS.uid}
       viewsPlacement={deferredOverrides.viewsPlacement ?? user?.viewsPlacement ?? DEFAULT_DETAILS.views}
       feedbackPlacement={deferredOverrides.feedbackPlacement ?? user?.feedbackPlacement ?? DEFAULT_DETAILS.feedback}
+      detailLayout={deferredOverrides.detailLayout ?? user?.detailLayout}
       joinDateEnabled={deferredOverrides.joinDateEnabled ?? user?.joinDateEnabled ?? true}
       joinDateFormat={deferredOverrides.joinDateFormat ?? user?.joinDateFormat ?? "standard"}
       viewsEnabled={deferredOverrides.viewsEnabled ?? user?.viewsEnabled ?? true}

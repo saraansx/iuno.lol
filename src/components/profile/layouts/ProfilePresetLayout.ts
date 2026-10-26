@@ -50,6 +50,35 @@ export type DetailKey =
   | "views"
   | "feedback";
 
+export type DetailSide = "left" | "right";
+
+// Corner chosen per detail. A missing side means the slot's normal spot
+// (bottom slots: feedback right, the rest left; top: right).
+export type DetailLayout = {
+  sides: Partial<Record<DetailKey, DetailSide>>;
+};
+
+export const DETAIL_KEYS: DetailKey[] = ["location", "occupation", "uid", "joinDate", "views", "feedback"];
+
+export const SIDED_SLOTS: DetailPlacement[] = ["top", "bottom-profile", "bottom-page"];
+
+export function detailSide(layout: DetailLayout, key: DetailKey, slot: DetailPlacement): DetailSide {
+  return layout.sides[key] ?? (slot === "top" || key === "feedback" ? "right" : "left");
+}
+
+export function normalizeDetailLayout(raw: unknown): DetailLayout {
+  // Stored and template data is untrusted: only known keys with "left"/"right" survive.
+  const src = (raw && typeof raw === "object" ? raw : {}) as { sides?: unknown };
+  const sides: Partial<Record<DetailKey, DetailSide>> = {};
+  if (src.sides && typeof src.sides === "object") {
+    for (const key of DETAIL_KEYS) {
+      const value = (src.sides as Record<string, unknown>)[key];
+      if (value === "left" || value === "right") sides[key] = value;
+    }
+  }
+  return { sides };
+}
+
 export function normalizePlacement(
   value: string | null | undefined,
   fallback: DetailPlacement

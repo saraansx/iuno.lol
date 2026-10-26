@@ -250,7 +250,7 @@ function BadgeCell({
               {ctaLabel ?? CTA_BUTTONS[badge.id].label}
             </button>
           )}
-          {isLocked && (badge.id === "owner" || badge.id === "developer") && (
+          {isLocked && (badge.id === "owner" || badge.id === "developer" || badge.id === "early") && (
             <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
               Not available
             </span>

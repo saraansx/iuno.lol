@@ -2,7 +2,11 @@
 
 import {
   type DetailKey,
+  type DetailLayout,
   type DetailPlacement,
+  type DetailSide,
+  SIDED_SLOTS,
+  detailSide,
 } from "@/components/profile/layouts/ProfilePresetLayout";
 
 const PLACEMENTS: { id: Exclude<DetailPlacement, "hidden">; label: string }[] = [
@@ -101,12 +105,23 @@ export type DetailPlacementMap = Record<DetailKey, DetailPlacement>;
 interface ProfileDetailsSectionProps {
   placements: DetailPlacementMap;
   setPlacement: (key: DetailKey, value: DetailPlacement) => void;
+  layout: DetailLayout;
+  setLayout: (layout: DetailLayout) => void;
 }
+
+const SIDES: { id: DetailSide; label: string }[] = [
+  { id: "left", label: "Left corner" },
+  { id: "right", label: "Right corner" },
+];
 
 export default function ProfileDetailsSection({
   placements,
   setPlacement,
+  layout,
+  setLayout,
 }: ProfileDetailsSectionProps) {
+  const setSide = (key: DetailKey, side: DetailSide) =>
+    setLayout({ ...layout, sides: { ...layout.sides, [key]: side } });
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 flex flex-col gap-6 shadow-sm">
       <div className="flex flex-col gap-2">
@@ -129,7 +144,7 @@ export default function ProfileDetailsSection({
           </h2>
         </div>
         <p className="text-[13px] text-white/40">
-          Choose where each profile detail appears, or hide it entirely.
+          Choose where each profile detail appears and which corner it sits in, or hide it entirely.
         </p>
       </div>
 
@@ -137,6 +152,7 @@ export default function ProfileDetailsSection({
         {DETAILS.map((detail, index) => {
           const placement = placements[detail.id];
           const isHidden = placement === "hidden";
+          const side = detailSide(layout, detail.id, placement);
 
           return (
             <div
@@ -217,6 +233,29 @@ export default function ProfileDetailsSection({
                   );
                 })}
               </div>
+
+              {SIDED_SLOTS.includes(placement) && (
+                <div className="flex flex-wrap items-center gap-2" role="group" aria-label={`${detail.name} corner`}>
+                  {SIDES.map((s) => {
+                    const isSelected = side === s.id;
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => setSide(detail.id, s.id)}
+                        aria-pressed={isSelected}
+                        className={`text-[12px] px-3 py-1.5 rounded-full border transition-colors cursor-pointer focus:outline-none ${
+                          isSelected
+                            ? "bg-[#111326] border-[#5b6cf5]/40 text-[#5b6cf5] font-medium"
+                            : "bg-[#111111] border-white/5 text-white/50 hover:border-white/15 hover:text-white/80"
+                        }`}
+                      >
+                        {s.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}

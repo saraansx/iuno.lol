@@ -1,7 +1,15 @@
 "use client";
 
 import React from "react";
-import { type DetailKey, type DetailPlacement } from "./ProfilePresetLayout";
+import {
+  type DetailKey,
+  type DetailLayout,
+  type DetailPlacement,
+  type DetailSide,
+  DETAIL_KEYS,
+  detailSide,
+  normalizeDetailLayout,
+} from "./ProfilePresetLayout";
 import { iconGlowFilter } from "./textGlow";
 
 interface DetailValues {
@@ -39,8 +47,8 @@ interface DetailIconGlow {
 
 interface ProfileDetailsProps {
   slot: Exclude<DetailPlacement, "hidden">;
-  only?: DetailKey[];
-  except?: DetailKey[];
+  side?: DetailSide;
+  layout?: DetailLayout;
   values: DetailValues;
   placements: DetailPlacements;
   tooltips: DetailTooltips;
@@ -93,8 +101,8 @@ const ICONS = {
 
 export default function ProfileDetails({
   slot,
-  only,
-  except,
+  side,
+  layout = normalizeDetailLayout(null),
   values,
   placements,
   tooltips,
@@ -104,76 +112,43 @@ export default function ProfileDetails({
   iconGlow,
   iconGlowColor,
 }: ProfileDetailsProps) {
-  const inSlot = (key: DetailKey) => {
-    if (placements[key] !== slot) return false;
-    if (only && !only.includes(key)) return false;
-    if (except?.includes(key)) return false;
-    return true;
-  };
-
-  const chips: React.ReactNode[] = [];
-
   const glowFor = (key: keyof DetailIconGlow): React.CSSProperties => {
     const filter = iconGlowFilter(iconGlowColor, iconGlow?.[key]);
     return filter ? { filter } : {};
   };
 
-  if (inSlot("location") && values.location) {
-    chips.push(
-      <span key="location" className="flex items-center gap-1.5 group relative">
-        <span className="inline-flex shrink-0" style={glowFor("location")}>{ICONS.location}</span>
-        {values.location}
-        {tooltips.location && <Tooltip label="Location" style={tooltipTextStyle} />}
-      </span>
-    );
-  }
+  const iconChip = (key: keyof DetailIconGlow, value: React.ReactNode, label: string, tooltip?: boolean) => (
+    <span key={key} className="flex items-center gap-1.5 group relative">
+      <span className="inline-flex shrink-0" style={glowFor(key)}>{ICONS[key]}</span>
+      {value}
+      {tooltip && <Tooltip label={label} style={tooltipTextStyle} />}
+    </span>
+  );
 
-  if (inSlot("occupation") && values.occupation) {
-    chips.push(
-      <span key="occupation" className="flex items-center gap-1.5 group relative">
-        <span className="inline-flex shrink-0" style={glowFor("occupation")}>{ICONS.occupation}</span>
-        {values.occupation}
-        {tooltips.occupation && <Tooltip label="Occupation" style={tooltipTextStyle} />}
-      </span>
-    );
-  }
+  const render: Record<DetailKey, () => React.ReactNode> = {
+    location: () => values.location && iconChip("location", values.location, "Location", tooltips.location),
+    occupation: () => values.occupation && iconChip("occupation", values.occupation, "Occupation", tooltips.occupation),
+    uid: () => values.uid ? iconChip("uid", values.uid, "UID", tooltips.uid) : null,
+    joinDate: () => values.joinDate && iconChip("joinDate", values.joinDate, "Join date", tooltips.joinDate),
+    views: () =>
+      values.views && (
+        <span key="views" className="flex items-center gap-2 group relative">
+          {values.views}
+          {tooltips.views && <Tooltip label="Views" style={tooltipTextStyle} />}
+        </span>
+      ),
+    feedback: () =>
+      values.feedback && (
+        <span key="feedback" className="flex items-center">
+          {values.feedback}
+        </span>
+      ),
+  };
 
-  if (inSlot("uid") && values.uid) {
-    chips.push(
-      <span key="uid" className="flex items-center gap-1.5 group relative">
-        <span className="inline-flex shrink-0" style={glowFor("uid")}>{ICONS.uid}</span>
-        {values.uid}
-        {tooltips.uid && <Tooltip label="UID" style={tooltipTextStyle} />}
-      </span>
-    );
-  }
-
-  if (inSlot("joinDate") && values.joinDate) {
-    chips.push(
-      <span key="joinDate" className="flex items-center gap-1.5 group relative">
-        <span className="inline-flex shrink-0" style={glowFor("joinDate")}>{ICONS.joinDate}</span>
-        {values.joinDate}
-        {tooltips.joinDate && <Tooltip label="Join date" style={tooltipTextStyle} />}
-      </span>
-    );
-  }
-
-  if (inSlot("views") && values.views) {
-    chips.push(
-      <span key="views" className="flex items-center gap-2 group relative">
-        {values.views}
-        {tooltips.views && <Tooltip label="Views" style={tooltipTextStyle} />}
-      </span>
-    );
-  }
-
-  if (inSlot("feedback") && values.feedback) {
-    chips.push(
-      <span key="feedback" className="flex items-center">
-        {values.feedback}
-      </span>
-    );
-  }
+  const chips = DETAIL_KEYS
+    .filter((key) => placements[key] === slot && (!side || detailSide(layout, key, slot) === side))
+    .map((key) => render[key]())
+    .filter(Boolean);
 
   if (chips.length === 0) return null;
 

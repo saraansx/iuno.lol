@@ -22,7 +22,9 @@ import {
   getFrameDefaults,
   normalizeAlignment,
   normalizeAvatarPlacement,
+  normalizeDetailLayout,
   normalizePlacement,
+  type DetailLayout,
 } from "@/components/profile/layouts/ProfilePresetLayout";
 import SaveBar from "@/components/dashboard/SaveBar";
 import { updateLayoutProfile } from "@/actions/profile";
@@ -115,6 +117,13 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
     updateOverrides({ [field]: value === initial ? undefined : value });
   };
 
+  const initialDetailLayout = normalizeDetailLayout(user?.detailLayout);
+  const detailLayout = normalizeDetailLayout(overrides.detailLayout ?? initialDetailLayout);
+  const setDetailLayout = (val: DetailLayout) =>
+    updateOverrides({
+      detailLayout: JSON.stringify(val) === JSON.stringify(initialDetailLayout) ? undefined : val,
+    });
+
   const presetDefaults = getDetailDefaults(preset);
   const presetFrame = getFrameDefaults(preset);
   const isCustom =
@@ -149,7 +158,12 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
         />
         <HeaderSection avatarPlacement={avatarPlacement} setAvatarPlacement={setAvatarPlacement} />
 
-        <ProfileDetailsSection placements={placements} setPlacement={setPlacement} />
+        <ProfileDetailsSection
+          placements={placements}
+          setPlacement={setPlacement}
+          layout={detailLayout}
+          setLayout={setDetailLayout}
+        />
       </div>
 
       <DashboardProfilePreview
@@ -167,6 +181,7 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
           uidPlacement: placements.uid,
           viewsPlacement: placements.views,
           feedbackPlacement: placements.feedback,
+          detailLayout,
         }}
       />
 
@@ -188,6 +203,7 @@ export default function LayoutProfileClient({ user, backgrounds }: { user: FullU
               uidPlacement: placements.uid,
               viewsPlacement: placements.views,
               feedbackPlacement: placements.feedback,
+              detailLayout,
             });
             toast.success("Profile Saved Sucessfully");
             scheduleClear();

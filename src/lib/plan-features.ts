@@ -1,7 +1,7 @@
 export const FREE_FEATURES = [
   "Custom username & profile page",
   "1 background, 1 audio track, 3 widgets",
-  "Background uploads up to 10MB",
+  "Background uploads up to 20MB",
   "Core background & text effects",
   "Discord embeds & animated entry",
   "Custom fonts, colors & layouts",

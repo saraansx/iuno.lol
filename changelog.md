@@ -9,10 +9,12 @@
 - The homepage now shows **two showcase profiles**
 - The footer's **Contact** section is now **Socials**, with links to our X, Instagram and Threads.
 - Added **featured profiles** to the homepage. A scrolling strip of community profiles sits at the bottom of the first screen; hover it to pause, and click any profile to open it.
+- Profile details can now go in the **left or right corner**. Pick a corner for each detail at the top of your profile, the bottom of your profile, or the bottom of the page.
 
 ### Improvements
 
 - The image host now accepts files up to **500MB** each, up from 200MB.
+- Free accounts can now upload backgrounds up to **20MB**, up from 10MB.
 - Upload limits are now exact everywhere. A file over the limit is rejected as soon as you pick it, instead of after it has finished uploading.
 - Music cover art can now be up to 5MB when editing a track, the same as when uploading one.
 

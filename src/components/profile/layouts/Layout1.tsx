@@ -31,11 +31,12 @@ import {
   DEFAULT_DETAILS,
   DEFAULT_FRAME,
   DEFAULT_PRESET,
-  type DetailKey,
   getPresetLayout,
   normalizeAlignment,
   normalizeAvatarPlacement,
+  normalizeDetailLayout,
   normalizePlacement,
+  type DetailSide,
 } from "./ProfilePresetLayout";
 import ProfileDetails, {
   type DetailPlacements,
@@ -259,6 +260,7 @@ const Layout1 = ({
   uidPlacement,
   viewsPlacement,
   feedbackPlacement,
+  detailLayout,
   joinDateEnabled = false,
   joinDateFormat = "Absolute (July 14, 2026)",
   viewsEnabled = true,
@@ -607,6 +609,8 @@ useEffect(() => {
       : "hidden",
   };
 
+  const detailOrder = normalizeDetailLayout(detailLayout);
+
   const detailTooltips: DetailTooltips = {
     location: showLocationTooltip,
     occupation: showOccupationTooltip,
@@ -666,6 +670,9 @@ useEffect(() => {
         showFeedbackPublicly={showFeedbackPublicly}
         glowEnabled={iconsGlowEnabled && (feedbackIconGlow ?? false)}
         glowColor={detailGlowColor}
+        // Default className is absolutely positioned; inside a detail row it would sit on top of
+        // other details sharing the corner.
+        className="flex items-center gap-2.5"
       />
     ),
   };
@@ -673,12 +680,12 @@ useEffect(() => {
   const detailSlot = (
     slot: "top" | "beside" | "bottom-profile" | "bottom-page",
     className = "",
-    filter: { only?: DetailKey[]; except?: DetailKey[] } = {}
+    side?: DetailSide
   ) => (
     <ProfileDetails
       slot={slot}
-      only={filter.only}
-      except={filter.except}
+      side={side}
+      layout={detailOrder}
       values={detailValues}
       placements={detailPlacements}
       tooltips={detailTooltips}
@@ -824,8 +831,8 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
 
   const pageCornerDetails = (
     <>
-      {detailSlot("bottom-page", `${BADGE_CLASSES.page} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, { except: ["feedback"] })}
-      {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:pb-3 max-sm:justify-end`, { only: ["feedback"] })}
+      {detailSlot("bottom-page", `${BADGE_CLASSES.page} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, "left")}
+      {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:pb-3 max-sm:justify-end`, "right")}
     </>
   );
 
@@ -1079,14 +1086,17 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
               </div>
             )}
 
-            {detailSlot(
-              "top",
-              `justify-end ${
+            {}
+            <div
+              className={`flex items-start gap-3 empty:hidden ${
                 hasBanner
                   ? "absolute top-3 left-0 right-0 z-30 px-4 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
                   : "w-full pt-5 px-4"
-              }`
-            )}
+              }`}
+            >
+              {detailSlot("top", "justify-start", "left")}
+              {detailSlot("top", "justify-end ml-auto", "right")}
+            </div>
 
             <div
               className={
@@ -1167,8 +1177,8 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
             <div className="w-full pb-4 sm:pb-16" aria-hidden />
           </div>
 
-          {detailSlot("bottom-profile", `${badgeClass} max-sm:static max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4`, { except: ["feedback"] })}
-          {detailSlot("bottom-profile", `${BADGE_CLASSES.cardRight} max-sm:static max-sm:w-full max-sm:mt-2 max-sm:px-6 max-sm:pb-4 max-sm:justify-end`, { only: ["feedback"] })}
+          {detailSlot("bottom-profile", `${badgeClass} max-sm:static max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4`, "left")}
+          {detailSlot("bottom-profile", `${BADGE_CLASSES.cardRight} max-sm:static max-sm:w-full max-sm:mt-2 max-sm:px-6 max-sm:pb-4 max-sm:justify-end`, "right")}
 
         </div>
 

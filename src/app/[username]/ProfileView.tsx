@@ -304,6 +304,7 @@ export default async function ProfileView({
         uidPlacement={user.uidPlacement ?? undefined}
         viewsPlacement={user.viewsPlacement ?? undefined}
         feedbackPlacement={user.feedbackPlacement ?? undefined}
+        detailLayout={user.detailLayout}
         widgets={user.widgets ?? undefined}
         links={(user.links as import("@/lib/links").ProfileLink[] | null) ?? undefined}
         linksAlignment={user.linksAlignment ?? undefined}
