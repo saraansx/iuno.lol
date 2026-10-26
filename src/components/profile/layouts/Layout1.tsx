@@ -830,10 +830,10 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
   const shapeClass = SHAPE_CLASSES[avatarShape] || "rounded-[24px]";
 
   const pageCornerDetails = (
-    <>
-      {detailSlot("bottom-page", `${BADGE_CLASSES.page} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-3 max-sm:px-6`, "left")}
-      {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} pointer-events-auto max-sm:static max-sm:w-full max-sm:mt-1.5 max-sm:px-6 max-sm:pb-3 max-sm:justify-end`, "right")}
-    </>
+    <div className="contents max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-3 max-sm:w-full max-sm:mt-3 max-sm:px-6 max-sm:pb-3 empty:hidden">
+      {detailSlot("bottom-page", `${BADGE_CLASSES.page} pointer-events-auto max-sm:static`, "left")}
+      {detailSlot("bottom-page", `${BADGE_CLASSES.pageRight} pointer-events-auto max-sm:static max-sm:ml-auto`, "right")}
+    </div>
   );
 
   const commentsButton = commentsEnabled && (
@@ -1177,8 +1177,11 @@ const textBlock = (text: string, align: "left" | "center" | "right") => (
             <div className="w-full pb-4 sm:pb-16" aria-hidden />
           </div>
 
-          {detailSlot("bottom-profile", `${badgeClass} max-sm:static max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4`, "left")}
-          {detailSlot("bottom-profile", `${BADGE_CLASSES.cardRight} max-sm:static max-sm:w-full max-sm:mt-2 max-sm:px-6 max-sm:pb-4 max-sm:justify-end`, "right")}
+          {}
+          <div className="contents max-sm:flex max-sm:flex-wrap max-sm:items-center max-sm:gap-3 max-sm:w-full max-sm:mt-4 max-sm:px-6 max-sm:pb-4 empty:hidden">
+            {detailSlot("bottom-profile", `${badgeClass} max-sm:static`, "left")}
+            {detailSlot("bottom-profile", `${BADGE_CLASSES.cardRight} max-sm:static max-sm:ml-auto`, "right")}
+          </div>
 
         </div>
 

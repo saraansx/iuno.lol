@@ -8,6 +8,7 @@
 - New accounts no longer get a very large UID. The accounts that did now have normal UIDs.
 - Switching tabs on the badges page now works on the first tap on mobile, instead of staying on the old tab.
 - The music player is no longer blocked by "Background sound is on" when your backgrounds are only images.
+- On mobile, profile details in the left and right bottom corners sit on one line again, instead of being split across two lines with a big gap.
 
 ---
 

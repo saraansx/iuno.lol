@@ -18,6 +18,7 @@
 - Fixed some new accounts getting a very large UID. Those accounts now have normal UIDs.
 - Fixed the badges page sometimes staying on the old tab on mobile when you tapped Badge Customization.
 - Fixed the music page saying "Background sound is on" when your backgrounds were only images, with no way to turn it off.
+- Fixed profile details in the bottom left and right corners being split onto two lines on mobile. They now sit on one line, like the top of the profile.
 
 ## October 24, 2026
 
