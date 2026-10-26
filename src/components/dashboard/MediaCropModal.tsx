@@ -14,6 +14,7 @@ interface MediaCropModalProps {
   cropShape?: "round" | "rect";
   aspect?: number;
   title?: string;
+  outputType?: "image/webp" | "image/jpeg";
 }
 
 export default function MediaCropModal({
@@ -26,6 +27,7 @@ export default function MediaCropModal({
   cropShape = "rect",
   aspect = 3 / 1,
   title = "Crop your media",
+  outputType = "image/webp",
 }: MediaCropModalProps) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -86,9 +88,9 @@ export default function MediaCropModal({
           reject(new Error("Canvas is empty"));
           return;
         }
-        const ext = blob.type === "image/webp" ? "webp" : "png";
+        const ext = blob.type === "image/webp" ? "webp" : blob.type === "image/jpeg" ? "jpg" : "png";
         resolve(new File([blob], `cropped-media.${ext}`, { type: blob.type }));
-      }, "image/webp", 0.9);
+      }, outputType, 0.9);
     });
   };
 

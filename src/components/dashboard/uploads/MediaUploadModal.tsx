@@ -269,6 +269,7 @@ export default function MediaUploadModal({
           rawFile={rawSelectedFile}
           isVideo={false}
           cropShape={cropShape}
+          outputType={assetType === "embed" ? "image/jpeg" : "image/webp"}
           aspect={cropAspect ?? 3 / 1}
           title={cropTitle ?? "Crop your media"}
           onClose={handleCropClose}
