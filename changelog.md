@@ -12,6 +12,11 @@
 - The Early badge now shows **Not available** for anyone who can't earn it, instead of only a lock icon.
 - Badge icons on the badges page no longer have a glow behind them.
 
+### Fixes
+
+- Fixed embed card backgrounds and icons not showing when your profile link was shared. If yours shows a blank card, upload your embed images again.
+- Fixed some new accounts getting a very large UID. Those accounts now have normal UIDs.
+
 ## October 24, 2026
 
 ### New

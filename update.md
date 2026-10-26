@@ -1,4 +1,15 @@
-# New Update: V1.0.2
+# New Update: V1.0.3
+
+**Released: October 26, 2026**
+
+## Fixes
+
+- Embed card backgrounds and icons show up again when your profile link is shared. If yours shows a blank card, upload your embed images again.
+- New accounts no longer get a very large UID. The accounts that did now have normal UIDs.
+
+---
+
+# Previous Update: V1.0.2
 
 **Released: October 26, 2026**
 
