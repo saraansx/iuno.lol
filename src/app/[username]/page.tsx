@@ -8,6 +8,16 @@ import JsonLd from '@/components/seo/JsonLd'
 const absoluteUrl = (url: string) =>
   /^https?:\/\//i.test(url) ? url : `${SITE_CONFIG.url}${url.startsWith('/') ? '' : '/'}${url}`
 
+function plainBio(bio: string | null | undefined): string | null {
+  const text = (bio ?? '')
+    .replace(/<a?:\w+:\d+>/g, '')
+    .replace(/[*_~`|>#]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  if (!text) return null
+  return text.length > 160 ? `${text.slice(0, 157).trimEnd()}...` : text
+}
+
 export const revalidate = 604800;
 
 export const dynamicParams = true;
@@ -40,7 +50,10 @@ export async function generateMetadata(
 
   const row = rows[0]
   const title = row.embedTitle?.trim() || `@${row.username}`
-  const description = row.embedDescription?.trim() || undefined
+  const description =
+    row.embedDescription?.trim() ||
+    plainBio(row.bio) ||
+    `${row.displayName?.trim() || `@${row.username}`} on ${SITE_CONFIG.name}. Links, music and more in one place.`
   const image = buildOgImageUrl(row.username, row)
   return {
     title: { absolute: formatTabTitle(row.tabTitle, row.username) },

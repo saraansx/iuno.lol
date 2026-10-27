@@ -2,6 +2,10 @@
 
 **Released: October 26, 2026**
 
+## Improvements
+
+- **Better Google results.** Every profile now gives search engines a short description, taken from your embed description or your bio.
+
 ## Fixes
 
 - Embed card backgrounds and icons show up again when your profile link is shared. If yours shows a blank card, upload your embed images again.

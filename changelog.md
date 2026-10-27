@@ -1,5 +1,11 @@
 # Changelog
 
+## October 27, 2026
+
+### Improvements
+
+- Every profile now gives search engines a short description, using your embed description or your bio, so profiles show up better in Google results.
+
 ## October 26, 2026
 
 ### New
