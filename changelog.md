@@ -5,6 +5,7 @@
 ### Fixes
 
 - Fixed a yellow box showing around charts, like the Views chart, after you clicked on them.
+- Fixed pages crashing with "Something went wrong" after translating iuno.lol with your browser, like Google Translate.
 
 ## October 27, 2026
 

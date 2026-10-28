@@ -116,6 +116,14 @@ export default function RootLayout({
       lang="en"
       className={`${geistMono.variable} ${poppins.variable} ${inter.variable} ${comfortaa.variable} ${caviarDreams.variable} h-full antialiased`}
     >
+      <head>
+        {}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){if(typeof Node!=="function")return;var r=Node.prototype.removeChild;Node.prototype.removeChild=function(c){if(c.parentNode!==this)return c;return r.apply(this,arguments)};var i=Node.prototype.insertBefore;Node.prototype.insertBefore=function(n,ref){if(ref&&ref.parentNode!==this)return n;return i.apply(this,arguments)}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col bg-[#080808] text-white relative" style={{ fontFamily: "var(--font-comfortaa)" }}>
         <JsonLd data={siteJsonLd} />
         <ConditionalBackground />

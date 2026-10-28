@@ -50,7 +50,6 @@ async function ownDomain(userId: number, id: number) {
   return row;
 }
 
-// A pending domain nobody verified in time is freed, so someone who doesn't own it can't block the real owner.
 async function releaseStalePending(hostname: string) {
   const cutoff = new Date(Date.now() - PENDING_HOURS * 60 * 60 * 1000);
   const d = schema.userDomains;

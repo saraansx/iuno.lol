@@ -104,7 +104,6 @@ export async function DELETE(req: Request) {
     }
 
     if (deletedUrls.length > 0) {
-      // Also purge the custom-domain copies, or Cloudflare keeps serving deleted files there.
       const base = await imageShareBase(userId);
       await purgeCloudflareFiles([...deletedUrls, ...deletedUrls.map((u) => toShareUrl(u, base))]);
     }

@@ -20,6 +20,7 @@
 - The music player is no longer blocked by "Background sound is on" when your backgrounds are only images.
 - On mobile, profile details in the left and right bottom corners sit on one line again, instead of being split across two lines with a big gap.
 - Clicking a chart, like the Views chart, no longer draws a yellow box around it.
+- Translating iuno.lol with your browser, like Google Translate, no longer crashes the page.
 
 ---
 

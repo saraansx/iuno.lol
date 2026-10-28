@@ -54,7 +54,6 @@ export async function POST(req: Request, ctx: Ctx) {
     }
 
     await setImageHostFilePassword(r.userId, r.id, await hashPassword(r.password));
-    // Purge the custom-domain copy too, or a newly locked file stays public there.
     await purgeCloudflareFiles([r.file.url, toShareUrl(r.file.url, await imageShareBase(r.userId))]);
     return NextResponse.json({ locked: true });
   } catch (error) {
