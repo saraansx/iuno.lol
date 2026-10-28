@@ -10,6 +10,7 @@ type FilterKey = "all" | "image" | "video" | "favorite";
 interface GalleryFile {
   id: number;
   url: string;
+  shareUrl?: string;
   name: string;
   size: number;
   kind: string;
@@ -244,7 +245,7 @@ export default function ImageHostGalleryClient() {
   const copyLink = async (file: GalleryFile) => {
     setMenuOpenId(null);
     try {
-      await navigator.clipboard.writeText(file.url);
+      await navigator.clipboard.writeText(file.shareUrl ?? file.url);
       toast.success("Link copied");
     } catch {
       toast.error("Couldn't copy link");
@@ -252,7 +253,7 @@ export default function ImageHostGalleryClient() {
   };
 
   const openFile = (file: GalleryFile) => {
-    if (file.locked) window.open(file.url, "_blank", "noopener,noreferrer");
+    if (file.locked) window.open(file.shareUrl ?? file.url, "_blank", "noopener,noreferrer");
     else setViewer(file);
   };
 
@@ -564,7 +565,7 @@ function FileCard({
               className="absolute right-0 top-full mt-1.5 w-44 origin-top-right rounded-xl border border-white/10 bg-[#161616] p-1 shadow-[0_10px_28px_-6px_rgba(0,0,0,0.55)]"
             >
               <a
-                href={file.url}
+                href={file.shareUrl ?? file.url}
                 target="_blank"
                 rel="noreferrer"
                 onClick={onCloseMenu}
@@ -855,7 +856,7 @@ function Viewer({ file, onClose }: { file: GalleryFile; onClose: () => void }) {
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <a
-              href={file.url}
+              href={file.shareUrl ?? file.url}
               target="_blank"
               rel="noreferrer"
               aria-label="Open in new tab"

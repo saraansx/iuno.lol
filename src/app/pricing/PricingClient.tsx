@@ -17,7 +17,7 @@ const AuroraEffect = dynamic(
 import { useState } from "react";
 import { useHeavyFxAllowed } from "@/lib/heavy-fx";
 import { motion } from "framer-motion";
-import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, DONATOR_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN, IMAGE_HOST_PLAN, VERIFIED_PLAN, DONATOR_PLAN, BADGE_TOKEN_PLAN, ALIAS_TOKEN_PLAN, DOMAIN_TOKEN_PLAN, CURRENCIES, type Currency } from "@/lib/payments/plans";
 
 interface PricingProps {
   isAuthenticated?: boolean;
@@ -515,6 +515,24 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                   <circle cx="12" cy="8" r="4" />
                   <path d="M4 20.5C4 16.9 7.6 14 12 14s8 2.9 8 6.5a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5Z" />
+                </svg>
+              }
+            />
+            <TokenCard
+              title="Domain Token"
+              price={`${DOMAIN_TOKEN_PLAN[currency].symbol}${DOMAIN_TOKEN_PLAN[currency].display}`}
+              features={[
+                "Connect one custom domain",
+                "Use it for your profile or Image Host",
+                "Keep it private or share it publicly",
+                "Domains work without Premium",
+              ]}
+              cta="Buy Domain Token"
+              onClick={() => router.push(isAuthenticated ? "/checkout/domain-token" : "/register")}
+              icon={
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z" />
                 </svg>
               }
             />

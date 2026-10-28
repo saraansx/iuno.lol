@@ -10,6 +10,7 @@ import {
   imageHostKind,
 } from "@/lib/image-host";
 import { recordImageHostFile, getImageHostUsedBytes } from "@/lib/features/image-host/db";
+import { imageShareBase, toShareUrl } from "@/lib/features/domains";
 import { storageConfigured, storageDeleteKeys, storagePut } from "@/lib/storage";
 import { redis } from "@/lib/redis";
 
@@ -122,9 +123,9 @@ export async function POST(req: Request) {
       size: file.size,
       kind,
     });
-    const usedBytes = await getImageHostUsedBytes(userId);
+    const [usedBytes, base] = await Promise.all([getImageHostUsedBytes(userId), imageShareBase(userId)]);
 
-    return NextResponse.json({ url, kind, size: file.size, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
+    return NextResponse.json({ url: toShareUrl(url, base), kind, size: file.size, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
   } catch (error) {
     console.error("[image-host] Upload error:", error);
     return NextResponse.json({ error: "Failed to upload file" }, { status: 500 });

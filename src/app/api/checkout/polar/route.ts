@@ -11,6 +11,7 @@ import {
   DONATOR_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
   ALIAS_TOKEN_PLAN_TAG,
+  DOMAIN_TOKEN_PLAN_TAG,
   PREMIUM,
   getPlan,
   isCurrency,
@@ -51,6 +52,7 @@ export async function POST(request: NextRequest) {
     : plan.tag === DONATOR_PLAN_TAG ? "/checkout/donator"
     : plan.tag === BADGE_TOKEN_PLAN_TAG ? "/checkout/badge-token"
     : plan.tag === ALIAS_TOKEN_PLAN_TAG ? "/checkout/alias-token"
+    : plan.tag === DOMAIN_TOKEN_PLAN_TAG ? "/checkout/domain-token"
     : "/checkout";
   try {
     const checkout = await createPolarCheckout({

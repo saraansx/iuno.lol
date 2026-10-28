@@ -2,6 +2,12 @@
 
 **Released: October 26, 2026**
 
+## What's new
+
+- **Domain Tokens.** $0.99 / ₹90 each. One token = one custom domain, and anyone can buy them.
+- **Custom domains.** Connect your own domain in Settings → Domain and use it for your profile (yourdomain.com/username) or your Image Host links. Add two DNS records, hit Verify, and it's live.
+- **Private or Public.** Keep a domain to yourself, or make it public so other iuno.lol users can use it too. Your iuno.lol link always keeps working, and if a domain is removed everyone goes back to iuno.lol and host.iuno.lol.
+
 ## Improvements
 
 - **Better Google results.** Every profile now gives search engines a short description, taken from your embed description or your bio.

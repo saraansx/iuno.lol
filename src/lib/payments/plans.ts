@@ -30,12 +30,18 @@ export const ALIAS_TOKEN_PLAN = {
   INR: { symbol: "₹", display: "120", amount: 12000, label: "INR ₹" },
 } as const;
 
+export const DOMAIN_TOKEN_PLAN = {
+  USD: { symbol: "$", display: "0.99", amount: 99, label: "USD $" },
+  INR: { symbol: "₹", display: "90", amount: 9000, label: "INR ₹" },
+} as const;
+
 export const PREMIUM_PLAN_TAG = "premium_lifetime";
 export const IMAGE_HOST_PLAN_TAG = "image_host_lifetime";
 export const VERIFIED_PLAN_TAG = "verified_lifetime";
 export const DONATOR_PLAN_TAG = "donator_lifetime";
 export const BADGE_TOKEN_PLAN_TAG = "badge_token";
 export const ALIAS_TOKEN_PLAN_TAG = "alias_token";
+export const DOMAIN_TOKEN_PLAN_TAG = "domain_token";
 
 export const PREMIUM_ALIAS_SLOTS_PER_TOKEN = 4;
 
@@ -44,7 +50,7 @@ export function aliasSlots(tokens: number, premium: boolean): number {
 }
 
 export type Currency = keyof typeof PREMIUM_PLAN;
-export const PLAN_TAGS = [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, DONATOR_PLAN_TAG, BADGE_TOKEN_PLAN_TAG, ALIAS_TOKEN_PLAN_TAG] as const;
+export const PLAN_TAGS = [PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, DONATOR_PLAN_TAG, BADGE_TOKEN_PLAN_TAG, ALIAS_TOKEN_PLAN_TAG, DOMAIN_TOKEN_PLAN_TAG] as const;
 export type PlanTag = (typeof PLAN_TAGS)[number];
 
 export const CURRENCIES = Object.keys(PREMIUM_PLAN) as Currency[];
@@ -96,6 +102,12 @@ export const ALIAS_TOKEN: Plan = {
   prices: ALIAS_TOKEN_PLAN,
 };
 
+export const DOMAIN_TOKEN: Plan = {
+  tag: DOMAIN_TOKEN_PLAN_TAG,
+  name: "Domain Token",
+  prices: DOMAIN_TOKEN_PLAN,
+};
+
 const PLANS: Record<string, Plan> = {
   [PREMIUM_PLAN_TAG]: PREMIUM,
   [IMAGE_HOST_PLAN_TAG]: IMAGE_HOST,
@@ -103,6 +115,7 @@ const PLANS: Record<string, Plan> = {
   [DONATOR_PLAN_TAG]: DONATOR,
   [BADGE_TOKEN_PLAN_TAG]: BADGE_TOKEN,
   [ALIAS_TOKEN_PLAN_TAG]: ALIAS_TOKEN,
+  [DOMAIN_TOKEN_PLAN_TAG]: DOMAIN_TOKEN,
 };
 
 export function getPlan(tag: string | null | undefined): Plan | null {
@@ -116,6 +129,7 @@ export function fieldsForPlan(plan: Plan) {
   if (plan.tag === DONATOR_PLAN_TAG) return { hasDonator: true };
   if (plan.tag === BADGE_TOKEN_PLAN_TAG) return { badgeTokens: sql`badge_tokens + 1` };
   if (plan.tag === ALIAS_TOKEN_PLAN_TAG) return { aliasTokens: sql`alias_tokens + 1` };
+  if (plan.tag === DOMAIN_TOKEN_PLAN_TAG) return { domainTokens: sql`domain_tokens + 1` };
   return { isPremium: true };
 }
 
@@ -125,6 +139,7 @@ export function revokeFieldsForPlan(plan: Plan) {
   if (plan.tag === DONATOR_PLAN_TAG) return { hasDonator: false };
   if (plan.tag === BADGE_TOKEN_PLAN_TAG) return { badgeTokens: sql`GREATEST(badge_tokens - 1, 0)` };
   if (plan.tag === ALIAS_TOKEN_PLAN_TAG) return { aliasTokens: sql`GREATEST(alias_tokens - 1, 0)` };
+  if (plan.tag === DOMAIN_TOKEN_PLAN_TAG) return { domainTokens: sql`GREATEST(domain_tokens - 1, 0)` };
   return { isPremium: false };
 }
 
@@ -135,7 +150,7 @@ export function ownsPlan(
   if (plan.tag === IMAGE_HOST_PLAN_TAG) return Boolean(user.hasImageHost);
   if (plan.tag === VERIFIED_PLAN_TAG) return Boolean(user.hasVerified);
   if (plan.tag === DONATOR_PLAN_TAG) return Boolean(user.hasDonator);
-  if (plan.tag === BADGE_TOKEN_PLAN_TAG || plan.tag === ALIAS_TOKEN_PLAN_TAG) return false;
+  if (plan.tag === BADGE_TOKEN_PLAN_TAG || plan.tag === ALIAS_TOKEN_PLAN_TAG || plan.tag === DOMAIN_TOKEN_PLAN_TAG) return false;
   return Boolean(user.isPremium);
 }
 

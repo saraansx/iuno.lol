@@ -23,6 +23,7 @@ import { invalidateLeaderboardCache } from "@/lib/features/leaderboard";
 import { duplicateKey, UserFacingError } from "@/lib/errors";
 import { isPremiumActive } from "@/lib/premium";
 import { aliasSlots } from "@/lib/payments/plans";
+import { deleteUserDomains } from "@/lib/features/domains";
 
 export type AliasRow = { id: number; alias: string; createdAt: string };
 export type AliasState = { aliases: AliasRow[]; tokens: number; slots: number; premium: boolean };
@@ -664,6 +665,7 @@ export async function confirmDeleteAccount(): Promise<Result> {
         if (keys.length) await redis.del(...keys);
       } while (cursor !== '0');
     } catch {}
+    await deleteUserDomains(victimId);
     await db.delete(schema.users).where(eq(schema.users.id, victimId));
     await redis.del(deleteOtpKey(victimId));
     await redis.del(deletePwOkKey(victimId));

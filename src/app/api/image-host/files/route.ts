@@ -11,6 +11,7 @@ import {
   deleteImageHostFiles,
   type ImageHostFilter,
 } from "@/lib/features/image-host/db";
+import { imageShareBase, toShareUrl } from "@/lib/features/domains";
 
 const FILTERS: ImageHostFilter[] = ["all", "image", "video", "favorite"];
 const MAX_IDS = 100;
@@ -39,8 +40,8 @@ export async function GET(req: Request) {
     const filterParam = searchParams.get("filter") as ImageHostFilter | null;
     const filter: ImageHostFilter = filterParam && FILTERS.includes(filterParam) ? filterParam : "all";
 
-    const { files, total } = await listImageHostFiles(userId, { limit, offset, filter });
-    return NextResponse.json({ files, total, hasMore: offset + files.length < total });
+    const [{ files, total }, base] = await Promise.all([listImageHostFiles(userId, { limit, offset, filter }), imageShareBase(userId)]);
+    return NextResponse.json({ files: files.map((f) => ({ ...f, shareUrl: toShareUrl(f.url, base) })), total, hasMore: offset + files.length < total });
   } catch (error) {
     console.error("[image-host] List files error:", error);
     return NextResponse.json({ error: "Failed to load files" }, { status: 500 });
@@ -102,7 +103,11 @@ export async function DELETE(req: Request) {
       }
     }
 
-    if (deletedUrls.length > 0) await purgeCloudflareFiles(deletedUrls);
+    if (deletedUrls.length > 0) {
+      // Also purge the custom-domain copies, or Cloudflare keeps serving deleted files there.
+      const base = await imageShareBase(userId);
+      await purgeCloudflareFiles([...deletedUrls, ...deletedUrls.map((u) => toShareUrl(u, base))]);
+    }
 
     return NextResponse.json({ deletedIds, usedBytes, quotaBytes: IMAGE_HOST_QUOTA_BYTES });
   } catch (error) {

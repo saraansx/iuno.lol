@@ -7,6 +7,7 @@ import { getUserAliases, getUserById, userHasPassword } from "@/lib/features/use
 import { listPasskeys } from "@/lib/auth/passkeys";
 import { isPremiumActive } from "@/lib/premium";
 import { aliasSlots } from "@/lib/payments/plans";
+import { domainState } from "@/lib/features/domains";
 import SettingsClient from "./SettingsClient";
 
 export const metadata: Metadata = {
@@ -17,11 +18,12 @@ export const metadata: Metadata = {
 export default async function SettingsPage() {
   const userId = await getSessionUserId();
   if (!userId) redirect("/signin");
-  const [user, aliases, hasPassword, passkeys] = await Promise.all([
+  const [user, aliases, hasPassword, passkeys, domains] = await Promise.all([
     getUserById(userId),
     getUserAliases(userId),
     userHasPassword(userId),
     listPasskeys(userId),
+    domainState(userId),
   ]);
   if (!user) redirect("/signin");
 
@@ -63,6 +65,7 @@ export default async function SettingsPage() {
           })),
         }}
         discord={{ connected: Boolean(user.discordId), username: user.discordUsername ?? null }}
+        initialDomains={domains}
       />
     </div>
   );

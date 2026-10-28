@@ -1,10 +1,9 @@
 import "server-only";
 
-export const CATBOX_BASE = "https://files.catbox.moe/";
 export const CDN_BASE = "https://cdn.iuno.lol/";
 export const IMAGE_HOST_BASE = "https://host.iuno.lol/";
 
-const STORED_MEDIA_HOSTS = new Set(["files.catbox.moe", "cdn.iuno.lol"]);
+const STORED_MEDIA_HOSTS = new Set(["cdn.iuno.lol"]);
 
 const r2PublicBase = process.env.R2_PUBLIC_BASE?.trim();
 if (r2PublicBase) {

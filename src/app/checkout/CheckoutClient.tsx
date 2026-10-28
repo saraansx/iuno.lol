@@ -22,12 +22,14 @@ import {
   DONATOR_PLAN,
   BADGE_TOKEN_PLAN,
   ALIAS_TOKEN_PLAN,
+  DOMAIN_TOKEN_PLAN,
   PREMIUM_PLAN_TAG,
   IMAGE_HOST_PLAN_TAG,
   VERIFIED_PLAN_TAG,
   DONATOR_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
   ALIAS_TOKEN_PLAN_TAG,
+  DOMAIN_TOKEN_PLAN_TAG,
   CURRENCIES,
   type Currency,
   type PlanTag,
@@ -141,6 +143,13 @@ const ALIAS_TOKEN_FEATURES = [
   "Works without Premium",
 ];
 
+const DOMAIN_TOKEN_FEATURES = [
+  "One custom domain slot",
+  "Use it for your profile or Image Host",
+  "Share it with others or keep it private",
+  "Works without Premium",
+];
+
 const BADGE_TOKEN_FEATURES = [
   "One custom badge slot",
   "Your own icon and badge name",
@@ -225,6 +234,19 @@ const PRODUCT_COPY = {
     successHref: "/dashboard/settings",
     successCta: "Add alias",
     razorpayDesc: "Alias token",
+    allowGift: true,
+  },
+  [DOMAIN_TOKEN_PLAN_TAG]: {
+    prices: DOMAIN_TOKEN_PLAN,
+    name: "Domain Token",
+    path: "/checkout/domain-token",
+    blurb: "One token = one custom domain. Connect your own domain and use it for your profile or Image Host links.",
+    features: DOMAIN_TOKEN_FEATURES,
+    successTitle: "a Domain Token",
+    successText: "Your domain slot is ready. Add your domain from settings.",
+    successHref: "/dashboard/settings",
+    successCta: "Add domain",
+    razorpayDesc: "Domain token",
     allowGift: true,
   },
 } as const;

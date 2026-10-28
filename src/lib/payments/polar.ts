@@ -7,6 +7,7 @@ import {
   DONATOR_PLAN_TAG,
   BADGE_TOKEN_PLAN_TAG,
   ALIAS_TOKEN_PLAN_TAG,
+  DOMAIN_TOKEN_PLAN_TAG,
   PLAN_TAGS,
   getPlan,
   type Currency,
@@ -43,6 +44,12 @@ function productEnv(tag: PlanTag): Record<Currency, string | undefined> {
     return {
       USD: process.env.POLAR_ALIAS_TOKEN_PRODUCT_ID,
       INR: process.env.POLAR_ALIAS_TOKEN_PRODUCT_ID_INR,
+    };
+  }
+  if (tag === DOMAIN_TOKEN_PLAN_TAG) {
+    return {
+      USD: process.env.POLAR_DOMAIN_TOKEN_PRODUCT_ID,
+      INR: process.env.POLAR_DOMAIN_TOKEN_PRODUCT_ID_INR,
     };
   }
   return { USD: process.env.POLAR_PRODUCT_ID, INR: process.env.POLAR_PRODUCT_ID_INR };

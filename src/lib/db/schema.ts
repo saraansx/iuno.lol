@@ -34,6 +34,9 @@ export const users = mysqlTable('users', {
   hasDonator: boolean('is_donator').default(false).notNull(),
   badgeTokens: int('badge_tokens').default(0).notNull(),
   aliasTokens: int('alias_tokens').default(0).notNull(),
+  domainTokens: int('domain_tokens').default(0).notNull(),
+  profileDomainId: int('profile_domain_id'),
+  imageDomainId: int('image_domain_id'),
   discordId: varchar('discord_id', { length: 32 }).unique(),
   discordUsername: varchar('discord_username', { length: 32 }),
   views: int('views').default(0).notNull(),
@@ -578,6 +581,19 @@ export const userAliases = mysqlTable('user_aliases', {
   userIdx: index('user_aliases_user_idx').on(table.userId),
 }))
 
+export const userDomains = mysqlTable('user_domains', {
+  id: int('id').primaryKey().autoincrement(),
+  userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  hostname: varchar('hostname', { length: 253 }).notNull().unique(),
+  type: mysqlEnum('type', ['profile', 'image_host']).notNull(),
+  visibility: mysqlEnum('visibility', ['private', 'public']).notNull(),
+  status: mysqlEnum('status', ['pending', 'active']).default('pending').notNull(),
+  cfId: varchar('cf_id', { length: 64 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  userIdx: index('user_domains_user_idx').on(table.userId),
+}))
+
 export const userBackgrounds = mysqlTable('user_backgrounds', {
   id: int('id').primaryKey().autoincrement(),
   userId: int('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
@@ -698,6 +714,7 @@ export const schema = {
   profileFeedback,
   userBadges,
   userAliases,
+  userDomains,
   userPasskeys,
   userBackgrounds,
   imageHostFiles,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,11 +12,14 @@ import dynamic from "next/dynamic";
 import AliasPromo from "@/components/dashboard/AliasPromo";
 import FilterSelect from "@/components/ui/filter-select";
 import SaveBar from "@/components/dashboard/SaveBar";
+import { addDomain, removeDomain, setDomainUse, verifyDomain } from "@/actions/domains";
+import type { DomainRow, DomainState, DomainType } from "@/lib/features/domains";
 
 const DangerZoneLazy = dynamic(() => import("./DangerZone"), { ssr: false });
 
 const TABS = [
   { id: "general", label: "General" },
+  { id: "domain", label: "Domain" },
   { id: "security", label: "Security" },
   { id: "sessions", label: "Sessions" },
   { id: "danger", label: "Danger" },
@@ -49,12 +52,14 @@ export default function SettingsClient({
   initialAliases,
   security,
   discord,
+  initialDomains,
 }: {
   initialUsername: string;
   initialDisplayName: string;
   initialAliases: AliasState;
   security: SecurityInfo;
   discord: DiscordConnection;
+  initialDomains: DomainState;
 }) {
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("general");
 
@@ -94,6 +99,8 @@ export default function SettingsClient({
 
       {tab === "general" ? (
         <GeneralTab initialUsername={initialUsername} initialDisplayName={initialDisplayName} initialAliases={initialAliases} discord={discord} />
+      ) : tab === "domain" ? (
+        <DomainTab initial={initialDomains} />
       ) : tab === "security" ? (
         <SecurityTabWithSave info={security} />
       ) : tab === "sessions" ? (
@@ -1657,7 +1664,7 @@ function MenuItem({
   );
 }
 
-function ModalShell({ onClose, labelledBy, children, role = "dialog" }: { onClose: () => void; labelledBy: string; children: React.ReactNode; role?: "dialog" | "alertdialog" }) {
+function ModalShell({ onClose, labelledBy, children, role = "dialog", width = "w-[min(420px,90vw)]" }: { onClose: () => void; labelledBy: string; children: React.ReactNode; role?: "dialog" | "alertdialog"; width?: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
@@ -1682,7 +1689,7 @@ function ModalShell({ onClose, labelledBy, children, role = "dialog" }: { onClos
         role={role}
         aria-modal="true"
         aria-labelledby={labelledBy}
-        className="w-[min(420px,90vw)] bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6 shadow-2xl"
+        className={`${width} bg-[#0c0c0c] border border-white/10 rounded-[20px] p-6 shadow-2xl`}
       >
         {children}
       </motion.div>
@@ -1820,6 +1827,389 @@ function ConfirmModal({
   );
 }
 
+const TYPE_LABEL: Record<DomainType, string> = { profile: "Profile", image_host: "Image Host" };
+const DEFAULT_DOMAIN: Record<DomainType, string> = { profile: SITE, image_host: "host.iuno.lol" };
+
+function StatusPill({ active }: { active: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-[11px] rounded-full px-2.5 py-0.5 border ${
+        active ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" : "text-[#e0a355] bg-[#e0a355]/10 border-[#e0a355]/25"
+      }`}
+    >
+      {active ? "Active" : "Pending"}
+    </span>
+  );
+}
+
+function DomainTab({ initial }: { initial: DomainState }) {
+  const [state, setState] = useState(initial);
+  const [addOpen, setAddOpen] = useState(false);
+  const [dnsId, setDnsId] = useState<number | null>(null);
+  const [removeId, setRemoveId] = useState<number | null>(null);
+  const [busyId, setBusyId] = useState<number | null>(null);
+  const freeSlots = state.tokens - state.domains.length;
+  const dnsFor = state.domains.find((d) => d.id === dnsId) ?? null;
+  const removeFor = state.domains.find((d) => d.id === removeId) ?? null;
+  const profileHost = state.available.find((a) => a.id === state.profileDomainId)?.hostname ?? SITE;
+
+  async function verify(d: DomainRow) {
+    setBusyId(d.id);
+    const res = await verifyDomain(d.id);
+    setBusyId(null);
+    if (!res.ok) return toast.error(res.error);
+    setState(res.data);
+    if (res.data.active) {
+      toast.success(`${d.hostname} is now active.`);
+      setDnsId(null);
+    } else {
+      toast.error("Not verified yet. DNS can take a few minutes, sometimes up to an hour.");
+    }
+  }
+
+  async function remove() {
+    if (!removeFor) return;
+    setBusyId(removeFor.id);
+    const res = await removeDomain(removeFor.id);
+    setBusyId(null);
+    if (!res.ok) return toast.error(res.error);
+    setState(res.data);
+    setRemoveId(null);
+    toast.success(`${removeFor.hostname} removed. Your token is free again.`);
+  }
+
+  async function choose(type: DomainType, value: string) {
+    const res = await setDomainUse(type, value === "default" ? null : Number(value));
+    if (!res.ok) return toast.error(res.error);
+    setState(res.data);
+    toast.success(`${TYPE_LABEL[type]} domain updated.`);
+  }
+
+  function picker(type: DomainType) {
+    const current = type === "profile" ? state.profileDomainId : state.imageDomainId;
+    return (
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[12.5px] text-white/60">{TYPE_LABEL[type]} domain</span>
+        <FilterSelect
+          label={`${TYPE_LABEL[type]} domain`}
+          value={current === null ? "default" : String(current)}
+          onChange={(v) => choose(type, v)}
+          fullWidth
+          options={[
+            { id: "default", label: DEFAULT_DOMAIN[type] },
+            ...state.available.filter((a) => a.type === type).map((a) => ({ id: String(a.id), label: a.hostname })),
+          ]}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+        <div>
+          <h2 className="text-[16px] font-normal text-white tracking-tight">Account domains</h2>
+          <p className="text-[12.5px] text-white/40 mt-1">
+            Connect your own domains and use them across iuno.lol. {state.domains.length} of {state.tokens} slot{state.tokens === 1 ? "" : "s"} used.
+          </p>
+        </div>
+        {freeSlots > 0 ? (
+          <button
+            type="button"
+            onClick={() => setAddOpen(true)}
+            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add domain
+          </button>
+        ) : (
+          <Link
+            href="/checkout/domain-token"
+            className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors"
+          >
+            Buy domain token
+          </Link>
+        )}
+      </div>
+
+      {state.domains.length === 0 ? (
+        <div className="border border-dashed border-white/[0.08] rounded-[20px] bg-[#0c0c0c] py-12 px-4 flex flex-col items-center text-center">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className="text-white/35" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M3 12h18" />
+            <path d="M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z" />
+          </svg>
+          <p className="text-[13.5px] text-white/90 mt-3">No domains yet.</p>
+          <p className="text-[12px] text-white/40 mt-1.5 max-w-[280px]">
+            {state.tokens > 0 ? "Add a custom domain to use it for Image Host or your profile." : "Buy a domain token to connect your own domain. 1 token = 1 domain."}
+          </p>
+        </div>
+      ) : (
+        <ul className="bg-[#0c0c0c] border border-white/5 rounded-[20px] divide-y divide-white/5" aria-label="Your domains">
+          {state.domains.map((d) => (
+            <li key={d.id} className="flex flex-col sm:flex-row sm:items-center gap-3 px-5 py-3.5">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-[13px] text-white truncate">{d.hostname}</span>
+                  <StatusPill active={d.status === "active"} />
+                </div>
+                <p className="text-[11.5px] text-white/35 mt-0.5">
+                  {TYPE_LABEL[d.type]} · {d.visibility === "public" ? "Public" : "Private"}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {d.status === "pending" && (
+                  <>
+                    <button type="button" onClick={() => setDnsId(d.id)} className="h-8 rounded-xl px-3 text-[12px] text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
+                      DNS records
+                    </button>
+                    <button type="button" onClick={() => verify(d)} disabled={busyId === d.id} className="h-8 rounded-xl px-3 text-[12px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">
+                      {busyId === d.id ? "Checking…" : "Verify"}
+                    </button>
+                  </>
+                )}
+                <button type="button" onClick={() => setRemoveId(d.id)} aria-label={`Remove ${d.hostname}`} className="h-8 rounded-xl px-3 text-[12px] text-red-300 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-colors cursor-pointer">
+                  Remove
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-[16px] font-normal text-white tracking-tight">Use a domain</h2>
+        <p className="text-[12.5px] text-white/40 mt-1">
+          Your profile opens at {profileHost}/{state.username}. {SITE}/{state.username} always keeps working.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {picker("profile")}
+        {picker("image_host")}
+      </div>
+    </div>
+
+    <div className="flex flex-col gap-4">
+      <div>
+        <h2 className="text-[16px] font-normal text-white tracking-tight">Available domains</h2>
+        <p className="text-[12.5px] text-white/40 mt-1">Your active domains, plus public domains shared by other users.</p>
+      </div>
+      <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] overflow-hidden" role="table" aria-label="Available domains">
+        <div role="row" className="grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_1fr_1fr_auto] items-center gap-4 px-5 py-2.5 border-b border-white/5 text-[11px] text-white/30">
+          <span role="columnheader">Domain</span>
+          <span role="columnheader" className="hidden sm:block">Type</span>
+          <span role="columnheader" className="hidden sm:block">Owner</span>
+          <span role="columnheader" className="text-right">Status</span>
+        </div>
+        {[
+          { key: "default-image", hostname: DEFAULT_DOMAIN.image_host, type: "image_host" as DomainType, owner: SITE },
+          ...state.available.map((a) => ({ key: String(a.id), hostname: a.hostname, type: a.type, owner: a.own ? "You" : `@${a.owner}` })),
+        ].map((row) => (
+          <div key={row.key} role="row" className="grid grid-cols-[1fr_auto] sm:grid-cols-[2fr_1fr_1fr_auto] items-center gap-4 px-5 py-3.5 border-b border-white/5 last:border-b-0">
+            <span role="cell" className="text-[13px] text-white truncate min-w-0">{row.hostname}</span>
+            <span role="cell" className="hidden sm:block text-[12.5px] text-white/40">{TYPE_LABEL[row.type]}</span>
+            <span role="cell" className="hidden sm:block text-[12.5px] text-white/40 truncate">{row.owner}</span>
+            <span role="cell" className="justify-self-end"><StatusPill active /></span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <AnimatePresence>
+      {addOpen && (
+        <AddDomainModal
+          onClose={() => setAddOpen(false)}
+          onAdded={(next, hostname) => {
+            setState(next);
+            setAddOpen(false);
+            setDnsId(next.domains.find((d) => d.hostname === hostname)?.id ?? null);
+          }}
+        />
+      )}
+      {dnsFor && <DnsModal domain={dnsFor} busy={busyId === dnsFor.id} onClose={() => setDnsId(null)} onVerify={() => verify(dnsFor)} />}
+      {removeFor && (
+        <ConfirmModal
+          title="Remove this domain?"
+          text={`${removeFor.hostname} will stop working on iuno.lol. Anyone using it goes back to ${DEFAULT_DOMAIN[removeFor.type]}, and old links on this domain stop working. Your token stays, so you can add another domain.`}
+          confirmLabel="Remove"
+          busyLabel="Removing…"
+          busy={busyId === removeFor.id}
+          onCancel={() => setRemoveId(null)}
+          onConfirm={remove}
+        />
+      )}
+    </AnimatePresence>
+    </div>
+  );
+}
+
+function DnsRecord({ label, value }: { label: string; value: string }) {
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success("Copied");
+    } catch {
+      toast.error("Couldn't copy.");
+    }
+  }
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-[11px] text-white/35">{label}</span>
+      <div className="flex items-center gap-2 bg-[#161616] border border-white/5 rounded-xl h-10 pl-3.5 pr-1.5">
+        <code className="flex-1 min-w-0 truncate text-[12.5px] text-white/90">{value}</code>
+        <button type="button" onClick={copy} aria-label={`Copy ${label}`} className="w-7 h-7 rounded-lg flex items-center justify-center text-white/45 hover:text-white hover:bg-white/[0.06] transition-colors cursor-pointer">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="9" y="9" width="12" height="12" rx="2" />
+            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DnsModal({ domain, busy, onClose, onVerify }: { domain: DomainRow; busy: boolean; onClose: () => void; onVerify: () => void }) {
+  return (
+    <ModalShell onClose={onClose} labelledBy="domain-dns-title" width="w-[min(560px,92vw)]">
+      <h3 id="domain-dns-title" className="text-[15px] font-normal text-white/90 tracking-tight">Set up your DNS</h3>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+        Add both records at your DNS provider, then hit Verify. Once they show up, the SSL certificate is set up for you.
+      </p>
+      <div className="mt-4 flex flex-col gap-3">
+        <div className="flex flex-col gap-2.5 rounded-2xl border border-white/5 p-3.5">
+          <span className="text-[12.5px] text-white/80">Routing (CNAME)</span>
+          <DnsRecord label="Name" value={domain.hostname} />
+          <DnsRecord label="Value" value="domains.iuno.lol" />
+        </div>
+        {domain.dcvTarget && (
+          <div className="flex flex-col gap-2.5 rounded-2xl border border-white/5 p-3.5">
+            <span className="text-[12.5px] text-white/80">Certificate validation (CNAME)</span>
+            <DnsRecord label="Name" value={`_acme-challenge.${domain.hostname}`} />
+            <DnsRecord label="Value" value={domain.dcvTarget} />
+          </div>
+        )}
+        <p className="text-[11.5px] text-white/30">Using Cloudflare for your domain? Set both records to DNS only (grey cloud). DNS can take a few minutes to show up. Verify within 24 hours, or someone else can claim this domain.</p>
+      </div>
+      <div className="mt-5 flex items-center justify-end gap-2">
+        <button type="button" onClick={onClose} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer">
+          Close
+        </button>
+        <button type="button" onClick={onVerify} disabled={busy} className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50">
+          {busy ? "Checking…" : "Verify"}
+        </button>
+      </div>
+    </ModalShell>
+  );
+}
+
+function AddDomainModal({ onClose, onAdded }: { onClose: () => void; onAdded: (next: DomainState, hostname: string) => void }) {
+  const [domain, setDomain] = useState("");
+  const [type, setType] = useState<DomainType>("image_host");
+  const [visibility, setVisibility] = useState<"private" | "public">("private");
+  const [busy, setBusy] = useState(false);
+  const clean = domain.trim().toLowerCase();
+  const valid = /^(?=.{4,253}$)([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(clean);
+  const fieldClass =
+    "w-full bg-[#161616] border border-white/5 rounded-xl h-10 px-3.5 text-[13px] text-white outline-none focus:border-[#5b6cf5]/40 transition-colors";
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (busy) return;
+    if (!valid) return toast.error("Enter a valid domain, like bio.yourname.com.");
+    setBusy(true);
+    const res = await addDomain(clean, type, visibility);
+    setBusy(false);
+    if (!res.ok) return toast.error(res.error);
+    onAdded(res.data, clean);
+  }
+
+  return (
+    <ModalShell onClose={onClose} labelledBy="domain-add-title" width="w-[min(560px,92vw)]">
+      <h3 id="domain-add-title" className="text-[15px] font-normal text-white/90 tracking-tight">
+        Add a domain
+      </h3>
+      <p className="text-[12.5px] text-white/40 mt-1.5 leading-relaxed">
+        Point your custom domain to iuno.lol and pick what it should be used for.
+      </p>
+      <form onSubmit={submit} className="mt-4 flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="domain-name" className="text-[12.5px] text-white/60">Domain</label>
+          <input
+            id="domain-name"
+            autoFocus
+            value={domain}
+            onChange={(e) => setDomain(e.target.value.toLowerCase().replace(/\s/g, "").slice(0, 253))}
+            placeholder="bio.yourname.com"
+            autoComplete="off"
+            spellCheck={false}
+            className={`${fieldClass} placeholder:text-white/25`}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[12.5px] text-white/60">Type</span>
+          <FilterSelect
+            label="Type"
+            value={type}
+            onChange={setType}
+            fullWidth
+            options={[
+              { id: "image_host", label: "Image Host" },
+              { id: "profile", label: "Profile" },
+            ]}
+          />
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[12.5px] text-white/60">Visibility</span>
+          <FilterSelect
+            label="Visibility"
+            value={visibility}
+            onChange={setVisibility}
+            fullWidth
+            options={[
+              { id: "private", label: "Private" },
+              { id: "public", label: "Public" },
+            ]}
+          />
+          {visibility === "public" && (
+            <p
+              role="note"
+              className="text-[11.5px] leading-relaxed rounded-lg px-3 py-2 border text-[#e0a355] bg-[#e0a355]/[0.06] border-[#e0a355]/20"
+            >
+              {type === "profile"
+                ? "Public domains can be used by other iuno.lol users for their profile links. Their profiles will open under your domain."
+                : "Public domains can be used by other iuno.lol users for their Image Host links. Anything they upload will be shared under your domain."}
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white/70 bg-white/[0.06] border border-white/10 hover:bg-white/[0.1] transition-colors cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!valid || busy}
+            className="h-9 rounded-xl px-4 text-[13px] font-normal text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-default"
+          >
+            {busy ? "Adding…" : "Add domain"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
+  );
+}
+
 function SessionsTab() {
   type SessionRow = { jti: string; ua: string; ip: string | null; createdAt: string | null; current: boolean; expiresAt: string | null };
   const [sessions, setSessions] = useState<SessionRow[] | null>(null);
@@ -1827,15 +2217,15 @@ function SessionsTab() {
   const [revoking, setRevoking] = useState<string | null>(null);
   const [revokingOthers, setRevokingOthers] = useState(false);
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const res = await getActiveSessions();
     setLoading(false);
     if (!res.ok) { toast.error(res.error); return; }
     setSessions(res.data as SessionRow[]);
-  }
+  }, []);
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
 
   async function revoke(jti: string) {
     setRevoking(jti);

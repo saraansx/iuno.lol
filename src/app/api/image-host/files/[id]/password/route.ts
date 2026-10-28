@@ -5,6 +5,7 @@ import { hashPassword, isPasswordCorrect } from "@/lib/server/security/bcrypt";
 import { purgeCloudflareFiles } from "@/lib/cloudflare";
 import { getOwnedImageHostFile, setImageHostFilePassword } from "@/lib/features/image-host/db";
 import { FILE_PASSWORD_MAX, FILE_PASSWORD_MIN } from "@/lib/features/image-host/unlock";
+import { imageShareBase, toShareUrl } from "@/lib/features/domains";
 
 export const dynamic = "force-dynamic";
 
@@ -53,7 +54,8 @@ export async function POST(req: Request, ctx: Ctx) {
     }
 
     await setImageHostFilePassword(r.userId, r.id, await hashPassword(r.password));
-    await purgeCloudflareFiles([r.file.url]);
+    // Purge the custom-domain copy too, or a newly locked file stays public there.
+    await purgeCloudflareFiles([r.file.url, toShareUrl(r.file.url, await imageShareBase(r.userId))]);
     return NextResponse.json({ locked: true });
   } catch (error) {
     console.error("[image-host] Set password error:", error);

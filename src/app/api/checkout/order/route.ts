@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import { getSessionUserId } from "@/lib/auth/session";
 import { getUserById } from "@/lib/features/users/db";
-import { PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, DONATOR_PLAN_TAG, BADGE_TOKEN_PLAN_TAG, ALIAS_TOKEN_PLAN_TAG, PLAN_TAGS, PROVIDER, getPlan, isAllowedMethod, ownsPlan, type Currency } from "@/lib/payments/plans";
+import { PREMIUM_PLAN_TAG, IMAGE_HOST_PLAN_TAG, VERIFIED_PLAN_TAG, DONATOR_PLAN_TAG, BADGE_TOKEN_PLAN_TAG, ALIAS_TOKEN_PLAN_TAG, DOMAIN_TOKEN_PLAN_TAG, PLAN_TAGS, PROVIDER, getPlan, isAllowedMethod, ownsPlan, type Currency } from "@/lib/payments/plans";
 import { createRazorpayOrder, getRazorpayKeyId, razorpayConfigured } from "@/lib/payments/razorpay";
 import { getClientIp } from "@/lib/server/security/ip";
 import { checkoutOrderRateLimit } from "@/lib/rate-limit";
@@ -20,6 +20,7 @@ const RECEIPT_PREFIX = {
   [DONATOR_PLAN_TAG]: "don",
   [BADGE_TOKEN_PLAN_TAG]: "bt",
   [ALIAS_TOKEN_PLAN_TAG]: "at",
+  [DOMAIN_TOKEN_PLAN_TAG]: "dt",
 } as const;
 
 export async function POST(request: NextRequest) {
