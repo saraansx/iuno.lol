@@ -95,7 +95,7 @@ export async function addDomain(raw: string, type: DomainType, visibility: "priv
         .select({ used: sql<number>`COUNT(*)` })
         .from(schema.userDomains)
         .where(eq(schema.userDomains.userId, userId));
-      if (Number(used) >= (user?.tokens ?? 0)) throw new UserFacingError("No free domain slot. Buy a domain token first.");
+      if (Number(used) >= (user?.tokens ?? 0)) throw new UserFacingError("No free domain slot. Buy a Custom Domain first.");
       const [res] = await tx.insert(schema.userDomains).values({ userId, hostname, type, visibility });
       return res.insertId;
     });

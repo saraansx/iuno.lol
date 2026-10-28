@@ -487,3 +487,10 @@ input, textarea {
 @media (prefers-reduced-motion: reduce) {
   .badge-scroll-track { animation: none !important; }
 }
+
+/* Recharts makes charts focusable for keyboard tooltips; a mouse click drew a box around the whole chart.
+   Only hide it for mouse focus, so keyboard users keep the focus ring. */
+.recharts-wrapper :focus:not(:focus-visible),
+.recharts-surface:focus:not(:focus-visible) {
+  outline: none;
+}

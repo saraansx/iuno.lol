@@ -1930,7 +1930,7 @@ function DomainTab({ initial }: { initial: DomainState }) {
             href="/checkout/domain-token"
             className="shrink-0 w-fit inline-flex items-center gap-1.5 h-9 rounded-full px-4 text-[12.5px] text-white bg-[#5b6cf5]/20 border border-[#5b6cf5]/30 hover:bg-[#5b6cf5]/30 transition-colors"
           >
-            Buy domain token
+            Buy Custom Domain
           </Link>
         )}
       </div>
@@ -1944,7 +1944,7 @@ function DomainTab({ initial }: { initial: DomainState }) {
           </svg>
           <p className="text-[13.5px] text-white/90 mt-3">No domains yet.</p>
           <p className="text-[12px] text-white/40 mt-1.5 max-w-[280px]">
-            {state.tokens > 0 ? "Add a custom domain to use it for Image Host or your profile." : "Buy a domain token to connect your own domain. 1 token = 1 domain."}
+            {state.tokens > 0 ? "Add a custom domain to use it for Image Host or your profile." : "Buy a Custom Domain to connect your own domain. 1 purchase = 1 domain."}
           </p>
         </div>
       ) : (

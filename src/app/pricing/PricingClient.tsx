@@ -519,7 +519,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
               }
             />
             <TokenCard
-              title="Domain Token"
+              title="Custom Domain"
               price={`${DOMAIN_TOKEN_PLAN[currency].symbol}${DOMAIN_TOKEN_PLAN[currency].display}`}
               features={[
                 "Connect one custom domain",
@@ -527,7 +527,7 @@ export default function PricingClient({ isAuthenticated = false, isPremium = fal
                 "Keep it private or share it publicly",
                 "Domains work without Premium",
               ]}
-              cta="Buy Domain Token"
+              cta="Buy Custom Domain"
               onClick={() => router.push(isAuthenticated ? "/checkout/domain-token" : "/register")}
               icon={
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">

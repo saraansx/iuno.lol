@@ -104,7 +104,7 @@ export const ALIAS_TOKEN: Plan = {
 
 export const DOMAIN_TOKEN: Plan = {
   tag: DOMAIN_TOKEN_PLAN_TAG,
-  name: "Domain Token",
+  name: "Custom Domain",
   prices: DOMAIN_TOKEN_PLAN,
 };
 

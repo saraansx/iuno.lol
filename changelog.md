@@ -1,10 +1,16 @@
 # Changelog
 
+## October 28, 2026
+
+### Fixes
+
+- Fixed a yellow box showing around charts, like the Views chart, after you clicked on them.
+
 ## October 27, 2026
 
 ### New
 
-- Added **Domain Tokens** ($0.99 / ₹90). One token lets you connect one custom domain, and anyone can buy them, no Premium needed.
+- Added **Custom Domain** ($0.99 / ₹90). Each one lets you connect one custom domain, and anyone can buy it, no Premium needed.
 - Added **custom domains** in Settings → Domain. Connect your own domain for your profile or your Image Host, add two DNS records, and hit Verify.
 - Custom domains can be **Private** (only you) or **Public** (anyone on iuno.lol can pick them). Pick which domain your profile and Image Host links use. Your iuno.lol link always keeps working, and if a domain is removed everyone using it goes back to iuno.lol and host.iuno.lol.
 

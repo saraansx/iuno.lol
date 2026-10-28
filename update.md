@@ -4,7 +4,7 @@
 
 ## What's new
 
-- **Domain Tokens.** $0.99 / ₹90 each. One token = one custom domain, and anyone can buy them.
+- **Custom Domain.** $0.99 / ₹90 each. One purchase = one custom domain, and anyone can buy it.
 - **Custom domains.** Connect your own domain in Settings → Domain and use it for your profile (yourdomain.com/username) or your Image Host links. Add two DNS records, hit Verify, and it's live.
 - **Private or Public.** Keep a domain to yourself, or make it public so other iuno.lol users can use it too. Your iuno.lol link always keeps working, and if a domain is removed everyone goes back to iuno.lol and host.iuno.lol.
 
@@ -19,6 +19,7 @@
 - Switching tabs on the badges page now works on the first tap on mobile, instead of staying on the old tab.
 - The music player is no longer blocked by "Background sound is on" when your backgrounds are only images.
 - On mobile, profile details in the left and right bottom corners sit on one line again, instead of being split across two lines with a big gap.
+- Clicking a chart, like the Views chart, no longer draws a yellow box around it.
 
 ---
 

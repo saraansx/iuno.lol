@@ -6,7 +6,7 @@ import { DOMAIN_TOKEN_PLAN_TAG } from "@/lib/payments/plans";
 import CheckoutClient from "../CheckoutClient";
 
 export const metadata: Metadata = {
-  title: "Checkout — Domain Token",
+  title: "Checkout — Custom Domain",
   description: "Buy a custom domain slot on iuno.lol.",
 };
 
