@@ -311,6 +311,8 @@ const Layout1 = ({
   musicPlayerDefaultVolume = 100,
   musicPlayerVolumeFixed = true,
   musicPlayerShuffle = false,
+  musicCardColor = null,
+  musicCardOpacity = 100,
   profileId,
   viewerId: viewerIdProp,
 }: Layout1Props) => {
@@ -776,11 +778,11 @@ useEffect(() => {
   const musicPlayer = showMusicPlayer ? (
     <div className="w-full mt-3">
       {musicPlayerStyle === "lyrics" ? (
-        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} />
+        <LyricsMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} lyricStyle={musicLyricStyle} lyricColor={musicLyricColor} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       ) : musicPlayerStyle === "waveform" ? (
-        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} />
+        <WaveformMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       ) : (
-        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} />
+        <CompactMusicPlayer tracks={musicTracks} autoPlay={musicPlayerAutoPlay} artBg={musicPlayerArtBgOn} volumeControl={musicPlayerVolumeOn} volumeFloating={musicPlayerVolumeFixed} volumeColor={otherColor} defaultVolume={musicPlayerDefaultVolumeOn} titleStyle={musicTitleStyle} artistStyle={musicArtistStyle} shuffle={musicPlayerShuffleOn} cardColor={musicCardColor} cardOpacity={musicCardOpacity} />
       )}
     </div>
   ) : null;

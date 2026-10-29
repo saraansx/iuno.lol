@@ -2,6 +2,8 @@
 
 import { useMemo } from "react";
 import { seedHeights } from "@/components/profile/music/WaveformMusicPlayer";
+import ColorPickerInput from "@/components/ui/color-picker";
+import { DEFAULT_MUSIC_CARD_COLOR } from "@/lib/music";
 
 export type MusicPlayerStyle = "compact" | "waveform" | "lyrics";
 
@@ -175,10 +177,14 @@ interface PlayerStyleSectionProps {
   setDefaultVolume: (val: number) => void;
   shuffle: boolean;
   setShuffle: (val: boolean) => void;
+  cardColor: string | null;
+  setCardColor: (val: string | null) => void;
+  cardOpacity: number;
+  setCardOpacity: (val: number) => void;
   trackCount: number;
 }
 
-export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg, setArtBg, volumeControl, setVolumeControl, defaultVolume, setDefaultVolume, shuffle, setShuffle, trackCount }: PlayerStyleSectionProps) {
+export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg, setArtBg, volumeControl, setVolumeControl, defaultVolume, setDefaultVolume, shuffle, setShuffle, cardColor, setCardColor, cardOpacity, setCardOpacity, trackCount }: PlayerStyleSectionProps) {
   return (
     <div className="bg-[#0c0c0c] border border-white/5 rounded-[20px] p-4 sm:p-6 shadow-sm flex flex-col gap-5">
       <div className="flex items-center gap-3">
@@ -243,6 +249,51 @@ export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg,
           <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${artBg ? "left-[18px]" : "left-0.5"}`} />
         </span>
       </button>
+
+      <div className="rounded-2xl bg-[#141414]/70 border border-white/5 px-4 py-3.5 flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="flex flex-col">
+            <span className="text-[13px] font-normal text-white/90">Card background</span>
+            <span className="text-[11.5px] text-white/35 leading-snug">Color and transparency of the player card</span>
+          </span>
+          {(cardColor !== null || cardOpacity !== 100) && (
+            <button
+              type="button"
+              onClick={() => {
+                setCardColor(null);
+                setCardOpacity(100);
+              }}
+              className="text-[11.5px] text-white/45 hover:text-white transition-colors cursor-pointer shrink-0"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+        <ColorPickerInput value={cardColor ?? DEFAULT_MUSIC_CARD_COLOR} onChange={(v) => setCardColor(v.toLowerCase())} />
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-[12px] text-white/60">Opacity</span>
+          <span className="text-[12px] font-mono text-white/60 tabular-nums shrink-0">{cardOpacity}%</span>
+        </div>
+        <div className="relative flex items-center h-5 group w-full">
+          <div className="absolute w-full h-1 bg-white/5 rounded-full overflow-hidden">
+            <div className="absolute h-full bg-[#5b6cf5]" style={{ width: `${cardOpacity}%` }} />
+          </div>
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={cardOpacity}
+            onChange={(e) => setCardOpacity(Number(e.target.value))}
+            aria-label="Music card opacity"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
+          />
+          <div
+            className="absolute h-3 w-3 rounded-full bg-white shadow-[0_0_10px_rgba(91,108,245,0.8)] pointer-events-none"
+            style={{ left: `calc(${cardOpacity}% - 6px)` }}
+          />
+        </div>
+      </div>
 
       <button
         type="button"

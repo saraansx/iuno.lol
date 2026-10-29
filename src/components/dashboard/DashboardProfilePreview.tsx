@@ -294,6 +294,8 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       musicPlayerDefaultVolume={deferredOverrides.musicPlayerDefaultVolume ?? user?.musicPlayerDefaultVolume ?? 100}
       musicPlayerVolumeFixed={true}
       musicPlayerShuffle={deferredOverrides.musicPlayerShuffle ?? user?.musicPlayerShuffle ?? false}
+      musicCardColor={deferredOverrides.musicCardColor !== undefined ? deferredOverrides.musicCardColor : user?.musicCardColor ?? null}
+      musicCardOpacity={deferredOverrides.musicCardOpacity ?? user?.musicCardOpacity ?? 100}
       links={(deferredOverrides.links as import("@/lib/links").ProfileLink[] | undefined) ?? (user?.links as import("@/lib/links").ProfileLink[] | undefined) ?? []}
       linksFont={deferredOverrides.linksFont ?? user?.linksFont ?? "Inter"}
       linksFontSize={deferredOverrides.linksFontSize ?? user?.linksFontSize ?? 13.5}

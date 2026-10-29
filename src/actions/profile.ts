@@ -1715,6 +1715,8 @@ async function updateMusicProfileImpl(data: {
   volumeControl?: boolean;
   defaultVolume?: number;
   shuffle?: boolean;
+  cardColor?: string | null;
+  cardOpacity?: number;
 }) {
   const userId = await getSessionUserId();
 
@@ -1837,6 +1839,8 @@ async function updateMusicProfileImpl(data: {
     ...(typeof data.volumeControl === "boolean" ? { musicPlayerVolume: data.volumeControl } : {}),
     ...(defaultVolume !== undefined ? { musicPlayerDefaultVolume: defaultVolume } : {}),
     ...(typeof data.shuffle === "boolean" ? { musicPlayerShuffle: data.shuffle } : {}),
+    ...(data.cardColor === null || typeof data.cardColor === "string" ? { musicCardColor: data.cardColor?.toLowerCase() ?? null } : {}),
+    ...(typeof data.cardOpacity === "number" ? { musicCardOpacity: data.cardOpacity } : {}),
   };
 
   sanitizeProfileSettings(setData);

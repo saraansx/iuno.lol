@@ -322,6 +322,8 @@ export default async function ProfileView({
         musicPlayerVolume={user.musicPlayerVolume ?? true}
         musicPlayerDefaultVolume={user.musicPlayerDefaultVolume ?? 100}
         musicPlayerShuffle={user.musicPlayerShuffle ?? false}
+        musicCardColor={user.musicCardColor ?? null}
+        musicCardOpacity={user.musicCardOpacity ?? 100}
       />
       {!isStatic && <ProfileViewTracker profileId={user.id} />}
       {!isStatic && user.tabTitleAnimated && (

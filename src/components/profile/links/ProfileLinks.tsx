@@ -87,7 +87,10 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
             >
               <LinkIcon icon={link.icon} size={size} color={color} />
             </span>
-            <span className="min-w-0 flex-1 truncate text-[13.5px] font-normal text-white/90 tracking-tight" style={titleStyle}>
+            <span
+              className="min-w-0 flex-1 truncate text-[13.5px] font-normal text-white/90 tracking-tight"
+              style={link.textColor ? { ...titleStyle, color: link.textColor } : titleStyle}
+            >
               {link.title}
             </span>
             <ExternalArrow />

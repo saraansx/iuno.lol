@@ -226,6 +226,8 @@ export const userSettings = mysqlTable('user_settings', {
   }>>(),
   musicPlayerStyle: text('music_player_style'),
   musicPlayerArtBg: boolean('music_player_art_bg').default(false),
+  musicCardColor: text('music_card_color'),
+  musicCardOpacity: int('music_card_opacity').default(100),
   musicPlayerVolume: boolean('music_player_volume').default(true),
   musicPlayerDefaultVolume: int('music_player_default_volume').default(100),
   musicPlayerShuffle: boolean('music_player_shuffle').default(false),

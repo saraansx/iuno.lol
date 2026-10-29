@@ -104,6 +104,7 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   enterScreenOpacity: { min: 10, max: 100 },
   enterScreenBlur: { min: 0, max: 40 },
   musicPlayerDefaultVolume: { min: 0, max: 100, int: true },
+  musicCardOpacity: { min: 0, max: 100, int: true },
 
   widgetBorderWidth: { min: 0, max: 20 },
   widgetBorderRadius: { min: 0, max: 100 },
@@ -140,6 +141,7 @@ const COLOR_FIELDS = new Set([
   "musicPrimaryColor",
   "musicSecondaryColor",
   "musicLyricsColor",
+  "musicCardColor",
 ]);
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;

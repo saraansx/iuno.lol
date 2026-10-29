@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
-import { type MusicTrack } from "@/lib/music";
+import { musicCardBackground, type MusicTrack } from "@/lib/music";
 import { isHostedMediaUrl } from "@/lib/media-hosts";
 import { useVolume, VolumeButton } from "./volume";
 
@@ -12,7 +12,7 @@ function formatTime(sec: number): string {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", defaultVolume = 1, titleStyle, artistStyle, shuffle = false }: { tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; defaultVolume?: number; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
+export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = true, volumeControl = false, volumeFloating = false, volumeColor = "#5b6cf5", defaultVolume = 1, titleStyle, artistStyle, shuffle = false, cardColor, cardOpacity }: { cardColor?: string | null; cardOpacity?: number | null; tracks: MusicTrack[]; autoPlay?: boolean; artBg?: boolean; volumeControl?: boolean; volumeFloating?: boolean; volumeColor?: string; defaultVolume?: number; titleStyle?: CSSProperties; artistStyle?: CSSProperties; shuffle?: boolean }) {
   const [index, setIndex] = useState(0);
 
   useLayoutEffect(() => {
@@ -267,7 +267,7 @@ export default function CompactMusicPlayer({ tracks, autoPlay = false, artBg = t
   if (!track) return null;
 
   return (
-    <div className="relative w-full rounded-2xl bg-[#101010] border border-white/10 overflow-hidden">
+    <div className="relative w-full rounded-2xl border border-white/10 overflow-hidden" style={{ backgroundColor: musicCardBackground(cardColor, cardOpacity) }}>
       {}
       {artBg && track.artwork ? (
         // eslint-disable-next-line @next/next/no-img-element

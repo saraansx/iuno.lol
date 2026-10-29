@@ -277,4 +277,6 @@ export interface Layout1Props {
   musicPlayerDefaultVolume?: number | null;
   musicPlayerVolumeFixed?: boolean;
   musicPlayerShuffle?: boolean | null;
+  musicCardColor?: string | null;
+  musicCardOpacity?: number | null;
 }

@@ -2,6 +2,11 @@
 
 **Released: October 29, 2026**
 
+## What's new
+
+- **Link text color.** Big links can now have their own text color, not just the icon.
+- **Music card background.** Change the color and transparency of your music player card.
+
 ## Fixes
 
 - Featured profiles on the homepage now show each profile's current avatar.

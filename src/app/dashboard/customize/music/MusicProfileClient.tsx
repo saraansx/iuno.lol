@@ -48,6 +48,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
   const initialVolumeControl = user?.musicPlayerVolume ?? true;
   const initialDefaultVolume = user?.musicPlayerDefaultVolume ?? 100;
   const initialShuffle = user?.musicPlayerShuffle ?? false;
+  const initialCardColor = user?.musicCardColor ?? null;
+  const initialCardOpacity = user?.musicCardOpacity ?? 100;
 
   const [tracks, setTracks] = useState<Track[]>(initialTracks);
   const [modalOpen, setModalOpen] = useState(false);
@@ -57,6 +59,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
   const [volumeControl, setVolumeControl] = useState<boolean>(initialVolumeControl);
   const [defaultVolume, setDefaultVolume] = useState<number>(initialDefaultVolume);
   const [shuffle, setShuffle] = useState<boolean>(initialShuffle);
+  const [cardColor, setCardColor] = useState<string | null>(initialCardColor);
+  const [cardOpacity, setCardOpacity] = useState<number>(initialCardOpacity);
   const [dragId, setDragId] = useState<string | null>(null);
   const [dropId, setDropId] = useState<string | null>(null);
 
@@ -137,6 +141,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
     volumeControl !== initialVolumeControl ||
     defaultVolume !== initialDefaultVolume ||
     shuffle !== initialShuffle ||
+    cardColor !== initialCardColor ||
+    cardOpacity !== initialCardOpacity ||
     JSON.stringify(tracks.map(normTrack)) !== JSON.stringify(initialTracks.map(normTrack));
 
   const count = tracks.length;
@@ -315,7 +321,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
           )}
         </div>
 
-        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} defaultVolume={defaultVolume} setDefaultVolume={setDefaultVolume} shuffle={shuffle} setShuffle={setShuffle} trackCount={count} />
+        <PlayerStyleSection playerStyle={playerStyle} setPlayerStyle={setPlayerStyle} artBg={artBg} setArtBg={setArtBg} volumeControl={volumeControl} setVolumeControl={setVolumeControl} defaultVolume={defaultVolume} setDefaultVolume={setDefaultVolume} shuffle={shuffle} setShuffle={setShuffle} cardColor={cardColor} setCardColor={setCardColor} cardOpacity={cardOpacity} setCardOpacity={setCardOpacity} trackCount={count} />
         {!isPremium && (
           <div className="flex gap-3 bg-[#0c0c0c] border border-white/5 rounded-[16px] px-4 py-3.5 relative overflow-hidden">
             <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#5b6cf5]/70" />
@@ -364,6 +370,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
           musicPlayerVolume: volumeControl,
           musicPlayerDefaultVolume: defaultVolume,
           musicPlayerShuffle: shuffle,
+          musicCardColor: cardColor,
+          musicCardOpacity: cardOpacity,
         }}
       />
 
@@ -371,7 +379,7 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
         show={hasChanges}
         onSave={async () => {
           try {
-            const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl, defaultVolume, shuffle });
+            const res = await updateMusicProfile({ tracks, playerStyle, artBg, volumeControl, defaultVolume, shuffle, cardColor, cardOpacity });
             if (res && "success" in res && res.success === false) {
               toast.error(res.error);
               return;
@@ -390,6 +398,8 @@ export default function MusicProfileClient({ user, backgrounds }: { user: FullUs
           setVolumeControl(initialVolumeControl);
           setDefaultVolume(initialDefaultVolume);
           setShuffle(initialShuffle);
+          setCardColor(initialCardColor);
+          setCardOpacity(initialCardOpacity);
         }}
       />
 

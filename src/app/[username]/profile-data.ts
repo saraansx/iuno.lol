@@ -219,6 +219,8 @@ const queryProfileRows = (username: string) =>
       sectionDescFontWeight: userSettings.sectionDescFontWeight,
       sectionDescLetterSpacing: userSettings.sectionDescLetterSpacing,
       musicPlayerArtBg: userSettings.musicPlayerArtBg,
+      musicCardColor: userSettings.musicCardColor,
+      musicCardOpacity: userSettings.musicCardOpacity,
     })
     .from(users)
     .leftJoin(userSettings, eq(users.id, userSettings.userId))
