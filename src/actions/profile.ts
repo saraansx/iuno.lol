@@ -280,6 +280,7 @@ async function updateGeneralProfileImpl(data: {
 
   revalidatePath("/dashboard/customize/profile/general");
   revalidatePath("/dashboard", "layout");
+  if ("avatarUrl" in setData) revalidatePath("/");
   await revalidateOwnProfile(userId);
 
   return { success: true };

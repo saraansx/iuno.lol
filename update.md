@@ -1,4 +1,14 @@
-# New Update: V1.0.3
+# New Update: V1.0.4
+
+**Released: October 29, 2026**
+
+## Fixes
+
+- Featured profiles on the homepage now show each profile's current avatar.
+
+---
+
+# Previous Update: V1.0.3
 
 **Released: October 26, 2026**
 

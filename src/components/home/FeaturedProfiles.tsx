@@ -1,28 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 
-const FEATURED = [
-  { username: "rio", avatar: "https://cdn.iuno.lol/u1_1792451650521_5crqmd.png" },
-  { username: "rex", avatar: "https://cdn.iuno.lol/FVw6j.png" },
-  { username: "ok", avatar: "https://cdn.iuno.lol/qExj4.png" },
-  { username: "ma", avatar: "https://cdn.iuno.lol/4o2ZJ.png" },
-  { username: "coffeeholic", avatar: "https://cdn.iuno.lol/FRwkq.png" },
-  { username: "qq", avatar: "https://cdn.iuno.lol/ktOew.png" },
-  { username: "xd", avatar: "https://cdn.iuno.lol/u109_1792433921232_toathh.gif" },
-  { username: "miloj", avatar: "https://cdn.iuno.lol/u22_1792867417028_gxhtkf.png" },
-  { username: "uno", avatar: "https://cdn.iuno.lol/ktOew.png" },
-  { username: "sat_halder", avatar: "https://cdn.iuno.lol/u203_1792958001885_e48uzp.png" },
-  { username: "axmyouknow", avatar: "https://cdn.iuno.lol/u69_1792705562634_oksdsq.png" },
-  { username: "kqll", avatar: null },
-  { username: "zenitx", avatar: "https://cdn.iuno.lol/u110_1792431895108_7ikn30.png" },
-  { username: "xylen", avatar: "https://cdn.iuno.lol/u196_1792874022167_3b73ny.png" },
-  { username: "katrixgamerz", avatar: "https://cdn.iuno.lol/u207_1793013244566_qenogy.webp" },
+export const FEATURED_USERNAMES = [
+  "rio", "rex", "ok", "ma", "coffeeholic", "qq", "xd", "miloj", "uno",
+  "sat_halder", "axmyouknow", "kqll", "zenitx", "xylen", "katrixgamerz",
 ];
 
-function Row({ copy }: { copy: boolean }) {
+export type FeaturedAvatars = Record<string, string | null>;
+
+function Row({ copy, avatars }: { copy: boolean; avatars: FeaturedAvatars }) {
   return (
     <ul className="flex shrink-0 items-center gap-10 pr-10" aria-hidden={copy || undefined}>
-      {FEATURED.map((p) => (
+      {FEATURED_USERNAMES.map((username) => ({ username, avatar: avatars[username] ?? null })).map((p) => (
         <li key={p.username}>
           <Link
             href={`/${p.username}`}
@@ -53,7 +42,7 @@ function Row({ copy }: { copy: boolean }) {
   );
 }
 
-export default function FeaturedProfiles() {
+export default function FeaturedProfiles({ avatars }: { avatars: FeaturedAvatars }) {
   return (
     <section
       aria-label="Featured profiles"
@@ -64,8 +53,8 @@ export default function FeaturedProfiles() {
       }}
     >
       <div className="featured-marquee flex w-max">
-        <Row copy={false} />
-        <Row copy />
+        <Row copy={false} avatars={avatars} />
+        <Row copy avatars={avatars} />
       </div>
     </section>
   );

@@ -6,7 +6,7 @@ import TopFade from "@/components/ui/top-fade";
 import FaqShowcase from "@/components/home/FaqShowcase";
 import PlanShowcase from "@/components/home/PlanShowcase";
 import ShowcaseProfileCard from "@/components/home/ShowcaseProfileCard";
-import FeaturedProfiles from "@/components/home/FeaturedProfiles";
+import FeaturedProfiles, { type FeaturedAvatars } from "@/components/home/FeaturedProfiles";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -16,7 +16,7 @@ const WidgetShowcase = dynamic(() => import("@/components/home/WidgetShowcase"),
 const MusicShowcase = dynamic(() => import("@/components/home/MusicShowcase"), { ssr: false });
 const LinksShowcase = dynamic(() => import("@/components/home/LinksShowcase"), { ssr: false });
 
-export default function Home() {
+export default function Home({ featuredAvatars }: { featuredAvatars: FeaturedAvatars }) {
   const [username, setUsername] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
@@ -144,7 +144,7 @@ export default function Home() {
           </motion.div>
         </div>
 
-        <FeaturedProfiles />
+        <FeaturedProfiles avatars={featuredAvatars} />
         </div>
 
         <div className="relative z-10">

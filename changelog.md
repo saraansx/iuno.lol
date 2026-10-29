@@ -1,5 +1,11 @@
 # Changelog
 
+## October 29, 2026
+
+### Fixes
+
+- Featured profiles on the homepage now show each profile's current avatar, instead of an old one.
+
 ## October 28, 2026
 
 ### Fixes

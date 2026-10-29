@@ -2,6 +2,25 @@ import { Metadata } from "next";
 import HomeClient from "./HomeClient";
 import JsonLd from "@/components/seo/JsonLd";
 import { HOME_FAQS } from "@/components/home/faq-data";
+import { inArray, eq } from "drizzle-orm";
+import { db, schema } from "@/lib/db";
+import { FEATURED_USERNAMES, type FeaturedAvatars } from "@/components/home/FeaturedProfiles";
+
+export const revalidate = 600;
+
+async function getFeaturedAvatars(): Promise<FeaturedAvatars> {
+  try {
+    const rows = await db
+      .select({ username: schema.users.username, avatarUrl: schema.userSettings.avatarUrl })
+      .from(schema.users)
+      .leftJoin(schema.userSettings, eq(schema.userSettings.userId, schema.users.id))
+      .where(inArray(schema.users.username, FEATURED_USERNAMES));
+    return Object.fromEntries(rows.map((r) => [r.username, r.avatarUrl]));
+  } catch (err) {
+    console.error("[home] featured avatars failed:", err);
+    return {};
+  }
+}
 
 const TITLE = "iuno.lol - One Link for Your Whole Internet Presence";
 const DESCRIPTION =
@@ -52,11 +71,12 @@ const faqJsonLd = {
   })),
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const featuredAvatars = await getFeaturedAvatars();
   return (
     <>
       <JsonLd data={faqJsonLd} />
-      <HomeClient />
+      <HomeClient featuredAvatars={featuredAvatars} />
     </>
   );
 }
