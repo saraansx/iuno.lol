@@ -6,7 +6,7 @@
 
 - Added **Link Styling** to the Colors page. Pick an icon color and a text color for your big links.
 - Added **music card background**. Change the color and transparency of the music player card on the Music page.
-- Buying a **Custom Domain** now gives you the **Domain** badge and the Domain role in our Discord server, like other paid badges.
+- Buying a **Custom Domain** now gives you the **Custom Domain** badge and the Custom Domain role in our Discord server, like other paid badges.
 
 ### Fixes
 

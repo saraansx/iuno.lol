@@ -150,7 +150,7 @@ export const BADGES = [
   },
   {
     id: "domain",
-    name: "Domain",
+    name: "Custom Domain",
     description: "Buy a Custom Domain.",
     accent: "#2dd4bf",
     filled: true,
