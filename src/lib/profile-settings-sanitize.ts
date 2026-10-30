@@ -142,6 +142,8 @@ const COLOR_FIELDS = new Set([
   "musicSecondaryColor",
   "musicLyricsColor",
   "musicCardColor",
+  "linksIconColor",
+  "linksTextColor",
 ]);
 
 const HEX_COLOR = /^#[0-9a-f]{6}$/;

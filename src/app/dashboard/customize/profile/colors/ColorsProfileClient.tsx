@@ -11,6 +11,7 @@ import WidgetStyleCustomization from "@/components/dashboard/customize/colors/Wi
 import BadgeStyleCustomization from "@/components/dashboard/customize/colors/BadgeStyleCustomization";
 import SectionStyleCustomization from "@/components/dashboard/customize/colors/SectionStyleCustomization";
 import MusicStyleCustomization from "@/components/dashboard/customize/colors/MusicStyleCustomization";
+import LinkStyleCustomization from "@/components/dashboard/customize/colors/LinkStyleCustomization";
 
 import { useCustomizeProfile } from '../CustomizeProfileProvider';
 
@@ -60,6 +61,13 @@ export default function ColorsProfileClient({ user, backgrounds }: { user: FullU
   const musicLyricsColor = overrides.musicLyricsColor ?? initialMusicLyricsColor;
   const setMusicLyricsColor = (val: string) => updateOverrides({ musicLyricsColor: val === initialMusicLyricsColor ? undefined : val });
 
+  const initialLinksIconColor = user?.linksIconColor ?? null;
+  const initialLinksTextColor = user?.linksTextColor ?? null;
+  const linksIconColor = overrides.linksIconColor !== undefined ? overrides.linksIconColor : initialLinksIconColor;
+  const setLinksIconColor = (val: string | null) => updateOverrides({ linksIconColor: val === initialLinksIconColor ? undefined : val });
+  const linksTextColor = overrides.linksTextColor !== undefined ? overrides.linksTextColor : initialLinksTextColor;
+  const setLinksTextColor = (val: string | null) => updateOverrides({ linksTextColor: val === initialLinksTextColor ? undefined : val });
+
   const initialMonochromeEnabled = user?.badgeMonochromeEnabled ?? false;
   const monochromeEnabled = initialMonochromeEnabled;
   const initialMonochromeColor = user?.badgeMonochromeColor ?? "#FFFFFF";
@@ -93,6 +101,14 @@ export default function ColorsProfileClient({ user, backgrounds }: { user: FullU
           descColor={sectionDescColor}
           setDescColor={setSectionDescColor}
           onReset={() => { setSectionTitleColor(initialSectionTitleColor); setSectionDescColor(initialSectionDescColor); }}
+        />
+
+        <LinkStyleCustomization
+          iconColor={linksIconColor}
+          setIconColor={setLinksIconColor}
+          textColor={linksTextColor}
+          setTextColor={setLinksTextColor}
+          onReset={() => { setLinksIconColor(initialLinksIconColor); setLinksTextColor(initialLinksTextColor); }}
         />
 
         <MusicStyleCustomization

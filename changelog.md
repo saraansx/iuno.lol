@@ -4,7 +4,7 @@
 
 ### New
 
-- Big links can now have their own **text color**. Pick it when you add or edit a big link.
+- Added **Link Styling** to the Colors page. Pick an icon color and a text color for your big links.
 - Added **music card background**. Change the color and transparency of the music player card on the Music page.
 
 ### Fixes

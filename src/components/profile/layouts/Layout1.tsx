@@ -299,6 +299,8 @@ const Layout1 = ({
   linksBorderRadius,
   linksIconSize,
   linksIconGap,
+  linksIconColor = null,
+  linksTextColor = null,
   linksFont,
   linksFontSize,
   linksFontWeight,
@@ -802,7 +804,7 @@ useEffect(() => {
 
   const bigLinksSection = bigLinks.length > 0 ? (
     <div className="w-full mt-3">
-      <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} iconGap={linksIconGap} />
+      <ProfileLinks links={bigLinks} titleStyle={linkTitleStyle} showTooltip={showLinksTooltip} alignment={linksAlignment} socialBackground={linksSocialBackground} borderRadius={linksBorderRadius} iconSize={linksIconSize} iconGap={linksIconGap} iconColor={linksIconColor} textColor={linksTextColor} />
     </div>
   ) : null;
 

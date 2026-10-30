@@ -232,6 +232,8 @@ const userColumns = {
   linksBorderRadius: schema.userSettings.linksBorderRadius,
   linksIconSize: schema.userSettings.linksIconSize,
   linksIconGap: schema.userSettings.linksIconGap,
+  linksIconColor: schema.userSettings.linksIconColor,
+  linksTextColor: schema.userSettings.linksTextColor,
   widgets: schema.userSettings.widgets,
   links: schema.userSettings.links,
 } as const

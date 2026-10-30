@@ -586,6 +586,8 @@ async function updateColorsProfileImpl(data: {
   musicSecondaryColor?: string | null;
   musicLyricsColor?: string | null;
   badgeMonochromeColor?: string | null;
+  linksIconColor?: string | null;
+  linksTextColor?: string | null;
 }) {
   const userId = await getSessionUserId();
   
@@ -614,6 +616,8 @@ async function updateColorsProfileImpl(data: {
   if (data.musicSecondaryColor !== undefined) setData.musicSecondaryColor = data.musicSecondaryColor?.slice(0, 32) ?? null;
   if (data.musicLyricsColor !== undefined) setData.musicLyricsColor = data.musicLyricsColor?.slice(0, 32) ?? null;
   if (data.badgeMonochromeColor !== undefined) setData.badgeMonochromeColor = data.badgeMonochromeColor?.slice(0, 32) ?? null;
+  if (data.linksIconColor !== undefined) setData.linksIconColor = data.linksIconColor?.toLowerCase() ?? null;
+  if (data.linksTextColor !== undefined) setData.linksTextColor = data.linksTextColor?.toLowerCase() ?? null;
 
   sanitizeProfileSettings(setData);
 

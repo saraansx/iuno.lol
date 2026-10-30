@@ -265,6 +265,8 @@ export interface Layout1Props {
   linksBorderRadius?: number | null;
   linksIconSize?: number | null;
   linksIconGap?: number | null;
+  linksIconColor?: string | null;
+  linksTextColor?: string | null;
   linksFont?: string | null;
   linksFontSize?: number | null;
   linksFontWeight?: number | null;

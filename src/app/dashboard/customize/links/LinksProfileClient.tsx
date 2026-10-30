@@ -85,7 +85,6 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
   const [title, setTitle] = useState(initial?.title ?? "");
   const [url, setUrl] = useState(initial?.url ?? "");
   const [color, setColor] = useState<string | null>(initial?.color ?? null);
-  const [textColor, setTextColor] = useState<string | null>(initial?.textColor ?? null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -113,7 +112,6 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
     setTitle(initial?.title ?? "");
     setUrl(initial?.url ?? "");
     setColor(initial?.color ?? null);
-    setTextColor(initial?.textColor ?? null);
     setError(null);
     setSaving(false);
     setPickerOpen(false);
@@ -180,7 +178,6 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
       icon: finalIcon,
       variant,
       color: color && /^#[0-9a-f]{6}$/i.test(color.trim()) ? color.trim().toLowerCase() : null,
-      textColor: variant === "big" && textColor && /^#[0-9a-f]{6}$/i.test(textColor.trim()) ? textColor.trim().toLowerCase() : null,
     });
     reset();
     onClose();
@@ -445,45 +442,6 @@ function LinkModal({ open, initial, onClose, onSave }: LinkModalProps) {
                       />
                     </label>
                     <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{color ?? "Default"}</span>
-                  </div>
-                </div>
-              )}
-
-              {variant === "big" && (
-                <div className="flex flex-col gap-2">
-                  <span className="text-[12.5px] font-medium text-white/90">Text color</span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {["#609fda", "#5b6cf5", "#a78bfa", "#f472b6", "#fb7185", "#fb923c", "#facc15", "#4ade80", "#2dd4bf", "#ffffff"].map((swatch) => (
-                      <button
-                        key={swatch}
-                        type="button"
-                        title={swatch}
-                        aria-label={`Text color ${swatch}`}
-                        onClick={() => setTextColor(textColor?.toLowerCase() === swatch ? null : swatch)}
-                        className={`w-8 h-8 rounded-full border transition-all cursor-pointer ${
-                          textColor?.toLowerCase() === swatch
-                            ? "border-white scale-110 shadow-[0_0_12px_rgba(255,255,255,0.25)]"
-                            : "border-white/15 hover:scale-105 hover:border-white/40"
-                        }`}
-                        style={{ backgroundColor: swatch }}
-                      />
-                    ))}
-                    <label
-                      title="Custom text color"
-                      className="relative w-8 h-8 rounded-full border border-dashed border-white/25 hover:border-white/50 transition-all cursor-pointer overflow-hidden flex items-center justify-center text-white/60 hover:text-white"
-                    >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 5v14M5 12h14" />
-                      </svg>
-                      <input
-                        type="color"
-                        aria-label="Custom text color"
-                        value={textColor ?? "#ffffff"}
-                        onChange={(e) => setTextColor(e.target.value)}
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                      />
-                    </label>
-                    <span className="text-[11px] font-mono text-white/35 uppercase ml-1">{textColor ?? "Default"}</span>
                   </div>
                 </div>
               )}

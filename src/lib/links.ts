@@ -7,7 +7,6 @@ export interface ProfileLink {
   icon: string;
   variant: LinkVariant;
   color: string | null;
-  textColor?: string | null;
 }
 
 export const MAX_LINKS = 10;
@@ -173,8 +172,6 @@ export function sanitizeProfileLink(raw: unknown): ProfileLink | null {
   const variant: LinkVariant = record.variant === "small" ? "small" : "big";
   const rawColor = typeof record.color === "string" ? record.color.trim() : "";
   const color = /^#[0-9a-f]{6}$/i.test(rawColor) ? rawColor.toLowerCase() : null;
-  const rawText = typeof record.textColor === "string" ? record.textColor.trim() : "";
-  const textColor = variant === "big" && /^#[0-9a-f]{6}$/i.test(rawText) ? rawText.toLowerCase() : null;
   if (!id || !title || !url) return null;
-  return { id, title, url, icon, variant, color, textColor };
+  return { id, title, url, icon, variant, color };
 }

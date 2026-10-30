@@ -13,6 +13,8 @@ interface ProfileLinksProps {
   borderRadius?: number | null;
   iconSize?: number | null;
   iconGap?: number | null;
+  iconColor?: string | null;
+  textColor?: string | null;
 }
 
 const ALIGN_JUSTIFY: Record<string, string> = {
@@ -30,7 +32,7 @@ function ExternalArrow({ size = 13 }: { size?: number }) {
   );
 }
 
-export default function ProfileLinks({ links, titleStyle, showTooltip = true, alignment, socialBackground, borderRadius, iconSize, iconGap }: ProfileLinksProps) {
+export default function ProfileLinks({ links, titleStyle, showTooltip = true, alignment, socialBackground, borderRadius, iconSize, iconGap, iconColor, textColor }: ProfileLinksProps) {
   const items = (links ?? []).filter((l) => l && l.url && l.title);
   if (items.length === 0) return null;
 
@@ -57,7 +59,7 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
   return (
     <div className={`w-full flex flex-wrap items-stretch ${justify}`} style={{ gap: `${gap}px` }}>
       {items.map((link) => {
-        const color = link.color ?? null;
+        const color = link.color ?? (link.variant === "big" ? iconColor ?? null : null);
         return link.variant === "small" ? (
           <a
             key={link.id}
@@ -89,7 +91,7 @@ export default function ProfileLinks({ links, titleStyle, showTooltip = true, al
             </span>
             <span
               className="min-w-0 flex-1 truncate text-[13.5px] font-normal text-white/90 tracking-tight"
-              style={link.textColor ? { ...titleStyle, color: link.textColor } : titleStyle}
+              style={textColor ? { ...titleStyle, color: textColor } : titleStyle}
             >
               {link.title}
             </span>

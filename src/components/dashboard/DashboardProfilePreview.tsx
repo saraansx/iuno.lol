@@ -306,6 +306,8 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       linksBorderRadius={deferredOverrides.linksBorderRadius ?? user?.linksBorderRadius ?? 16}
       linksIconSize={deferredOverrides.linksIconSize ?? user?.linksIconSize ?? 17}
       linksIconGap={deferredOverrides.linksIconGap ?? user?.linksIconGap ?? 10}
+      linksIconColor={deferredOverrides.linksIconColor !== undefined ? deferredOverrides.linksIconColor : user?.linksIconColor ?? null}
+      linksTextColor={deferredOverrides.linksTextColor !== undefined ? deferredOverrides.linksTextColor : user?.linksTextColor ?? null}
     />
   );
 }

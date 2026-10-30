@@ -270,6 +270,8 @@ export const userSettings = mysqlTable('user_settings', {
   linksBorderRadius: int('links_border_radius').default(16),
   linksIconSize: int('links_icon_size').default(17),
   linksIconGap: int('links_icon_gap').default(10),
+  linksIconColor: text('links_icon_color'),
+  linksTextColor: text('links_text_color'),
   widgets: json('widgets').$type<Array<{
     id: string;
     platform: string;

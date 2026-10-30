@@ -169,6 +169,8 @@ export const TEMPLATE_STYLE_KEYS = [
   "linksBorderRadius",
   "linksIconSize",
   "linksIconGap",
+  "linksIconColor",
+  "linksTextColor",
   "musicPlayerStyle",
   "musicPlayerArtBg",
   "musicPlayerVolume",
