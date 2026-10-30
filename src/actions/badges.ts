@@ -291,6 +291,19 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   const verified = Boolean(user?.hasVerified);
   const donatorRoleId = BADGE_ROLE_MAP["donator"];
   const donator = Boolean(user?.hasDonator);
+  // Domain is a paid badge: owning a Custom Domain token decides it, not the Discord role.
+  const domainRoleId = BADGE_ROLE_MAP["domain"];
+  const domain = (user?.domainTokens ?? 0) > 0;
+  if (domain && domainRoleId && !roles.includes(domainRoleId)) {
+    try {
+      const put = await fetch(
+        `https://discord.com/api/v10/guilds/${guildId}/members/${discordId}/roles/${domainRoleId}`,
+        { method: "PUT", headers: { Authorization: `Bot ${botToken}` }, signal: AbortSignal.timeout(10000) }
+      );
+      if (put.ok) roles.push(domainRoleId);
+    } catch {
+    }
+  }
   if (verified && verifiedRoleId && !roles.includes(verifiedRoleId)) {
     try {
       const put = await fetch(
@@ -364,7 +377,7 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
     const badge = findBadge(badgeId) ?? LEVELS.find((l) => l.id === badgeId) ?? null;
     if (!badge || isLocked(badge)) continue;
 
-    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified) || (badgeId === "donator" && !donator)) {
+    if ((badgeId === "premium" && !premium) || (badgeId === "image-host" && !imageHost) || (badgeId === "verified" && !verified) || (badgeId === "donator" && !donator) || (badgeId === "domain" && !domain)) {
       if (owned.has(badgeId)) {
         await db
           .delete(schema.userBadges)
@@ -382,7 +395,12 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
       }
       continue;
     }
-    if (badgeId === "premium" || badgeId === "image-host" || badgeId === "verified" || badgeId === "donator") continue;
+    if (badgeId === "domain" && !owned.has("domain")) {
+      await db.insert(schema.userBadges).values({ userId, badgeId, equipped: false, equippedAt: null });
+      owned.add(badgeId);
+      added.push(badgeId);
+    }
+    if (badgeId === "premium" || badgeId === "image-host" || badgeId === "verified" || badgeId === "donator" || badgeId === "domain") continue;
 
     if (roles.includes(roleId)) {
       if (!owned.has(badgeId)) {

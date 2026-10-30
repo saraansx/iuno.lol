@@ -106,6 +106,7 @@ export const DOMAIN_TOKEN: Plan = {
   tag: DOMAIN_TOKEN_PLAN_TAG,
   name: "Custom Domain",
   prices: DOMAIN_TOKEN_PLAN,
+  badgeId: "domain",
 };
 
 const PLANS: Record<string, Plan> = {

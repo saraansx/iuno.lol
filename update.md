@@ -6,6 +6,7 @@
 
 - **Link Styling.** Pick an icon color and a text color for your big links on the Colors page.
 - **Music card background.** Change the color and transparency of your music player card.
+- **Domain badge.** Buying a Custom Domain now gives you the Domain badge and the Domain role in our Discord server.
 
 ## Fixes
 

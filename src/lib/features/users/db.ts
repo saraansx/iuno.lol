@@ -22,6 +22,7 @@ const userColumns = {
   hasDonator: schema.users.hasDonator,
   badgeTokens: schema.users.badgeTokens,
   aliasTokens: schema.users.aliasTokens,
+  domainTokens: schema.users.domainTokens,
   usernameLoginEnabled: schema.users.usernameLoginEnabled,
   discordId: schema.users.discordId,
   discordUsername: schema.users.discordUsername,

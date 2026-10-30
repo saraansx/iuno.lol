@@ -33,7 +33,7 @@ const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" | 
   "bug-hunter": { label: "Report a bug", action: "discord" },
   booster: { label: "Join Discord", action: "discord" },
   "guild-tag": { label: "Join Discord", action: "discord" },
-  domain: { label: "Add Domain", action: "soon" },
+  domain: { label: "Get Custom Domain", action: "link", href: "/checkout/domain-token" },
   gifter: { label: "Send a gift", action: "soon" },
   featured: { label: "Apply", action: "discord" },
   suggestor: { label: "Suggest Ideas", action: "discord" },

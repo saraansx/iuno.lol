@@ -151,7 +151,7 @@ export const BADGES = [
   {
     id: "domain",
     name: "Domain",
-    description: "Add a public custom domain to your profile.",
+    description: "Buy a Custom Domain.",
     accent: "#2dd4bf",
     filled: true,
     viewBox: "32 96 576 448",

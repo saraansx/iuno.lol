@@ -127,7 +127,7 @@ async function handleSync(request: Request) {
     const memberRoles = await fetchAllMemberRoles(guildId, botToken);
 
     const users = await db
-      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium,hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified, hasDonator: schema.users.hasDonator })
+      .select({ id: schema.users.id, username: schema.users.username, discordId: schema.users.discordId, isPremium: schema.users.isPremium,hasImageHost: schema.users.hasImageHost, hasVerified: schema.users.hasVerified, hasDonator: schema.users.hasDonator, domainTokens: schema.users.domainTokens })
       .from(schema.users)
       .where(isNotNull(schema.users.discordId));
     const premiumByUserId = new Map(
@@ -136,13 +136,15 @@ async function handleSync(request: Request) {
     const imageHostByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasImageHost)]));
     const verifiedByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasVerified)]));
     const donatorByUserId = new Map(users.map((u) => [u.id, Boolean(u.hasDonator)]));
-    const PAID_BADGES = ['premium', 'image-host', 'verified', 'donator'] as const;
+    const domainByUserId = new Map(users.map((u) => [u.id, (u.domainTokens ?? 0) > 0]));
+    const PAID_BADGES = ['premium', 'image-host', 'verified', 'donator', 'domain'] as const;
     const isPaidBadge = (badgeId: string) => (PAID_BADGES as readonly string[]).includes(badgeId);
     const ownsPaidBadge = (badgeId: string, uid: number) =>
       badgeId === 'premium' ? premiumByUserId.get(uid) ?? false
       : badgeId === 'image-host' ? imageHostByUserId.get(uid) ?? false
       : badgeId === 'verified' ? verifiedByUserId.get(uid) ?? false
       : badgeId === 'donator' ? donatorByUserId.get(uid) ?? false
+      : badgeId === 'domain' ? domainByUserId.get(uid) ?? false
       : badgeId === 'early' ? uid <= EARLY_CUTOFF_UID
       : true;
     const SITE_ROLE_BADGES = [...PAID_BADGES, 'early'] as const;
@@ -225,6 +227,12 @@ async function handleSync(request: Request) {
           toInsert.push({ userId: user.id, badgeId });
           changedUsernames.add(user.username);
         }
+      }
+      // Domain badge follows Custom Domain tokens, so token holders get it even if it was never granted.
+      if (ownsPaidBadge('domain', user.id) && !existingKeys.has(`${user.id}:domain`)) {
+        existingKeys.add(`${user.id}:domain`);
+        toInsert.push({ userId: user.id, badgeId: 'domain' });
+        changedUsernames.add(user.username);
       }
       if (user.id <= EARLY_CUTOFF_UID && !existingKeys.has(`${user.id}:early`)) {
         existingKeys.add(`${user.id}:early`);
