@@ -228,7 +228,6 @@ async function handleSync(request: Request) {
           changedUsernames.add(user.username);
         }
       }
-      // Domain badge follows Custom Domain tokens, so token holders get it even if it was never granted.
       if (ownsPaidBadge('domain', user.id) && !existingKeys.has(`${user.id}:domain`)) {
         existingKeys.add(`${user.id}:domain`);
         toInsert.push({ userId: user.id, badgeId: 'domain' });

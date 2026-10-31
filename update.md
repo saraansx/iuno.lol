@@ -8,6 +8,11 @@
 - **Music card background.** Change the color and transparency of your music player card.
 - **Custom Domain badge.** Buying a Custom Domain now gives you the Custom Domain badge and role in our Discord server.
 
+## Improvements
+
+- **Why a badge is not available.** Badges like Owner, Developer and Early now have a small ? that explains why you can't get them.
+- **Featured profiles open in a new tab.** Clicking a profile on the homepage strip keeps the homepage open.
+
 ## Fixes
 
 - Featured profiles on the homepage now show each profile's current avatar.

@@ -25,6 +25,13 @@ type ScrollStyle = "none" | "pingpong" | "left" | "right";
 
 const APPLY_BADGE_IDS = ["staff", "helper"];
 
+const NOT_AVAILABLE_REASONS: Record<string, string> = {
+  owner: "Only the iuno.lol owner team has this badge. It can't be earned or bought.",
+  developer: "Only iuno.lol developers have this badge. It can't be earned or bought.",
+  early: "Only the first 100 members could earn this badge, and those spots are taken.",
+  "halloween-2026": "This badge could only be claimed during Halloween 2026 (Oct 26 – Nov 2).",
+};
+
 const CTA_BUTTONS: Record<string, { label: string; action: "discord" | "soon" | "link"; href?: string }> = {
   premium: { label: "Get premium", action: "link", href: "/checkout" },
   "image-host": { label: "Get image host", action: "link", href: "/checkout/image-host" },
@@ -261,9 +268,33 @@ function BadgeCell({
               {ctaLabel ?? CTA_BUTTONS[badge.id].label}
             </button>
           )}
-          {isLocked && (badge.id === "owner" || badge.id === "developer" || badge.id === "early" || badge.id === "halloween-2026") && (
-            <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
-              Not available
+          {isLocked && NOT_AVAILABLE_REASONS[badge.id] && (
+            <span className="flex items-center gap-1.5">
+              <span className="text-[12px] font-normal rounded-lg px-3 py-1 border text-white/70 bg-white/[0.03] border-white/15">
+                Not available
+              </span>
+              {}
+              <span className="group/why relative">
+                <button
+                  type="button"
+                  aria-label={`Why is ${badge.name} not available?`}
+                  aria-describedby={`why-${badge.id}`}
+                  className="flex items-center justify-center text-white/30 hover:text-white/70 focus-visible:text-white/70 transition-colors cursor-pointer"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+                    <path d="M12 17h.01" />
+                  </svg>
+                </button>
+                <span
+                  id={`why-${badge.id}`}
+                  role="tooltip"
+                  className="pointer-events-none absolute right-full top-0 mr-2 z-30 w-56 rounded-lg border border-white/10 bg-[#141414] px-2.5 py-1.5 text-[11px] leading-snug text-white/80 shadow-lg opacity-0 transition-opacity group-hover/why:opacity-100 group-focus-within/why:opacity-100"
+                >
+                  {NOT_AVAILABLE_REASONS[badge.id]}
+                </span>
+              </span>
             </span>
           )}
         </span>

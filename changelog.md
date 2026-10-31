@@ -1,5 +1,12 @@
 # Changelog
 
+## October 31, 2026
+
+### Improvements
+
+- Badges marked **Not available**, like Owner, Developer and Early, now have a small **?** that explains why you can't get them.
+- Clicking a featured profile on the homepage now opens it in a new tab.
+
 ## October 29, 2026
 
 ### New

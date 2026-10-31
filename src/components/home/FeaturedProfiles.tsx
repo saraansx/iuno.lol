@@ -15,6 +15,8 @@ function Row({ copy, avatars }: { copy: boolean; avatars: FeaturedAvatars }) {
         <li key={p.username}>
           <Link
             href={`/${p.username}`}
+            target="_blank"
+            rel="noopener noreferrer"
             tabIndex={copy ? -1 : undefined}
             className="flex items-center gap-3 text-white/85 hover:text-white transition-colors"
             style={{ fontFamily: "var(--font-comfortaa)" }}

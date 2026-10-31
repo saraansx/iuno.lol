@@ -291,7 +291,6 @@ export async function syncDiscordBadges(): Promise<MyBadges & { added: string[];
   const verified = Boolean(user?.hasVerified);
   const donatorRoleId = BADGE_ROLE_MAP["donator"];
   const donator = Boolean(user?.hasDonator);
-  // Domain is a paid badge: owning a Custom Domain token decides it, not the Discord role.
   const domainRoleId = BADGE_ROLE_MAP["domain"];
   const domain = (user?.domainTokens ?? 0) > 0;
   if (domain && domainRoleId && !roles.includes(domainRoleId)) {
