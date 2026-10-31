@@ -161,11 +161,22 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
   const setBorderOpacity = (val: number) =>
     updateOverrides({ widgetBorderOpacity: val === initialBorderOpacity ? undefined : val });
 
+  const initialCardColor = user?.widgetCardColor ?? null;
+  const initialCardOpacity = user?.widgetCardOpacity ?? 80;
+  const cardColor = overrides.widgetCardColor !== undefined ? overrides.widgetCardColor : initialCardColor;
+  const setCardColor = (val: string | null) =>
+    updateOverrides({ widgetCardColor: val === initialCardColor ? undefined : val });
+  const cardOpacity = overrides.widgetCardOpacity ?? initialCardOpacity;
+  const setCardOpacity = (val: number) =>
+    updateOverrides({ widgetCardOpacity: val === initialCardOpacity ? undefined : val });
+
   const hasChanges = useMemo(() => {
     const borderChanged =
       overrides.widgetBorderWidth !== undefined ||
       overrides.widgetBorderRadius !== undefined ||
-      overrides.widgetBorderOpacity !== undefined;
+      overrides.widgetBorderOpacity !== undefined ||
+      overrides.widgetCardColor !== undefined ||
+      overrides.widgetCardOpacity !== undefined;
     if (borderChanged) return true;
     if (overrides.widgets === undefined) return false;
     return !areWidgetsEqual(currentWidgets, userSavedWidgets);
@@ -174,6 +185,8 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
     overrides.widgetBorderWidth,
     overrides.widgetBorderRadius,
     overrides.widgetBorderOpacity,
+    overrides.widgetCardColor,
+    overrides.widgetCardOpacity,
     currentWidgets,
     userSavedWidgets,
   ]);
@@ -194,6 +207,8 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
           widgetBorderWidth: borderWidth,
           widgetBorderRadius: borderRadius,
           widgetBorderOpacity: borderOpacity,
+          widgetCardColor: cardColor,
+          widgetCardOpacity: cardOpacity,
         });
         if (res.success) {
           toast.success("Widgets updated successfully");
@@ -228,6 +243,10 @@ export default function WidgetsProfileClient({ user, backgrounds }: { user: Full
           setBorderRadius={setBorderRadius}
           borderOpacity={borderOpacity}
           setBorderOpacity={setBorderOpacity}
+          cardColor={cardColor}
+          setCardColor={setCardColor}
+          cardOpacity={cardOpacity}
+          setCardOpacity={setCardOpacity}
         />
 
         {!isPremium && (

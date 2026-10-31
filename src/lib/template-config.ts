@@ -152,6 +152,8 @@ export const TEMPLATE_STYLE_KEYS = [
   "widgetBorderOpacity",
   "widgetBorderWidth",
   "widgetBorderRadius",
+  "widgetCardColor",
+  "widgetCardOpacity",
   "widgetFont",
   "widgetFontSize",
   "widgetFontWeight",

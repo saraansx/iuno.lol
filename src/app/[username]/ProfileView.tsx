@@ -275,6 +275,8 @@ export default async function ProfileView({
         widgetBorderOpacity={user.widgetBorderOpacity ?? undefined}
         widgetBorderWidth={user.widgetBorderWidth ?? undefined}
         widgetBorderRadius={user.widgetBorderRadius ?? undefined}
+        widgetCardColor={user.widgetCardColor ?? undefined}
+        widgetCardOpacity={user.widgetCardOpacity ?? undefined}
         widgetFont={user.widgetFont ?? undefined}
         widgetFontSize={user.widgetFontSize ?? undefined}
         widgetFontWeight={user.widgetFontWeight ?? undefined}

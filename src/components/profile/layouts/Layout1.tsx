@@ -232,6 +232,8 @@ const Layout1 = ({
   widgetBorderOpacity,
   widgetBorderWidth,
   widgetBorderRadius,
+  widgetCardColor,
+  widgetCardOpacity,
   widgetFont,
   widgetFontSize,
   widgetFontWeight,
@@ -713,6 +715,8 @@ useEffect(() => {
         widgetBorderOpacity={widgetBorderOpacity}
         widgetBorderWidth={widgetBorderWidth}
         widgetBorderRadius={widgetBorderRadius}
+        widgetCardColor={widgetCardColor}
+        widgetCardOpacity={widgetCardOpacity}
         widgetFont={widgetFont}
         widgetFontSize={widgetFontSize}
         widgetFontWeight={widgetFontWeight}
@@ -736,6 +740,8 @@ useEffect(() => {
       widgetBorderOpacity={widgetBorderOpacity}
       widgetBorderWidth={widgetBorderWidth}
       widgetBorderRadius={widgetBorderRadius}
+      widgetCardColor={widgetCardColor}
+      widgetCardOpacity={widgetCardOpacity}
       widgetFont={widgetFont}
       widgetFontSize={widgetFontSize}
       widgetFontWeight={widgetFontWeight}

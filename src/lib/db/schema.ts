@@ -173,6 +173,8 @@ export const userSettings = mysqlTable('user_settings', {
   widgetBorderOpacity: int('widget_border_opacity').default(10),
   widgetBorderWidth: float('widget_border_width').default(1),
   widgetBorderRadius: float('widget_border_radius').default(24),
+  widgetCardColor: text('widget_card_color'),
+  widgetCardOpacity: int('widget_card_opacity').default(80),
   widgetFont: text('widget_font'),
   widgetFontSize: float('widget_font_size').default(12.5),
   widgetFontWeight: int('widget_font_weight').default(400),

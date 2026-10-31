@@ -112,6 +112,8 @@ interface WidgetStyleProps {
   widgetBorderOpacity?: number | null;
   widgetBorderWidth?: number | null;
   widgetBorderRadius?: number | null;
+  widgetCardColor?: string | null;
+  widgetCardOpacity?: number | null;
   widgetFont?: string | null;
   widgetFontSize?: number | null;
   widgetFontWeight?: number | null;
@@ -149,6 +151,14 @@ function widgetThemeStyle(style: WidgetStyleProps): React.CSSProperties {
   if (typeof style.widgetBorderRadius === "number") {
     const clamped = Math.min(100, Math.max(0, style.widgetBorderRadius));
     vars["--widget-border-radius"] = `${clamped}px`;
+  }
+
+  const card = hexToRgbChannels(style.widgetCardColor);
+  if (card) vars["--widget-card"] = card;
+
+  if (typeof style.widgetCardOpacity === "number") {
+    const clamped = Math.min(100, Math.max(0, style.widgetCardOpacity));
+    vars["--widget-card-alpha"] = String(clamped / 100);
   }
 
   const font = style.widgetFont ? FONT_FAMILY_VARS[style.widgetFont] : undefined;

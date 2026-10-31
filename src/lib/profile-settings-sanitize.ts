@@ -109,6 +109,7 @@ const NUMERIC_RANGES: Record<string, NumericRange> = {
   widgetBorderWidth: { min: 0, max: 20 },
   widgetBorderRadius: { min: 0, max: 100 },
   widgetBorderOpacity: { min: 0, max: 100, int: true },
+  widgetCardOpacity: { min: 0, max: 100, int: true },
 };
 
 const COLOR_FIELDS = new Set([
@@ -142,6 +143,7 @@ const COLOR_FIELDS = new Set([
   "musicSecondaryColor",
   "musicLyricsColor",
   "musicCardColor",
+  "widgetCardColor",
   "linksIconColor",
   "linksTextColor",
 ]);

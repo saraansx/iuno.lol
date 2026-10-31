@@ -183,6 +183,8 @@ export interface Layout1Props {
   widgetBorderOpacity?: number;
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
+  widgetCardColor?: string;
+  widgetCardOpacity?: number;
   widgetFont?: string;
   widgetFontSize?: number;
   widgetFontWeight?: number;

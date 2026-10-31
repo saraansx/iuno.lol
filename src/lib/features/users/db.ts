@@ -134,6 +134,8 @@ const userColumns = {
   widgetBorderOpacity: schema.userSettings.widgetBorderOpacity,
   widgetBorderWidth: schema.userSettings.widgetBorderWidth,
   widgetBorderRadius: schema.userSettings.widgetBorderRadius,
+  widgetCardColor: schema.userSettings.widgetCardColor,
+  widgetCardOpacity: schema.userSettings.widgetCardOpacity,
   profileStructure: schema.userSettings.profileStructure,
   aboutSectionEnabled: schema.userSettings.aboutSectionEnabled,
   aboutSectionTitle: schema.userSettings.aboutSectionTitle,

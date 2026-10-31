@@ -289,8 +289,8 @@ export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg,
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
           />
           <div
-            className="absolute h-3 w-3 rounded-full bg-white shadow-[0_0_10px_rgba(91,108,245,0.8)] pointer-events-none"
-            style={{ left: `calc(${cardOpacity}% - 6px)` }}
+            className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+            style={{ left: `calc(${cardOpacity}% - 8px)` }}
           />
         </div>
       </div>
@@ -337,8 +337,8 @@ export default function PlayerStyleSection({ playerStyle, setPlayerStyle, artBg,
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
           />
           <div
-            className="absolute h-3 w-3 rounded-full bg-white shadow-[0_0_10px_rgba(91,108,245,0.8)] pointer-events-none"
-            style={{ left: `calc(${defaultVolume}% - 6px)` }}
+            className="absolute w-4 h-4 bg-[#050505] border-[2px] border-[#5b6cf5] rounded-full pointer-events-none transition-transform group-active:scale-110 shadow-lg"
+            style={{ left: `calc(${defaultVolume}% - 8px)` }}
           />
         </div>
       </div>

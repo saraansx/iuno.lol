@@ -2,6 +2,10 @@
 
 ## October 31, 2026
 
+### New
+
+- Added **Widgets background** on the Widgets page. Change the color and transparency of all your widget cards, so they match your music card and the rest of your profile.
+
 ### Improvements
 
 - Badges marked **Not available**, like Owner, Developer and Early, now have a small **?** that explains why you can't get them.

@@ -105,6 +105,8 @@ const queryProfileRows = (username: string) =>
       widgetBorderOpacity: userSettings.widgetBorderOpacity,
       widgetBorderWidth: userSettings.widgetBorderWidth,
       widgetBorderRadius: userSettings.widgetBorderRadius,
+      widgetCardColor: userSettings.widgetCardColor,
+      widgetCardOpacity: userSettings.widgetCardOpacity,
       widgetFont: userSettings.widgetFont,
       widgetFontSize: userSettings.widgetFontSize,
       widgetFontWeight: userSettings.widgetFontWeight,

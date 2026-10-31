@@ -223,6 +223,8 @@
   --widget-border-alpha: 0.1;
   --widget-border-width: 1px;
   --widget-border-radius: 24px;
+  --widget-card: 16 16 16;
+  --widget-card-alpha: 0.8;
   --widget-font: var(--font-inter);
   --widget-font-scale: 1;
   --widget-font-weight: 400;
@@ -328,6 +330,14 @@
 .iuno-widgets .group:hover .border-white\/20,
 .iuno-widgets .hover\:border-white\/20:hover {
   border-color: rgb(var(--widget-border) / calc(var(--widget-border-alpha) * 2));
+}
+
+/* Card background. Every shell uses `bg-[#101010]/80`; hover lifts it slightly. */
+.iuno-widgets .bg-\[\#101010\]\/80 {
+  background-color: rgb(var(--widget-card) / var(--widget-card-alpha));
+}
+.iuno-widgets .hover\:bg-\[\#141414\]\/90:hover {
+  background-color: rgb(var(--widget-card) / min(1, calc(var(--widget-card-alpha) + 0.1)));
 }
 
 /* Shell width and radius.

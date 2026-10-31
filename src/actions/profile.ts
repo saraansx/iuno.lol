@@ -1048,6 +1048,8 @@ async function updateProfileWidgetsImpl(data: {
   widgetBorderWidth?: number;
   widgetBorderRadius?: number;
   widgetBorderOpacity?: number;
+  widgetCardColor?: string | null;
+  widgetCardOpacity?: number;
   widgets: Array<{
     id: string;
     platform: string;
@@ -1562,6 +1564,12 @@ async function updateProfileWidgetsImpl(data: {
       100,
       Math.max(0, Math.round(data.widgetBorderOpacity))
     );
+  }
+  if (data.widgetCardColor === null || typeof data.widgetCardColor === "string") {
+    setData.widgetCardColor = data.widgetCardColor?.toLowerCase() ?? null;
+  }
+  if (typeof data.widgetCardOpacity === "number") {
+    setData.widgetCardOpacity = data.widgetCardOpacity;
   }
 
   sanitizeProfileSettings(setData);

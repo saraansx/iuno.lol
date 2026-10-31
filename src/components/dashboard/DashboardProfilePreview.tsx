@@ -219,6 +219,8 @@ export default function DashboardProfilePreview({ user, overrides = {}, equipped
       widgetBorderOpacity={deferredOverrides.widgetBorderOpacity ?? user?.widgetBorderOpacity ?? 10}
       widgetBorderWidth={deferredOverrides.widgetBorderWidth ?? user?.widgetBorderWidth ?? 1}
       widgetBorderRadius={deferredOverrides.widgetBorderRadius ?? user?.widgetBorderRadius ?? 24}
+      widgetCardColor={deferredOverrides.widgetCardColor !== undefined ? deferredOverrides.widgetCardColor ?? undefined : user?.widgetCardColor ?? undefined}
+      widgetCardOpacity={deferredOverrides.widgetCardOpacity ?? user?.widgetCardOpacity ?? 80}
       widgetFont={deferredOverrides.widgetFont ?? user?.widgetFont ?? "Inter"}
       widgetFontSize={deferredOverrides.widgetFontSize ?? user?.widgetFontSize ?? 12.5}
       widgetFontWeight={deferredOverrides.widgetFontWeight ?? user?.widgetFontWeight ?? 400}
