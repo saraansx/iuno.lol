@@ -7,6 +7,10 @@
 - Badges marked **Not available**, like Owner, Developer and Early, now have a small **?** that explains why you can't get them.
 - Clicking a featured profile on the homepage now opens it in a new tab.
 
+### Fixes
+
+- Hitting **Sync** on the badges page no longer shows a confusing "Server Components render" error. You now see the real reason, like "You're updating too fast" or "Connect your Discord account first".
+
 ## October 29, 2026
 
 ### New

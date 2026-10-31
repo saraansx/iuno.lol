@@ -243,7 +243,17 @@ export async function saveEquippedBadges(ids: string[]): Promise<MyBadges> {
   return getMyBadges();
 }
 
-export async function syncDiscordBadges(): Promise<MyBadges & { added: string[]; removed: string[] }> {
+export async function syncDiscordBadges(): Promise<(MyBadges & { added: string[]; removed: string[] }) | { error: string }> {
+  try {
+    return await runDiscordSync();
+  } catch (e) {
+    if (e instanceof Error && e.constructor === Error) return { error: e.message };
+    console.error("[badges] sync failed", e);
+    return { error: "Sync failed. Try again in a bit." };
+  }
+}
+
+async function runDiscordSync(): Promise<MyBadges & { added: string[]; removed: string[] }> {
   const userId = await getSessionUserId();
   if (!userId) throw new Error("Unauthorized");
 

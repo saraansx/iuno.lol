@@ -796,6 +796,7 @@ export default function BadgesTabs({
     setSyncing(true);
     try {
       const next = await syncDiscordBadges();
+      if ("error" in next) throw new Error(next.error);
       setCustom(next.custom);
       setTokens(next.tokens);
       setOwned(next.owned);

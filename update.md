@@ -16,6 +16,7 @@
 ## Fixes
 
 - Featured profiles on the homepage now show each profile's current avatar.
+- Badge **Sync** now shows the real reason when it fails, instead of a "Server Components render" error.
 
 ---
 
