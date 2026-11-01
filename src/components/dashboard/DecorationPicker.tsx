@@ -86,7 +86,7 @@ export default function DecorationPicker({
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="fixed z-[91] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-[min(650px,calc(100vh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
+            className="fixed z-[91] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-[min(650px,calc(100dvh-32px))] w-[min(900px,calc(100vw-24px))] flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#080808] shadow-[0_24px_80px_rgba(0,0,0,0.75)] cursor-default"
           >
         
         <div className="flex items-center justify-between px-5 pt-4 pb-2">
@@ -102,7 +102,7 @@ export default function DecorationPicker({
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[250px_1fr] gap-5 px-5 py-5">
+        <div className="grid min-h-0 flex-1 grid-cols-1 gap-5 overflow-y-auto px-5 py-5 sm:grid-cols-[250px_1fr] sm:overflow-visible">
           <aside className="flex h-fit self-center flex-col rounded-2xl border border-white/[0.07] bg-[#060606] p-4">
             <p className="text-[14px] font-semibold text-white/90">Preview</p>
             <div className="mt-5 flex items-center justify-center">
@@ -166,7 +166,7 @@ export default function DecorationPicker({
             )}
           </aside>
 
-          <section className="flex min-h-0 flex-col">
+          <section className="flex flex-col sm:min-h-0">
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/45" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -183,7 +183,7 @@ export default function DecorationPicker({
               <p className="w-20 text-right text-[13px] text-white/45">{loading ? "Loading…" : `${filteredItems.length} results`}</p>
             </div>
 
-            <div className="mt-4 grid min-h-0 flex-1 grid-cols-4 grid-rows-2 gap-3 overflow-hidden">
+            <div className="mt-4 grid grid-cols-2 auto-rows-[140px] gap-3 sm:min-h-0 sm:flex-1 sm:grid-cols-4 sm:grid-rows-2 sm:overflow-hidden">
               {visibleItems.map((item: Decoration) => {
                 const isSelected = selectedDecoration?.url === item.url;
                   

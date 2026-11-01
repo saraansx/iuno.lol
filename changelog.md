@@ -14,6 +14,7 @@
 ### Fixes
 
 - Hitting **Sync** on the badges page no longer shows a confusing "Server Components render" error. You now see the real reason, like "You're updating too fast" or "Connect your Discord account first".
+- On phones, the **Avatar Decoration** and **Profile Effect** pickers now fit the screen and scroll, so you can reach every decoration and effect.
 
 ## October 29, 2026
 
