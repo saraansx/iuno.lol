@@ -4,6 +4,7 @@ import Link from "next/link";
 export const FEATURED_USERNAMES = [
   "rio", "rex", "ok", "ma", "coffeeholic", "qq", "xd", "miloj", "uno",
   "sat_halder", "axmyouknow", "kqll", "zenitx", "xylen", "katrixgamerz",
+  "e2f",
 ];
 
 export type FeaturedAvatars = Record<string, string | null>;
