@@ -1,5 +1,11 @@
 # Changelog
 
+## November 3, 2026
+
+### Fixes
+
+- Uploads work again. Banners, avatars, backgrounds, badges and music tracks were failing with "Failed to upload banner" or "audio upload failed". If your upload failed today, just do it again.
+
 ## October 31, 2026
 
 ### New
