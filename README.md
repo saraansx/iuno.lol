@@ -123,4 +123,4 @@ Before opening a pull request:
 
 ## License
 
-`package.json` currently declares the ISC license, but this repository does not include a `LICENSE` file. Add the intended license text before redistributing the project.
+This project is licensed under the ISC license. See [LICENSE](./LICENSE) for the full text.
