@@ -94,16 +94,31 @@ The R2 cleanup script reads `.env` by default. Review its output using the non-d
 ## Project layout
 
 ```text
-src/
-├── app/                 Pages, API routes, and layouts
-├── actions/             Server actions
-├── components/          React components
-└── lib/
-    └── db/
-        └── schema.ts    MySQL schema
-public/                  Static assets
-drizzle.config.ts         Drizzle Kit config
+iuno.lol/
+├── src/
+│   ├── app/
+│   │   ├── [username]/      Public profile pages
+│   │   ├── api/             API routes (auth, widgets, uploads, payments)
+│   │   ├── dashboard/       Signed-in dashboard
+│   │   └── ...              Other pages and route groups
+│   ├── actions/             Server actions
+│   ├── components/
+│   │   ├── dashboard/       Dashboard UI
+│   │   ├── profile/         Profile rendering and customization
+│   │   └── ui/              Shared UI
+│   └── lib/
+│       ├── auth/            Authentication helpers
+│       ├── db/              Database connection and schema
+│       ├── features/        Feature-specific server logic
+│       ├── payments/        Payment providers and fulfillment
+│       └── server/security/ Server-only security utilities
+├── public/                  Static assets
+├── scripts/                 Maintenance scripts
+├── drizzle.config.ts        Drizzle Kit configuration
+└── .env.example             Environment variable template
 ```
+
+Most work starts in `src/app/` for pages and API endpoints, `src/components/` for UI, or `src/lib/` for server-side logic.
 
 ## Production
 
