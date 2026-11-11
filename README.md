@@ -38,7 +38,7 @@ Copy-Item .env.example .env.local
 cp .env.example .env.local
 ```
 
-Set at least the following values in `.env.local`:
+Set at least the following values in `.env`:
 
 | Variable | Description |
 | --- | --- |
@@ -93,15 +93,17 @@ The R2 cleanup script reads `.env` by default. Review its output using the non-d
 
 ## Project layout
 
-| Path | Contents |
-| --- | --- |
-| `src/app/` | Next.js routes, pages, and API route handlers |
-| `src/actions/` | Server actions |
-| `src/components/` | Shared React components |
-| `src/lib/` | Database, authentication, integrations, and application utilities |
-| `src/lib/db/schema.ts` | Drizzle MySQL schema |
-| `public/` | Static assets served by Next.js |
-| `drizzle.config.ts` | Drizzle Kit configuration |
+```text
+src/
+├── app/                 Pages, API routes, and layouts
+├── actions/             Server actions
+├── components/          React components
+└── lib/
+    └── db/
+        └── schema.ts    MySQL schema
+public/                  Static assets
+drizzle.config.ts         Drizzle Kit config
+```
 
 ## Production
 
