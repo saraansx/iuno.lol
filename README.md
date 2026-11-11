@@ -4,7 +4,7 @@
 
 <h1 align="center">iuno.lol</h1>
 
-Source code for [iuno.lol](https://iuno.lol), built with Next.js, React, TypeScript, MySQL, and Drizzle ORM.
+Ima too lazy to maintain this shi [iuno.lol](https://iuno.lol), so here's the code. Have fun.
 
 ## Requirements
 
