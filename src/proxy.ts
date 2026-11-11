@@ -22,7 +22,7 @@ async function customDomain(request: NextRequest, host: string): Promise<NextRes
   const handle = pathname.toLowerCase().match(HANDLE_RE)?.[1]
   if (handle) return (await usesProfileDomain(handle, domain.id)) ? null : NextResponse.redirect(`${MAIN_SITE}${pathname}${search}`)
   if (pathname.startsWith('/api/') || /\.[a-z0-9]+$/i.test(pathname)) return null
-  return NextResponse.redirect(`${MAIN_SITE}${pathname}${search}`)
+  return NextResponse.redirect(`${MAIN_SITE}${pathname}${search}`) 
 }
 
 export default async function middleware(request: NextRequest) {
