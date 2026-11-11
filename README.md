@@ -1,4 +1,8 @@
-# iuno.lol
+<p align="center">
+  <img src="public/Favicon.png" alt="iuno.lol logo" width="160">
+</p>
+
+<h1 align="center">iuno.lol</h1>
 
 Source code for [iuno.lol](https://iuno.lol), built with Next.js, React, TypeScript, MySQL, and Drizzle ORM.
 
