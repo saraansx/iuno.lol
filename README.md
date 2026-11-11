@@ -1,92 +1,126 @@
 # iuno.lol
 
-iuno.lol is a customizable link-in-bio platform. Create a profile page with links, music, live widgets, themes, and visual effects.
+Source code for [iuno.lol](https://iuno.lol), built with Next.js, React, TypeScript, MySQL, and Drizzle ORM.
 
-## Features
+## Requirements
 
-- Customizable profile pages, links, themes, and effects
-- Music players and profile widgets
-- Discord sign-in and account features
-- Custom domains and image hosting
-
-Some features depend on third-party services. See [`.env.example`](./.env.example) for the available configuration.
-
-## Tech stack
-
-- Next.js 16 and React 19
-- TypeScript
-- MySQL with Drizzle ORM
-- Redis and Cloudflare R2 for optional services
-
-## Run locally
-
-### Prerequisites
-
-- Node.js 20.9 or newer
+- Node.js 20.9 or later
 - npm
-- A MySQL database
+- MySQL 8 or a compatible MySQL server
 
-### Setup
+Redis, Cloudflare R2, and the external API credentials listed in [`.env.example`](./.env.example) are only needed when using the parts of the application that depend on those services.
 
-1. Install dependencies:
+## Local development
 
-   ```sh
-   npm ci
-   ```
+### 1. Install dependencies
 
-2. Create your local environment file:
+```sh
+npm ci
+```
 
-   **Windows PowerShell**
+### 2. Configure environment variables
 
-   ```powershell
-   Copy-Item .env.example .env.local
-   ```
+Copy the example file to `.env.local`:
 
-   **macOS / Linux**
+**Windows PowerShell**
 
-   ```sh
-   cp .env.example .env.local
-   ```
+```powershell
+Copy-Item .env.example .env.local
+```
 
-3. Edit `.env.local`. At minimum, set your MySQL connection (`DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, and `DB_NAME`), a local app URL, and a strong `JWT_SECRET_KEY`. Generate a secret with:
+**macOS / Linux**
 
-   ```sh
-   node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
-   ```
+```sh
+cp .env.example .env.local
+```
 
-   Keep `.env.local` private and never commit real credentials. `.env.local` is ignored by Git.
+Set at least the following values in `.env.local`:
 
-4. Apply the Drizzle schema to your **development database**:
+| Variable | Description |
+| --- | --- |
+| `DB_HOST` | MySQL server host |
+| `DB_PORT` | MySQL server port; usually `3306` |
+| `DB_USER` | MySQL user |
+| `DB_PASS` | MySQL password |
+| `DB_NAME` | Database name |
+| `NEXT_PUBLIC_APP_URL` | Base URL of this instance, such as `http://localhost:3000` |
+| `JWT_SECRET_KEY` | Secret used to sign authentication tokens |
 
-   ```sh
-   npx drizzle-kit push
-   ```
+Generate a random value for `JWT_SECRET_KEY`:
 
-   Review schema changes before applying them, and do not use this command against a production database without a migration and backup plan.
+```sh
+node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"
+```
 
-5. Start the development server:
+`TWO_FACTOR_ENCRYPTION_KEY` must also be set before using two-factor authentication. Use a private value of at least 32 characters. Keep all credentials in `.env.local`; never commit real secrets. Local environment files are ignored by Git.
 
-   ```sh
-   npm run dev
-   ```
+The example file documents the other optional integrations. Configure only services you intend to use. Some integrations need additional setup in their provider dashboards; for example, the Discord OAuth redirect URL must match `DISCORD_REDIRECT_URI`.
 
-   Visit [http://localhost:3000](http://localhost:3000).
+### 3. Create or update the database schema
 
-Discord sign-in, email delivery, uploads, payments, and other integrations need their own credentials and provider setup. These are not required just to start the development server, but the corresponding features will not work until configured. Configure Discord's OAuth redirect URL to match `DISCORD_REDIRECT_URI`.
+Create the database in MySQL, then apply the schema defined in `src/lib/db/schema.ts`:
 
-## Available scripts
+```sh
+npx drizzle-kit push
+```
+
+The Drizzle config reads `.env.local` when it exists, otherwise `.env`. This command applies schema changes directly to the configured database. Use a local development database, and review changes and back up data before running it against any database with data you need to keep.
+
+### 4. Start Next.js
+
+```sh
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## Scripts
 
 | Command | Description |
 | --- | --- |
-| `npm run dev` | Start the development server |
+| `npm run dev` | Start the Next.js development server |
 | `npm run build` | Create a production build |
-| `npm run start` | Start the production server |
+| `npm run start` | Serve the production build |
 | `npm run lint` | Run ESLint |
+| `npm run cleanup:r2` | Report orphaned Cloudflare R2 objects without deleting them |
+| `npm run cleanup:r2:delete` | Delete reported orphaned R2 objects |
+
+The R2 cleanup script reads `.env` by default. Review its output using the non-deleting command before running the delete command. Deletion is irreversible.
+
+## Project layout
+
+| Path | Contents |
+| --- | --- |
+| `src/app/` | Next.js routes, pages, and API route handlers |
+| `src/actions/` | Server actions |
+| `src/components/` | Shared React components |
+| `src/lib/` | Database, authentication, integrations, and application utilities |
+| `src/lib/db/schema.ts` | Drizzle MySQL schema |
+| `public/` | Static assets served by Next.js |
+| `drizzle.config.ts` | Drizzle Kit configuration |
+
+## Production
+
+Build and run the application with:
+
+```sh
+npm run build
+npm run start
+```
+
+Provide the required environment variables through your hosting provider's secret manager. Set `NEXT_PUBLIC_APP_URL` to the public HTTPS origin and configure external provider callback URLs to match the deployed instance. Ensure the deployment can reach its MySQL database and any configured Redis or object-storage services.
+
+Do not point a development environment at production data. Back up the database before applying schema changes, and use provider-specific production credentials and webhook URLs.
 
 ## Contributing
 
-Contributions are welcome. Open an issue to discuss a substantial change before submitting a pull request. Please avoid including credentials, personal data, or production configuration in issues and pull requests.
+Before opening a pull request:
+
+1. Keep changes focused and avoid including credentials, private user data, or production configuration.
+2. Run `npm run lint`.
+3. Run `npm run build` when changes affect application code or production configuration.
+4. Describe any required environment or database schema changes.
 
 ## License
 
-The package metadata declares the ISC license.
+`package.json` currently declares the ISC license, but this repository does not include a `LICENSE` file. Add the intended license text before redistributing the project.
